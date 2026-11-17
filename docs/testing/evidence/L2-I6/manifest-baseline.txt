@@ -1,0 +1,1 @@
+OK: 253 normative identifiers, 380 proof rows, 324 L2 obligations, 56 reports, 33 distinct oracles, 783 oracle references, 0 orphan catalog oracles, 0 rows without oracle, 87 subscenario rows, 875 relative links, 64 anchors. Mechanical checks only; semantic adequacy requires contradictory review.

@@ -1,0 +1,10 @@
+{
+  "verdict": "NOT QUALIFIED \u2014 interrupted before completion",
+  "completed_report_counters_only": {
+    "tests": 1296,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "reason": "Review found missing exact K boundary in I2 fixture; strengthened test inputs before a new canonical campaign. No completed-gate PASS claimed."
+}

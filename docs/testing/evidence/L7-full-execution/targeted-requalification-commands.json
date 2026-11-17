@@ -1,0 +1,48 @@
+{
+  "renewal-and-materialize": {
+    "cwd": "app",
+    "argv": [
+      "./mvnw",
+      "--batch-mode",
+      "--no-transfer-progress",
+      "-pl",
+      "runtime-worker-process,runtime-worker-materialize,runtime-monolith,architecture-tests",
+      "-am",
+      "-Dtest=com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest#i5_r05_discovery_skip_locked_interleaving,com.kartaguez.pocoma.runtime.task.v3.InterAuthorityPreparationPostgresTest,com.kartaguez.pocoma.runtime.task.v3.InterAuthorityRecoveryPostgresTest,com.kartaguez.pocoma.runtime.task.v3.ReadActivationSettingsTest,com.kartaguez.pocoma.runtime.task.v3.ReadFacadesPostgresTest,com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest,com.kartaguez.pocoma.runtime.task.v3.ReadRuntimeAssemblyPostgresTest,com.kartaguez.pocoma.runtime.task.v3.SubobjectAtomicityPostgresTest,com.kartaguez.pocoma.runtime.task.v3.SubobjectMigrationPostgresTest,com.kartaguez.pocoma.runtime.task.v3.SubobjectStorePostgresTest,com.kartaguez.pocoma.runtime.task.v3.V3ReadQuotaPostgresTest,com.kartaguez.pocoma.runtime.task.v3.V3ReadReconstructionPostgresTest,com.kartaguez.pocoma.ConsumptionPilotIsolationTest,com.kartaguez.pocoma.ReadRootsCoexistencePostgresTest,com.kartaguez.pocoma.ReadWorkerResourcesPostgresTest,com.kartaguez.pocoma.V3AdmissionFlowPostgresTest,com.kartaguez.pocoma.V3IdentityRequestMonolithPostgresTest,com.kartaguez.pocoma.V3InvitationHttpTest,com.kartaguez.pocoma.V3InvitationReadPostgresTest,com.kartaguez.pocoma.V3InvitationTopologyPostgresTest,com.kartaguez.pocoma.V3LinkBrunoPostgresTest,com.kartaguez.pocoma.V3MonolithHttpCompositionPostgresTest,com.kartaguez.pocoma.V3WorkerMonolithPostgresTest,com.kartaguez.pocoma.architecture.HexagonalArchitectureTest,com.kartaguez.pocoma.architecture.l7.L7DeploymentArchitectureTest,com.kartaguez.pocoma.architecture.l7.L7ReactorArchitectureTest,com.kartaguez.pocoma.architecture.v3.V3AdmissionArchitectureTest,com.kartaguez.pocoma.architecture.v3.V3ConsumptionEngineArchitectureTest,com.kartaguez.pocoma.architecture.v3.V3ConsumptionFoundationArchitectureTest,com.kartaguez.pocoma.architecture.v3.V3FoundationArchitectureTest,com.kartaguez.pocoma.architecture.v3.V3IdentityAuthorityArchitectureTest,com.kartaguez.pocoma.architecture.v3.V3PotExecutionArchitectureTest,com.kartaguez.pocoma.runtime.command.v3.dev.V3WorkerDevelopmentToolsTest",
+      "-Dsurefire.failIfNoSpecifiedTests=false",
+      "-Dpocoma.verification.id=l7-renewal-final-downstream",
+      "-Dpocoma.verification.reports=/private/tmp/pocoma-l7-renewal-final-downstream-reports",
+      "test"
+    ]
+  },
+  "reconstruction-monolith-and-original-architecture": {
+    "cwd": "app",
+    "argv": [
+      "./mvnw",
+      "--batch-mode",
+      "--no-transfer-progress",
+      "-pl",
+      "runtime-worker-materialize,runtime-monolith,architecture-tests",
+      "-am",
+      "-Dtest=com.kartaguez.pocoma.runtime.task.v3.V3ReadReconstructionPostgresTest#rcv01D_rebuildReplaysFromFiveWriteFamiliesToConvergence,com.kartaguez.pocoma.ConsumptionPilotIsolationTest,com.kartaguez.pocoma.ReadRootsCoexistencePostgresTest,com.kartaguez.pocoma.ReadWorkerResourcesPostgresTest,com.kartaguez.pocoma.V3AdmissionFlowPostgresTest,com.kartaguez.pocoma.V3IdentityRequestMonolithPostgresTest,com.kartaguez.pocoma.V3InvitationHttpTest,com.kartaguez.pocoma.V3InvitationReadPostgresTest,com.kartaguez.pocoma.V3InvitationTopologyPostgresTest,com.kartaguez.pocoma.V3LinkBrunoPostgresTest,com.kartaguez.pocoma.V3MonolithHttpCompositionPostgresTest,com.kartaguez.pocoma.V3WorkerMonolithPostgresTest,com.kartaguez.pocoma.architecture.HexagonalArchitectureTest,com.kartaguez.pocoma.architecture.l7.L7DeploymentArchitectureTest,com.kartaguez.pocoma.architecture.l7.L7ReactorArchitectureTest,com.kartaguez.pocoma.architecture.v3.V3AdmissionArchitectureTest,com.kartaguez.pocoma.architecture.v3.V3ConsumptionEngineArchitectureTest,com.kartaguez.pocoma.architecture.v3.V3ConsumptionFoundationArchitectureTest,com.kartaguez.pocoma.architecture.v3.V3FoundationArchitectureTest,com.kartaguez.pocoma.architecture.v3.V3IdentityAuthorityArchitectureTest,com.kartaguez.pocoma.architecture.v3.V3PotExecutionArchitectureTest,com.kartaguez.pocoma.runtime.command.v3.dev.V3WorkerDevelopmentToolsTest",
+      "-Dsurefire.failIfNoSpecifiedTests=false",
+      "-Dpocoma.verification.id=l7-reconstruction-downstream",
+      "-Dpocoma.verification.reports=/private/tmp/pocoma-l7-reconstruction-downstream-reports",
+      "test"
+    ]
+  },
+  "requalified-architecture-final": {
+    "cwd": "app",
+    "argv": [
+      "./mvnw",
+      "--batch-mode",
+      "--no-transfer-progress",
+      "-pl",
+      "architecture-tests",
+      "-am",
+      "test",
+      "-Dtest=HexagonalArchitectureTest,L7*ArchitectureTest,V3*ArchitectureTest,V3WorkerDevelopmentToolsTest",
+      "-Dsurefire.failIfNoSpecifiedTests=false"
+    ]
+  }
+}

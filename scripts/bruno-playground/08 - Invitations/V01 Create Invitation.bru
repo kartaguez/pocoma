@@ -1,0 +1,56 @@
+meta {
+  name: V01 Create Invitation
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{writeUrl}}/api/v3/commands
+  body: json
+  auth: none
+}
+
+headers {
+  Connection: close
+  Content-Type: application/json
+  Idempotency-Key: {{idempotencyKey}}
+}
+
+body:json {
+  {
+    "operation": "CreateInvitation",
+    "potId": "{{potId}}",
+    "observedVersion": 0,
+    "bindingToken": "{{bindingActor}}",
+    "payload": {
+      "expiresAt": "{{invitationExpiresAt}}"
+    }
+  }
+}
+
+settings {
+  timeout: 5000
+}
+
+script:pre-request {
+  const options = {"id":"V01","role":"actor","newExpiry":true,"requires":["potId","potVersion"],"operation":"CreateInvitation","kind":"commandAdmission"};
+  await require('./lib/workspace.js').prepare(bru, req, options);
+}
+
+tests {
+  const options = {"id":"V01","role":"actor","newExpiry":true,"requires":["potId","potVersion"],"operation":"CreateInvitation","kind":"commandAdmission"};
+  const work = require('./lib/workspace.js');
+  test('V01 transport and privacy', () => work.transport(bru, res, expect, options));
+  test('V01 contract and variables', () => {
+    work.verify(bru, req, res, expect, options);
+    work.record(bru, req, res, options);
+  });
+}
+
+docs {
+  CreateInvitation : 202 avec requestId seulement. Ouvrir R01 Command Result pour connaitre le resultat metier et actualiser potVersion. Createur uniquement ; observation 0, expiration UTC future. Le lien est lu separement par V02.
+  Identite : actor. Prerequis : potId, potVersion.
+  Chaque Send appelle la methode et le corps visibles. Les GET asynchrones attendent
+  le meme endpoint au plus 30 s avant l appel affiche ; aucun POST cache.
+  Modifier le JSON librement ; une nouvelle intention recoit une nouvelle cle.
+}

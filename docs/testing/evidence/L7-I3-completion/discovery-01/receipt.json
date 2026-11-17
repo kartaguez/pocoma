@@ -1,0 +1,40 @@
+{
+  "verdict": "PASS",
+  "scope": "Targeted COMMAND, not canonical slice/full",
+  "sha": "e1ecb533bc66dd54bfd475e166a8e7f9f5255bb7",
+  "worktree": "clean",
+  "counts": {
+    "tests": 3,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "startedAt": "2026-11-12T19:50:12Z",
+  "finishedAt": "2026-11-12T19:50:22Z",
+  "command": [
+    "./mvnw",
+    "--batch-mode",
+    "--no-transfer-progress",
+    "-pl",
+    "runtime-worker-process",
+    "-am",
+    "-Dtest=IdentityDiscoveryPostgresTest#l73_discoveryPreservesClaimsRetriesAndQuarantine+l3_burnable_discovery+l3_discovery_source_slot_race",
+    "-Dsurefire.failIfNoSpecifiedTests=false",
+    "-Dpocoma.verification.id=l7-i3-completion-discovery-01",
+    "-Dpocoma.verification.reports=/Users/julien.guezennec/Dev/projects/pocoma/certification-raw/l7-i3-completion-discovery-01/reports",
+    "test"
+  ],
+  "environment": {
+    "PostgreSQL": "17.11 Testcontainers, ephemeral schema",
+    "TESTCONTAINERS_HOST_OVERRIDE": "127.0.0.1",
+    "JDK": "openjdk version \"21\" 2023-09-19 LTS\nOpenJDK Runtime Environment Temurin-21+35 (build 21+35-LTS)\nOpenJDK 64-Bit Server VM Temurin-21+35 (build 21+35-LTS, mixed mode)"
+  },
+  "artifacts": {
+    "TEST-com.kartaguez.pocoma.infra.postgres.write.v3.identity.IdentityDiscoveryPostgresTest.xml.gz": "76dcddcf048919546b6d2d90a17925002069ded47d6b9d1914272a27fd62dbe8",
+    "IdentityDiscoveryPostgresTest-l73_discoveryPreservesClaimsRetriesAndQuarantine.txt": "48958ea12e4a636a083a31ddbe695ffe79dd6dd045cbaea7d8162366b1264445",
+    "maven.log.gz": "426c7ec47a1274940e92efd8d5cabe0e2a05b6d7ec089f6356001e0f80a61a01",
+    "jdk": "837039d8b38e26aaaa7f4531172e67a38b399350ef8e579c61a88e1681e66bab"
+  },
+  "wallSeconds": 10.0,
+  "mavenTime": "8.344 s"
+}

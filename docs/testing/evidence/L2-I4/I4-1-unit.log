@@ -1,0 +1,160 @@
+[INFO] Scanning for projects...
+[WARNING] 
+[WARNING] Some problems were encountered while building the effective model for com.kartaguez.pocoma:pocoma-architecture-tests:jar:0.0.1-SNAPSHOT
+[WARNING] 'dependencies.dependency.(groupId:artifactId:type:classifier)' must be unique: com.kartaguez.pocoma:pocoma-runtime-task-consumption-worker:jar -> duplicate declaration of version ${project.version} @ line 117, column 15
+[WARNING] 
+[WARNING] It is highly recommended to fix these problems because they threaten the stability of your build.
+[WARNING] 
+[WARNING] For this reason, future Maven versions might no longer support building such malformed projects.
+[WARNING] 
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Build Order:
+[INFO] 
+[INFO] pocoma                                                             [pom]
+[INFO] pocoma-domain-consumption                                          [jar]
+[INFO] pocoma-port-transaction                                            [jar]
+[INFO] pocoma-engine-consumption                                          [jar]
+[INFO] 
+[INFO] --------------------< com.kartaguez.pocoma:pocoma >---------------------
+[INFO] Building pocoma 0.0.1-SNAPSHOT                                     [1/4]
+[INFO]   from pom.xml
+[INFO] --------------------------------[ pom ]---------------------------------
+[INFO] 
+[INFO] -----------< com.kartaguez.pocoma:pocoma-domain-consumption >-----------
+[INFO] Building pocoma-domain-consumption 0.0.1-SNAPSHOT                  [2/4]
+[INFO]   from domain-consumption/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ pocoma-domain-consumption ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-v3-postaud/app/domain-consumption/src/main/resources
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-v3-postaud/app/domain-consumption/src/main/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ pocoma-domain-consumption ---
+[INFO] Recompiling the module because of changed source code.
+[INFO] Compiling 27 source files with javac [debug parameters release 21] to target/classes
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ pocoma-domain-consumption ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-v3-postaud/app/domain-consumption/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ pocoma-domain-consumption ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 12 source files with javac [debug parameters release 21] to target/test-classes
+[INFO] 
+[INFO] --- surefire:3.5.5:test (default-test) @ pocoma-domain-consumption ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.kartaguez.pocoma.domain.consumption.segmentation.PartitionHashTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.022 s -- in com.kartaguez.pocoma.domain.consumption.segmentation.PartitionHashTest
+[INFO] Running com.kartaguez.pocoma.domain.consumption.segmentation.WorkerSegmentTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.004 s -- in com.kartaguez.pocoma.domain.consumption.segmentation.WorkerSegmentTest
+[INFO] Running com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailureTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.006 s -- in com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailureTest
+[INFO] Running com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailureCodeTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.002 s -- in com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailureCodeTest
+[INFO] Running com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalReasonTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.002 s -- in com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalReasonTest
+[INFO] Running com.kartaguez.pocoma.domain.consumption.key.ConsumptionKeyTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.003 s -- in com.kartaguez.pocoma.domain.consumption.key.ConsumptionKeyTest
+[INFO] Running com.kartaguez.pocoma.domain.consumption.provenance.ConsumptionProvenanceTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.003 s -- in com.kartaguez.pocoma.domain.consumption.provenance.ConsumptionProvenanceTest
+[INFO] Running com.kartaguez.pocoma.domain.consumption.v3.RoutingV1Test
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.017 s -- in com.kartaguez.pocoma.domain.consumption.v3.RoutingV1Test
+[INFO] Running com.kartaguez.pocoma.domain.consumption.claim.ClaimTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.003 s -- in com.kartaguez.pocoma.domain.consumption.claim.ClaimTest
+[INFO] Running com.kartaguez.pocoma.domain.consumption.claim.ClaimLeaseTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s -- in com.kartaguez.pocoma.domain.consumption.claim.ClaimLeaseTest
+[INFO] Running com.kartaguez.pocoma.domain.consumption.claim.WorkerIdTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s -- in com.kartaguez.pocoma.domain.consumption.claim.WorkerIdTest
+[INFO] Running com.kartaguez.pocoma.domain.consumption.claim.ConsumptionSlotTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.004 s -- in com.kartaguez.pocoma.domain.consumption.claim.ConsumptionSlotTest
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 32, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] 
+[INFO] ------------< com.kartaguez.pocoma:pocoma-port-transaction >------------
+[INFO] Building pocoma-port-transaction 0.0.1-SNAPSHOT                    [3/4]
+[INFO]   from port-transaction/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ pocoma-port-transaction ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-v3-postaud/app/port-transaction/src/main/resources
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-v3-postaud/app/port-transaction/src/main/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ pocoma-port-transaction ---
+[INFO] Recompiling the module because of changed source code.
+[INFO] Compiling 7 source files with javac [debug parameters release 21] to target/classes
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ pocoma-port-transaction ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-v3-postaud/app/port-transaction/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ pocoma-port-transaction ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- surefire:3.5.5:test (default-test) @ pocoma-port-transaction ---
+[INFO] No tests to run.
+[INFO] 
+[INFO] -----------< com.kartaguez.pocoma:pocoma-engine-consumption >-----------
+[INFO] Building pocoma-engine-consumption 0.0.1-SNAPSHOT                  [4/4]
+[INFO]   from engine-consumption/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ pocoma-engine-consumption ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-v3-postaud/app/engine-consumption/src/main/resources
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-v3-postaud/app/engine-consumption/src/main/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ pocoma-engine-consumption ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 53 source files with javac [debug parameters release 21] to target/classes
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ pocoma-engine-consumption ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-v3-postaud/app/engine-consumption/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ pocoma-engine-consumption ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 7 source files with javac [debug parameters release 21] to target/test-classes
+[INFO] /private/tmp/pocoma-v3-postaud/app/engine-consumption/src/test/java/com/kartaguez/pocoma/engine/consumption/v3/ConsumptionFailureClassificationTest.java: /private/tmp/pocoma-v3-postaud/app/engine-consumption/src/test/java/com/kartaguez/pocoma/engine/consumption/v3/ConsumptionFailureClassificationTest.java uses unchecked or unsafe operations.
+[INFO] /private/tmp/pocoma-v3-postaud/app/engine-consumption/src/test/java/com/kartaguez/pocoma/engine/consumption/v3/ConsumptionFailureClassificationTest.java: Recompile with -Xlint:unchecked for details.
+[INFO] 
+[INFO] --- surefire:3.5.5:test (default-test) @ pocoma-engine-consumption ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.kartaguez.pocoma.engine.consumption.v3.WorkerCapacityTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.026 s -- in com.kartaguez.pocoma.engine.consumption.v3.WorkerCapacityTest
+[INFO] Running com.kartaguez.pocoma.engine.consumption.v3.ConsumptionFailureClassificationTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.009 s -- in com.kartaguez.pocoma.engine.consumption.v3.ConsumptionFailureClassificationTest
+[INFO] Running com.kartaguez.pocoma.engine.service.transaction.consumption.TransactionalConsumptionUseCaseTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.002 s -- in com.kartaguez.pocoma.engine.service.transaction.consumption.TransactionalConsumptionUseCaseTest
+[INFO] Running com.kartaguez.pocoma.engine.service.consumption.AcquireConsumptionPreconditionTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.018 s -- in com.kartaguez.pocoma.engine.service.consumption.AcquireConsumptionPreconditionTest
+[INFO] Running com.kartaguez.pocoma.engine.service.consumption.ExecuteConsumptionServiceTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.006 s -- in com.kartaguez.pocoma.engine.service.consumption.ExecuteConsumptionServiceTest
+[INFO] Running com.kartaguez.pocoma.engine.service.consumption.DefaultConsumptionFailurePolicyTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s -- in com.kartaguez.pocoma.engine.service.consumption.DefaultConsumptionFailurePolicyTest
+[INFO] Running com.kartaguez.pocoma.engine.service.consumption.FinalizeConsumptionServiceTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.003 s -- in com.kartaguez.pocoma.engine.service.consumption.FinalizeConsumptionServiceTest
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 21, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Summary for pocoma 0.0.1-SNAPSHOT:
+[INFO] 
+[INFO] pocoma ............................................. SUCCESS [  0.009 s]
+[INFO] pocoma-domain-consumption .......................... SUCCESS [  1.078 s]
+[INFO] pocoma-port-transaction ............................ SUCCESS [  0.042 s]
+[INFO] pocoma-engine-consumption .......................... SUCCESS [  0.622 s]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  1.985 s
+[INFO] Finished at: 2026-10-28T11:00:56+01:00
+[INFO] ------------------------------------------------------------------------

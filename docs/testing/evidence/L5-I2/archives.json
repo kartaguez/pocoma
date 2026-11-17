@@ -1,0 +1,308 @@
+[
+  {
+    "run": "pocoma-l5-i2-a1-01",
+    "path": "docs/testing/evidence/L5-I2/archives/pocoma-l5-i2-a1-01.tar.xz",
+    "sha256": "0606367dce6f3c52939c9018d1bef4eb92dced13fb4e3f8f5044002b3e4d366c",
+    "bytes": 386644,
+    "files": 14,
+    "redactions": 0,
+    "publication": "Producer logs/XML and all envelopes retained; redacted secrets only; original and published hashes mapped; counts/verdicts/commands never rewritten"
+  },
+  {
+    "run": "pocoma-l5-i2-a1-02",
+    "path": "docs/testing/evidence/L5-I2/archives/pocoma-l5-i2-a1-02.tar.xz",
+    "sha256": "dcd705a56c824a9bc4cf38f8304f084d97e49bf6ff6f7c21e49a306e67c65c6c",
+    "bytes": 399620,
+    "files": 10,
+    "redactions": 0,
+    "publication": "Producer logs/XML and all envelopes retained; redacted secrets only; original and published hashes mapped; counts/verdicts/commands never rewritten"
+  },
+  {
+    "run": "pocoma-l5-i2-a1-isolated-01",
+    "path": "docs/testing/evidence/L5-I2/archives/pocoma-l5-i2-a1-isolated-01.tar.xz",
+    "sha256": "b9e62f831a6b0095f7d6d693e144ad7ad767f0da1e9beed7e11f12273369acaf",
+    "bytes": 4072,
+    "files": 4,
+    "redactions": 0,
+    "publication": "Producer logs/XML and all envelopes retained; redacted secrets only; original and published hashes mapped; counts/verdicts/commands never rewritten"
+  },
+  {
+    "run": "pocoma-l5-i2-a1-isolated-02",
+    "path": "docs/testing/evidence/L5-I2/archives/pocoma-l5-i2-a1-isolated-02.tar.xz",
+    "sha256": "7e493a5c30f73ec3f78b147c0407c169d3797eba2ae06646b851a7407c7f360a",
+    "bytes": 403364,
+    "files": 22,
+    "redactions": 0,
+    "publication": "Producer logs/XML and all envelopes retained; redacted secrets only; original and published hashes mapped; counts/verdicts/commands never rewritten"
+  },
+  {
+    "run": "pocoma-l5-i2-d4-01",
+    "path": "docs/testing/evidence/L5-I2/archives/pocoma-l5-i2-d4-01.tar.xz",
+    "sha256": "07e8eb8bba1f4beedccc22de7bbac6ffd397b9694d22320cd315a6750ed2d562",
+    "bytes": 370016,
+    "files": 13,
+    "redactions": 0,
+    "publication": "Producer logs/XML and all envelopes retained; redacted secrets only; original and published hashes mapped; counts/verdicts/commands never rewritten"
+  },
+  {
+    "run": "pocoma-l5-i2-d4-02",
+    "path": "docs/testing/evidence/L5-I2/archives/pocoma-l5-i2-d4-02.tar.xz",
+    "sha256": "f44b27f3bfeff74ebfa4cbc043d3f252a63fabaccbdde3a111294eb381d5fe88",
+    "bytes": 379176,
+    "files": 13,
+    "redactions": 0,
+    "publication": "Producer logs/XML and all envelopes retained; redacted secrets only; original and published hashes mapped; counts/verdicts/commands never rewritten"
+  },
+  {
+    "run": "pocoma-l5-i2-d4-isolated-01",
+    "path": "docs/testing/evidence/L5-I2/archives/pocoma-l5-i2-d4-isolated-01.tar.xz",
+    "sha256": "fd2fc5c1609a0fb311f98dfdd2de8f29c3c24b2c7041329aea7a28558789473a",
+    "bytes": 380536,
+    "files": 13,
+    "redactions": 0,
+    "publication": "Producer logs/XML and all envelopes retained; redacted secrets only; original and published hashes mapped; counts/verdicts/commands never rewritten"
+  },
+  {
+    "run": "pocoma-l5-i2-sql-01",
+    "path": "docs/testing/evidence/L5-I2/archives/pocoma-l5-i2-sql-01.tar.xz",
+    "sha256": "602c55886b0cfe04b113f94981f3c70889ecf06f02c1c7ab5ab27f471643dc62",
+    "bytes": 867672,
+    "files": 14,
+    "redactions": 0,
+    "publication": "Producer logs/XML and all envelopes retained; redacted secrets only; original and published hashes mapped; counts/verdicts/commands never rewritten"
+  },
+  {
+    "run": "pocoma-l5-i2-sql-02",
+    "path": "docs/testing/evidence/L5-I2/archives/pocoma-l5-i2-sql-02.tar.xz",
+    "sha256": "ef3bc45b489594141e941290db69298239a6f6d8c01b1df1205696e03a04ebd8",
+    "bytes": 865804,
+    "files": 19,
+    "redactions": 0,
+    "publication": "Producer logs/XML and all envelopes retained; redacted secrets only; original and published hashes mapped; counts/verdicts/commands never rewritten"
+  },
+  {
+    "run": "pocoma-l5-i2-http-01",
+    "path": "docs/testing/evidence/L5-I2/archives/pocoma-l5-i2-http-01.tar.xz",
+    "sha256": "4e12706cfa0e080b7ba9fe6855db59d061e7f0f130d6e87e1f28f6fcd23cfb5f",
+    "bytes": 899144,
+    "files": 14,
+    "redactions": 0,
+    "publication": "Producer logs/XML and all envelopes retained; redacted secrets only; original and published hashes mapped; counts/verdicts/commands never rewritten"
+  },
+  {
+    "run": "pocoma-l5-i2-http-02",
+    "path": "docs/testing/evidence/L5-I2/archives/pocoma-l5-i2-http-02.tar.xz",
+    "sha256": "b66780c6f75585c0784de2182cf0006f5e46f7f4d2edd8dd4200fbba1edfe053",
+    "bytes": 878356,
+    "files": 22,
+    "redactions": 0,
+    "publication": "Producer logs/XML and all envelopes retained; redacted secrets only; original and published hashes mapped; counts/verdicts/commands never rewritten"
+  },
+  {
+    "run": "pocoma-l5-i2-t2-01",
+    "path": "docs/testing/evidence/L5-I2/archives/pocoma-l5-i2-t2-01.tar.xz",
+    "sha256": "d308b42f59bed7a983653796c03d0cf751b58bd693eb3fe64c99b1ebe71c1501",
+    "bytes": 884336,
+    "files": 22,
+    "redactions": 0,
+    "publication": "Producer logs/XML and all envelopes retained; redacted secrets only; original and published hashes mapped; counts/verdicts/commands never rewritten"
+  },
+  {
+    "run": "pocoma-l5-i2-t2-02",
+    "path": "docs/testing/evidence/L5-I2/archives/pocoma-l5-i2-t2-02.tar.xz",
+    "sha256": "392e63e5ed3e19f2f06d8bfa3999f044e2692b402eb59c271b05da04274b7d8a",
+    "bytes": 969432,
+    "files": 51,
+    "redactions": 0,
+    "publication": "Producer logs/XML and all envelopes retained; redacted secrets only; original and published hashes mapped; counts/verdicts/commands never rewritten"
+  },
+  {
+    "run": "pocoma-l5-i2-http-fix-01",
+    "path": "docs/testing/evidence/L5-I2/archives/pocoma-l5-i2-http-fix-01.tar.xz",
+    "sha256": "b75e9c8808a887939e102834b092430850c68d60d203c13a6fb72346d69017fe",
+    "bytes": 853836,
+    "files": 16,
+    "redactions": 0,
+    "publication": "Producer logs/XML and all envelopes retained; redacted secrets only; original and published hashes mapped; counts/verdicts/commands never rewritten"
+  },
+  {
+    "run": "pocoma-l5-i2-d4-final",
+    "path": "docs/testing/evidence/L5-I2/archives/pocoma-l5-i2-d4-final.tar.xz",
+    "sha256": "c82bb5b25640d330b7ecacec8a9afa81d62c3873e83e9eb3356a3edc11c12c6e",
+    "bytes": 381868,
+    "files": 13,
+    "redactions": 0,
+    "publication": "Producer logs/XML and all envelopes retained; redacted secrets only; original and published hashes mapped; counts/verdicts/commands never rewritten"
+  },
+  {
+    "run": "pocoma-l5-i2-acl-final",
+    "path": "docs/testing/evidence/L5-I2/archives/pocoma-l5-i2-acl-final.tar.xz",
+    "sha256": "f2adaca37ae59817e36cdaa0367b6a56833c27ceb62ad9bea1810961b9bc0a51",
+    "bytes": 635332,
+    "files": 12,
+    "redactions": 0,
+    "publication": "Producer logs/XML and all envelopes retained; redacted secrets only; original and published hashes mapped; counts/verdicts/commands never rewritten"
+  },
+  {
+    "run": "pocoma-l5-i2-c-01",
+    "path": "docs/testing/evidence/L5-I2/archives/pocoma-l5-i2-c-01.tar.xz",
+    "sha256": "6bc7d1450777a26c49c67c209d6080ca5f0a867bf945583519bab9a76a6c2600",
+    "bytes": 370524,
+    "files": 437,
+    "redactions": 0,
+    "publication": "Producer logs/XML and all envelopes retained; redacted secrets only; original and published hashes mapped; counts/verdicts/commands never rewritten"
+  },
+  {
+    "run": "pocoma-l5-i2-legacy-profile-fix",
+    "path": "docs/testing/evidence/L5-I2/archives/pocoma-l5-i2-legacy-profile-fix.tar.xz",
+    "sha256": "a3c9ec96a2cfb342ed847842b1b28462124ef10ee794b31a00bbe388fc734596",
+    "bytes": 876088,
+    "files": 14,
+    "redactions": 0,
+    "publication": "Producer logs/XML and all envelopes retained; redacted secrets only; original and published hashes mapped; counts/verdicts/commands never rewritten"
+  },
+  {
+    "run": "pocoma-l5-i2-c-equivalence-01",
+    "path": "docs/testing/evidence/L5-I2/archives/pocoma-l5-i2-c-equivalence-01.tar.xz",
+    "sha256": "50d4cb93336f052894e52a1fd3f70047c3e53a8139bd741c10bfa5f3daaa3831",
+    "bytes": 370932,
+    "files": 21,
+    "redactions": 0,
+    "publication": "Producer logs/XML and all envelopes retained; redacted secrets only; original and published hashes mapped; counts/verdicts/commands never rewritten"
+  },
+  {
+    "run": "pocoma-l5-i2-c-equivalence-02",
+    "path": "docs/testing/evidence/L5-I2/archives/pocoma-l5-i2-c-equivalence-02.tar.xz",
+    "sha256": "9c62195d81835baa7e89875eb6483de7bd98e803fc359cb144afedc72ecb3223",
+    "bytes": 371012,
+    "files": 21,
+    "redactions": 0,
+    "publication": "Producer logs/XML and all envelopes retained; redacted secrets only; original and published hashes mapped; counts/verdicts/commands never rewritten"
+  },
+  {
+    "run": "pocoma-l5-i2-c-02",
+    "path": "docs/testing/evidence/L5-I2/archives/pocoma-l5-i2-c-02.tar.xz",
+    "sha256": "123e2859e10acef6cbff7d0bd514d7fe5f1d35cbe0daf1b6d364fc81bd931261",
+    "bytes": 34765044,
+    "files": 705,
+    "redactions": 1263,
+    "publication": "Producer logs/XML and all envelopes retained; redacted secrets only; original and published hashes mapped; counts/verdicts/commands never rewritten"
+  },
+  {
+    "run": "pocoma-l5-i2-await-diagnosis",
+    "path": "docs/testing/evidence/L5-I2/archives/pocoma-l5-i2-await-diagnosis.tar.xz",
+    "sha256": "426239fa104e05641454ceb515b4c14aaf4f74b2ab7f344bb866316ac26dec1e",
+    "bytes": 28832,
+    "files": 10,
+    "redactions": 0,
+    "publication": "Producer logs/XML and all envelopes retained; redacted secrets only; original and published hashes mapped; counts/verdicts/commands never rewritten"
+  },
+  {
+    "run": "pocoma-l5-i2-worker-await",
+    "path": "docs/testing/evidence/L5-I2/archives/pocoma-l5-i2-worker-await.tar.xz",
+    "sha256": "82aed8987fbbfb6c6c34afef7b38e2a6fa3303e3caede91fa5b2b910e3701fe5",
+    "bytes": 844520,
+    "files": 12,
+    "redactions": 0,
+    "publication": "Producer logs/XML and all envelopes retained; redacted secrets only; original and published hashes mapped; counts/verdicts/commands never rewritten"
+  },
+  {
+    "run": "pocoma-l5-i2-worker-w17",
+    "path": "docs/testing/evidence/L5-I2/archives/pocoma-l5-i2-worker-w17.tar.xz",
+    "sha256": "637135a3b45cb528d0f812d7cfc0f8e3b05a01192bbad83482c44f2a6bfc4ebb",
+    "bytes": 870648,
+    "files": 12,
+    "redactions": 0,
+    "publication": "Producer logs/XML and all envelopes retained; redacted secrets only; original and published hashes mapped; counts/verdicts/commands never rewritten"
+  },
+  {
+    "run": "pocoma-l5-i2-flow-receipts",
+    "path": "docs/testing/evidence/L5-I2/archives/pocoma-l5-i2-flow-receipts.tar.xz",
+    "sha256": "f2334c8f0574e34eae261d63bf8d2fe9cfaebc83ebe9b3cc518f01b18d3b6b87",
+    "bytes": 852612,
+    "files": 23,
+    "redactions": 0,
+    "publication": "Producer logs/XML and all envelopes retained; redacted secrets only; original and published hashes mapped; counts/verdicts/commands never rewritten"
+  },
+  {
+    "run": "pocoma-l5-i2-c-equivalence-03",
+    "path": "docs/testing/evidence/L5-I2/archives/pocoma-l5-i2-c-equivalence-03.tar.xz",
+    "sha256": "ec3865820fcfab6bd8e9c1805783943d18debf290a3fcbc695da683ccf4a1ae5",
+    "bytes": 371176,
+    "files": 21,
+    "redactions": 0,
+    "publication": "Producer logs/XML and all envelopes retained; redacted secrets only; original and published hashes mapped; counts/verdicts/commands never rewritten"
+  },
+  {
+    "run": "pocoma-l5-i2-c-03",
+    "path": "docs/testing/evidence/L5-I2/archives/pocoma-l5-i2-c-03.tar.xz",
+    "sha256": "6af7b6bb6d23e784ca16e2c6a2b59d03cc6387e5987a811d0ee0ff734d15ec3b",
+    "bytes": 762980,
+    "files": 583,
+    "redactions": 0,
+    "publication": "Producer logs/XML and all envelopes retained; redacted secrets only; original and published hashes mapped; counts/verdicts/commands never rewritten"
+  },
+  {
+    "run": "pocoma-l5-i2-unicode-diagnosis",
+    "path": "docs/testing/evidence/L5-I2/archives/pocoma-l5-i2-unicode-diagnosis.tar.xz",
+    "sha256": "e3dd2028cc68009338726f58fe64f0e83c64b2da45c06e4f3bd230a69b47a179",
+    "bytes": 10472,
+    "files": 14,
+    "redactions": 0,
+    "publication": "Producer logs/XML and all envelopes retained; redacted secrets only; original and published hashes mapped; counts/verdicts/commands never rewritten"
+  },
+  {
+    "run": "pocoma-l5-i2-unicode-fast",
+    "path": "docs/testing/evidence/L5-I2/archives/pocoma-l5-i2-unicode-fast.tar.xz",
+    "sha256": "a3d2417d74b70ed73adfbca70528d33c4ae9179047af8912082ab7d48c844bda",
+    "bytes": 336144,
+    "files": 12,
+    "redactions": 0,
+    "publication": "Producer logs/XML and all envelopes retained; redacted secrets only; original and published hashes mapped; counts/verdicts/commands never rewritten"
+  },
+  {
+    "run": "pocoma-l5-i2-unicode-http",
+    "path": "docs/testing/evidence/L5-I2/archives/pocoma-l5-i2-unicode-http.tar.xz",
+    "sha256": "8ff070313fa372bfd847734358440eb253bd1f8557ec65fe3d19c0649778ed33",
+    "bytes": 823416,
+    "files": 12,
+    "redactions": 0,
+    "publication": "Producer logs/XML and all envelopes retained; redacted secrets only; original and published hashes mapped; counts/verdicts/commands never rewritten"
+  },
+  {
+    "run": "pocoma-l5-i2-d4-final-02",
+    "path": "docs/testing/evidence/L5-I2/archives/pocoma-l5-i2-d4-final-02.tar.xz",
+    "sha256": "af7455c8f127bede97e88c5b8a2fc563b0f3d786fc220765b3452ee93839c4ec",
+    "bytes": 380292,
+    "files": 13,
+    "redactions": 0,
+    "publication": "Producer logs/XML and all envelopes retained; redacted secrets only; original and published hashes mapped; counts/verdicts/commands never rewritten"
+  },
+  {
+    "run": "pocoma-l5-i2-c-equivalence-04",
+    "path": "docs/testing/evidence/L5-I2/archives/pocoma-l5-i2-c-equivalence-04.tar.xz",
+    "sha256": "5d269777ce5b3ce80a9da6cddc45282c0cc71427d742de56a55e30e6d4834820",
+    "bytes": 371192,
+    "files": 21,
+    "redactions": 0,
+    "publication": "Producer logs/XML and all envelopes retained; redacted secrets only; original and published hashes mapped; counts/verdicts/commands never rewritten"
+  },
+  {
+    "run": "pocoma-l5-i2-c-04",
+    "path": "docs/testing/evidence/L5-I2/archives/pocoma-l5-i2-c-04.tar.xz",
+    "sha256": "8f0dbca15d33e8c6c91ebf6fb738ea45a5f21fd16a033a9d2d6b348ff69cc546",
+    "bytes": 35011584,
+    "files": 863,
+    "redactions": 1263,
+    "publication": "Producer logs/XML and all envelopes retained; redacted secrets only; original and published hashes mapped; counts/verdicts/commands never rewritten"
+  },
+  {
+    "run": "pocoma-l5-i2-native-diagnostics",
+    "path": "docs/testing/evidence/L5-I2/archives/pocoma-l5-i2-native-diagnostics.tar.xz",
+    "sha256": "c73441f8ae5f3fabf966327f434a970c64636f740f47bbefdf3750320bdb49b4",
+    "bytes": 33136,
+    "files": 70,
+    "redactions": 0,
+    "publication": "Producer logs/XML and all envelopes retained; redacted secrets only; original and published hashes mapped; counts/verdicts/commands never rewritten"
+  }
+]

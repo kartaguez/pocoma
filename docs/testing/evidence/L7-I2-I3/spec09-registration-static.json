@@ -1,0 +1,31 @@
+{
+  "status": "PASS_STATIC_ONLY",
+  "timestamp": "2026-11-12T13:49:42.202966+00:00",
+  "command": "python3 -B -m unittest discover -v -s scripts/performance -p 'test_l7_spec09_registration.py'",
+  "inputsSha256": {
+    "scripts/performance/run-l7-spec09-registration.py": "8a809bbb60bb10ee2d282eb8cbc92dcecc3027dd67702942b3fcd70f2d0039e7",
+    "scripts/performance/test_l7_spec09_registration.py": "8410d65690186eeb769e3eb03d0f93e473e521674e2c04f5bf56d3a70c0b9cc5"
+  },
+  "environment": {
+    "Python": "3.14.7",
+    "machine": "arm64",
+    "OS": "Darwin"
+  },
+  "fixture": "1,380 synthetic subjects; simulated HTTP and SQL; no live workload",
+  "decision": "Human L7.2/L7.3 mandate: use the first authorized /me/pots response with the new bindingToken; p95 remains 500 ms.",
+  "httpRequests": 0,
+  "certificationPerformanceExecuted": false,
+  "log": [
+    "test_new_binding_is_used_on_separate_authorized_http_read (test_l7_spec09_registration.RegistrationContract.test_new_binding_is_used_on_separate_authorized_http_read) ... ok",
+    "test_nonempty_list_or_maintenance_never_counts_as_success (test_l7_spec09_registration.RegistrationContract.test_nonempty_list_or_maintenance_never_counts_as_success) ... ok",
+    "test_quantile_uses_bounds_and_keeps_censored_samples (test_l7_spec09_registration.RegistrationContract.test_quantile_uses_bounds_and_keeps_censored_samples) ... ok",
+    "test_response_after_window_is_censored (test_l7_spec09_registration.RegistrationContract.test_response_after_window_is_censored) ... ok",
+    "test_sql_requires_matching_users_on_two_authorities (test_l7_spec09_registration.RegistrationContract.test_sql_requires_matching_users_on_two_authorities) ... ok",
+    "test_static_plan_contains_1380_unique_subjects_and_never_calls_http (test_l7_spec09_registration.RegistrationContract.test_static_plan_contains_1380_unique_subjects_and_never_calls_http) ... ok",
+    "",
+    "----------------------------------------------------------------------",
+    "Ran 6 tests in 0.004s",
+    "",
+    "OK"
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "state": "READY",
+  "exit": 0,
+  "business": "AVAILABLE",
+  "canary": "AVAILABLE",
+  "qualificationTools": "AVAILABLE",
+  "fullyQualifiable": false,
+  "checks": {
+    "JVM-http-write": "PASS",
+    "JVM-http-read": "PASS",
+    "JVM-command-worker": "PASS",
+    "JVM-results-worker": "PASS",
+    "JVM-business-read-worker": "PASS",
+    "DB-CURRENT": "PASS",
+    "IDP-DISCOVERY": "PASS",
+    "KEYCLOAK-OIDC-DISCOVERY": "PASS",
+    "KEYCLOAK-ADMIN-AUTH": "PASS",
+    "KEYCLOAK-ADMIN-ENABLED": "PASS",
+    "KEYCLOAK-THIRD-ENABLED": "PASS",
+    "KEYCLOAK-THIRD-PKCE": "PASS",
+    "KEYCLOAK-GUEST-ENABLED": "PASS",
+    "KEYCLOAK-GUEST-PKCE": "PASS",
+    "KEYCLOAK-BRUNO-ENABLED": "PASS",
+    "KEYCLOAK-BRUNO-PKCE": "PASS",
+    "IDP-PKCE-SESSION": "PASS"
+  },
+  "canaryProof": {
+    "potId": "f7b0cb28-b1a9-5332-9468-efa6fd5ed1a4",
+    "version": 3,
+    "runId": "1794674287-3c3ec1df",
+    "completedAt": 1794674535.8717492
+  },
+  "observedAt": 1794674538.1367009,
+  "instance": "keycloak-validation-final",
+  "project": "pocoma-lb-keycloak-validation-final-8dcc274e",
+  "sha": "80792858d6aac9c648ebcfac2fb2d84ccf80154e",
+  "dirty": true,
+  "urls": {
+    "write": "http://127.0.0.1:51879",
+    "read": "http://127.0.0.1:51880"
+  },
+  "issuer": "http://localhost:51881/realms/pocoma",
+  "evidence": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/keycloak-validation-final/runs/1794674536-01136c81",
+  "keycloakAdmin": {
+    "url": "http://localhost:51881/admin/",
+    "realm": "master",
+    "username": "admin"
+  },
+  "demoUsers": {
+    "realm": "pocoma",
+    "owner": "third",
+    "guest": "guest",
+    "bruno": "bruno"
+  },
+  "credentialsConvention": "L7-LB local only: password pocoma for admin/third/guest/bruno; never production or L8.",
+  "keycloakAuthEvidence": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/keycloak-validation-final/runs/1794674536-01136c81/keycloak-auth.json"
+}

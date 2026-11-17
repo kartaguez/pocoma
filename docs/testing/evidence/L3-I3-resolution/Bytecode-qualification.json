@@ -1,0 +1,40 @@
+{
+  "source_sha": "c1172bf4a758a9077415d827ca88b359b6360ebb",
+  "canonical": "FAIL i5_r12; source tree frozen, preexisting bytecode outputs later found inconsistent; not a source/bytecode-coherent clean rebuild",
+  "architecture_stale_output": "FAIL 2/162; preserved unchanged",
+  "fresh_checkout": "/private/tmp/pocoma-i3-architecture-fresh",
+  "repair": "fresh checkout and targeted compilation/tests; no production/test/oracle/POM changes; no long L2 rerun",
+  "classes": [
+    {
+      "source": "app/engine-consumption/src/main/java/com/kartaguez/pocoma/engine/exception/MissingTerminalConsumptionFailureException.java",
+      "source_sha256": "720c0f808d61e4f9e90825ca940f6be493df10ff9128ce48ffd5b43f4bdb3116",
+      "preexisting_class": "app/engine-consumption/target/classes/com/kartaguez/pocoma/engine/exception/MissingTerminalConsumptionFailureException.class",
+      "preexisting_class_sha256": "2a3b80a5c87d451259d2925262b3115f9be4a64fd049e829e8919898b8d9518b",
+      "javap": "MissingTerminalConsumptionFailureException-before-javap.txt",
+      "fresh_class": "app/engine-consumption/target/classes/com/kartaguez/pocoma/engine/write/pot/exception/MissingTerminalConsumptionFailureException.class",
+      "fresh_class_sha256": "0d21fab1534198ab5a28bde6439719f0fb8a38e5b4c111310d8f7e4b0655e1fb",
+      "fresh_javap": "MissingTerminalConsumptionFailureException-fresh-javap.txt"
+    },
+    {
+      "source": "app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/repository/identity/ExternalIdentityBindingFactJdbcRepository.java",
+      "source_sha256": "6adce5bc527b257045b99285b34421db9085a0a33793aa57601f0ed833350bb9",
+      "preexisting_class": "app/infra-persistence-primary-jpa/target/classes/com/kartaguez/pocoma/infra/persistence/primary/jpa/repository/identity/ExternalIdentityBindingFactJdbcRepository.class",
+      "preexisting_class_sha256": "e0432005d1114f26163591ab49508fc27d40f189fb6ade938f8cfda9f6f6932e",
+      "javap": "ExternalIdentityBindingFactJdbcRepository-before-javap.txt",
+      "fresh_class": "app/infra-persistence-primary-jpa/target/classes/com/kartaguez/pocoma/infra/persistence/primary/jpa/repository/identity/ExternalIdentityBindingFactJdbcRepository.class",
+      "fresh_class_sha256": "fcfd751778913bd7ad3ce677aee2d7b782b0ef409e8cdada16ba518e91a061c5",
+      "fresh_javap": "ExternalIdentityBindingFactJdbcRepository-fresh-javap.txt"
+    }
+  ],
+  "fresh_checkout_head": "c1172bf4a758a9077415d827ca88b359b6360ebb",
+  "fresh_checkout_status": "",
+  "fresh_feedback": {
+    "tests": 232,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "architecture_tests": 162,
+    "no_source_or_oracle_change": true,
+    "not_a_canonical_substitute": true
+  }
+}

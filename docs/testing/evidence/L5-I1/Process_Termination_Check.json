@@ -1,0 +1,13 @@
+{
+  "observed_utc": "2026-11-04T17:29:42.705227+00:00",
+  "gate": "architecture-08",
+  "maven_owner_session": "completed exit0",
+  "observed_pids": [
+    56624,
+    62534,
+    2262
+  ],
+  "ps_pid_query_exit": 1,
+  "ps_pid_query_output": "",
+  "interpretation": "ps returned no matching PID: observed Maven process and two followed Surefire JVMs absent after terminal collector PASS. No stop signal sent."
+}

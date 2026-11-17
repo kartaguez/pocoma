@@ -1,0 +1,19 @@
+{
+  "status": "PASS",
+  "initial_sha": "a138a368dd3386e4b9e714e45d5fefbd2abab2e6",
+  "java_files_reviewed": 461,
+  "java_files_changed": 418,
+  "package_mappings": 54,
+  "simple_type_renames": 82,
+  "qualified_type_renames": 379,
+  "literals_reviewed": 23886,
+  "production_literals_reviewed": 3902,
+  "approved_literal_changes": 107,
+  "protected_existing_files": 5131,
+  "sql_files_unchanged": 85,
+  "registry_changes": "live name mapping only; archived_campaigns identical to initial SHA",
+  "type_collisions": 0,
+  "non_naming_code_changes": 0,
+  "explicit_guard_adaptations": 1,
+  "checks": "token stream modulo declared name dictionary, literal allowlist and one obsolete package-generation conjunct; comment bytes; all protected file blobs; exact registry structure"
+}

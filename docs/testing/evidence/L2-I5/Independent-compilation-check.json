@@ -1,0 +1,177 @@
+{
+  "status": "PASS",
+  "tested_sha": "9a315e16567042d0b9bd017486d9043216b3ecd7",
+  "basis": "Full reactor, all changed Java sources including modules without JUnit XML",
+  "classes": {
+    "app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/v3/V3ConsumptionEngineArchitectureTest.java": {
+      "source_sha256": "126d60fc83a184e5462761176a5f484a72eafad42b1b1df20248f9beb1c863b9",
+      "compiled_path": "app/architecture-tests/target/test-classes/com/kartaguez/pocoma/architecture/v3/V3ConsumptionEngineArchitectureTest.class",
+      "class_sha256": "97e3e1991f91dbef2c0ecc57d04f70696f46c5d8cbe4c1347180598b1e5deb58"
+    },
+    "app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/v3/V3ConsumptionFoundationArchitectureTest.java": {
+      "source_sha256": "448cbe7bc5149db5349b884b352cb00a4ba19cf00506956e9f7fa6cec0a581cd",
+      "compiled_path": "app/architecture-tests/target/test-classes/com/kartaguez/pocoma/architecture/v3/V3ConsumptionFoundationArchitectureTest.class",
+      "class_sha256": "c29a3c5715a15e5cc046690a29e8cc167bb6c52d16adaf4d9afcf6828a8f4dd4"
+    },
+    "app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/command/v3/V3PotCommandComposition.java": {
+      "source_sha256": "4a76ae7bc46372b1a773ef70235c2fe06829b677f7c75d19d12f7270e0289700",
+      "compiled_path": "app/composition-runtime-spring/target/classes/com/kartaguez/pocoma/runtime/command/v3/V3PotCommandComposition.class",
+      "class_sha256": "1e2177861c695b6ed097efc779fe0a52f2ac048107845c31608dcf16bd007afd"
+    },
+    "app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/consumption/v3/MicrometerV3ConsumptionObservation.java": {
+      "source_sha256": "3e53e700b430fa7bec633d8701c357d7350fe906822f5fa2ee35f9f17f2f2487",
+      "compiled_path": "app/composition-runtime-spring/target/classes/com/kartaguez/pocoma/runtime/consumption/v3/MicrometerV3ConsumptionObservation.class",
+      "class_sha256": "05a40695b323dce6505d322588906dfb9c8ad80dc75f9f1a723d8a66a65e0a5a"
+    },
+    "app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/consumption/v3/V3BootstrapGuard.java": {
+      "source_sha256": "b7a3cbfb90e08c68075292267d1fc240c36b486172556a7ecec758547f949af3",
+      "compiled_path": "app/composition-runtime-spring/target/classes/com/kartaguez/pocoma/runtime/consumption/v3/V3BootstrapGuard.class",
+      "class_sha256": "32ec638c2198e2adbecc10515beb90405e7e379da15e32c0002c32e4ad9bd64c"
+    },
+    "app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/consumption/v3/V3ConsumptionDiscoveryComposition.java": {
+      "source_sha256": "01ad2b9f4b09b3df21f98415d1c7332e015fe85cee5354d52254234f8f82a3ad",
+      "compiled_path": "app/composition-runtime-spring/target/classes/com/kartaguez/pocoma/runtime/consumption/v3/V3ConsumptionDiscoveryComposition.class",
+      "class_sha256": "827fe59966b002e5405bd43ad4f0ffe82efcce83c039fd48a729d8a1df1aa7a1"
+    },
+    "app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/consumption/v3/V3ConsumptionLifecycleComposition.java": {
+      "source_sha256": "8c215d78dd57ce868cde24fbf61f8c550ed61c87034e8e0b5e1bd8692a11e714",
+      "compiled_path": "app/composition-runtime-spring/target/classes/com/kartaguez/pocoma/runtime/consumption/v3/V3ConsumptionLifecycleComposition.class",
+      "class_sha256": "cf987bae3b7f81f4af7751c80a13f1676d8c1d2a27f680f930cfcd0d33dad738"
+    },
+    "app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/consumption/v3/V3ConsumptionWorkerConfiguration.java": {
+      "source_sha256": "5ab846bb4908db8ed41e69d9d0c6550313af8fa44744bf34fab4ce50244a1a98",
+      "compiled_path": "app/composition-runtime-spring/target/classes/com/kartaguez/pocoma/runtime/consumption/v3/V3ConsumptionWorkerConfiguration.class",
+      "class_sha256": "d1c468c606fe1a921245c4e0067d64027d6492d7ff99df9fd901779e7d49eb5c"
+    },
+    "app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/consumption/v3/V3ConsumptionWorkerSettings.java": {
+      "source_sha256": "00803f76951fb8996165b9fbcf85d46e90ac8aa83afe9cc5f58bd255d67cba4f",
+      "compiled_path": "app/composition-runtime-spring/target/classes/com/kartaguez/pocoma/runtime/consumption/v3/V3ConsumptionWorkerSettings.class",
+      "class_sha256": "59177aba1258cb120754d0f2a47d1aa3100f4b930602d37a120f779b9dd93654"
+    },
+    "app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/consumption/v3/dev/V3FixturePotActorAuthority.java": {
+      "source_sha256": "3187acd467626eb3ce0a5100bb6090468621378a8374f3ff1c0be842f77e70bc",
+      "compiled_path": "app/composition-runtime-spring/target/classes/com/kartaguez/pocoma/runtime/consumption/v3/dev/V3FixturePotActorAuthority.class",
+      "class_sha256": "ce5db8e81e1b31b7285f6d6caef37ca77db4c42a2494e3ec53fa7f59d39f842e"
+    },
+    "app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/consumption/v3/dev/V3TechnicalReadParticipant.java": {
+      "source_sha256": "7dc3fae795dc3cb49679d7cbfb7e45334df8021c4e640922805ece1e8272cc82",
+      "compiled_path": "app/composition-runtime-spring/target/classes/com/kartaguez/pocoma/runtime/consumption/v3/dev/V3TechnicalReadParticipant.class",
+      "class_sha256": "1c15e213e72487bbbdaeec8806efc06d3dfa9da40bac31bbfe40554c62559358"
+    },
+    "app/engine-consumption/src/main/java/com/kartaguez/pocoma/engine/consumption/v3/ConsumptionEngine.java": {
+      "source_sha256": "64f45dc31c226860eb0387d366da7ba43f4586323d4b81423d0f33b60c4b5848",
+      "compiled_path": "app/engine-consumption/target/classes/com/kartaguez/pocoma/engine/consumption/v3/ConsumptionEngine.class",
+      "class_sha256": "8626e86bd05a02c327aa4a9c78571f0dbb7a9607a379f954eed8faf2f561e33a"
+    },
+    "app/engine-consumption/src/main/java/com/kartaguez/pocoma/engine/consumption/v3/WorkerCapacity.java": {
+      "source_sha256": "8c1fd1b2a900d594f5a5c7433f3c0053f1a7de562a13bf5fbbc2dd0750d3ffc8",
+      "compiled_path": "app/engine-consumption/target/classes/com/kartaguez/pocoma/engine/consumption/v3/WorkerCapacity.class",
+      "class_sha256": "a3ffb2391a20fc26f0164ea1558c6e7ee6a848e466baf861ea61f071608df399"
+    },
+    "app/engine-consumption/src/main/java/com/kartaguez/pocoma/engine/consumption/v3/port/ConsumptionObservation.java": {
+      "source_sha256": "494df9eb9c5e359735acda9c018874e7ac39ab510dd2dab5ccb5fc1fb5d60e4c",
+      "compiled_path": "app/engine-consumption/target/classes/com/kartaguez/pocoma/engine/consumption/v3/port/ConsumptionObservation.class",
+      "class_sha256": "50f11d6625f10d2bd2239d5fe96cd959ce5c083478b376c519c00fefb54fd295"
+    },
+    "app/engine-consumption/src/main/java/com/kartaguez/pocoma/engine/consumption/v3/port/SlotKeyNavigation.java": {
+      "source_sha256": "1103365cb412ae76bb6cc19c4d2b44a1fcc1957e5c5f6f83a967da10c9369292",
+      "compiled_path": "app/engine-consumption/target/classes/com/kartaguez/pocoma/engine/consumption/v3/port/SlotKeyNavigation.class",
+      "class_sha256": "5abd4ea7a2e2c3b1fb72e19a1d42b905551592301b6fc244d8f635e0ce20ab96"
+    },
+    "app/engine-consumption/src/test/java/com/kartaguez/pocoma/engine/consumption/v3/ConsumptionFailureClassificationTest.java": {
+      "source_sha256": "3064d53c0cd0dcfc0b58367b7b4ba5818b27026498c6635ec796e8e1a0dc0422",
+      "compiled_path": "app/engine-consumption/target/test-classes/com/kartaguez/pocoma/engine/consumption/v3/ConsumptionFailureClassificationTest.class",
+      "class_sha256": "4ef53d904a84742b3a80dfed775506c7718384de820bac171c09310f9210d0a2"
+    },
+    "app/engine-consumption/src/test/java/com/kartaguez/pocoma/engine/consumption/v3/WorkerCapacityTest.java": {
+      "source_sha256": "e539754061118cbd82ae7073e2ab4490f3189ed328ed3f0e30224a0f64f773b1",
+      "compiled_path": "app/engine-consumption/target/test-classes/com/kartaguez/pocoma/engine/consumption/v3/WorkerCapacityTest.class",
+      "class_sha256": "648ee9f7615a56be587e2304f65d330c7582af673c995b732dd7efc9ac10bf27"
+    },
+    "app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/consumption/JdbcSlotKeyNavigation.java": {
+      "source_sha256": "71d89f76abaf4c8b7fb2a506442971cf12dea3a661b46252d3b4d84d06b7bdaa",
+      "compiled_path": "app/infra-persistence-primary-jpa/target/classes/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/consumption/JdbcSlotKeyNavigation.class",
+      "class_sha256": "8aae958aa02470a06b9e29ed2374943dee4aaac1169f88f49cab5336d4b4b39f"
+    },
+    "app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/ConsumptionLifecyclePostgresTest.java": {
+      "source_sha256": "1f8d6ff12b1b89e7bcf29504273c066334fbea88f15654b36e21c054af66e113",
+      "compiled_path": "app/infra-persistence-primary-jpa/target/test-classes/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/ConsumptionLifecyclePostgresTest.class",
+      "class_sha256": "165a925d76fb18b82fbd12ec3f85693edfc4ad756aef590c83fdf1343180055a"
+    },
+    "app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/SlotNavigationPostgresTest.java": {
+      "source_sha256": "a526bfc7df9e3df021ed3078627e92e7a03261d955feb1f4f9c22e7f2a51ae22",
+      "compiled_path": "app/infra-persistence-primary-jpa/target/test-classes/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/SlotNavigationPostgresTest.class",
+      "class_sha256": "eb0cb43d85629f26be676c1bec0c5bf15562b07572527f7ea558d173292c3422"
+    },
+    "app/infra-persistence-read-jdbc/src/test/java/com/kartaguez/pocoma/infra/persistence/read/jdbc/v3/consumption/ReadDiscoveryPrivilegesPostgresTest.java": {
+      "source_sha256": "2490d1895d0bf77ae6432e5918e69a173c92657f2864c3033d3b701bc56f0541",
+      "compiled_path": "app/infra-persistence-read-jdbc/target/test-classes/com/kartaguez/pocoma/infra/persistence/read/jdbc/v3/consumption/ReadDiscoveryPrivilegesPostgresTest.class",
+      "class_sha256": "9e1bc2c47e3fdb73bd28f518481193a5060f4b8f0630b9bb3dba398222c2b189"
+    },
+    "app/orchestrator-poll-consumption/src/main/java/com/kartaguez/pocoma/orchestrator/poll/consumption/v3/V3ConsumptionLoop.java": {
+      "source_sha256": "e44ce519b60b69b800e0de192cb2d69bfbaee506a008cce6685d636e958a3587",
+      "compiled_path": "app/orchestrator-poll-consumption/target/classes/com/kartaguez/pocoma/orchestrator/poll/consumption/v3/V3ConsumptionLoop.class",
+      "class_sha256": "99a08fd69b08253034957ab5339814e42cd86c9812ff4591aa912dfa6cc32742"
+    },
+    "app/orchestrator-poll-consumption/src/main/java/com/kartaguez/pocoma/orchestrator/poll/consumption/v3/V3ConsumptionWorker.java": {
+      "source_sha256": "4c2b80a4d54ee9622af126361849fe4ef62a41cc8b227ffd1080c13e6f9a7a3c",
+      "compiled_path": "app/orchestrator-poll-consumption/target/classes/com/kartaguez/pocoma/orchestrator/poll/consumption/v3/V3ConsumptionWorker.class",
+      "class_sha256": "cdaec4b398706fd95d015d9ddb20f2df275a88a9a9ede99af53763c60a93e6b3"
+    },
+    "app/orchestrator-poll-consumption/src/main/java/com/kartaguez/pocoma/orchestrator/poll/consumption/v3/V3DiscoveryLoop.java": {
+      "source_sha256": "743cb4a40719f823cbe833c1f49dbc5e9b583ae763b173263ce51d15de9174f4",
+      "compiled_path": "app/orchestrator-poll-consumption/target/classes/com/kartaguez/pocoma/orchestrator/poll/consumption/v3/V3DiscoveryLoop.class",
+      "class_sha256": "4acd6918256e11c4a2215079151d291310922a2d700f2eb0fac8027531305fb3"
+    },
+    "app/orchestrator-poll-consumption/src/main/java/com/kartaguez/pocoma/orchestrator/poll/consumption/v3/V3RenewalService.java": {
+      "source_sha256": "2b3e2943377b22f44be8c8a0386c1d5ecfd333411c6ed511a37687445105c3ac",
+      "compiled_path": "app/orchestrator-poll-consumption/target/classes/com/kartaguez/pocoma/orchestrator/poll/consumption/v3/V3RenewalService.class",
+      "class_sha256": "08fe50fba3cfc6d0c7d061fed117559eac7b57b7073369b8616803c10fe24e26"
+    },
+    "app/orchestrator-poll-consumption/src/test/java/com/kartaguez/pocoma/orchestrator/poll/consumption/v3/V3ConsumptionWorkerTest.java": {
+      "source_sha256": "73894db80a7105733920d232e1407395b3eafcd5f2c05d84806e7e3c9c3a1640",
+      "compiled_path": "app/orchestrator-poll-consumption/target/test-classes/com/kartaguez/pocoma/orchestrator/poll/consumption/v3/V3ConsumptionWorkerTest.class",
+      "class_sha256": "4caa38d840531c66833379994beb8f69cf885eb8001a07aead3476759dbca207"
+    },
+    "app/runtime-command-consumption-worker/src/main/java/com/kartaguez/pocoma/PocomaCommandConsumptionWorkerApplication.java": {
+      "source_sha256": "81a3a48411f685eaebe599cb69e91445fed726d4db759fcddbf5798507cbb831",
+      "compiled_path": "app/runtime-command-consumption-worker/target/classes/com/kartaguez/pocoma/PocomaCommandConsumptionWorkerApplication.class",
+      "class_sha256": "45509e731ff0eca1949150a103cc919429fc87ace91b8698b831e23b28adce8f"
+    },
+    "app/runtime-command-consumption-worker/src/main/java/com/kartaguez/pocoma/runtime/command/v3/dev/V3WorkerDevelopmentTools.java": {
+      "source_sha256": "109357cdf20fd08fe8b236ab368e06077ec56ea70aedd81e981549812949a81f",
+      "compiled_path": "app/runtime-command-consumption-worker/target/classes/com/kartaguez/pocoma/runtime/command/v3/dev/V3WorkerDevelopmentTools.class",
+      "class_sha256": "84e28030a1e2bafb790ec3f9c78d076637940d4198eee9494951fd67851aa27d"
+    },
+    "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/V3WorkerCompositionPostgresTest.java": {
+      "source_sha256": "d365e0e54fafbb3de4d785990ca1d9092b70059a46e2c332c6d744684f1c1cab",
+      "compiled_path": "app/runtime-command-consumption-worker/target/test-classes/com/kartaguez/pocoma/runtime/command/v3/V3WorkerCompositionPostgresTest.class",
+      "class_sha256": "7b503f0f233da7cac7967d207a8c2ccd446f5e10b075cdcc0f7fddcafd8b5ab7"
+    },
+    "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/V3WorkerMetricsTest.java": {
+      "source_sha256": "eeceb6fad0c672a3013c392a0e0ad92c98d150ad282aaeb52b087852fe2e1101",
+      "compiled_path": "app/runtime-command-consumption-worker/target/test-classes/com/kartaguez/pocoma/runtime/command/v3/V3WorkerMetricsTest.class",
+      "class_sha256": "5bdae9f06bcc9eb7b7b34690681a8397953d5666ac888a8d058eeb3ceec8324a"
+    },
+    "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/V3WorkerPostgresTest.java": {
+      "source_sha256": "1237b1e3ab1a5e0db0a61c087e667524b677684cd6220d77f25d30e0eff5fcbd",
+      "compiled_path": "app/runtime-command-consumption-worker/target/test-classes/com/kartaguez/pocoma/runtime/command/v3/V3WorkerPostgresTest.class",
+      "class_sha256": "efa3a836100b9980c20e2d88348be93bac6e37ce80ad6f5744a83f57096c45cc"
+    },
+    "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/V3WorkerResourcesPostgresTest.java": {
+      "source_sha256": "69fbc2f67121c3e2192c1a92c585a1288b65c41447e9bf4fe68f65005e1d3677",
+      "compiled_path": "app/runtime-command-consumption-worker/target/test-classes/com/kartaguez/pocoma/runtime/command/v3/V3WorkerResourcesPostgresTest.class",
+      "class_sha256": "29e08180dfb6a84ea4125661f62869a5628deefe6f2034db3abc0a9a8e1df8ca"
+    },
+    "app/runtime-monolith/src/main/java/com/kartaguez/pocoma/PocomaRuntimeMonolithApplication.java": {
+      "source_sha256": "36a68126e5645685e078799ee5b64762ee9780311275c150c790f5049c39e5fc",
+      "compiled_path": "app/runtime-monolith/target/classes/com/kartaguez/pocoma/PocomaRuntimeMonolithApplication.class",
+      "class_sha256": "b7a963ecb0c1fd91ac338efe4c4a774f513409ddcb6bd53e039764663a4ba8f9"
+    },
+    "app/runtime-monolith/src/test/java/com/kartaguez/pocoma/V3WorkerMonolithPostgresTest.java": {
+      "source_sha256": "f52ebee30bc5ab3209a3217bc3ccfc7bb5f68dca6396c89576382e6f377bdc3a",
+      "compiled_path": "app/runtime-monolith/target/test-classes/com/kartaguez/pocoma/V3WorkerMonolithPostgresTest.class",
+      "class_sha256": "9dae1d01d4de6932911b4b8ef228435d6c0f07708fa1ae14a0910e9bd50cc825"
+    }
+  }
+}

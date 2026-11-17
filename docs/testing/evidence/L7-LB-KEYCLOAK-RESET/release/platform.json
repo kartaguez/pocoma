@@ -1,0 +1,74 @@
+{
+  "keycloakVersion": "JAVA_OPTS_KC_HEAP already set in environment; overriding default settings\nKeycloak 26.7.0\nJVM: 21.0.12 (Red Hat, Inc. OpenJDK 64-Bit Server VM 21.0.12+8-LTS)\nOS: Linux 7.0.14-linuxkit aarch64",
+  "bindings": {
+    "business-read-worker": {
+      "18085/tcp": [
+        {
+          "HostIp": "127.0.0.1",
+          "HostPort": "53130"
+        }
+      ]
+    },
+    "command-worker": {
+      "18083/tcp": [
+        {
+          "HostIp": "127.0.0.1",
+          "HostPort": "53128"
+        }
+      ]
+    },
+    "http-read": {
+      "18082/tcp": [
+        {
+          "HostIp": "127.0.0.1",
+          "HostPort": "53127"
+        }
+      ],
+      "8082/tcp": [
+        {
+          "HostIp": "127.0.0.1",
+          "HostPort": "53124"
+        }
+      ]
+    },
+    "http-write": {
+      "18080/tcp": [
+        {
+          "HostIp": "127.0.0.1",
+          "HostPort": "53126"
+        }
+      ],
+      "8080/tcp": [
+        {
+          "HostIp": "127.0.0.1",
+          "HostPort": "53123"
+        }
+      ]
+    },
+    "keycloak": {
+      "8080/tcp": [
+        {
+          "HostIp": "127.0.0.1",
+          "HostPort": "53125"
+        }
+      ]
+    },
+    "postgres": {},
+    "prometheus": {
+      "9090/tcp": [
+        {
+          "HostIp": "127.0.0.1",
+          "HostPort": "53131"
+        }
+      ]
+    },
+    "results-worker": {
+      "18084/tcp": [
+        {
+          "HostIp": "127.0.0.1",
+          "HostPort": "53129"
+        }
+      ]
+    }
+  }
+}

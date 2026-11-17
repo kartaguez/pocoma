@@ -1,0 +1,27 @@
+from pathlib import Path
+import hashlib,json,subprocess,sys,io
+root=Path('/Users/julien.guezennec/Dev/projects/pocoma');evidence=root/'docs/testing/evidence/L4-I1'
+owner_commit,code_commit,verdict=sys.argv[1:]
+sha=lambda b:hashlib.sha256(b).hexdigest()
+load=lambda p:json.loads(p.read_text())
+campaigns=[]
+for name in ['targeted','foundation','projection-command','architecture']:
+ d=evidence/name;r=load(d/'result.json');p=load(d/'provenance.json');plan=load(d/'plan.json')
+ assert r['verdict']=='PASS' and not r['counts']['skipped']
+ assert all(Path(root/k).is_file() and sha(Path(root/k).read_bytes())==v for k,v in p['app_inputs'].items())
+ campaigns.append({'name':name,'invocation_id':r['invocation_id'],'verdict':r['verdict'],'counts':r['counts'],'expected_invocations':r['expected_invocations'],'command':r['command'],'seconds':r['seconds'],'raw_sha256':r['raw_sha256'],'result':str((d/'result.json').relative_to(root)),'source_provenance':str((d/'provenance.json').relative_to(root)),'filtered':plan['filtered'],'reviewed_source_aliases':plan.get('reviewed_source_aliases',{})})
+# Verify the exact tested app bytes against the published implementation commit, not just the working tree.
+inputs=load(evidence/'targeted/provenance.json')['app_inputs'];paths=sorted(inputs)
+requests=''.join(code_commit+':'+p+'\n' for p in paths).encode()
+raw=subprocess.check_output(['git','cat-file','--batch'],input=requests,cwd=root);stream=io.BytesIO(raw)
+for path in paths:
+ header=stream.readline().decode().strip().split();assert header[1]=='blob',path
+ data=stream.read(int(header[2]));assert stream.read(1)==b'\n';assert sha(data)==inputs[path],path
+artifacts=[]
+for p in sorted(evidence.rglob('*')):
+ if p.is_file():artifacts.append({'path':str(p.relative_to(root)),'bytes':p.stat().st_size,'sha256':sha(p.read_bytes())})
+for p in [root/'docs/v3/L4_I1_Execution_Report.md',root/'docs/v3/L4_I1_Implementation_Plan.md',root/'docs/v3/L4_Read_Inventory_and_Implementation_Plan.md',root/'docs/v3/V3_Implementation_Master_Plan.md']:
+ artifacts.append({'path':str(p.relative_to(root)),'bytes':p.stat().st_size,'sha256':sha(p.read_bytes())})
+manifest={'format_version':1,'lot':'L4/I1','verdict':verdict,'initial_sha':'4028f2fa9f053e75dd60bb0ccefd091014a4fb9d','tested_head':'4028f2fa9f053e75dd60bb0ccefd091014a4fb9d','tested_worktree':'dirty; exact before/after hashes in each provenance.json','owner_correction_commit':owner_commit,'final_application_commit':code_commit,'delivery_commit_locator':'git log -1 --format=%H -- docs/v3/L4_I1_Proof_Manifest.json','branch':'feat/v3-architecture','app_blobs_match_all_tested_inputs':True,'matched_app_inputs':len(paths),'verification':{'initial_primary':'PROJECTION','revised_slices':['PROJECTION','COMMAND'],'unexpected_crossing':'infra-tx-spring: indispensable late poisoning guard, proven by the real L2/PostgreSQL failing oracle','global_architecture':'REQUIRED; unfiltered execution','full_reactor':'NOT REQUIRED / NOT RUN; bounded V3 Units, affected consumers explicitly covered','database':'CURRENT V3 fresh + populated L2 extension; transitive historical migration runs retained in canonical gates','trusted_baseline':'NONE'},'campaigns':campaigns,'implementation_files':load(evidence/'Implementation_Files.json'),'l2_input_comparison':load(evidence/'L2_Input_Comparison.json'),'physical_index':'docs/testing/evidence/L4-I1/Physical_Index.json','preserved_nonpass_evidence':['docs/testing/evidence/L4-I1/owner-defect-before-fix/result.json','docs/testing/evidence/L4-I1/architecture-preflight-refusal/result.json','docs/testing/evidence/L4-I1/projection-interrupted.tar.gz'],'limits':['Independent code/evidence audit and final human I1 closure remain pending.','No I2 preparation/recovery extension, I3-I8 business materialization/activation, HTTP, runtime rationalization or L5/L6.','No global PRJ/READ/SEC/OPS/PERF or production certificate.','Historical L2/L3 reserves remain unchanged.'],'artifacts':artifacts}
+(root/'docs/v3/L4_I1_Proof_Manifest.json').write_text(json.dumps(manifest,indent=2,ensure_ascii=False)+'\n')
+print('Verified',len(paths),'app blobs;',len(artifacts),'published artifacts;',sum(x['bytes'] for x in artifacts),'bytes')

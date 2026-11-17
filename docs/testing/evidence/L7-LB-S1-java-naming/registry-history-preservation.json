@@ -1,0 +1,9 @@
+{
+  "status": "PASS",
+  "difference": "Restoration of archived_campaigns byte-equivalent JSON subtree to initial SHA; no active selection change",
+  "active_registry_equal": true,
+  "archived_campaigns_equal_initial": true,
+  "gate_registry_sha256": "dd32e2b5324161add64fa2e2cf24a352cd10d5f7a2aa0d96b9824f5f7467fbf0",
+  "final_registry_sha256": "7876d60aa8ddc3ea7d6380e5d38848f1a8eb08e520903704e5b1c04134ad9eb9",
+  "gate": "initial candidate, /private/tmp/pocoma-s1/gate; final gate registry is identical to delivered registry"
+}

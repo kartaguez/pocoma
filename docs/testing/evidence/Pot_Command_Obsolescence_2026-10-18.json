@@ -1,0 +1,56 @@
+{
+  "startHead": "6fabf85fdca5b729175fecb03da4378c58996597",
+  "branch": "feat/consumption-transaction-protocol",
+  "command": "./mvnw -pl runtime-command-consumption-worker,runtime-web-api -am test",
+  "workingDirectory": "app",
+  "result": "BUILD SUCCESS",
+  "finishedAt": "2026-10-18T21:04:19+02:00",
+  "testClasses": 198,
+  "totals": {
+    "tests": 949,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "postgresql": "17-alpine (Testcontainers, actually executed)",
+  "selectedTests": [
+    {
+      "class": "com.kartaguez.pocoma.domain.pot.aggregate.ShareholderIdentityCollisionTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "com.kartaguez.pocoma.engine.write.pot.context.CommandObsolescenceContextsTest",
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.context.CommandObsolescencePostgresTest",
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.context.UpdateExpenseSharesConcurrencyPostgresTest",
+      "tests": 15,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "com.kartaguez.pocoma.runtime.command.consumption.CommandConsumptionRuntimePostgresTest",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "globalArchitectureGate": "NOT REQUIRED / NOT RUN",
+  "fullReactor": "NOT REQUIRED / NOT RUN",
+  "toolingNote": "Surefire emitted a fork-JVM shutdown timeout after System.exit(0); the Maven build and all test reports succeeded."
+}

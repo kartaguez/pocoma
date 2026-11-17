@@ -1,0 +1,224 @@
+script=bootstrap-l2-routing.sql rc=0 BEGIN
+LOCK TABLE
+ set_config 
+------------
+ i1_read
+(1 row)
+
+             set_config              
+-------------------------------------
+ i1_b21660d7ee634376ba1711296f8c94f5
+(1 row)
+
+              set_config               
+---------------------------------------
+ i1_b21660d7ee634376ba1711296f8c94f5_a
+(1 row)
+
+ set_config 
+------------
+ READ
+(1 row)
+
+DO
+INSERT 0 7
+INSERT 0 28
+DO
+COMMIT
+
+script=grant-l2-lifecycle.sql rc=0 BEGIN
+ set_config 
+------------
+ fixture
+(1 row)
+
+ set_config 
+------------
+ 
+(1 row)
+
+DO
+ set_config 
+------------
+ i1_read
+(1 row)
+
+             set_config              
+-------------------------------------
+ i1_b21660d7ee634376ba1711296f8c94f5
+(1 row)
+
+              set_config               
+---------------------------------------
+ i1_b21660d7ee634376ba1711296f8c94f5_a
+(1 row)
+
+              set_config               
+---------------------------------------
+ i1_b21660d7ee634376ba1711296f8c94f5_w
+(1 row)
+
+              set_config               
+---------------------------------------
+ i1_b21660d7ee634376ba1711296f8c94f5_r
+(1 row)
+
+DO
+GRANT
+GRANT
+GRANT
+GRANT
+GRANT
+GRANT
+DO
+DO
+COMMIT
+
+environment={version=PostgreSQL 17.11 on aarch64-unknown-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit, db=i1_read, schema=i1_b21660d7ee634376ba1711296f8c94f5, current_user=i1_b21660d7ee634376ba1711296f8c94f5_a, clock_timestamp=2026-11-02 08:38:26.935017} image=postgres@sha256:18cfe3ef5e6815560c98237d6216d1e5119702fb0f3894c8785dd58b8bbe5d73 runtime=i1_b21660d7ee634376ba1711296f8c94f5_w admin=i1_b21660d7ee634376ba1711296f8c94f5_a
+acquired=ClaimedSlot[consumptionId=ConsumptionId[value=3dec1c8b-6e3e-57e1-82aa-aa0b5f297a4a], consumableId=605289e3-cc38-4e59-a711-620affe02f78, claimToken=aae93118-1c8c-4673-9b47-dcf37bcfa19d] partition=3
+L2 rows={consumption_routing_contract=[{consumption_id=190a93c6-b8af-5ac7-8001-72e2ec53c2df, family=POT_EVENT, routing_version=sha256-v1, partition_count=4}, {consumption_id=1d8ff246-358f-5ddd-a7f5-416efcfd7445, family=IDENTITY_COMPLETION_EVENT, routing_version=sha256-v1, partition_count=4}, {consumption_id=3dec1c8b-6e3e-57e1-82aa-aa0b5f297a4a, family=POT_EVENT, routing_version=sha256-v1, partition_count=4}, {consumption_id=63664303-d33e-5d42-8cce-c4dae8023311, family=COMMAND_COMPLETION_EVENT, routing_version=sha256-v1, partition_count=4}, {consumption_id=7b8d2838-bf7a-5117-868a-e5c14b4c0221, family=IDENTITY_EVENT, routing_version=sha256-v1, partition_count=4}, {consumption_id=924cd9e3-435d-5804-9d1e-c6aecadb9ab4, family=INVITATION_EVENT, routing_version=sha256-v1, partition_count=4}, {consumption_id=b4d04cce-b5da-5d1b-9698-5ff9af9a46fa, family=POT_EVENT, routing_version=sha256-v1, partition_count=4}], consumption_slot=[{consumption_id=3dec1c8b-6e3e-57e1-82aa-aa0b5f297a4a, consumable_id=605289e3-cc38-4e59-a711-620affe02f78, partition_hash=-2095508101, partition_id=3, claim_token=aae93118-1c8c-4673-9b47-dcf37bcfa19d, claimed_until=2026-11-02 08:39:26.961855, retry_after=null, attempt_count=0, state=AVAILABLE}], discovery_checkpoint=[{consumption_id=3dec1c8b-6e3e-57e1-82aa-aa0b5f297a4a, partition_id=3, position=17}], partition_ownership=[{consumption_id=190a93c6-b8af-5ac7-8001-72e2ec53c2df, partition_id=0, owner_token=null, owned_until=null}, {consumption_id=190a93c6-b8af-5ac7-8001-72e2ec53c2df, partition_id=1, owner_token=null, owned_until=null}, {consumption_id=190a93c6-b8af-5ac7-8001-72e2ec53c2df, partition_id=2, owner_token=null, owned_until=null}, {consumption_id=190a93c6-b8af-5ac7-8001-72e2ec53c2df, partition_id=3, owner_token=null, owned_until=null}, {consumption_id=1d8ff246-358f-5ddd-a7f5-416efcfd7445, partition_id=0, owner_token=null, owned_until=null}, {consumption_id=1d8ff246-358f-5ddd-a7f5-416efcfd7445, partition_id=1, owner_token=null, owned_until=null}, {consumption_id=1d8ff246-358f-5ddd-a7f5-416efcfd7445, partition_id=2, owner_token=null, owned_until=null}, {consumption_id=1d8ff246-358f-5ddd-a7f5-416efcfd7445, partition_id=3, owner_token=null, owned_until=null}, {consumption_id=3dec1c8b-6e3e-57e1-82aa-aa0b5f297a4a, partition_id=0, owner_token=null, owned_until=null}, {consumption_id=3dec1c8b-6e3e-57e1-82aa-aa0b5f297a4a, partition_id=1, owner_token=null, owned_until=null}, {consumption_id=3dec1c8b-6e3e-57e1-82aa-aa0b5f297a4a, partition_id=2, owner_token=null, owned_until=null}, {consumption_id=3dec1c8b-6e3e-57e1-82aa-aa0b5f297a4a, partition_id=3, owner_token=7419fb76-6578-4e36-8a1f-44cedea32ad1, owned_until=2026-11-02 08:39:26.955235}, {consumption_id=63664303-d33e-5d42-8cce-c4dae8023311, partition_id=0, owner_token=null, owned_until=null}, {consumption_id=63664303-d33e-5d42-8cce-c4dae8023311, partition_id=1, owner_token=null, owned_until=null}, {consumption_id=63664303-d33e-5d42-8cce-c4dae8023311, partition_id=2, owner_token=null, owned_until=null}, {consumption_id=63664303-d33e-5d42-8cce-c4dae8023311, partition_id=3, owner_token=null, owned_until=null}, {consumption_id=7b8d2838-bf7a-5117-868a-e5c14b4c0221, partition_id=0, owner_token=null, owned_until=null}, {consumption_id=7b8d2838-bf7a-5117-868a-e5c14b4c0221, partition_id=1, owner_token=null, owned_until=null}, {consumption_id=7b8d2838-bf7a-5117-868a-e5c14b4c0221, partition_id=2, owner_token=null, owned_until=null}, {consumption_id=7b8d2838-bf7a-5117-868a-e5c14b4c0221, partition_id=3, owner_token=null, owned_until=null}, {consumption_id=924cd9e3-435d-5804-9d1e-c6aecadb9ab4, partition_id=0, owner_token=null, owned_until=null}, {consumption_id=924cd9e3-435d-5804-9d1e-c6aecadb9ab4, partition_id=1, owner_token=null, owned_until=null}, {consumption_id=924cd9e3-435d-5804-9d1e-c6aecadb9ab4, partition_id=2, owner_token=null, owned_until=null}, {consumption_id=924cd9e3-435d-5804-9d1e-c6aecadb9ab4, partition_id=3, owner_token=null, owned_until=null}, {consumption_id=b4d04cce-b5da-5d1b-9698-5ff9af9a46fa, partition_id=0, owner_token=null, owned_until=null}, {consumption_id=b4d04cce-b5da-5d1b-9698-5ff9af9a46fa, partition_id=1, owner_token=null, owned_until=null}, {consumption_id=b4d04cce-b5da-5d1b-9698-5ff9af9a46fa, partition_id=2, owner_token=null, owned_until=null}, {consumption_id=b4d04cce-b5da-5d1b-9698-5ff9af9a46fa, partition_id=3, owner_token=null, owned_until=null}]}
+L2 catalog={acl=[{relname=consumption_routing_contract, relacl={ADMIN=arwdDxtm/ADMIN,RUNTIME=r/ADMIN}, owner=ADMIN}, {relname=consumption_slot, relacl={ADMIN=arwdDxtm/ADMIN,RUNTIME=rd/ADMIN,REACTIVATION=r/ADMIN}, owner=ADMIN}, {relname=discovery_checkpoint, relacl={ADMIN=arwdDxtm/ADMIN,RUNTIME=r/ADMIN}, owner=ADMIN}, {relname=partition_ownership, relacl={ADMIN=arwdDxtm/ADMIN,RUNTIME=r/ADMIN}, owner=ADMIN}], columnAcl=[{relname=consumption_routing_contract, attname=consumption_id, attacl={REACTIVATION=r/ADMIN}}, {relname=consumption_routing_contract, attname=family, attacl={REACTIVATION=r/ADMIN}}, {relname=consumption_routing_contract, attname=routing_version, attacl=null}, {relname=consumption_routing_contract, attname=partition_count, attacl=null}, {relname=consumption_slot, attname=consumption_id, attacl=null}, {relname=consumption_slot, attname=consumable_id, attacl=null}, {relname=consumption_slot, attname=partition_hash, attacl=null}, {relname=consumption_slot, attname=partition_id, attacl=null}, {relname=consumption_slot, attname=claim_token, attacl={RUNTIME=w/ADMIN,REACTIVATION=w/ADMIN}}, {relname=consumption_slot, attname=claimed_until, attacl={RUNTIME=w/ADMIN,REACTIVATION=w/ADMIN}}, {relname=consumption_slot, attname=retry_after, attacl={RUNTIME=w/ADMIN,REACTIVATION=w/ADMIN}}, {relname=consumption_slot, attname=attempt_count, attacl={RUNTIME=w/ADMIN,REACTIVATION=w/ADMIN}}, {relname=consumption_slot, attname=state, attacl={RUNTIME=w/ADMIN,REACTIVATION=w/ADMIN}}, {relname=discovery_checkpoint, attname=consumption_id, attacl=null}, {relname=discovery_checkpoint, attname=partition_id, attacl=null}, {relname=discovery_checkpoint, attname=position, attacl=null}, {relname=partition_ownership, attname=consumption_id, attacl=null}, {relname=partition_ownership, attname=partition_id, attacl=null}, {relname=partition_ownership, attname=owner_token, attacl={RUNTIME=w/ADMIN}}, {relname=partition_ownership, attname=owned_until, attacl={RUNTIME=w/ADMIN}}], columns=[{table_name=consumption_routing_contract, column_name=consumption_id, ordinal_position=1, data_type=uuid, is_nullable=NO, column_default=null}, {table_name=consumption_routing_contract, column_name=family, ordinal_position=2, data_type=text, is_nullable=NO, column_default=null}, {table_name=consumption_routing_contract, column_name=routing_version, ordinal_position=3, data_type=text, is_nullable=NO, column_default=null}, {table_name=consumption_routing_contract, column_name=partition_count, ordinal_position=4, data_type=integer, is_nullable=NO, column_default=null}, {table_name=consumption_slot, column_name=consumption_id, ordinal_position=1, data_type=uuid, is_nullable=NO, column_default=null}, {table_name=consumption_slot, column_name=consumable_id, ordinal_position=2, data_type=uuid, is_nullable=NO, column_default=null}, {table_name=consumption_slot, column_name=partition_hash, ordinal_position=3, data_type=integer, is_nullable=NO, column_default=null}, {table_name=consumption_slot, column_name=partition_id, ordinal_position=4, data_type=integer, is_nullable=NO, column_default=null}, {table_name=consumption_slot, column_name=claim_token, ordinal_position=5, data_type=uuid, is_nullable=YES, column_default=null}, {table_name=consumption_slot, column_name=claimed_until, ordinal_position=6, data_type=timestamp with time zone, is_nullable=YES, column_default=null}, {table_name=consumption_slot, column_name=retry_after, ordinal_position=7, data_type=timestamp with time zone, is_nullable=YES, column_default=null}, {table_name=consumption_slot, column_name=attempt_count, ordinal_position=8, data_type=integer, is_nullable=NO, column_default=0}, {table_name=consumption_slot, column_name=state, ordinal_position=9, data_type=text, is_nullable=NO, column_default='AVAILABLE'::text}, {table_name=discovery_checkpoint, column_name=consumption_id, ordinal_position=1, data_type=uuid, is_nullable=NO, column_default=null}, {table_name=discovery_checkpoint, column_name=partition_id, ordinal_position=2, data_type=integer, is_nullable=NO, column_default=null}, {table_name=discovery_checkpoint, column_name=position, ordinal_position=3, data_type=bigint, is_nullable=NO, column_default=null}, {table_name=partition_ownership, column_name=consumption_id, ordinal_position=1, data_type=uuid, is_nullable=NO, column_default=null}, {table_name=partition_ownership, column_name=partition_id, ordinal_position=2, data_type=integer, is_nullable=NO, column_default=null}, {table_name=partition_ownership, column_name=owner_token, ordinal_position=3, data_type=uuid, is_nullable=YES, column_default=null}, {table_name=partition_ownership, column_name=owned_until, ordinal_position=4, data_type=timestamp with time zone, is_nullable=YES, column_default=null}], constraints=[{relname=consumption_routing_contract, conname=consumption_routing_contract_family_check, definition=CHECK ((family = ANY (ARRAY['COMMAND'::text, 'IDENTITY_REQUEST'::text, 'POT_EVENT'::text, 'INVITATION_EVENT'::text, 'IDENTITY_EVENT'::text, 'COMMAND_COMPLETION_EVENT'::text, 'IDENTITY_COMPLETION_EVENT'::text]))), condeferrable=false, condeferred=false}, {relname=consumption_routing_contract, conname=consumption_routing_contract_partition_count_check, definition=CHECK ((partition_count = 4)), condeferrable=false, condeferred=false}, {relname=consumption_routing_contract, conname=consumption_routing_contract_pkey, definition=PRIMARY KEY (consumption_id), condeferrable=false, condeferred=false}, {relname=consumption_routing_contract, conname=consumption_routing_contract_routing_version_check, definition=CHECK ((routing_version = 'sha256-v1'::text)), condeferrable=false, condeferred=false}, {relname=consumption_slot, conname=consumption_slot_attempt_count_check, definition=CHECK ((attempt_count >= 0)), condeferrable=false, condeferred=false}, {relname=consumption_slot, conname=consumption_slot_check, definition=CHECK (((claim_token IS NULL) = (claimed_until IS NULL))), condeferrable=false, condeferred=false}, {relname=consumption_slot, conname=consumption_slot_check1, definition=CHECK (((state <> 'QUARANTINED'::text) OR ((claim_token IS NULL) AND (claimed_until IS NULL) AND (retry_after IS NULL)))), condeferrable=false, condeferred=false}, {relname=consumption_slot, conname=consumption_slot_consumption_id_fkey, definition=FOREIGN KEY (consumption_id) REFERENCES consumption_routing_contract(consumption_id), condeferrable=false, condeferred=false}, {relname=consumption_slot, conname=consumption_slot_partition_id_check, definition=CHECK (((partition_id >= 0) AND (partition_id <= 3))), condeferrable=false, condeferred=false}, {relname=consumption_slot, conname=consumption_slot_pkey, definition=PRIMARY KEY (consumption_id, consumable_id), condeferrable=false, condeferred=false}, {relname=consumption_slot, conname=consumption_slot_state_check, definition=CHECK ((state = ANY (ARRAY['AVAILABLE'::text, 'QUARANTINED'::text]))), condeferrable=false, condeferred=false}, {relname=discovery_checkpoint, conname=discovery_checkpoint_consumption_id_fkey, definition=FOREIGN KEY (consumption_id) REFERENCES consumption_routing_contract(consumption_id), condeferrable=false, condeferred=false}, {relname=discovery_checkpoint, conname=discovery_checkpoint_partition_id_check, definition=CHECK (((partition_id >= 0) AND (partition_id <= 3))), condeferrable=false, condeferred=false}, {relname=discovery_checkpoint, conname=discovery_checkpoint_pkey, definition=PRIMARY KEY (consumption_id, partition_id), condeferrable=false, condeferred=false}, {relname=discovery_checkpoint, conname=discovery_checkpoint_position_check, definition=CHECK (("position" >= 0)), condeferrable=false, condeferred=false}, {relname=partition_ownership, conname=partition_ownership_check, definition=CHECK (((owner_token IS NULL) = (owned_until IS NULL))), condeferrable=false, condeferred=false}, {relname=partition_ownership, conname=partition_ownership_consumption_id_fkey, definition=FOREIGN KEY (consumption_id) REFERENCES consumption_routing_contract(consumption_id), condeferrable=false, condeferred=false}, {relname=partition_ownership, conname=partition_ownership_partition_id_check, definition=CHECK (((partition_id >= 0) AND (partition_id <= 3))), condeferrable=false, condeferred=false}, {relname=partition_ownership, conname=partition_ownership_pkey, definition=PRIMARY KEY (consumption_id, partition_id), condeferrable=false, condeferred=false}], functions=[{proname=consumption_contract_immutable, prosecdef=false, proconfig=null, proacl=null, definition=CREATE OR REPLACE FUNCTION SCHEMA.consumption_contract_immutable()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$
+begin
+  raise exception 'immutable routing contract' using errcode='23514';
+end $function$
+}, {proname=consumption_hash_v1, prosecdef=false, proconfig=null, proacl=null, definition=CREATE OR REPLACE FUNCTION SCHEMA.consumption_hash_v1(f text, id uuid)
+ RETURNS integer
+ LANGUAGE sql
+ IMMUTABLE STRICT
+AS $function$
+  with bytes as (
+    select public.digest(convert_to('pocoma-consumable-v1','UTF8') || decode('00','hex')
+      || convert_to(f,'UTF8') || decode('00','hex') || uuid_send(id),'sha256') as d
+  ), unsigned as (
+    select get_byte(d,0)::bigint*16777216 + get_byte(d,1)::bigint*65536
+      + get_byte(d,2)::bigint*256 + get_byte(d,3)::bigint as u from bytes
+  )
+  select (case when u >= 2147483648 then u-4294967296 else u end)::integer
+  from unsigned
+$function$
+}, {proname=consumption_row_guard, prosecdef=false, proconfig=null, proacl=null, definition=CREATE OR REPLACE FUNCTION SCHEMA.consumption_row_guard()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$
+declare f text;
+begin
+  select family into f from consumption_routing_contract
+    where consumption_id = new.consumption_id;
+  if not found then raise exception 'missing route' using errcode='23503'; end if;
+  if tg_table_name = 'consumption_slot' then
+    if new.partition_hash <> consumption_hash_v1(f,new.consumable_id)
+       or new.partition_id <> ((new.partition_hash::bigint % 4 + 4) % 4) then
+      raise exception 'slot route mismatch' using errcode='23514';
+    end if;
+    if tg_op = 'UPDATE' and
+       (new.consumption_id,new.consumable_id,new.partition_hash,new.partition_id)
+       is distinct from
+       (old.consumption_id,old.consumable_id,old.partition_hash,old.partition_id) then
+      raise exception 'slot key immutable' using errcode='23514';
+    end if;
+  elsif tg_table_name = 'discovery_checkpoint' then
+    if f in ('COMMAND','IDENTITY_REQUEST') then
+      raise exception 'burnable checkpoint forbidden' using errcode='23514';
+    end if;
+    if tg_op = 'UPDATE' and
+       ((new.consumption_id,new.partition_id) is distinct from
+        (old.consumption_id,old.partition_id) or new.position < old.position) then
+      raise exception 'checkpoint regression' using errcode='23514';
+    end if;
+  elsif tg_op = 'UPDATE' and
+    (new.consumption_id,new.partition_id) is distinct from
+    (old.consumption_id,old.partition_id) then
+    raise exception 'ownership key immutable' using errcode='23514';
+  end if;
+  return new;
+end $function$
+}], indexes=[{tablename=consumption_routing_contract, indexname=consumption_routing_contract_pkey, indexdef=CREATE UNIQUE INDEX consumption_routing_contract_pkey ON SCHEMA.consumption_routing_contract USING btree (consumption_id)}, {tablename=consumption_slot, indexname=consumption_slot_available_due_idx, indexdef=CREATE INDEX consumption_slot_available_due_idx ON SCHEMA.consumption_slot USING btree (consumption_id, partition_id, retry_after, claimed_until) WHERE (state = 'AVAILABLE'::text)}, {tablename=consumption_slot, indexname=consumption_slot_live_count_idx, indexdef=CREATE INDEX consumption_slot_live_count_idx ON SCHEMA.consumption_slot USING btree (consumption_id, partition_id) WHERE (state <> 'QUARANTINED'::text)}, {tablename=consumption_slot, indexname=consumption_slot_partition_walk_idx, indexdef=CREATE INDEX consumption_slot_partition_walk_idx ON SCHEMA.consumption_slot USING btree (consumption_id, partition_id, consumable_id)}, {tablename=consumption_slot, indexname=consumption_slot_pkey, indexdef=CREATE UNIQUE INDEX consumption_slot_pkey ON SCHEMA.consumption_slot USING btree (consumption_id, consumable_id)}, {tablename=discovery_checkpoint, indexname=discovery_checkpoint_pkey, indexdef=CREATE UNIQUE INDEX discovery_checkpoint_pkey ON SCHEMA.discovery_checkpoint USING btree (consumption_id, partition_id)}, {tablename=partition_ownership, indexname=partition_ownership_pkey, indexdef=CREATE UNIQUE INDEX partition_ownership_pkey ON SCHEMA.partition_ownership USING btree (consumption_id, partition_id)}], triggers=[{relname=consumption_routing_contract, tgname=consumption_contract_immutable, tgenabled=O, definition=CREATE TRIGGER consumption_contract_immutable BEFORE DELETE OR UPDATE ON SCHEMA.consumption_routing_contract FOR EACH ROW EXECUTE FUNCTION consumption_contract_immutable()}, {relname=consumption_slot, tgname=consumption_slot_guard, tgenabled=O, definition=CREATE TRIGGER consumption_slot_guard BEFORE INSERT OR UPDATE ON SCHEMA.consumption_slot FOR EACH ROW EXECUTE FUNCTION consumption_row_guard()}, {relname=discovery_checkpoint, tgname=discovery_checkpoint_guard, tgenabled=O, definition=CREATE TRIGGER discovery_checkpoint_guard BEFORE INSERT OR UPDATE ON SCHEMA.discovery_checkpoint FOR EACH ROW EXECUTE FUNCTION consumption_row_guard()}, {relname=partition_ownership, tgname=partition_ownership_guard, tgenabled=O, definition=CREATE TRIGGER partition_ownership_guard BEFORE INSERT OR UPDATE ON SCHEMA.partition_ownership FOR EACH ROW EXECUTE FUNCTION consumption_row_guard()}]}
+L2 rows={consumption_routing_contract=[{consumption_id=190a93c6-b8af-5ac7-8001-72e2ec53c2df, family=POT_EVENT, routing_version=sha256-v1, partition_count=4}, {consumption_id=1d8ff246-358f-5ddd-a7f5-416efcfd7445, family=IDENTITY_COMPLETION_EVENT, routing_version=sha256-v1, partition_count=4}, {consumption_id=3dec1c8b-6e3e-57e1-82aa-aa0b5f297a4a, family=POT_EVENT, routing_version=sha256-v1, partition_count=4}, {consumption_id=63664303-d33e-5d42-8cce-c4dae8023311, family=COMMAND_COMPLETION_EVENT, routing_version=sha256-v1, partition_count=4}, {consumption_id=7b8d2838-bf7a-5117-868a-e5c14b4c0221, family=IDENTITY_EVENT, routing_version=sha256-v1, partition_count=4}, {consumption_id=924cd9e3-435d-5804-9d1e-c6aecadb9ab4, family=INVITATION_EVENT, routing_version=sha256-v1, partition_count=4}, {consumption_id=b4d04cce-b5da-5d1b-9698-5ff9af9a46fa, family=POT_EVENT, routing_version=sha256-v1, partition_count=4}], consumption_slot=[{consumption_id=3dec1c8b-6e3e-57e1-82aa-aa0b5f297a4a, consumable_id=605289e3-cc38-4e59-a711-620affe02f78, partition_hash=-2095508101, partition_id=3, claim_token=aae93118-1c8c-4673-9b47-dcf37bcfa19d, claimed_until=2026-11-02 08:39:26.961855, retry_after=null, attempt_count=0, state=AVAILABLE}], discovery_checkpoint=[{consumption_id=3dec1c8b-6e3e-57e1-82aa-aa0b5f297a4a, partition_id=3, position=17}], partition_ownership=[{consumption_id=190a93c6-b8af-5ac7-8001-72e2ec53c2df, partition_id=0, owner_token=null, owned_until=null}, {consumption_id=190a93c6-b8af-5ac7-8001-72e2ec53c2df, partition_id=1, owner_token=null, owned_until=null}, {consumption_id=190a93c6-b8af-5ac7-8001-72e2ec53c2df, partition_id=2, owner_token=null, owned_until=null}, {consumption_id=190a93c6-b8af-5ac7-8001-72e2ec53c2df, partition_id=3, owner_token=null, owned_until=null}, {consumption_id=1d8ff246-358f-5ddd-a7f5-416efcfd7445, partition_id=0, owner_token=null, owned_until=null}, {consumption_id=1d8ff246-358f-5ddd-a7f5-416efcfd7445, partition_id=1, owner_token=null, owned_until=null}, {consumption_id=1d8ff246-358f-5ddd-a7f5-416efcfd7445, partition_id=2, owner_token=null, owned_until=null}, {consumption_id=1d8ff246-358f-5ddd-a7f5-416efcfd7445, partition_id=3, owner_token=null, owned_until=null}, {consumption_id=3dec1c8b-6e3e-57e1-82aa-aa0b5f297a4a, partition_id=0, owner_token=null, owned_until=null}, {consumption_id=3dec1c8b-6e3e-57e1-82aa-aa0b5f297a4a, partition_id=1, owner_token=null, owned_until=null}, {consumption_id=3dec1c8b-6e3e-57e1-82aa-aa0b5f297a4a, partition_id=2, owner_token=null, owned_until=null}, {consumption_id=3dec1c8b-6e3e-57e1-82aa-aa0b5f297a4a, partition_id=3, owner_token=7419fb76-6578-4e36-8a1f-44cedea32ad1, owned_until=2026-11-02 08:39:26.955235}, {consumption_id=63664303-d33e-5d42-8cce-c4dae8023311, partition_id=0, owner_token=null, owned_until=null}, {consumption_id=63664303-d33e-5d42-8cce-c4dae8023311, partition_id=1, owner_token=null, owned_until=null}, {consumption_id=63664303-d33e-5d42-8cce-c4dae8023311, partition_id=2, owner_token=null, owned_until=null}, {consumption_id=63664303-d33e-5d42-8cce-c4dae8023311, partition_id=3, owner_token=null, owned_until=null}, {consumption_id=7b8d2838-bf7a-5117-868a-e5c14b4c0221, partition_id=0, owner_token=null, owned_until=null}, {consumption_id=7b8d2838-bf7a-5117-868a-e5c14b4c0221, partition_id=1, owner_token=null, owned_until=null}, {consumption_id=7b8d2838-bf7a-5117-868a-e5c14b4c0221, partition_id=2, owner_token=null, owned_until=null}, {consumption_id=7b8d2838-bf7a-5117-868a-e5c14b4c0221, partition_id=3, owner_token=null, owned_until=null}, {consumption_id=924cd9e3-435d-5804-9d1e-c6aecadb9ab4, partition_id=0, owner_token=null, owned_until=null}, {consumption_id=924cd9e3-435d-5804-9d1e-c6aecadb9ab4, partition_id=1, owner_token=null, owned_until=null}, {consumption_id=924cd9e3-435d-5804-9d1e-c6aecadb9ab4, partition_id=2, owner_token=null, owned_until=null}, {consumption_id=924cd9e3-435d-5804-9d1e-c6aecadb9ab4, partition_id=3, owner_token=null, owned_until=null}, {consumption_id=b4d04cce-b5da-5d1b-9698-5ff9af9a46fa, partition_id=0, owner_token=null, owned_until=null}, {consumption_id=b4d04cce-b5da-5d1b-9698-5ff9af9a46fa, partition_id=1, owner_token=null, owned_until=null}, {consumption_id=b4d04cce-b5da-5d1b-9698-5ff9af9a46fa, partition_id=2, owner_token=null, owned_until=null}, {consumption_id=b4d04cce-b5da-5d1b-9698-5ff9af9a46fa, partition_id=3, owner_token=null, owned_until=null}]}
+L2 catalog={acl=[{relname=consumption_routing_contract, relacl={ADMIN=arwdDxtm/ADMIN,RUNTIME=r/ADMIN}, owner=ADMIN}, {relname=consumption_slot, relacl={ADMIN=arwdDxtm/ADMIN,RUNTIME=rd/ADMIN,REACTIVATION=r/ADMIN}, owner=ADMIN}, {relname=discovery_checkpoint, relacl={ADMIN=arwdDxtm/ADMIN,RUNTIME=r/ADMIN}, owner=ADMIN}, {relname=partition_ownership, relacl={ADMIN=arwdDxtm/ADMIN,RUNTIME=r/ADMIN}, owner=ADMIN}], columnAcl=[{relname=consumption_routing_contract, attname=consumption_id, attacl={REACTIVATION=r/ADMIN}}, {relname=consumption_routing_contract, attname=family, attacl={REACTIVATION=r/ADMIN}}, {relname=consumption_routing_contract, attname=routing_version, attacl=null}, {relname=consumption_routing_contract, attname=partition_count, attacl=null}, {relname=consumption_slot, attname=consumption_id, attacl=null}, {relname=consumption_slot, attname=consumable_id, attacl=null}, {relname=consumption_slot, attname=partition_hash, attacl=null}, {relname=consumption_slot, attname=partition_id, attacl=null}, {relname=consumption_slot, attname=claim_token, attacl={RUNTIME=w/ADMIN,REACTIVATION=w/ADMIN}}, {relname=consumption_slot, attname=claimed_until, attacl={RUNTIME=w/ADMIN,REACTIVATION=w/ADMIN}}, {relname=consumption_slot, attname=retry_after, attacl={RUNTIME=w/ADMIN,REACTIVATION=w/ADMIN}}, {relname=consumption_slot, attname=attempt_count, attacl={RUNTIME=w/ADMIN,REACTIVATION=w/ADMIN}}, {relname=consumption_slot, attname=state, attacl={RUNTIME=w/ADMIN,REACTIVATION=w/ADMIN}}, {relname=discovery_checkpoint, attname=consumption_id, attacl=null}, {relname=discovery_checkpoint, attname=partition_id, attacl=null}, {relname=discovery_checkpoint, attname=position, attacl=null}, {relname=partition_ownership, attname=consumption_id, attacl=null}, {relname=partition_ownership, attname=partition_id, attacl=null}, {relname=partition_ownership, attname=owner_token, attacl={RUNTIME=w/ADMIN}}, {relname=partition_ownership, attname=owned_until, attacl={RUNTIME=w/ADMIN}}], columns=[{table_name=consumption_routing_contract, column_name=consumption_id, ordinal_position=1, data_type=uuid, is_nullable=NO, column_default=null}, {table_name=consumption_routing_contract, column_name=family, ordinal_position=2, data_type=text, is_nullable=NO, column_default=null}, {table_name=consumption_routing_contract, column_name=routing_version, ordinal_position=3, data_type=text, is_nullable=NO, column_default=null}, {table_name=consumption_routing_contract, column_name=partition_count, ordinal_position=4, data_type=integer, is_nullable=NO, column_default=null}, {table_name=consumption_slot, column_name=consumption_id, ordinal_position=1, data_type=uuid, is_nullable=NO, column_default=null}, {table_name=consumption_slot, column_name=consumable_id, ordinal_position=2, data_type=uuid, is_nullable=NO, column_default=null}, {table_name=consumption_slot, column_name=partition_hash, ordinal_position=3, data_type=integer, is_nullable=NO, column_default=null}, {table_name=consumption_slot, column_name=partition_id, ordinal_position=4, data_type=integer, is_nullable=NO, column_default=null}, {table_name=consumption_slot, column_name=claim_token, ordinal_position=5, data_type=uuid, is_nullable=YES, column_default=null}, {table_name=consumption_slot, column_name=claimed_until, ordinal_position=6, data_type=timestamp with time zone, is_nullable=YES, column_default=null}, {table_name=consumption_slot, column_name=retry_after, ordinal_position=7, data_type=timestamp with time zone, is_nullable=YES, column_default=null}, {table_name=consumption_slot, column_name=attempt_count, ordinal_position=8, data_type=integer, is_nullable=NO, column_default=0}, {table_name=consumption_slot, column_name=state, ordinal_position=9, data_type=text, is_nullable=NO, column_default='AVAILABLE'::text}, {table_name=discovery_checkpoint, column_name=consumption_id, ordinal_position=1, data_type=uuid, is_nullable=NO, column_default=null}, {table_name=discovery_checkpoint, column_name=partition_id, ordinal_position=2, data_type=integer, is_nullable=NO, column_default=null}, {table_name=discovery_checkpoint, column_name=position, ordinal_position=3, data_type=bigint, is_nullable=NO, column_default=null}, {table_name=partition_ownership, column_name=consumption_id, ordinal_position=1, data_type=uuid, is_nullable=NO, column_default=null}, {table_name=partition_ownership, column_name=partition_id, ordinal_position=2, data_type=integer, is_nullable=NO, column_default=null}, {table_name=partition_ownership, column_name=owner_token, ordinal_position=3, data_type=uuid, is_nullable=YES, column_default=null}, {table_name=partition_ownership, column_name=owned_until, ordinal_position=4, data_type=timestamp with time zone, is_nullable=YES, column_default=null}], constraints=[{relname=consumption_routing_contract, conname=consumption_routing_contract_family_check, definition=CHECK ((family = ANY (ARRAY['COMMAND'::text, 'IDENTITY_REQUEST'::text, 'POT_EVENT'::text, 'INVITATION_EVENT'::text, 'IDENTITY_EVENT'::text, 'COMMAND_COMPLETION_EVENT'::text, 'IDENTITY_COMPLETION_EVENT'::text]))), condeferrable=false, condeferred=false}, {relname=consumption_routing_contract, conname=consumption_routing_contract_partition_count_check, definition=CHECK ((partition_count = 4)), condeferrable=false, condeferred=false}, {relname=consumption_routing_contract, conname=consumption_routing_contract_pkey, definition=PRIMARY KEY (consumption_id), condeferrable=false, condeferred=false}, {relname=consumption_routing_contract, conname=consumption_routing_contract_routing_version_check, definition=CHECK ((routing_version = 'sha256-v1'::text)), condeferrable=false, condeferred=false}, {relname=consumption_slot, conname=consumption_slot_attempt_count_check, definition=CHECK ((attempt_count >= 0)), condeferrable=false, condeferred=false}, {relname=consumption_slot, conname=consumption_slot_check, definition=CHECK (((claim_token IS NULL) = (claimed_until IS NULL))), condeferrable=false, condeferred=false}, {relname=consumption_slot, conname=consumption_slot_check1, definition=CHECK (((state <> 'QUARANTINED'::text) OR ((claim_token IS NULL) AND (claimed_until IS NULL) AND (retry_after IS NULL)))), condeferrable=false, condeferred=false}, {relname=consumption_slot, conname=consumption_slot_consumption_id_fkey, definition=FOREIGN KEY (consumption_id) REFERENCES consumption_routing_contract(consumption_id), condeferrable=false, condeferred=false}, {relname=consumption_slot, conname=consumption_slot_partition_id_check, definition=CHECK (((partition_id >= 0) AND (partition_id <= 3))), condeferrable=false, condeferred=false}, {relname=consumption_slot, conname=consumption_slot_pkey, definition=PRIMARY KEY (consumption_id, consumable_id), condeferrable=false, condeferred=false}, {relname=consumption_slot, conname=consumption_slot_state_check, definition=CHECK ((state = ANY (ARRAY['AVAILABLE'::text, 'QUARANTINED'::text]))), condeferrable=false, condeferred=false}, {relname=discovery_checkpoint, conname=discovery_checkpoint_consumption_id_fkey, definition=FOREIGN KEY (consumption_id) REFERENCES consumption_routing_contract(consumption_id), condeferrable=false, condeferred=false}, {relname=discovery_checkpoint, conname=discovery_checkpoint_partition_id_check, definition=CHECK (((partition_id >= 0) AND (partition_id <= 3))), condeferrable=false, condeferred=false}, {relname=discovery_checkpoint, conname=discovery_checkpoint_pkey, definition=PRIMARY KEY (consumption_id, partition_id), condeferrable=false, condeferred=false}, {relname=discovery_checkpoint, conname=discovery_checkpoint_position_check, definition=CHECK (("position" >= 0)), condeferrable=false, condeferred=false}, {relname=partition_ownership, conname=partition_ownership_check, definition=CHECK (((owner_token IS NULL) = (owned_until IS NULL))), condeferrable=false, condeferred=false}, {relname=partition_ownership, conname=partition_ownership_consumption_id_fkey, definition=FOREIGN KEY (consumption_id) REFERENCES consumption_routing_contract(consumption_id), condeferrable=false, condeferred=false}, {relname=partition_ownership, conname=partition_ownership_partition_id_check, definition=CHECK (((partition_id >= 0) AND (partition_id <= 3))), condeferrable=false, condeferred=false}, {relname=partition_ownership, conname=partition_ownership_pkey, definition=PRIMARY KEY (consumption_id, partition_id), condeferrable=false, condeferred=false}], functions=[{proname=consumption_contract_immutable, prosecdef=false, proconfig=null, proacl=null, definition=CREATE OR REPLACE FUNCTION SCHEMA.consumption_contract_immutable()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$
+begin
+  raise exception 'immutable routing contract' using errcode='23514';
+end $function$
+}, {proname=consumption_hash_v1, prosecdef=false, proconfig=null, proacl=null, definition=CREATE OR REPLACE FUNCTION SCHEMA.consumption_hash_v1(f text, id uuid)
+ RETURNS integer
+ LANGUAGE sql
+ IMMUTABLE STRICT
+AS $function$
+  with bytes as (
+    select public.digest(convert_to('pocoma-consumable-v1','UTF8') || decode('00','hex')
+      || convert_to(f,'UTF8') || decode('00','hex') || uuid_send(id),'sha256') as d
+  ), unsigned as (
+    select get_byte(d,0)::bigint*16777216 + get_byte(d,1)::bigint*65536
+      + get_byte(d,2)::bigint*256 + get_byte(d,3)::bigint as u from bytes
+  )
+  select (case when u >= 2147483648 then u-4294967296 else u end)::integer
+  from unsigned
+$function$
+}, {proname=consumption_row_guard, prosecdef=false, proconfig=null, proacl=null, definition=CREATE OR REPLACE FUNCTION SCHEMA.consumption_row_guard()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$
+declare f text;
+begin
+  select family into f from consumption_routing_contract
+    where consumption_id = new.consumption_id;
+  if not found then raise exception 'missing route' using errcode='23503'; end if;
+  if tg_table_name = 'consumption_slot' then
+    if new.partition_hash <> consumption_hash_v1(f,new.consumable_id)
+       or new.partition_id <> ((new.partition_hash::bigint % 4 + 4) % 4) then
+      raise exception 'slot route mismatch' using errcode='23514';
+    end if;
+    if tg_op = 'UPDATE' and
+       (new.consumption_id,new.consumable_id,new.partition_hash,new.partition_id)
+       is distinct from
+       (old.consumption_id,old.consumable_id,old.partition_hash,old.partition_id) then
+      raise exception 'slot key immutable' using errcode='23514';
+    end if;
+  elsif tg_table_name = 'discovery_checkpoint' then
+    if f in ('COMMAND','IDENTITY_REQUEST') then
+      raise exception 'burnable checkpoint forbidden' using errcode='23514';
+    end if;
+    if tg_op = 'UPDATE' and
+       ((new.consumption_id,new.partition_id) is distinct from
+        (old.consumption_id,old.partition_id) or new.position < old.position) then
+      raise exception 'checkpoint regression' using errcode='23514';
+    end if;
+  elsif tg_op = 'UPDATE' and
+    (new.consumption_id,new.partition_id) is distinct from
+    (old.consumption_id,old.partition_id) then
+    raise exception 'ownership key immutable' using errcode='23514';
+  end if;
+  return new;
+end $function$
+}], indexes=[{tablename=consumption_routing_contract, indexname=consumption_routing_contract_pkey, indexdef=CREATE UNIQUE INDEX consumption_routing_contract_pkey ON SCHEMA.consumption_routing_contract USING btree (consumption_id)}, {tablename=consumption_slot, indexname=consumption_slot_available_due_idx, indexdef=CREATE INDEX consumption_slot_available_due_idx ON SCHEMA.consumption_slot USING btree (consumption_id, partition_id, retry_after, claimed_until) WHERE (state = 'AVAILABLE'::text)}, {tablename=consumption_slot, indexname=consumption_slot_live_count_idx, indexdef=CREATE INDEX consumption_slot_live_count_idx ON SCHEMA.consumption_slot USING btree (consumption_id, partition_id) WHERE (state <> 'QUARANTINED'::text)}, {tablename=consumption_slot, indexname=consumption_slot_partition_walk_idx, indexdef=CREATE INDEX consumption_slot_partition_walk_idx ON SCHEMA.consumption_slot USING btree (consumption_id, partition_id, consumable_id)}, {tablename=consumption_slot, indexname=consumption_slot_pkey, indexdef=CREATE UNIQUE INDEX consumption_slot_pkey ON SCHEMA.consumption_slot USING btree (consumption_id, consumable_id)}, {tablename=discovery_checkpoint, indexname=discovery_checkpoint_pkey, indexdef=CREATE UNIQUE INDEX discovery_checkpoint_pkey ON SCHEMA.discovery_checkpoint USING btree (consumption_id, partition_id)}, {tablename=partition_ownership, indexname=partition_ownership_pkey, indexdef=CREATE UNIQUE INDEX partition_ownership_pkey ON SCHEMA.partition_ownership USING btree (consumption_id, partition_id)}], triggers=[{relname=consumption_routing_contract, tgname=consumption_contract_immutable, tgenabled=O, definition=CREATE TRIGGER consumption_contract_immutable BEFORE DELETE OR UPDATE ON SCHEMA.consumption_routing_contract FOR EACH ROW EXECUTE FUNCTION consumption_contract_immutable()}, {relname=consumption_slot, tgname=consumption_slot_guard, tgenabled=O, definition=CREATE TRIGGER consumption_slot_guard BEFORE INSERT OR UPDATE ON SCHEMA.consumption_slot FOR EACH ROW EXECUTE FUNCTION consumption_row_guard()}, {relname=discovery_checkpoint, tgname=discovery_checkpoint_guard, tgenabled=O, definition=CREATE TRIGGER discovery_checkpoint_guard BEFORE INSERT OR UPDATE ON SCHEMA.discovery_checkpoint FOR EACH ROW EXECUTE FUNCTION consumption_row_guard()}, {relname=partition_ownership, tgname=partition_ownership_guard, tgenabled=O, definition=CREATE TRIGGER partition_ownership_guard BEFORE INSERT OR UPDATE ON SCHEMA.partition_ownership FOR EACH ROW EXECUTE FUNCTION consumption_row_guard()}]}
+business catalog={acl=[{relname=read_subobject_version, relacl={ADMIN=arwdDxtm/ADMIN,RUNTIME=ar/ADMIN}, owner=ADMIN}], columnAcl=[{relname=read_subobject_version, attname=pot_id, attacl=null}, {relname=read_subobject_version, attname=kind, attacl=null}, {relname=read_subobject_version, attname=object_id, attacl=null}, {relname=read_subobject_version, attname=local_version, attacl=null}, {relname=read_subobject_version, attname=schema_version, attacl=null}, {relname=read_subobject_version, attname=payload, attacl=null}], columns=[{table_name=read_subobject_version, column_name=pot_id, ordinal_position=1, data_type=uuid, is_nullable=NO, column_default=null}, {table_name=read_subobject_version, column_name=kind, ordinal_position=2, data_type=text, is_nullable=NO, column_default=null}, {table_name=read_subobject_version, column_name=object_id, ordinal_position=3, data_type=uuid, is_nullable=NO, column_default=null}, {table_name=read_subobject_version, column_name=local_version, ordinal_position=4, data_type=bigint, is_nullable=NO, column_default=null}, {table_name=read_subobject_version, column_name=schema_version, ordinal_position=5, data_type=integer, is_nullable=NO, column_default=null}, {table_name=read_subobject_version, column_name=payload, ordinal_position=6, data_type=jsonb, is_nullable=NO, column_default=null}], constraints=[{relname=read_subobject_version, conname=read_subobject_payload_shape, definition=CHECK ((
+CASE kind
+    WHEN 'POT_HEADER'::text THEN ((payload ?& ARRAY['deleted'::text]) AND ((payload - ARRAY['deleted'::text]) = '{}'::jsonb) AND (jsonb_typeof((payload -> 'deleted'::text)) = 'boolean'::text))
+    WHEN 'SHAREHOLDER_HEADER'::text THEN ((payload ?& ARRAY['deleted'::text]) AND ((payload - ARRAY['deleted'::text]) = '{}'::jsonb) AND (jsonb_typeof((payload -> 'deleted'::text)) = 'boolean'::text))
+    WHEN 'EXPENSE_HEADER'::text THEN ((payload ?& ARRAY['deleted'::text]) AND ((payload - ARRAY['deleted'::text]) = '{}'::jsonb) AND (jsonb_typeof((payload -> 'deleted'::text)) = 'boolean'::text))
+    WHEN 'POT_DETAILS'::text THEN ((payload ?& ARRAY['label'::text, 'creatorId'::text]) AND ((payload - ARRAY['label'::text, 'creatorId'::text]) = '{}'::jsonb) AND (jsonb_typeof((payload -> 'label'::text)) = 'string'::text) AND (jsonb_typeof((payload -> 'creatorId'::text)) = 'string'::text))
+    WHEN 'SHAREHOLDER_DETAILS'::text THEN ((payload ?& ARRAY['name'::text, 'userId'::text]) AND ((payload - ARRAY['name'::text, 'userId'::text]) = '{}'::jsonb) AND (jsonb_typeof((payload -> 'name'::text)) = 'string'::text) AND (jsonb_typeof((payload -> 'userId'::text)) = ANY (ARRAY['string'::text, 'null'::text])))
+    WHEN 'SHAREHOLDER_WEIGHT'::text THEN ((payload ?& ARRAY['defaultWeight'::text]) AND ((payload - ARRAY['defaultWeight'::text]) = '{}'::jsonb) AND (jsonb_typeof((payload -> 'defaultWeight'::text)) = 'object'::text))
+    WHEN 'EXPENSE_DETAILS'::text THEN ((payload ?& ARRAY['label'::text, 'date'::text]) AND ((payload - ARRAY['label'::text, 'date'::text]) = '{}'::jsonb) AND (jsonb_typeof((payload -> 'label'::text)) = 'string'::text) AND (jsonb_typeof((payload -> 'date'::text)) = 'string'::text))
+    WHEN 'EXPENSE_FINANCIALS'::text THEN ((payload ?& ARRAY['amount'::text, 'payerId'::text, 'participants'::text]) AND ((payload - ARRAY['amount'::text, 'payerId'::text, 'participants'::text]) = '{}'::jsonb) AND (jsonb_typeof((payload -> 'amount'::text)) = 'object'::text) AND (jsonb_typeof((payload -> 'payerId'::text)) = 'string'::text) AND
+    CASE
+        WHEN (jsonb_typeof((payload -> 'participants'::text)) = 'array'::text) THEN (jsonb_array_length((payload -> 'participants'::text)) > 0)
+        ELSE false
+    END)
+    ELSE false
+END IS TRUE)), condeferrable=false, condeferred=false}, {relname=read_subobject_version, conname=read_subobject_version_check, definition=CHECK (((kind <> ALL (ARRAY['POT_HEADER'::text, 'POT_DETAILS'::text])) OR (object_id = pot_id))), condeferrable=false, condeferred=false}, {relname=read_subobject_version, conname=read_subobject_version_kind_check, definition=CHECK ((kind = ANY (ARRAY['POT_HEADER'::text, 'POT_DETAILS'::text, 'SHAREHOLDER_HEADER'::text, 'SHAREHOLDER_DETAILS'::text, 'SHAREHOLDER_WEIGHT'::text, 'EXPENSE_HEADER'::text, 'EXPENSE_DETAILS'::text, 'EXPENSE_FINANCIALS'::text]))), condeferrable=false, condeferred=false}, {relname=read_subobject_version, conname=read_subobject_version_local_version_check, definition=CHECK ((local_version > 0)), condeferrable=false, condeferred=false}, {relname=read_subobject_version, conname=read_subobject_version_payload_check, definition=CHECK (((jsonb_typeof(payload) = 'object'::text) IS TRUE)), condeferrable=false, condeferred=false}, {relname=read_subobject_version, conname=read_subobject_version_pkey, definition=PRIMARY KEY (pot_id, kind, object_id, local_version), condeferrable=false, condeferred=false}, {relname=read_subobject_version, conname=read_subobject_version_schema_version_check, definition=CHECK ((schema_version = 1)), condeferrable=false, condeferred=false}], functions=[{proname=read_subobject_immutable, prosecdef=false, proconfig={"search_path=pg_catalog, pg_temp"}, proacl={ADMIN=X/ADMIN}, definition=CREATE OR REPLACE FUNCTION SCHEMA.read_subobject_immutable()
+ RETURNS trigger
+ LANGUAGE plpgsql
+ SET search_path TO 'pg_catalog', 'pg_temp'
+AS $function$
+begin
+  raise exception 'immutable READ subobject' using errcode='23514';
+end $function$
+}], indexes=[{tablename=read_subobject_version, indexname=read_subobject_version_pkey, indexdef=CREATE UNIQUE INDEX read_subobject_version_pkey ON SCHEMA.read_subobject_version USING btree (pot_id, kind, object_id, local_version)}], triggers=[{relname=read_subobject_version, tgname=read_subobject_immutable, tgenabled=A, definition=CREATE TRIGGER read_subobject_immutable BEFORE DELETE OR UPDATE ON SCHEMA.read_subobject_version FOR EACH ROW EXECUTE FUNCTION read_subobject_immutable()}, {relname=read_subobject_version, tgname=read_subobject_no_truncate, tgenabled=A, definition=CREATE TRIGGER read_subobject_no_truncate BEFORE TRUNCATE ON SCHEMA.read_subobject_version FOR EACH STATEMENT EXECUTE FUNCTION read_subobject_immutable()}]}
+owner-before-insert 605289e3-cc38-4e59-a711-620affe02f78 {pid=268, xid=809, db=i1_read, schema=i1_b21660d7ee634376ba1711296f8c94f5, isolation=read committed}
+readiness 605289e3-cc38-4e59-a711-620affe02f78 slots=1

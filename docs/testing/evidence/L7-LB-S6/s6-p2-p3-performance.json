@@ -1,0 +1,1279 @@
+{
+  "instance": "l7lb-s6",
+  "project": "pocoma-lb-l7lb-s6-fedc9d37",
+  "admission_capacity_configured": 4,
+  "profiles": [
+    {
+      "profile": "P2",
+      "target_rps": 25.0,
+      "target_duration_s": 90,
+      "planned_commands": 2250,
+      "actual_send_duration_s": 89.995,
+      "free_disk_mib_before": 2560.8,
+      "free_disk_mib_after": 2497.9,
+      "admission_capacity_before": 4,
+      "admission_capacity_after": 4,
+      "c3_command": {
+        "requested_rps": 25.001,
+        "admitted_count": 2250,
+        "admitted_rps": 25.001,
+        "error_count": 0,
+        "errors_by_status": {},
+        "error_sample": [],
+        "http_latency_ms": {
+          "count": 2250,
+          "p50_ms": 4.389,
+          "p95_ms": 13.906,
+          "p99_ms": 31.863,
+          "min_ms": 2.583,
+          "max_ms": 35.758,
+          "mean_ms": 6.353
+        },
+        "useful_exec_ms_t1_to_t2": {
+          "count": 2250,
+          "p50_ms": 6.05,
+          "p95_ms": 23.19,
+          "p99_ms": 38.071,
+          "min_ms": 3.59,
+          "max_ms": 55.58,
+          "mean_ms": 7.914
+        },
+        "e2e_cmd_ms_t0_to_t2": {
+          "count": 2250,
+          "p50_ms": 24.0,
+          "p95_ms": 57.0,
+          "p99_ms": 82.51,
+          "min_ms": 9.0,
+          "max_ms": 109.0,
+          "mean_ms": 28.473
+        },
+        "max_pending_commands_backlog": 2,
+        "max_write_slots_backlog": 1,
+        "processing_rps_observed": 25.0
+      },
+      "c4_result": {
+        "matched_results_count": 2250,
+        "admission_to_result_ms_t0_to_t4": {
+          "count": 2250,
+          "p50_ms": 47.0,
+          "p95_ms": 95.55,
+          "p99_ms": 119.51,
+          "min_ms": 16.0,
+          "max_ms": 173.0,
+          "mean_ms": 50.676
+        },
+        "useful_exec_ms_t3_to_t4": {
+          "count": 2250,
+          "p50_ms": 1.72,
+          "p95_ms": 3.14,
+          "p99_ms": 21.16,
+          "min_ms": 1.03,
+          "max_ms": 36.51,
+          "mean_ms": 2.291
+        },
+        "consumption_rps_observed": 25.01,
+        "max_results_slots_backlog": 1,
+        "quarantined": 0,
+        "drain_time_after_load_s": 0.858
+      },
+      "c5_read_projection_and_background_http": {
+        "matched_complete_read_count": 2250,
+        "admission_to_visible_ms_t0_to_max_t4": {
+          "count": 2250,
+          "p50_ms": 104.0,
+          "p95_ms": 230.65,
+          "p99_ms": 312.0,
+          "min_ms": 25.0,
+          "max_ms": 485.0,
+          "mean_ms": 116.148
+        },
+        "materialization_rps_observed": 24.96,
+        "max_business_read_slots_backlog": 7,
+        "concurrent_http_read_probe_count": 80,
+        "concurrent_http_read_probe_errors": 0,
+        "concurrent_http_read_probe_ms": {
+          "count": 80,
+          "p50_ms": 6.661,
+          "p95_ms": 9.55,
+          "p99_ms": 10.956,
+          "min_ms": 4.26,
+          "max_ms": 11.656,
+          "mean_ms": 6.765
+        }
+      },
+      "sql_deltas_exact": {
+        "commands_delta": 2250,
+        "command_results_write_delta": 2250,
+        "pot_events_delta": 2250,
+        "read_command_result_delta": 2250,
+        "read_pot_version_delta": 2250,
+        "write_quarantined": 0,
+        "read_quarantined": 0
+      },
+      "zero_loss_and_zero_duplication": true,
+      "c6_resources": {
+        "container_peak_stats": {
+          "grafana": {
+            "max_cpu_pct": 1.23,
+            "max_mem_mib": 263.2,
+            "mean_cpu_pct": 0.23
+          },
+          "results-worker": {
+            "max_cpu_pct": 60.03,
+            "max_mem_mib": 198.5,
+            "mean_cpu_pct": 45.56
+          },
+          "command-worker": {
+            "max_cpu_pct": 59.19,
+            "max_mem_mib": 211.6,
+            "mean_cpu_pct": 48.31
+          },
+          "business-read-worker": {
+            "max_cpu_pct": 76.3,
+            "max_mem_mib": 215.4,
+            "mean_cpu_pct": 60.09
+          },
+          "http-write": {
+            "max_cpu_pct": 36.18,
+            "max_mem_mib": 216.1,
+            "mean_cpu_pct": 12.8
+          },
+          "http-read": {
+            "max_cpu_pct": 4.15,
+            "max_mem_mib": 207.6,
+            "mean_cpu_pct": 1.6
+          },
+          "prometheus": {
+            "max_cpu_pct": 0.66,
+            "max_mem_mib": 169.1,
+            "mean_cpu_pct": 0.42
+          },
+          "keycloak": {
+            "max_cpu_pct": 0.13,
+            "max_mem_mib": 635.6,
+            "mean_cpu_pct": 0.11
+          },
+          "postgres": {
+            "max_cpu_pct": 155.97,
+            "max_mem_mib": 288.6,
+            "mean_cpu_pct": 146.74
+          }
+        },
+        "jvm_gc_and_heap_before": {
+          "http-write": {
+            "heap_used_mib": 24.74,
+            "gc_pause_count": 7,
+            "gc_pause_total_ms": 29.0,
+            "hikari_active_sum": 0.0,
+            "hikari_max_sum": 4.0
+          },
+          "http-read": {
+            "heap_used_mib": 35.56,
+            "gc_pause_count": 16,
+            "gc_pause_total_ms": 97.0,
+            "hikari_active_sum": 0.0,
+            "hikari_max_sum": 9.0
+          },
+          "command-worker": {
+            "heap_used_mib": 27.52,
+            "gc_pause_count": 42,
+            "gc_pause_total_ms": 78.0,
+            "hikari_active_sum": 0.0,
+            "hikari_max_sum": 12.0
+          },
+          "results-worker": {
+            "heap_used_mib": 30.89,
+            "gc_pause_count": 40,
+            "gc_pause_total_ms": 71.0,
+            "hikari_active_sum": 1.0,
+            "hikari_max_sum": 16.0
+          },
+          "business-read-worker": {
+            "heap_used_mib": 29.89,
+            "gc_pause_count": 76,
+            "gc_pause_total_ms": 107.0,
+            "hikari_active_sum": 1.0,
+            "hikari_max_sum": 19.0
+          }
+        },
+        "jvm_gc_and_heap_after": {
+          "http-write": {
+            "heap_used_mib": 35.82,
+            "gc_pause_count": 31,
+            "gc_pause_total_ms": 102.0,
+            "hikari_active_sum": 0.0,
+            "hikari_max_sum": 4.0
+          },
+          "http-read": {
+            "heap_used_mib": 41.06,
+            "gc_pause_count": 22,
+            "gc_pause_total_ms": 119.0,
+            "hikari_active_sum": 0.0,
+            "hikari_max_sum": 9.0
+          },
+          "command-worker": {
+            "heap_used_mib": 28.59,
+            "gc_pause_count": 197,
+            "gc_pause_total_ms": 267.0,
+            "hikari_active_sum": 0.0,
+            "hikari_max_sum": 12.0
+          },
+          "results-worker": {
+            "heap_used_mib": 33.56,
+            "gc_pause_count": 183,
+            "gc_pause_total_ms": 211.0,
+            "hikari_active_sum": 1.0,
+            "hikari_max_sum": 16.0
+          },
+          "business-read-worker": {
+            "heap_used_mib": 41.97,
+            "gc_pause_count": 264,
+            "gc_pause_total_ms": 348.0,
+            "hikari_active_sum": 1.0,
+            "hikari_max_sum": 19.0
+          }
+        },
+        "containers_restarted_or_down": [],
+        "health_before": {
+          "http-write": {
+            "code": 200,
+            "status": "UP"
+          },
+          "http-read": {
+            "code": 200,
+            "status": "UP"
+          },
+          "command-worker": {
+            "code": 200,
+            "status": "UP"
+          },
+          "results-worker": {
+            "code": 200,
+            "status": "UP"
+          },
+          "business-read-worker": {
+            "code": 200,
+            "status": "UP"
+          }
+        },
+        "health_after": {
+          "http-write": {
+            "code": 200,
+            "status": "UP"
+          },
+          "http-read": {
+            "code": 200,
+            "status": "UP"
+          },
+          "command-worker": {
+            "code": 200,
+            "status": "UP"
+          },
+          "results-worker": {
+            "code": 200,
+            "status": "UP"
+          },
+          "business-read-worker": {
+            "code": 200,
+            "status": "UP"
+          }
+        },
+        "readiness_after": {
+          "http-write": {
+            "code": 200,
+            "status": "UP"
+          },
+          "http-read": {
+            "code": 200,
+            "status": "UP"
+          },
+          "command-worker": {
+            "code": 200,
+            "status": "UP"
+          },
+          "results-worker": {
+            "code": 200,
+            "status": "UP"
+          },
+          "business-read-worker": {
+            "code": 200,
+            "status": "UP"
+          }
+        },
+        "worker_states_after": {
+          "command-worker": "running",
+          "results-worker": "running",
+          "business-read-worker": "running"
+        },
+        "backlog_timeseries": [
+          {
+            "t_s": 0.0,
+            "write_pending": 1,
+            "write_slots": 0,
+            "results_slots": 0,
+            "read_slots": 1,
+            "write_quarantined": 0,
+            "read_quarantined": 0,
+            "pg_active_write": 0,
+            "pg_active_read": 0
+          },
+          {
+            "t_s": 4.53,
+            "write_pending": 1,
+            "write_slots": 1,
+            "results_slots": 0,
+            "read_slots": 1,
+            "write_quarantined": 0,
+            "read_quarantined": 0,
+            "pg_active_write": 0,
+            "pg_active_read": 1
+          },
+          {
+            "t_s": 9.13,
+            "write_pending": 2,
+            "write_slots": 1,
+            "results_slots": 0,
+            "read_slots": 4,
+            "write_quarantined": 0,
+            "read_quarantined": 0,
+            "pg_active_write": 3,
+            "pg_active_read": 2
+          },
+          {
+            "t_s": 13.73,
+            "write_pending": 1,
+            "write_slots": 1,
+            "results_slots": 0,
+            "read_slots": 0,
+            "write_quarantined": 0,
+            "read_quarantined": 0,
+            "pg_active_write": 1,
+            "pg_active_read": 2
+          },
+          {
+            "t_s": 18.33,
+            "write_pending": 1,
+            "write_slots": 0,
+            "results_slots": 1,
+            "read_slots": 1,
+            "write_quarantined": 0,
+            "read_quarantined": 0,
+            "pg_active_write": 0,
+            "pg_active_read": 0
+          },
+          {
+            "t_s": 22.93,
+            "write_pending": 1,
+            "write_slots": 0,
+            "results_slots": 0,
+            "read_slots": 3,
+            "write_quarantined": 0,
+            "read_quarantined": 0,
+            "pg_active_write": 0,
+            "pg_active_read": 1
+          },
+          {
+            "t_s": 27.53,
+            "write_pending": 0,
+            "write_slots": 0,
+            "results_slots": 1,
+            "read_slots": 2,
+            "write_quarantined": 0,
+            "read_quarantined": 0,
+            "pg_active_write": 1,
+            "pg_active_read": 0
+          },
+          {
+            "t_s": 32.13,
+            "write_pending": 1,
+            "write_slots": 0,
+            "results_slots": 0,
+            "read_slots": 0,
+            "write_quarantined": 0,
+            "read_quarantined": 0,
+            "pg_active_write": 0,
+            "pg_active_read": 0
+          },
+          {
+            "t_s": 36.73,
+            "write_pending": 2,
+            "write_slots": 1,
+            "results_slots": 0,
+            "read_slots": 1,
+            "write_quarantined": 0,
+            "read_quarantined": 0,
+            "pg_active_write": 1,
+            "pg_active_read": 3
+          },
+          {
+            "t_s": 41.33,
+            "write_pending": 2,
+            "write_slots": 0,
+            "results_slots": 0,
+            "read_slots": 1,
+            "write_quarantined": 0,
+            "read_quarantined": 0,
+            "pg_active_write": 0,
+            "pg_active_read": 1
+          },
+          {
+            "t_s": 45.93,
+            "write_pending": 1,
+            "write_slots": 0,
+            "results_slots": 0,
+            "read_slots": 2,
+            "write_quarantined": 0,
+            "read_quarantined": 0,
+            "pg_active_write": 3,
+            "pg_active_read": 1
+          },
+          {
+            "t_s": 50.53,
+            "write_pending": 1,
+            "write_slots": 1,
+            "results_slots": 0,
+            "read_slots": 3,
+            "write_quarantined": 0,
+            "read_quarantined": 0,
+            "pg_active_write": 1,
+            "pg_active_read": 1
+          },
+          {
+            "t_s": 55.13,
+            "write_pending": 1,
+            "write_slots": 1,
+            "results_slots": 0,
+            "read_slots": 3,
+            "write_quarantined": 0,
+            "read_quarantined": 0,
+            "pg_active_write": 0,
+            "pg_active_read": 1
+          },
+          {
+            "t_s": 59.73,
+            "write_pending": 1,
+            "write_slots": 0,
+            "results_slots": 0,
+            "read_slots": 0,
+            "write_quarantined": 0,
+            "read_quarantined": 0,
+            "pg_active_write": 2,
+            "pg_active_read": 0
+          },
+          {
+            "t_s": 64.33,
+            "write_pending": 1,
+            "write_slots": 0,
+            "results_slots": 0,
+            "read_slots": 1,
+            "write_quarantined": 0,
+            "read_quarantined": 0,
+            "pg_active_write": 2,
+            "pg_active_read": 0
+          },
+          {
+            "t_s": 68.93,
+            "write_pending": 0,
+            "write_slots": 0,
+            "results_slots": 1,
+            "read_slots": 3,
+            "write_quarantined": 0,
+            "read_quarantined": 0,
+            "pg_active_write": 0,
+            "pg_active_read": 1
+          },
+          {
+            "t_s": 73.54,
+            "write_pending": 1,
+            "write_slots": 1,
+            "results_slots": 0,
+            "read_slots": 3,
+            "write_quarantined": 0,
+            "read_quarantined": 0,
+            "pg_active_write": 0,
+            "pg_active_read": 2
+          },
+          {
+            "t_s": 78.13,
+            "write_pending": 2,
+            "write_slots": 1,
+            "results_slots": 1,
+            "read_slots": 1,
+            "write_quarantined": 0,
+            "read_quarantined": 0,
+            "pg_active_write": 1,
+            "pg_active_read": 0
+          },
+          {
+            "t_s": 82.73,
+            "write_pending": 2,
+            "write_slots": 0,
+            "results_slots": 0,
+            "read_slots": 3,
+            "write_quarantined": 0,
+            "read_quarantined": 0,
+            "pg_active_write": 1,
+            "pg_active_read": 1
+          },
+          {
+            "t_s": 87.33,
+            "write_pending": 2,
+            "write_slots": 0,
+            "results_slots": 0,
+            "read_slots": 3,
+            "write_quarantined": 0,
+            "read_quarantined": 0,
+            "pg_active_write": 0,
+            "pg_active_read": 1
+          }
+        ]
+      },
+      "admitted_pot_ids_sample": [
+        "eefe6209-b9ab-4887-a096-87dd5c9485d0",
+        "6664045e-fc10-4866-8490-6eda37dc7ff7",
+        "bd4328ae-a634-4848-8d0f-fc65d20b3bae",
+        "b26d5f4c-532a-43a2-b158-af46997ad6d9",
+        "41a7d800-bebb-4750-b545-7590355b1ba3",
+        "349268f0-9a37-4c79-b08d-79fd87a647db",
+        "8ebbe378-2a27-4ec0-abec-74bdd78c5566",
+        "21cd9488-b8ed-4feb-a65c-f213ae44a719",
+        "2c9296af-db03-478e-8b31-bd801b5f5411",
+        "e633fa79-15f5-4e53-a063-4a9608a37543",
+        "c58cb0d0-4805-4975-a24c-a53330c48754",
+        "7c562a86-98ad-4021-be8c-a38e155ccb30",
+        "f94c9f26-d2af-481f-9e03-6b712aa3cb69",
+        "d33c2239-b237-431f-b084-9f068ad96050",
+        "b74d7ad1-6b74-4fd2-8918-87b06f06493b",
+        "b1ad9814-621e-4e54-ab71-7c57ca3d6ff2",
+        "91deec83-d6c6-4734-9530-bcfac99feeba",
+        "3862ddfa-77e8-4f55-9985-b89fbe6a48b4",
+        "54c77a36-3288-484e-adb9-7015e64bd76a",
+        "19384c30-bd24-4c93-89e2-4c5eaf84898c",
+        "41ec160c-94be-48c3-a6e3-cccfe69fdfc8",
+        "74fa091b-3f1d-4705-8cf9-a73566380d94",
+        "93572471-2b9e-47ba-b966-1eea1dd69375",
+        "89e6c54e-9511-45bd-b8e3-c59fd96e7104",
+        "2d2202d9-03ab-4732-bef5-78fe97570302",
+        "147d08a8-8d97-460c-96b2-bcaa55323437",
+        "33f33676-f939-4ec1-9701-ceac1af1ff68",
+        "7bb77fb1-fca0-4f7b-88f5-7b38c8347693",
+        "54c813c1-8ae2-422e-baee-5cefeabb763b",
+        "96fa16f8-f41f-4c9f-a876-ba0f35e59ed8",
+        "3e210e09-053c-46ef-bbed-b23682efd70a",
+        "3f8885bd-20c0-44d6-b2f9-8d92539e8ca3",
+        "3801d14b-b4a9-4ba8-89fa-131d503b1423",
+        "2bed8938-8632-4c2d-acc6-6c493952773f",
+        "89984208-2a08-4497-b502-b088b962b923",
+        "fc8a64f0-e0fe-4b15-b906-0375cae4099e",
+        "779b639c-b835-406f-9355-c3733ba3955c",
+        "a4353c46-0353-433d-bb91-688366f11d05",
+        "291b3710-2558-49bd-b1d9-3d6e3559e0ad",
+        "bb3afe0a-8283-4f1b-955a-68b0c0f63129",
+        "c9dffd7f-a99d-4d41-a381-f8fa79f06fbe",
+        "8bb0cac3-45ed-4c13-ac01-32df48d55dbe",
+        "4f63f39f-81cf-41f0-9f08-1061a6d4dd3a",
+        "8e0d5bc2-ba6c-402c-86c1-9537bddadc22",
+        "a52117ff-0de4-4075-b930-c6a4e517a87a",
+        "78062e0c-d48e-49b4-a779-1f36268dbae0",
+        "4650b3cb-c5ab-4fc7-a772-3d08f27c1ad8",
+        "c5ad70cc-0c19-4e06-b5b9-8c837c7bb92e",
+        "004ed70e-0342-4b9d-bee2-8e0790663432",
+        "6b8c341c-a1bb-4b84-971a-8b0613c4b42c",
+        "632f0e93-5d8f-4182-87e9-9854fe0f2414",
+        "cac9383f-70f7-424b-8c40-5d66b2a7127b",
+        "2a531f14-caa2-4937-a92c-8e7ff633d22e",
+        "9145269d-de5f-44a7-b32f-46dcdba17a5d",
+        "9ef47ba2-7fa4-41fa-bf52-61b92feacbb9",
+        "0a66daaf-7b45-4d12-bb87-f42eff99b087",
+        "bcadbe3b-14e6-420c-9a99-4e5deef2e1b2",
+        "e4526c27-7d4c-40b8-9d26-26d659d37cb9",
+        "aa4efebb-da67-42b7-82a3-1430de975dbe",
+        "c3860a32-c627-4321-9159-701edc452245",
+        "4e8444db-0045-4e69-96a0-775853779191",
+        "d5a0e4fa-7018-4af7-8f4b-9bff50d7599e",
+        "591e6f9b-8675-402b-bddd-5e7e3e154bcd",
+        "62fe52d9-6224-4938-b84a-45a759a0cb81"
+      ]
+    },
+    {
+      "profile": "P3",
+      "target_rps": 50.0,
+      "target_duration_s": 120,
+      "planned_commands": 6000,
+      "actual_send_duration_s": 119.989,
+      "free_disk_mib_before": 2497.5,
+      "free_disk_mib_after": 2324.8,
+      "admission_capacity_before": 4,
+      "admission_capacity_after": 4,
+      "c3_command": {
+        "requested_rps": 50.005,
+        "admitted_count": 6000,
+        "admitted_rps": 50.005,
+        "error_count": 0,
+        "errors_by_status": {},
+        "error_sample": [],
+        "http_latency_ms": {
+          "count": 6000,
+          "p50_ms": 4.442,
+          "p95_ms": 43.775,
+          "p99_ms": 46.693,
+          "min_ms": 1.983,
+          "max_ms": 94.226,
+          "mean_ms": 13.139
+        },
+        "useful_exec_ms_t1_to_t2": {
+          "count": 6000,
+          "p50_ms": 6.86,
+          "p95_ms": 53.884,
+          "p99_ms": 62.65,
+          "min_ms": 3.61,
+          "max_ms": 160.38,
+          "mean_ms": 13.672
+        },
+        "e2e_cmd_ms_t0_to_t2": {
+          "count": 6000,
+          "p50_ms": 63.0,
+          "p95_ms": 196.0,
+          "p99_ms": 350.09,
+          "min_ms": 10.0,
+          "max_ms": 1200.0,
+          "mean_ms": 78.854
+        },
+        "max_pending_commands_backlog": 16,
+        "max_write_slots_backlog": 13,
+        "processing_rps_observed": 49.99
+      },
+      "c4_result": {
+        "matched_results_count": 6000,
+        "admission_to_result_ms_t0_to_t4": {
+          "count": 6000,
+          "p50_ms": 119.0,
+          "p95_ms": 295.0,
+          "p99_ms": 473.04,
+          "min_ms": 21.0,
+          "max_ms": 1295.0,
+          "mean_ms": 139.912
+        },
+        "useful_exec_ms_t3_to_t4": {
+          "count": 6000,
+          "p50_ms": 1.89,
+          "p95_ms": 5.67,
+          "p99_ms": 49.21,
+          "min_ms": 0.65,
+          "max_ms": 61.66,
+          "mean_ms": 3.903
+        },
+        "consumption_rps_observed": 50.0,
+        "max_results_slots_backlog": 4,
+        "quarantined": 0,
+        "drain_time_after_load_s": 6.284
+      },
+      "c5_read_projection_and_background_http": {
+        "matched_complete_read_count": 6000,
+        "admission_to_visible_ms_t0_to_max_t4": {
+          "count": 6000,
+          "p50_ms": 12335.0,
+          "p95_ms": 25176.75,
+          "p99_ms": 28961.71,
+          "min_ms": 130.0,
+          "max_ms": 39480.0,
+          "mean_ms": 12817.274
+        },
+        "materialization_rps_observed": 47.68,
+        "max_business_read_slots_backlog": 493,
+        "concurrent_http_read_probe_count": 110,
+        "concurrent_http_read_probe_errors": 0,
+        "concurrent_http_read_probe_ms": {
+          "count": 110,
+          "p50_ms": 6.94,
+          "p95_ms": 18.006,
+          "p99_ms": 69.755,
+          "min_ms": 3.306,
+          "max_ms": 82.81,
+          "mean_ms": 10.02
+        }
+      },
+      "sql_deltas_exact": {
+        "commands_delta": 6000,
+        "command_results_write_delta": 6000,
+        "pot_events_delta": 6000,
+        "read_command_result_delta": 6000,
+        "read_pot_version_delta": 6000,
+        "write_quarantined": 0,
+        "read_quarantined": 0
+      },
+      "zero_loss_and_zero_duplication": true,
+      "c6_resources": {
+        "container_peak_stats": {
+          "grafana": {
+            "max_cpu_pct": 0.61,
+            "max_mem_mib": 263.8,
+            "mean_cpu_pct": 0.21
+          },
+          "results-worker": {
+            "max_cpu_pct": 37.34,
+            "max_mem_mib": 203.4,
+            "mean_cpu_pct": 32.92
+          },
+          "command-worker": {
+            "max_cpu_pct": 54.05,
+            "max_mem_mib": 220.9,
+            "mean_cpu_pct": 39.91
+          },
+          "business-read-worker": {
+            "max_cpu_pct": 57.17,
+            "max_mem_mib": 223.4,
+            "mean_cpu_pct": 46.68
+          },
+          "http-write": {
+            "max_cpu_pct": 33.82,
+            "max_mem_mib": 230.9,
+            "mean_cpu_pct": 12.34
+          },
+          "http-read": {
+            "max_cpu_pct": 3.32,
+            "max_mem_mib": 210.7,
+            "mean_cpu_pct": 1.09
+          },
+          "prometheus": {
+            "max_cpu_pct": 0.74,
+            "max_mem_mib": 169.3,
+            "mean_cpu_pct": 0.46
+          },
+          "keycloak": {
+            "max_cpu_pct": 4.46,
+            "max_mem_mib": 639.5,
+            "mean_cpu_pct": 0.35
+          },
+          "postgres": {
+            "max_cpu_pct": 155.95,
+            "max_mem_mib": 329.5,
+            "mean_cpu_pct": 147.71
+          }
+        },
+        "jvm_gc_and_heap_before": {
+          "http-write": {
+            "heap_used_mib": 40.8,
+            "gc_pause_count": 31,
+            "gc_pause_total_ms": 102.0,
+            "hikari_active_sum": 0.0,
+            "hikari_max_sum": 4.0
+          },
+          "http-read": {
+            "heap_used_mib": 26.42,
+            "gc_pause_count": 23,
+            "gc_pause_total_ms": 122.0,
+            "hikari_active_sum": 0.0,
+            "hikari_max_sum": 9.0
+          },
+          "command-worker": {
+            "heap_used_mib": 40.52,
+            "gc_pause_count": 198,
+            "gc_pause_total_ms": 269.0,
+            "hikari_active_sum": 0.0,
+            "hikari_max_sum": 12.0
+          },
+          "results-worker": {
+            "heap_used_mib": 29.06,
+            "gc_pause_count": 185,
+            "gc_pause_total_ms": 214.0,
+            "hikari_active_sum": 0.0,
+            "hikari_max_sum": 16.0
+          },
+          "business-read-worker": {
+            "heap_used_mib": 26.17,
+            "gc_pause_count": 268,
+            "gc_pause_total_ms": 354.0,
+            "hikari_active_sum": 0.0,
+            "hikari_max_sum": 19.0
+          }
+        },
+        "jvm_gc_and_heap_after": {
+          "http-write": {
+            "heap_used_mib": 32.27,
+            "gc_pause_count": 92,
+            "gc_pause_total_ms": 246.0,
+            "hikari_active_sum": 0.0,
+            "hikari_max_sum": 4.0
+          },
+          "http-read": {
+            "heap_used_mib": 35.29,
+            "gc_pause_count": 31,
+            "gc_pause_total_ms": 173.0,
+            "hikari_active_sum": 0.0,
+            "hikari_max_sum": 9.0
+          },
+          "command-worker": {
+            "heap_used_mib": 31.34,
+            "gc_pause_count": 361,
+            "gc_pause_total_ms": 564.0,
+            "hikari_active_sum": 1.0,
+            "hikari_max_sum": 12.0
+          },
+          "results-worker": {
+            "heap_used_mib": 26.96,
+            "gc_pause_count": 317,
+            "gc_pause_total_ms": 390.0,
+            "hikari_active_sum": 0.0,
+            "hikari_max_sum": 16.0
+          },
+          "business-read-worker": {
+            "heap_used_mib": 43.04,
+            "gc_pause_count": 517,
+            "gc_pause_total_ms": 738.0,
+            "hikari_active_sum": 0.0,
+            "hikari_max_sum": 19.0
+          }
+        },
+        "containers_restarted_or_down": [],
+        "health_before": {
+          "http-write": {
+            "code": 200,
+            "status": "UP"
+          },
+          "http-read": {
+            "code": 200,
+            "status": "UP"
+          },
+          "command-worker": {
+            "code": 200,
+            "status": "UP"
+          },
+          "results-worker": {
+            "code": 200,
+            "status": "UP"
+          },
+          "business-read-worker": {
+            "code": 200,
+            "status": "UP"
+          }
+        },
+        "health_after": {
+          "http-write": {
+            "code": 200,
+            "status": "UP"
+          },
+          "http-read": {
+            "code": 200,
+            "status": "UP"
+          },
+          "command-worker": {
+            "code": 200,
+            "status": "UP"
+          },
+          "results-worker": {
+            "code": 200,
+            "status": "UP"
+          },
+          "business-read-worker": {
+            "code": 200,
+            "status": "UP"
+          }
+        },
+        "readiness_after": {
+          "http-write": {
+            "code": 200,
+            "status": "UP"
+          },
+          "http-read": {
+            "code": 200,
+            "status": "UP"
+          },
+          "command-worker": {
+            "code": 200,
+            "status": "UP"
+          },
+          "results-worker": {
+            "code": 200,
+            "status": "UP"
+          },
+          "business-read-worker": {
+            "code": 200,
+            "status": "UP"
+          }
+        },
+        "worker_states_after": {
+          "command-worker": "running",
+          "results-worker": "running",
+          "business-read-worker": "running"
+        },
+        "backlog_timeseries": [
+          {
+            "t_s": 0.0,
+            "write_pending": 2,
+            "write_slots": 1,
+            "results_slots": 2,
+            "read_slots": 1,
+            "write_quarantined": 0,
+            "read_quarantined": 0,
+            "pg_active_write": 0,
+            "pg_active_read": 2
+          },
+          {
+            "t_s": 4.7,
+            "write_pending": 4,
+            "write_slots": 1,
+            "results_slots": 2,
+            "read_slots": 83,
+            "write_quarantined": 0,
+            "read_quarantined": 0,
+            "pg_active_write": 1,
+            "pg_active_read": 1
+          },
+          {
+            "t_s": 9.3,
+            "write_pending": 8,
+            "write_slots": 5,
+            "results_slots": 3,
+            "read_slots": 150,
+            "write_quarantined": 0,
+            "read_quarantined": 0,
+            "pg_active_write": 2,
+            "pg_active_read": 1
+          },
+          {
+            "t_s": 13.91,
+            "write_pending": 5,
+            "write_slots": 2,
+            "results_slots": 3,
+            "read_slots": 241,
+            "write_quarantined": 0,
+            "read_quarantined": 0,
+            "pg_active_write": 0,
+            "pg_active_read": 2
+          },
+          {
+            "t_s": 18.5,
+            "write_pending": 16,
+            "write_slots": 13,
+            "results_slots": 0,
+            "read_slots": 366,
+            "write_quarantined": 0,
+            "read_quarantined": 0,
+            "pg_active_write": 0,
+            "pg_active_read": 0
+          },
+          {
+            "t_s": 23.1,
+            "write_pending": 4,
+            "write_slots": 1,
+            "results_slots": 0,
+            "read_slots": 447,
+            "write_quarantined": 0,
+            "read_quarantined": 0,
+            "pg_active_write": 1,
+            "pg_active_read": 0
+          },
+          {
+            "t_s": 27.7,
+            "write_pending": 4,
+            "write_slots": 1,
+            "results_slots": 2,
+            "read_slots": 392,
+            "write_quarantined": 0,
+            "read_quarantined": 0,
+            "pg_active_write": 0,
+            "pg_active_read": 3
+          },
+          {
+            "t_s": 32.3,
+            "write_pending": 4,
+            "write_slots": 2,
+            "results_slots": 1,
+            "read_slots": 417,
+            "write_quarantined": 0,
+            "read_quarantined": 0,
+            "pg_active_write": 2,
+            "pg_active_read": 1
+          },
+          {
+            "t_s": 36.9,
+            "write_pending": 5,
+            "write_slots": 1,
+            "results_slots": 0,
+            "read_slots": 445,
+            "write_quarantined": 0,
+            "read_quarantined": 0,
+            "pg_active_write": 3,
+            "pg_active_read": 1
+          },
+          {
+            "t_s": 41.61,
+            "write_pending": 4,
+            "write_slots": 1,
+            "results_slots": 4,
+            "read_slots": 462,
+            "write_quarantined": 0,
+            "read_quarantined": 0,
+            "pg_active_write": 2,
+            "pg_active_read": 0
+          },
+          {
+            "t_s": 46.2,
+            "write_pending": 4,
+            "write_slots": 2,
+            "results_slots": 1,
+            "read_slots": 461,
+            "write_quarantined": 0,
+            "read_quarantined": 0,
+            "pg_active_write": 1,
+            "pg_active_read": 1
+          },
+          {
+            "t_s": 50.88,
+            "write_pending": 3,
+            "write_slots": 1,
+            "results_slots": 2,
+            "read_slots": 486,
+            "write_quarantined": 0,
+            "read_quarantined": 0,
+            "pg_active_write": 1,
+            "pg_active_read": 1
+          },
+          {
+            "t_s": 55.5,
+            "write_pending": 5,
+            "write_slots": 2,
+            "results_slots": 2,
+            "read_slots": 483,
+            "write_quarantined": 0,
+            "read_quarantined": 0,
+            "pg_active_write": 2,
+            "pg_active_read": 1
+          },
+          {
+            "t_s": 60.1,
+            "write_pending": 4,
+            "write_slots": 3,
+            "results_slots": 1,
+            "read_slots": 487,
+            "write_quarantined": 0,
+            "read_quarantined": 0,
+            "pg_active_write": 0,
+            "pg_active_read": 1
+          },
+          {
+            "t_s": 64.78,
+            "write_pending": 4,
+            "write_slots": 2,
+            "results_slots": 2,
+            "read_slots": 492,
+            "write_quarantined": 0,
+            "read_quarantined": 0,
+            "pg_active_write": 2,
+            "pg_active_read": 1
+          },
+          {
+            "t_s": 69.4,
+            "write_pending": 4,
+            "write_slots": 2,
+            "results_slots": 3,
+            "read_slots": 458,
+            "write_quarantined": 0,
+            "read_quarantined": 0,
+            "pg_active_write": 0,
+            "pg_active_read": 0
+          },
+          {
+            "t_s": 74.01,
+            "write_pending": 4,
+            "write_slots": 2,
+            "results_slots": 1,
+            "read_slots": 464,
+            "write_quarantined": 0,
+            "read_quarantined": 0,
+            "pg_active_write": 1,
+            "pg_active_read": 0
+          },
+          {
+            "t_s": 78.6,
+            "write_pending": 4,
+            "write_slots": 1,
+            "results_slots": 3,
+            "read_slots": 413,
+            "write_quarantined": 0,
+            "read_quarantined": 0,
+            "pg_active_write": 1,
+            "pg_active_read": 3
+          },
+          {
+            "t_s": 83.2,
+            "write_pending": 4,
+            "write_slots": 2,
+            "results_slots": 2,
+            "read_slots": 391,
+            "write_quarantined": 0,
+            "read_quarantined": 0,
+            "pg_active_write": 1,
+            "pg_active_read": 0
+          },
+          {
+            "t_s": 87.81,
+            "write_pending": 6,
+            "write_slots": 3,
+            "results_slots": 0,
+            "read_slots": 396,
+            "write_quarantined": 0,
+            "read_quarantined": 0,
+            "pg_active_write": 2,
+            "pg_active_read": 2
+          },
+          {
+            "t_s": 92.6,
+            "write_pending": 5,
+            "write_slots": 2,
+            "results_slots": 1,
+            "read_slots": 404,
+            "write_quarantined": 0,
+            "read_quarantined": 0,
+            "pg_active_write": 1,
+            "pg_active_read": 2
+          },
+          {
+            "t_s": 97.2,
+            "write_pending": 5,
+            "write_slots": 2,
+            "results_slots": 2,
+            "read_slots": 372,
+            "write_quarantined": 0,
+            "read_quarantined": 0,
+            "pg_active_write": 1,
+            "pg_active_read": 1
+          },
+          {
+            "t_s": 101.8,
+            "write_pending": 3,
+            "write_slots": 1,
+            "results_slots": 0,
+            "read_slots": 348,
+            "write_quarantined": 0,
+            "read_quarantined": 0,
+            "pg_active_write": 2,
+            "pg_active_read": 1
+          },
+          {
+            "t_s": 106.41,
+            "write_pending": 3,
+            "write_slots": 0,
+            "results_slots": 1,
+            "read_slots": 342,
+            "write_quarantined": 0,
+            "read_quarantined": 0,
+            "pg_active_write": 0,
+            "pg_active_read": 0
+          },
+          {
+            "t_s": 111.04,
+            "write_pending": 5,
+            "write_slots": 1,
+            "results_slots": 1,
+            "read_slots": 331,
+            "write_quarantined": 0,
+            "read_quarantined": 0,
+            "pg_active_write": 1,
+            "pg_active_read": 0
+          },
+          {
+            "t_s": 115.7,
+            "write_pending": 4,
+            "write_slots": 1,
+            "results_slots": 1,
+            "read_slots": 318,
+            "write_quarantined": 0,
+            "read_quarantined": 0,
+            "pg_active_write": 2,
+            "pg_active_read": 0
+          },
+          {
+            "t_s": 120.3,
+            "write_pending": 0,
+            "write_slots": 0,
+            "results_slots": 0,
+            "read_slots": 280,
+            "write_quarantined": 0,
+            "read_quarantined": 0,
+            "pg_active_write": 0,
+            "pg_active_read": 1
+          },
+          {
+            "t_s": 124.92,
+            "write_pending": 0,
+            "write_slots": 0,
+            "results_slots": 0,
+            "read_slots": 136,
+            "write_quarantined": 0,
+            "read_quarantined": 0,
+            "pg_active_write": 0,
+            "pg_active_read": 1
+          }
+        ]
+      },
+      "admitted_pot_ids_sample": [
+        "29f494a8-9ac2-4786-bb4b-d194639ee4ef",
+        "71b3d8a2-5a65-4184-a09e-92d18b7f7bb5",
+        "2fc4ffb6-0b3d-4235-a973-0b74bcef676c",
+        "765b6a63-4c27-4fe2-adf7-1a9f26bf711e",
+        "99694090-ab45-4a17-b066-0944e5ea4eab",
+        "9a7d3bc7-6f84-45b6-9ce4-771495df5cc8",
+        "385d3d24-a08b-44c6-af5e-a303369d4c2e",
+        "d14e8a9a-d4c0-4f07-bc05-dac5f34f904c",
+        "3cb13035-d632-4447-9892-f4aeef6b3e01",
+        "342b853e-82c9-4a1f-a76a-39d5d40361e2",
+        "d0ac86e3-307b-4987-ad4b-3f05958267d0",
+        "b88ec732-509c-41e6-9dbf-daf7c36aeec0",
+        "259fa6bf-8fc8-4053-aef4-6059a83b5b5b",
+        "0e0ccf4d-6c5f-49ed-85bd-164462f7282c",
+        "83eda1d3-e164-473b-b64b-fbd5e539f631",
+        "8f733e2a-5475-4514-9d02-6353f3f2e9f4",
+        "41dc82b6-3115-4b62-94b2-e5f39fdceae6",
+        "870b50b8-9a14-431e-8ad2-7e2c6b0f56da",
+        "9af3c56d-2b6c-4aa3-86a1-1686e4762929",
+        "8496eaeb-a28a-4d2f-98ec-3f03c067d277",
+        "3a7c916f-5a79-4356-a11b-9bdd46d7b12b",
+        "899ddf6b-8e47-4fb2-901f-5c702808a57c",
+        "1893e7c5-47da-44b2-8eb4-0f87696d54ae",
+        "56f5001e-fb38-4baa-882f-0b5431592ba3",
+        "f8c47254-ba07-4897-9ce0-8bb97745da0a",
+        "1f26a2fa-27a2-4861-97b6-7570c8c0422a",
+        "dd42289c-162a-4f73-924a-230a5a671d35",
+        "d113c414-8fa0-4dc8-a90e-11100e401cf5",
+        "2594e145-4cce-49d3-88ae-86049e713f83",
+        "6b239519-7afd-4960-b4c1-3051cf9cc0f4",
+        "3bb88b5e-d702-45a8-97cc-2f39b9290793",
+        "93775c9c-8523-40d9-9930-0cadbdf26a87",
+        "de08c38d-682d-4451-abbf-d28a8dc2dcfa",
+        "5344c7ca-ed90-4fd2-b6ef-113c976a3013",
+        "d67023ef-12b3-4a03-a950-a87cacd91b5e",
+        "70dd75ce-97d1-48a1-8e57-64e52fbf1e8f",
+        "f9574796-9d1f-482d-9db0-09b57a852b81",
+        "3c9ec1a1-695d-4123-9f8a-4c6807bf7bc6",
+        "af12329d-f6eb-4611-b045-4586e9a9a5c9",
+        "b264d52a-0d57-4975-8c53-ae52c940d1b6",
+        "2d498dff-11b4-4d1c-9341-d1def4e051a1",
+        "16cda657-d580-41d8-8e96-25304ecfe388",
+        "ae862196-e1d0-43d3-b3e4-fa03b99dcdc8",
+        "ca603d2d-82f5-4be4-bd06-35eb27f877a1",
+        "fbce054d-acb2-4b0a-bf21-572f174ee59a",
+        "4c421489-b8f2-4f78-9ad4-78b71f6e6528",
+        "629077c6-743c-4bc1-b034-9db96eaf7763",
+        "a2bb7496-db26-4ef2-a08a-779306e1d7ce",
+        "6dbabf04-f5e0-4a27-9122-25e10e9784a3",
+        "da0aecb8-7ad4-4af6-b857-502e6524e4b6",
+        "bf8a43fe-15e5-4aed-ba74-5163b4eb815d",
+        "40c7a15a-e8f5-47c6-ba6b-b68e80f86cb5",
+        "1af36b40-0c91-4fa8-8ce3-7f7b7ebcbf16",
+        "b32e2614-6982-40bf-9b50-df5767bdb898",
+        "9fe49261-e1d4-4e07-b428-140f3b757051",
+        "ad15b648-e1c1-408d-9780-b7224e766a10",
+        "0bba3e00-d2c6-407b-998f-13f212459a19",
+        "ef18f981-ecc9-4fff-8517-ab892db5a390",
+        "9e439f55-4d6f-48c6-a089-a58058fb68b3",
+        "b8cfbfa1-d665-4907-b05e-71a3b4ba3b67",
+        "349d916c-701f-43b3-a6dd-9cf4d791fb0e",
+        "c73f9370-5eeb-4766-84be-4706e9be9d68",
+        "7c31eeb0-982c-462c-97b0-e421efaf7c3c",
+        "eb9b470b-ca2b-4ae5-93d6-830ee3cd458c"
+      ]
+    }
+  ]
+}

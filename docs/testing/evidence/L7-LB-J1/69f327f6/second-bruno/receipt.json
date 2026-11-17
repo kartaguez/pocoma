@@ -1,0 +1,14 @@
+{
+  "state": "BRUNO_PASS",
+  "exit": 0,
+  "instance": "j1-b-2ad2a840",
+  "project": "pocoma-lb-j1-b-2ad2a840-75b59fb6",
+  "sha": "69f327f6707635cea8a74f329f7d2d9c3ce5d3d6",
+  "dirty": false,
+  "urls": {
+    "write": "http://127.0.0.1:57256",
+    "read": "http://127.0.0.1:57257"
+  },
+  "issuer": "http://localhost:57258/realms/pocoma",
+  "evidence": "/private/tmp/pocoma-lb-fresh-8012fb93/.pocoma-local/instances/j1-b-2ad2a840/runs/1794608578-6b09dde4"
+}

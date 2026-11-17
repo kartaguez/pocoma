@@ -1,0 +1,80 @@
+script=bootstrap-l2-routing.sql rc=0 BEGIN
+LOCK TABLE
+ set_config 
+------------
+ i1_read
+(1 row)
+
+             set_config              
+-------------------------------------
+ i1_e0a9220c9163497795dc1815f726ae33
+(1 row)
+
+              set_config               
+---------------------------------------
+ i1_e0a9220c9163497795dc1815f726ae33_a
+(1 row)
+
+ set_config 
+------------
+ READ
+(1 row)
+
+DO
+INSERT 0 7
+INSERT 0 28
+DO
+COMMIT
+
+script=grant-l2-lifecycle.sql rc=0 BEGIN
+ set_config 
+------------
+ fixture
+(1 row)
+
+ set_config 
+------------
+ 
+(1 row)
+
+DO
+ set_config 
+------------
+ i1_read
+(1 row)
+
+             set_config              
+-------------------------------------
+ i1_e0a9220c9163497795dc1815f726ae33
+(1 row)
+
+              set_config               
+---------------------------------------
+ i1_e0a9220c9163497795dc1815f726ae33_a
+(1 row)
+
+              set_config               
+---------------------------------------
+ i1_e0a9220c9163497795dc1815f726ae33_w
+(1 row)
+
+              set_config               
+---------------------------------------
+ i1_e0a9220c9163497795dc1815f726ae33_r
+(1 row)
+
+DO
+GRANT
+GRANT
+GRANT
+GRANT
+GRANT
+GRANT
+DO
+DO
+COMMIT
+
+environment={version=PostgreSQL 17.11 on aarch64-unknown-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit, db=i1_read, schema=i1_e0a9220c9163497795dc1815f726ae33, current_user=i1_e0a9220c9163497795dc1815f726ae33_a, clock_timestamp=2026-11-02 08:38:19.074535} image=postgres@sha256:18cfe3ef5e6815560c98237d6216d1e5119702fb0f3894c8785dd58b8bbe5d73 runtime=i1_e0a9220c9163497795dc1815f726ae33_w admin=i1_e0a9220c9163497795dc1815f726ae33_a
+acquired=ClaimedSlot[consumptionId=ConsumptionId[value=3dec1c8b-6e3e-57e1-82aa-aa0b5f297a4a], consumableId=d0c87be1-ec7f-4c9a-9c26-cae06e8e0fd5, claimToken=dc3167b2-3ade-4061-bfa0-ce88e6eb31ef] partition=3
+owner-before-insert d0c87be1-ec7f-4c9a-9c26-cae06e8e0fd5 {pid=1109, xid=1280, db=i1_read, schema=i1_e0a9220c9163497795dc1815f726ae33, isolation=read committed}
+readiness d0c87be1-ec7f-4c9a-9c26-cae06e8e0fd5 slots=1

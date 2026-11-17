@@ -1,0 +1,27 @@
+{
+  "state": "STOPPED",
+  "exit": 0,
+  "volumes": "PRESERVED",
+  "runtimeExitCodes": {
+    "business-read-worker": 143,
+    "command-worker": 143,
+    "http-read": 143,
+    "http-write": 143,
+    "results-worker": 143
+  },
+  "forcedKill": [],
+  "slotsBeforeStop": {
+    "pocoma_write": "0",
+    "pocoma_read": "0"
+  },
+  "instance": "keycloak-release-validation",
+  "project": "pocoma-lb-keycloak-release-validation-0837ce8e",
+  "sha": "80792858d6aac9c648ebcfac2fb2d84ccf80154e",
+  "dirty": true,
+  "urls": {
+    "write": "http://127.0.0.1:53123",
+    "read": "http://127.0.0.1:53124"
+  },
+  "issuer": "http://localhost:53125/realms/pocoma",
+  "evidence": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/keycloak-release-validation/runs/1794674651-8e6e1af6"
+}

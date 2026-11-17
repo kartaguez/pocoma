@@ -1,0 +1,21 @@
+{
+  "command": [
+    "python3",
+    "-B",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "scripts/testing",
+    "-p",
+    "test_summarize_v3.py"
+  ],
+  "started_ns": 1792929861880177000,
+  "ended_ns": 1792929861962526000,
+  "exit_code": 0,
+  "tests": 7,
+  "failures": 0,
+  "errors": 0,
+  "skips": 0,
+  "verdict": "PASS"
+}

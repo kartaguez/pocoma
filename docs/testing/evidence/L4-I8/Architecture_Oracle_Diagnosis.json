@@ -1,0 +1,44 @@
+{
+  "full_application_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+  "architecture_oracles_sha": "8a007768c23021153764473f6c6686042168df00",
+  "full_invocation_id": "6b091895d103489b857c7027a3481e45",
+  "architecture_replay_invocation_id": "9a633445391845689c07678d040e440f",
+  "full_counts": {
+    "tests": 2191,
+    "failures": 4,
+    "errors": 0,
+    "skipped": 0
+  },
+  "replay_counts": {
+    "tests": 167,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "corrections": [
+    {
+      "method": "HexagonalArchitectureTest#potReadEngineDependsOnlyOnItsPureApplicationAndDomainContracts",
+      "normative_basis": "I8 plan step3 dependencies: port-projection and port-transaction, pure internal READ facade",
+      "bounded_change": "Only exact V3 READ ports and RecoveryReadContext, only originating in engine.read.pot.v3. No package-wide allowance, infrastructure or WRITE engine exception."
+    },
+    {
+      "method": "HexagonalArchitectureTest#projectionTaskEngineRemainsPureAndKnowsNoLegacyExecutionConcept",
+      "normative_basis": "SPEC-04/05 and I3-I7: six participants implement existing L2 ConsumptionParticipant protocol",
+      "bounded_change": "Exact seven participant API types only from engine.consume.projectiontask.v3; ConsumptionEngine, WorkerCapacity, AttemptTransactions and runtime/infrastructure remain outside the allowance."
+    },
+    {
+      "method": "HexagonalArchitectureTest#genericConsumptionPullLayersStayIndependentFromWorkFamiliesAndFrameworks",
+      "normative_basis": "I8 plan step2 explicit PROJECTION root with excluded Legacy configuration",
+      "bounded_change": "Single exact nested root PocomaTaskConsumptionWorkerApplication$Legacy, parallel to the existing Monolith Legacy exception; other external callers remain forbidden."
+    },
+    {
+      "method": "V3ConsumptionFoundationArchitectureTest#commonSqlIsByteIdenticalAndHistoricalMigrationsAreUnmodifiedByConstruction",
+      "normative_basis": "I8 plan step2 excludes Legacy in v3-read-worker; historical SQL/migrations remain unchanged",
+      "bounded_change": "Replace stale literal two-profile source assertion with semantic checks of default Legacy activation and every combination of excluded profiles; Monolith also excludes READ. Common SQL equality and no-cascade assertions unchanged."
+    }
+  ],
+  "verification_scope_extension": "Two Architecture test files beyond the initially named V3ConsumptionEngineArchitectureTest; justified by four concrete failures at the first executed deferred Architecture gate. No productive boundary crossed.",
+  "productive_changes": [],
+  "global_gate_waiver": "APPROVED — see Human_Composite_Qualification_Decision.json",
+  "mandatory_gate_disposition": "AUTHORIZED COMPOSITE — explicit human decision; no fourth full required; already-started fourth full interrupted with partial evidence preserved."
+}

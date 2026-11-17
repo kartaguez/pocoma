@@ -1,0 +1,22 @@
+{
+  "baseline": "c7df9da4d3e3d7b824dcfc50bd474c46371d310b",
+  "previousInputs": "01d8e3592b204ba5c6ec4c91b1a2ee138c1a0ba0883324b0094949d6efbf35d6",
+  "inputs": "711336711899a0aa04074515ab11cc9bc11d79c910ba9975a47c61f4eab85e4a",
+  "preservedFiles": {
+    "secrets.json": "bcb69f72756713c6868a4396fdcd7e91c60720e2c73b9ee4d11d1bb88e8c51cd",
+    "demo.json": "beb1e07d6ff8cf2d4b550fe8cbab3ef2fe2c6122c5413d3bf631223dfe34c394",
+    "canary.json": "f5391510970a2fda8be580cb347316aa39800b6af5efa245e58e547d45d8eda0",
+    "web-read.jar": "a0136a059ad6448d5b0065115b022c5bbabadbf57194fda2d903d3ac360b8e89",
+    "web-write.jar": "83e9a6db0d0d17fa22e6dbb3e4d8d14e1aa9f429d334eeb990011eeac6e1c3fc",
+    "worker-materialize.jar": "886f73ea31e3bbe502f20955f9c3a5d19c15160f6a9ffecbdbed59ef41d7510c",
+    "worker-process.jar": "05e7d87bc5b27764260c72dff46704cb8699b0e2d5672edec7aac5ef627e1a6a",
+    "http-write.properties": "98065f02410cebad81f0fd3cc751419a8772f1deae526b8ce74499a509541e0d",
+    "http-read.properties": "84ff84d17c3c12ed6d822f204231c3793dcbed01b0f72c463ccc8ff9f0165ba7",
+    "command-worker.properties": "34187dbce14b9a2f258029df305217eb6b7fd54f85295ef891f628f1a0f5e3a0",
+    "results-worker.properties": "752a21554ec0bd37452a9f62e5574bc5c119bdb78c1c7187183289f443c76835",
+    "business-read-worker.properties": "fb92e51ffc693da4da45d1b93a3c33ac54f85f0345c0dad3d1f90d37a7c594da"
+  },
+  "evidence": "./.pocoma-local/instances/demo/runs/1794693630-0a1ccafb",
+  "method": "PRODUCTION_AND_DEPLOYMENT_EQUIVALENCE",
+  "operation": "REFRESH_PROVISIONING"
+}

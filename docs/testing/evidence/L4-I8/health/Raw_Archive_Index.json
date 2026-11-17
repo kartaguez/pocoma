@@ -1,0 +1,32 @@
+{
+  "archive": "Thread_Dumps_Raw.tar.gz",
+  "archive_sha256": "f528e92d394da5623ba0f393063662bc751e38149f8b9e1c31a05855e51d54d0",
+  "members": [
+    {
+      "member": "full03-command-suite-0.txt",
+      "bytes": 141,
+      "sha256": "b37563c51b72e94bd7cca84a49895437ee3f76a5929781fb0825e80536a52554"
+    },
+    {
+      "member": "full03-command-suite-1.txt",
+      "bytes": 80671,
+      "sha256": "bf8907801ccaa35fd706bebcf5db861d466923435cd2de7ca7e60dfceaa2b662"
+    },
+    {
+      "member": "full03-command-suite-later.txt",
+      "bytes": 74872,
+      "sha256": "59680fdfe0fda2779d41f837178d9da9bdbdf044b8b5df947eb847bf9b267928"
+    },
+    {
+      "member": "full03-resources-suite.txt",
+      "bytes": 126256,
+      "sha256": "d9d97df542bdb0fc1827479f83c05ce0d1ef982b84e1165b02eeb08adef6b13e"
+    },
+    {
+      "member": "full04-command-suite.txt",
+      "bytes": 74873,
+      "sha256": "0fe17dcc682d740887ad6aaf5b15c21db757907b5bb05649ac665cae98bcbe48"
+    }
+  ],
+  "preservation": "Original raw JVM/ps bytes preserved exactly, including trailing spaces and EOF blank lines. No witness normalized."
+}

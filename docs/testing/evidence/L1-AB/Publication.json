@@ -1,0 +1,29 @@
+{
+  "tested": "887c24f3f266304e46c281cc61ba170f35d4de9a",
+  "published": "0942ecb3c1c07d6baf7bab3d136270e96bfda380",
+  "remote": "0942ecb3c1c07d6baf7bab3d136270e96bfda380",
+  "changes": [
+    "docs/testing/evidence/L1-AB/Architecture-populations.json",
+    "docs/testing/evidence/L1-AB/B-raw.sha256",
+    "docs/testing/evidence/L1-AB/B-raw.tar.gz",
+    "docs/testing/evidence/L1-AB/Gate-index.json",
+    "docs/testing/evidence/L1-AB/changed-files.json",
+    "docs/testing/evidence/L1-AB/collector-assessment.json",
+    "docs/v3/L1_AB_Execution_Report.md",
+    "docs/v3/V3_Canon_and_Roadmap.md"
+  ],
+  "exclusions": [
+    "docs/testing/evidence/L1-AB/",
+    "docs/v3/L1_AB_Execution_Report.md",
+    "docs/v3/V3_Canon_and_Roadmap.md"
+  ],
+  "verdict": "PASS",
+  "input_digest": "8c53f5805e2c3b398095afe60297ac665d413175c52534938b928d3fc90d94a4",
+  "tested_gate_manifests_match": true,
+  "gate_directories": [
+    "b-persistence-1792929415609261000",
+    "b-consumers-1792929584286484000",
+    "b-arch-1792929835947767000"
+  ],
+  "divergence": "0\t0"
+}

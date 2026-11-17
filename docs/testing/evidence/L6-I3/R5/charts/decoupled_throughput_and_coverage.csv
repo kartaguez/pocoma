@@ -1,0 +1,6 @@
+demanded_rate,emitted_rate,admission_rate,applied_rate,read_materialized_rate,e2e_coverage_pct,generator_status
+1,0.75,0.75,0.75,0.75,100.0,GENERATOR_LIMITED
+5,5.02,5.02,4.87,4.87,97.01,LOAD_GENERATOR_VALID
+10,1.87,1.87,0.92,0.92,49.11,GENERATOR_LIMITED
+20,4.37,4.35,2.7,2.7,62.07,GENERATOR_LIMITED
+50,6.24,5.59,4.49,4.49,80.26,GENERATOR_LIMITED

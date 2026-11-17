@@ -1,0 +1,170 @@
+{
+  "status": "PASS",
+  "tested_application_sha": "8a007768c23021153764473f6c6686042168df00",
+  "all_executed_application_inputs_byte_match": true,
+  "unexecuted_Windows_EOL_only_exception": "Application_Input_Comparison.json",
+  "qualification_is_composite": true,
+  "human_decision": "Human_Composite_Qualification_Decision.json",
+  "fresh_expected_invocations": 2191,
+  "observed_exactly_once": 2191,
+  "previous_reports_counted": 0,
+  "campaign_raw_archives": [
+    {
+      "campaign": "Architecture-correction-PASS",
+      "hashed_members_verified": 66,
+      "raw_sha256": "9686414111acd9d376b9e361e11e7bd9b204e143b266333f15887c70774934bd"
+    },
+    {
+      "campaign": "F-I8-01-FAIL",
+      "hashed_members_verified": 23,
+      "raw_sha256": "d56e2064bc6c5da463369f18abd95c11a00cdcdc1375d10681e8c6384a161c2c"
+    },
+    {
+      "campaign": "F-I8-02-FAIL",
+      "hashed_members_verified": 36,
+      "raw_sha256": "b7bd6ed4a0711c9dc5257c8a0cde9ab18e19c76d85f780395869d9e2b92e3656"
+    },
+    {
+      "campaign": "FULL-02-FAIL",
+      "hashed_members_verified": 1851,
+      "raw_sha256": "021abab934009e436dd614f99795d9cec1767a90301f8ecd1c9a06e905ac4ccb"
+    },
+    {
+      "campaign": "FULL-03-FAIL",
+      "hashed_members_verified": 2119,
+      "raw_sha256": "05671010f8303e6c07678b2ab7a4b127abf34588f7005aa34835631382aaaf88"
+    },
+    {
+      "campaign": "FULL-04-FAIL",
+      "hashed_members_verified": 2178,
+      "raw_sha256": "1dea3bdf43a7c8511935aef1dd6b94d19f3bbc4d0a706e4f278c77c3b035c529"
+    },
+    {
+      "campaign": "FULL-05-INTERRUPTED-BY-DISPENSATION",
+      "hashed_members_verified": 422,
+      "raw_sha256": "8e5ef82ead011ed3262f1389104325208fd4bb60ade8f61b165a355701adcb2f"
+    },
+    {
+      "campaign": "FULL-preflight-01-INCONCLUSIVE",
+      "hashed_members_verified": 0,
+      "raw_sha256": "e5e505660656e6c618cb3f8e9948315c60b6a85a35da8cc8e01d688dd1225e60"
+    },
+    {
+      "campaign": "Historical-order-correction-PASS",
+      "hashed_members_verified": 21,
+      "raw_sha256": "0a14c8c6c6c1da33067a53612f2c44902699c5a1c2f72da5413ce170b7bf34f5"
+    },
+    {
+      "campaign": "Legacy-isolation-correction-PASS",
+      "hashed_members_verified": 12,
+      "raw_sha256": "d5ba87f407f6b40635704aec46ed1354ce0df4b912f150afd518b4877273e140"
+    },
+    {
+      "campaign": "T10-correction-PASS",
+      "hashed_members_verified": 16,
+      "raw_sha256": "59654b842d21ff1635e2b7dc259e23c003968acc67806c61d6fb4ff4e4bf6b4a"
+    }
+  ],
+  "physical_final_files": [
+    {
+      "path": "docs/testing/evidence/L4-I8/physical-final/T09-crash-restart-PocomaRuntimeMonolithApplication.txt",
+      "archive_member": "app/runtime-monolith/target/l4-i8-evidence/T09-crash-restart-PocomaRuntimeMonolithApplication.txt",
+      "sha256": "c1521395a92948c0bcff0cfb67169bbd9c57987c5a68bebbeb3a3dca9479393a"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I8/physical-final/T09-crash-restart-PocomaTaskConsumptionWorkerApplication.txt",
+      "archive_member": "app/runtime-monolith/target/l4-i8-evidence/T09-crash-restart-PocomaTaskConsumptionWorkerApplication.txt",
+      "sha256": "4a6b8ad170f4dabde41309133db4d080bbb5d10045cbc18970758311613eca54"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I8/physical-final/T09-normal-drain-PocomaRuntimeMonolithApplication.txt",
+      "archive_member": "app/runtime-monolith/target/l4-i8-evidence/T09-normal-drain-PocomaRuntimeMonolithApplication.txt",
+      "sha256": "3379aed308b937f946a5d0edeb07912d3060a1130f232a1304411a3224093900"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I8/physical-final/T09-normal-drain-PocomaTaskConsumptionWorkerApplication.txt",
+      "archive_member": "app/runtime-monolith/target/l4-i8-evidence/T09-normal-drain-PocomaTaskConsumptionWorkerApplication.txt",
+      "sha256": "91624a00ebfb8fb9b446100c49630735610634b33837e64a7f917575ee954abe"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I8/physical-final/T10-batch-1.txt",
+      "archive_member": "app/runtime-monolith/target/l4-i8-evidence/T10-batch-1.txt",
+      "sha256": "5aa565279553b3c82901c81309a9e74085555b95dc90a726444c5a67556862b4"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I8/physical-final/T10-batch-32.txt",
+      "archive_member": "app/runtime-monolith/target/l4-i8-evidence/T10-batch-32.txt",
+      "sha256": "f3263294e50b65cb662c930693d5fda3e24f619cf7e03fd1167ee18900652224"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I8/physical-final/T10-renewal-UNKNOWN.txt",
+      "archive_member": "app/runtime-monolith/target/l4-i8-evidence/T10-renewal-UNKNOWN.txt",
+      "sha256": "49cf477f858a8b54982bba0d67b7a3351946dacd6d3d4a49084c489ef89851cf"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I8/physical-final/T11-disjoint.txt",
+      "archive_member": "app/runtime-monolith/target/l4-i8-evidence/T11-disjoint.txt",
+      "sha256": "850a7e64f7a8fe7d0bec1b4ac92bc833d05f8936f12dd8f928c3e407391385f2"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I8/physical-final/T11-overlap.txt",
+      "archive_member": "app/runtime-monolith/target/l4-i8-evidence/T11-overlap.txt",
+      "sha256": "f2ddcb5ead258dc6212f072d1ea0b9c79b65cb13745a9e5e74560182baa3b392"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I8/physical-final/child-PocomaRuntimeMonolithApplication-owner-pocoma-i8-child-11497761728256008000.log",
+      "archive_member": "app/runtime-monolith/target/l4-i8-evidence/child-PocomaRuntimeMonolithApplication-owner-pocoma-i8-child-11497761728256008000.log",
+      "sha256": "2b6ff399c66197ff7f81453e056191483aa350138345c9f71420974c65c89366"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I8/physical-final/child-PocomaRuntimeMonolithApplication-renew-unknown-pocoma-i8-child-11865076467724413310.log",
+      "archive_member": "app/runtime-monolith/target/l4-i8-evidence/child-PocomaRuntimeMonolithApplication-renew-unknown-pocoma-i8-child-11865076467724413310.log",
+      "sha256": "84fe9cd1c70a377d4d48e6b28c486f7f71debf787aef735e5c9041ec2a10b22f"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I8/physical-final/child-PocomaTaskConsumptionWorkerApplication-owner-pocoma-i8-child-1102759023843747853.log",
+      "archive_member": "app/runtime-monolith/target/l4-i8-evidence/child-PocomaTaskConsumptionWorkerApplication-owner-pocoma-i8-child-1102759023843747853.log",
+      "sha256": "66665488f69be3516870f35110777e354581dbbe9c15536a7848341036f7a072"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I8/physical-final/T02.txt",
+      "archive_member": "app/runtime-task-consumption-worker/target/l4-i8-evidence/T02.txt",
+      "sha256": "54f2d32227fa691210d1d46a11ebc67fc64ddf2f489f5260caa2d468ce1b2ccb"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I8/physical-final/T03.txt",
+      "archive_member": "app/runtime-task-consumption-worker/target/l4-i8-evidence/T03.txt",
+      "sha256": "7b018e2dea63f885ea655e9e811a765e67d143b23ff81716455f63d609bd74ef"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I8/physical-final/T04.txt",
+      "archive_member": "app/runtime-task-consumption-worker/target/l4-i8-evidence/T04.txt",
+      "sha256": "cc0277ac65d55858980aec157ff00c3b74ece462ec5c7c17cf8c0002e15ba229"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I8/physical-final/T05.txt",
+      "archive_member": "app/runtime-task-consumption-worker/target/l4-i8-evidence/T05.txt",
+      "sha256": "1837bd290d673826b42f1036e0eecedfd44c3271e3158772694b1cf4a11ece4b"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I8/physical-final/T06.txt",
+      "archive_member": "app/runtime-task-consumption-worker/target/l4-i8-evidence/T06.txt",
+      "sha256": "91d1f09e348bd5e5f85f2cb8cf3d0aaf456b068ef3ea01f55cbc1bb9b59d6813"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I8/physical-final/T07-real-window.txt",
+      "archive_member": "app/runtime-task-consumption-worker/target/l4-i8-evidence/T07-real-window.txt",
+      "sha256": "8f3b5fefc35e0b9978d81078a7178d3f1b1c915efcd34790ed96c99b243b988a"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I8/physical-final/T07.txt",
+      "archive_member": "app/runtime-task-consumption-worker/target/l4-i8-evidence/T07.txt",
+      "sha256": "3b4e99837b0d0a532874463a1c78a234a2f361a720ae5555a4773dc229c23ee2"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I8/physical-final/T08.txt",
+      "archive_member": "app/runtime-task-consumption-worker/target/l4-i8-evidence/T08.txt",
+      "sha256": "6e14d1324ea2d05ef89f87d604cdd0172939c5c07071bf79b4792c08aa86e02a"
+    }
+  ]
+}

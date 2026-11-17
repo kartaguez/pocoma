@@ -1,0 +1,66 @@
+{
+  "status": "OBSERVED",
+  "tested_application_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+  "invocation_id": "6b091895d103489b857c7027a3481e45",
+  "container": "944d5f965e4b",
+  "image": "18cfe3ef5e68",
+  "sql": "select json_build_object(\n'observed_at',clock_timestamp(),'server_started_at',pg_postmaster_start_time(),'version',version(),\n'max_connections',current_setting('max_connections')::int,\n'superuser_reserved_connections',current_setting('superuser_reserved_connections')::int,\n'reserved_connections',current_setting('reserved_connections')::int,\n'client_connections',(select count(*) from pg_stat_activity where backend_type='client backend'),\n'root_connections',(select count(*) from pg_stat_activity where application_name like 'i8-monolith-%' or application_name like 'i8-projection-%'),\n'connections_by_pool',(select json_agg(x) from(select datname,application_name,count(*) connections from pg_stat_activity where application_name like 'i8-monolith-%' or application_name like 'i8-projection-%' group by datname,application_name order by datname,application_name)x));",
+  "observation": {
+    "observed_at": "2026-11-03T18:09:26.926553+00:00",
+    "server_started_at": "2026-11-03T18:09:15.873541+00:00",
+    "version": "PostgreSQL 17.11 on aarch64-unknown-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit",
+    "max_connections": 100,
+    "superuser_reserved_connections": 3,
+    "reserved_connections": 0,
+    "client_connections": 66,
+    "root_connections": 64,
+    "connections_by_pool": [
+      {
+        "datname": "i5_read",
+        "application_name": "i8-monolith-read-business",
+        "connections": 6
+      },
+      {
+        "datname": "i5_read",
+        "application_name": "i8-monolith-read-control",
+        "connections": 10
+      },
+      {
+        "datname": "i5_read",
+        "application_name": "i8-projection-read-business",
+        "connections": 6
+      },
+      {
+        "datname": "i5_read",
+        "application_name": "i8-projection-read-control",
+        "connections": 10
+      },
+      {
+        "datname": "test",
+        "application_name": "i8-monolith-write-business",
+        "connections": 6
+      },
+      {
+        "datname": "test",
+        "application_name": "i8-monolith-write-control",
+        "connections": 10
+      },
+      {
+        "datname": "test",
+        "application_name": "i8-projection-write-business",
+        "connections": 6
+      },
+      {
+        "datname": "test",
+        "application_name": "i8-projection-write-control",
+        "connections": 10
+      }
+    ]
+  },
+  "declared_fixture_admin_observer_budget": 12,
+  "ordinary_connection_capacity": 97,
+  "required_root_plus_fixture_budget": 76,
+  "budget_fits": true,
+  "observer": "one independent psql connection, included in the 12-connection fixture/admin/observer budget",
+  "limits": "Local fixture server capacity, not production sizing or global performance certification."
+}

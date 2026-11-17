@@ -1,0 +1,37 @@
+{
+  "status": "DIAGNOSTIC HISTORY — NOT A FINAL GATE",
+  "current_tested_sha": "9a315e16567042d0b9bd017486d9043216b3ecd7",
+  "findings": {
+    "F01": {
+      "source_before": "8e6a36013b1cdb8e5f668eb276e096656d167965",
+      "counterexample": "F01-pre-fix.log.gz",
+      "reproducer": "F01-reproducer.java.txt",
+      "final_proof": "w13 READ-PREPARATION WRITE/READ"
+    },
+    "F02": {
+      "source_before": "22362595dd49b2e286cf40d7b28588c874653891",
+      "counterexample": "F02-postgresql-counterexample.txt",
+      "reproducer": "F02-reproducer.java.txt",
+      "final_proof": "u08/r05/r10"
+    },
+    "F03": {
+      "source_before": "3efcb8ccaa65d92e8ca3210f87194a2c287dcb1a",
+      "counterexample": "F03-pre-fix.log.gz",
+      "reproducer": "F03-reproducer.java.txt",
+      "final_proof": "u09/w20 WRITE/READ"
+    },
+    "F04": {
+      "source_before": "c8b0815b8cd2a0f4eb3061d693f0856402330628",
+      "counterexample": "F04-pre-fix-repeated-stop.log.gz",
+      "reproducer": "F04-reproducer.java.txt",
+      "final_proof": "Engine unresolvedRecovery unit; w21 CONTROL/READ x WRITE/READ"
+    },
+    "F05": {
+      "source_before": "3599e770c998b7fb7e0cce1d2db60dd1c83714c7",
+      "counterexample": "F05-postgresql-counterexample.txt",
+      "reproducer": "F05-negative-tests.patch.gz",
+      "final_proof": "u10/r05/r10/r11 WRITE/READ"
+    }
+  },
+  "limit": "External reproductions and added negative tests were diagnostic modifications, not a frozen final gate. The five qualified gate archives carry the actual final evidence. Compilation failures and incomplete or discarded campaigns remain explicitly separate."
+}

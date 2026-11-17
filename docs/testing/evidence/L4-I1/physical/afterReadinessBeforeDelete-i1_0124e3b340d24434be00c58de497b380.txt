@@ -1,0 +1,83 @@
+script=bootstrap-l2-routing.sql rc=0 BEGIN
+LOCK TABLE
+ set_config 
+------------
+ i1_read
+(1 row)
+
+             set_config              
+-------------------------------------
+ i1_0124e3b340d24434be00c58de497b380
+(1 row)
+
+              set_config               
+---------------------------------------
+ i1_0124e3b340d24434be00c58de497b380_a
+(1 row)
+
+ set_config 
+------------
+ READ
+(1 row)
+
+DO
+INSERT 0 7
+INSERT 0 28
+DO
+COMMIT
+
+script=grant-l2-lifecycle.sql rc=0 BEGIN
+ set_config 
+------------
+ fixture
+(1 row)
+
+ set_config 
+------------
+ 
+(1 row)
+
+DO
+ set_config 
+------------
+ i1_read
+(1 row)
+
+             set_config              
+-------------------------------------
+ i1_0124e3b340d24434be00c58de497b380
+(1 row)
+
+              set_config               
+---------------------------------------
+ i1_0124e3b340d24434be00c58de497b380_a
+(1 row)
+
+              set_config               
+---------------------------------------
+ i1_0124e3b340d24434be00c58de497b380_w
+(1 row)
+
+              set_config               
+---------------------------------------
+ i1_0124e3b340d24434be00c58de497b380_r
+(1 row)
+
+DO
+GRANT
+GRANT
+GRANT
+GRANT
+GRANT
+GRANT
+DO
+DO
+COMMIT
+
+environment={version=PostgreSQL 17.11 on aarch64-unknown-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit, db=i1_read, schema=i1_0124e3b340d24434be00c58de497b380, current_user=i1_0124e3b340d24434be00c58de497b380_a, clock_timestamp=2026-11-02 08:38:17.476229} image=postgres@sha256:18cfe3ef5e6815560c98237d6216d1e5119702fb0f3894c8785dd58b8bbe5d73 runtime=i1_0124e3b340d24434be00c58de497b380_w admin=i1_0124e3b340d24434be00c58de497b380_a
+acquired=ClaimedSlot[consumptionId=ConsumptionId[value=3dec1c8b-6e3e-57e1-82aa-aa0b5f297a4a], consumableId=9b1e3190-4347-427a-92df-13f88e991c27, claimToken=3e207c8f-136c-461b-805f-b812c5330051] partition=1
+owner-before-insert 9b1e3190-4347-427a-92df-13f88e991c27 {pid=821, xid=1133, db=i1_read, schema=i1_0124e3b340d24434be00c58de497b380, isolation=read committed}
+readiness 9b1e3190-4347-427a-92df-13f88e991c27 slots=1
+after successful readiness before DELETE SQL {pid=821, xid=1133, db=i1_read, schema=i1_0124e3b340d24434be00c58de497b380, isolation=read committed}
+external snapshot 9b1e3190-4347-427a-92df-13f88e991c27 {effects=0, slots=1, witnesses=0}
+ROLLED_BACK=Attempt[status=ROLLED_BACK, resolution=ROLLED_BACK, observation=null, cause=java.lang.IllegalStateException: I1 injected before DELETE SQL, failureKind=NON_COUNTABLE, cession=null, cessionResolution=null] snapshot={effects=0, slots=1, witnesses=0}

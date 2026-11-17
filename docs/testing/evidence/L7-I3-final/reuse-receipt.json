@@ -1,0 +1,24 @@
+{
+  "reuse-expiry": {
+    "receipt": "docs/testing/evidence/L7-I2-I3/full-after-w19/result.json",
+    "sha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+    "selector": "ConsumptionLifecyclePostgresTest#i3_c03_g",
+    "xmlMember": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.v3.ConsumptionLifecyclePostgresTest.xml",
+    "xmlSha256": "ab754a5b0f60d6844b9bee4e69bd898b9deb4d2261cbd0aa7abfa2e7af5c4ae5",
+    "physicalArtifacts": {
+      "app/infra-postgres-write/target/v3-i3-evidence/i3_c03_g-READ.txt": "bcb19faa22af3ae03860b8b30d554829f11935636c3e9e633e5e891c77ab4b2d",
+      "app/infra-postgres-write/target/v3-i3-evidence/i3_c03_g-WRITE.txt": "dbe68495e99973ac1dd3f3062696a4ba7cb78b357c6dffb8160134fd795e7fd9"
+    },
+    "source": "app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/v3/ConsumptionLifecyclePostgresTest.java",
+    "sourceSha256": "12a5305bb550db42145131538d321d5cc37948f0c39f4446a411e905405534c6",
+    "unchangedSource": true
+  },
+  "reuse-discovery": {
+    "receipt": "docs/testing/evidence/L7-I3-completion/discovery-01/receipt.json",
+    "sha": "e1ecb533bc66dd54bfd475e166a8e7f9f5255bb7",
+    "selector": "IdentityDiscoveryPostgresTest#l73_discoveryPreservesClaimsRetriesAndQuarantine+l3_burnable_discovery+l3_discovery_source_slot_race",
+    "source": "app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/v3/identity/IdentityDiscoveryPostgresTest.java",
+    "sourceSha256": "e7f9bc319b0b93601dded5691fd0c9150df4f0e07adc35d199f2862c3b321cd2",
+    "unchangedSource": true
+  }
+}

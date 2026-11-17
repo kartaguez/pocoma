@@ -1,0 +1,235 @@
+[
+  {
+    "id": "01",
+    "command": "./mvnw -pl runtime-task-consumption-worker,runtime-monolith -am compile",
+    "goal": "compile",
+    "result": "SUCCESS",
+    "maven_total_time": "4.088 s",
+    "last_module_summary": null,
+    "tested_head": "a2b4e2a07a64e33eafe9e81a0ddc25c7961dc9cc",
+    "dirty": true,
+    "app_input_snapshot": "NOT CAPTURED; development feedback only",
+    "evidence": "docs/testing/evidence/L4-I8/feedback/pocoma-i8-feedback-compile-01.log"
+  },
+  {
+    "id": "02",
+    "command": "./mvnw -pl runtime-task-consumption-worker -am -Dtest=ReadActivationSettingsTest,ReadRuntimeAssemblyPostgresTest#rootsAndPrivilegesAreClosed -Dsurefire.failIfNoSpecifiedTests=false test",
+    "goal": "test",
+    "result": "FAIL",
+    "maven_total_time": "8.887 s",
+    "last_module_summary": {
+      "tests": 2,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    },
+    "tested_head": "a2b4e2a07a64e33eafe9e81a0ddc25c7961dc9cc",
+    "dirty": true,
+    "app_input_snapshot": "NOT CAPTURED; development feedback only",
+    "evidence": "docs/testing/evidence/L4-I8/feedback/pocoma-i8-feedback-02.log"
+  },
+  {
+    "id": "03",
+    "command": "./mvnw -pl runtime-task-consumption-worker -am -Dtest=ReadRuntimeAssemblyPostgresTest#rootsAndPrivilegesAreClosed -Dsurefire.failIfNoSpecifiedTests=false test",
+    "goal": "test",
+    "result": "SUCCESS",
+    "maven_total_time": "11.515 s",
+    "last_module_summary": {
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "tested_head": "a2b4e2a07a64e33eafe9e81a0ddc25c7961dc9cc",
+    "dirty": true,
+    "app_input_snapshot": "NOT CAPTURED; development feedback only",
+    "evidence": "docs/testing/evidence/L4-I8/feedback/pocoma-i8-feedback-03.log"
+  },
+  {
+    "id": "04",
+    "command": "./mvnw -pl runtime-task-consumption-worker -am -Dtest=ReadFacadesPostgresTest,ReadRuntimeAssemblyPostgresTest#sixParticipantsProgressThroughWorkers -Dsurefire.failIfNoSpecifiedTests=false test",
+    "goal": "test",
+    "result": "FAIL",
+    "maven_total_time": "41.670 s",
+    "last_module_summary": {
+      "tests": 6,
+      "failures": 3,
+      "errors": 2,
+      "skipped": 0
+    },
+    "tested_head": "a2b4e2a07a64e33eafe9e81a0ddc25c7961dc9cc",
+    "dirty": true,
+    "app_input_snapshot": "NOT CAPTURED; development feedback only",
+    "evidence": "docs/testing/evidence/L4-I8/feedback/pocoma-i8-feedback-04.log"
+  },
+  {
+    "id": "05",
+    "command": "./mvnw -pl runtime-task-consumption-worker -am -Dtest=ReadFacadesPostgresTest -Dsurefire.failIfNoSpecifiedTests=false test",
+    "goal": "test",
+    "result": "SUCCESS",
+    "maven_total_time": "19.104 s",
+    "last_module_summary": {
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "tested_head": "a2b4e2a07a64e33eafe9e81a0ddc25c7961dc9cc",
+    "dirty": true,
+    "app_input_snapshot": "NOT CAPTURED; development feedback only",
+    "evidence": "docs/testing/evidence/L4-I8/feedback/pocoma-i8-feedback-05.log"
+  },
+  {
+    "id": "06",
+    "command": "./mvnw -pl runtime-task-consumption-worker -am -Dtest=ReadRuntimeAssemblyPostgresTest#sixParticipantsProgressThroughWorkers -Dsurefire.failIfNoSpecifiedTests=false test",
+    "goal": "test",
+    "result": "SUCCESS",
+    "maven_total_time": "15.418 s",
+    "last_module_summary": {
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "tested_head": "a2b4e2a07a64e33eafe9e81a0ddc25c7961dc9cc",
+    "dirty": true,
+    "app_input_snapshot": "NOT CAPTURED; development feedback only",
+    "evidence": "docs/testing/evidence/L4-I8/feedback/pocoma-i8-feedback-06.log"
+  },
+  {
+    "id": "07",
+    "command": "./mvnw -pl runtime-monolith -am -Dtest=ReadWorkerResourcesPostgresTest#allParticipantsFitPoolsAndRenewalEnvelope -Dsurefire.failIfNoSpecifiedTests=false test",
+    "goal": "test",
+    "result": "FAIL",
+    "maven_total_time": "01:25 min",
+    "last_module_summary": {
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    },
+    "tested_head": "a2b4e2a07a64e33eafe9e81a0ddc25c7961dc9cc",
+    "dirty": true,
+    "app_input_snapshot": "NOT CAPTURED; development feedback only",
+    "evidence": "docs/testing/evidence/L4-I8/feedback/pocoma-i8-feedback-07.log"
+  },
+  {
+    "id": "08",
+    "command": "./mvnw -pl runtime-monolith -am -Dtest=ReadWorkerResourcesPostgresTest#allParticipantsFitPoolsAndRenewalEnvelope -Dsurefire.failIfNoSpecifiedTests=false test",
+    "goal": "test",
+    "result": "FAIL",
+    "maven_total_time": "01:16 min",
+    "last_module_summary": {
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    },
+    "tested_head": "a2b4e2a07a64e33eafe9e81a0ddc25c7961dc9cc",
+    "dirty": true,
+    "app_input_snapshot": "NOT CAPTURED; development feedback only",
+    "evidence": "docs/testing/evidence/L4-I8/feedback/pocoma-i8-feedback-08.log"
+  },
+  {
+    "id": "09",
+    "command": "./mvnw -pl runtime-monolith -am -Dtest=ReadWorkerResourcesPostgresTest#allParticipantsFitPoolsAndRenewalEnvelope -Dsurefire.failIfNoSpecifiedTests=false test",
+    "goal": "test",
+    "result": "FAIL",
+    "maven_total_time": "01:17 min",
+    "last_module_summary": {
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    },
+    "tested_head": "a2b4e2a07a64e33eafe9e81a0ddc25c7961dc9cc",
+    "dirty": true,
+    "app_input_snapshot": "NOT CAPTURED; development feedback only",
+    "evidence": "docs/testing/evidence/L4-I8/feedback/pocoma-i8-feedback-09.log"
+  },
+  {
+    "id": "10",
+    "command": "./mvnw -pl runtime-monolith -am -Dtest=ReadWorkerResourcesPostgresTest#allParticipantsFitPoolsAndRenewalEnvelope -Dsurefire.failIfNoSpecifiedTests=false test",
+    "goal": "test",
+    "result": "FAIL",
+    "maven_total_time": "01:15 min",
+    "last_module_summary": {
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    },
+    "tested_head": "a2b4e2a07a64e33eafe9e81a0ddc25c7961dc9cc",
+    "dirty": true,
+    "app_input_snapshot": "NOT CAPTURED; development feedback only",
+    "evidence": "docs/testing/evidence/L4-I8/feedback/pocoma-i8-feedback-10.log"
+  },
+  {
+    "id": "11",
+    "command": "./mvnw -pl runtime-monolith -am -Dtest=ReadWorkerResourcesPostgresTest#allParticipantsFitPoolsAndRenewalEnvelope -Dsurefire.failIfNoSpecifiedTests=false test",
+    "goal": "test",
+    "result": "FAIL",
+    "maven_total_time": "01:53 min",
+    "last_module_summary": {
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    },
+    "tested_head": "a2b4e2a07a64e33eafe9e81a0ddc25c7961dc9cc",
+    "dirty": true,
+    "app_input_snapshot": "NOT CAPTURED; development feedback only",
+    "evidence": "docs/testing/evidence/L4-I8/feedback/pocoma-i8-feedback-11.log"
+  },
+  {
+    "id": "12",
+    "command": "./mvnw -pl runtime-monolith -am -Dtest=ReadWorkerResourcesPostgresTest#allParticipantsFitPoolsAndRenewalEnvelope -Dsurefire.failIfNoSpecifiedTests=false test",
+    "goal": "test",
+    "result": "SUCCESS",
+    "maven_total_time": "43.240 s",
+    "last_module_summary": {
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "tested_head": "a2b4e2a07a64e33eafe9e81a0ddc25c7961dc9cc",
+    "dirty": true,
+    "app_input_snapshot": "NOT CAPTURED; development feedback only",
+    "evidence": "docs/testing/evidence/L4-I8/feedback/pocoma-i8-feedback-12.log"
+  },
+  {
+    "id": "13",
+    "command": "./mvnw -pl runtime-monolith -am -Dtest=ReadWorkerResourcesPostgresTest,ReadRootsCoexistencePostgresTest -Dsurefire.failIfNoSpecifiedTests=false test",
+    "goal": "test",
+    "result": "FAIL",
+    "maven_total_time": "08:08 min",
+    "last_module_summary": {
+      "tests": 3,
+      "failures": 0,
+      "errors": 1,
+      "skipped": 0
+    },
+    "tested_head": "a2b4e2a07a64e33eafe9e81a0ddc25c7961dc9cc",
+    "dirty": true,
+    "app_input_snapshot": "NOT CAPTURED; development feedback only",
+    "evidence": "docs/testing/evidence/L4-I8/feedback/pocoma-i8-feedback-13.log"
+  },
+  {
+    "id": "14",
+    "command": "./mvnw -pl runtime-task-consumption-worker,runtime-monolith,architecture-tests -am -Dtest=ReadActivationSettingsTest,ReadRuntimeAssemblyPostgresTest#rootsAndPrivilegesAreClosed,ReadFacadesPostgresTest,ReadRootsCoexistencePostgresTest,V3ConsumptionEngineArchitectureTest -Dsurefire.failIfNoSpecifiedTests=false test",
+    "goal": "test",
+    "result": "FAIL",
+    "maven_total_time": "25.864 s",
+    "last_module_summary": {
+      "tests": 7,
+      "failures": 0,
+      "errors": 6,
+      "skipped": 0
+    },
+    "tested_head": "a2b4e2a07a64e33eafe9e81a0ddc25c7961dc9cc",
+    "dirty": true,
+    "app_input_snapshot": "NOT CAPTURED; development feedback only",
+    "evidence": "docs/testing/evidence/L4-I8/feedback/pocoma-i8-feedback-14.log"
+  }
+]

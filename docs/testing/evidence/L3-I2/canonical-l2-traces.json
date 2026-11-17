@@ -1,0 +1,601 @@
+{
+  "attribution": "Auxiliary L2 traces freshly written during the final unfiltered canonical gate. Selection by original mtime within its execution; not a separate campaign or new L2 acceptance.",
+  "window": [
+    "2026-10-30T14:47:00+01:00",
+    "2026-10-30T15:33:00+01:00"
+  ],
+  "archive": "canonical-l2-traces.tar.gz",
+  "sha256": "e403197c224fae599c4982f9a0c9554949eec7de939058245900934ab6316336",
+  "members": {
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/child-pocoma-i5-child-10561658611447335239.log": {
+      "bytes": 3183,
+      "sha256": "b339090163a1e6a84f6ebd14b4697c7128e9c3a76946377fac032305a359c2c0",
+      "original_mtime_ns": 1793369484565307611
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/child-pocoma-i5-child-12066994338385628512.log": {
+      "bytes": 3188,
+      "sha256": "537ccadb195058ca30c7f18b91ce024f943902c91b5cb2a8a5e56415a885864b",
+      "original_mtime_ns": 1793369434620750500
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/child-pocoma-i5-child-13410014734326460714.log": {
+      "bytes": 3190,
+      "sha256": "81bcbf03e21bff43db8d576c8c3813e0542c040538b74b3ac4195b894270e446",
+      "original_mtime_ns": 1793369509316083067
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/child-pocoma-i5-child-13774833236170962415.log": {
+      "bytes": 3184,
+      "sha256": "1640b550e2faae5c6aa5d10e7636c7f2a65d601bf9846a12db22de7d476541d6",
+      "original_mtime_ns": 1793369560092853968
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/child-pocoma-i5-child-1716554963700066167.log": {
+      "bytes": 5803,
+      "sha256": "174cc0800024ba94eb5167d5a16766d48be9fbdc94e3930027edb087b604162e",
+      "original_mtime_ns": 1793370289624135752
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/child-pocoma-i5-child-17525973499264971711.log": {
+      "bytes": 5803,
+      "sha256": "76ccc652a2a137e3be9bba1ae00c0310f4ad6dadd18d27d43c4bfaf2a9989f3c",
+      "original_mtime_ns": 1793370299856467053
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/child-pocoma-i5-child-2201431425871641829.log": {
+      "bytes": 4809,
+      "sha256": "13dd35d64f12149938d76cff4153749c32e07dcf2406c570d4d30ff94731a96a",
+      "original_mtime_ns": 1793369372134329451
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/child-pocoma-i5-child-2453978033196757202.log": {
+      "bytes": 3186,
+      "sha256": "5d82cc1d23c5c158d488f7a12e4ceafa138c059467cff81aa9768eac5f1639f6",
+      "original_mtime_ns": 1793369459649769266
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/child-pocoma-i5-child-3224647295744196732.log": {
+      "bytes": 4801,
+      "sha256": "8cacaff1f94038ed91ce6271e85b623e150afc7484aff95bafcced3f9d382215",
+      "original_mtime_ns": 1793370309121131599
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/child-pocoma-i5-child-3448591716349831838.log": {
+      "bytes": 6261,
+      "sha256": "608110ec02c8603e5f006b84ce4720745b4b39bc7215231be2af8ba49b4b6917",
+      "original_mtime_ns": 1793370281233940704
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/child-pocoma-i5-child-4114970516733228132.log": {
+      "bytes": 5664,
+      "sha256": "33f1e8ccd7bd7f792996bf8ed3d86be280093e842adf27f7c996e3a7c6ebcc56",
+      "original_mtime_ns": 1793370617985355369
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/child-pocoma-i5-child-4726934035524792771.log": {
+      "bytes": 5968,
+      "sha256": "0e8695a5090deb737754fe58cd5bb53b4554139300bb7036e9884ba4168a1bd5",
+      "original_mtime_ns": 1793369398544869124
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/child-pocoma-i5-child-4963721371144840790.log": {
+      "bytes": 6263,
+      "sha256": "1773dbc9d548783ffa511ca6f0ca27da94ea4ba11ae0cb3a9deffb33ffb2e574",
+      "original_mtime_ns": 1793370273348264678
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/child-pocoma-i5-child-5821292257498335796.log": {
+      "bytes": 3185,
+      "sha256": "4d10b3779e111a8e0c5fedf964792e7f235f5da3773d96a11b66f18aecbb45e6",
+      "original_mtime_ns": 1793369534192980976
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/child-pocoma-i5-child-8143055758807996141.log": {
+      "bytes": 5663,
+      "sha256": "a33afe4b9f464fbaccdd967a3dc4fc8491e3481017e19383daca3ccef259e389",
+      "original_mtime_ns": 1793370628756358309
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/child-pocoma-i5-child-9993781433129242604.log": {
+      "bytes": 6124,
+      "sha256": "3a54976aaa2b5c14028ac4b44ac8b6517e210a9c8e0af8bef69c56d0041d29ec",
+      "original_mtime_ns": 1793370317212242505
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_c01.txt": {
+      "bytes": 1068,
+      "sha256": "a6308e690e02955af3d6398738c3ead5734fb71a487291afbbec45cab07f7a58",
+      "original_mtime_ns": 1793370324848899020
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_c02.txt": {
+      "bytes": 1067,
+      "sha256": "41afb23dc41728521c841268de14084de14ed07157e40524b80d7d5d3d06197a",
+      "original_mtime_ns": 1793370325630273301
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_c03.txt": {
+      "bytes": 1067,
+      "sha256": "e2bc2348c33de8fb5da04bbaef6aef42199aa3a5484363e7dfe7047e8f01753a",
+      "original_mtime_ns": 1793370328566844268
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_c04.txt": {
+      "bytes": 1205,
+      "sha256": "714257bf5c537a6fb5722402e477d8da71a77d630c5e0a44663d3486402e25be",
+      "original_mtime_ns": 1793370332108375140
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_c05.txt": {
+      "bytes": 1281,
+      "sha256": "6711d4008801d378dcd66bdb12d4c4fc706325f81776b0957c5b954f40bd2d91",
+      "original_mtime_ns": 1793370335294320663
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_m01-observer-failure.txt": {
+      "bytes": 1206,
+      "sha256": "524c89821798a0c334d6a19d978a197027ab10a2e9b8406af935e82c0063c87a",
+      "original_mtime_ns": 1793370349742731820
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_m01.txt": {
+      "bytes": 2506,
+      "sha256": "daf0893ad42b671c08afb917748c80e32907053de6ff6155eb8564c969bd6723",
+      "original_mtime_ns": 1793370346422511463
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_m02.txt": {
+      "bytes": 1330,
+      "sha256": "b7232c217c622ae58c10e42f78b2ce7a9b0364be209c7c577b7138c4ed9c92b4",
+      "original_mtime_ns": 1793370352942633384
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_m03-capacity.txt": {
+      "bytes": 10550,
+      "sha256": "98e3a5c5dd2785d8f20d19f4d4d00a127a1c13aa8a089cb343bdaecc1cb59bed",
+      "original_mtime_ns": 1793370368340046521
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_m03-empty.txt": {
+      "bytes": 7239,
+      "sha256": "97c4039b1e7c759d9a0d3c0c03a6065fdbfd725ead8cbef609acc78e9c157704",
+      "original_mtime_ns": 1793370365427612446
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_m03-multipage.txt": {
+      "bytes": 8518,
+      "sha256": "35b6153cba44eaeb8c8934dfb385ef8695374132a59392fe45a239f72e91b1e6",
+      "original_mtime_ns": 1793370355794448142
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_m03-no-owner.txt": {
+      "bytes": 7599,
+      "sha256": "5478bfe521fffd51e3aaeb8038b157206562ec56d8a84b0d181c46f90633e8fb",
+      "original_mtime_ns": 1793370371194713462
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_m03-observer-failure.txt": {
+      "bytes": 8526,
+      "sha256": "e67d2c4fa716852bd8d4e513040d12375e5af1aab6fe02a69dbf4f1b219baf4e",
+      "original_mtime_ns": 1793370378024924422
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_m03-omitted.txt": {
+      "bytes": 8376,
+      "sha256": "235073801107f4d36a1a344a47feb304a8bf0c7f867b62b46ce23ffe42717ab3",
+      "original_mtime_ns": 1793370358656022291
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_m03-premature.txt": {
+      "bytes": 8520,
+      "sha256": "462c3de62027660f7fb97a206555ae853eecd7b66978ebd75c93a519e41c4dbe",
+      "original_mtime_ns": 1793370361549577420
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_m03-rollback.txt": {
+      "bytes": 7602,
+      "sha256": "28a889a6c3d4cef88361b46c91203273ab0b186e721ecdd73c59fcaf899a7a61",
+      "original_mtime_ns": 1793370374052676923
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_physical-READ-cessionfalse-deadlinefalse-H4-afterRetirefalse.txt": {
+      "bytes": 1651,
+      "sha256": "286aa098201173a4bf978fd1b5e58b865a54ca37a2d493d9d5d70e4e5aae0fa2",
+      "original_mtime_ns": 1793370224949296236
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_physical-READ-cessionfalse-deadlinefalse-H4-afterRetiretrue.txt": {
+      "bytes": 1650,
+      "sha256": "00ca4d7b5286294d2199bb526c39288be467de5b86ea6bf01d2328db174da80b",
+      "original_mtime_ns": 1793370230293217169
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_physical-READ-cessionfalse-deadlinefalse.txt": {
+      "bytes": 1649,
+      "sha256": "7ad4b2d748b67ae628dd5e8e2eeb15558d20d959a9914dc5105c0e9c37029f1e",
+      "original_mtime_ns": 1793369356957135365
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_physical-READ-cessionfalse-deadlinetrue.txt": {
+      "bytes": 1652,
+      "sha256": "ff0c0f39cee495fcb850581627ee0bb059be9180ce491bdc4c311ba4e9122c22",
+      "original_mtime_ns": 1793369431167315940
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_physical-READ-cessiontrue-deadlinefalse.txt": {
+      "bytes": 1647,
+      "sha256": "3eb99b245ba8d9a7c2415ad3f1bdd6141acf3a66000aa93f46b8d82634145cd6",
+      "original_mtime_ns": 1793369362212253565
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_physical-WRITE-cessionfalse-deadlinefalse-H4-afterRetirefalse.txt": {
+      "bytes": 1555,
+      "sha256": "aacff0bea72cf14ba5145abe70837aa9c86e0dca606eb7521971f4bdc12dfb51",
+      "original_mtime_ns": 1793370214101867218
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_physical-WRITE-cessionfalse-deadlinefalse-H4-afterRetiretrue.txt": {
+      "bytes": 1555,
+      "sha256": "076be3d0abaf137eca67e80c5e45dd7e12da430367288a6622bf6fab60ab350a",
+      "original_mtime_ns": 1793370220483396987
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_physical-WRITE-cessionfalse-deadlinefalse.txt": {
+      "bytes": 1552,
+      "sha256": "b517217b38ae8ee1b1e0461899f747d3986386fb55e499ed2089d6e5b7ec4130",
+      "original_mtime_ns": 1793369344580734278
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_physical-WRITE-cessionfalse-deadlinetrue.txt": {
+      "bytes": 1555,
+      "sha256": "78350073836da3183981129794cdffbb99bf68ecde99cf2f6eb6c8a5f7362333",
+      "original_mtime_ns": 1793369425846189808
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_physical-WRITE-cessiontrue-deadlinefalse.txt": {
+      "bytes": 1551,
+      "sha256": "a591c782c0da41046f350dd6b9d56013e0530e654c2f4566d44ca779a9f5e620",
+      "original_mtime_ns": 1793369350798455079
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_r01-B-WRITE-READ.txt": {
+      "bytes": 2509,
+      "sha256": "a8f8e1a5b5bb77571652de082562d63614c936d48aea6368b5c3ae72c79289f9",
+      "original_mtime_ns": 1793370403094083217
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_r02-A-WRITE-READ.txt": {
+      "bytes": 2451,
+      "sha256": "227d3c2dc19b8bea0357a14ff8e2abcf4648b37a47531c414b88cb99cb659fbd",
+      "original_mtime_ns": 1793370415967272822
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_r02-P2-READ.txt": {
+      "bytes": 3632,
+      "sha256": "2ffc7c55f40710fb8b99109aa33a1b721c3c9278cb353f277d02f14a33cbacca",
+      "original_mtime_ns": 1793370412142123316
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_r02-P2-WRITE.txt": {
+      "bytes": 1602,
+      "sha256": "a1bc31343672a28a8074f0c11b8cd232012126354a2a20d3fcf56d3cc624a730",
+      "original_mtime_ns": 1793370406949790070
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_r02-joint-READ.txt": {
+      "bytes": 2418,
+      "sha256": "8273077734082ba3774b0d762a791e5c9e7a37d0fb293fcc36c3841d486e4c64",
+      "original_mtime_ns": 1793370422541824356
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_r02-joint-WRITE.txt": {
+      "bytes": 2102,
+      "sha256": "6e3fe6898c442a5e9740a328fd1b9c6ef7ebdc22a7a651166b6fb40957546c49",
+      "original_mtime_ns": 1793370419167511554
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_r03-P1-READ.txt": {
+      "bytes": 2271,
+      "sha256": "16915207e8d1520c8d2893cac0ceab3e7e94650f2f1df22870793f8be345832d",
+      "original_mtime_ns": 1793370470796071610
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_r03-P1-WRITE.txt": {
+      "bytes": 2271,
+      "sha256": "c0ee3d215feba1c156785980e1829d627dfa0cee6ae031536c10ccd32e66db40",
+      "original_mtime_ns": 1793370446653884540
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_r03-P3-P6-READ.txt": {
+      "bytes": 2685,
+      "sha256": "ea41f822b06e5b1527afc34e42faaf029109824f21652139720a4a8eb13a0dd0",
+      "original_mtime_ns": 1793370478468085458
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_r03-P3-P6-WRITE.txt": {
+      "bytes": 2687,
+      "sha256": "b630948cb81ef0cfb04408a1ac5aebdac956b5362ad86c6799ab152b31f24edd",
+      "original_mtime_ns": 1793370474663581866
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_r04-P4-READ.txt": {
+      "bytes": 1618,
+      "sha256": "ef55672162fea06171a246d9d0447e8651577f569b3566f6d2144ff7eab90bff",
+      "original_mtime_ns": 1793370485906833220
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_r04-P4-WRITE.txt": {
+      "bytes": 1311,
+      "sha256": "13fa8a24279b854c87e5e1162dba0f54dd5f90bc367b9a1a87e84399b1f81ae5",
+      "original_mtime_ns": 1793370481683385738
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_r06-P5-READ-AFTER.txt": {
+      "bytes": 1423,
+      "sha256": "5419598208afcf708fe42593d711d4884889a5c2b5496585f72ae1cbd35bb073",
+      "original_mtime_ns": 1793370559674208849
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_r06-P5-READ-BEFORE.txt": {
+      "bytes": 1425,
+      "sha256": "56a97a877ee21a98e91da4480aaec97990ad035db623d7460ada6d1b61812e14",
+      "original_mtime_ns": 1793370555632253730
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_r06-P5-READ-RETAIN.txt": {
+      "bytes": 1563,
+      "sha256": "28a46709887cefb36564b6aaa2e023622afb7570e9688a7165a8777733871f9f",
+      "original_mtime_ns": 1793370565628828431
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_r06-P5-WRITE-AFTER.txt": {
+      "bytes": 1328,
+      "sha256": "c6d1a32bde8ba12e44513b6459cce82a91e140da5501745426d9a8b959bb955d",
+      "original_mtime_ns": 1793370544552139380
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_r06-P5-WRITE-BEFORE.txt": {
+      "bytes": 1329,
+      "sha256": "aa053828d52bf126e89296962c812f296a927d739620a4b0f6b8fd750fba8f23",
+      "original_mtime_ns": 1793370541446174663
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_r06-P5-WRITE-RETAIN.txt": {
+      "bytes": 1467,
+      "sha256": "197ba61480d12445ef0535857c8c46e3fcd5d30455585132098e8fa76fc6b520",
+      "original_mtime_ns": 1793370551632629902
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_r07.txt": {
+      "bytes": 1317,
+      "sha256": "d751b8d6559512afff16027bba6919405a1592b8d435958bd925f4d30189c403",
+      "original_mtime_ns": 1793370604055717025
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_r08.txt": {
+      "bytes": 1073,
+      "sha256": "7ded1e785f013786ec578a03e9aae6d015cb73ff358175a57ac24003cfba726a",
+      "original_mtime_ns": 1793370606951914503
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_r09-P7-READ.txt": {
+      "bytes": 2417,
+      "sha256": "a25e06f4238a4bae2129c64eb12e7ed0df68626b02b33a3fa9b5e4a7aa85b968",
+      "original_mtime_ns": 1793370628747623091
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_r09-P7-WRITE.txt": {
+      "bytes": 2416,
+      "sha256": "79980d2902a3ff2437530ec60d42af1e7a412db79f3b245c77af3e69283b5252",
+      "original_mtime_ns": 1793370617978067659
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_r10-lease-rotation-WRITE-READ.txt": {
+      "bytes": 4947,
+      "sha256": "f79e8f04de54274524fa6db78d909fcbd48a41f09c8a3d2c45257bc9f7d13410",
+      "original_mtime_ns": 1793370653849044826
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_r11-lease-skip-READ.txt": {
+      "bytes": 2108,
+      "sha256": "d3350700413fd0e8710ffe0b47a41cbf0d1be9aff236e4c9c9689a663eab969f",
+      "original_mtime_ns": 1793370662677372461
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_r11-lease-skip-WRITE.txt": {
+      "bytes": 1933,
+      "sha256": "b8885598fc24fb3eecc2cb0095c234bba3eeeff4d177a520167e2729eb69262d",
+      "original_mtime_ns": 1793370658875804970
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_w01.txt": {
+      "bytes": 1428,
+      "sha256": "45309b9fbe7850f1dd7c2eeeaf31660ec3d4d5a6c4aa7beb0fb5200b777a550a",
+      "original_mtime_ns": 1793369146658842760
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_w02.txt": {
+      "bytes": 2727,
+      "sha256": "00730cb9a35372e794e6be265f6588d12f421be1a8948c83bc907242373daefe",
+      "original_mtime_ns": 1793369173522369359
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_w03.txt": {
+      "bytes": 23061,
+      "sha256": "0031ad312124457109b99f25e1232b468245826988a136a79081143db763d536",
+      "original_mtime_ns": 1793369188266707014
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_w04.txt": {
+      "bytes": 2576,
+      "sha256": "f1b89d223325da3cbbbd21129139596d8dc8df5c55f1a25e51d36e06d1c1a355",
+      "original_mtime_ns": 1793369203697181178
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_w05-D2.txt": {
+      "bytes": 1334,
+      "sha256": "7d5ed98b3b67af6dfdf7a570a25c316df08a196cf0b6450763fa593e9def300e",
+      "original_mtime_ns": 1793369207860241180
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_w05-D3.txt": {
+      "bytes": 1334,
+      "sha256": "bf27354a94b895736e86189b30a8e690f93c6e20f94b75e86bfc937dc7715701",
+      "original_mtime_ns": 1793369211961475732
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_w06.txt": {
+      "bytes": 1329,
+      "sha256": "a37136570ea06d41840d8b4d6f310ed8b36719b04b5751ff6b752c240ece2519",
+      "original_mtime_ns": 1793369215074486699
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_w07.txt": {
+      "bytes": 1851,
+      "sha256": "24807c28a442adbabb376afbc5ee80dc8912e9cc02d538784206fad43a087b49",
+      "original_mtime_ns": 1793369219523288471
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_w08-before-restart.txt": {
+      "bytes": 10181,
+      "sha256": "cf30af8862d1d62c526c452e97304902ac648d8001a4632f2930341634d78869",
+      "original_mtime_ns": 1793369224295729654
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_w08.txt": {
+      "bytes": 10791,
+      "sha256": "9d2b4f28d8f1d5836e3209a4c26c5139e04b2c26c2b5d776fa6b589d379426aa",
+      "original_mtime_ns": 1793369278092353553
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_w09.txt": {
+      "bytes": 1317,
+      "sha256": "cce1776e431aaf683446c6a8ab9c766586b286d2f0f1066a2bd4a02dc313389e",
+      "original_mtime_ns": 1793369294551407334
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_w10-READ-boundary0.txt": {
+      "bytes": 1459,
+      "sha256": "73a8ab253e304a8d0ac99571d43c24cdb201015397ef0108cad6dfa620398df6",
+      "original_mtime_ns": 1793369323762703839
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_w10-READ-boundary1.txt": {
+      "bytes": 1459,
+      "sha256": "e0c2320fd96bfe58bc13f4ae07723f0bf9e17a3ffa51f9976ceec27263da0a3d",
+      "original_mtime_ns": 1793369329383389448
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_w10-READ-boundary2.txt": {
+      "bytes": 1459,
+      "sha256": "e69e8eddf1dccb1bede14946024b3345540d7af203d1140ec99e2b930f6d506a",
+      "original_mtime_ns": 1793369336977027666
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_w10-WRITE-boundary0.txt": {
+      "bytes": 1358,
+      "sha256": "000737d319ed1876c46c9fedebb2797183ace3ef86737bb41382cd62b98ce74a",
+      "original_mtime_ns": 1793369301000282751
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_w10-WRITE-boundary1.txt": {
+      "bytes": 1357,
+      "sha256": "e568db7f723cd0a0b3f8e474c1d2b4eb665b170ed4209f831618db35399b0680",
+      "original_mtime_ns": 1793369307540441873
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_w10-WRITE-boundary2.txt": {
+      "bytes": 1358,
+      "sha256": "cb7e7413d55036bdffb3612887b6c332e5dc861cdd2d37809df23ec241713248",
+      "original_mtime_ns": 1793369316076318698
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_w12.txt": {
+      "bytes": 1314,
+      "sha256": "81c2bf1d804b93d3e28a495f0e74e37d977786de438a6a6ccdadc5e754218d6c",
+      "original_mtime_ns": 1793369365356899511
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_w13-READ-PREPARATION-READ.txt": {
+      "bytes": 1697,
+      "sha256": "725b6a1f0906fc3ed7b30a56def969611c175143776316c56256c5e6967ee6bd",
+      "original_mtime_ns": 1793369419537196551
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_w13-READ-PREPARATION-WRITE.txt": {
+      "bytes": 1681,
+      "sha256": "c1379cb65fd45a2bd12653de82fbe62852f9d26ecd59bc07c697a1c7f30885ed",
+      "original_mtime_ns": 1793369392047312379
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_w14-acquire.txt": {
+      "bytes": 2196,
+      "sha256": "942a48eb4bc40781e5d46271965da98f076b104ee278e34d6d72fe1fe00c8712",
+      "original_mtime_ns": 1793369479609382011
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_w14-admission.txt": {
+      "bytes": 2185,
+      "sha256": "ae5dfa1c60317929dc0c753c67ede9422ad9d4c438af3824e1d9d06dc223b05e",
+      "original_mtime_ns": 1793369455443972470
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_w14-cession.txt": {
+      "bytes": 2197,
+      "sha256": "4c4baeee7daca84859be567c5e9eac550d478283be012703957e2e0f2b400a76",
+      "original_mtime_ns": 1793369581062788763
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_w14-commit.txt": {
+      "bytes": 2195,
+      "sha256": "997bcd0327054f2a7875b76c02be63cd9ce749021904d1e123e2b1a10121553d",
+      "original_mtime_ns": 1793369556123706195
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_w14-delete.txt": {
+      "bytes": 2194,
+      "sha256": "72e550896fb098410cda6322368bfdd43d7213b607a15d916652769d79301671",
+      "original_mtime_ns": 1793369505619547654
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_w14-publication.txt": {
+      "bytes": 2205,
+      "sha256": "61d94d1a3f551fb42f46be7c97ce793233ba559bbe158be47c7d7029c55d72d8",
+      "original_mtime_ns": 1793369530527189328
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_w15.txt": {
+      "bytes": 1311,
+      "sha256": "06096f3f3b449e1634503d9f2d14353e70083a6920d50ca952e22e5b894bab1f",
+      "original_mtime_ns": 1793369588355997791
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_w16.txt": {
+      "bytes": 1562,
+      "sha256": "cdba6191a4cad961c6b14cfcc086632df50b45c4e08dd9efaa6deb47348a0f88",
+      "original_mtime_ns": 1793370195549430867
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_w17-H1.txt": {
+      "bytes": 1332,
+      "sha256": "d978afe2a3db8d1730f5283437deed0d89940258890bcff4c53e2bf7f96d09ce",
+      "original_mtime_ns": 1793370209600929805
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_w17-H2-READ.txt": {
+      "bytes": 1457,
+      "sha256": "9e1fc22cfbfe229e391e61f6af15a0c66cda266383d815229f5e967e78e2c586",
+      "original_mtime_ns": 1793370241513050802
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_w17-H2-WRITE.txt": {
+      "bytes": 1360,
+      "sha256": "036f0740cdc74a2a436765c9302450180f7493b3c8c8febb8c742e102c200377",
+      "original_mtime_ns": 1793370233572298825
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_w17-H3-READ.txt": {
+      "bytes": 1455,
+      "sha256": "a86a3c5780fcbbdfc273db459a2d8ed383f78249fc6b193320f77c1754af7d94",
+      "original_mtime_ns": 1793370244993753232
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_w17-H3-WRITE.txt": {
+      "bytes": 1358,
+      "sha256": "da4088bed8c0a3d6e735d76cfe7a3a1f606368f3138e8112a2452685f7d361f9",
+      "original_mtime_ns": 1793370237065355536
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_w18-D1.txt": {
+      "bytes": 1329,
+      "sha256": "3953840ee33a4575cc3d712aa93573d69fce2404aeac708d34bb45dcdb8ac6ee",
+      "original_mtime_ns": 1793370248224208184
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_w18-D4.txt": {
+      "bytes": 1293,
+      "sha256": "0a056e9787f2827728302c055354954ad3bb09a0be8e329873ddee955b48086c",
+      "original_mtime_ns": 1793370251506939320
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_w19-MW1-timeoutfalse.txt": {
+      "bytes": 4928,
+      "sha256": "cda04c8934b52ff5d6a95216f0ed71dd76c65040ebbe3602efd3f3f88a858588",
+      "original_mtime_ns": 1793370254588475935
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_w19-MW1-timeouttrue.txt": {
+      "bytes": 5698,
+      "sha256": "9781e0b85152aa64b11957dd08719c3ec1e36ca80fd50a09a7ae51a3cd350ccd",
+      "original_mtime_ns": 1793370259341381294
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_w19-MW4-timeoutfalse.txt": {
+      "bytes": 4990,
+      "sha256": "f524b565a37b5b27bdde499d306d2914a4852515ed7b89c629716dfc890b7e14",
+      "original_mtime_ns": 1793370262867142699
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_w19-MW4-timeouttrue.txt": {
+      "bytes": 5571,
+      "sha256": "0231268f98e7b4618de5f8db1450b2a133e9c13c01da63330474e0edaadf5dbb",
+      "original_mtime_ns": 1793370267870956748
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_w20-control-unknown-READ.txt": {
+      "bytes": 2648,
+      "sha256": "d846c20d73c1ff5c191aa6664141a8d4886f9d1c930cd3fd0f3c974255c4045e",
+      "original_mtime_ns": 1793370283719722176
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_w20-control-unknown-WRITE.txt": {
+      "bytes": 2467,
+      "sha256": "63c453fdb6141455f1eaf5550009416aeb3c863dbe99491fe281d379a1936bc1",
+      "original_mtime_ns": 1793370275775118468
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_w21-recovery-CONTROL-READ.txt": {
+      "bytes": 2323,
+      "sha256": "fc9644c7cccae8c5b5c286cb68fad7caa339bf7566a67dbfe83ab5d356462805",
+      "original_mtime_ns": 1793370302169917674
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_w21-recovery-CONTROL-WRITE.txt": {
+      "bytes": 2309,
+      "sha256": "662e9854843e3bf659b0f7159b357d261274031c8a28ee764315fde0531f6c5d",
+      "original_mtime_ns": 1793370291906201229
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_w21-recovery-READ-READ.txt": {
+      "bytes": 2164,
+      "sha256": "3c8411ec45754179a869b89100c459cde8e4a30f88d916110b1f78c93808cf70",
+      "original_mtime_ns": 1793370319514350725
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_w21-recovery-READ-WRITE.txt": {
+      "bytes": 6824,
+      "sha256": "9188f00a231db2ae2391ac43896662e8f1921c2b428b6e27084097759c29b01e",
+      "original_mtime_ns": 1793370311337775981
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/temporal-v2-W1-B1-MW4-final.txt": {
+      "bytes": 992655,
+      "sha256": "021cd90ff493e5c64da6ed9464e2a5c92c8066ddaa5fa581ad7c439b96d651c8",
+      "original_mtime_ns": 1793370538344077760
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/temporal-v2-W1-B1-MW4-stage1.txt": {
+      "bytes": 51359,
+      "sha256": "f1d3dace695b198f7439c9d761bc26616f67d506d06c5dde549cb7aa50ce9677",
+      "original_mtime_ns": 1793370502854454262
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/temporal-v2-W1-B1-MW4-stage2.txt": {
+      "bytes": 119633,
+      "sha256": "34f6e6c84d1eaa0b63f9d2f6db21336b46dded244ed8ee6514deebcd85fe5233",
+      "original_mtime_ns": 1793370513032596993
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/temporal-v3-W2-B32-MW4-final.txt": {
+      "bytes": 906086,
+      "sha256": "2f2db1468c53671d057cdde80a0c65336e1295590dcc5502cd224a01683e0843",
+      "original_mtime_ns": 1793370744510485346
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/temporal-v3-W2-B32-MW4-stage1.txt": {
+      "bytes": 45782,
+      "sha256": "9d25616f0f813c74c566acbcfded3b9d2c74d1557a8912c32a19c2cc011581bb",
+      "original_mtime_ns": 1793370684012363495
+    },
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/temporal-v3-W2-B32-MW4-stage2.txt": {
+      "bytes": 88777,
+      "sha256": "0531d12fadaaa9e1ed96b5900032246bccd786bebce8f9e2c2aa3e3c80320b00",
+      "original_mtime_ns": 1793370694090160634
+    }
+  }
+}

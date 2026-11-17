@@ -1,0 +1,8 @@
+{
+  "state": "NOT_READY",
+  "exit": 2,
+  "control": "GRAFANA_UPGRADE_COMPOSE_DRIFT",
+  "instance": "demo",
+  "evidence": "./.pocoma-local/instances/demo/runs/1794692985-6c43355c",
+  "environment": "PRESERVED"
+}

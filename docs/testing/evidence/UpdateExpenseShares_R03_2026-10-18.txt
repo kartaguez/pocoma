@@ -1,0 +1,17 @@
+R03 — Extraits bruts de la tentative finale du 2026-10-18
+Commande (cwd app/): ./mvnw -pl runtime-command-consumption-worker -am test -Dtest=UpdateExpenseSharesConcurrencyPostgresTest -Dsurefire.failIfNoSpecifiedTests=false
+
+11:30:26.524 [main] INFO org.testcontainers.DockerClientFactory -- Testcontainers version: 2.0.4
+2026-10-18T11:30:28.987+02:00  INFO 40411 --- [           main] o.f.core.internal.command.DbMigrate      : Successfully applied 29 migrations to schema "public", now at version v29 (execution time 00:00.120s)
+	Database version: 17.11
+	Isolation level: READ_COMMITTED [default READ_COMMITTED]
+R03 R03 committed pot=22d0d98e-1b0e-4ec8-849f-233f5141dea3 version=7 metadata=[{version=1}, {version=2}, {version=3}, {version=4}, {version=5}, {version=6}, {version=7}] headers=[{started_at_version=5, ended_at_version=6, deleted=false}, {started_at_version=6, ended_at_version=null, deleted=true}] shares=[{started_at_version=5, ended_at_version=7, weight_numerator=1, weight_denominator=1}, {started_at_version=7, ended_at_version=null, weight_numerator=2, weight_denominator=1}] events=[{event_type=EXPENSE_DELETED, version=6}, {event_type=EXPENSE_SHARES_UPDATED, version=7}]
+R03 CAS lost, no A effects pot=07bcf962-51a7-4fcc-8542-54f6d28e5bef version=6 metadata=[{version=1}, {version=2}, {version=3}, {version=4}, {version=5}, {version=6}] headers=[{started_at_version=5, ended_at_version=6, deleted=false}, {started_at_version=6, ended_at_version=null, deleted=true}] shares=[{started_at_version=5, ended_at_version=null, weight_numerator=1, weight_denominator=1}] events=[{event_type=EXPENSE_DELETED, version=6}]
+R03 rollback after Event flush, no durable effects pot=e25ed8bb-2696-4dd6-ae49-3d69aad6240f version=5 metadata=[{version=1}, {version=2}, {version=3}, {version=4}, {version=5}] headers=[{started_at_version=5, ended_at_version=null, deleted=false}] shares=[{started_at_version=5, ended_at_version=null, weight_numerator=1, weight_denominator=1}] events=[]
+[ERROR] Tests run: 3, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 4.897 s <<< FAILURE! -- in com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.context.UpdateExpenseSharesConcurrencyPostgresTest
+org.opentest4j.AssertionFailedError: DEFECT_CONFIRMED: shares and BusinessEvent committed at V7 after Expense deletion at V6 ==> expected: <0> but was: <1>
+[ERROR]   UpdateExpenseSharesConcurrencyPostgresTest.deletedExpenseMustNotAcceptSharesFromMixedContext:132 DEFECT_CONFIRMED: shares and BusinessEvent committed at V7 after Expense deletion at V6 ==> expected: <0> but was: <1>
+[ERROR] Tests run: 3, Failures: 1, Errors: 0, Skipped: 0
+[INFO] BUILD FAILURE
+[INFO] Total time:  9.083 s
+[INFO] Finished at: 2026-10-18T11:30:31+02:00

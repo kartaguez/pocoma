@@ -1,0 +1,43 @@
+meta {
+  name: J01-19-A07 Guest Hidden Invitation
+  type: http
+  seq: 19
+}
+
+get {
+  url: {{readUrl}}/api/v3/invitations/by-creation-request/{{invitationRequestId}}
+  body: none
+  auth: none
+}
+
+headers {
+  Connection: close
+}
+
+settings {
+  timeout: 5000
+}
+
+script:pre-request {
+  const options = {"id":"J01-19-A07","role":"guest","kind":"error","status":404,"requires":["invitationRequestId"]};
+  await require('./lib/workspace.js').prepare(bru, req, options);
+}
+
+tests {
+  const options = {"id":"J01-19-A07","role":"guest","kind":"error","status":404,"requires":["invitationRequestId"]};
+  const work = require('./lib/workspace.js');
+  test('J01-19-A07 transport and privacy', () => work.transport(bru, res, expect, options));
+  test('J01-19-A07 contract and variables', () => {
+    work.verify(bru, req, res, expect, options);
+    work.record(bru, req, res, options);
+  });
+}
+
+docs {
+  Parcours J01 ; etape 19. Source : 09 - Access Control and Errors/A07 Guest Hidden Invitation.bru.
+  Resultat invitation du createur masque au Guest, meme s il dispose d un lien partage.
+  Identite : guest. Prerequis : invitationRequestId.
+  Chaque Send appelle la methode et le corps visibles. Les GET asynchrones attendent
+  le meme endpoint au plus 30 s avant l appel affiche ; aucun POST cache.
+  Modifier le JSON librement ; une nouvelle intention recoit une nouvelle cle.
+}

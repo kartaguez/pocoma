@@ -1,0 +1,411 @@
+{
+  "scope": "L4 recovery AUD-L4-01/02 only",
+  "runs": [
+    {
+      "run": "before",
+      "tested_sha": "23e9c1758b36d166e8e0ad02a5bf77e715d32a06",
+      "clean": true,
+      "verdict": "FAIL",
+      "counts": {
+        "tests": 3,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "maven_seconds": 17.492844,
+      "campaign_seconds": 20.78906758298399,
+      "executions": [
+        {
+          "classname": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest",
+          "method": "potVersionRecoveryRequiresCurrentPot",
+          "seconds": 2.47,
+          "outcome": "FAIL",
+          "diagnostic": "Multiple Failures (5 failures)\n org.opentest4j.MultipleFailuresError: absent (1 failure)\n org.opentest4j.AssertionFailedError: absent/absent ==> expected: <INCONSISTENT> but was: <COMPLETED>\n org.opentest4j.MultipleFailuresError: lower (2 failures)\n org.opentest4j.AssertionFailedError: lower/present ==> expected: <INCONSISTENT> but was: <NOT_COMPLETED>\n org.opentest4j.AssertionFailedError: lower/absent ==> expected: <INCONSISTENT> but was: <COMPLETED>\n org.opentest4j.MultipleFailuresError: malformed-target (2 failures)\n org.opentest4j.AssertionFailedError: malformed-target/present ==> expected: <INCONSISTENT> but was: <NOT_COMPLETED>\n org.opentest4j.AssertionFailedError: malformed-target/absent ==> expected: <INCONSISTENT> but was: <COMPLETED>\n org.opentest4j.MultipleFailuresError: mixed-target (2 failures)\n org.opentest4j.AssertionFailedError: mixed-target/present ==> expected: <INCONSISTENT> but was: <NOT_COMPLETED>\n org.opentest4j.AssertionFailedError: mixed-target/absent ==> expected: <INCONSISTENT> but was: <COMPLETED>\n org.opentest4j.MultipleFailuresError: invalid-reference (2 failures)\n org.opentest4j.AssertionFailedError: invalid-reference/present ==> expected: <INCONSISTENT> but was: <NOT_COMPLETED>\n org.opentest4j.AssertionFailedError: invalid-reference/absent ==> expected: <INCONSISTENT> but was: <COMPLETED>"
+        },
+        {
+          "classname": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest",
+          "method": "currentBindingRecoverySupersession",
+          "seconds": 1.72,
+          "outcome": "PASS"
+        },
+        {
+          "classname": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest",
+          "method": "visibilityRecoverySupersession",
+          "seconds": 1.504,
+          "outcome": "PASS"
+        }
+      ],
+      "diagnostics": [
+        {
+          "trace": "app/runtime-task-consumption-worker/target/l4-i2-evidence/1f22af87f0f74803a5ca767a7e82eb37/L4-recovery-binding-supersession.txt",
+          "diagnostic": "RECOVERY CURRENT_BINDING V2-exact/V1-present expected=NOT_COMPLETED actual=NOT_COMPLETED"
+        },
+        {
+          "trace": "app/runtime-task-consumption-worker/target/l4-i2-evidence/1f22af87f0f74803a5ca767a7e82eb37/L4-recovery-binding-supersession.txt",
+          "diagnostic": "RECOVERY CURRENT_BINDING V2-exact/V1-terminalized expected=COMPLETED actual=COMPLETED"
+        },
+        {
+          "trace": "app/runtime-task-consumption-worker/target/l4-i2-evidence/1f22af87f0f74803a5ca767a7e82eb37/L4-recovery-binding-supersession.txt",
+          "diagnostic": "RECOVERY CURRENT_BINDING V3-exact/slot=true expected=NOT_COMPLETED actual=NOT_COMPLETED"
+        },
+        {
+          "trace": "app/runtime-task-consumption-worker/target/l4-i2-evidence/1f22af87f0f74803a5ca767a7e82eb37/L4-recovery-binding-supersession.txt",
+          "diagnostic": "RECOVERY CURRENT_BINDING V3-divergent-binding_token/slot=true expected=INCONSISTENT actual=INCONSISTENT"
+        },
+        {
+          "trace": "app/runtime-task-consumption-worker/target/l4-i2-evidence/1f22af87f0f74803a5ca767a7e82eb37/L4-recovery-binding-supersession.txt",
+          "diagnostic": "RECOVERY CURRENT_BINDING V3-divergent-user_id/slot=true expected=INCONSISTENT actual=INCONSISTENT"
+        },
+        {
+          "trace": "app/runtime-task-consumption-worker/target/l4-i2-evidence/1f22af87f0f74803a5ca767a7e82eb37/L4-recovery-binding-supersession.txt",
+          "diagnostic": "RECOVERY CURRENT_BINDING V3-divergent-eui_version/slot=true expected=INCONSISTENT actual=INCONSISTENT"
+        },
+        {
+          "trace": "app/runtime-task-consumption-worker/target/l4-i2-evidence/1f22af87f0f74803a5ca767a7e82eb37/L4-recovery-binding-supersession.txt",
+          "diagnostic": "RECOVERY CURRENT_BINDING V3-exact/slot=false expected=COMPLETED actual=COMPLETED"
+        },
+        {
+          "trace": "app/runtime-task-consumption-worker/target/l4-i2-evidence/1f22af87f0f74803a5ca767a7e82eb37/L4-recovery-binding-supersession.txt",
+          "diagnostic": "RECOVERY CURRENT_BINDING V3-divergent-binding_token/slot=false expected=INCONSISTENT actual=INCONSISTENT"
+        },
+        {
+          "trace": "app/runtime-task-consumption-worker/target/l4-i2-evidence/1f22af87f0f74803a5ca767a7e82eb37/L4-recovery-binding-supersession.txt",
+          "diagnostic": "RECOVERY CURRENT_BINDING V3-divergent-user_id/slot=false expected=INCONSISTENT actual=INCONSISTENT"
+        },
+        {
+          "trace": "app/runtime-task-consumption-worker/target/l4-i2-evidence/1f22af87f0f74803a5ca767a7e82eb37/L4-recovery-binding-supersession.txt",
+          "diagnostic": "RECOVERY CURRENT_BINDING V3-divergent-eui_version/slot=false expected=INCONSISTENT actual=INCONSISTENT"
+        },
+        {
+          "trace": "app/runtime-task-consumption-worker/target/l4-i2-evidence/1f22af87f0f74803a5ca767a7e82eb37/L4-recovery-binding-supersession.txt",
+          "diagnostic": "RECOVERY CURRENT_BINDING checkpoint-zero/slot=true expected=INCONSISTENT actual=INCONSISTENT"
+        },
+        {
+          "trace": "app/runtime-task-consumption-worker/target/l4-i2-evidence/1f22af87f0f74803a5ca767a7e82eb37/L4-recovery-binding-supersession.txt",
+          "diagnostic": "RECOVERY CURRENT_BINDING checkpoint-zero/slot=false expected=INCONSISTENT actual=INCONSISTENT"
+        },
+        {
+          "trace": "app/runtime-task-consumption-worker/target/l4-i2-evidence/1f22af87f0f74803a5ca767a7e82eb37/L4-recovery-current-pot.txt",
+          "diagnostic": "RECOVERY POT_VERSION absent/present expected=NOT_COMPLETED actual=NOT_COMPLETED"
+        },
+        {
+          "trace": "app/runtime-task-consumption-worker/target/l4-i2-evidence/1f22af87f0f74803a5ca767a7e82eb37/L4-recovery-current-pot.txt",
+          "diagnostic": "RECOVERY POT_VERSION absent/absent expected=INCONSISTENT actual=COMPLETED"
+        },
+        {
+          "trace": "app/runtime-task-consumption-worker/target/l4-i2-evidence/1f22af87f0f74803a5ca767a7e82eb37/L4-recovery-current-pot.txt",
+          "diagnostic": "RECOVERY POT_VERSION lower/present expected=INCONSISTENT actual=NOT_COMPLETED"
+        },
+        {
+          "trace": "app/runtime-task-consumption-worker/target/l4-i2-evidence/1f22af87f0f74803a5ca767a7e82eb37/L4-recovery-current-pot.txt",
+          "diagnostic": "RECOVERY POT_VERSION lower/absent expected=INCONSISTENT actual=COMPLETED"
+        },
+        {
+          "trace": "app/runtime-task-consumption-worker/target/l4-i2-evidence/1f22af87f0f74803a5ca767a7e82eb37/L4-recovery-current-pot.txt",
+          "diagnostic": "RECOVERY POT_VERSION equal/present expected=NOT_COMPLETED actual=NOT_COMPLETED"
+        },
+        {
+          "trace": "app/runtime-task-consumption-worker/target/l4-i2-evidence/1f22af87f0f74803a5ca767a7e82eb37/L4-recovery-current-pot.txt",
+          "diagnostic": "RECOVERY POT_VERSION equal/absent expected=COMPLETED actual=COMPLETED"
+        },
+        {
+          "trace": "app/runtime-task-consumption-worker/target/l4-i2-evidence/1f22af87f0f74803a5ca767a7e82eb37/L4-recovery-current-pot.txt",
+          "diagnostic": "RECOVERY POT_VERSION higher/present expected=NOT_COMPLETED actual=NOT_COMPLETED"
+        },
+        {
+          "trace": "app/runtime-task-consumption-worker/target/l4-i2-evidence/1f22af87f0f74803a5ca767a7e82eb37/L4-recovery-current-pot.txt",
+          "diagnostic": "RECOVERY POT_VERSION higher/absent expected=COMPLETED actual=COMPLETED"
+        },
+        {
+          "trace": "app/runtime-task-consumption-worker/target/l4-i2-evidence/1f22af87f0f74803a5ca767a7e82eb37/L4-recovery-current-pot.txt",
+          "diagnostic": "RECOVERY POT_VERSION malformed-target/present expected=INCONSISTENT actual=NOT_COMPLETED"
+        },
+        {
+          "trace": "app/runtime-task-consumption-worker/target/l4-i2-evidence/1f22af87f0f74803a5ca767a7e82eb37/L4-recovery-current-pot.txt",
+          "diagnostic": "RECOVERY POT_VERSION malformed-target/absent expected=INCONSISTENT actual=COMPLETED"
+        },
+        {
+          "trace": "app/runtime-task-consumption-worker/target/l4-i2-evidence/1f22af87f0f74803a5ca767a7e82eb37/L4-recovery-current-pot.txt",
+          "diagnostic": "RECOVERY POT_VERSION mixed-target/present expected=INCONSISTENT actual=NOT_COMPLETED"
+        },
+        {
+          "trace": "app/runtime-task-consumption-worker/target/l4-i2-evidence/1f22af87f0f74803a5ca767a7e82eb37/L4-recovery-current-pot.txt",
+          "diagnostic": "RECOVERY POT_VERSION mixed-target/absent expected=INCONSISTENT actual=COMPLETED"
+        },
+        {
+          "trace": "app/runtime-task-consumption-worker/target/l4-i2-evidence/1f22af87f0f74803a5ca767a7e82eb37/L4-recovery-current-pot.txt",
+          "diagnostic": "RECOVERY POT_VERSION invalid-reference/present expected=INCONSISTENT actual=NOT_COMPLETED"
+        },
+        {
+          "trace": "app/runtime-task-consumption-worker/target/l4-i2-evidence/1f22af87f0f74803a5ca767a7e82eb37/L4-recovery-current-pot.txt",
+          "diagnostic": "RECOVERY POT_VERSION invalid-reference/absent expected=INCONSISTENT actual=COMPLETED"
+        },
+        {
+          "trace": "app/runtime-task-consumption-worker/target/l4-i2-evidence/1f22af87f0f74803a5ca767a7e82eb37/L4-recovery-visibility-supersession.txt",
+          "diagnostic": "RECOVERY POT_VISIBILITY V2-exact/V1-present expected=NOT_COMPLETED actual=NOT_COMPLETED"
+        },
+        {
+          "trace": "app/runtime-task-consumption-worker/target/l4-i2-evidence/1f22af87f0f74803a5ca767a7e82eb37/L4-recovery-visibility-supersession.txt",
+          "diagnostic": "RECOVERY POT_VISIBILITY V2-exact/V1-terminalized expected=COMPLETED actual=COMPLETED"
+        },
+        {
+          "trace": "app/runtime-task-consumption-worker/target/l4-i2-evidence/1f22af87f0f74803a5ca767a7e82eb37/L4-recovery-visibility-supersession.txt",
+          "diagnostic": "RECOVERY POT_VISIBILITY V2-exact/slot=true expected=NOT_COMPLETED actual=NOT_COMPLETED"
+        },
+        {
+          "trace": "app/runtime-task-consumption-worker/target/l4-i2-evidence/1f22af87f0f74803a5ca767a7e82eb37/L4-recovery-visibility-supersession.txt",
+          "diagnostic": "RECOVERY POT_VISIBILITY V2-divergent/slot=true expected=INCONSISTENT actual=INCONSISTENT"
+        },
+        {
+          "trace": "app/runtime-task-consumption-worker/target/l4-i2-evidence/1f22af87f0f74803a5ca767a7e82eb37/L4-recovery-visibility-supersession.txt",
+          "diagnostic": "RECOVERY POT_VISIBILITY V2-exact/slot=false expected=COMPLETED actual=COMPLETED"
+        },
+        {
+          "trace": "app/runtime-task-consumption-worker/target/l4-i2-evidence/1f22af87f0f74803a5ca767a7e82eb37/L4-recovery-visibility-supersession.txt",
+          "diagnostic": "RECOVERY POT_VISIBILITY V2-divergent/slot=false expected=INCONSISTENT actual=INCONSISTENT"
+        },
+        {
+          "trace": "app/runtime-task-consumption-worker/target/l4-i2-evidence/1f22af87f0f74803a5ca767a7e82eb37/L4-recovery-visibility-supersession.txt",
+          "diagnostic": "RECOVERY POT_VISIBILITY checkpoint-zero/slot=true expected=INCONSISTENT actual=INCONSISTENT"
+        },
+        {
+          "trace": "app/runtime-task-consumption-worker/target/l4-i2-evidence/1f22af87f0f74803a5ca767a7e82eb37/L4-recovery-visibility-supersession.txt",
+          "diagnostic": "RECOVERY POT_VISIBILITY checkpoint-zero/slot=false expected=INCONSISTENT actual=INCONSISTENT"
+        }
+      ],
+      "command": [
+        "./mvnw",
+        "--batch-mode",
+        "--no-transfer-progress",
+        "-pl",
+        "runtime-task-consumption-worker",
+        "-am",
+        "-Dtest=com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#potVersionRecoveryRequiresCurrentPot+visibilityRecoverySupersession+currentBindingRecoverySupersession",
+        "-Dsurefire.failIfNoSpecifiedTests=false",
+        "-Dpocoma.verification.id=1f22af87f0f74803a5ca767a7e82eb37",
+        "-Dpocoma.verification.reports=/private/tmp/pocoma-l4-recovery-before/reports",
+        "test"
+      ],
+      "raw_sha256": "b7adba1544983600ab14dd37e1adcd4473a4feb7c563ad22129c3513be3890e7"
+    },
+    {
+      "run": "after",
+      "tested_sha": "f30891541787decf308675aeabd57a0577db11c6",
+      "clean": true,
+      "verdict": "PASS",
+      "counts": {
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "maven_seconds": 31.997779,
+      "campaign_seconds": 35.14766266697552,
+      "executions": [
+        {
+          "classname": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest",
+          "method": "potVersionRecoveryRequiresCurrentPot",
+          "seconds": 2.574,
+          "outcome": "PASS"
+        },
+        {
+          "classname": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest",
+          "method": "currentBindingRecoverySupersession",
+          "seconds": 1.771,
+          "outcome": "PASS"
+        },
+        {
+          "classname": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest",
+          "method": "uncertainCommitHasNoSpeculativeSettlement",
+          "seconds": 2.449,
+          "outcome": "PASS"
+        },
+        {
+          "classname": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest",
+          "method": "visibilityRecoverySupersession",
+          "seconds": 1.548,
+          "outcome": "PASS"
+        },
+        {
+          "classname": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest",
+          "method": "recoveryAffectedParticipantConformance",
+          "seconds": 16.789,
+          "outcome": "PASS"
+        }
+      ],
+      "diagnostics": [
+        {
+          "trace": "app/runtime-task-consumption-worker/target/l4-i2-evidence/04f7b28344ff4fa1a198b8052f0a069d/L4-recovery-binding-supersession.txt",
+          "diagnostic": "RECOVERY CURRENT_BINDING V2-exact/V1-present expected=NOT_COMPLETED actual=NOT_COMPLETED"
+        },
+        {
+          "trace": "app/runtime-task-consumption-worker/target/l4-i2-evidence/04f7b28344ff4fa1a198b8052f0a069d/L4-recovery-binding-supersession.txt",
+          "diagnostic": "RECOVERY CURRENT_BINDING V2-exact/V1-never-executed/injected-absence expected=COMPLETED actual=COMPLETED"
+        },
+        {
+          "trace": "app/runtime-task-consumption-worker/target/l4-i2-evidence/04f7b28344ff4fa1a198b8052f0a069d/L4-recovery-binding-supersession.txt",
+          "diagnostic": "RECOVERY CURRENT_BINDING V2-exact/V1-terminalized expected=COMPLETED actual=COMPLETED"
+        },
+        {
+          "trace": "app/runtime-task-consumption-worker/target/l4-i2-evidence/04f7b28344ff4fa1a198b8052f0a069d/L4-recovery-binding-supersession.txt",
+          "diagnostic": "RECOVERY CURRENT_BINDING V3-exact/slot=true expected=NOT_COMPLETED actual=NOT_COMPLETED"
+        },
+        {
+          "trace": "app/runtime-task-consumption-worker/target/l4-i2-evidence/04f7b28344ff4fa1a198b8052f0a069d/L4-recovery-binding-supersession.txt",
+          "diagnostic": "RECOVERY CURRENT_BINDING V3-divergent-binding_token/slot=true expected=INCONSISTENT actual=INCONSISTENT"
+        },
+        {
+          "trace": "app/runtime-task-consumption-worker/target/l4-i2-evidence/04f7b28344ff4fa1a198b8052f0a069d/L4-recovery-binding-supersession.txt",
+          "diagnostic": "RECOVERY CURRENT_BINDING V3-divergent-user_id/slot=true expected=INCONSISTENT actual=INCONSISTENT"
+        },
+        {
+          "trace": "app/runtime-task-consumption-worker/target/l4-i2-evidence/04f7b28344ff4fa1a198b8052f0a069d/L4-recovery-binding-supersession.txt",
+          "diagnostic": "RECOVERY CURRENT_BINDING V3-divergent-eui_version/slot=true expected=INCONSISTENT actual=INCONSISTENT"
+        },
+        {
+          "trace": "app/runtime-task-consumption-worker/target/l4-i2-evidence/04f7b28344ff4fa1a198b8052f0a069d/L4-recovery-binding-supersession.txt",
+          "diagnostic": "RECOVERY CURRENT_BINDING V3-exact/slot=false expected=COMPLETED actual=COMPLETED"
+        },
+        {
+          "trace": "app/runtime-task-consumption-worker/target/l4-i2-evidence/04f7b28344ff4fa1a198b8052f0a069d/L4-recovery-binding-supersession.txt",
+          "diagnostic": "RECOVERY CURRENT_BINDING V3-divergent-binding_token/slot=false expected=INCONSISTENT actual=INCONSISTENT"
+        },
+        {
+          "trace": "app/runtime-task-consumption-worker/target/l4-i2-evidence/04f7b28344ff4fa1a198b8052f0a069d/L4-recovery-binding-supersession.txt",
+          "diagnostic": "RECOVERY CURRENT_BINDING V3-divergent-user_id/slot=false expected=INCONSISTENT actual=INCONSISTENT"
+        },
+        {
+          "trace": "app/runtime-task-consumption-worker/target/l4-i2-evidence/04f7b28344ff4fa1a198b8052f0a069d/L4-recovery-binding-supersession.txt",
+          "diagnostic": "RECOVERY CURRENT_BINDING V3-divergent-eui_version/slot=false expected=INCONSISTENT actual=INCONSISTENT"
+        },
+        {
+          "trace": "app/runtime-task-consumption-worker/target/l4-i2-evidence/04f7b28344ff4fa1a198b8052f0a069d/L4-recovery-binding-supersession.txt",
+          "diagnostic": "RECOVERY CURRENT_BINDING checkpoint-zero/slot=true expected=INCONSISTENT actual=INCONSISTENT"
+        },
+        {
+          "trace": "app/runtime-task-consumption-worker/target/l4-i2-evidence/04f7b28344ff4fa1a198b8052f0a069d/L4-recovery-binding-supersession.txt",
+          "diagnostic": "RECOVERY CURRENT_BINDING checkpoint-zero/slot=false expected=INCONSISTENT actual=INCONSISTENT"
+        },
+        {
+          "trace": "app/runtime-task-consumption-worker/target/l4-i2-evidence/04f7b28344ff4fa1a198b8052f0a069d/L4-recovery-current-pot.txt",
+          "diagnostic": "RECOVERY POT_VERSION absent/present expected=NOT_COMPLETED actual=NOT_COMPLETED"
+        },
+        {
+          "trace": "app/runtime-task-consumption-worker/target/l4-i2-evidence/04f7b28344ff4fa1a198b8052f0a069d/L4-recovery-current-pot.txt",
+          "diagnostic": "RECOVERY POT_VERSION absent/absent expected=INCONSISTENT actual=INCONSISTENT"
+        },
+        {
+          "trace": "app/runtime-task-consumption-worker/target/l4-i2-evidence/04f7b28344ff4fa1a198b8052f0a069d/L4-recovery-current-pot.txt",
+          "diagnostic": "RECOVERY POT_VERSION lower/present expected=INCONSISTENT actual=INCONSISTENT"
+        },
+        {
+          "trace": "app/runtime-task-consumption-worker/target/l4-i2-evidence/04f7b28344ff4fa1a198b8052f0a069d/L4-recovery-current-pot.txt",
+          "diagnostic": "RECOVERY POT_VERSION lower/absent expected=INCONSISTENT actual=INCONSISTENT"
+        },
+        {
+          "trace": "app/runtime-task-consumption-worker/target/l4-i2-evidence/04f7b28344ff4fa1a198b8052f0a069d/L4-recovery-current-pot.txt",
+          "diagnostic": "RECOVERY POT_VERSION equal/present expected=NOT_COMPLETED actual=NOT_COMPLETED"
+        },
+        {
+          "trace": "app/runtime-task-consumption-worker/target/l4-i2-evidence/04f7b28344ff4fa1a198b8052f0a069d/L4-recovery-current-pot.txt",
+          "diagnostic": "RECOVERY POT_VERSION equal/absent expected=COMPLETED actual=COMPLETED"
+        },
+        {
+          "trace": "app/runtime-task-consumption-worker/target/l4-i2-evidence/04f7b28344ff4fa1a198b8052f0a069d/L4-recovery-current-pot.txt",
+          "diagnostic": "RECOVERY POT_VERSION higher/present expected=NOT_COMPLETED actual=NOT_COMPLETED"
+        },
+        {
+          "trace": "app/runtime-task-consumption-worker/target/l4-i2-evidence/04f7b28344ff4fa1a198b8052f0a069d/L4-recovery-current-pot.txt",
+          "diagnostic": "RECOVERY POT_VERSION higher/absent expected=COMPLETED actual=COMPLETED"
+        },
+        {
+          "trace": "app/runtime-task-consumption-worker/target/l4-i2-evidence/04f7b28344ff4fa1a198b8052f0a069d/L4-recovery-current-pot.txt",
+          "diagnostic": "RECOVERY POT_VERSION malformed-target/present expected=INCONSISTENT actual=INCONSISTENT"
+        },
+        {
+          "trace": "app/runtime-task-consumption-worker/target/l4-i2-evidence/04f7b28344ff4fa1a198b8052f0a069d/L4-recovery-current-pot.txt",
+          "diagnostic": "RECOVERY POT_VERSION malformed-target/absent expected=INCONSISTENT actual=INCONSISTENT"
+        },
+        {
+          "trace": "app/runtime-task-consumption-worker/target/l4-i2-evidence/04f7b28344ff4fa1a198b8052f0a069d/L4-recovery-current-pot.txt",
+          "diagnostic": "RECOVERY POT_VERSION mixed-target/present expected=INCONSISTENT actual=INCONSISTENT"
+        },
+        {
+          "trace": "app/runtime-task-consumption-worker/target/l4-i2-evidence/04f7b28344ff4fa1a198b8052f0a069d/L4-recovery-current-pot.txt",
+          "diagnostic": "RECOVERY POT_VERSION mixed-target/absent expected=INCONSISTENT actual=INCONSISTENT"
+        },
+        {
+          "trace": "app/runtime-task-consumption-worker/target/l4-i2-evidence/04f7b28344ff4fa1a198b8052f0a069d/L4-recovery-current-pot.txt",
+          "diagnostic": "RECOVERY POT_VERSION invalid-reference/present expected=INCONSISTENT actual=INCONSISTENT"
+        },
+        {
+          "trace": "app/runtime-task-consumption-worker/target/l4-i2-evidence/04f7b28344ff4fa1a198b8052f0a069d/L4-recovery-current-pot.txt",
+          "diagnostic": "RECOVERY POT_VERSION invalid-reference/absent expected=INCONSISTENT actual=INCONSISTENT"
+        },
+        {
+          "trace": "app/runtime-task-consumption-worker/target/l4-i2-evidence/04f7b28344ff4fa1a198b8052f0a069d/L4-recovery-current-pot.txt",
+          "diagnostic": "RECOVERY POT_VERSION higher/missing-historical-root expected=INCONSISTENT actual=INCONSISTENT"
+        },
+        {
+          "trace": "app/runtime-task-consumption-worker/target/l4-i2-evidence/04f7b28344ff4fa1a198b8052f0a069d/L4-recovery-current-pot.txt",
+          "diagnostic": "RECOVERY POT_VERSION higher/missing-historical-subobject expected=INCONSISTENT actual=INCONSISTENT"
+        },
+        {
+          "trace": "app/runtime-task-consumption-worker/target/l4-i2-evidence/04f7b28344ff4fa1a198b8052f0a069d/L4-recovery-visibility-supersession.txt",
+          "diagnostic": "RECOVERY POT_VISIBILITY V2-exact/V1-present expected=NOT_COMPLETED actual=NOT_COMPLETED"
+        },
+        {
+          "trace": "app/runtime-task-consumption-worker/target/l4-i2-evidence/04f7b28344ff4fa1a198b8052f0a069d/L4-recovery-visibility-supersession.txt",
+          "diagnostic": "RECOVERY POT_VISIBILITY V2-exact/V1-never-executed/injected-absence expected=COMPLETED actual=COMPLETED"
+        },
+        {
+          "trace": "app/runtime-task-consumption-worker/target/l4-i2-evidence/04f7b28344ff4fa1a198b8052f0a069d/L4-recovery-visibility-supersession.txt",
+          "diagnostic": "RECOVERY POT_VISIBILITY V2-exact/V1-terminalized expected=COMPLETED actual=COMPLETED"
+        },
+        {
+          "trace": "app/runtime-task-consumption-worker/target/l4-i2-evidence/04f7b28344ff4fa1a198b8052f0a069d/L4-recovery-visibility-supersession.txt",
+          "diagnostic": "RECOVERY POT_VISIBILITY V2-exact/slot=true expected=NOT_COMPLETED actual=NOT_COMPLETED"
+        },
+        {
+          "trace": "app/runtime-task-consumption-worker/target/l4-i2-evidence/04f7b28344ff4fa1a198b8052f0a069d/L4-recovery-visibility-supersession.txt",
+          "diagnostic": "RECOVERY POT_VISIBILITY V2-divergent/slot=true expected=INCONSISTENT actual=INCONSISTENT"
+        },
+        {
+          "trace": "app/runtime-task-consumption-worker/target/l4-i2-evidence/04f7b28344ff4fa1a198b8052f0a069d/L4-recovery-visibility-supersession.txt",
+          "diagnostic": "RECOVERY POT_VISIBILITY V2-exact/slot=false expected=COMPLETED actual=COMPLETED"
+        },
+        {
+          "trace": "app/runtime-task-consumption-worker/target/l4-i2-evidence/04f7b28344ff4fa1a198b8052f0a069d/L4-recovery-visibility-supersession.txt",
+          "diagnostic": "RECOVERY POT_VISIBILITY V2-divergent/slot=false expected=INCONSISTENT actual=INCONSISTENT"
+        },
+        {
+          "trace": "app/runtime-task-consumption-worker/target/l4-i2-evidence/04f7b28344ff4fa1a198b8052f0a069d/L4-recovery-visibility-supersession.txt",
+          "diagnostic": "RECOVERY POT_VISIBILITY checkpoint-zero/slot=true expected=INCONSISTENT actual=INCONSISTENT"
+        },
+        {
+          "trace": "app/runtime-task-consumption-worker/target/l4-i2-evidence/04f7b28344ff4fa1a198b8052f0a069d/L4-recovery-visibility-supersession.txt",
+          "diagnostic": "RECOVERY POT_VISIBILITY checkpoint-zero/slot=false expected=INCONSISTENT actual=INCONSISTENT"
+        }
+      ],
+      "command": [
+        "./mvnw",
+        "--batch-mode",
+        "--no-transfer-progress",
+        "-pl",
+        "runtime-task-consumption-worker",
+        "-am",
+        "-Dtest=com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#potVersionRecoveryRequiresCurrentPot+visibilityRecoverySupersession+currentBindingRecoverySupersession+recoveryAffectedParticipantConformance+uncertainCommitHasNoSpeculativeSettlement",
+        "-Dsurefire.failIfNoSpecifiedTests=false",
+        "-Dpocoma.verification.id=04f7b28344ff4fa1a198b8052f0a069d",
+        "-Dpocoma.verification.reports=/private/tmp/pocoma-l4-recovery-after/reports",
+        "test"
+      ],
+      "raw_sha256": "b5c9377653bedd441d8329b5d894218bfbe422b64fe7dea124adbb6bf78e4d98"
+    }
+  ],
+  "canonical_gates": "DEFERRED I8",
+  "architecture": "NOT REQUIRED for this correction; existing gate DEFERRED I8",
+  "full_reactor": "NOT RUN; no global proof",
+  "certification": "NOT ACQUIRED",
+  "productive_activation": "FORBIDDEN BEFORE I8"
+}

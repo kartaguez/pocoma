@@ -1,0 +1,915 @@
+[
+  {
+    "iterationIndex": 0,
+    "results": [
+      {
+        "test": {
+          "filename": "02 Admission and Commands/B201 RegistrationUnknown.bru"
+        },
+        "request": {
+          "method": "GET",
+          "url": "http://127.0.0.1:59518/api/v3/me/binding",
+          "headers": {}
+        },
+        "response": {
+          "status": 404,
+          "statusText": "",
+          "headers": {},
+          "url": "http://127.0.0.1/api/v3/me/binding",
+          "responseTime": 179,
+          "duration": 179,
+          "size": 101
+        },
+        "error": null,
+        "status": "pass",
+        "assertionResults": [],
+        "testResults": [
+          {
+            "description": "B201 RegistrationUnknown",
+            "status": "pass",
+            "uid": "J_uAvJtfxuO_W2PtMGSC7"
+          }
+        ],
+        "preRequestTestResults": [],
+        "postResponseTestResults": [],
+        "shouldStopRunnerExecution": false,
+        "runDuration": 0.865791791,
+        "name": "B201 RegistrationUnknown",
+        "suitename": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/02 Admission and Commands/B201 RegistrationUnknown",
+        "path": "02 Admission and Commands/B201 RegistrationUnknown",
+        "iterationIndex": 0
+      },
+      {
+        "test": {
+          "filename": "02 Admission and Commands/B202 CreatePot.bru"
+        },
+        "request": {
+          "method": "GET",
+          "url": "http://127.0.0.1:59518/api/v3/me/binding",
+          "headers": {}
+        },
+        "response": {
+          "status": 200,
+          "statusText": "",
+          "headers": {},
+          "url": "http://127.0.0.1/api/v3/me/binding",
+          "responseTime": 12,
+          "duration": 12,
+          "size": 91
+        },
+        "error": null,
+        "status": "pass",
+        "assertionResults": [],
+        "testResults": [
+          {
+            "description": "B202 CreatePot",
+            "status": "pass",
+            "uid": "_yFlsXbkNsoNIEy2v0EPQ"
+          }
+        ],
+        "preRequestTestResults": [],
+        "postResponseTestResults": [],
+        "shouldStopRunnerExecution": false,
+        "runDuration": 0.309924,
+        "name": "B202 CreatePot",
+        "suitename": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/02 Admission and Commands/B202 CreatePot",
+        "path": "02 Admission and Commands/B202 CreatePot",
+        "iterationIndex": 0
+      },
+      {
+        "test": {
+          "filename": "02 Admission and Commands/B203 UpdatePotDetails.bru"
+        },
+        "request": {
+          "method": "GET",
+          "url": "http://127.0.0.1:59518/api/v3/me/binding",
+          "headers": {}
+        },
+        "response": {
+          "status": 200,
+          "statusText": "",
+          "headers": {},
+          "url": "http://127.0.0.1/api/v3/me/binding",
+          "responseTime": 8,
+          "duration": 8,
+          "size": 91
+        },
+        "error": null,
+        "status": "pass",
+        "assertionResults": [],
+        "testResults": [
+          {
+            "description": "B203 UpdatePotDetails",
+            "status": "pass",
+            "uid": "pYMGMzuR_JuSCd2p0q-Z7"
+          }
+        ],
+        "preRequestTestResults": [],
+        "postResponseTestResults": [],
+        "shouldStopRunnerExecution": false,
+        "runDuration": 0.214608125,
+        "name": "B203 UpdatePotDetails",
+        "suitename": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/02 Admission and Commands/B203 UpdatePotDetails",
+        "path": "02 Admission and Commands/B203 UpdatePotDetails",
+        "iterationIndex": 0
+      },
+      {
+        "test": {
+          "filename": "02 Admission and Commands/B204 AddShareholdersSELF.bru"
+        },
+        "request": {
+          "method": "GET",
+          "url": "http://127.0.0.1:59518/api/v3/me/binding",
+          "headers": {}
+        },
+        "response": {
+          "status": 200,
+          "statusText": "",
+          "headers": {},
+          "url": "http://127.0.0.1/api/v3/me/binding",
+          "responseTime": 7,
+          "duration": 7,
+          "size": 91
+        },
+        "error": null,
+        "status": "pass",
+        "assertionResults": [],
+        "testResults": [
+          {
+            "description": "B204 AddShareholdersSELF",
+            "status": "pass",
+            "uid": "pU8F9u05cy1U3MbEbvBWt"
+          }
+        ],
+        "preRequestTestResults": [],
+        "postResponseTestResults": [],
+        "shouldStopRunnerExecution": false,
+        "runDuration": 0.278915542,
+        "name": "B204 AddShareholdersSELF",
+        "suitename": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/02 Admission and Commands/B204 AddShareholdersSELF",
+        "path": "02 Admission and Commands/B204 AddShareholdersSELF",
+        "iterationIndex": 0
+      },
+      {
+        "test": {
+          "filename": "02 Admission and Commands/B205 UpdateShareholderDetailsKEEP.bru"
+        },
+        "request": {
+          "method": "GET",
+          "url": "http://127.0.0.1:59518/api/v3/me/binding",
+          "headers": {}
+        },
+        "response": {
+          "status": 200,
+          "statusText": "",
+          "headers": {},
+          "url": "http://127.0.0.1/api/v3/me/binding",
+          "responseTime": 8,
+          "duration": 8,
+          "size": 91
+        },
+        "error": null,
+        "status": "pass",
+        "assertionResults": [],
+        "testResults": [
+          {
+            "description": "B205 UpdateShareholderDetailsKEEP",
+            "status": "pass",
+            "uid": "KSAtD1bGliTg9flu03vb4"
+          }
+        ],
+        "preRequestTestResults": [],
+        "postResponseTestResults": [],
+        "shouldStopRunnerExecution": false,
+        "runDuration": 0.215943208,
+        "name": "B205 UpdateShareholderDetailsKEEP",
+        "suitename": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/02 Admission and Commands/B205 UpdateShareholderDetailsKEEP",
+        "path": "02 Admission and Commands/B205 UpdateShareholderDetailsKEEP",
+        "iterationIndex": 0
+      },
+      {
+        "test": {
+          "filename": "02 Admission and Commands/B206 UpdateShareholderWeights.bru"
+        },
+        "request": {
+          "method": "GET",
+          "url": "http://127.0.0.1:59518/api/v3/me/binding",
+          "headers": {}
+        },
+        "response": {
+          "status": 200,
+          "statusText": "",
+          "headers": {},
+          "url": "http://127.0.0.1/api/v3/me/binding",
+          "responseTime": 8,
+          "duration": 8,
+          "size": 91
+        },
+        "error": null,
+        "status": "pass",
+        "assertionResults": [],
+        "testResults": [
+          {
+            "description": "B206 UpdateShareholderWeights",
+            "status": "pass",
+            "uid": "t9EQ7d1bklz_xzTbBCh5z"
+          }
+        ],
+        "preRequestTestResults": [],
+        "postResponseTestResults": [],
+        "shouldStopRunnerExecution": false,
+        "runDuration": 0.212800042,
+        "name": "B206 UpdateShareholderWeights",
+        "suitename": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/02 Admission and Commands/B206 UpdateShareholderWeights",
+        "path": "02 Admission and Commands/B206 UpdateShareholderWeights",
+        "iterationIndex": 0
+      },
+      {
+        "test": {
+          "filename": "02 Admission and Commands/B207 CreateExpense.bru"
+        },
+        "request": {
+          "method": "GET",
+          "url": "http://127.0.0.1:59518/api/v3/me/binding",
+          "headers": {}
+        },
+        "response": {
+          "status": 200,
+          "statusText": "",
+          "headers": {},
+          "url": "http://127.0.0.1/api/v3/me/binding",
+          "responseTime": 8,
+          "duration": 8,
+          "size": 91
+        },
+        "error": null,
+        "status": "pass",
+        "assertionResults": [],
+        "testResults": [
+          {
+            "description": "B207 CreateExpense",
+            "status": "pass",
+            "uid": "XbDhuX7xh-2K5BxaeTIr0"
+          }
+        ],
+        "preRequestTestResults": [],
+        "postResponseTestResults": [],
+        "shouldStopRunnerExecution": false,
+        "runDuration": 0.281804917,
+        "name": "B207 CreateExpense",
+        "suitename": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/02 Admission and Commands/B207 CreateExpense",
+        "path": "02 Admission and Commands/B207 CreateExpense",
+        "iterationIndex": 0
+      },
+      {
+        "test": {
+          "filename": "02 Admission and Commands/B208 UpdateExpenseDetails.bru"
+        },
+        "request": {
+          "method": "GET",
+          "url": "http://127.0.0.1:59518/api/v3/me/binding",
+          "headers": {}
+        },
+        "response": {
+          "status": 200,
+          "statusText": "",
+          "headers": {},
+          "url": "http://127.0.0.1/api/v3/me/binding",
+          "responseTime": 11,
+          "duration": 11,
+          "size": 91
+        },
+        "error": null,
+        "status": "pass",
+        "assertionResults": [],
+        "testResults": [
+          {
+            "description": "B208 UpdateExpenseDetails",
+            "status": "pass",
+            "uid": "rogPLT1UGF5r9kvS5AA5r"
+          }
+        ],
+        "preRequestTestResults": [],
+        "postResponseTestResults": [],
+        "shouldStopRunnerExecution": false,
+        "runDuration": 0.152316708,
+        "name": "B208 UpdateExpenseDetails",
+        "suitename": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/02 Admission and Commands/B208 UpdateExpenseDetails",
+        "path": "02 Admission and Commands/B208 UpdateExpenseDetails",
+        "iterationIndex": 0
+      },
+      {
+        "test": {
+          "filename": "02 Admission and Commands/B209 UpdateExpenseFinancials.bru"
+        },
+        "request": {
+          "method": "GET",
+          "url": "http://127.0.0.1:59518/api/v3/me/binding",
+          "headers": {}
+        },
+        "response": {
+          "status": 200,
+          "statusText": "",
+          "headers": {},
+          "url": "http://127.0.0.1/api/v3/me/binding",
+          "responseTime": 19,
+          "duration": 19,
+          "size": 91
+        },
+        "error": null,
+        "status": "pass",
+        "assertionResults": [],
+        "testResults": [
+          {
+            "description": "B209 UpdateExpenseFinancials",
+            "status": "pass",
+            "uid": "c7h1RpRMQpcZfvkg1ZKCm"
+          }
+        ],
+        "preRequestTestResults": [],
+        "postResponseTestResults": [],
+        "shouldStopRunnerExecution": false,
+        "runDuration": 0.567432875,
+        "name": "B209 UpdateExpenseFinancials",
+        "suitename": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/02 Admission and Commands/B209 UpdateExpenseFinancials",
+        "path": "02 Admission and Commands/B209 UpdateExpenseFinancials",
+        "iterationIndex": 0
+      },
+      {
+        "test": {
+          "filename": "02 Admission and Commands/B210 DeleteExpense.bru"
+        },
+        "request": {
+          "method": "GET",
+          "url": "http://127.0.0.1:59518/api/v3/me/binding",
+          "headers": {}
+        },
+        "response": {
+          "status": 200,
+          "statusText": "",
+          "headers": {},
+          "url": "http://127.0.0.1/api/v3/me/binding",
+          "responseTime": 11,
+          "duration": 11,
+          "size": 91
+        },
+        "error": null,
+        "status": "pass",
+        "assertionResults": [],
+        "testResults": [
+          {
+            "description": "B210 DeleteExpense",
+            "status": "pass",
+            "uid": "jzihUmKedjmVh_UDtQTs1"
+          }
+        ],
+        "preRequestTestResults": [],
+        "postResponseTestResults": [],
+        "shouldStopRunnerExecution": false,
+        "runDuration": 0.220337292,
+        "name": "B210 DeleteExpense",
+        "suitename": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/02 Admission and Commands/B210 DeleteExpense",
+        "path": "02 Admission and Commands/B210 DeleteExpense",
+        "iterationIndex": 0
+      },
+      {
+        "test": {
+          "filename": "02 Admission and Commands/B211 DeleteShareholder.bru"
+        },
+        "request": {
+          "method": "GET",
+          "url": "http://127.0.0.1:59518/api/v3/me/binding",
+          "headers": {}
+        },
+        "response": {
+          "status": 200,
+          "statusText": "",
+          "headers": {},
+          "url": "http://127.0.0.1/api/v3/me/binding",
+          "responseTime": 6,
+          "duration": 6,
+          "size": 91
+        },
+        "error": null,
+        "status": "pass",
+        "assertionResults": [],
+        "testResults": [
+          {
+            "description": "B211 DeleteShareholder",
+            "status": "pass",
+            "uid": "hAQWOxcGI3PC1JKzvuyqy"
+          }
+        ],
+        "preRequestTestResults": [],
+        "postResponseTestResults": [],
+        "shouldStopRunnerExecution": false,
+        "runDuration": 0.21681475,
+        "name": "B211 DeleteShareholder",
+        "suitename": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/02 Admission and Commands/B211 DeleteShareholder",
+        "path": "02 Admission and Commands/B211 DeleteShareholder",
+        "iterationIndex": 0
+      },
+      {
+        "test": {
+          "filename": "02 Admission and Commands/B212 DeletePot.bru"
+        },
+        "request": {
+          "method": "GET",
+          "url": "http://127.0.0.1:59518/api/v3/me/binding",
+          "headers": {}
+        },
+        "response": {
+          "status": 200,
+          "statusText": "",
+          "headers": {},
+          "url": "http://127.0.0.1/api/v3/me/binding",
+          "responseTime": 8,
+          "duration": 8,
+          "size": 91
+        },
+        "error": null,
+        "status": "pass",
+        "assertionResults": [],
+        "testResults": [
+          {
+            "description": "B212 DeletePot",
+            "status": "pass",
+            "uid": "RBPrtZ-XkNAvrulFxq3H6"
+          }
+        ],
+        "preRequestTestResults": [],
+        "postResponseTestResults": [],
+        "shouldStopRunnerExecution": false,
+        "runDuration": 0.207563458,
+        "name": "B212 DeletePot",
+        "suitename": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/02 Admission and Commands/B212 DeletePot",
+        "path": "02 Admission and Commands/B212 DeletePot",
+        "iterationIndex": 0
+      },
+      {
+        "test": {
+          "filename": "02 Admission and Commands/B213 SameKeyReplayAfterTerminal.bru"
+        },
+        "request": {
+          "method": "GET",
+          "url": "http://127.0.0.1:59518/api/v3/me/binding",
+          "headers": {}
+        },
+        "response": {
+          "status": 200,
+          "statusText": "",
+          "headers": {},
+          "url": "http://127.0.0.1/api/v3/me/binding",
+          "responseTime": 7,
+          "duration": 7,
+          "size": 91
+        },
+        "error": null,
+        "status": "pass",
+        "assertionResults": [],
+        "testResults": [
+          {
+            "description": "B213 SameKeyReplayAfterTerminal",
+            "status": "pass",
+            "uid": "XrbVjcX9pLI1-pb6FNnV9"
+          }
+        ],
+        "preRequestTestResults": [],
+        "postResponseTestResults": [],
+        "shouldStopRunnerExecution": false,
+        "runDuration": 0.019316083,
+        "name": "B213 SameKeyReplayAfterTerminal",
+        "suitename": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/02 Admission and Commands/B213 SameKeyReplayAfterTerminal",
+        "path": "02 Admission and Commands/B213 SameKeyReplayAfterTerminal",
+        "iterationIndex": 0
+      },
+      {
+        "test": {
+          "filename": "02 Admission and Commands/B214 DifferentIntent409.bru"
+        },
+        "request": {
+          "method": "GET",
+          "url": "http://127.0.0.1:59518/api/v3/me/binding",
+          "headers": {}
+        },
+        "response": {
+          "status": 200,
+          "statusText": "",
+          "headers": {},
+          "url": "http://127.0.0.1/api/v3/me/binding",
+          "responseTime": 6,
+          "duration": 6,
+          "size": 91
+        },
+        "error": null,
+        "status": "pass",
+        "assertionResults": [],
+        "testResults": [
+          {
+            "description": "B214 DifferentIntent409",
+            "status": "pass",
+            "uid": "XBZ1lH0-KsBc-ol1KZniX"
+          }
+        ],
+        "preRequestTestResults": [],
+        "postResponseTestResults": [],
+        "shouldStopRunnerExecution": false,
+        "runDuration": 0.019527375,
+        "name": "B214 DifferentIntent409",
+        "suitename": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/02 Admission and Commands/B214 DifferentIntent409",
+        "path": "02 Admission and Commands/B214 DifferentIntent409",
+        "iterationIndex": 0
+      },
+      {
+        "test": {
+          "filename": "02 Admission and Commands/B215 EquivalentJSON.bru"
+        },
+        "request": {
+          "method": "GET",
+          "url": "http://127.0.0.1:59518/api/v3/me/binding",
+          "headers": {}
+        },
+        "response": {
+          "status": 200,
+          "statusText": "",
+          "headers": {},
+          "url": "http://127.0.0.1/api/v3/me/binding",
+          "responseTime": 7,
+          "duration": 7,
+          "size": 91
+        },
+        "error": null,
+        "status": "pass",
+        "assertionResults": [],
+        "testResults": [
+          {
+            "description": "B215 EquivalentJSON",
+            "status": "pass",
+            "uid": "CjLxjvrIuh2yIWSjehdFe"
+          }
+        ],
+        "preRequestTestResults": [],
+        "postResponseTestResults": [],
+        "shouldStopRunnerExecution": false,
+        "runDuration": 0.019854,
+        "name": "B215 EquivalentJSON",
+        "suitename": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/02 Admission and Commands/B215 EquivalentJSON",
+        "path": "02 Admission and Commands/B215 EquivalentJSON",
+        "iterationIndex": 0
+      },
+      {
+        "test": {
+          "filename": "02 Admission and Commands/B216 IdentityScopeIsolation.bru"
+        },
+        "request": {
+          "method": "GET",
+          "url": "http://127.0.0.1:59518/api/v3/me/binding",
+          "headers": {}
+        },
+        "response": {
+          "status": 200,
+          "statusText": "",
+          "headers": {},
+          "url": "http://127.0.0.1/api/v3/me/binding",
+          "responseTime": 6,
+          "duration": 6,
+          "size": 91
+        },
+        "error": null,
+        "status": "pass",
+        "assertionResults": [],
+        "testResults": [
+          {
+            "description": "B216 IdentityScopeIsolation",
+            "status": "pass",
+            "uid": "lcSgP60elRUySLJXbNGmp"
+          }
+        ],
+        "preRequestTestResults": [],
+        "postResponseTestResults": [],
+        "shouldStopRunnerExecution": false,
+        "runDuration": 0.35752575,
+        "name": "B216 IdentityScopeIsolation",
+        "suitename": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/02 Admission and Commands/B216 IdentityScopeIsolation",
+        "path": "02 Admission and Commands/B216 IdentityScopeIsolation",
+        "iterationIndex": 0
+      },
+      {
+        "test": {
+          "filename": "02 Admission and Commands/B217 MalformedAndUnauthenticated.bru"
+        },
+        "request": {
+          "method": "GET",
+          "url": "http://127.0.0.1:59518/api/v3/me/binding",
+          "headers": {}
+        },
+        "response": {
+          "status": 200,
+          "statusText": "",
+          "headers": {},
+          "url": "http://127.0.0.1/api/v3/me/binding",
+          "responseTime": 6,
+          "duration": 6,
+          "size": 91
+        },
+        "error": null,
+        "status": "pass",
+        "assertionResults": [],
+        "testResults": [
+          {
+            "description": "B217 MalformedAndUnauthenticated",
+            "status": "pass",
+            "uid": "ppk5_iiuIh-YIUNxHQyry"
+          }
+        ],
+        "preRequestTestResults": [],
+        "postResponseTestResults": [],
+        "shouldStopRunnerExecution": false,
+        "runDuration": 0.022067375,
+        "name": "B217 MalformedAndUnauthenticated",
+        "suitename": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/02 Admission and Commands/B217 MalformedAndUnauthenticated",
+        "path": "02 Admission and Commands/B217 MalformedAndUnauthenticated",
+        "iterationIndex": 0
+      },
+      {
+        "test": {
+          "filename": "02 Admission and Commands/B218 DeferredBusinessRejection.bru"
+        },
+        "request": {
+          "method": "GET",
+          "url": "http://127.0.0.1:59518/api/v3/me/binding",
+          "headers": {}
+        },
+        "response": {
+          "status": 200,
+          "statusText": "",
+          "headers": {},
+          "url": "http://127.0.0.1/api/v3/me/binding",
+          "responseTime": 6,
+          "duration": 6,
+          "size": 91
+        },
+        "error": null,
+        "status": "pass",
+        "assertionResults": [],
+        "testResults": [
+          {
+            "description": "B218 DeferredBusinessRejection",
+            "status": "pass",
+            "uid": "TmwXa1B1JMeFMMV6DK9lM"
+          }
+        ],
+        "preRequestTestResults": [],
+        "postResponseTestResults": [],
+        "shouldStopRunnerExecution": false,
+        "runDuration": 0.147458583,
+        "name": "B218 DeferredBusinessRejection",
+        "suitename": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/02 Admission and Commands/B218 DeferredBusinessRejection",
+        "path": "02 Admission and Commands/B218 DeferredBusinessRejection",
+        "iterationIndex": 0
+      },
+      {
+        "test": {
+          "filename": "02 Admission and Commands/B219 Atomic101AndRead.bru"
+        },
+        "request": {
+          "method": "GET",
+          "url": "http://127.0.0.1:59518/api/v3/me/binding",
+          "headers": {}
+        },
+        "response": {
+          "status": 200,
+          "statusText": "",
+          "headers": {},
+          "url": "http://127.0.0.1/api/v3/me/binding",
+          "responseTime": 9,
+          "duration": 9,
+          "size": 91
+        },
+        "error": null,
+        "status": "pass",
+        "assertionResults": [],
+        "testResults": [
+          {
+            "description": "B219 Atomic101AndRead",
+            "status": "pass",
+            "uid": "anEqn1sfrqdqyUXW6Q-vK"
+          }
+        ],
+        "preRequestTestResults": [],
+        "postResponseTestResults": [],
+        "shouldStopRunnerExecution": false,
+        "runDuration": 1.222491875,
+        "name": "B219 Atomic101AndRead",
+        "suitename": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/02 Admission and Commands/B219 Atomic101AndRead",
+        "path": "02 Admission and Commands/B219 Atomic101AndRead",
+        "iterationIndex": 0
+      },
+      {
+        "test": {
+          "filename": "02 Admission and Commands/B220 UnlinkOtherSelfAndStaleSELF.bru"
+        },
+        "request": {
+          "method": "GET",
+          "url": "http://127.0.0.1:59518/api/v3/me/binding",
+          "headers": {}
+        },
+        "response": {
+          "status": 200,
+          "statusText": "",
+          "headers": {},
+          "url": "http://127.0.0.1/api/v3/me/binding",
+          "responseTime": 7,
+          "duration": 7,
+          "size": 91
+        },
+        "error": null,
+        "status": "pass",
+        "assertionResults": [],
+        "testResults": [
+          {
+            "description": "B220 UnlinkOtherSelfAndStaleSELF",
+            "status": "pass",
+            "uid": "6Gs3TRmJyic6llf8e9Qdy"
+          }
+        ],
+        "preRequestTestResults": [],
+        "postResponseTestResults": [],
+        "shouldStopRunnerExecution": false,
+        "runDuration": 0.669402375,
+        "name": "B220 UnlinkOtherSelfAndStaleSELF",
+        "suitename": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/02 Admission and Commands/B220 UnlinkOtherSelfAndStaleSELF",
+        "path": "02 Admission and Commands/B220 UnlinkOtherSelfAndStaleSELF",
+        "iterationIndex": 0
+      },
+      {
+        "test": {
+          "filename": "02 Admission and Commands/B221 NoPublicLinkOrInvitation.bru"
+        },
+        "request": {
+          "method": "GET",
+          "url": "http://127.0.0.1:59518/api/v3/me/binding",
+          "headers": {}
+        },
+        "response": {
+          "status": 200,
+          "statusText": "",
+          "headers": {},
+          "url": "http://127.0.0.1/api/v3/me/binding",
+          "responseTime": 15,
+          "duration": 15,
+          "size": 51
+        },
+        "error": null,
+        "status": "pass",
+        "assertionResults": [],
+        "testResults": [
+          {
+            "description": "B221 NoPublicLinkOrInvitation",
+            "status": "pass",
+            "uid": "VgDIQGjXv0P8rJWdkjtec"
+          }
+        ],
+        "preRequestTestResults": [],
+        "postResponseTestResults": [],
+        "shouldStopRunnerExecution": false,
+        "runDuration": 0.027696958,
+        "name": "B221 NoPublicLinkOrInvitation",
+        "suitename": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/02 Admission and Commands/B221 NoPublicLinkOrInvitation",
+        "path": "02 Admission and Commands/B221 NoPublicLinkOrInvitation",
+        "iterationIndex": 0
+      },
+      {
+        "test": {
+          "filename": "02 Admission and Commands/B222 MediaAndBodyLimits.bru"
+        },
+        "request": {
+          "method": "GET",
+          "url": "http://127.0.0.1:59518/api/v3/me/binding",
+          "headers": {}
+        },
+        "response": {
+          "status": 200,
+          "statusText": "",
+          "headers": {},
+          "url": "http://127.0.0.1/api/v3/me/binding",
+          "responseTime": 21,
+          "duration": 21,
+          "size": 51
+        },
+        "error": null,
+        "status": "pass",
+        "assertionResults": [],
+        "testResults": [
+          {
+            "description": "B222 MediaAndBodyLimits",
+            "status": "pass",
+            "uid": "FC87v2NfYlbFcd3K7mHJO"
+          }
+        ],
+        "preRequestTestResults": [],
+        "postResponseTestResults": [],
+        "shouldStopRunnerExecution": false,
+        "runDuration": 0.031618083,
+        "name": "B222 MediaAndBodyLimits",
+        "suitename": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/02 Admission and Commands/B222 MediaAndBodyLimits",
+        "path": "02 Admission and Commands/B222 MediaAndBodyLimits",
+        "iterationIndex": 0
+      },
+      {
+        "test": {
+          "filename": "02 Admission and Commands/B223 RegistrationFree.bru"
+        },
+        "request": {
+          "method": "GET",
+          "url": "http://127.0.0.1:59518/api/v3/me/binding",
+          "headers": {}
+        },
+        "response": {
+          "status": 200,
+          "statusText": "",
+          "headers": {},
+          "url": "http://127.0.0.1/api/v3/me/binding",
+          "responseTime": 7,
+          "duration": 7,
+          "size": 51
+        },
+        "error": null,
+        "status": "pass",
+        "assertionResults": [],
+        "testResults": [
+          {
+            "description": "B223 RegistrationFree",
+            "status": "pass",
+            "uid": "OAYDNmTnAUydC3txYkQ7h"
+          }
+        ],
+        "preRequestTestResults": [],
+        "postResponseTestResults": [],
+        "shouldStopRunnerExecution": false,
+        "runDuration": 0.206105625,
+        "name": "B223 RegistrationFree",
+        "suitename": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/02 Admission and Commands/B223 RegistrationFree",
+        "path": "02 Admission and Commands/B223 RegistrationFree",
+        "iterationIndex": 0
+      },
+      {
+        "test": {
+          "filename": "02 Admission and Commands/B224 ResultsOwnershipAfterUnlink.bru"
+        },
+        "request": {
+          "method": "GET",
+          "url": "http://127.0.0.1:59518/api/v3/me/binding",
+          "headers": {}
+        },
+        "response": {
+          "status": 200,
+          "statusText": "",
+          "headers": {},
+          "url": "http://127.0.0.1/api/v3/me/binding",
+          "responseTime": 6,
+          "duration": 6,
+          "size": 91
+        },
+        "error": null,
+        "status": "pass",
+        "assertionResults": [],
+        "testResults": [
+          {
+            "description": "B224 ResultsOwnershipAfterUnlink",
+            "status": "pass",
+            "uid": "d7VoBb_OU98RVuwQkRc7T"
+          }
+        ],
+        "preRequestTestResults": [],
+        "postResponseTestResults": [],
+        "shouldStopRunnerExecution": false,
+        "runDuration": 0.026205416,
+        "name": "B224 ResultsOwnershipAfterUnlink",
+        "suitename": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/02 Admission and Commands/B224 ResultsOwnershipAfterUnlink",
+        "path": "02 Admission and Commands/B224 ResultsOwnershipAfterUnlink",
+        "iterationIndex": 0
+      }
+    ],
+    "summary": {
+      "totalRequests": 24,
+      "passedRequests": 24,
+      "failedRequests": 0,
+      "errorRequests": 0,
+      "skippedRequests": 0,
+      "skippedByBail": 0,
+      "totalAssertions": 0,
+      "passedAssertions": 0,
+      "failedAssertions": 0,
+      "totalTests": 24,
+      "passedTests": 24,
+      "failedTests": 0,
+      "totalPreRequestTests": 0,
+      "passedPreRequestTests": 0,
+      "failedPreRequestTests": 0,
+      "totalPostResponseTests": 0,
+      "passedPostResponseTests": 0,
+      "failedPostResponseTests": 0
+    }
+  }
+]

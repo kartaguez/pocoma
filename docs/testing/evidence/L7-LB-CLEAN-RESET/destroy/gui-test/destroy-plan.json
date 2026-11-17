@@ -1,0 +1,31 @@
+{
+  "state": "DESTROY_PLAN",
+  "exit": 0,
+  "instance": "gui-test",
+  "owner": "a39eabe4-7bd3-458d-907b-0f7f83691b50",
+  "project": "pocoma-lb-gui-test-a39eabe4",
+  "volume": "pocoma-lb-gui-test-a39eabe4-data",
+  "network": "pocoma-lb-gui-test-a39eabe4_default",
+  "services": [
+    "http-write",
+    "http-read",
+    "command-worker",
+    "results-worker",
+    "business-read-worker",
+    "postgres",
+    "keycloak",
+    "prometheus"
+  ],
+  "persistentDataLost": [
+    "PostgreSQL WRITE/READ and Keycloak database in owned volume",
+    "Generated credentials, configuration, demo and canary checkpoints"
+  ],
+  "retained": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/gui-test/runs",
+  "operations": [
+    "Verify manifest/UUID/resource ownership",
+    "Gracefully stop this instance",
+    "Compose down --volumes for this project only",
+    "Remove generated instance files; retain lock and diagnostic runs"
+  ],
+  "command": "./pocoma-local destroy --instance gui-test --confirm DESTROY:gui-test"
+}

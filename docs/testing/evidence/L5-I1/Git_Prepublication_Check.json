@@ -1,0 +1,11 @@
+{
+  "observed_utc": "2026-11-04T17:30:01.250288+00:00",
+  "branch": "feat/v3-architecture",
+  "source_head": "46b94ce69a4b0f42474d38ac10b26daa78bb6b23",
+  "remote_head": "f46d63a9bc4505c43610376eeba40a5854431230",
+  "ahead_behind": "23\t0",
+  "worktrees": "worktree /Users/julien.guezennec/Dev/projects/pocoma\nHEAD 46b94ce69a4b0f42474d38ac10b26daa78bb6b23\nbranch refs/heads/feat/v3-architecture\n\nworktree /private/tmp/pocoma-i1-qualified\nHEAD 46b94ce69a4b0f42474d38ac10b26daa78bb6b23\ndetached\n\nworktree /private/tmp/pocoma-l3-i5-skip-resolution\nHEAD 5f0846bd585aee52424cbe66e90eafad9ee0b379\ndetached\n\nworktree /private/tmp/pocoma-verification-audit-d0927d94\nHEAD d0927d9410ebcd65c221e73c5ecd04e5242fe4e9\ndetached\n\nworktree /Users/julien.guezennec/.codex/worktrees/debt-wa6-integration/pocoma\nHEAD 2eef3ab9785c524c2fab86f586fc12580c8b1c2e\ndetached\n\nworktree /Users/julien.guezennec/.codex/worktrees/v3-l2-documentation/pocoma\nHEAD f81cbd72590a5cb6bdaa083641f8b8ab59371a55\ndetached\n\nworktree /Users/julien.guezennec/.codex/worktrees/v3-l2-i1-close-i2-plan/pocoma\nHEAD 1fd9ce7529e5da439f32f889f92cec39de2c79fa\ndetached",
+  "force_push_authorized": false,
+  "push_authorized": true,
+  "publication": "Terminal Architecture PASS2231; final documentation/evidence commit and authorized non-force push pending"
+}

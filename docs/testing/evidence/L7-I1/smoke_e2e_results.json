@@ -1,0 +1,396 @@
+{
+  "benchmark": "Pocoma V3 Five-Runtime Single Host Performance Smoke Test",
+  "topology": "5 Independent Processes (http-write, command-worker, results-worker, business-read-worker, http-read)",
+  "workload": {
+    "targetRateCmdPerSec": 1.0,
+    "totalCommands": 30,
+    "totalPots": 6,
+    "potProfile": "SPEC-09 Medium (20 shareholders)",
+    "testDurationSeconds": 40.24
+  },
+  "successRate": {
+    "submitted": 30,
+    "completed": 30,
+    "oracleC03Valid": 30,
+    "successPct": 100.0
+  },
+  "latenciesMs": {
+    "admission": {
+      "count": 30,
+      "min": 5.74,
+      "mean": 8.76,
+      "p50": 7.51,
+      "p90": 10.77,
+      "p95": 14.18,
+      "p99": 24.86,
+      "max": 28.31
+    },
+    "commandResult": {
+      "count": 30,
+      "min": 145.12,
+      "mean": 672.59,
+      "p50": 375.6,
+      "p90": 516.17,
+      "p95": 934.73,
+      "p99": 6755.36,
+      "max": 9025.82
+    },
+    "readModelVersion": {
+      "count": 30,
+      "min": 479.26,
+      "mean": 1065.21,
+      "p50": 715.01,
+      "p90": 1212.06,
+      "p95": 1775.5,
+      "p99": 7192.36,
+      "max": 9296.03
+    },
+    "e2eFullC03": {
+      "count": 30,
+      "min": 483.77,
+      "mean": 1071.96,
+      "p50": 719.89,
+      "p90": 1217.54,
+      "p95": 1781.1,
+      "p99": 7197.55,
+      "max": 9300.54
+    }
+  },
+  "comparisonWithR11Monolith": {
+    "r11MonolithP95Ms": 1558.5,
+    "fiveRuntimeSmokeP95Ms": 1781.1,
+    "deltaMs": 222.6
+  },
+  "rawMeasurements": [
+    {
+      "index": 1,
+      "requestId": "b6bc24fb-e8d9-412d-b209-465cd9a94d2e",
+      "potId": "65f9ebd8-dd07-40e8-a991-e6df7ca2ca80",
+      "targetVersion": 1154,
+      "admLatencyMs": 28.31,
+      "resultLatencyMs": 614.6,
+      "versionLatencyMs": 2041.99,
+      "e2eLatencyMs": 2048.84,
+      "c03Valid": true
+    },
+    {
+      "index": 2,
+      "requestId": "2883e96f-aa78-4e3a-bc1b-c2f8ff742de1",
+      "potId": "880641a1-2b1d-4b89-ab48-53afc5401934",
+      "targetVersion": 1014,
+      "admLatencyMs": 10.7,
+      "resultLatencyMs": 317.3,
+      "versionLatencyMs": 1185.64,
+      "e2eLatencyMs": 1191.28,
+      "c03Valid": true
+    },
+    {
+      "index": 3,
+      "requestId": "cabe29ee-d8c7-47fd-8aa6-3f536e2da5ba",
+      "potId": "1955b4f9-56b0-4697-907b-aa3eec270de5",
+      "targetVersion": 1004,
+      "admLatencyMs": 16.42,
+      "resultLatencyMs": 410.74,
+      "versionLatencyMs": 933.17,
+      "e2eLatencyMs": 937.94,
+      "c03Valid": true
+    },
+    {
+      "index": 4,
+      "requestId": "1d82e557-7272-4251-b0a9-bc7e046e7d44",
+      "potId": "45c0491e-5ad9-47f0-9324-cc47a0e7a749",
+      "targetVersion": 1010,
+      "admLatencyMs": 8.58,
+      "resultLatencyMs": 392.26,
+      "versionLatencyMs": 889.4,
+      "e2eLatencyMs": 894.85,
+      "c03Valid": true
+    },
+    {
+      "index": 5,
+      "requestId": "4197939e-cf8a-4d1c-8b45-ea0d3b1c977a",
+      "potId": "dc5f9ce9-ee8e-4f98-9a44-4cc7b433f2d8",
+      "targetVersion": 1001,
+      "admLatencyMs": 7.85,
+      "resultLatencyMs": 319.44,
+      "versionLatencyMs": 840.49,
+      "e2eLatencyMs": 848.95,
+      "c03Valid": true
+    },
+    {
+      "index": 6,
+      "requestId": "e728db06-c932-42b8-88a2-e654fad8188b",
+      "potId": "f14ab106-c16d-4d2b-9573-d3d1aa676f3b",
+      "targetVersion": 1012,
+      "admLatencyMs": 9.6,
+      "resultLatencyMs": 262.59,
+      "versionLatencyMs": 704.75,
+      "e2eLatencyMs": 710.0,
+      "c03Valid": true
+    },
+    {
+      "index": 7,
+      "requestId": "46d11ede-f4ff-432d-a0af-2edf85e239d0",
+      "potId": "65f9ebd8-dd07-40e8-a991-e6df7ca2ca80",
+      "targetVersion": 1155,
+      "admLatencyMs": 8.88,
+      "resultLatencyMs": 336.33,
+      "versionLatencyMs": 1087.04,
+      "e2eLatencyMs": 1092.38,
+      "c03Valid": true
+    },
+    {
+      "index": 8,
+      "requestId": "34ccdb6b-1d63-435c-9984-0143c94e14d5",
+      "potId": "880641a1-2b1d-4b89-ab48-53afc5401934",
+      "targetVersion": 1015,
+      "admLatencyMs": 8.59,
+      "resultLatencyMs": 301.85,
+      "versionLatencyMs": 564.63,
+      "e2eLatencyMs": 569.33,
+      "c03Valid": true
+    },
+    {
+      "index": 9,
+      "requestId": "8d59bf2d-4aac-4a2f-bf27-c2d451ad15ad",
+      "potId": "1955b4f9-56b0-4697-907b-aa3eec270de5",
+      "targetVersion": 1005,
+      "admLatencyMs": 6.89,
+      "resultLatencyMs": 409.95,
+      "versionLatencyMs": 729.43,
+      "e2eLatencyMs": 733.6,
+      "c03Valid": true
+    },
+    {
+      "index": 10,
+      "requestId": "fbdd42f9-f232-41a5-b7ea-b561fea31204",
+      "potId": "45c0491e-5ad9-47f0-9324-cc47a0e7a749",
+      "targetVersion": 1011,
+      "admLatencyMs": 8.18,
+      "resultLatencyMs": 346.65,
+      "versionLatencyMs": 551.98,
+      "e2eLatencyMs": 556.93,
+      "c03Valid": true
+    },
+    {
+      "index": 11,
+      "requestId": "76b60588-62a9-4bf9-98f5-ba7b7b1c5744",
+      "potId": "dc5f9ce9-ee8e-4f98-9a44-4cc7b433f2d8",
+      "targetVersion": 1002,
+      "admLatencyMs": 7.98,
+      "resultLatencyMs": 423.42,
+      "versionLatencyMs": 676.55,
+      "e2eLatencyMs": 680.91,
+      "c03Valid": true
+    },
+    {
+      "index": 12,
+      "requestId": "e997fd59-72d3-4ddf-9107-48acc568822e",
+      "potId": "f14ab106-c16d-4d2b-9573-d3d1aa676f3b",
+      "targetVersion": 1013,
+      "admLatencyMs": 7.18,
+      "resultLatencyMs": 440.92,
+      "versionLatencyMs": 766.29,
+      "e2eLatencyMs": 770.63,
+      "c03Valid": true
+    },
+    {
+      "index": 13,
+      "requestId": "00e91899-9e60-400b-97f5-7153f4eee992",
+      "potId": "65f9ebd8-dd07-40e8-a991-e6df7ca2ca80",
+      "targetVersion": 1156,
+      "admLatencyMs": 7.04,
+      "resultLatencyMs": 375.68,
+      "versionLatencyMs": 613.88,
+      "e2eLatencyMs": 618.94,
+      "c03Valid": true
+    },
+    {
+      "index": 14,
+      "requestId": "e181257d-330a-4504-b792-11d6c5d2c254",
+      "potId": "880641a1-2b1d-4b89-ab48-53afc5401934",
+      "targetVersion": 1016,
+      "admLatencyMs": 6.9,
+      "resultLatencyMs": 223.58,
+      "versionLatencyMs": 490.88,
+      "e2eLatencyMs": 495.29,
+      "c03Valid": true
+    },
+    {
+      "index": 15,
+      "requestId": "76bc7ba7-a932-4eff-8c81-3c50dd6958bb",
+      "potId": "1955b4f9-56b0-4697-907b-aa3eec270de5",
+      "targetVersion": 1006,
+      "admLatencyMs": 5.74,
+      "resultLatencyMs": 1196.66,
+      "versionLatencyMs": 1449.8,
+      "e2eLatencyMs": 1453.87,
+      "c03Valid": true
+    },
+    {
+      "index": 16,
+      "requestId": "94586114-32bd-48fe-855f-74fef022ba24",
+      "potId": "45c0491e-5ad9-47f0-9324-cc47a0e7a749",
+      "targetVersion": 1012,
+      "admLatencyMs": 7.09,
+      "resultLatencyMs": 9025.82,
+      "versionLatencyMs": 9296.03,
+      "e2eLatencyMs": 9300.54,
+      "c03Valid": true
+    },
+    {
+      "index": 17,
+      "requestId": "3a30f4d5-9dee-4658-805c-36efcabeef0a",
+      "potId": "dc5f9ce9-ee8e-4f98-9a44-4cc7b433f2d8",
+      "targetVersion": 1003,
+      "admLatencyMs": 9.81,
+      "resultLatencyMs": 310.91,
+      "versionLatencyMs": 630.89,
+      "e2eLatencyMs": 662.1,
+      "c03Valid": true
+    },
+    {
+      "index": 18,
+      "requestId": "39b506df-0afb-47d8-b751-9fe9d527f141",
+      "potId": "f14ab106-c16d-4d2b-9573-d3d1aa676f3b",
+      "targetVersion": 1014,
+      "admLatencyMs": 11.44,
+      "resultLatencyMs": 257.36,
+      "versionLatencyMs": 604.74,
+      "e2eLatencyMs": 609.07,
+      "c03Valid": true
+    },
+    {
+      "index": 19,
+      "requestId": "8227e3d1-15fe-476c-8737-6fc0870f2c03",
+      "potId": "65f9ebd8-dd07-40e8-a991-e6df7ca2ca80",
+      "targetVersion": 1157,
+      "admLatencyMs": 7.14,
+      "resultLatencyMs": 145.12,
+      "versionLatencyMs": 479.26,
+      "e2eLatencyMs": 483.77,
+      "c03Valid": true
+    },
+    {
+      "index": 20,
+      "requestId": "af249784-ea38-41c3-b0e8-947598c96a6f",
+      "potId": "880641a1-2b1d-4b89-ab48-53afc5401934",
+      "targetVersion": 1017,
+      "admLatencyMs": 6.91,
+      "resultLatencyMs": 417.44,
+      "versionLatencyMs": 664.25,
+      "e2eLatencyMs": 669.11,
+      "c03Valid": true
+    },
+    {
+      "index": 21,
+      "requestId": "2e1c3eb9-eafa-436b-ac68-ff51bfaa2004",
+      "potId": "1955b4f9-56b0-4697-907b-aa3eec270de5",
+      "targetVersion": 1007,
+      "admLatencyMs": 7.08,
+      "resultLatencyMs": 257.52,
+      "versionLatencyMs": 496.5,
+      "e2eLatencyMs": 500.99,
+      "c03Valid": true
+    },
+    {
+      "index": 22,
+      "requestId": "e5ff2ffd-6a99-469b-9726-9594393631d6",
+      "potId": "45c0491e-5ad9-47f0-9324-cc47a0e7a749",
+      "targetVersion": 1013,
+      "admLatencyMs": 6.13,
+      "resultLatencyMs": 417.73,
+      "versionLatencyMs": 685.32,
+      "e2eLatencyMs": 689.64,
+      "c03Valid": true
+    },
+    {
+      "index": 23,
+      "requestId": "a08684da-d71a-44dd-9109-a0d204520639",
+      "potId": "dc5f9ce9-ee8e-4f98-9a44-4cc7b433f2d8",
+      "targetVersion": 1004,
+      "admLatencyMs": 8.14,
+      "resultLatencyMs": 495.01,
+      "versionLatencyMs": 857.04,
+      "e2eLatencyMs": 861.19,
+      "c03Valid": true
+    },
+    {
+      "index": 24,
+      "requestId": "4235b37d-e477-4b41-809a-14417581f915",
+      "potId": "f14ab106-c16d-4d2b-9573-d3d1aa676f3b",
+      "targetVersion": 1015,
+      "admLatencyMs": 6.9,
+      "resultLatencyMs": 505.23,
+      "versionLatencyMs": 753.3,
+      "e2eLatencyMs": 757.71,
+      "c03Valid": true
+    },
+    {
+      "index": 25,
+      "requestId": "9d4f3c5d-bd6f-4fcf-b558-c37724827848",
+      "potId": "65f9ebd8-dd07-40e8-a991-e6df7ca2ca80",
+      "targetVersion": 1158,
+      "admLatencyMs": 6.22,
+      "resultLatencyMs": 167.73,
+      "versionLatencyMs": 551.25,
+      "e2eLatencyMs": 556.84,
+      "c03Valid": true
+    },
+    {
+      "index": 26,
+      "requestId": "fea478e2-96f5-45df-8e58-836577983a6e",
+      "potId": "880641a1-2b1d-4b89-ab48-53afc5401934",
+      "targetVersion": 1018,
+      "admLatencyMs": 7.95,
+      "resultLatencyMs": 375.51,
+      "versionLatencyMs": 727.19,
+      "e2eLatencyMs": 731.98,
+      "c03Valid": true
+    },
+    {
+      "index": 27,
+      "requestId": "525b3ace-37f7-45d9-8917-833da096ad48",
+      "potId": "1955b4f9-56b0-4697-907b-aa3eec270de5",
+      "targetVersion": 1008,
+      "admLatencyMs": 6.75,
+      "resultLatencyMs": 411.85,
+      "versionLatencyMs": 771.92,
+      "e2eLatencyMs": 805.97,
+      "c03Valid": true
+    },
+    {
+      "index": 28,
+      "requestId": "26eddf8a-b07b-4721-b204-f5978f4e2615",
+      "potId": "45c0491e-5ad9-47f0-9324-cc47a0e7a749",
+      "targetVersion": 1014,
+      "admLatencyMs": 6.15,
+      "resultLatencyMs": 494.36,
+      "versionLatencyMs": 725.28,
+      "e2eLatencyMs": 729.78,
+      "c03Valid": true
+    },
+    {
+      "index": 29,
+      "requestId": "a7bb4e2a-3f01-4e51-8ac9-3f8ee4b055a4",
+      "potId": "dc5f9ce9-ee8e-4f98-9a44-4cc7b433f2d8",
+      "targetVersion": 1005,
+      "admLatencyMs": 9.54,
+      "resultLatencyMs": 184.09,
+      "versionLatencyMs": 561.74,
+      "e2eLatencyMs": 566.42,
+      "c03Valid": true
+    },
+    {
+      "index": 30,
+      "requestId": "204133b7-24e8-4344-bdbb-45d1f602431e",
+      "potId": "f14ab106-c16d-4d2b-9573-d3d1aa676f3b",
+      "targetVersion": 1016,
+      "admLatencyMs": 6.77,
+      "resultLatencyMs": 340.04,
+      "versionLatencyMs": 625.61,
+      "e2eLatencyMs": 630.06,
+      "c03Valid": true
+    }
+  ]
+}

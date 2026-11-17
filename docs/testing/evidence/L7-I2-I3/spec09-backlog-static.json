@@ -1,0 +1,75 @@
+{
+  "scope": "Static SQL EXPLAIN on a newly bootstrapped empty PostgreSQL. No workload, no execution of the query plans, no benchmark.",
+  "image": "sha256:18cfe3ef5e6815560c98237d6216d1e5119702fb0f3894c8785dd58b8bbe5d73",
+  "fixture": "pocoma-l7-spec09-sql-static-e80766f0e78c",
+  "statements": [
+    {
+      "argv": [
+        "docker",
+        "exec",
+        "-i",
+        "pocoma-l7-spec09-sql-static-e80766f0e78c",
+        "psql",
+        "-X",
+        "-w",
+        "-U",
+        "pocoma",
+        "-d",
+        "pocoma_write",
+        "-v",
+        "ON_ERROR_STOP=1"
+      ],
+      "database": "v3_write",
+      "statementSha256": "d2be0629f0be84b0a437a47511b39891b6e6d24cf5a019c06a90d05a3f4781a4",
+      "exitCode": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "exec",
+        "-i",
+        "pocoma-l7-spec09-sql-static-e80766f0e78c",
+        "psql",
+        "-X",
+        "-w",
+        "-U",
+        "pocoma",
+        "-d",
+        "pocoma_read",
+        "-v",
+        "ON_ERROR_STOP=1"
+      ],
+      "database": "v3_read",
+      "statementSha256": "91076384279d4d621cb99e204c6de3d1d17a48ed874a708b4c79b9cafcf05e5d",
+      "exitCode": 0
+    }
+  ],
+  "bootstrap": [
+    "python3",
+    "-B",
+    "scripts/operations/setup-v3-database.py",
+    "--postgres-container",
+    "pocoma-l7-spec09-sql-static-e80766f0e78c"
+  ],
+  "status": "STATIC_PASS",
+  "cleanup": 0,
+  "seconds": 7.501703959074803,
+  "finishedAt": "2026-11-12T10:52:34.437126+00:00",
+  "testedSha": "e671c575e5f705b16dbbeb0acc8fc59e7aa2ff75",
+  "logSha256": "13c63beea22d588102acfadb7f7e2fbec6c929e2babc77885411520dbedd9442",
+  "offlineOracles": {
+    "command": [
+      "python3",
+      "-B",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "scripts/performance",
+      "-p",
+      "test_bench.py"
+    ],
+    "tests": 28,
+    "status": "PASS"
+  }
+}

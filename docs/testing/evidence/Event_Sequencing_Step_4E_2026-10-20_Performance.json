@@ -1,0 +1,5726 @@
+[
+  {
+    "campaign": "ve",
+    "workload": "BUSINESS",
+    "pgStats": [
+      {
+        "xact_commit": 287,
+        "xact_rollback": 2,
+        "deadlocks": 0,
+        "blks_read": 752,
+        "blks_hit": 81085,
+        "temp_bytes": 0
+      }
+    ],
+    "firstEToCommit": [
+      {
+        "p50ms": null,
+        "p95ms": null,
+        "maxms": null
+      }
+    ],
+    "unexpectedTimeouts": 0,
+    "p95ms": 4.361875,
+    "maxObservedEWaitMs": 0.0,
+    "commandTE": {},
+    "samples": 6,
+    "maxEWaiters": 0,
+    "workers": 1,
+    "unexpectedDeadlocks": 0,
+    "p50ms": 1.725667,
+    "meanSuffixMs": 0.27784733333333334,
+    "walBytes": 3528,
+    "p99ms": 4.361875,
+    "mode": "PREPARED",
+    "sampledEWaiters": 0,
+    "intentionalRollbacks": 0,
+    "operationsPerSecond": 394.59297143107426,
+    "eventsPerSecond": [
+      394.59297143107426,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "ownerTransactionsPerSecond": 394.59297143107426
+  },
+  {
+    "campaign": "ve",
+    "workload": "BATCH4",
+    "pgStats": [
+      {
+        "xact_commit": 287,
+        "xact_rollback": 2,
+        "deadlocks": 0,
+        "blks_read": 752,
+        "blks_hit": 81085,
+        "temp_bytes": 0
+      }
+    ],
+    "firstEToCommit": [
+      {
+        "p50ms": null,
+        "p95ms": null,
+        "maxms": null
+      }
+    ],
+    "unexpectedTimeouts": 0,
+    "p95ms": 1.874791,
+    "maxObservedEWaitMs": 0.0,
+    "commandTE": {},
+    "samples": 6,
+    "maxEWaiters": 0,
+    "workers": 1,
+    "unexpectedDeadlocks": 0,
+    "p50ms": 1.4435,
+    "meanSuffixMs": 0.16691666666666666,
+    "walBytes": 13344,
+    "p99ms": 1.874791,
+    "mode": "PREPARED",
+    "sampledEWaiters": 0,
+    "intentionalRollbacks": 0,
+    "operationsPerSecond": 527.5961821029879,
+    "eventsPerSecond": [
+      2110.3847284119515,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "ownerTransactionsPerSecond": 527.5961821029879
+  },
+  {
+    "campaign": "ve",
+    "workload": "COMMAND",
+    "pgStats": [
+      {
+        "xact_commit": 287,
+        "xact_rollback": 2,
+        "deadlocks": 0,
+        "blks_read": 752,
+        "blks_hit": 81085,
+        "temp_bytes": 0
+      }
+    ],
+    "firstEToCommit": [
+      {
+        "p50ms": null,
+        "p95ms": null,
+        "maxms": null
+      }
+    ],
+    "unexpectedTimeouts": 0,
+    "p95ms": 12.243,
+    "maxObservedEWaitMs": 0.0,
+    "commandTE": {
+      "samples": 6,
+      "p50ms": 4.069833,
+      "p95ms": 5.1475,
+      "p99ms": 5.1475
+    },
+    "samples": 6,
+    "maxEWaiters": 0,
+    "workers": 1,
+    "unexpectedDeadlocks": 0,
+    "p50ms": 8.259666,
+    "meanSuffixMs": 0.13922916666666665,
+    "walBytes": 40208,
+    "p99ms": 12.243,
+    "mode": "PREPARED",
+    "sampledEWaiters": 0,
+    "intentionalRollbacks": 0,
+    "operationsPerSecond": 113.00561253675225,
+    "eventsPerSecond": [
+      113.00561253675225,
+      113.00561253675225,
+      113.00561253675225,
+      0.0
+    ],
+    "ownerTransactionsPerSecond": 452.022450147009
+  },
+  {
+    "campaign": "ve",
+    "workload": "REGISTRATION",
+    "pgStats": [
+      {
+        "xact_commit": 287,
+        "xact_rollback": 2,
+        "deadlocks": 0,
+        "blks_read": 752,
+        "blks_hit": 81085,
+        "temp_bytes": 0
+      }
+    ],
+    "firstEToCommit": [
+      {
+        "p50ms": null,
+        "p95ms": null,
+        "maxms": null
+      }
+    ],
+    "unexpectedTimeouts": 0,
+    "p95ms": 4.114083,
+    "maxObservedEWaitMs": 0.0,
+    "commandTE": {},
+    "samples": 6,
+    "maxEWaiters": 0,
+    "workers": 1,
+    "unexpectedDeadlocks": 0,
+    "p50ms": 2.235875,
+    "meanSuffixMs": 0.11668766666666668,
+    "walBytes": 18360,
+    "p99ms": 4.114083,
+    "mode": "PREPARED",
+    "sampledEWaiters": 0,
+    "intentionalRollbacks": 0,
+    "operationsPerSecond": 363.6556484055973,
+    "eventsPerSecond": [
+      0.0,
+      0.0,
+      363.6556484055973,
+      363.6556484055973
+    ],
+    "ownerTransactionsPerSecond": 727.3112968111946
+  },
+  {
+    "campaign": "ve",
+    "workload": "COMMAND_REGISTRATION",
+    "pgStats": [
+      {
+        "xact_commit": 287,
+        "xact_rollback": 2,
+        "deadlocks": 0,
+        "blks_read": 752,
+        "blks_hit": 81085,
+        "temp_bytes": 0
+      }
+    ],
+    "firstEToCommit": [
+      {
+        "p50ms": null,
+        "p95ms": null,
+        "maxms": null
+      }
+    ],
+    "unexpectedTimeouts": 0,
+    "p95ms": 9.40425,
+    "maxObservedEWaitMs": 0.0,
+    "commandTE": {
+      "samples": 3,
+      "p50ms": 4.036417,
+      "p95ms": 4.462291,
+      "p99ms": 4.462291
+    },
+    "samples": 6,
+    "maxEWaiters": 0,
+    "workers": 1,
+    "unexpectedDeadlocks": 0,
+    "p50ms": 2.798417,
+    "meanSuffixMs": 0.12874066666666667,
+    "walBytes": 29280,
+    "p99ms": 9.40425,
+    "mode": "PREPARED",
+    "sampledEWaiters": 0,
+    "intentionalRollbacks": 0,
+    "operationsPerSecond": 184.56593230343083,
+    "eventsPerSecond": [
+      92.28296615171541,
+      92.28296615171541,
+      184.56593230343083,
+      92.28296615171541
+    ],
+    "ownerTransactionsPerSecond": 553.6977969102925
+  },
+  {
+    "campaign": "ve",
+    "workload": "LONG",
+    "pgStats": [
+      {
+        "xact_commit": 287,
+        "xact_rollback": 2,
+        "deadlocks": 0,
+        "blks_read": 752,
+        "blks_hit": 81085,
+        "temp_bytes": 0
+      }
+    ],
+    "firstEToCommit": [
+      {
+        "p50ms": null,
+        "p95ms": null,
+        "maxms": null
+      }
+    ],
+    "unexpectedTimeouts": 0,
+    "p95ms": 26.87,
+    "maxObservedEWaitMs": 0.0,
+    "commandTE": {},
+    "samples": 6,
+    "maxEWaiters": 0,
+    "workers": 1,
+    "unexpectedDeadlocks": 0,
+    "p50ms": 25.225084,
+    "meanSuffixMs": 0.22880533333333333,
+    "walBytes": 3504,
+    "p99ms": 26.87,
+    "mode": "PREPARED",
+    "sampledEWaiters": 0,
+    "intentionalRollbacks": 0,
+    "operationsPerSecond": 39.55441946472982,
+    "eventsPerSecond": [
+      39.55441946472982,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "ownerTransactionsPerSecond": 39.55441946472982
+  },
+  {
+    "campaign": "ve",
+    "workload": "ROLLBACK",
+    "pgStats": [
+      {
+        "xact_commit": 287,
+        "xact_rollback": 2,
+        "deadlocks": 0,
+        "blks_read": 752,
+        "blks_hit": 81085,
+        "temp_bytes": 0
+      }
+    ],
+    "firstEToCommit": [
+      {
+        "p50ms": null,
+        "p95ms": null,
+        "maxms": null
+      }
+    ],
+    "unexpectedTimeouts": 0,
+    "p95ms": 0.272917,
+    "maxObservedEWaitMs": 0.0,
+    "commandTE": {},
+    "samples": 6,
+    "maxEWaiters": 0,
+    "workers": 1,
+    "unexpectedDeadlocks": 0,
+    "p50ms": 0.101125,
+    "meanSuffixMs": 0.0,
+    "walBytes": 0,
+    "p99ms": 0.272917,
+    "mode": "PREPARED",
+    "sampledEWaiters": 0,
+    "intentionalRollbacks": 6,
+    "operationsPerSecond": 1893.6901298029898,
+    "eventsPerSecond": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "ownerTransactionsPerSecond": 1893.6901298029898
+  },
+  {
+    "campaign": "ve",
+    "workload": "BUSINESS",
+    "pgStats": [
+      {
+        "xact_commit": 313,
+        "xact_rollback": 2,
+        "deadlocks": 0,
+        "blks_read": 752,
+        "blks_hit": 82057,
+        "temp_bytes": 0
+      }
+    ],
+    "firstEToCommit": [
+      {
+        "p50ms": null,
+        "p95ms": null,
+        "maxms": null
+      }
+    ],
+    "unexpectedTimeouts": 0,
+    "p95ms": 3.03625,
+    "maxObservedEWaitMs": 0.0,
+    "commandTE": {},
+    "samples": 24,
+    "maxEWaiters": 0,
+    "workers": 4,
+    "unexpectedDeadlocks": 0,
+    "p50ms": 0.982042,
+    "meanSuffixMs": 0.25346883333333337,
+    "walBytes": 14128,
+    "p99ms": 3.073959,
+    "mode": "PREPARED",
+    "sampledEWaiters": 0,
+    "intentionalRollbacks": 0,
+    "operationsPerSecond": 2857.1571429285714,
+    "eventsPerSecond": [
+      2857.1571429285714,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "ownerTransactionsPerSecond": 2857.1571429285714
+  },
+  {
+    "campaign": "ve",
+    "workload": "BATCH4",
+    "pgStats": [
+      {
+        "xact_commit": 648,
+        "xact_rollback": 3,
+        "deadlocks": 0,
+        "blks_read": 989,
+        "blks_hit": 131665,
+        "temp_bytes": 0
+      }
+    ],
+    "firstEToCommit": [
+      {
+        "p50ms": null,
+        "p95ms": null,
+        "maxms": null
+      }
+    ],
+    "unexpectedTimeouts": 0,
+    "p95ms": 4.765584,
+    "maxObservedEWaitMs": 0.0,
+    "commandTE": {},
+    "samples": 24,
+    "maxEWaiters": 0,
+    "workers": 4,
+    "unexpectedDeadlocks": 0,
+    "p50ms": 3.3415,
+    "meanSuffixMs": 0.36409016666666666,
+    "walBytes": 53352,
+    "p99ms": 4.836583,
+    "mode": "PREPARED",
+    "sampledEWaiters": 0,
+    "intentionalRollbacks": 0,
+    "operationsPerSecond": 913.0219527759176,
+    "eventsPerSecond": [
+      3652.0878111036704,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "ownerTransactionsPerSecond": 913.0219527759176
+  },
+  {
+    "campaign": "ve",
+    "workload": "COMMAND",
+    "pgStats": [
+      {
+        "xact_commit": 756,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 989,
+        "blks_hit": 138468,
+        "temp_bytes": 0
+      }
+    ],
+    "firstEToCommit": [
+      {
+        "p50ms": null,
+        "p95ms": null,
+        "maxms": null
+      }
+    ],
+    "unexpectedTimeouts": 0,
+    "p95ms": 20.672625,
+    "maxObservedEWaitMs": 0.0,
+    "commandTE": {
+      "samples": 24,
+      "p50ms": 7.173208,
+      "p95ms": 8.515791,
+      "p99ms": 8.5695
+    },
+    "samples": 24,
+    "maxEWaiters": 0,
+    "workers": 4,
+    "unexpectedDeadlocks": 0,
+    "p50ms": 13.814917,
+    "meanSuffixMs": 0.25056945833333333,
+    "walBytes": 161040,
+    "p99ms": 20.950375,
+    "mode": "PREPARED",
+    "sampledEWaiters": 0,
+    "intentionalRollbacks": 0,
+    "operationsPerSecond": 259.8587288847865,
+    "eventsPerSecond": [
+      259.8587288847865,
+      259.8587288847865,
+      259.8587288847865,
+      0.0
+    ],
+    "ownerTransactionsPerSecond": 1039.434915539146
+  },
+  {
+    "campaign": "ve",
+    "workload": "REGISTRATION",
+    "pgStats": [
+      {
+        "xact_commit": 756,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 989,
+        "blks_hit": 138468,
+        "temp_bytes": 0
+      }
+    ],
+    "firstEToCommit": [
+      {
+        "p50ms": null,
+        "p95ms": null,
+        "maxms": null
+      }
+    ],
+    "unexpectedTimeouts": 0,
+    "p95ms": 7.472041,
+    "maxObservedEWaitMs": 0.0,
+    "commandTE": {},
+    "samples": 24,
+    "maxEWaiters": 0,
+    "workers": 4,
+    "unexpectedDeadlocks": 0,
+    "p50ms": 4.977417,
+    "meanSuffixMs": 0.2539514583333333,
+    "walBytes": 73368,
+    "p99ms": 8.195916,
+    "mode": "PREPARED",
+    "sampledEWaiters": 0,
+    "intentionalRollbacks": 0,
+    "operationsPerSecond": 731.1676573836097,
+    "eventsPerSecond": [
+      0.0,
+      0.0,
+      731.1676573836097,
+      731.1676573836097
+    ],
+    "ownerTransactionsPerSecond": 1462.3353147672194
+  },
+  {
+    "campaign": "ve",
+    "workload": "COMMAND_REGISTRATION",
+    "pgStats": [
+      {
+        "xact_commit": 756,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 989,
+        "blks_hit": 138468,
+        "temp_bytes": 0
+      }
+    ],
+    "firstEToCommit": [
+      {
+        "p50ms": null,
+        "p95ms": null,
+        "maxms": null
+      }
+    ],
+    "unexpectedTimeouts": 0,
+    "p95ms": 18.454917,
+    "maxObservedEWaitMs": 0.0,
+    "commandTE": {
+      "samples": 12,
+      "p50ms": 7.799916,
+      "p95ms": 9.134167,
+      "p99ms": 9.134167
+    },
+    "samples": 24,
+    "maxEWaiters": 0,
+    "workers": 4,
+    "unexpectedDeadlocks": 0,
+    "p50ms": 6.943292,
+    "meanSuffixMs": 0.2849051111111111,
+    "walBytes": 117112,
+    "p99ms": 18.54575,
+    "mode": "PREPARED",
+    "sampledEWaiters": 0,
+    "intentionalRollbacks": 0,
+    "operationsPerSecond": 346.1128683870341,
+    "eventsPerSecond": [
+      173.05643419351705,
+      173.05643419351705,
+      346.1128683870341,
+      173.05643419351705
+    ],
+    "ownerTransactionsPerSecond": 1038.3386051611024
+  },
+  {
+    "campaign": "ve",
+    "workload": "LONG",
+    "pgStats": [
+      {
+        "xact_commit": 756,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 989,
+        "blks_hit": 138468,
+        "temp_bytes": 0
+      }
+    ],
+    "firstEToCommit": [
+      {
+        "p50ms": null,
+        "p95ms": null,
+        "maxms": null
+      }
+    ],
+    "unexpectedTimeouts": 0,
+    "p95ms": 25.786833,
+    "maxObservedEWaitMs": 0.0,
+    "commandTE": {},
+    "samples": 24,
+    "maxEWaiters": 0,
+    "workers": 4,
+    "unexpectedDeadlocks": 0,
+    "p50ms": 22.782541,
+    "meanSuffixMs": 0.2721788333333333,
+    "walBytes": 14160,
+    "p99ms": 25.842959,
+    "mode": "PREPARED",
+    "sampledEWaiters": 0,
+    "intentionalRollbacks": 0,
+    "operationsPerSecond": 164.1882125328023,
+    "eventsPerSecond": [
+      164.1882125328023,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "ownerTransactionsPerSecond": 164.1882125328023
+  },
+  {
+    "campaign": "ve",
+    "workload": "ROLLBACK",
+    "pgStats": [
+      {
+        "xact_commit": 756,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 989,
+        "blks_hit": 138468,
+        "temp_bytes": 0
+      }
+    ],
+    "firstEToCommit": [
+      {
+        "p50ms": null,
+        "p95ms": null,
+        "maxms": null
+      }
+    ],
+    "unexpectedTimeouts": 0,
+    "p95ms": 0.203833,
+    "maxObservedEWaitMs": 0.0,
+    "commandTE": {},
+    "samples": 24,
+    "maxEWaiters": 0,
+    "workers": 4,
+    "unexpectedDeadlocks": 0,
+    "p50ms": 0.049333,
+    "meanSuffixMs": 0.0,
+    "walBytes": 0,
+    "p99ms": 0.295958,
+    "mode": "PREPARED",
+    "sampledEWaiters": 0,
+    "intentionalRollbacks": 24,
+    "operationsPerSecond": 7604.965155000281,
+    "eventsPerSecond": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "ownerTransactionsPerSecond": 7604.965155000281
+  },
+  {
+    "campaign": "ve",
+    "workload": "BUSINESS",
+    "pgStats": [
+      {
+        "xact_commit": 793,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 989,
+        "blks_hit": 139764,
+        "temp_bytes": 0
+      }
+    ],
+    "firstEToCommit": [
+      {
+        "p50ms": null,
+        "p95ms": null,
+        "maxms": null
+      }
+    ],
+    "unexpectedTimeouts": 0,
+    "p95ms": 4.7915,
+    "maxObservedEWaitMs": 0.0,
+    "commandTE": {},
+    "samples": 48,
+    "maxEWaiters": 0,
+    "workers": 8,
+    "unexpectedDeadlocks": 0,
+    "p50ms": 1.683208,
+    "meanSuffixMs": 0.3774557083333333,
+    "walBytes": 28352,
+    "p99ms": 5.229792,
+    "mode": "PREPARED",
+    "sampledEWaiters": 0,
+    "intentionalRollbacks": 0,
+    "operationsPerSecond": 3570.1336010933533,
+    "eventsPerSecond": [
+      3570.1336010933533,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "ownerTransactionsPerSecond": 3570.1336010933533
+  },
+  {
+    "campaign": "ve",
+    "workload": "BATCH4",
+    "pgStats": [
+      {
+        "xact_commit": 793,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 989,
+        "blks_hit": 139764,
+        "temp_bytes": 0
+      }
+    ],
+    "firstEToCommit": [
+      {
+        "p50ms": null,
+        "p95ms": null,
+        "maxms": null
+      }
+    ],
+    "unexpectedTimeouts": 0,
+    "p95ms": 4.52825,
+    "maxObservedEWaitMs": 0.0,
+    "commandTE": {},
+    "samples": 48,
+    "maxEWaiters": 0,
+    "workers": 8,
+    "unexpectedDeadlocks": 0,
+    "p50ms": 2.804292,
+    "meanSuffixMs": 0.31618666666666667,
+    "walBytes": 107848,
+    "p99ms": 5.121333,
+    "mode": "PREPARED",
+    "sampledEWaiters": 0,
+    "intentionalRollbacks": 0,
+    "operationsPerSecond": 2599.7941829605156,
+    "eventsPerSecond": [
+      10399.176731842063,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "ownerTransactionsPerSecond": 2599.7941829605156
+  },
+  {
+    "campaign": "ve",
+    "workload": "COMMAND",
+    "pgStats": [
+      {
+        "xact_commit": 793,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 989,
+        "blks_hit": 139764,
+        "temp_bytes": 0
+      }
+    ],
+    "firstEToCommit": [
+      {
+        "p50ms": null,
+        "p95ms": null,
+        "maxms": null
+      }
+    ],
+    "unexpectedTimeouts": 0,
+    "p95ms": 31.103292,
+    "maxObservedEWaitMs": 0.0,
+    "commandTE": {
+      "samples": 48,
+      "p50ms": 10.286042,
+      "p95ms": 12.993125,
+      "p99ms": 14.682666
+    },
+    "samples": 48,
+    "maxEWaiters": 0,
+    "workers": 8,
+    "unexpectedDeadlocks": 0,
+    "p50ms": 21.133459,
+    "meanSuffixMs": 0.3955212604166667,
+    "walBytes": 325960,
+    "p99ms": 31.847833,
+    "mode": "PREPARED",
+    "sampledEWaiters": 0,
+    "intentionalRollbacks": 0,
+    "operationsPerSecond": 358.5736594225101,
+    "eventsPerSecond": [
+      358.5736594225101,
+      358.5736594225101,
+      358.5736594225101,
+      0.0
+    ],
+    "ownerTransactionsPerSecond": 1434.2946376900404
+  },
+  {
+    "campaign": "ve",
+    "workload": "REGISTRATION",
+    "pgStats": [
+      {
+        "xact_commit": 793,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 989,
+        "blks_hit": 139764,
+        "temp_bytes": 0
+      }
+    ],
+    "firstEToCommit": [
+      {
+        "p50ms": null,
+        "p95ms": null,
+        "maxms": null
+      }
+    ],
+    "unexpectedTimeouts": 0,
+    "p95ms": 9.764583,
+    "maxObservedEWaitMs": 0.0,
+    "commandTE": {},
+    "samples": 48,
+    "maxEWaiters": 0,
+    "workers": 8,
+    "unexpectedDeadlocks": 0,
+    "p50ms": 8.537,
+    "meanSuffixMs": 0.3552881666666667,
+    "walBytes": 146960,
+    "p99ms": 12.599792,
+    "mode": "PREPARED",
+    "sampledEWaiters": 0,
+    "intentionalRollbacks": 0,
+    "operationsPerSecond": 910.7072074051424,
+    "eventsPerSecond": [
+      0.0,
+      0.0,
+      910.7072074051424,
+      910.7072074051424
+    ],
+    "ownerTransactionsPerSecond": 1821.4144148102848
+  },
+  {
+    "campaign": "ve",
+    "workload": "COMMAND_REGISTRATION",
+    "pgStats": [
+      {
+        "xact_commit": 1619,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 1302,
+        "blks_hit": 218533,
+        "temp_bytes": 0
+      }
+    ],
+    "firstEToCommit": [
+      {
+        "p50ms": null,
+        "p95ms": null,
+        "maxms": null
+      }
+    ],
+    "unexpectedTimeouts": 0,
+    "p95ms": 46.431167,
+    "maxObservedEWaitMs": 0.0,
+    "commandTE": {
+      "samples": 24,
+      "p50ms": 18.226917,
+      "p95ms": 27.426375,
+      "p99ms": 27.512083
+    },
+    "samples": 48,
+    "maxEWaiters": 0,
+    "workers": 8,
+    "unexpectedDeadlocks": 0,
+    "p50ms": 20.1745,
+    "meanSuffixMs": 0.5440412361111111,
+    "walBytes": 234648,
+    "p99ms": 47.841166,
+    "mode": "PREPARED",
+    "sampledEWaiters": 0,
+    "intentionalRollbacks": 0,
+    "operationsPerSecond": 332.6285189108841,
+    "eventsPerSecond": [
+      166.31425945544206,
+      166.31425945544206,
+      332.6285189108841,
+      166.31425945544206
+    ],
+    "ownerTransactionsPerSecond": 997.8855567326523
+  },
+  {
+    "campaign": "ve",
+    "workload": "LONG",
+    "pgStats": [
+      {
+        "xact_commit": 1722,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 1302,
+        "blks_hit": 225321,
+        "temp_bytes": 0
+      }
+    ],
+    "firstEToCommit": [
+      {
+        "p50ms": null,
+        "p95ms": null,
+        "maxms": null
+      }
+    ],
+    "unexpectedTimeouts": 0,
+    "p95ms": 26.186416,
+    "maxObservedEWaitMs": 0.0,
+    "commandTE": {},
+    "samples": 48,
+    "maxEWaiters": 0,
+    "workers": 8,
+    "unexpectedDeadlocks": 0,
+    "p50ms": 23.832125,
+    "meanSuffixMs": 0.3012674583333333,
+    "walBytes": 28200,
+    "p99ms": 27.798375,
+    "mode": "PREPARED",
+    "sampledEWaiters": 0,
+    "intentionalRollbacks": 0,
+    "operationsPerSecond": 326.43114845190263,
+    "eventsPerSecond": [
+      326.43114845190263,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "ownerTransactionsPerSecond": 326.43114845190263
+  },
+  {
+    "campaign": "ve",
+    "workload": "ROLLBACK",
+    "pgStats": [
+      {
+        "xact_commit": 1722,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 1302,
+        "blks_hit": 225321,
+        "temp_bytes": 0
+      }
+    ],
+    "firstEToCommit": [
+      {
+        "p50ms": null,
+        "p95ms": null,
+        "maxms": null
+      }
+    ],
+    "unexpectedTimeouts": 0,
+    "p95ms": 0.214,
+    "maxObservedEWaitMs": 0.0,
+    "commandTE": {},
+    "samples": 48,
+    "maxEWaiters": 0,
+    "workers": 8,
+    "unexpectedDeadlocks": 0,
+    "p50ms": 0.089666,
+    "meanSuffixMs": 0.0,
+    "walBytes": 0,
+    "p99ms": 0.246167,
+    "mode": "PREPARED",
+    "sampledEWaiters": 0,
+    "intentionalRollbacks": 48,
+    "operationsPerSecond": 14976.402805329852,
+    "eventsPerSecond": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "ownerTransactionsPerSecond": 14976.402805329852
+  },
+  {
+    "campaign": "ve",
+    "workload": "BUSINESS",
+    "pgStats": [
+      {
+        "xact_commit": 1722,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 1302,
+        "blks_hit": 225321,
+        "temp_bytes": 0
+      }
+    ],
+    "firstEToCommit": [
+      {
+        "p50ms": 0.2915,
+        "p95ms": 0.5122499999999999,
+        "maxms": 0.582
+      }
+    ],
+    "unexpectedTimeouts": 0,
+    "p95ms": 1.977792,
+    "maxObservedEWaitMs": 0.0,
+    "commandTE": {},
+    "samples": 6,
+    "maxEWaiters": 0,
+    "workers": 1,
+    "unexpectedDeadlocks": 0,
+    "p50ms": 0.8215,
+    "meanSuffixMs": 0.5021391666666667,
+    "walBytes": 6024,
+    "p99ms": 1.977792,
+    "mode": "ACTIVE",
+    "sampledEWaiters": 0,
+    "intentionalRollbacks": 0,
+    "operationsPerSecond": 719.4028955966547,
+    "eventsPerSecond": [
+      719.4028955966547,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "ownerTransactionsPerSecond": 719.4028955966547
+  },
+  {
+    "campaign": "ve",
+    "workload": "BATCH4",
+    "pgStats": [
+      {
+        "xact_commit": 1722,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 1302,
+        "blks_hit": 225321,
+        "temp_bytes": 0
+      }
+    ],
+    "firstEToCommit": [
+      {
+        "p50ms": 0.5660000000000001,
+        "p95ms": 0.7625,
+        "maxms": 0.822
+      }
+    ],
+    "unexpectedTimeouts": 0,
+    "p95ms": 2.352042,
+    "maxObservedEWaitMs": 0.0,
+    "commandTE": {},
+    "samples": 6,
+    "maxEWaiters": 0,
+    "workers": 1,
+    "unexpectedDeadlocks": 0,
+    "p50ms": 1.38775,
+    "meanSuffixMs": 0.7049581666666667,
+    "walBytes": 20736,
+    "p99ms": 2.352042,
+    "mode": "ACTIVE",
+    "sampledEWaiters": 0,
+    "intentionalRollbacks": 0,
+    "operationsPerSecond": 568.7158509827979,
+    "eventsPerSecond": [
+      2274.8634039311914,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "ownerTransactionsPerSecond": 568.7158509827979
+  },
+  {
+    "campaign": "ve",
+    "workload": "COMMAND",
+    "pgStats": [
+      {
+        "xact_commit": 1722,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 1302,
+        "blks_hit": 225321,
+        "temp_bytes": 0
+      }
+    ],
+    "firstEToCommit": [
+      {
+        "p50ms": 0.5565,
+        "p95ms": 0.7582999999999999,
+        "maxms": 0.876
+      }
+    ],
+    "unexpectedTimeouts": 0,
+    "p95ms": 11.216166,
+    "maxObservedEWaitMs": 0.0,
+    "commandTE": {
+      "samples": 6,
+      "p50ms": 4.136125,
+      "p95ms": 5.3765,
+      "p99ms": 5.3765
+    },
+    "samples": 6,
+    "maxEWaiters": 0,
+    "workers": 1,
+    "unexpectedDeadlocks": 0,
+    "p50ms": 8.258583,
+    "meanSuffixMs": 0.6427814166666667,
+    "walBytes": 47720,
+    "p99ms": 11.216166,
+    "mode": "ACTIVE",
+    "sampledEWaiters": 0,
+    "intentionalRollbacks": 0,
+    "operationsPerSecond": 111.36451694480729,
+    "eventsPerSecond": [
+      111.36451694480729,
+      111.36451694480729,
+      111.36451694480729,
+      0.0
+    ],
+    "ownerTransactionsPerSecond": 445.45806777922917
+  },
+  {
+    "campaign": "ve",
+    "workload": "REGISTRATION",
+    "pgStats": [
+      {
+        "xact_commit": 1722,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 1302,
+        "blks_hit": 225321,
+        "temp_bytes": 0
+      }
+    ],
+    "firstEToCommit": [
+      {
+        "p50ms": 0.534,
+        "p95ms": 0.78675,
+        "maxms": 0.865
+      }
+    ],
+    "unexpectedTimeouts": 0,
+    "p95ms": 5.114125,
+    "maxObservedEWaitMs": 0.0,
+    "commandTE": {},
+    "samples": 6,
+    "maxEWaiters": 0,
+    "workers": 1,
+    "unexpectedDeadlocks": 0,
+    "p50ms": 2.803083,
+    "meanSuffixMs": 0.7110693333333333,
+    "walBytes": 23328,
+    "p99ms": 5.114125,
+    "mode": "ACTIVE",
+    "sampledEWaiters": 0,
+    "intentionalRollbacks": 0,
+    "operationsPerSecond": 271.7524595975428,
+    "eventsPerSecond": [
+      0.0,
+      0.0,
+      271.7524595975428,
+      271.7524595975428
+    ],
+    "ownerTransactionsPerSecond": 543.5049191950856
+  },
+  {
+    "campaign": "ve",
+    "workload": "COMMAND_REGISTRATION",
+    "pgStats": [
+      {
+        "xact_commit": 1722,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 1302,
+        "blks_hit": 225321,
+        "temp_bytes": 0
+      }
+    ],
+    "firstEToCommit": [
+      {
+        "p50ms": 0.513,
+        "p95ms": 0.7757999999999999,
+        "maxms": 0.855
+      }
+    ],
+    "unexpectedTimeouts": 0,
+    "p95ms": 11.517875,
+    "maxObservedEWaitMs": 0.0,
+    "commandTE": {
+      "samples": 3,
+      "p50ms": 4.405917,
+      "p95ms": 5.307916,
+      "p99ms": 5.307916
+    },
+    "samples": 6,
+    "maxEWaiters": 0,
+    "workers": 1,
+    "unexpectedDeadlocks": 0,
+    "p50ms": 3.558792,
+    "meanSuffixMs": 0.6356757777777777,
+    "walBytes": 35544,
+    "p99ms": 11.517875,
+    "mode": "ACTIVE",
+    "sampledEWaiters": 0,
+    "intentionalRollbacks": 0,
+    "operationsPerSecond": 160.18474640752336,
+    "eventsPerSecond": [
+      80.09237320376168,
+      80.09237320376168,
+      160.18474640752336,
+      80.09237320376168
+    ],
+    "ownerTransactionsPerSecond": 480.5542392225701
+  },
+  {
+    "campaign": "ve",
+    "workload": "LONG",
+    "pgStats": [
+      {
+        "xact_commit": 1722,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 1302,
+        "blks_hit": 225321,
+        "temp_bytes": 0
+      }
+    ],
+    "firstEToCommit": [
+      {
+        "p50ms": 0.444,
+        "p95ms": 0.5712499999999999,
+        "maxms": 0.593
+      }
+    ],
+    "unexpectedTimeouts": 0,
+    "p95ms": 26.168708,
+    "maxObservedEWaitMs": 0.0,
+    "commandTE": {},
+    "samples": 6,
+    "maxEWaiters": 0,
+    "workers": 1,
+    "unexpectedDeadlocks": 0,
+    "p50ms": 22.856125,
+    "meanSuffixMs": 0.7181253333333334,
+    "walBytes": 6000,
+    "p99ms": 26.168708,
+    "mode": "ACTIVE",
+    "sampledEWaiters": 0,
+    "intentionalRollbacks": 0,
+    "operationsPerSecond": 41.519629799355215,
+    "eventsPerSecond": [
+      41.519629799355215,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "ownerTransactionsPerSecond": 41.519629799355215
+  },
+  {
+    "campaign": "ve",
+    "workload": "ROLLBACK",
+    "pgStats": [
+      {
+        "xact_commit": 2132,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 1549,
+        "blks_hit": 273300,
+        "temp_bytes": 0
+      }
+    ],
+    "firstEToCommit": [
+      {
+        "p50ms": null,
+        "p95ms": null,
+        "maxms": null
+      }
+    ],
+    "unexpectedTimeouts": 0,
+    "p95ms": 0.106708,
+    "maxObservedEWaitMs": 0.0,
+    "commandTE": {},
+    "samples": 6,
+    "maxEWaiters": 0,
+    "workers": 1,
+    "unexpectedDeadlocks": 0,
+    "p50ms": 0.034458,
+    "meanSuffixMs": 0.0,
+    "walBytes": 0,
+    "p99ms": 0.106708,
+    "mode": "ACTIVE",
+    "sampledEWaiters": 0,
+    "intentionalRollbacks": 6,
+    "operationsPerSecond": 1923.0510358514405,
+    "eventsPerSecond": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "ownerTransactionsPerSecond": 1923.0510358514405
+  },
+  {
+    "campaign": "ve",
+    "workload": "BUSINESS",
+    "pgStats": [
+      {
+        "xact_commit": 2210,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 1549,
+        "blks_hit": 277343,
+        "temp_bytes": 0
+      }
+    ],
+    "firstEToCommit": [
+      {
+        "p50ms": 0.3635,
+        "p95ms": 0.65005,
+        "maxms": 0.659
+      }
+    ],
+    "unexpectedTimeouts": 0,
+    "p95ms": 4.508333,
+    "maxObservedEWaitMs": 2.945,
+    "commandTE": {},
+    "samples": 24,
+    "maxEWaiters": 3,
+    "workers": 4,
+    "unexpectedDeadlocks": 0,
+    "p50ms": 2.079208,
+    "meanSuffixMs": 1.786574625,
+    "walBytes": 25400,
+    "p99ms": 5.399084,
+    "mode": "ACTIVE",
+    "sampledEWaiters": 9,
+    "intentionalRollbacks": 0,
+    "operationsPerSecond": 1335.9681594255335,
+    "eventsPerSecond": [
+      1335.9681594255335,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "ownerTransactionsPerSecond": 1335.9681594255335
+  },
+  {
+    "campaign": "ve",
+    "workload": "BATCH4",
+    "pgStats": [
+      {
+        "xact_commit": 2210,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 1549,
+        "blks_hit": 277343,
+        "temp_bytes": 0
+      }
+    ],
+    "firstEToCommit": [
+      {
+        "p50ms": 0.857,
+        "p95ms": 0.9887,
+        "maxms": 1.016
+      }
+    ],
+    "unexpectedTimeouts": 0,
+    "p95ms": 5.783667,
+    "maxObservedEWaitMs": 3.632,
+    "commandTE": {},
+    "samples": 24,
+    "maxEWaiters": 3,
+    "workers": 4,
+    "unexpectedDeadlocks": 0,
+    "p50ms": 3.95225,
+    "meanSuffixMs": 2.9084739166666664,
+    "walBytes": 84248,
+    "p99ms": 7.985334,
+    "mode": "ACTIVE",
+    "sampledEWaiters": 18,
+    "intentionalRollbacks": 0,
+    "operationsPerSecond": 875.1631541142623,
+    "eventsPerSecond": [
+      3500.652616457049,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "ownerTransactionsPerSecond": 875.1631541142623
+  },
+  {
+    "campaign": "ve",
+    "workload": "COMMAND",
+    "pgStats": [
+      {
+        "xact_commit": 2210,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 1549,
+        "blks_hit": 277343,
+        "temp_bytes": 0
+      }
+    ],
+    "firstEToCommit": [
+      {
+        "p50ms": 0.6795,
+        "p95ms": 1.3094499999999996,
+        "maxms": 1.488
+      }
+    ],
+    "unexpectedTimeouts": 0,
+    "p95ms": 19.149459,
+    "maxObservedEWaitMs": 1.385,
+    "commandTE": {
+      "samples": 24,
+      "p50ms": 7.448292,
+      "p95ms": 9.569,
+      "p99ms": 9.976958
+    },
+    "samples": 24,
+    "maxEWaiters": 3,
+    "workers": 4,
+    "unexpectedDeadlocks": 0,
+    "p50ms": 14.171083,
+    "meanSuffixMs": 1.4062882708333333,
+    "walBytes": 192504,
+    "p99ms": 20.903666,
+    "mode": "ACTIVE",
+    "sampledEWaiters": 8,
+    "intentionalRollbacks": 0,
+    "operationsPerSecond": 266.28474628994064,
+    "eventsPerSecond": [
+      266.28474628994064,
+      266.28474628994064,
+      266.28474628994064,
+      0.0
+    ],
+    "ownerTransactionsPerSecond": 1065.1389851597626
+  },
+  {
+    "campaign": "ve",
+    "workload": "REGISTRATION",
+    "pgStats": [
+      {
+        "xact_commit": 2324,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 1549,
+        "blks_hit": 286908,
+        "temp_bytes": 0
+      }
+    ],
+    "firstEToCommit": [
+      {
+        "p50ms": 1.0154999999999998,
+        "p95ms": 1.2291,
+        "maxms": 1.293
+      }
+    ],
+    "unexpectedTimeouts": 0,
+    "p95ms": 8.753125,
+    "maxObservedEWaitMs": 1.644,
+    "commandTE": {},
+    "samples": 24,
+    "maxEWaiters": 2,
+    "workers": 4,
+    "unexpectedDeadlocks": 0,
+    "p50ms": 5.600917,
+    "meanSuffixMs": 1.6376441666666668,
+    "walBytes": 94416,
+    "p99ms": 10.002958,
+    "mode": "ACTIVE",
+    "sampledEWaiters": 5,
+    "intentionalRollbacks": 0,
+    "operationsPerSecond": 647.6771329492249,
+    "eventsPerSecond": [
+      0.0,
+      0.0,
+      647.6771329492249,
+      647.6771329492249
+    ],
+    "ownerTransactionsPerSecond": 1295.3542658984497
+  },
+  {
+    "campaign": "ve",
+    "workload": "COMMAND_REGISTRATION",
+    "pgStats": [
+      {
+        "xact_commit": 2324,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 1549,
+        "blks_hit": 286908,
+        "temp_bytes": 0
+      }
+    ],
+    "firstEToCommit": [
+      {
+        "p50ms": 0.8425,
+        "p95ms": 1.3315,
+        "maxms": 1.602
+      }
+    ],
+    "unexpectedTimeouts": 0,
+    "p95ms": 17.676292,
+    "maxObservedEWaitMs": 1.01,
+    "commandTE": {
+      "samples": 12,
+      "p50ms": 7.310583,
+      "p95ms": 10.288584,
+      "p99ms": 10.288584
+    },
+    "samples": 24,
+    "maxEWaiters": 2,
+    "workers": 4,
+    "unexpectedDeadlocks": 0,
+    "p50ms": 9.416,
+    "meanSuffixMs": 1.4887384722222223,
+    "walBytes": 144280,
+    "p99ms": 19.674542,
+    "mode": "ACTIVE",
+    "sampledEWaiters": 7,
+    "intentionalRollbacks": 0,
+    "operationsPerSecond": 377.18576202328734,
+    "eventsPerSecond": [
+      188.59288101164367,
+      188.59288101164367,
+      377.18576202328734,
+      188.59288101164367
+    ],
+    "ownerTransactionsPerSecond": 1131.5572860698621
+  },
+  {
+    "campaign": "ve",
+    "workload": "LONG",
+    "pgStats": [
+      {
+        "xact_commit": 2324,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 1549,
+        "blks_hit": 286908,
+        "temp_bytes": 0
+      }
+    ],
+    "firstEToCommit": [
+      {
+        "p50ms": 0.3265,
+        "p95ms": 0.5603499999999999,
+        "maxms": 0.653
+      }
+    ],
+    "unexpectedTimeouts": 0,
+    "p95ms": 27.823209,
+    "maxObservedEWaitMs": 1.327,
+    "commandTE": {},
+    "samples": 24,
+    "maxEWaiters": 2,
+    "workers": 4,
+    "unexpectedDeadlocks": 0,
+    "p50ms": 23.17425,
+    "meanSuffixMs": 1.2152675,
+    "walBytes": 24912,
+    "p99ms": 28.54075,
+    "mode": "ACTIVE",
+    "sampledEWaiters": 2,
+    "intentionalRollbacks": 0,
+    "operationsPerSecond": 165.98878346011406,
+    "eventsPerSecond": [
+      165.98878346011406,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "ownerTransactionsPerSecond": 165.98878346011406
+  },
+  {
+    "campaign": "ve",
+    "workload": "ROLLBACK",
+    "pgStats": [
+      {
+        "xact_commit": 2324,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 1549,
+        "blks_hit": 286908,
+        "temp_bytes": 0
+      }
+    ],
+    "firstEToCommit": [
+      {
+        "p50ms": null,
+        "p95ms": null,
+        "maxms": null
+      }
+    ],
+    "unexpectedTimeouts": 0,
+    "p95ms": 0.213583,
+    "maxObservedEWaitMs": 0.0,
+    "commandTE": {},
+    "samples": 24,
+    "maxEWaiters": 0,
+    "workers": 4,
+    "unexpectedDeadlocks": 0,
+    "p50ms": 0.057666,
+    "meanSuffixMs": 0.0,
+    "walBytes": 0,
+    "p99ms": 0.234292,
+    "mode": "ACTIVE",
+    "sampledEWaiters": 0,
+    "intentionalRollbacks": 24,
+    "operationsPerSecond": 9264.76736362166,
+    "eventsPerSecond": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "ownerTransactionsPerSecond": 9264.76736362166
+  },
+  {
+    "campaign": "ve",
+    "workload": "BUSINESS",
+    "pgStats": [
+      {
+        "xact_commit": 2628,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 1549,
+        "blks_hit": 310337,
+        "temp_bytes": 0
+      }
+    ],
+    "firstEToCommit": [
+      {
+        "p50ms": 0.347,
+        "p95ms": 0.6494,
+        "maxms": 0.714
+      }
+    ],
+    "unexpectedTimeouts": 0,
+    "p95ms": 9.721,
+    "maxObservedEWaitMs": 9.506,
+    "commandTE": {},
+    "samples": 48,
+    "maxEWaiters": 6,
+    "workers": 8,
+    "unexpectedDeadlocks": 0,
+    "p50ms": 2.84075,
+    "meanSuffixMs": 3.1771093541666664,
+    "walBytes": 51256,
+    "p99ms": 14.261708,
+    "mode": "ACTIVE",
+    "sampledEWaiters": 43,
+    "intentionalRollbacks": 0,
+    "operationsPerSecond": 1604.5305524679486,
+    "eventsPerSecond": [
+      1604.5305524679486,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "ownerTransactionsPerSecond": 1604.5305524679486
+  },
+  {
+    "campaign": "ve",
+    "workload": "BATCH4",
+    "pgStats": [
+      {
+        "xact_commit": 2628,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 1549,
+        "blks_hit": 310337,
+        "temp_bytes": 0
+      }
+    ],
+    "firstEToCommit": [
+      {
+        "p50ms": 0.8574999999999999,
+        "p95ms": 1.35065,
+        "maxms": 1.406
+      }
+    ],
+    "unexpectedTimeouts": 0,
+    "p95ms": 17.229375,
+    "maxObservedEWaitMs": 16.029,
+    "commandTE": {},
+    "samples": 48,
+    "maxEWaiters": 7,
+    "workers": 8,
+    "unexpectedDeadlocks": 0,
+    "p50ms": 5.539834,
+    "meanSuffixMs": 6.5738976875,
+    "walBytes": 169296,
+    "p99ms": 21.828125,
+    "mode": "ACTIVE",
+    "sampledEWaiters": 90,
+    "intentionalRollbacks": 0,
+    "operationsPerSecond": 850.1882715358933,
+    "eventsPerSecond": [
+      3400.753086143573,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "ownerTransactionsPerSecond": 850.1882715358933
+  },
+  {
+    "campaign": "ve",
+    "workload": "COMMAND",
+    "pgStats": [
+      {
+        "xact_commit": 3322,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 1830,
+        "blks_hit": 386781,
+        "temp_bytes": 0
+      }
+    ],
+    "firstEToCommit": [
+      {
+        "p50ms": 1.2614999999999998,
+        "p95ms": 2.2477499999999995,
+        "maxms": 2.753
+      }
+    ],
+    "unexpectedTimeouts": 0,
+    "p95ms": 35.733042,
+    "maxObservedEWaitMs": 10.609,
+    "commandTE": {
+      "samples": 48,
+      "p50ms": 12.727708,
+      "p95ms": 15.79875,
+      "p99ms": 16.43
+    },
+    "samples": 48,
+    "maxEWaiters": 6,
+    "workers": 8,
+    "unexpectedDeadlocks": 0,
+    "p50ms": 22.437375,
+    "meanSuffixMs": 2.8426583333333335,
+    "walBytes": 392568,
+    "p99ms": 40.455833,
+    "mode": "ACTIVE",
+    "sampledEWaiters": 34,
+    "intentionalRollbacks": 0,
+    "operationsPerSecond": 314.88598913151327,
+    "eventsPerSecond": [
+      314.88598913151327,
+      314.88598913151327,
+      314.88598913151327,
+      0.0
+    ],
+    "ownerTransactionsPerSecond": 1259.543956526053
+  },
+  {
+    "campaign": "ve",
+    "workload": "REGISTRATION",
+    "pgStats": [
+      {
+        "xact_commit": 3431,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 1830,
+        "blks_hit": 396782,
+        "temp_bytes": 0
+      }
+    ],
+    "firstEToCommit": [
+      {
+        "p50ms": 0.8745,
+        "p95ms": 1.1551,
+        "maxms": 1.485
+      }
+    ],
+    "unexpectedTimeouts": 0,
+    "p95ms": 17.354625,
+    "maxObservedEWaitMs": 12.135,
+    "commandTE": {},
+    "samples": 48,
+    "maxEWaiters": 6,
+    "workers": 8,
+    "unexpectedDeadlocks": 0,
+    "p50ms": 8.237959,
+    "meanSuffixMs": 5.236508729166667,
+    "walBytes": 189480,
+    "p99ms": 22.674958,
+    "mode": "ACTIVE",
+    "sampledEWaiters": 72,
+    "intentionalRollbacks": 0,
+    "operationsPerSecond": 773.7458365824614,
+    "eventsPerSecond": [
+      0.0,
+      0.0,
+      773.7458365824614,
+      773.7458365824614
+    ],
+    "ownerTransactionsPerSecond": 1547.4916731649228
+  },
+  {
+    "campaign": "ve",
+    "workload": "COMMAND_REGISTRATION",
+    "pgStats": [
+      {
+        "xact_commit": 3431,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 1830,
+        "blks_hit": 396782,
+        "temp_bytes": 0
+      }
+    ],
+    "firstEToCommit": [
+      {
+        "p50ms": 1.276,
+        "p95ms": 2.1417499999999996,
+        "maxms": 3.495
+      }
+    ],
+    "unexpectedTimeouts": 0,
+    "p95ms": 25.613,
+    "maxObservedEWaitMs": 9.229,
+    "commandTE": {
+      "samples": 24,
+      "p50ms": 9.361,
+      "p95ms": 13.004125,
+      "p99ms": 14.939916
+    },
+    "samples": 48,
+    "maxEWaiters": 4,
+    "workers": 8,
+    "unexpectedDeadlocks": 0,
+    "p50ms": 16.339416,
+    "meanSuffixMs": 2.7190734583333334,
+    "walBytes": 291384,
+    "p99ms": 29.938333,
+    "mode": "ACTIVE",
+    "sampledEWaiters": 26,
+    "intentionalRollbacks": 0,
+    "operationsPerSecond": 504.76458862727105,
+    "eventsPerSecond": [
+      252.38229431363553,
+      252.38229431363553,
+      504.76458862727105,
+      252.38229431363553
+    ],
+    "ownerTransactionsPerSecond": 1514.2937658818132
+  },
+  {
+    "campaign": "ve",
+    "workload": "LONG",
+    "pgStats": [
+      {
+        "xact_commit": 3533,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 1830,
+        "blks_hit": 406828,
+        "temp_bytes": 0
+      }
+    ],
+    "firstEToCommit": [
+      {
+        "p50ms": 0.3515,
+        "p95ms": 0.6980499999999998,
+        "maxms": 1.875
+      }
+    ],
+    "unexpectedTimeouts": 0,
+    "p95ms": 28.628708,
+    "maxObservedEWaitMs": 4.0,
+    "commandTE": {},
+    "samples": 48,
+    "maxEWaiters": 6,
+    "workers": 8,
+    "unexpectedDeadlocks": 0,
+    "p50ms": 22.942417,
+    "meanSuffixMs": 1.6601754166666667,
+    "walBytes": 49992,
+    "p99ms": 30.323125,
+    "mode": "ACTIVE",
+    "sampledEWaiters": 15,
+    "intentionalRollbacks": 0,
+    "operationsPerSecond": 319.8460282543052,
+    "eventsPerSecond": [
+      319.8460282543052,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "ownerTransactionsPerSecond": 319.8460282543052
+  },
+  {
+    "campaign": "ve",
+    "workload": "ROLLBACK",
+    "pgStats": [
+      {
+        "xact_commit": 3533,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 1830,
+        "blks_hit": 406828,
+        "temp_bytes": 0
+      }
+    ],
+    "firstEToCommit": [
+      {
+        "p50ms": null,
+        "p95ms": null,
+        "maxms": null
+      }
+    ],
+    "unexpectedTimeouts": 0,
+    "p95ms": 0.184583,
+    "maxObservedEWaitMs": 0.0,
+    "commandTE": {},
+    "samples": 48,
+    "maxEWaiters": 0,
+    "workers": 8,
+    "unexpectedDeadlocks": 0,
+    "p50ms": 0.05725,
+    "meanSuffixMs": 0.0,
+    "walBytes": 0,
+    "p99ms": 0.20725,
+    "mode": "ACTIVE",
+    "sampledEWaiters": 0,
+    "intentionalRollbacks": 48,
+    "operationsPerSecond": 18848.475924017082,
+    "eventsPerSecond": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "ownerTransactionsPerSecond": 18848.475924017082
+  },
+  {
+    "campaign": "architecture",
+    "walBytes": 3528,
+    "meanSuffixMs": 0.23270816666666666,
+    "p50ms": 1.081083,
+    "unexpectedDeadlocks": 0,
+    "workers": 1,
+    "maxEWaiters": 0,
+    "samples": 6,
+    "commandTE": {},
+    "maxObservedEWaitMs": 0.0,
+    "p95ms": 3.305625,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": null,
+        "p95ms": null,
+        "maxms": null
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 287,
+        "xact_rollback": 2,
+        "deadlocks": 0,
+        "blks_read": 752,
+        "blks_hit": 81085,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "BUSINESS",
+    "ownerTransactionsPerSecond": 628.6617582852119,
+    "eventsPerSecond": [
+      628.6617582852119,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "operationsPerSecond": 628.6617582852119,
+    "intentionalRollbacks": 0,
+    "sampledEWaiters": 0,
+    "mode": "PREPARED",
+    "p99ms": 3.305625
+  },
+  {
+    "campaign": "architecture",
+    "walBytes": 13344,
+    "meanSuffixMs": 0.16646533333333335,
+    "p50ms": 1.392083,
+    "unexpectedDeadlocks": 0,
+    "workers": 1,
+    "maxEWaiters": 0,
+    "samples": 6,
+    "commandTE": {},
+    "maxObservedEWaitMs": 0.0,
+    "p95ms": 1.81675,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": null,
+        "p95ms": null,
+        "maxms": null
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 287,
+        "xact_rollback": 2,
+        "deadlocks": 0,
+        "blks_read": 752,
+        "blks_hit": 81085,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "BATCH4",
+    "ownerTransactionsPerSecond": 502.8494803888703,
+    "eventsPerSecond": [
+      2011.3979215554812,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "operationsPerSecond": 502.8494803888703,
+    "intentionalRollbacks": 0,
+    "sampledEWaiters": 0,
+    "mode": "PREPARED",
+    "p99ms": 1.81675
+  },
+  {
+    "campaign": "architecture",
+    "walBytes": 40200,
+    "meanSuffixMs": 0.13990275,
+    "p50ms": 7.909459,
+    "unexpectedDeadlocks": 0,
+    "workers": 1,
+    "maxEWaiters": 0,
+    "samples": 6,
+    "commandTE": {
+      "p95ms": 5.768542,
+      "p50ms": 4.006541,
+      "samples": 6,
+      "p99ms": 5.768542
+    },
+    "maxObservedEWaitMs": 0.0,
+    "p95ms": 12.953125,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": null,
+        "p95ms": null,
+        "maxms": null
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 287,
+        "xact_rollback": 2,
+        "deadlocks": 0,
+        "blks_read": 752,
+        "blks_hit": 81085,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "COMMAND",
+    "ownerTransactionsPerSecond": 434.8180558197679,
+    "eventsPerSecond": [
+      108.70451395494197,
+      108.70451395494197,
+      108.70451395494197,
+      0.0
+    ],
+    "operationsPerSecond": 108.70451395494197,
+    "intentionalRollbacks": 0,
+    "sampledEWaiters": 0,
+    "mode": "PREPARED",
+    "p99ms": 12.953125
+  },
+  {
+    "campaign": "architecture",
+    "walBytes": 18360,
+    "meanSuffixMs": 0.12779183333333333,
+    "p50ms": 2.423667,
+    "unexpectedDeadlocks": 0,
+    "workers": 1,
+    "maxEWaiters": 0,
+    "samples": 6,
+    "commandTE": {},
+    "maxObservedEWaitMs": 0.0,
+    "p95ms": 3.952125,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": null,
+        "p95ms": null,
+        "maxms": null
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 287,
+        "xact_rollback": 2,
+        "deadlocks": 0,
+        "blks_read": 752,
+        "blks_hit": 81085,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "REGISTRATION",
+    "ownerTransactionsPerSecond": 640.098148382752,
+    "eventsPerSecond": [
+      0.0,
+      0.0,
+      320.049074191376,
+      320.049074191376
+    ],
+    "operationsPerSecond": 320.049074191376,
+    "intentionalRollbacks": 0,
+    "sampledEWaiters": 0,
+    "mode": "PREPARED",
+    "p99ms": 3.952125
+  },
+  {
+    "campaign": "architecture",
+    "walBytes": 29288,
+    "meanSuffixMs": 0.13944466666666666,
+    "p50ms": 3.05525,
+    "unexpectedDeadlocks": 0,
+    "workers": 1,
+    "maxEWaiters": 0,
+    "samples": 6,
+    "commandTE": {
+      "p95ms": 4.740084,
+      "p50ms": 4.727084,
+      "samples": 3,
+      "p99ms": 4.740084
+    },
+    "maxObservedEWaitMs": 0.0,
+    "p95ms": 9.92325,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": null,
+        "p95ms": null,
+        "maxms": null
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 287,
+        "xact_rollback": 2,
+        "deadlocks": 0,
+        "blks_read": 752,
+        "blks_hit": 81085,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "COMMAND_REGISTRATION",
+    "ownerTransactionsPerSecond": 473.55336025571876,
+    "eventsPerSecond": [
+      78.9255600426198,
+      78.9255600426198,
+      157.8511200852396,
+      78.9255600426198
+    ],
+    "operationsPerSecond": 157.8511200852396,
+    "intentionalRollbacks": 0,
+    "sampledEWaiters": 0,
+    "mode": "PREPARED",
+    "p99ms": 9.92325
+  },
+  {
+    "campaign": "architecture",
+    "walBytes": 3504,
+    "meanSuffixMs": 0.2658193333333333,
+    "p50ms": 24.415917,
+    "unexpectedDeadlocks": 0,
+    "workers": 1,
+    "maxEWaiters": 0,
+    "samples": 6,
+    "commandTE": {},
+    "maxObservedEWaitMs": 0.0,
+    "p95ms": 26.157208,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": null,
+        "p95ms": null,
+        "maxms": null
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 287,
+        "xact_rollback": 2,
+        "deadlocks": 0,
+        "blks_read": 752,
+        "blks_hit": 81085,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "LONG",
+    "ownerTransactionsPerSecond": 40.62171535348509,
+    "eventsPerSecond": [
+      40.62171535348509,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "operationsPerSecond": 40.62171535348509,
+    "intentionalRollbacks": 0,
+    "sampledEWaiters": 0,
+    "mode": "PREPARED",
+    "p99ms": 26.157208
+  },
+  {
+    "campaign": "architecture",
+    "walBytes": 0,
+    "meanSuffixMs": 0.0,
+    "p50ms": 0.190583,
+    "unexpectedDeadlocks": 0,
+    "workers": 1,
+    "maxEWaiters": 0,
+    "samples": 6,
+    "commandTE": {},
+    "maxObservedEWaitMs": 0.0,
+    "p95ms": 0.47975,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": null,
+        "p95ms": null,
+        "maxms": null
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 287,
+        "xact_rollback": 2,
+        "deadlocks": 0,
+        "blks_read": 752,
+        "blks_hit": 81085,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "ROLLBACK",
+    "ownerTransactionsPerSecond": 1612.9396470242875,
+    "eventsPerSecond": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "operationsPerSecond": 1612.9396470242875,
+    "intentionalRollbacks": 6,
+    "sampledEWaiters": 0,
+    "mode": "PREPARED",
+    "p99ms": 0.47975
+  },
+  {
+    "campaign": "architecture",
+    "walBytes": 14128,
+    "meanSuffixMs": 0.22111983333333335,
+    "p50ms": 0.936084,
+    "unexpectedDeadlocks": 0,
+    "workers": 4,
+    "maxEWaiters": 0,
+    "samples": 24,
+    "commandTE": {},
+    "maxObservedEWaitMs": 0.0,
+    "p95ms": 2.961541,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": null,
+        "p95ms": null,
+        "maxms": null
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 614,
+        "xact_rollback": 3,
+        "deadlocks": 0,
+        "blks_read": 966,
+        "blks_hit": 126721,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "BUSINESS",
+    "ownerTransactionsPerSecond": 2687.996516356515,
+    "eventsPerSecond": [
+      2687.996516356515,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "operationsPerSecond": 2687.996516356515,
+    "intentionalRollbacks": 0,
+    "sampledEWaiters": 0,
+    "mode": "PREPARED",
+    "p99ms": 3.247875
+  },
+  {
+    "campaign": "architecture",
+    "walBytes": 53352,
+    "meanSuffixMs": 0.25996004166666664,
+    "p50ms": 2.312834,
+    "unexpectedDeadlocks": 0,
+    "workers": 4,
+    "maxEWaiters": 0,
+    "samples": 24,
+    "commandTE": {},
+    "maxObservedEWaitMs": 0.0,
+    "p95ms": 2.792625,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": null,
+        "p95ms": null,
+        "maxms": null
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 614,
+        "xact_rollback": 3,
+        "deadlocks": 0,
+        "blks_read": 966,
+        "blks_hit": 126721,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "BATCH4",
+    "ownerTransactionsPerSecond": 1581.318513919029,
+    "eventsPerSecond": [
+      6325.274055676116,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "operationsPerSecond": 1581.318513919029,
+    "intentionalRollbacks": 0,
+    "sampledEWaiters": 0,
+    "mode": "PREPARED",
+    "p99ms": 2.835958
+  },
+  {
+    "campaign": "architecture",
+    "walBytes": 161152,
+    "meanSuffixMs": 0.2652455833333333,
+    "p50ms": 15.705875,
+    "unexpectedDeadlocks": 0,
+    "workers": 4,
+    "maxEWaiters": 0,
+    "samples": 24,
+    "commandTE": {
+      "p95ms": 9.712,
+      "p50ms": 8.017958,
+      "samples": 24,
+      "p99ms": 9.985917
+    },
+    "maxObservedEWaitMs": 0.0,
+    "p95ms": 20.628667,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": null,
+        "p95ms": null,
+        "maxms": null
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 719,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 966,
+        "blks_hit": 133410,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "COMMAND",
+    "ownerTransactionsPerSecond": 970.3933200226369,
+    "eventsPerSecond": [
+      242.59833000565922,
+      242.59833000565922,
+      242.59833000565922,
+      0.0
+    ],
+    "operationsPerSecond": 242.59833000565922,
+    "intentionalRollbacks": 0,
+    "sampledEWaiters": 0,
+    "mode": "PREPARED",
+    "p99ms": 20.764875
+  },
+  {
+    "campaign": "architecture",
+    "walBytes": 73368,
+    "meanSuffixMs": 0.297786375,
+    "p50ms": 5.602625,
+    "unexpectedDeadlocks": 0,
+    "workers": 4,
+    "maxEWaiters": 0,
+    "samples": 24,
+    "commandTE": {},
+    "maxObservedEWaitMs": 0.0,
+    "p95ms": 9.29625,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": null,
+        "p95ms": null,
+        "maxms": null
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 719,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 966,
+        "blks_hit": 133410,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "REGISTRATION",
+    "ownerTransactionsPerSecond": 1330.830337209118,
+    "eventsPerSecond": [
+      0.0,
+      0.0,
+      665.415168604559,
+      665.415168604559
+    ],
+    "operationsPerSecond": 665.415168604559,
+    "intentionalRollbacks": 0,
+    "sampledEWaiters": 0,
+    "mode": "PREPARED",
+    "p99ms": 9.476292
+  },
+  {
+    "campaign": "architecture",
+    "walBytes": 117096,
+    "meanSuffixMs": 0.22909952777777778,
+    "p50ms": 5.964667,
+    "unexpectedDeadlocks": 0,
+    "workers": 4,
+    "maxEWaiters": 0,
+    "samples": 24,
+    "commandTE": {
+      "p95ms": 9.319834,
+      "p50ms": 7.344208,
+      "samples": 12,
+      "p99ms": 9.319834
+    },
+    "maxObservedEWaitMs": 0.0,
+    "p95ms": 15.684125,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": null,
+        "p95ms": null,
+        "maxms": null
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 719,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 966,
+        "blks_hit": 133410,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "COMMAND_REGISTRATION",
+    "ownerTransactionsPerSecond": 1198.7288479508188,
+    "eventsPerSecond": [
+      199.78814132513645,
+      199.78814132513645,
+      399.5762826502729,
+      199.78814132513645
+    ],
+    "operationsPerSecond": 399.5762826502729,
+    "intentionalRollbacks": 0,
+    "sampledEWaiters": 0,
+    "mode": "PREPARED",
+    "p99ms": 16.129833
+  },
+  {
+    "campaign": "architecture",
+    "walBytes": 14160,
+    "meanSuffixMs": 0.29224833333333333,
+    "p50ms": 23.113875,
+    "unexpectedDeadlocks": 0,
+    "workers": 4,
+    "maxEWaiters": 0,
+    "samples": 24,
+    "commandTE": {},
+    "maxObservedEWaitMs": 0.0,
+    "p95ms": 26.362542,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": null,
+        "p95ms": null,
+        "maxms": null
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 719,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 966,
+        "blks_hit": 133410,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "LONG",
+    "ownerTransactionsPerSecond": 167.16244610395427,
+    "eventsPerSecond": [
+      167.16244610395427,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "operationsPerSecond": 167.16244610395427,
+    "intentionalRollbacks": 0,
+    "sampledEWaiters": 0,
+    "mode": "PREPARED",
+    "p99ms": 26.385458
+  },
+  {
+    "campaign": "architecture",
+    "walBytes": 0,
+    "meanSuffixMs": 0.0,
+    "p50ms": 0.042167,
+    "unexpectedDeadlocks": 0,
+    "workers": 4,
+    "maxEWaiters": 0,
+    "samples": 24,
+    "commandTE": {},
+    "maxObservedEWaitMs": 0.0,
+    "p95ms": 0.158583,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": null,
+        "p95ms": null,
+        "maxms": null
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 719,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 966,
+        "blks_hit": 133410,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "ROLLBACK",
+    "ownerTransactionsPerSecond": 7823.00452267449,
+    "eventsPerSecond": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "operationsPerSecond": 7823.00452267449,
+    "intentionalRollbacks": 24,
+    "sampledEWaiters": 0,
+    "mode": "PREPARED",
+    "p99ms": 0.242583
+  },
+  {
+    "campaign": "architecture",
+    "walBytes": 28352,
+    "meanSuffixMs": 0.3636328541666667,
+    "p50ms": 1.65925,
+    "unexpectedDeadlocks": 0,
+    "workers": 8,
+    "maxEWaiters": 0,
+    "samples": 48,
+    "commandTE": {},
+    "maxObservedEWaitMs": 0.0,
+    "p95ms": 4.539875,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": null,
+        "p95ms": null,
+        "maxms": null
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 756,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 966,
+        "blks_hit": 134706,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "BUSINESS",
+    "ownerTransactionsPerSecond": 3244.6682664683817,
+    "eventsPerSecond": [
+      3244.6682664683817,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "operationsPerSecond": 3244.6682664683817,
+    "intentionalRollbacks": 0,
+    "sampledEWaiters": 0,
+    "mode": "PREPARED",
+    "p99ms": 4.672792
+  },
+  {
+    "campaign": "architecture",
+    "walBytes": 107848,
+    "meanSuffixMs": 0.3750207708333333,
+    "p50ms": 3.077208,
+    "unexpectedDeadlocks": 0,
+    "workers": 8,
+    "maxEWaiters": 0,
+    "samples": 48,
+    "commandTE": {},
+    "maxObservedEWaitMs": 0.0,
+    "p95ms": 3.624625,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": null,
+        "p95ms": null,
+        "maxms": null
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 756,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 966,
+        "blks_hit": 134706,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "BATCH4",
+    "ownerTransactionsPerSecond": 2222.428002592833,
+    "eventsPerSecond": [
+      8889.712010371331,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "operationsPerSecond": 2222.428002592833,
+    "intentionalRollbacks": 0,
+    "sampledEWaiters": 0,
+    "mode": "PREPARED",
+    "p99ms": 4.218292
+  },
+  {
+    "campaign": "architecture",
+    "walBytes": 324800,
+    "meanSuffixMs": 0.35956901041666667,
+    "p50ms": 19.319167,
+    "unexpectedDeadlocks": 0,
+    "workers": 8,
+    "maxEWaiters": 0,
+    "samples": 48,
+    "commandTE": {
+      "p95ms": 12.210167,
+      "p50ms": 9.289375,
+      "samples": 48,
+      "p99ms": 12.788916
+    },
+    "maxObservedEWaitMs": 0.0,
+    "p95ms": 30.173667,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": null,
+        "p95ms": null,
+        "maxms": null
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 756,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 966,
+        "blks_hit": 134706,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "COMMAND",
+    "ownerTransactionsPerSecond": 1408.501074257167,
+    "eventsPerSecond": [
+      352.12526856429173,
+      352.12526856429173,
+      352.12526856429173,
+      0.0
+    ],
+    "operationsPerSecond": 352.12526856429173,
+    "intentionalRollbacks": 0,
+    "sampledEWaiters": 0,
+    "mode": "PREPARED",
+    "p99ms": 30.586875
+  },
+  {
+    "campaign": "architecture",
+    "walBytes": 146952,
+    "meanSuffixMs": 0.42208941666666666,
+    "p50ms": 8.132292,
+    "unexpectedDeadlocks": 0,
+    "workers": 8,
+    "maxEWaiters": 0,
+    "samples": 48,
+    "commandTE": {},
+    "maxObservedEWaitMs": 0.0,
+    "p95ms": 14.189042,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": null,
+        "p95ms": null,
+        "maxms": null
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 756,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 966,
+        "blks_hit": 134706,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "REGISTRATION",
+    "ownerTransactionsPerSecond": 1632.376584380887,
+    "eventsPerSecond": [
+      0.0,
+      0.0,
+      816.1882921904435,
+      816.1882921904435
+    ],
+    "operationsPerSecond": 816.1882921904435,
+    "intentionalRollbacks": 0,
+    "sampledEWaiters": 0,
+    "mode": "PREPARED",
+    "p99ms": 18.266792
+  },
+  {
+    "campaign": "architecture",
+    "walBytes": 234608,
+    "meanSuffixMs": 0.41993175,
+    "p50ms": 11.273708,
+    "unexpectedDeadlocks": 0,
+    "workers": 8,
+    "maxEWaiters": 0,
+    "samples": 48,
+    "commandTE": {
+      "p95ms": 12.069416,
+      "p50ms": 9.86125,
+      "samples": 24,
+      "p99ms": 14.159166
+    },
+    "maxObservedEWaitMs": 0.0,
+    "p95ms": 23.253417,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": null,
+        "p95ms": null,
+        "maxms": null
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 1606,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 1302,
+        "blks_hit": 217877,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "COMMAND_REGISTRATION",
+    "ownerTransactionsPerSecond": 1545.5197256024176,
+    "eventsPerSecond": [
+      257.58662093373624,
+      257.58662093373624,
+      515.1732418674725,
+      257.58662093373624
+    ],
+    "operationsPerSecond": 515.1732418674725,
+    "intentionalRollbacks": 0,
+    "sampledEWaiters": 0,
+    "mode": "PREPARED",
+    "p99ms": 28.582083
+  },
+  {
+    "campaign": "architecture",
+    "walBytes": 28200,
+    "meanSuffixMs": 0.2087725625,
+    "p50ms": 22.773042,
+    "unexpectedDeadlocks": 0,
+    "workers": 8,
+    "maxEWaiters": 0,
+    "samples": 48,
+    "commandTE": {},
+    "maxObservedEWaitMs": 0.0,
+    "p95ms": 25.141708,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": null,
+        "p95ms": null,
+        "maxms": null
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 1712,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 1302,
+        "blks_hit": 224756,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "LONG",
+    "ownerTransactionsPerSecond": 333.65066755643886,
+    "eventsPerSecond": [
+      333.65066755643886,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "operationsPerSecond": 333.65066755643886,
+    "intentionalRollbacks": 0,
+    "sampledEWaiters": 0,
+    "mode": "PREPARED",
+    "p99ms": 25.238375
+  },
+  {
+    "campaign": "architecture",
+    "walBytes": 0,
+    "meanSuffixMs": 0.0,
+    "p50ms": 0.087625,
+    "unexpectedDeadlocks": 0,
+    "workers": 8,
+    "maxEWaiters": 0,
+    "samples": 48,
+    "commandTE": {},
+    "maxObservedEWaitMs": 0.0,
+    "p95ms": 0.221959,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": null,
+        "p95ms": null,
+        "maxms": null
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 1712,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 1302,
+        "blks_hit": 224756,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "ROLLBACK",
+    "ownerTransactionsPerSecond": 15091.1742725661,
+    "eventsPerSecond": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "operationsPerSecond": 15091.1742725661,
+    "intentionalRollbacks": 48,
+    "sampledEWaiters": 0,
+    "mode": "PREPARED",
+    "p99ms": 0.242625
+  },
+  {
+    "campaign": "architecture",
+    "walBytes": 6024,
+    "meanSuffixMs": 0.5069791666666666,
+    "p50ms": 0.889083,
+    "unexpectedDeadlocks": 0,
+    "workers": 1,
+    "maxEWaiters": 0,
+    "samples": 6,
+    "commandTE": {},
+    "maxObservedEWaitMs": 0.0,
+    "p95ms": 1.766958,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": 0.3015,
+        "p95ms": 0.49824999999999997,
+        "maxms": 0.559
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 1712,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 1302,
+        "blks_hit": 224756,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "BUSINESS",
+    "ownerTransactionsPerSecond": 735.9629781183488,
+    "eventsPerSecond": [
+      735.9629781183488,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "operationsPerSecond": 735.9629781183488,
+    "intentionalRollbacks": 0,
+    "sampledEWaiters": 0,
+    "mode": "ACTIVE",
+    "p99ms": 1.766958
+  },
+  {
+    "campaign": "architecture",
+    "walBytes": 20736,
+    "meanSuffixMs": 0.8009998333333334,
+    "p50ms": 1.608042,
+    "unexpectedDeadlocks": 0,
+    "workers": 1,
+    "maxEWaiters": 0,
+    "samples": 6,
+    "commandTE": {},
+    "maxObservedEWaitMs": 0.0,
+    "p95ms": 2.472583,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": 0.656,
+        "p95ms": 0.862,
+        "maxms": 0.913
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 1712,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 1302,
+        "blks_hit": 224756,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "BATCH4",
+    "ownerTransactionsPerSecond": 530.8129391315919,
+    "eventsPerSecond": [
+      2123.2517565263674,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "operationsPerSecond": 530.8129391315919,
+    "intentionalRollbacks": 0,
+    "sampledEWaiters": 0,
+    "mode": "ACTIVE",
+    "p99ms": 2.472583
+  },
+  {
+    "campaign": "architecture",
+    "walBytes": 47712,
+    "meanSuffixMs": 0.6221664166666666,
+    "p50ms": 7.694583,
+    "unexpectedDeadlocks": 0,
+    "workers": 1,
+    "maxEWaiters": 0,
+    "samples": 6,
+    "commandTE": {
+      "p95ms": 5.362334,
+      "p50ms": 4.091958,
+      "samples": 6,
+      "p99ms": 5.362334
+    },
+    "maxObservedEWaitMs": 0.0,
+    "p95ms": 10.68625,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": 0.512,
+        "p95ms": 0.7459999999999999,
+        "maxms": 0.834
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 1712,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 1302,
+        "blks_hit": 224756,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "COMMAND",
+    "ownerTransactionsPerSecond": 465.1763823825842,
+    "eventsPerSecond": [
+      116.29409559564606,
+      116.29409559564606,
+      116.29409559564606,
+      0.0
+    ],
+    "operationsPerSecond": 116.29409559564606,
+    "intentionalRollbacks": 0,
+    "sampledEWaiters": 0,
+    "mode": "ACTIVE",
+    "p99ms": 10.68625
+  },
+  {
+    "campaign": "architecture",
+    "walBytes": 23352,
+    "meanSuffixMs": 0.7219998333333334,
+    "p50ms": 2.770834,
+    "unexpectedDeadlocks": 0,
+    "workers": 1,
+    "maxEWaiters": 0,
+    "samples": 6,
+    "commandTE": {},
+    "maxObservedEWaitMs": 0.0,
+    "p95ms": 4.469333,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": 0.5525,
+        "p95ms": 0.7909999999999999,
+        "maxms": 0.851
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 1712,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 1302,
+        "blks_hit": 224756,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "REGISTRATION",
+    "ownerTransactionsPerSecond": 615.283393378156,
+    "eventsPerSecond": [
+      0.0,
+      0.0,
+      307.641696689078,
+      307.641696689078
+    ],
+    "operationsPerSecond": 307.641696689078,
+    "intentionalRollbacks": 0,
+    "sampledEWaiters": 0,
+    "mode": "ACTIVE",
+    "p99ms": 4.469333
+  },
+  {
+    "campaign": "architecture",
+    "walBytes": 35544,
+    "meanSuffixMs": 0.6509906666666666,
+    "p50ms": 3.566333,
+    "unexpectedDeadlocks": 0,
+    "workers": 1,
+    "maxEWaiters": 0,
+    "samples": 6,
+    "commandTE": {
+      "p95ms": 5.108708,
+      "p50ms": 4.214667,
+      "samples": 3,
+      "p99ms": 5.108708
+    },
+    "maxObservedEWaitMs": 0.0,
+    "p95ms": 10.900583,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": 0.55,
+        "p95ms": 0.7706,
+        "maxms": 0.803
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 1712,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 1302,
+        "blks_hit": 224756,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "COMMAND_REGISTRATION",
+    "ownerTransactionsPerSecond": 456.40632455429005,
+    "eventsPerSecond": [
+      76.06772075904834,
+      76.06772075904834,
+      152.13544151809668,
+      76.06772075904834
+    ],
+    "operationsPerSecond": 152.13544151809668,
+    "intentionalRollbacks": 0,
+    "sampledEWaiters": 0,
+    "mode": "ACTIVE",
+    "p99ms": 10.900583
+  },
+  {
+    "campaign": "architecture",
+    "walBytes": 6000,
+    "meanSuffixMs": 0.7384236666666666,
+    "p50ms": 24.272959,
+    "unexpectedDeadlocks": 0,
+    "workers": 1,
+    "maxEWaiters": 0,
+    "samples": 6,
+    "commandTE": {},
+    "maxObservedEWaitMs": 0.0,
+    "p95ms": 26.881,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": 0.48650000000000004,
+        "p95ms": 0.5915,
+        "maxms": 0.608
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 1712,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 1302,
+        "blks_hit": 224756,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "LONG",
+    "ownerTransactionsPerSecond": 39.46005491524309,
+    "eventsPerSecond": [
+      39.46005491524309,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "operationsPerSecond": 39.46005491524309,
+    "intentionalRollbacks": 0,
+    "sampledEWaiters": 0,
+    "mode": "ACTIVE",
+    "p99ms": 26.881
+  },
+  {
+    "campaign": "architecture",
+    "walBytes": 0,
+    "meanSuffixMs": 0.0,
+    "p50ms": 0.032167,
+    "unexpectedDeadlocks": 0,
+    "workers": 1,
+    "maxEWaiters": 0,
+    "samples": 6,
+    "commandTE": {},
+    "maxObservedEWaitMs": 0.0,
+    "p95ms": 0.065083,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": null,
+        "p95ms": null,
+        "maxms": null
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 1712,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 1302,
+        "blks_hit": 224756,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "ROLLBACK",
+    "ownerTransactionsPerSecond": 1902.6478515934675,
+    "eventsPerSecond": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "operationsPerSecond": 1902.6478515934675,
+    "intentionalRollbacks": 6,
+    "sampledEWaiters": 0,
+    "mode": "ACTIVE",
+    "p99ms": 0.065083
+  },
+  {
+    "campaign": "architecture",
+    "walBytes": 25400,
+    "meanSuffixMs": 1.7519167916666667,
+    "p50ms": 2.138459,
+    "unexpectedDeadlocks": 0,
+    "workers": 4,
+    "maxEWaiters": 3,
+    "samples": 24,
+    "commandTE": {},
+    "maxObservedEWaitMs": 1.569,
+    "p95ms": 4.386666,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": 0.393,
+        "p95ms": 0.7156999999999999,
+        "maxms": 0.744
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 2222,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 1570,
+        "blks_hit": 282010,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "BUSINESS",
+    "ownerTransactionsPerSecond": 1396.7394862617577,
+    "eventsPerSecond": [
+      1396.7394862617577,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "operationsPerSecond": 1396.7394862617577,
+    "intentionalRollbacks": 0,
+    "sampledEWaiters": 8,
+    "mode": "ACTIVE",
+    "p99ms": 5.8125
+  },
+  {
+    "campaign": "architecture",
+    "walBytes": 84192,
+    "meanSuffixMs": 2.5442412083333337,
+    "p50ms": 3.578125,
+    "unexpectedDeadlocks": 0,
+    "workers": 4,
+    "maxEWaiters": 2,
+    "samples": 24,
+    "commandTE": {},
+    "maxObservedEWaitMs": 2.575,
+    "p95ms": 5.576958,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": 0.7324999999999999,
+        "p95ms": 0.9674999999999999,
+        "maxms": 1.074
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 2255,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 1570,
+        "blks_hit": 283974,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "BATCH4",
+    "ownerTransactionsPerSecond": 923.8023210841251,
+    "eventsPerSecond": [
+      3695.2092843365003,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "operationsPerSecond": 923.8023210841251,
+    "intentionalRollbacks": 0,
+    "sampledEWaiters": 13,
+    "mode": "ACTIVE",
+    "p99ms": 6.85675
+  },
+  {
+    "campaign": "architecture",
+    "walBytes": 192296,
+    "meanSuffixMs": 1.312322,
+    "p50ms": 13.956459,
+    "unexpectedDeadlocks": 0,
+    "workers": 4,
+    "maxEWaiters": 2,
+    "samples": 24,
+    "commandTE": {
+      "p95ms": 9.9725,
+      "p50ms": 7.274833,
+      "samples": 24,
+      "p99ms": 11.140834
+    },
+    "maxObservedEWaitMs": 2.137,
+    "p95ms": 19.4365,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": 0.706,
+        "p95ms": 1.3117999999999999,
+        "maxms": 1.352
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 2255,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 1570,
+        "blks_hit": 283974,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "COMMAND",
+    "ownerTransactionsPerSecond": 1042.699534322785,
+    "eventsPerSecond": [
+      260.67488358069625,
+      260.67488358069625,
+      260.67488358069625,
+      0.0
+    ],
+    "operationsPerSecond": 260.67488358069625,
+    "intentionalRollbacks": 0,
+    "sampledEWaiters": 6,
+    "mode": "ACTIVE",
+    "p99ms": 21.003791
+  },
+  {
+    "campaign": "architecture",
+    "walBytes": 94416,
+    "meanSuffixMs": 1.6605365,
+    "p50ms": 5.492625,
+    "unexpectedDeadlocks": 0,
+    "workers": 4,
+    "maxEWaiters": 3,
+    "samples": 24,
+    "commandTE": {},
+    "maxObservedEWaitMs": 1.052,
+    "p95ms": 8.597583,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": 0.901,
+        "p95ms": 1.1969999999999998,
+        "maxms": 1.494
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 2369,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 1570,
+        "blks_hit": 293531,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "REGISTRATION",
+    "ownerTransactionsPerSecond": 1302.1583953610607,
+    "eventsPerSecond": [
+      0.0,
+      0.0,
+      651.0791976805303,
+      651.0791976805303
+    ],
+    "operationsPerSecond": 651.0791976805303,
+    "intentionalRollbacks": 0,
+    "sampledEWaiters": 6,
+    "mode": "ACTIVE",
+    "p99ms": 10.375917
+  },
+  {
+    "campaign": "architecture",
+    "walBytes": 143952,
+    "meanSuffixMs": 1.34142475,
+    "p50ms": 9.23675,
+    "unexpectedDeadlocks": 0,
+    "workers": 4,
+    "maxEWaiters": 1,
+    "samples": 24,
+    "commandTE": {
+      "p95ms": 9.986542,
+      "p50ms": 7.833584,
+      "samples": 12,
+      "p99ms": 9.986542
+    },
+    "maxObservedEWaitMs": 1.19,
+    "p95ms": 17.682625,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": 0.9065,
+        "p95ms": 1.41625,
+        "maxms": 1.429
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 2369,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 1570,
+        "blks_hit": 293531,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "COMMAND_REGISTRATION",
+    "ownerTransactionsPerSecond": 1035.004469278674,
+    "eventsPerSecond": [
+      172.50074487977898,
+      172.50074487977898,
+      345.00148975955796,
+      172.50074487977898
+    ],
+    "operationsPerSecond": 345.00148975955796,
+    "intentionalRollbacks": 0,
+    "sampledEWaiters": 2,
+    "mode": "ACTIVE",
+    "p99ms": 18.789167
+  },
+  {
+    "campaign": "architecture",
+    "walBytes": 24968,
+    "meanSuffixMs": 1.5663733333333332,
+    "p50ms": 24.308125,
+    "unexpectedDeadlocks": 0,
+    "workers": 4,
+    "maxEWaiters": 1,
+    "samples": 24,
+    "commandTE": {},
+    "maxObservedEWaitMs": 1.725,
+    "p95ms": 27.026583,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": 0.531,
+        "p95ms": 0.76845,
+        "maxms": 0.809
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 2369,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 1570,
+        "blks_hit": 293531,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "LONG",
+    "ownerTransactionsPerSecond": 158.2281527071505,
+    "eventsPerSecond": [
+      158.2281527071505,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "operationsPerSecond": 158.2281527071505,
+    "intentionalRollbacks": 0,
+    "sampledEWaiters": 2,
+    "mode": "ACTIVE",
+    "p99ms": 28.034875
+  },
+  {
+    "campaign": "architecture",
+    "walBytes": 0,
+    "meanSuffixMs": 0.0,
+    "p50ms": 0.1165,
+    "unexpectedDeadlocks": 0,
+    "workers": 4,
+    "maxEWaiters": 0,
+    "samples": 24,
+    "commandTE": {},
+    "maxObservedEWaitMs": 0.0,
+    "p95ms": 0.342,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": null,
+        "p95ms": null,
+        "maxms": null
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 2369,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 1570,
+        "blks_hit": 293531,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "ROLLBACK",
+    "ownerTransactionsPerSecond": 6223.46115198859,
+    "eventsPerSecond": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "operationsPerSecond": 6223.46115198859,
+    "intentionalRollbacks": 24,
+    "sampledEWaiters": 0,
+    "mode": "ACTIVE",
+    "p99ms": 0.351625
+  },
+  {
+    "campaign": "architecture",
+    "walBytes": 51296,
+    "meanSuffixMs": 4.664134583333333,
+    "p50ms": 5.334875,
+    "unexpectedDeadlocks": 0,
+    "workers": 8,
+    "maxEWaiters": 7,
+    "samples": 48,
+    "commandTE": {},
+    "maxObservedEWaitMs": 22.846,
+    "p95ms": 11.407834,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": 0.3845,
+        "p95ms": 0.8099499999999998,
+        "maxms": 5.849
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 2673,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 1570,
+        "blks_hit": 316875,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "BUSINESS",
+    "ownerTransactionsPerSecond": 1134.913880606776,
+    "eventsPerSecond": [
+      1134.913880606776,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "operationsPerSecond": 1134.913880606776,
+    "intentionalRollbacks": 0,
+    "sampledEWaiters": 56,
+    "mode": "ACTIVE",
+    "p99ms": 27.215334
+  },
+  {
+    "campaign": "architecture",
+    "walBytes": 169184,
+    "meanSuffixMs": 6.215964375,
+    "p50ms": 5.630209,
+    "unexpectedDeadlocks": 0,
+    "workers": 8,
+    "maxEWaiters": 7,
+    "samples": 48,
+    "commandTE": {},
+    "maxObservedEWaitMs": 34.636,
+    "p95ms": 19.376708,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": 0.842,
+        "p95ms": 1.2357999999999998,
+        "maxms": 1.594
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 2673,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 1570,
+        "blks_hit": 316875,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "BATCH4",
+    "ownerTransactionsPerSecond": 826.4267159653159,
+    "eventsPerSecond": [
+      3305.7068638612636,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "operationsPerSecond": 826.4267159653159,
+    "intentionalRollbacks": 0,
+    "sampledEWaiters": 85,
+    "mode": "ACTIVE",
+    "p99ms": 37.88325
+  },
+  {
+    "campaign": "architecture",
+    "walBytes": 393160,
+    "meanSuffixMs": 2.3457664479166667,
+    "p50ms": 19.640625,
+    "unexpectedDeadlocks": 0,
+    "workers": 8,
+    "maxEWaiters": 6,
+    "samples": 48,
+    "commandTE": {
+      "p95ms": 15.172958,
+      "p50ms": 10.027209,
+      "samples": 48,
+      "p99ms": 17.560583
+    },
+    "maxObservedEWaitMs": 7.108,
+    "p95ms": 31.774166,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": 1.069,
+        "p95ms": 2.0619999999999994,
+        "maxms": 3.173
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 3388,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 1830,
+        "blks_hit": 394793,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "COMMAND",
+    "ownerTransactionsPerSecond": 1458.5735595756155,
+    "eventsPerSecond": [
+      364.6433898939039,
+      364.6433898939039,
+      364.6433898939039,
+      0.0
+    ],
+    "operationsPerSecond": 364.6433898939039,
+    "intentionalRollbacks": 0,
+    "sampledEWaiters": 23,
+    "mode": "ACTIVE",
+    "p99ms": 37.750625
+  },
+  {
+    "campaign": "architecture",
+    "walBytes": 189424,
+    "meanSuffixMs": 5.979204875,
+    "p50ms": 8.969041,
+    "unexpectedDeadlocks": 0,
+    "workers": 8,
+    "maxEWaiters": 6,
+    "samples": 48,
+    "commandTE": {},
+    "maxObservedEWaitMs": 19.746,
+    "p95ms": 20.067375,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": 0.9325000000000001,
+        "p95ms": 1.6403999999999996,
+        "maxms": 2.953
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 3388,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 1830,
+        "blks_hit": 394793,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "REGISTRATION",
+    "ownerTransactionsPerSecond": 1356.1389188024252,
+    "eventsPerSecond": [
+      0.0,
+      0.0,
+      678.0694594012126,
+      678.0694594012126
+    ],
+    "operationsPerSecond": 678.0694594012126,
+    "intentionalRollbacks": 0,
+    "sampledEWaiters": 77,
+    "mode": "ACTIVE",
+    "p99ms": 24.550791
+  },
+  {
+    "campaign": "architecture",
+    "walBytes": 291608,
+    "meanSuffixMs": 3.2689952916666667,
+    "p50ms": 13.842625,
+    "unexpectedDeadlocks": 0,
+    "workers": 8,
+    "maxEWaiters": 3,
+    "samples": 48,
+    "commandTE": {
+      "p95ms": 16.515833,
+      "p50ms": 9.323208,
+      "samples": 24,
+      "p99ms": 20.00275
+    },
+    "maxObservedEWaitMs": 10.283,
+    "p95ms": 30.763375,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": 1.25,
+        "p95ms": 2.1133999999999995,
+        "maxms": 2.655
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 3477,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 1830,
+        "blks_hit": 403958,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "COMMAND_REGISTRATION",
+    "ownerTransactionsPerSecond": 1431.1400552119921,
+    "eventsPerSecond": [
+      238.523342535332,
+      238.523342535332,
+      477.046685070664,
+      238.523342535332
+    ],
+    "operationsPerSecond": 477.046685070664,
+    "intentionalRollbacks": 0,
+    "sampledEWaiters": 37,
+    "mode": "ACTIVE",
+    "p99ms": 36.841958
+  },
+  {
+    "campaign": "architecture",
+    "walBytes": 49656,
+    "meanSuffixMs": 1.576767375,
+    "p50ms": 22.610416,
+    "unexpectedDeadlocks": 0,
+    "workers": 8,
+    "maxEWaiters": 3,
+    "samples": 48,
+    "commandTE": {},
+    "maxObservedEWaitMs": 5.764,
+    "p95ms": 27.487208,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": 0.3555,
+        "p95ms": 0.58505,
+        "maxms": 0.806
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 3477,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 1830,
+        "blks_hit": 403958,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "LONG",
+    "ownerTransactionsPerSecond": 324.1178262292513,
+    "eventsPerSecond": [
+      324.1178262292513,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "operationsPerSecond": 324.1178262292513,
+    "intentionalRollbacks": 0,
+    "sampledEWaiters": 5,
+    "mode": "ACTIVE",
+    "p99ms": 28.861458
+  },
+  {
+    "campaign": "architecture",
+    "walBytes": 0,
+    "meanSuffixMs": 0.0,
+    "p50ms": 0.047209,
+    "unexpectedDeadlocks": 0,
+    "workers": 8,
+    "maxEWaiters": 0,
+    "samples": 48,
+    "commandTE": {},
+    "maxObservedEWaitMs": 0.0,
+    "p95ms": 0.190459,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": null,
+        "p95ms": null,
+        "maxms": null
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 3477,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 1830,
+        "blks_hit": 403958,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "ROLLBACK",
+    "ownerTransactionsPerSecond": 18695.534649447043,
+    "eventsPerSecond": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "operationsPerSecond": 18695.534649447043,
+    "intentionalRollbacks": 48,
+    "sampledEWaiters": 0,
+    "mode": "ACTIVE",
+    "p99ms": 0.243166
+  },
+  {
+    "campaign": "full",
+    "maxEWaiters": 0,
+    "samples": 6,
+    "commandTE": {},
+    "maxObservedEWaitMs": 0.0,
+    "p95ms": 2.158083,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": null,
+        "p95ms": null,
+        "maxms": null
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 287,
+        "xact_rollback": 2,
+        "deadlocks": 0,
+        "blks_read": 752,
+        "blks_hit": 81085,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "BUSINESS",
+    "ownerTransactionsPerSecond": 600.9264483053523,
+    "eventsPerSecond": [
+      600.9264483053523,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "operationsPerSecond": 600.9264483053523,
+    "intentionalRollbacks": 0,
+    "sampledEWaiters": 0,
+    "mode": "PREPARED",
+    "p99ms": 2.158083,
+    "walBytes": 3528,
+    "meanSuffixMs": 0.21099983333333333,
+    "p50ms": 0.996417,
+    "unexpectedDeadlocks": 0,
+    "workers": 1
+  },
+  {
+    "campaign": "full",
+    "maxEWaiters": 0,
+    "samples": 6,
+    "commandTE": {},
+    "maxObservedEWaitMs": 0.0,
+    "p95ms": 1.716625,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": null,
+        "p95ms": null,
+        "maxms": null
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 287,
+        "xact_rollback": 2,
+        "deadlocks": 0,
+        "blks_read": 752,
+        "blks_hit": 81085,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "BATCH4",
+    "ownerTransactionsPerSecond": 545.1158798252068,
+    "eventsPerSecond": [
+      2180.463519300827,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "operationsPerSecond": 545.1158798252068,
+    "intentionalRollbacks": 0,
+    "sampledEWaiters": 0,
+    "mode": "PREPARED",
+    "p99ms": 1.716625,
+    "walBytes": 13344,
+    "meanSuffixMs": 0.153625,
+    "p50ms": 1.341959,
+    "unexpectedDeadlocks": 0,
+    "workers": 1
+  },
+  {
+    "campaign": "full",
+    "maxEWaiters": 0,
+    "samples": 6,
+    "commandTE": {
+      "p50ms": 4.4735,
+      "samples": 6,
+      "p99ms": 5.268708,
+      "p95ms": 5.268708
+    },
+    "maxObservedEWaitMs": 0.0,
+    "p95ms": 12.6495,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": null,
+        "p95ms": null,
+        "maxms": null
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 287,
+        "xact_rollback": 2,
+        "deadlocks": 0,
+        "blks_read": 752,
+        "blks_hit": 81085,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "COMMAND",
+    "ownerTransactionsPerSecond": 439.23832341194617,
+    "eventsPerSecond": [
+      109.80958085298654,
+      109.80958085298654,
+      109.80958085298654,
+      0.0
+    ],
+    "operationsPerSecond": 109.80958085298654,
+    "intentionalRollbacks": 0,
+    "sampledEWaiters": 0,
+    "mode": "PREPARED",
+    "p99ms": 12.6495,
+    "walBytes": 40200,
+    "meanSuffixMs": 0.14233666666666667,
+    "p50ms": 8.454333,
+    "unexpectedDeadlocks": 0,
+    "workers": 1
+  },
+  {
+    "campaign": "full",
+    "maxEWaiters": 0,
+    "samples": 6,
+    "commandTE": {},
+    "maxObservedEWaitMs": 0.0,
+    "p95ms": 4.201417,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": null,
+        "p95ms": null,
+        "maxms": null
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 287,
+        "xact_rollback": 2,
+        "deadlocks": 0,
+        "blks_read": 752,
+        "blks_hit": 81085,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "REGISTRATION",
+    "ownerTransactionsPerSecond": 631.1319066736835,
+    "eventsPerSecond": [
+      0.0,
+      0.0,
+      315.56595333684174,
+      315.56595333684174
+    ],
+    "operationsPerSecond": 315.56595333684174,
+    "intentionalRollbacks": 0,
+    "sampledEWaiters": 0,
+    "mode": "PREPARED",
+    "p99ms": 4.201417,
+    "walBytes": 18360,
+    "meanSuffixMs": 0.129993,
+    "p50ms": 2.445084,
+    "unexpectedDeadlocks": 0,
+    "workers": 1
+  },
+  {
+    "campaign": "full",
+    "maxEWaiters": 0,
+    "samples": 6,
+    "commandTE": {
+      "p50ms": 4.874417,
+      "samples": 3,
+      "p99ms": 5.05425,
+      "p95ms": 5.05425
+    },
+    "maxObservedEWaitMs": 0.0,
+    "p95ms": 10.248125,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": null,
+        "p95ms": null,
+        "maxms": null
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 287,
+        "xact_rollback": 2,
+        "deadlocks": 0,
+        "blks_read": 752,
+        "blks_hit": 81085,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "COMMAND_REGISTRATION",
+    "ownerTransactionsPerSecond": 468.13233352056886,
+    "eventsPerSecond": [
+      78.02205558676148,
+      78.02205558676148,
+      156.04411117352296,
+      78.02205558676148
+    ],
+    "operationsPerSecond": 156.04411117352296,
+    "intentionalRollbacks": 0,
+    "sampledEWaiters": 0,
+    "mode": "PREPARED",
+    "p99ms": 10.248125,
+    "walBytes": 29280,
+    "meanSuffixMs": 0.15151377777777778,
+    "p50ms": 2.964458,
+    "unexpectedDeadlocks": 0,
+    "workers": 1
+  },
+  {
+    "campaign": "full",
+    "maxEWaiters": 0,
+    "samples": 6,
+    "commandTE": {},
+    "maxObservedEWaitMs": 0.0,
+    "p95ms": 26.50125,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": null,
+        "p95ms": null,
+        "maxms": null
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 287,
+        "xact_rollback": 2,
+        "deadlocks": 0,
+        "blks_read": 752,
+        "blks_hit": 81085,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "LONG",
+    "ownerTransactionsPerSecond": 40.96485897847296,
+    "eventsPerSecond": [
+      40.96485897847296,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "operationsPerSecond": 40.96485897847296,
+    "intentionalRollbacks": 0,
+    "sampledEWaiters": 0,
+    "mode": "PREPARED",
+    "p99ms": 26.50125,
+    "walBytes": 3504,
+    "meanSuffixMs": 0.2890628333333333,
+    "p50ms": 22.820125,
+    "unexpectedDeadlocks": 0,
+    "workers": 1
+  },
+  {
+    "campaign": "full",
+    "maxEWaiters": 0,
+    "samples": 6,
+    "commandTE": {},
+    "maxObservedEWaitMs": 0.0,
+    "p95ms": 0.54925,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": null,
+        "p95ms": null,
+        "maxms": null
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 287,
+        "xact_rollback": 2,
+        "deadlocks": 0,
+        "blks_read": 752,
+        "blks_hit": 81085,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "ROLLBACK",
+    "ownerTransactionsPerSecond": 1689.2086873750513,
+    "eventsPerSecond": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "operationsPerSecond": 1689.2086873750513,
+    "intentionalRollbacks": 6,
+    "sampledEWaiters": 0,
+    "mode": "PREPARED",
+    "p99ms": 0.54925,
+    "walBytes": 0,
+    "meanSuffixMs": 0.0,
+    "p50ms": 0.115458,
+    "unexpectedDeadlocks": 0,
+    "workers": 1
+  },
+  {
+    "campaign": "full",
+    "maxEWaiters": 0,
+    "samples": 24,
+    "commandTE": {},
+    "maxObservedEWaitMs": 0.0,
+    "p95ms": 3.181125,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": null,
+        "p95ms": null,
+        "maxms": null
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 614,
+        "xact_rollback": 3,
+        "deadlocks": 0,
+        "blks_read": 966,
+        "blks_hit": 126721,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "BUSINESS",
+    "ownerTransactionsPerSecond": 2583.260921300633,
+    "eventsPerSecond": [
+      2583.260921300633,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "operationsPerSecond": 2583.260921300633,
+    "intentionalRollbacks": 0,
+    "sampledEWaiters": 0,
+    "mode": "PREPARED",
+    "p99ms": 3.202708,
+    "walBytes": 14128,
+    "meanSuffixMs": 0.2361215,
+    "p50ms": 0.939667,
+    "unexpectedDeadlocks": 0,
+    "workers": 4
+  },
+  {
+    "campaign": "full",
+    "maxEWaiters": 0,
+    "samples": 24,
+    "commandTE": {},
+    "maxObservedEWaitMs": 0.0,
+    "p95ms": 7.088209,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": null,
+        "p95ms": null,
+        "maxms": null
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 614,
+        "xact_rollback": 3,
+        "deadlocks": 0,
+        "blks_read": 966,
+        "blks_hit": 126721,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "BATCH4",
+    "ownerTransactionsPerSecond": 1087.3156116594303,
+    "eventsPerSecond": [
+      4349.262446637721,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "operationsPerSecond": 1087.3156116594303,
+    "intentionalRollbacks": 0,
+    "sampledEWaiters": 0,
+    "mode": "PREPARED",
+    "p99ms": 7.111208,
+    "walBytes": 53352,
+    "meanSuffixMs": 0.2973886666666667,
+    "p50ms": 2.819041,
+    "unexpectedDeadlocks": 0,
+    "workers": 4
+  },
+  {
+    "campaign": "full",
+    "maxEWaiters": 0,
+    "samples": 24,
+    "commandTE": {
+      "p50ms": 7.61225,
+      "samples": 24,
+      "p99ms": 9.632167,
+      "p95ms": 9.628791
+    },
+    "maxObservedEWaitMs": 0.0,
+    "p95ms": 21.466,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": null,
+        "p95ms": null,
+        "maxms": null
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 716,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 966,
+        "blks_hit": 133245,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "COMMAND",
+    "ownerTransactionsPerSecond": 998.6892203982273,
+    "eventsPerSecond": [
+      249.67230509955684,
+      249.67230509955684,
+      249.67230509955684,
+      0.0
+    ],
+    "operationsPerSecond": 249.67230509955684,
+    "intentionalRollbacks": 0,
+    "sampledEWaiters": 0,
+    "mode": "PREPARED",
+    "p99ms": 22.154625,
+    "walBytes": 161136,
+    "meanSuffixMs": 0.2669236875,
+    "p50ms": 15.238417,
+    "unexpectedDeadlocks": 0,
+    "workers": 4
+  },
+  {
+    "campaign": "full",
+    "maxEWaiters": 0,
+    "samples": 24,
+    "commandTE": {},
+    "maxObservedEWaitMs": 0.0,
+    "p95ms": 5.933625,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": null,
+        "p95ms": null,
+        "maxms": null
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 716,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 966,
+        "blks_hit": 133245,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "REGISTRATION",
+    "ownerTransactionsPerSecond": 1653.0087962796833,
+    "eventsPerSecond": [
+      0.0,
+      0.0,
+      826.5043981398417,
+      826.5043981398417
+    ],
+    "operationsPerSecond": 826.5043981398417,
+    "intentionalRollbacks": 0,
+    "sampledEWaiters": 0,
+    "mode": "PREPARED",
+    "p99ms": 6.040375,
+    "walBytes": 73368,
+    "meanSuffixMs": 0.19501229166666667,
+    "p50ms": 4.354042,
+    "unexpectedDeadlocks": 0,
+    "workers": 4
+  },
+  {
+    "campaign": "full",
+    "maxEWaiters": 0,
+    "samples": 24,
+    "commandTE": {
+      "p50ms": 7.43325,
+      "samples": 12,
+      "p99ms": 8.720583,
+      "p95ms": 8.720583
+    },
+    "maxObservedEWaitMs": 0.0,
+    "p95ms": 17.071,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": null,
+        "p95ms": null,
+        "maxms": null
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 716,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 966,
+        "blks_hit": 133245,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "COMMAND_REGISTRATION",
+    "ownerTransactionsPerSecond": 1087.4066036662548,
+    "eventsPerSecond": [
+      181.23443394437578,
+      181.23443394437578,
+      362.46886788875156,
+      181.23443394437578
+    ],
+    "operationsPerSecond": 362.46886788875156,
+    "intentionalRollbacks": 0,
+    "sampledEWaiters": 0,
+    "mode": "PREPARED",
+    "p99ms": 17.174292,
+    "walBytes": 117216,
+    "meanSuffixMs": 0.2602036111111111,
+    "p50ms": 8.460459,
+    "unexpectedDeadlocks": 0,
+    "workers": 4
+  },
+  {
+    "campaign": "full",
+    "maxEWaiters": 0,
+    "samples": 24,
+    "commandTE": {},
+    "maxObservedEWaitMs": 0.0,
+    "p95ms": 25.879583,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": null,
+        "p95ms": null,
+        "maxms": null
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 716,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 966,
+        "blks_hit": 133245,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "LONG",
+    "ownerTransactionsPerSecond": 167.27342079846767,
+    "eventsPerSecond": [
+      167.27342079846767,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "operationsPerSecond": 167.27342079846767,
+    "intentionalRollbacks": 0,
+    "sampledEWaiters": 0,
+    "mode": "PREPARED",
+    "p99ms": 26.036125,
+    "walBytes": 14160,
+    "meanSuffixMs": 0.22418225,
+    "p50ms": 22.158917,
+    "unexpectedDeadlocks": 0,
+    "workers": 4
+  },
+  {
+    "campaign": "full",
+    "maxEWaiters": 0,
+    "samples": 24,
+    "commandTE": {},
+    "maxObservedEWaitMs": 0.0,
+    "p95ms": 0.120916,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": null,
+        "p95ms": null,
+        "maxms": null
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 716,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 966,
+        "blks_hit": 133245,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "ROLLBACK",
+    "ownerTransactionsPerSecond": 7767.304502609329,
+    "eventsPerSecond": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "operationsPerSecond": 7767.304502609329,
+    "intentionalRollbacks": 24,
+    "sampledEWaiters": 0,
+    "mode": "PREPARED",
+    "p99ms": 0.233042,
+    "walBytes": 0,
+    "meanSuffixMs": 0.0,
+    "p50ms": 0.041708,
+    "unexpectedDeadlocks": 0,
+    "workers": 4
+  },
+  {
+    "campaign": "full",
+    "maxEWaiters": 0,
+    "samples": 48,
+    "commandTE": {},
+    "maxObservedEWaitMs": 0.0,
+    "p95ms": 4.341375,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": null,
+        "p95ms": null,
+        "maxms": null
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 753,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 966,
+        "blks_hit": 134541,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "BUSINESS",
+    "ownerTransactionsPerSecond": 3654.1385288483957,
+    "eventsPerSecond": [
+      3654.1385288483957,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "operationsPerSecond": 3654.1385288483957,
+    "intentionalRollbacks": 0,
+    "sampledEWaiters": 0,
+    "mode": "PREPARED",
+    "p99ms": 4.82725,
+    "walBytes": 28352,
+    "meanSuffixMs": 0.3893724375,
+    "p50ms": 1.716666,
+    "unexpectedDeadlocks": 0,
+    "workers": 8
+  },
+  {
+    "campaign": "full",
+    "maxEWaiters": 0,
+    "samples": 48,
+    "commandTE": {},
+    "maxObservedEWaitMs": 0.0,
+    "p95ms": 4.644625,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": null,
+        "p95ms": null,
+        "maxms": null
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 753,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 966,
+        "blks_hit": 134541,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "BATCH4",
+    "ownerTransactionsPerSecond": 2002.0506838316933,
+    "eventsPerSecond": [
+      8008.202735326773,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "operationsPerSecond": 2002.0506838316933,
+    "intentionalRollbacks": 0,
+    "sampledEWaiters": 0,
+    "mode": "PREPARED",
+    "p99ms": 5.023166,
+    "walBytes": 107848,
+    "meanSuffixMs": 0.3978402708333333,
+    "p50ms": 3.295333,
+    "unexpectedDeadlocks": 0,
+    "workers": 8
+  },
+  {
+    "campaign": "full",
+    "maxEWaiters": 0,
+    "samples": 48,
+    "commandTE": {
+      "p50ms": 10.526208,
+      "samples": 48,
+      "p99ms": 16.919417,
+      "p95ms": 13.599
+    },
+    "maxObservedEWaitMs": 0.0,
+    "p95ms": 32.70875,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": null,
+        "p95ms": null,
+        "maxms": null
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 753,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 966,
+        "blks_hit": 134541,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "COMMAND",
+    "ownerTransactionsPerSecond": 1334.934011917373,
+    "eventsPerSecond": [
+      333.73350297934326,
+      333.73350297934326,
+      333.73350297934326,
+      0.0
+    ],
+    "operationsPerSecond": 333.73350297934326,
+    "intentionalRollbacks": 0,
+    "sampledEWaiters": 0,
+    "mode": "PREPARED",
+    "p99ms": 33.0255,
+    "walBytes": 325328,
+    "meanSuffixMs": 0.41326565625,
+    "p50ms": 21.179834,
+    "unexpectedDeadlocks": 0,
+    "workers": 8
+  },
+  {
+    "campaign": "full",
+    "maxEWaiters": 0,
+    "samples": 48,
+    "commandTE": {},
+    "maxObservedEWaitMs": 0.0,
+    "p95ms": 8.454,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": null,
+        "p95ms": null,
+        "maxms": null
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 753,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 966,
+        "blks_hit": 134541,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "REGISTRATION",
+    "ownerTransactionsPerSecond": 2181.1365766379827,
+    "eventsPerSecond": [
+      0.0,
+      0.0,
+      1090.5682883189913,
+      1090.5682883189913
+    ],
+    "operationsPerSecond": 1090.5682883189913,
+    "intentionalRollbacks": 0,
+    "sampledEWaiters": 0,
+    "mode": "PREPARED",
+    "p99ms": 9.534042,
+    "walBytes": 146960,
+    "meanSuffixMs": 0.2951753541666667,
+    "p50ms": 6.950542,
+    "unexpectedDeadlocks": 0,
+    "workers": 8
+  },
+  {
+    "campaign": "full",
+    "maxEWaiters": 0,
+    "samples": 48,
+    "commandTE": {
+      "p50ms": 10.226875,
+      "samples": 24,
+      "p99ms": 13.074958,
+      "p95ms": 12.033792
+    },
+    "maxObservedEWaitMs": 0.0,
+    "p95ms": 23.18875,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": null,
+        "p95ms": null,
+        "maxms": null
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 1610,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 1302,
+        "blks_hit": 218689,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "COMMAND_REGISTRATION",
+    "ownerTransactionsPerSecond": 1619.6775890037302,
+    "eventsPerSecond": [
+      269.946264833955,
+      269.946264833955,
+      539.89252966791,
+      269.946264833955
+    ],
+    "operationsPerSecond": 539.89252966791,
+    "intentionalRollbacks": 0,
+    "sampledEWaiters": 0,
+    "mode": "PREPARED",
+    "p99ms": 23.608333,
+    "walBytes": 234632,
+    "meanSuffixMs": 0.40121294444444444,
+    "p50ms": 11.03,
+    "unexpectedDeadlocks": 0,
+    "workers": 8
+  },
+  {
+    "campaign": "full",
+    "maxEWaiters": 0,
+    "samples": 48,
+    "commandTE": {},
+    "maxObservedEWaitMs": 0.0,
+    "p95ms": 25.635834,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": null,
+        "p95ms": null,
+        "maxms": null
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 1719,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 1302,
+        "blks_hit": 225760,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "LONG",
+    "ownerTransactionsPerSecond": 345.64420789418966,
+    "eventsPerSecond": [
+      345.64420789418966,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "operationsPerSecond": 345.64420789418966,
+    "intentionalRollbacks": 0,
+    "sampledEWaiters": 0,
+    "mode": "PREPARED",
+    "p99ms": 26.181709,
+    "walBytes": 28200,
+    "meanSuffixMs": 0.2838272916666667,
+    "p50ms": 22.468334,
+    "unexpectedDeadlocks": 0,
+    "workers": 8
+  },
+  {
+    "campaign": "full",
+    "maxEWaiters": 0,
+    "samples": 48,
+    "commandTE": {},
+    "maxObservedEWaitMs": 0.0,
+    "p95ms": 0.242584,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": null,
+        "p95ms": null,
+        "maxms": null
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 1719,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 1302,
+        "blks_hit": 225760,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "ROLLBACK",
+    "ownerTransactionsPerSecond": 15952.143569292124,
+    "eventsPerSecond": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "operationsPerSecond": 15952.143569292124,
+    "intentionalRollbacks": 48,
+    "sampledEWaiters": 0,
+    "mode": "PREPARED",
+    "p99ms": 0.284417,
+    "walBytes": 0,
+    "meanSuffixMs": 0.0,
+    "p50ms": 0.073958,
+    "unexpectedDeadlocks": 0,
+    "workers": 8
+  },
+  {
+    "campaign": "full",
+    "maxEWaiters": 0,
+    "samples": 6,
+    "commandTE": {},
+    "maxObservedEWaitMs": 0.0,
+    "p95ms": 1.78075,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": 0.295,
+        "p95ms": 0.489,
+        "maxms": 0.547
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 1719,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 1302,
+        "blks_hit": 225760,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "BUSINESS",
+    "ownerTransactionsPerSecond": 699.1207042382678,
+    "eventsPerSecond": [
+      699.1207042382678,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "operationsPerSecond": 699.1207042382678,
+    "intentionalRollbacks": 0,
+    "sampledEWaiters": 0,
+    "mode": "ACTIVE",
+    "p99ms": 1.78075,
+    "walBytes": 6024,
+    "meanSuffixMs": 0.5118403333333333,
+    "p50ms": 0.851916,
+    "unexpectedDeadlocks": 0,
+    "workers": 1
+  },
+  {
+    "campaign": "full",
+    "maxEWaiters": 0,
+    "samples": 6,
+    "commandTE": {},
+    "maxObservedEWaitMs": 0.0,
+    "p95ms": 2.854958,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": 0.649,
+        "p95ms": 0.9744999999999999,
+        "maxms": 0.975
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 1719,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 1302,
+        "blks_hit": 225760,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "BATCH4",
+    "ownerTransactionsPerSecond": 420.37413297835076,
+    "eventsPerSecond": [
+      1681.496531913403,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "operationsPerSecond": 420.37413297835076,
+    "intentionalRollbacks": 0,
+    "sampledEWaiters": 0,
+    "mode": "ACTIVE",
+    "p99ms": 2.854958,
+    "walBytes": 20736,
+    "meanSuffixMs": 0.8527776666666667,
+    "p50ms": 1.703083,
+    "unexpectedDeadlocks": 0,
+    "workers": 1
+  },
+  {
+    "campaign": "full",
+    "maxEWaiters": 0,
+    "samples": 6,
+    "commandTE": {
+      "p50ms": 4.212583,
+      "samples": 6,
+      "p99ms": 4.802292,
+      "p95ms": 4.802292
+    },
+    "maxObservedEWaitMs": 0.0,
+    "p95ms": 10.2395,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": 0.5289999999999999,
+        "p95ms": 0.7471,
+        "maxms": 0.834
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 1719,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 1302,
+        "blks_hit": 225760,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "COMMAND",
+    "ownerTransactionsPerSecond": 455.01080650665455,
+    "eventsPerSecond": [
+      113.75270162666364,
+      113.75270162666364,
+      113.75270162666364,
+      0.0
+    ],
+    "operationsPerSecond": 113.75270162666364,
+    "intentionalRollbacks": 0,
+    "sampledEWaiters": 0,
+    "mode": "ACTIVE",
+    "p99ms": 10.2395,
+    "walBytes": 47720,
+    "meanSuffixMs": 0.6171736666666666,
+    "p50ms": 8.043959,
+    "unexpectedDeadlocks": 0,
+    "workers": 1
+  },
+  {
+    "campaign": "full",
+    "maxEWaiters": 0,
+    "samples": 6,
+    "commandTE": {},
+    "maxObservedEWaitMs": 0.0,
+    "p95ms": 4.786833,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": 0.5265,
+        "p95ms": 0.7985,
+        "maxms": 0.886
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 1719,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 1302,
+        "blks_hit": 225760,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "REGISTRATION",
+    "ownerTransactionsPerSecond": 653.2523119007601,
+    "eventsPerSecond": [
+      0.0,
+      0.0,
+      326.62615595038005,
+      326.62615595038005
+    ],
+    "operationsPerSecond": 326.62615595038005,
+    "intentionalRollbacks": 0,
+    "sampledEWaiters": 0,
+    "mode": "ACTIVE",
+    "p99ms": 4.786833,
+    "walBytes": 23352,
+    "meanSuffixMs": 0.6920485,
+    "p50ms": 2.660084,
+    "unexpectedDeadlocks": 0,
+    "workers": 1
+  },
+  {
+    "campaign": "full",
+    "maxEWaiters": 0,
+    "samples": 6,
+    "commandTE": {
+      "p50ms": 4.251958,
+      "samples": 3,
+      "p99ms": 5.415125,
+      "p95ms": 5.415125
+    },
+    "maxObservedEWaitMs": 0.0,
+    "p95ms": 11.840625,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": 0.521,
+        "p95ms": 0.7641999999999999,
+        "maxms": 0.829
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 1719,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 1302,
+        "blks_hit": 225760,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "COMMAND_REGISTRATION",
+    "ownerTransactionsPerSecond": 464.8800311221685,
+    "eventsPerSecond": [
+      77.48000518702808,
+      77.48000518702808,
+      154.96001037405617,
+      77.48000518702808
+    ],
+    "operationsPerSecond": 154.96001037405617,
+    "intentionalRollbacks": 0,
+    "sampledEWaiters": 0,
+    "mode": "ACTIVE",
+    "p99ms": 11.840625,
+    "walBytes": 35544,
+    "meanSuffixMs": 0.6280648888888889,
+    "p50ms": 3.287584,
+    "unexpectedDeadlocks": 0,
+    "workers": 1
+  },
+  {
+    "campaign": "full",
+    "maxEWaiters": 0,
+    "samples": 6,
+    "commandTE": {},
+    "maxObservedEWaitMs": 0.0,
+    "p95ms": 25.961542,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": 0.5329999999999999,
+        "p95ms": 0.6405,
+        "maxms": 0.654
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 1719,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 1302,
+        "blks_hit": 225760,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "LONG",
+    "ownerTransactionsPerSecond": 41.70176797147421,
+    "eventsPerSecond": [
+      41.70176797147421,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "operationsPerSecond": 41.70176797147421,
+    "intentionalRollbacks": 0,
+    "sampledEWaiters": 0,
+    "mode": "ACTIVE",
+    "p99ms": 25.961542,
+    "walBytes": 6000,
+    "meanSuffixMs": 0.8044581666666666,
+    "p50ms": 23.185875,
+    "unexpectedDeadlocks": 0,
+    "workers": 1
+  },
+  {
+    "campaign": "full",
+    "maxEWaiters": 0,
+    "samples": 6,
+    "commandTE": {},
+    "maxObservedEWaitMs": 0.0,
+    "p95ms": 0.163333,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": null,
+        "p95ms": null,
+        "maxms": null
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 1719,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 1302,
+        "blks_hit": 225760,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "ROLLBACK",
+    "ownerTransactionsPerSecond": 1908.5990978052064,
+    "eventsPerSecond": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "operationsPerSecond": 1908.5990978052064,
+    "intentionalRollbacks": 6,
+    "sampledEWaiters": 0,
+    "mode": "ACTIVE",
+    "p99ms": 0.163333,
+    "walBytes": 0,
+    "meanSuffixMs": 0.0,
+    "p50ms": 0.034583,
+    "unexpectedDeadlocks": 0,
+    "workers": 1
+  },
+  {
+    "campaign": "full",
+    "maxEWaiters": 2,
+    "samples": 24,
+    "commandTE": {},
+    "maxObservedEWaitMs": 2.137,
+    "p95ms": 4.096292,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": 0.338,
+        "p95ms": 0.6818000000000001,
+        "maxms": 0.729
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 1719,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 1302,
+        "blks_hit": 225760,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "BUSINESS",
+    "ownerTransactionsPerSecond": 1550.6297074937347,
+    "eventsPerSecond": [
+      1550.6297074937347,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "operationsPerSecond": 1550.6297074937347,
+    "intentionalRollbacks": 0,
+    "sampledEWaiters": 6,
+    "mode": "ACTIVE",
+    "p99ms": 5.474417,
+    "walBytes": 25400,
+    "meanSuffixMs": 1.6131804166666668,
+    "p50ms": 2.19025,
+    "unexpectedDeadlocks": 0,
+    "workers": 4
+  },
+  {
+    "campaign": "full",
+    "maxEWaiters": 2,
+    "samples": 24,
+    "commandTE": {},
+    "maxObservedEWaitMs": 3.805,
+    "p95ms": 6.113625,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": 0.827,
+        "p95ms": 1.0112999999999999,
+        "maxms": 1.081
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 2261,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 1570,
+        "blks_hit": 288791,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "BATCH4",
+    "ownerTransactionsPerSecond": 863.7430260848234,
+    "eventsPerSecond": [
+      3454.9721043392938,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "operationsPerSecond": 863.7430260848234,
+    "intentionalRollbacks": 0,
+    "sampledEWaiters": 16,
+    "mode": "ACTIVE",
+    "p99ms": 6.818167,
+    "walBytes": 84192,
+    "meanSuffixMs": 2.81480725,
+    "p50ms": 4.015041,
+    "unexpectedDeadlocks": 0,
+    "workers": 4
+  },
+  {
+    "campaign": "full",
+    "maxEWaiters": 1,
+    "samples": 24,
+    "commandTE": {
+      "p50ms": 7.016041,
+      "samples": 24,
+      "p99ms": 10.421375,
+      "p95ms": 10.145625
+    },
+    "maxObservedEWaitMs": 2.295,
+    "p95ms": 20.155584,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": 0.6975,
+        "p95ms": 1.2715999999999998,
+        "maxms": 1.435
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 2261,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 1570,
+        "blks_hit": 288791,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "COMMAND",
+    "ownerTransactionsPerSecond": 1075.0330155517076,
+    "eventsPerSecond": [
+      268.7582538879269,
+      268.7582538879269,
+      268.7582538879269,
+      0.0
+    ],
+    "operationsPerSecond": 268.7582538879269,
+    "intentionalRollbacks": 0,
+    "sampledEWaiters": 3,
+    "mode": "ACTIVE",
+    "p99ms": 22.01875,
+    "walBytes": 192200,
+    "meanSuffixMs": 1.2399773958333333,
+    "p50ms": 13.875042,
+    "unexpectedDeadlocks": 0,
+    "workers": 4
+  },
+  {
+    "campaign": "full",
+    "maxEWaiters": 1,
+    "samples": 24,
+    "commandTE": {},
+    "maxObservedEWaitMs": 2.943,
+    "p95ms": 26.0795,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": 1.1015000000000001,
+        "p95ms": 6.198899999999997,
+        "maxms": 7.281
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 2375,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 1570,
+        "blks_hit": 298345,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "REGISTRATION",
+    "ownerTransactionsPerSecond": 760.6099140748487,
+    "eventsPerSecond": [
+      0.0,
+      0.0,
+      380.30495703742434,
+      380.30495703742434
+    ],
+    "operationsPerSecond": 380.30495703742434,
+    "intentionalRollbacks": 0,
+    "sampledEWaiters": 4,
+    "mode": "ACTIVE",
+    "p99ms": 26.770083,
+    "walBytes": 94192,
+    "meanSuffixMs": 2.7565764166666664,
+    "p50ms": 7.039334,
+    "unexpectedDeadlocks": 0,
+    "workers": 4
+  },
+  {
+    "campaign": "full",
+    "maxEWaiters": 1,
+    "samples": 24,
+    "commandTE": {
+      "p50ms": 7.362125,
+      "samples": 12,
+      "p99ms": 10.471417,
+      "p95ms": 10.471417
+    },
+    "maxObservedEWaitMs": 1.133,
+    "p95ms": 16.894458,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": 0.7605,
+        "p95ms": 1.5197499999999997,
+        "maxms": 1.764
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 2375,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 1570,
+        "blks_hit": 298345,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "COMMAND_REGISTRATION",
+    "ownerTransactionsPerSecond": 1204.360789692679,
+    "eventsPerSecond": [
+      200.72679828211315,
+      200.72679828211315,
+      401.4535965642263,
+      200.72679828211315
+    ],
+    "operationsPerSecond": 401.4535965642263,
+    "intentionalRollbacks": 0,
+    "sampledEWaiters": 2,
+    "mode": "ACTIVE",
+    "p99ms": 18.909125,
+    "walBytes": 144200,
+    "meanSuffixMs": 1.260366888888889,
+    "p50ms": 8.308334,
+    "unexpectedDeadlocks": 0,
+    "workers": 4
+  },
+  {
+    "campaign": "full",
+    "maxEWaiters": 0,
+    "samples": 24,
+    "commandTE": {},
+    "maxObservedEWaitMs": 0.0,
+    "p95ms": 27.011166,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": 0.3725,
+        "p95ms": 0.65285,
+        "maxms": 0.695
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 2375,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 1570,
+        "blks_hit": 298345,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "LONG",
+    "ownerTransactionsPerSecond": 162.6581045247757,
+    "eventsPerSecond": [
+      162.6581045247757,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "operationsPerSecond": 162.6581045247757,
+    "intentionalRollbacks": 0,
+    "sampledEWaiters": 0,
+    "mode": "ACTIVE",
+    "p99ms": 27.594417,
+    "walBytes": 24688,
+    "meanSuffixMs": 0.9066319583333333,
+    "p50ms": 22.711084,
+    "unexpectedDeadlocks": 0,
+    "workers": 4
+  },
+  {
+    "campaign": "full",
+    "maxEWaiters": 0,
+    "samples": 24,
+    "commandTE": {},
+    "maxObservedEWaitMs": 0.0,
+    "p95ms": 0.128334,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": null,
+        "p95ms": null,
+        "maxms": null
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 2375,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 1570,
+        "blks_hit": 298345,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "ROLLBACK",
+    "ownerTransactionsPerSecond": 8061.0165210533605,
+    "eventsPerSecond": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "operationsPerSecond": 8061.0165210533605,
+    "intentionalRollbacks": 24,
+    "sampledEWaiters": 0,
+    "mode": "ACTIVE",
+    "p99ms": 0.152959,
+    "walBytes": 0,
+    "meanSuffixMs": 0.0,
+    "p50ms": 0.033417,
+    "unexpectedDeadlocks": 0,
+    "workers": 4
+  },
+  {
+    "campaign": "full",
+    "maxEWaiters": 7,
+    "samples": 48,
+    "commandTE": {},
+    "maxObservedEWaitMs": 14.003,
+    "p95ms": 13.618833,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": 0.3315,
+        "p95ms": 0.6878,
+        "maxms": 7.133
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 2679,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 1570,
+        "blks_hit": 321689,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "BUSINESS",
+    "ownerTransactionsPerSecond": 1354.317428530412,
+    "eventsPerSecond": [
+      1354.317428530412,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "operationsPerSecond": 1354.317428530412,
+    "intentionalRollbacks": 0,
+    "sampledEWaiters": 46,
+    "mode": "ACTIVE",
+    "p99ms": 15.689833,
+    "walBytes": 51288,
+    "meanSuffixMs": 4.209989520833333,
+    "p50ms": 3.1605,
+    "unexpectedDeadlocks": 0,
+    "workers": 8
+  },
+  {
+    "campaign": "full",
+    "maxEWaiters": 6,
+    "samples": 48,
+    "commandTE": {},
+    "maxObservedEWaitMs": 26.998,
+    "p95ms": 15.913166,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": 0.8305,
+        "p95ms": 1.0377,
+        "maxms": 1.112
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 2679,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 1570,
+        "blks_hit": 321689,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "BATCH4",
+    "ownerTransactionsPerSecond": 894.7044679304366,
+    "eventsPerSecond": [
+      3578.8178717217465,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "operationsPerSecond": 894.7044679304366,
+    "intentionalRollbacks": 0,
+    "sampledEWaiters": 86,
+    "mode": "ACTIVE",
+    "p99ms": 31.986667,
+    "walBytes": 169520,
+    "meanSuffixMs": 5.7921570625,
+    "p50ms": 5.51725,
+    "unexpectedDeadlocks": 0,
+    "workers": 8
+  },
+  {
+    "campaign": "full",
+    "maxEWaiters": 5,
+    "samples": 48,
+    "commandTE": {
+      "p50ms": 10.147459,
+      "samples": 48,
+      "p99ms": 15.479583,
+      "p95ms": 14.282708
+    },
+    "maxObservedEWaitMs": 7.374,
+    "p95ms": 30.542875,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": 1.0495,
+        "p95ms": 1.9467499999999998,
+        "maxms": 2.435
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 2679,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 1570,
+        "blks_hit": 321689,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "COMMAND",
+    "ownerTransactionsPerSecond": 1452.0657662366514,
+    "eventsPerSecond": [
+      363.01644155916284,
+      363.01644155916284,
+      363.01644155916284,
+      0.0
+    ],
+    "operationsPerSecond": 363.01644155916284,
+    "intentionalRollbacks": 0,
+    "sampledEWaiters": 24,
+    "mode": "ACTIVE",
+    "p99ms": 35.427125,
+    "walBytes": 392800,
+    "meanSuffixMs": 2.3501483645833336,
+    "p50ms": 19.391166,
+    "unexpectedDeadlocks": 0,
+    "workers": 8
+  },
+  {
+    "campaign": "full",
+    "maxEWaiters": 6,
+    "samples": 48,
+    "commandTE": {},
+    "maxObservedEWaitMs": 22.026,
+    "p95ms": 21.1725,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": 0.9139999999999999,
+        "p95ms": 1.3955499999999998,
+        "maxms": 1.672
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 3462,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 1862,
+        "blks_hit": 404292,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "REGISTRATION",
+    "ownerTransactionsPerSecond": 1414.5192116242008,
+    "eventsPerSecond": [
+      0.0,
+      0.0,
+      707.2596058121004,
+      707.2596058121004
+    ],
+    "operationsPerSecond": 707.2596058121004,
+    "intentionalRollbacks": 0,
+    "sampledEWaiters": 79,
+    "mode": "ACTIVE",
+    "p99ms": 32.683541,
+    "walBytes": 190688,
+    "meanSuffixMs": 5.669342833333333,
+    "p50ms": 8.342458,
+    "unexpectedDeadlocks": 0,
+    "workers": 8
+  },
+  {
+    "campaign": "full",
+    "maxEWaiters": 4,
+    "samples": 48,
+    "commandTE": {
+      "p50ms": 10.79075,
+      "samples": 24,
+      "p99ms": 24.289208,
+      "p95ms": 13.807209
+    },
+    "maxObservedEWaitMs": 8.642,
+    "p95ms": 28.955291,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": 1.393,
+        "p95ms": 2.3263999999999996,
+        "maxms": 3.904
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 3462,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 1862,
+        "blks_hit": 404292,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "COMMAND_REGISTRATION",
+    "ownerTransactionsPerSecond": 1335.5855881967625,
+    "eventsPerSecond": [
+      222.59759803279374,
+      222.59759803279374,
+      445.1951960655875,
+      222.59759803279374
+    ],
+    "operationsPerSecond": 445.1951960655875,
+    "intentionalRollbacks": 0,
+    "sampledEWaiters": 31,
+    "mode": "ACTIVE",
+    "p99ms": 34.663708,
+    "walBytes": 291080,
+    "meanSuffixMs": 3.058262125,
+    "p50ms": 16.067459,
+    "unexpectedDeadlocks": 0,
+    "workers": 8
+  },
+  {
+    "campaign": "full",
+    "maxEWaiters": 4,
+    "samples": 48,
+    "commandTE": {},
+    "maxObservedEWaitMs": 5.098,
+    "p95ms": 30.981292,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": 0.386,
+        "p95ms": 0.55095,
+        "maxms": 0.935
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 3564,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 1862,
+        "blks_hit": 414386,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "LONG",
+    "ownerTransactionsPerSecond": 313.9476132623245,
+    "eventsPerSecond": [
+      313.9476132623245,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "operationsPerSecond": 313.9476132623245,
+    "intentionalRollbacks": 0,
+    "sampledEWaiters": 8,
+    "mode": "ACTIVE",
+    "p99ms": 32.209875,
+    "walBytes": 49656,
+    "meanSuffixMs": 1.6469583958333334,
+    "p50ms": 24.398292,
+    "unexpectedDeadlocks": 0,
+    "workers": 8
+  },
+  {
+    "campaign": "full",
+    "maxEWaiters": 0,
+    "samples": 48,
+    "commandTE": {},
+    "maxObservedEWaitMs": 0.0,
+    "p95ms": 0.17925,
+    "unexpectedTimeouts": 0,
+    "firstEToCommit": [
+      {
+        "p50ms": null,
+        "p95ms": null,
+        "maxms": null
+      }
+    ],
+    "pgStats": [
+      {
+        "xact_commit": 3564,
+        "xact_rollback": 4,
+        "deadlocks": 0,
+        "blks_read": 1862,
+        "blks_hit": 414386,
+        "temp_bytes": 0
+      }
+    ],
+    "workload": "ROLLBACK",
+    "ownerTransactionsPerSecond": 16306.88469877447,
+    "eventsPerSecond": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "operationsPerSecond": 16306.88469877447,
+    "intentionalRollbacks": 48,
+    "sampledEWaiters": 0,
+    "mode": "ACTIVE",
+    "p99ms": 0.196417,
+    "walBytes": 0,
+    "meanSuffixMs": 0.0,
+    "p50ms": 0.058667,
+    "unexpectedDeadlocks": 0,
+    "workers": 8
+  }
+]

@@ -1,0 +1,14 @@
+{
+  "recorded_at": "2026-10-25T20:09:47.473175+00:00",
+  "branch": "feat/v3-architecture",
+  "initial_remote": "2fb9a536f3894e797923c0b49aeba1a9b5adfda2",
+  "remote_rechecked_before_publication": "2fb9a536f3894e797923c0b49aeba1a9b5adfda2",
+  "tested_sha": "c94e7a4bec479ccbf22b058fd341ae0350c2ca67",
+  "executable_diff_from_tested": "NONE",
+  "unexpected_slice_crossing": "NONE",
+  "global_architecture_gate": "REQUIRED/RUN",
+  "full_reactor": "NOT REQUIRED/NOT RUN; bounded corrective lot, no module restructuring or main integration",
+  "changed_files": 49,
+  "verification": "All 108 mandatory methods fresh PASS in architecture; 100 in consumers; one known exploratory skip each; gate input manifests equal",
+  "publication": "Fast-forward push authorized; final remote identity to be checked after the commit"
+}

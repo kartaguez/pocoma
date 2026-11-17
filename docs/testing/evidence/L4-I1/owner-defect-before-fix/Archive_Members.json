@@ -1,0 +1,26 @@
+{
+  "maven.log": {
+    "bytes": 81712,
+    "sha256": "9d0654d6f2d61beaf4eb856a78fbed4515462b97523dccd204ad26b30cb79bde"
+  },
+  "effective-pom.xml": {
+    "bytes": 19415002,
+    "sha256": "845b9bbaf7165e2645c319e674118cae51e74ca7616730047204ea658052bd04"
+  },
+  "discovery.log": {
+    "bytes": 9244,
+    "sha256": "16ca895e4b98680aca4c657273631ce39fed0d5310b3a6d1c31e80fc4c54234c"
+  },
+  "reports/pocoma-runtime-task-consumption-worker/surefire-reports/TEST-com.kartaguez.pocoma.runtime.task.v3.SubobjectAtomicityPostgresTest.xml": {
+    "bytes": 44858,
+    "sha256": "363693d6887bc2101b664e53d8788f7d5830f1a95885a8ff9149f28ac55553f6"
+  },
+  "reports/pocoma-runtime-task-consumption-worker/surefire-reports/com.kartaguez.pocoma.runtime.task.v3.SubobjectAtomicityPostgresTest.txt": {
+    "bytes": 1188,
+    "sha256": "c8235599c03111e52f1321be26eabacd2a0651d487831ae9f850a990b6ee7fa4"
+  },
+  "app/runtime-task-consumption-worker/target/l4-i1-evidence/e35ed93f9fbf4cbca15bf567b86940ca/pocoma-runtime-task-consumption-worker/physical/lateCaughtBeforeCommit-i1_920fc5eab1a548cc96957cfdeded3a43.txt": {
+    "bytes": 2516,
+    "sha256": "b832c3a617328d67114127d0bbf63ad13c6101d5bd811a97a3d31e2e8201738f"
+  }
+}

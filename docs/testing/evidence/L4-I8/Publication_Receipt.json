@@ -1,0 +1,36 @@
+{
+  "recorded_at_UTC": "2026-11-03T19:32:11.961175+00:00",
+  "branch": "feat/v3-architecture",
+  "origin": "https://github.com/kartaguez/pocoma.git",
+  "initial_SHA": "a2b4e2a07a64e33eafe9e81a0ddc25c7961dc9cc",
+  "published_application_and_oracles_SHA": "8a007768c23021153764473f6c6686042168df00",
+  "remote_branch_verified_SHA": "8a007768c23021153764473f6c6686042168df00",
+  "productive_full_tested_SHA": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+  "Architecture_tested_SHA": "8a007768c23021153764473f6c6686042168df00",
+  "qualification": "Composite explicitly authorized; native completed full FAIL retained; no full PASS claimed",
+  "human_decision": "Human_Composite_Qualification_Decision.json",
+  "commands": [
+    {
+      "command": [
+        "git",
+        "push",
+        "origin",
+        "feat/v3-architecture"
+      ],
+      "exit_code": 0,
+      "result": "fast-forward a2b4e2a0..8a007768, no force"
+    },
+    {
+      "command": [
+        "git",
+        "ls-remote",
+        "origin",
+        "refs/heads/feat/v3-architecture"
+      ],
+      "exit_code": 0,
+      "result": "8a007768c23021153764473f6c6686042168df00"
+    }
+  ],
+  "application_changes_after_qualification": [],
+  "documentation_publication": "Evidence-only commit follows this receipt; final published Git SHA and clean/synchronized state are verified after its push and reported in delivery message. No self-referential final SHA is invented."
+}

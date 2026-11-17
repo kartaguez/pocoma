@@ -1,0 +1,34 @@
+{
+  "state": "READY",
+  "exit": 0,
+  "business": "AVAILABLE",
+  "canary": "AVAILABLE",
+  "qualificationTools": "AVAILABLE",
+  "fullyQualifiable": false,
+  "checks": {
+    "JVM-http-write": "PASS",
+    "JVM-http-read": "PASS",
+    "JVM-command-worker": "PASS",
+    "JVM-results-worker": "PASS",
+    "JVM-business-read-worker": "PASS",
+    "DB-CURRENT": "PASS",
+    "IDP-DISCOVERY": "PASS"
+  },
+  "canaryProof": {
+    "potId": "249a2f1e-a16e-57c7-8ae0-9554a054a9de",
+    "version": 2,
+    "runId": "1794608722-44b074d0",
+    "completedAt": 1794608763.982893
+  },
+  "observedAt": 1794608764.0469902,
+  "instance": "demo",
+  "project": "pocoma-lb-demo-a4951783",
+  "sha": "69f327f6707635cea8a74f329f7d2d9c3ce5d3d6",
+  "dirty": false,
+  "urls": {
+    "write": "http://127.0.0.1:57823",
+    "read": "http://127.0.0.1:57824"
+  },
+  "issuer": "http://localhost:57825/realms/pocoma",
+  "evidence": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/demo/runs/1794608722-44b074d0"
+}

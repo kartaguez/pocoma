@@ -1,0 +1,21 @@
+{
+  "command": [
+    "/private/tmp/pocoma-lb-fresh-8012fb93/scripts/bruno-v3/node_modules/.bin/bru",
+    "run",
+    "--env",
+    "Local",
+    "--sandbox=developer",
+    "--reporter-junit",
+    "/private/tmp/pocoma-lb-fresh-8012fb93/.pocoma-local/instances/j1-b-2ad2a840/runs/1794608578-6b09dde4/bruno.xml"
+  ],
+  "expected": [
+    "PG01"
+  ],
+  "actual": [
+    "PG01"
+  ],
+  "namedTests": 1,
+  "junitPass": true,
+  "exit": 0,
+  "success": true
+}

@@ -1,0 +1,35 @@
+{
+  "state": "GUI_CONFIGURED",
+  "exit": 0,
+  "environment": "/private/tmp/pocoma-l7-clean-clone-qualification/source/scripts/bruno-playground/environments/Instance-clean-clone.bru",
+  "keycloakAdmin": {
+    "url": "http://localhost:59249/admin/",
+    "realm": "master",
+    "username": "admin"
+  },
+  "demoUsers": {
+    "realm": "pocoma",
+    "owner": "third",
+    "guest": "guest",
+    "bruno": "bruno"
+  },
+  "credentialsConvention": "L7-LB local only: password pocoma for admin/third/guest/bruno; never production or L8.",
+  "next": "In Bruno select Instance-clean-clone; 00 - Getting Started / 00 Login Owner and 01 Login Guest > Auth > Get Access Token; Run Folder 90 - End-to-End Journeys / J01.",
+  "instance": "clean-clone",
+  "project": "pocoma-lb-clean-clone-fcc71fd2",
+  "sha": "0a3246b9bc58bb813163caf22c6a2108c6f88db9",
+  "dirty": false,
+  "urls": {
+    "write": "http://127.0.0.1:59247",
+    "read": "http://127.0.0.1:59248"
+  },
+  "issuer": "http://localhost:59249/realms/pocoma",
+  "evidence": "/private/tmp/pocoma-l7-clean-clone-qualification/source/.pocoma-local/instances/clean-clone/runs/1794740528-3e7eda61",
+  "grafana": {
+    "url": "http://127.0.0.1:59256/",
+    "username": "admin",
+    "dashboard": "Pocoma runtime",
+    "dashboardUrl": "http://127.0.0.1:59256/d/pocoma-runtime"
+  },
+  "keycloakAuthEvidence": null
+}

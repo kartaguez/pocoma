@@ -1,0 +1,52 @@
+Compiled from "PotBindingConvergencePostgresTest.java"
+class com.kartaguez.pocoma.PotBindingConvergencePostgresTest {
+  static final org.testcontainers.postgresql.PostgreSQLContainer POSTGRES;
+
+  javax.sql.DataSource dataSource;
+
+  com.kartaguez.pocoma.port.binding.authority.ExternalIdentityBindingPort authority;
+
+  com.kartaguez.pocoma.runtime.publication.PrimaryEventProtocol protocol;
+
+  com.kartaguez.pocoma.engine.read.currentbinding.GetCurrentBindingUseCase projectedBindings;
+
+  com.kartaguez.pocoma.PotBindingConvergencePostgresTest();
+    Code:
+       0: new           #21                 // class java/lang/Error
+       3: dup
+       4: ldc           #23                 // String Unresolved compilation problems: \n\tThe import com.kartaguez.pocoma.infra.persistence.read.jdbc.JdbcCurrentBindingAdapter cannot be resolved\n\tJdbcCurrentBindingAdapter cannot be resolved to a type\n\tThe method apply(CurrentBinding) is undefined for the type Object\n\tThe method apply(CurrentBinding) is undefined for the type Object\n\tThe method apply(CurrentBinding) is undefined for the type Object\n
+       6: invokespecial #25                 // Method java/lang/Error."<init>":(Ljava/lang/String;)V
+       9: athrow
+
+  static void database(org.springframework.test.context.DynamicPropertyRegistry);
+    Code:
+       0: new           #21                 // class java/lang/Error
+       3: dup
+       4: ldc           #35                 // String Unresolved compilation problem: \n
+       6: invokespecial #25                 // Method java/lang/Error."<init>":(Ljava/lang/String;)V
+       9: athrow
+
+  void attachStaleDetachConvergedDetachAndRebindUseTheProjectedUser();
+    Code:
+       0: new           #21                 // class java/lang/Error
+       3: dup
+       4: ldc           #41                 // String Unresolved compilation problems: \n\tJdbcCurrentBindingAdapter cannot be resolved to a type\n\tThe method apply(CurrentBinding) is undefined for the type Object\n\tThe method apply(CurrentBinding) is undefined for the type Object\n\tThe method apply(CurrentBinding) is undefined for the type Object\n
+       6: invokespecial #25                 // Method java/lang/Error."<init>":(Ljava/lang/String;)V
+       9: athrow
+
+  private com.kartaguez.pocoma.domain.useridentity.BindingAcquireResult accepted(com.kartaguez.pocoma.port.binding.authority.BindingAcquisitionAccepted);
+    Code:
+       0: new           #21                 // class java/lang/Error
+       3: dup
+       4: ldc           #35                 // String Unresolved compilation problem: \n
+       6: invokespecial #25                 // Method java/lang/Error."<init>":(Ljava/lang/String;)V
+       9: athrow
+
+  private com.kartaguez.pocoma.domain.useridentity.BindingDetachResult accepted(com.kartaguez.pocoma.port.binding.authority.BindingDetachmentAccepted);
+    Code:
+       0: new           #21                 // class java/lang/Error
+       3: dup
+       4: ldc           #35                 // String Unresolved compilation problem: \n
+       6: invokespecial #25                 // Method java/lang/Error."<init>":(Ljava/lang/String;)V
+       9: athrow
+}

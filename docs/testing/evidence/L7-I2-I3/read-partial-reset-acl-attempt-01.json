@@ -1,0 +1,20 @@
+{
+  "scope": "Fresh PostgreSQL, production V3 bootstrap and effective Runtime READ role. Administrative seeding is limited to the disposable fixture.",
+  "testedSha": "3d41cfa5c274d1a941c25432fdf59b1917dd98d5",
+  "image": "sha256:18cfe3ef5e6815560c98237d6216d1e5119702fb0f3894c8785dd58b8bbe5d73",
+  "container": "pocoma-l7-reset-proof-50dc031978b0",
+  "cases": [],
+  "bootstrap": [
+    "python3",
+    "-B",
+    "scripts/operations/setup-v3-database.py",
+    "--postgres-container",
+    "pocoma-l7-reset-proof-50dc031978b0"
+  ],
+  "status": "FAIL",
+  "error": "Command '['docker', 'exec', 'pocoma-l7-reset-proof-50dc031978b0', 'psql', '-X', '-U', 'pocoma', '-d', 'pocoma_read', '-v', 'ON_ERROR_STOP=1', '-v', 'VERBOSITY=verbose', '-Atc', 'insert into v3_read.discovery_checkpoint select consumption_id,0,11 from v3_read.consumption_routing_contract']' returned non-zero exit status 1.",
+  "cleanup": 0,
+  "seconds": 3.9939166250405833,
+  "finishedUtc": "2026-11-12T12:23:34.802447+00:00",
+  "logSha256": "91b1092d448b9a72e562ba47f3ca6bf6d34978303399fdb8837945d70382612b"
+}

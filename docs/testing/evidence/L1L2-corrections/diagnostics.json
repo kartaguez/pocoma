@@ -1,0 +1,64 @@
+{
+  "scope": "Diagnostics only; never substitute for canonical gates",
+  "runs": [
+    {
+      "name": "targeted",
+      "status": "ERROR",
+      "classification": "ENVIRONMENT: sandbox denied Docker; no business method executed"
+    },
+    {
+      "name": "targeted-2",
+      "status": "PASS",
+      "tests": 36,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "maven_seconds": 27.781,
+      "boundary_ms": 1045,
+      "provenance": "9780ac88 + working tree before final negative-message assertion"
+    },
+    {
+      "name": "architecture-targeted",
+      "status": "PASS",
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "maven_seconds": 9.781,
+      "provenance": "9780ac88 + working tree; architecture source identical to f42efc09"
+    },
+    {
+      "name": "boundary-final",
+      "status": "FAIL",
+      "classification": "TEST HARNESS: driver uses narrow no-break thousands separator in 65 535; array operations passed before diagnostic assertion"
+    },
+    {
+      "name": "boundary-diagnostic",
+      "status": "FAIL",
+      "classification": "TEST HARNESS: same separator confirmed by printed actual PostgreSQL exception; fixed with digit-only normalization in f42efc09"
+    },
+    {
+      "name": "replay-targeted",
+      "status": "PASS",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "maven_seconds": 26.893,
+      "command": "./mvnw -pl infra-persistence-primary-jpa -am test -Dtest=WriteRevisionPerformancePostgresTest,L2ManifestProof#l2m_l1_f2_f201+l2m_l1_f2_summary_f202 -Dsurefire.failIfNoSpecifiedTests=false",
+      "provenance": "f42efc09 + test-only SQL-array replay capture; before import/format-only minimization in 6f282b1d"
+    }
+  ],
+  "archive": {
+    "path": "docs/testing/evidence/L1L2-corrections/diagnostics.tar.xz",
+    "bytes": 25704,
+    "sha256": "49691f7217f100b714eac723af322882577767e7d373a3b39f5880c115fda9f4"
+  },
+  "surefire_exclusion_resolver_check": {
+    "api": "3.5.5",
+    "result": "PASS",
+    "checks": "r05/r12 rejected; ten other resource methods and one foreign method retained",
+    "source_sha256": "bfa47de287a5e87b09ac8b4fa6ddb2cb9a112b6ba0398d7e58692fa979d26dc9",
+    "command": "java --class-path <surefire-api-3.5.5.jar>:<surefire-shared-utils-3.5.5.jar> /private/tmp/CheckI5Exclusions.java docs/testing/evidence/L1L2-corrections/I5-temporal-exclusions.txt"
+  }
+}

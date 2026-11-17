@@ -1,0 +1,340 @@
+{
+  "source": "/private/tmp/pocoma-l5-i1-architecture-feedback-01",
+  "archive": "archives/pocoma-l5-i1-architecture-feedback-01.tar.gz",
+  "sha256": "45fe08d2a9d3e3e27d69595e9e72d64b9c4111b0e143ef445af680727170d7cc",
+  "bytes": 2702852,
+  "files": {
+    "discovery.log": {
+      "original_sha256": "f231e2ab38031d6fe7688d9e42ec1b54776ae7a4b4da2bc7fa54406ff75689c2",
+      "published_sha256": "f231e2ab38031d6fe7688d9e42ec1b54776ae7a4b4da2bc7fa54406ff75689c2",
+      "bytes": 10742
+    },
+    "discovery.process.json": {
+      "original_sha256": "70349e2053e4673b6e14d78ce4b65d3d1f978ba4a029070a80ce0a97db6f234f",
+      "published_sha256": "70349e2053e4673b6e14d78ce4b65d3d1f978ba4a029070a80ce0a97db6f234f",
+      "bytes": 1368
+    },
+    "effective-pom.xml": {
+      "original_sha256": "ea5e32ab1fb317e4ae63c73507500eccdcca0d83ceb1322700020e492b29f6ab",
+      "published_sha256": "ea5e32ab1fb317e4ae63c73507500eccdcca0d83ceb1322700020e492b29f6ab",
+      "bytes": 23262996
+    },
+    "maven.log": {
+      "original_sha256": "5f06849fec298fb8f78a6874dfc2f776261fb3cf38a9323e6052063a56ddef72",
+      "published_sha256": "5f06849fec298fb8f78a6874dfc2f776261fb3cf38a9323e6052063a56ddef72",
+      "bytes": 356679
+    },
+    "maven.process.json": {
+      "original_sha256": "765b4345387e5edd649bde78a5aab437e83d9aad91902b43425fb650bf0f318f",
+      "published_sha256": "765b4345387e5edd649bde78a5aab437e83d9aad91902b43425fb650bf0f318f",
+      "bytes": 1269
+    },
+    "plan.json": {
+      "original_sha256": "05b77069460741087498cc523aa1ac5c1bfb0a53cb4a0f7c3625c7b0f438c905",
+      "published_sha256": "05b77069460741087498cc523aa1ac5c1bfb0a53cb4a0f7c3625c7b0f438c905",
+      "bytes": 68085
+    },
+    "provenance.json": {
+      "original_sha256": "22a1a6d70948632a122015fbb4ccc6fe1a0fece665d76da5ed92aab99d9c9d00",
+      "published_sha256": "22a1a6d70948632a122015fbb4ccc6fe1a0fece665d76da5ed92aab99d9c9d00",
+      "bytes": 265068
+    },
+    "raw.tar.gz": {
+      "original_sha256": "5e8db6c934ae65509dd5750dc45b33756d8166b98aaebf135a5d9ae7349ee745",
+      "published_sha256": "5e8db6c934ae65509dd5750dc45b33756d8166b98aaebf135a5d9ae7349ee745",
+      "bytes": 1328994
+    },
+    "reports/pocoma-architecture-tests/surefire-reports/TEST-com.kartaguez.pocoma.architecture.BindingLockOwnershipTest.xml": {
+      "original_sha256": "93b911422256962b78f5f50e54786b5acd9ab81dc1fe4aac18aa6a9c91e4ca4e",
+      "published_sha256": "93b911422256962b78f5f50e54786b5acd9ab81dc1fe4aac18aa6a9c91e4ca4e",
+      "bytes": 56313
+    },
+    "reports/pocoma-architecture-tests/surefire-reports/TEST-com.kartaguez.pocoma.architecture.DistributedComposeConfigurationTest.xml": {
+      "original_sha256": "6ee93f5cd9643375408e00abf9b811557f8aad3f44800ff34163afa5ca825def",
+      "published_sha256": "6ee93f5cd9643375408e00abf9b811557f8aad3f44800ff34163afa5ca825def",
+      "bytes": 56231
+    },
+    "reports/pocoma-architecture-tests/surefire-reports/TEST-com.kartaguez.pocoma.architecture.EventPublicationContractArchitectureTest.xml": {
+      "original_sha256": "26ef99dae72b5173d5a4d5d7e26629e8c4289810c80d7dd7dbc6310019031a98",
+      "published_sha256": "26ef99dae72b5173d5a4d5d7e26629e8c4289810c80d7dd7dbc6310019031a98",
+      "bytes": 57268
+    },
+    "reports/pocoma-architecture-tests/surefire-reports/TEST-com.kartaguez.pocoma.architecture.HexagonalArchitectureTest.xml": {
+      "original_sha256": "f168b81754e95da3a6ca5c542b423a95462bd1ef46db4ad48b10941c9fd467bf",
+      "published_sha256": "f168b81754e95da3a6ca5c542b423a95462bd1ef46db4ad48b10941c9fd467bf",
+      "bytes": 64685
+    },
+    "reports/pocoma-architecture-tests/surefire-reports/TEST-com.kartaguez.pocoma.architecture.Pcl3LegacyAbsenceTest.xml": {
+      "original_sha256": "cedd5c25e5320a8104de374bece506857f3484627924e219e4b8f81d8a9abe7b",
+      "published_sha256": "cedd5c25e5320a8104de374bece506857f3484627924e219e4b8f81d8a9abe7b",
+      "bytes": 56071
+    },
+    "reports/pocoma-architecture-tests/surefire-reports/TEST-com.kartaguez.pocoma.architecture.Pcl4LegacyQueryReadAbsenceTest.xml": {
+      "original_sha256": "ddb6c9e54ebfde8e51590428d75e8930619358f607e3582bb2af1f82f4886ebd",
+      "published_sha256": "ddb6c9e54ebfde8e51590428d75e8930619358f607e3582bb2af1f82f4886ebd",
+      "bytes": 56251
+    },
+    "reports/pocoma-architecture-tests/surefire-reports/TEST-com.kartaguez.pocoma.architecture.Pcl5PipelineLifecycleAbsenceTest.xml": {
+      "original_sha256": "c263010a5e492b588ae08cccefb61759cf44a1166ad88f6cb710f1ba4fe70712",
+      "published_sha256": "c263010a5e492b588ae08cccefb61759cf44a1166ad88f6cb710f1ba4fe70712",
+      "bytes": 56609
+    },
+    "reports/pocoma-architecture-tests/surefire-reports/TEST-com.kartaguez.pocoma.architecture.Pcl6MonolithAbsenceTest.xml": {
+      "original_sha256": "8eba8265b8387b232c4e5f913fc0e2f3467690e829c37c93a879635bbf032fa0",
+      "published_sha256": "8eba8265b8387b232c4e5f913fc0e2f3467690e829c37c93a879635bbf032fa0",
+      "bytes": 56689
+    },
+    "reports/pocoma-architecture-tests/surefire-reports/TEST-com.kartaguez.pocoma.architecture.Pcl7ModuleDependencyCollapseTest.xml": {
+      "original_sha256": "459eef682d9f5a88f480c3dd1586881fc8df71aa5fffa7c79580ecb97af28215",
+      "published_sha256": "459eef682d9f5a88f480c3dd1586881fc8df71aa5fffa7c79580ecb97af28215",
+      "bytes": 56249
+    },
+    "reports/pocoma-architecture-tests/surefire-reports/TEST-com.kartaguez.pocoma.architecture.Pcl8DatabaseDemolitionPostgresTest.xml": {
+      "original_sha256": "472e3717a6a8d88a0a79843346f9c1270674b1f6e43403f4a56b23d5fe005d76",
+      "published_sha256": "472e3717a6a8d88a0a79843346f9c1270674b1f6e43403f4a56b23d5fe005d76",
+      "bytes": 75199
+    },
+    "reports/pocoma-architecture-tests/surefire-reports/TEST-com.kartaguez.pocoma.architecture.Pcl8DatabaseDemolitionTest.xml": {
+      "original_sha256": "3836eabc0b4fd2356f6af0ac2934852cd913712bbc7c98e47d2a35f3b81f5f3e",
+      "published_sha256": "3836eabc0b4fd2356f6af0ac2934852cd913712bbc7c98e47d2a35f3b81f5f3e",
+      "bytes": 56014
+    },
+    "reports/pocoma-architecture-tests/surefire-reports/TEST-com.kartaguez.pocoma.architecture.PostWp4OwnershipArchitectureTest.xml": {
+      "original_sha256": "8147f4b4021a80a0ea90bb9bbdf8ea0de64a0c9b83dc24fabb7cb498775ac653",
+      "published_sha256": "8147f4b4021a80a0ea90bb9bbdf8ea0de64a0c9b83dc24fabb7cb498775ac653",
+      "bytes": 56097
+    },
+    "reports/pocoma-architecture-tests/surefire-reports/TEST-com.kartaguez.pocoma.architecture.RegistrationModuleBoundaryTest.xml": {
+      "original_sha256": "00a076dd71dcdf84d65936bee81b272a36efb0f1be1ee195d22bb17656cae8af",
+      "published_sha256": "00a076dd71dcdf84d65936bee81b272a36efb0f1be1ee195d22bb17656cae8af",
+      "bytes": 56115
+    },
+    "reports/pocoma-architecture-tests/surefire-reports/TEST-com.kartaguez.pocoma.architecture.Wa67BindingArchitectureTest.xml": {
+      "original_sha256": "b599e0dc5d91011dc9b3a57d437397da67bd5284179e6552a89cd52ebcc5c5a6",
+      "published_sha256": "b599e0dc5d91011dc9b3a57d437397da67bd5284179e6552a89cd52ebcc5c5a6",
+      "bytes": 56447
+    },
+    "reports/pocoma-architecture-tests/surefire-reports/TEST-com.kartaguez.pocoma.architecture.Wp2BoundaryTest.xml": {
+      "original_sha256": "26d77ae3d006fdf8ba85521a8ae1ff89b170a380eb1b21baa37a88dcb739c3bb",
+      "published_sha256": "26d77ae3d006fdf8ba85521a8ae1ff89b170a380eb1b21baa37a88dcb739c3bb",
+      "bytes": 56135
+    },
+    "reports/pocoma-architecture-tests/surefire-reports/TEST-com.kartaguez.pocoma.architecture.Wp3BoundaryTest.xml": {
+      "original_sha256": "c981dbbe6cd2a60b69b9a265b51f0b84bb74e5378e1a2460477a07560a05ef24",
+      "published_sha256": "c981dbbe6cd2a60b69b9a265b51f0b84bb74e5378e1a2460477a07560a05ef24",
+      "bytes": 56080
+    },
+    "reports/pocoma-architecture-tests/surefire-reports/TEST-com.kartaguez.pocoma.architecture.Wp4BoundaryTest.xml": {
+      "original_sha256": "a4248fda67b6f5756bf75e951eaa5f59c0ae916799e596428ffcf5db1fe64754",
+      "published_sha256": "a4248fda67b6f5756bf75e951eaa5f59c0ae916799e596428ffcf5db1fe64754",
+      "bytes": 56293
+    },
+    "reports/pocoma-architecture-tests/surefire-reports/TEST-com.kartaguez.pocoma.architecture.Wp5TargetTopologyTest.xml": {
+      "original_sha256": "654560208fde6334aa17c53cc1aad7a5330c0bf2cad1a31db566465e3b9a5936",
+      "published_sha256": "654560208fde6334aa17c53cc1aad7a5330c0bf2cad1a31db566465e3b9a5936",
+      "bytes": 56215
+    },
+    "reports/pocoma-architecture-tests/surefire-reports/TEST-com.kartaguez.pocoma.architecture.ccr.CommandCompletionE2EPostgresTest.xml": {
+      "original_sha256": "c9ea840c13f127d00edb564109439a7e397ed6bd35c10da9370eeb287399db9e",
+      "published_sha256": "c9ea840c13f127d00edb564109439a7e397ed6bd35c10da9370eeb287399db9e",
+      "bytes": 234209
+    },
+    "reports/pocoma-architecture-tests/surefire-reports/TEST-com.kartaguez.pocoma.architecture.ccr.CommandResultConsumptionChainPostgresTest.xml": {
+      "original_sha256": "2b2eaf8c76e9335b94a3772eb831dfcf01a2a4b76988ce20baaa1c78179ea212",
+      "published_sha256": "2b2eaf8c76e9335b94a3772eb831dfcf01a2a4b76988ce20baaa1c78179ea212",
+      "bytes": 70918
+    },
+    "reports/pocoma-architecture-tests/surefire-reports/TEST-com.kartaguez.pocoma.architecture.ccr.CommandResultTakeoverRacePostgresTest.xml": {
+      "original_sha256": "ca118b143444a865b9cb75c9e565c965c69e43e455134876684395f8b4478d9d",
+      "published_sha256": "ca118b143444a865b9cb75c9e565c965c69e43e455134876684395f8b4478d9d",
+      "bytes": 75244
+    },
+    "reports/pocoma-architecture-tests/surefire-reports/TEST-com.kartaguez.pocoma.architecture.ept.DurableEventToProjectionPostgresTest.xml": {
+      "original_sha256": "9fb0978fa64bfe82ed1edf0d6328950fcc8ae8edc3fad741f8ff23338a109864",
+      "published_sha256": "9fb0978fa64bfe82ed1edf0d6328950fcc8ae8edc3fad741f8ff23338a109864",
+      "bytes": 74952
+    },
+    "reports/pocoma-architecture-tests/surefire-reports/TEST-com.kartaguez.pocoma.architecture.ept.HistoricalEventRouteEvolutionPostgresTest.xml": {
+      "original_sha256": "f108830ce7d2b6df47b75f436506290da86c87e07aa41da37e4ad85ad1204188",
+      "published_sha256": "f108830ce7d2b6df47b75f436506290da86c87e07aa41da37e4ad85ad1204188",
+      "bytes": 71211
+    },
+    "reports/pocoma-architecture-tests/surefire-reports/TEST-com.kartaguez.pocoma.architecture.v3.V3ConsumptionEngineArchitectureTest.xml": {
+      "original_sha256": "ee16b8eefe5a47d802e0163291ad2d578ebcd01703b789a63c0290b11097d904",
+      "published_sha256": "ee16b8eefe5a47d802e0163291ad2d578ebcd01703b789a63c0290b11097d904",
+      "bytes": 57472
+    },
+    "reports/pocoma-architecture-tests/surefire-reports/TEST-com.kartaguez.pocoma.architecture.v3.V3ConsumptionFoundationArchitectureTest.xml": {
+      "original_sha256": "8ad1ef959a9b37a54bcc4b85dd97e06b370163f9bd57e08415d90c5297906b67",
+      "published_sha256": "8ad1ef959a9b37a54bcc4b85dd97e06b370163f9bd57e08415d90c5297906b67",
+      "bytes": 56143
+    },
+    "reports/pocoma-architecture-tests/surefire-reports/TEST-com.kartaguez.pocoma.architecture.v3.V3FoundationArchitectureTest.xml": {
+      "original_sha256": "3d08e40b00a6a0fec6b6d116914b096f5df4052f3a7e9939be265324f261c43d",
+      "published_sha256": "3d08e40b00a6a0fec6b6d116914b096f5df4052f3a7e9939be265324f261c43d",
+      "bytes": 56401
+    },
+    "reports/pocoma-architecture-tests/surefire-reports/TEST-com.kartaguez.pocoma.architecture.v3.V3IdentityAuthorityArchitectureTest.xml": {
+      "original_sha256": "be3357e35e9eaa7585cb1d3167abb6bffffb63946c207c580377a22830efd81e",
+      "published_sha256": "be3357e35e9eaa7585cb1d3167abb6bffffb63946c207c580377a22830efd81e",
+      "bytes": 56303
+    },
+    "reports/pocoma-architecture-tests/surefire-reports/TEST-com.kartaguez.pocoma.architecture.v3.V3PotExecutionArchitectureTest.xml": {
+      "original_sha256": "9ea67755b94681c2bd24505eef7c33b6fe4d06d903c68ebac98fd472ca355960",
+      "published_sha256": "9ea67755b94681c2bd24505eef7c33b6fe4d06d903c68ebac98fd472ca355960",
+      "bytes": 56114
+    },
+    "reports/pocoma-architecture-tests/surefire-reports/com.kartaguez.pocoma.architecture.BindingLockOwnershipTest.txt": {
+      "original_sha256": "ff854a3c5715827f3d1ad057b1e800e074ade503fed5ecb2593c3de52d82d270",
+      "published_sha256": "ff854a3c5715827f3d1ad057b1e800e074ade503fed5ecb2593c3de52d82d270",
+      "bytes": 366
+    },
+    "reports/pocoma-architecture-tests/surefire-reports/com.kartaguez.pocoma.architecture.DistributedComposeConfigurationTest.txt": {
+      "original_sha256": "896ecbcf37a24d47913c70b82d2bffe4eb2b805393b9ca41723de27a85c89f50",
+      "published_sha256": "896ecbcf37a24d47913c70b82d2bffe4eb2b805393b9ca41723de27a85c89f50",
+      "bytes": 388
+    },
+    "reports/pocoma-architecture-tests/surefire-reports/com.kartaguez.pocoma.architecture.EventPublicationContractArchitectureTest.txt": {
+      "original_sha256": "a5025e182e68de154eacd2c9289ce98e99ceab95cc878d368835c8367d3217eb",
+      "published_sha256": "a5025e182e68de154eacd2c9289ce98e99ceab95cc878d368835c8367d3217eb",
+      "bytes": 398
+    },
+    "reports/pocoma-architecture-tests/surefire-reports/com.kartaguez.pocoma.architecture.HexagonalArchitectureTest.txt": {
+      "original_sha256": "1b1a8c802ee56acac1e843b0828892d1a222587972c725ad833dd0736824d200",
+      "published_sha256": "1b1a8c802ee56acac1e843b0828892d1a222587972c725ad833dd0736824d200",
+      "bytes": 369
+    },
+    "reports/pocoma-architecture-tests/surefire-reports/com.kartaguez.pocoma.architecture.Pcl3LegacyAbsenceTest.txt": {
+      "original_sha256": "f5521281fc4faa07a0c36c1560f767ba39b3b3489e469a15707288ab337812ab",
+      "published_sha256": "f5521281fc4faa07a0c36c1560f767ba39b3b3489e469a15707288ab337812ab",
+      "bytes": 360
+    },
+    "reports/pocoma-architecture-tests/surefire-reports/com.kartaguez.pocoma.architecture.Pcl4LegacyQueryReadAbsenceTest.txt": {
+      "original_sha256": "bb102ee07fa49c729ebc5e2e5168e08a361a4791f12a9c8857c3280ad0d9fce6",
+      "published_sha256": "bb102ee07fa49c729ebc5e2e5168e08a361a4791f12a9c8857c3280ad0d9fce6",
+      "bytes": 378
+    },
+    "reports/pocoma-architecture-tests/surefire-reports/com.kartaguez.pocoma.architecture.Pcl5PipelineLifecycleAbsenceTest.txt": {
+      "original_sha256": "e3a0d3e57d1eb911b7821ce1554efefa95e7b22bf3717d7a246c2c661dc52305",
+      "published_sha256": "e3a0d3e57d1eb911b7821ce1554efefa95e7b22bf3717d7a246c2c661dc52305",
+      "bytes": 382
+    },
+    "reports/pocoma-architecture-tests/surefire-reports/com.kartaguez.pocoma.architecture.Pcl6MonolithAbsenceTest.txt": {
+      "original_sha256": "c6cbabfc436f19574232d1ca8008cf85c2dfd72fd00153aee650c29aeaa175d5",
+      "published_sha256": "c6cbabfc436f19574232d1ca8008cf85c2dfd72fd00153aee650c29aeaa175d5",
+      "bytes": 364
+    },
+    "reports/pocoma-architecture-tests/surefire-reports/com.kartaguez.pocoma.architecture.Pcl7ModuleDependencyCollapseTest.txt": {
+      "original_sha256": "baf9fdd9cef81be36ce8818df7b351451c6275fa18beb5d3b7f75fe60c161766",
+      "published_sha256": "baf9fdd9cef81be36ce8818df7b351451c6275fa18beb5d3b7f75fe60c161766",
+      "bytes": 382
+    },
+    "reports/pocoma-architecture-tests/surefire-reports/com.kartaguez.pocoma.architecture.Pcl8DatabaseDemolitionPostgresTest.txt": {
+      "original_sha256": "0cbe33d73e091c10355b3029dd456c7fb2f47b65dbdbc9a8bcf1d967f59f151a",
+      "published_sha256": "0cbe33d73e091c10355b3029dd456c7fb2f47b65dbdbc9a8bcf1d967f59f151a",
+      "bytes": 386
+    },
+    "reports/pocoma-architecture-tests/surefire-reports/com.kartaguez.pocoma.architecture.Pcl8DatabaseDemolitionTest.txt": {
+      "original_sha256": "8ba46c01ace9b13f6f902b2718e6ba3a41e5e99dc63fb45837461569cc5b7e50",
+      "published_sha256": "8ba46c01ace9b13f6f902b2718e6ba3a41e5e99dc63fb45837461569cc5b7e50",
+      "bytes": 370
+    },
+    "reports/pocoma-architecture-tests/surefire-reports/com.kartaguez.pocoma.architecture.PostWp4OwnershipArchitectureTest.txt": {
+      "original_sha256": "b1424c0f787e2afacc1bf5c1313e3b939547f77d0215b62f0f894313b675b5a9",
+      "published_sha256": "b1424c0f787e2afacc1bf5c1313e3b939547f77d0215b62f0f894313b675b5a9",
+      "bytes": 382
+    },
+    "reports/pocoma-architecture-tests/surefire-reports/com.kartaguez.pocoma.architecture.RegistrationModuleBoundaryTest.txt": {
+      "original_sha256": "107994ef21f07e28c1315f3d1555a9e6396dc9bfdaac05e5f9a058568068adfb",
+      "published_sha256": "107994ef21f07e28c1315f3d1555a9e6396dc9bfdaac05e5f9a058568068adfb",
+      "bytes": 378
+    },
+    "reports/pocoma-architecture-tests/surefire-reports/com.kartaguez.pocoma.architecture.Wa67BindingArchitectureTest.txt": {
+      "original_sha256": "0f63e35dbfe78c1bc6341f41008bb17b70c38817eae8ffef3779bf7100097c97",
+      "published_sha256": "0f63e35dbfe78c1bc6341f41008bb17b70c38817eae8ffef3779bf7100097c97",
+      "bytes": 372
+    },
+    "reports/pocoma-architecture-tests/surefire-reports/com.kartaguez.pocoma.architecture.Wp2BoundaryTest.txt": {
+      "original_sha256": "649a51cd310f32993f1f69e4b03176850935224a2ad96ce5928a97eb729222da",
+      "published_sha256": "649a51cd310f32993f1f69e4b03176850935224a2ad96ce5928a97eb729222da",
+      "bytes": 348
+    },
+    "reports/pocoma-architecture-tests/surefire-reports/com.kartaguez.pocoma.architecture.Wp3BoundaryTest.txt": {
+      "original_sha256": "e5257e93ccc28559d7b16bc1991350f4a7e3e2f502b3f7c9d68dcb1e0bf10419",
+      "published_sha256": "e5257e93ccc28559d7b16bc1991350f4a7e3e2f502b3f7c9d68dcb1e0bf10419",
+      "bytes": 348
+    },
+    "reports/pocoma-architecture-tests/surefire-reports/com.kartaguez.pocoma.architecture.Wp4BoundaryTest.txt": {
+      "original_sha256": "042ad493cb2397c0501b772989526827396cd9dfade2188ea6062535197b10a2",
+      "published_sha256": "042ad493cb2397c0501b772989526827396cd9dfade2188ea6062535197b10a2",
+      "bytes": 348
+    },
+    "reports/pocoma-architecture-tests/surefire-reports/com.kartaguez.pocoma.architecture.Wp5TargetTopologyTest.txt": {
+      "original_sha256": "0c3ab5482282060cda758eedb45cdb2fc6fa4a0289c949f669de5f7977d9fcdd",
+      "published_sha256": "0c3ab5482282060cda758eedb45cdb2fc6fa4a0289c949f669de5f7977d9fcdd",
+      "bytes": 360
+    },
+    "reports/pocoma-architecture-tests/surefire-reports/com.kartaguez.pocoma.architecture.ccr.CommandCompletionE2EPostgresTest.txt": {
+      "original_sha256": "7ecaf0b60341884b2165be5c0fc4d12d323de0e839978d01090aff13d3ebe766",
+      "published_sha256": "7ecaf0b60341884b2165be5c0fc4d12d323de0e839978d01090aff13d3ebe766",
+      "bytes": 390
+    },
+    "reports/pocoma-architecture-tests/surefire-reports/com.kartaguez.pocoma.architecture.ccr.CommandResultConsumptionChainPostgresTest.txt": {
+      "original_sha256": "6e43e731470047d4147f73004bf3c3c7274bc0b2f86803237ac799a33df9a879",
+      "published_sha256": "6e43e731470047d4147f73004bf3c3c7274bc0b2f86803237ac799a33df9a879",
+      "bytes": 408
+    },
+    "reports/pocoma-architecture-tests/surefire-reports/com.kartaguez.pocoma.architecture.ccr.CommandResultTakeoverRacePostgresTest.txt": {
+      "original_sha256": "f660d8e0da59bbc492ea3b2f8c48e4caa6749de90bad6f54075c32a8c798ea95",
+      "published_sha256": "f660d8e0da59bbc492ea3b2f8c48e4caa6749de90bad6f54075c32a8c798ea95",
+      "bytes": 400
+    },
+    "reports/pocoma-architecture-tests/surefire-reports/com.kartaguez.pocoma.architecture.ept.DurableEventToProjectionPostgresTest.txt": {
+      "original_sha256": "f462f9b334ec4bb3c5c1bdae34a03c2cff4ccb46ca3ca28a78c2f7dd5dce10be",
+      "published_sha256": "f462f9b334ec4bb3c5c1bdae34a03c2cff4ccb46ca3ca28a78c2f7dd5dce10be",
+      "bytes": 398
+    },
+    "reports/pocoma-architecture-tests/surefire-reports/com.kartaguez.pocoma.architecture.ept.HistoricalEventRouteEvolutionPostgresTest.txt": {
+      "original_sha256": "5b05e80590333a323761949ebd7c388b0563deca45c58b9d81c871bb1d9d3705",
+      "published_sha256": "5b05e80590333a323761949ebd7c388b0563deca45c58b9d81c871bb1d9d3705",
+      "bytes": 408
+    },
+    "reports/pocoma-architecture-tests/surefire-reports/com.kartaguez.pocoma.architecture.v3.V3ConsumptionEngineArchitectureTest.txt": {
+      "original_sha256": "f362d63be26dece1922cc37364a3cb3b166808dae653100286f45228aca155a1",
+      "published_sha256": "f362d63be26dece1922cc37364a3cb3b166808dae653100286f45228aca155a1",
+      "bytes": 395
+    },
+    "reports/pocoma-architecture-tests/surefire-reports/com.kartaguez.pocoma.architecture.v3.V3ConsumptionFoundationArchitectureTest.txt": {
+      "original_sha256": "7c3dbcf9a1a834b09c184c7259ea2f1b3f2a0479d83154a99845cd411f661522",
+      "published_sha256": "7c3dbcf9a1a834b09c184c7259ea2f1b3f2a0479d83154a99845cd411f661522",
+      "bytes": 402
+    },
+    "reports/pocoma-architecture-tests/surefire-reports/com.kartaguez.pocoma.architecture.v3.V3FoundationArchitectureTest.txt": {
+      "original_sha256": "1bcff73dc748344e32bf2a375e5b27432b05c8db5ce14a3d0439384f581b5e92",
+      "published_sha256": "1bcff73dc748344e32bf2a375e5b27432b05c8db5ce14a3d0439384f581b5e92",
+      "bytes": 380
+    },
+    "reports/pocoma-architecture-tests/surefire-reports/com.kartaguez.pocoma.architecture.v3.V3IdentityAuthorityArchitectureTest.txt": {
+      "original_sha256": "2a38882d0e7df393e0cb077ada4b35d433d05f97f34f2d1162bda30e85d2ff5f",
+      "published_sha256": "2a38882d0e7df393e0cb077ada4b35d433d05f97f34f2d1162bda30e85d2ff5f",
+      "bytes": 394
+    },
+    "reports/pocoma-architecture-tests/surefire-reports/com.kartaguez.pocoma.architecture.v3.V3PotExecutionArchitectureTest.txt": {
+      "original_sha256": "76bd4fa73e33254863c3ee7dbb93b89162c6fa509babf211b0411ddcac30973b",
+      "published_sha256": "76bd4fa73e33254863c3ee7dbb93b89162c6fa509babf211b0411ddcac30973b",
+      "bytes": 384
+    },
+    "result.json": {
+      "original_sha256": "c3ee404e3cf9d8f9c1f2aab051a6333635c6b44f5dd6c4f3638575e4d05bf90d",
+      "published_sha256": "c3ee404e3cf9d8f9c1f2aab051a6333635c6b44f5dd6c4f3638575e4d05bf90d",
+      "bytes": 73818
+    },
+    "timings.json": {
+      "original_sha256": "b197f9f530ad855ecc91b40d7fb101fb2037d476f6f6c25bbb22b631570cf777",
+      "published_sha256": "b197f9f530ad855ecc91b40d7fb101fb2037d476f6f6c25bbb22b631570cf777",
+      "bytes": 744
+    }
+  },
+  "redactions": [],
+  "policy": "Only secret/canary values redacted. Outcomes, identities, counters, timings and original hashes retained. Original process artifacts remain at the private source path."
+}

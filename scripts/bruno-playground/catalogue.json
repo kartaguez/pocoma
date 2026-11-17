@@ -1,0 +1,1162 @@
+[
+  {
+    "id": "E00",
+    "folder": "00 - Getting Started",
+    "file": "00 - Getting Started/E00 Environment Check.bru",
+    "method": "GET",
+    "path": "/.well-known/openid-configuration",
+    "role": "none",
+    "operation": null,
+    "options": {
+      "id": "E00",
+      "role": "none",
+      "kind": "discovery",
+      "status": 200
+    },
+    "preconditions": [],
+    "contract": "Discovery reelle : issuer exact, Authorization Code et S256. Aucun token requis."
+  },
+  {
+    "id": "I01",
+    "folder": "01 - Identity and Registration",
+    "file": "01 - Identity and Registration/I01 Register Owner.bru",
+    "method": "POST",
+    "path": "/identity/requests",
+    "role": "owner",
+    "operation": "Registration",
+    "options": {
+      "id": "I01",
+      "role": "owner",
+      "operation": "Registration",
+      "kind": "identityAdmission"
+    },
+    "preconditions": [],
+    "contract": "202 + requestId. Le resultat est COMPLETED ou REJECTED / TARGET_ALREADY_BOUND si deja inscrit. Executer ensuite Result puis Binding de cette identite."
+  },
+  {
+    "id": "I02",
+    "folder": "01 - Identity and Registration",
+    "file": "01 - Identity and Registration/I02 Owner Identity Result.bru",
+    "method": "GET",
+    "path": "/identity/requests/{{identityOwnerRequestId}}/result",
+    "role": "owner",
+    "operation": null,
+    "options": {
+      "id": "I02",
+      "role": "owner",
+      "kind": "identityResult",
+      "wait": true,
+      "status": 200,
+      "requires": [
+        "identityOwnerRequestId"
+      ]
+    },
+    "preconditions": [
+      "identityOwnerRequestId"
+    ],
+    "contract": "Resultat propre terminal, correlation requestId/operation ; le resultat ne fournit pas de bindingToken."
+  },
+  {
+    "id": "I03",
+    "folder": "01 - Identity and Registration",
+    "file": "01 - Identity and Registration/I03 Owner Binding.bru",
+    "method": "GET",
+    "path": "/me/binding?minVersion={{identityOwnerVersion}}",
+    "role": "owner",
+    "operation": null,
+    "options": {
+      "id": "I03",
+      "role": "owner",
+      "kind": "binding",
+      "wait": true,
+      "status": 200
+    },
+    "preconditions": [],
+    "contract": "Occurrence propre active, euiVersion >= targetVersion. Capture bindingOwner en memoire. Apres Unlink : occurrence inactive attendue via le parcours J03."
+  },
+  {
+    "id": "I04",
+    "folder": "01 - Identity and Registration",
+    "file": "01 - Identity and Registration/I04 Register Guest.bru",
+    "method": "POST",
+    "path": "/identity/requests",
+    "role": "guest",
+    "operation": "Registration",
+    "options": {
+      "id": "I04",
+      "role": "guest",
+      "operation": "Registration",
+      "kind": "identityAdmission"
+    },
+    "preconditions": [],
+    "contract": "202 + requestId. Le resultat est COMPLETED ou REJECTED / TARGET_ALREADY_BOUND si deja inscrit. Executer ensuite Result puis Binding de cette identite."
+  },
+  {
+    "id": "I05",
+    "folder": "01 - Identity and Registration",
+    "file": "01 - Identity and Registration/I05 Guest Identity Result.bru",
+    "method": "GET",
+    "path": "/identity/requests/{{identityGuestRequestId}}/result",
+    "role": "guest",
+    "operation": null,
+    "options": {
+      "id": "I05",
+      "role": "guest",
+      "kind": "identityResult",
+      "wait": true,
+      "status": 200,
+      "requires": [
+        "identityGuestRequestId"
+      ]
+    },
+    "preconditions": [
+      "identityGuestRequestId"
+    ],
+    "contract": "Resultat propre terminal, correlation requestId/operation ; le resultat ne fournit pas de bindingToken."
+  },
+  {
+    "id": "I06",
+    "folder": "01 - Identity and Registration",
+    "file": "01 - Identity and Registration/I06 Guest Binding.bru",
+    "method": "GET",
+    "path": "/me/binding?minVersion={{identityGuestVersion}}",
+    "role": "guest",
+    "operation": null,
+    "options": {
+      "id": "I06",
+      "role": "guest",
+      "kind": "binding",
+      "wait": true,
+      "status": 200
+    },
+    "preconditions": [],
+    "contract": "Occurrence propre active, euiVersion >= targetVersion. Capture bindingGuest en memoire. Apres Unlink : occurrence inactive attendue via le parcours J03."
+  },
+  {
+    "id": "I07",
+    "folder": "01 - Identity and Registration",
+    "file": "01 - Identity and Registration/I07 Unlink Guest Self.bru",
+    "method": "POST",
+    "path": "/identity/requests",
+    "role": "guest",
+    "operation": "Unlink",
+    "options": {
+      "id": "I07",
+      "role": "guest",
+      "saveStaleBinding": true,
+      "requires": [
+        "bindingGuest"
+      ],
+      "operation": "Unlink",
+      "kind": "identityAdmission"
+    },
+    "preconditions": [
+      "bindingGuest"
+    ],
+    "contract": "Desaffiliation de guest lui-meme ; cible derivee de sa session reelle. I05 puis I06 (inactive). Registration permet une nouvelle occurrence, jamais la reutilisation de l ancien binding."
+  },
+  {
+    "id": "P01",
+    "folder": "02 - Pots",
+    "file": "02 - Pots/P01 Create Pot.bru",
+    "method": "POST",
+    "path": "/commands",
+    "role": "actor",
+    "operation": "CreatePot",
+    "options": {
+      "id": "P01",
+      "role": "actor",
+      "newPot": true,
+      "operation": "CreatePot",
+      "kind": "commandAdmission"
+    },
+    "preconditions": [],
+    "contract": "CreatePot : 202 avec requestId seulement. Ouvrir R01 Command Result pour connaitre le resultat metier et actualiser potVersion. Createur ou membre actif ; binding courant, version observee et references valides."
+  },
+  {
+    "id": "P02",
+    "folder": "02 - Pots",
+    "file": "02 - Pots/P02 Update Pot Details.bru",
+    "method": "POST",
+    "path": "/commands",
+    "role": "actor",
+    "operation": "UpdatePotDetails",
+    "options": {
+      "id": "P02",
+      "role": "actor",
+      "requires": [
+        "potId",
+        "potVersion"
+      ],
+      "operation": "UpdatePotDetails",
+      "kind": "commandAdmission"
+    },
+    "preconditions": [
+      "potId",
+      "potVersion"
+    ],
+    "contract": "UpdatePotDetails : 202 avec requestId seulement. Ouvrir R01 Command Result pour connaitre le resultat metier et actualiser potVersion. Createur ou membre actif ; binding courant, version observee et references valides."
+  },
+  {
+    "id": "P03",
+    "folder": "02 - Pots",
+    "file": "02 - Pots/P03 Delete Pot.bru",
+    "method": "POST",
+    "path": "/commands",
+    "role": "actor",
+    "operation": "DeletePot",
+    "options": {
+      "id": "P03",
+      "role": "actor",
+      "requires": [
+        "potId",
+        "potVersion"
+      ],
+      "operation": "DeletePot",
+      "kind": "commandAdmission"
+    },
+    "preconditions": [
+      "potId",
+      "potVersion"
+    ],
+    "contract": "DeletePot : 202 avec requestId seulement. Ouvrir R01 Command Result pour connaitre le resultat metier et actualiser potVersion. Createur uniquement ; version courante exacte. Verifier le resultat terminal avant les 404."
+  },
+  {
+    "id": "P04",
+    "folder": "02 - Pots",
+    "file": "02 - Pots/P04 Read Current Pot.bru",
+    "method": "GET",
+    "path": "/pots/{{potId}}?minVersion={{potVersion}}",
+    "role": "actor",
+    "operation": null,
+    "options": {
+      "id": "P04",
+      "role": "actor",
+      "kind": "pot",
+      "binding": true,
+      "wait": true,
+      "status": 200,
+      "requires": [
+        "potId",
+        "potVersion"
+      ]
+    },
+    "preconditions": [
+      "potId",
+      "potVersion"
+    ],
+    "contract": "Pot complet courant W >= version demandee. Capture readVersion et les references Expense opaques ; aucune approximation historique."
+  },
+  {
+    "id": "S01",
+    "folder": "03 - Shareholders",
+    "file": "03 - Shareholders/S01 Add Owner and Free Guest.bru",
+    "method": "POST",
+    "path": "/commands",
+    "role": "actor",
+    "operation": "AddShareholders",
+    "options": {
+      "id": "S01",
+      "role": "actor",
+      "requires": [
+        "potId",
+        "potVersion"
+      ],
+      "operation": "AddShareholders",
+      "kind": "commandAdmission"
+    },
+    "preconditions": [
+      "potId",
+      "potVersion"
+    ],
+    "contract": "AddShareholders : 202 avec requestId seulement. Ouvrir R01 Command Result pour connaitre le resultat metier et actualiser potVersion. Createur ou membre actif ; binding courant, version observee et references valides."
+  },
+  {
+    "id": "S02",
+    "folder": "03 - Shareholders",
+    "file": "03 - Shareholders/S02 Rename Shareholder KEEP.bru",
+    "method": "POST",
+    "path": "/commands",
+    "role": "actor",
+    "operation": "UpdateShareholderDetails",
+    "options": {
+      "id": "S02",
+      "role": "actor",
+      "requires": [
+        "potId",
+        "potVersion"
+      ],
+      "operation": "UpdateShareholderDetails",
+      "kind": "commandAdmission"
+    },
+    "preconditions": [
+      "potId",
+      "potVersion"
+    ],
+    "contract": "UpdateShareholderDetails : 202 avec requestId seulement. Ouvrir R01 Command Result pour connaitre le resultat metier et actualiser potVersion. Createur ou membre actif ; binding courant, version observee et references valides."
+  },
+  {
+    "id": "S03",
+    "folder": "03 - Shareholders",
+    "file": "03 - Shareholders/S03 Update Shareholder Weights.bru",
+    "method": "POST",
+    "path": "/commands",
+    "role": "actor",
+    "operation": "UpdateShareholderWeights",
+    "options": {
+      "id": "S03",
+      "role": "actor",
+      "requires": [
+        "potId",
+        "potVersion"
+      ],
+      "operation": "UpdateShareholderWeights",
+      "kind": "commandAdmission"
+    },
+    "preconditions": [
+      "potId",
+      "potVersion"
+    ],
+    "contract": "UpdateShareholderWeights : 202 avec requestId seulement. Ouvrir R01 Command Result pour connaitre le resultat metier et actualiser potVersion. Createur ou membre actif ; binding courant, version observee et references valides."
+  },
+  {
+    "id": "S04",
+    "folder": "03 - Shareholders",
+    "file": "03 - Shareholders/S04 Delete Guest Shareholder.bru",
+    "method": "POST",
+    "path": "/commands",
+    "role": "actor",
+    "operation": "DeleteShareholder",
+    "options": {
+      "id": "S04",
+      "role": "actor",
+      "requires": [
+        "potId",
+        "potVersion"
+      ],
+      "operation": "DeleteShareholder",
+      "kind": "commandAdmission"
+    },
+    "preconditions": [
+      "potId",
+      "potVersion"
+    ],
+    "contract": "DeleteShareholder : 202 avec requestId seulement. Ouvrir R01 Command Result pour connaitre le resultat metier et actualiser potVersion. Createur uniquement ; aucune depense active ne doit referencer la place."
+  },
+  {
+    "id": "S05",
+    "folder": "03 - Shareholders",
+    "file": "03 - Shareholders/S05 Guest Voluntary Departure DETACH.bru",
+    "method": "POST",
+    "path": "/commands",
+    "role": "guest",
+    "operation": "UpdateShareholderDetails",
+    "options": {
+      "id": "S05",
+      "role": "guest",
+      "requires": [
+        "potId",
+        "potVersion"
+      ],
+      "operation": "UpdateShareholderDetails",
+      "kind": "commandAdmission"
+    },
+    "preconditions": [
+      "potId",
+      "potVersion"
+    ],
+    "contract": "UpdateShareholderDetails : 202 avec requestId seulement. Ouvrir R01 Command Result pour connaitre le resultat metier et actualiser potVersion. Createur ou membre actif ; binding courant, version observee et references valides."
+  },
+  {
+    "id": "S06",
+    "folder": "03 - Shareholders",
+    "file": "03 - Shareholders/S06 Attach Own Free Shareholder SELF.bru",
+    "method": "POST",
+    "path": "/commands",
+    "role": "actor",
+    "operation": "UpdateShareholderDetails",
+    "options": {
+      "id": "S06",
+      "role": "actor",
+      "requires": [
+        "potId",
+        "potVersion"
+      ],
+      "operation": "UpdateShareholderDetails",
+      "kind": "commandAdmission"
+    },
+    "preconditions": [
+      "potId",
+      "potVersion"
+    ],
+    "contract": "UpdateShareholderDetails : 202 avec requestId seulement. Ouvrir R01 Command Result pour connaitre le resultat metier et actualiser potVersion. Createur ou membre actif ; binding courant, version observee et references valides."
+  },
+  {
+    "id": "X01",
+    "folder": "04 - Expenses",
+    "file": "04 - Expenses/X01 Create Expense.bru",
+    "method": "POST",
+    "path": "/commands",
+    "role": "actor",
+    "operation": "CreateExpense",
+    "options": {
+      "id": "X01",
+      "role": "actor",
+      "requires": [
+        "potId",
+        "potVersion"
+      ],
+      "operation": "CreateExpense",
+      "kind": "commandAdmission"
+    },
+    "preconditions": [
+      "potId",
+      "potVersion"
+    ],
+    "contract": "CreateExpense : 202 avec requestId seulement. Ouvrir R01 Command Result pour connaitre le resultat metier et actualiser potVersion. Createur ou membre actif ; binding courant, version observee et references valides."
+  },
+  {
+    "id": "X02",
+    "folder": "04 - Expenses",
+    "file": "04 - Expenses/X02 Update Expense Details.bru",
+    "method": "POST",
+    "path": "/commands",
+    "role": "actor",
+    "operation": "UpdateExpenseDetails",
+    "options": {
+      "id": "X02",
+      "role": "actor",
+      "requires": [
+        "potId",
+        "potVersion"
+      ],
+      "operation": "UpdateExpenseDetails",
+      "kind": "commandAdmission"
+    },
+    "preconditions": [
+      "potId",
+      "potVersion"
+    ],
+    "contract": "UpdateExpenseDetails : 202 avec requestId seulement. Ouvrir R01 Command Result pour connaitre le resultat metier et actualiser potVersion. Createur ou membre actif ; binding courant, version observee et references valides."
+  },
+  {
+    "id": "X03",
+    "folder": "04 - Expenses",
+    "file": "04 - Expenses/X03 Update Expense Financials.bru",
+    "method": "POST",
+    "path": "/commands",
+    "role": "actor",
+    "operation": "UpdateExpenseFinancials",
+    "options": {
+      "id": "X03",
+      "role": "actor",
+      "requires": [
+        "potId",
+        "potVersion"
+      ],
+      "operation": "UpdateExpenseFinancials",
+      "kind": "commandAdmission"
+    },
+    "preconditions": [
+      "potId",
+      "potVersion"
+    ],
+    "contract": "UpdateExpenseFinancials : 202 avec requestId seulement. Ouvrir R01 Command Result pour connaitre le resultat metier et actualiser potVersion. Createur ou membre actif ; binding courant, version observee et references valides."
+  },
+  {
+    "id": "X04",
+    "folder": "04 - Expenses",
+    "file": "04 - Expenses/X04 Delete Expense.bru",
+    "method": "POST",
+    "path": "/commands",
+    "role": "actor",
+    "operation": "DeleteExpense",
+    "options": {
+      "id": "X04",
+      "role": "actor",
+      "requires": [
+        "potId",
+        "potVersion"
+      ],
+      "operation": "DeleteExpense",
+      "kind": "commandAdmission"
+    },
+    "preconditions": [
+      "potId",
+      "potVersion"
+    ],
+    "contract": "DeleteExpense : 202 avec requestId seulement. Ouvrir R01 Command Result pour connaitre le resultat metier et actualiser potVersion. Createur ou membre actif ; binding courant, version observee et references valides."
+  },
+  {
+    "id": "R01",
+    "folder": "05 - Results",
+    "file": "05 - Results/R01 Command Result.bru",
+    "method": "GET",
+    "path": "/commands/{{commandRequestId}}/result",
+    "role": "command",
+    "operation": null,
+    "options": {
+      "id": "R01",
+      "role": "command",
+      "kind": "commandResult",
+      "wait": true,
+      "status": 200,
+      "requires": [
+        "commandRequestId"
+      ]
+    },
+    "preconditions": [
+      "commandRequestId"
+    ],
+    "contract": "Resultat propre COMPLETED ou REJECTED attendu par la requete admission precedente. Capture potVersion seulement si le resultat en fournit une ; aucune convergence READ supposee."
+  },
+  {
+    "id": "B01",
+    "folder": "06 - Balances and Navigation",
+    "file": "06 - Balances and Navigation/B01 Exact Balances.bru",
+    "method": "GET",
+    "path": "/pots/{{potId}}/versions/{{readVersion}}/balance",
+    "role": "actor",
+    "operation": null,
+    "options": {
+      "id": "B01",
+      "role": "actor",
+      "kind": "balance",
+      "binding": true,
+      "wait": true,
+      "status": 200,
+      "requires": [
+        "potId",
+        "readVersion"
+      ]
+    },
+    "preconditions": [
+      "potId",
+      "readVersion"
+    ],
+    "contract": "Soldes exacts de readVersion obtenu par P04. Rationnels n/d sous forme de chaines, somme exactement zero ; pas de flottants."
+  },
+  {
+    "id": "B02",
+    "folder": "06 - Balances and Navigation",
+    "file": "06 - Balances and Navigation/B02 My Pots First Page.bru",
+    "method": "GET",
+    "path": "/me/pots?limit={{pageLimit}}",
+    "role": "actor",
+    "operation": null,
+    "options": {
+      "id": "B02",
+      "role": "actor",
+      "kind": "navigation",
+      "binding": true,
+      "wait": true,
+      "status": 200
+    },
+    "preconditions": [],
+    "contract": "Navigation propre, limite 1..100 (defaut 20). Capture nextCursor opaque, pas de reconstruction du curseur."
+  },
+  {
+    "id": "B03",
+    "folder": "06 - Balances and Navigation",
+    "file": "06 - Balances and Navigation/B03 My Pots Next Page.bru",
+    "method": "GET",
+    "path": "/me/pots?limit={{pageLimit}}&cursor={{nextCursor}}",
+    "role": "actor",
+    "operation": null,
+    "options": {
+      "id": "B03",
+      "role": "actor",
+      "kind": "navigation",
+      "binding": true,
+      "status": 200,
+      "requires": [
+        "nextCursor"
+      ]
+    },
+    "preconditions": [
+      "nextCursor"
+    ],
+    "contract": "Page suivante apres B02 ; executable seulement si nextCursor non vide. Un jeu neuf peut ne comporter qu une page."
+  },
+  {
+    "id": "H01",
+    "folder": "07 - History",
+    "file": "07 - History/H01 Read Exact Pot History.bru",
+    "method": "GET",
+    "path": "/pots/{{potId}}/versions/{{historyVersion}}",
+    "role": "actor",
+    "operation": null,
+    "options": {
+      "id": "H01",
+      "role": "actor",
+      "kind": "history",
+      "binding": true,
+      "wait": true,
+      "status": 200,
+      "requires": [
+        "potId",
+        "historyVersion"
+      ]
+    },
+    "preconditions": [
+      "potId",
+      "historyVersion"
+    ],
+    "contract": "Version exacte positive choisie dans historyVersion. Capture expenseReferences opaques et readVersion pour balance/batch au meme instant logique."
+  },
+  {
+    "id": "H02",
+    "folder": "07 - History",
+    "file": "07 - History/H02 Query Referenced Expenses.bru",
+    "method": "POST",
+    "path": "/pots/{{potId}}/versions/{{readVersion}}/expenses/query",
+    "role": "actor",
+    "operation": null,
+    "options": {
+      "id": "H02",
+      "role": "actor",
+      "kind": "expenses",
+      "binding": true,
+      "status": 200,
+      "requires": [
+        "potId",
+        "readVersion",
+        "expenseReferences"
+      ]
+    },
+    "preconditions": [
+      "potId",
+      "readVersion",
+      "expenseReferences"
+    ],
+    "contract": "References recopiees de P04/H01 a la meme version : 1..50 uniques. DTO public reference/label/date/amount/payerId/participants."
+  },
+  {
+    "id": "V01",
+    "folder": "08 - Invitations",
+    "file": "08 - Invitations/V01 Create Invitation.bru",
+    "method": "POST",
+    "path": "/commands",
+    "role": "actor",
+    "operation": "CreateInvitation",
+    "options": {
+      "id": "V01",
+      "role": "actor",
+      "newExpiry": true,
+      "requires": [
+        "potId",
+        "potVersion"
+      ],
+      "operation": "CreateInvitation",
+      "kind": "commandAdmission"
+    },
+    "preconditions": [
+      "potId",
+      "potVersion"
+    ],
+    "contract": "CreateInvitation : 202 avec requestId seulement. Ouvrir R01 Command Result pour connaitre le resultat metier et actualiser potVersion. Createur uniquement ; observation 0, expiration UTC future. Le lien est lu separement par V02."
+  },
+  {
+    "id": "V02",
+    "folder": "08 - Invitations",
+    "file": "08 - Invitations/V02 Retrieve Private Invitation.bru",
+    "method": "GET",
+    "path": "/invitations/by-creation-request/{{invitationRequestId}}",
+    "role": "owner",
+    "operation": null,
+    "options": {
+      "id": "V02",
+      "role": "owner",
+      "kind": "invitation",
+      "wait": true,
+      "status": 200,
+      "requires": [
+        "invitationRequestId"
+      ]
+    },
+    "preconditions": [
+      "invitationRequestId"
+    ],
+    "contract": "Seul le createur de la requete lit le lien. Capture invitationId et invitationToken en memoire ; ne pas exporter reponses ou variables sensibles."
+  },
+  {
+    "id": "V03",
+    "folder": "08 - Invitations",
+    "file": "08 - Invitations/V03 Guest Available Shareholders.bru",
+    "method": "POST",
+    "path": "/invitations/available-shareholders/query",
+    "role": "guest",
+    "operation": null,
+    "options": {
+      "id": "V03",
+      "role": "guest",
+      "kind": "places",
+      "binding": true,
+      "status": 200,
+      "requires": [
+        "bindingGuest",
+        "invitationToken"
+      ]
+    },
+    "preconditions": [
+      "bindingGuest",
+      "invitationToken"
+    ],
+    "contract": "Le secret reste dans le corps, jamais dans l URL. Seulement shareholderId/name, aucune donnee du Pot. Capture la premiere place eligible dans shareholderGuestId."
+  },
+  {
+    "id": "V04",
+    "folder": "08 - Invitations",
+    "file": "08 - Invitations/V04 Guest Accept Invitation.bru",
+    "method": "POST",
+    "path": "/commands",
+    "role": "guest",
+    "operation": "AttachShareholderViaInvitation",
+    "options": {
+      "id": "V04",
+      "role": "guest",
+      "requires": [
+        "potId",
+        "invitationToken",
+        "shareholderGuestId"
+      ],
+      "operation": "AttachShareholderViaInvitation",
+      "kind": "commandAdmission"
+    },
+    "preconditions": [
+      "potId",
+      "invitationToken",
+      "shareholderGuestId"
+    ],
+    "contract": "AttachShareholderViaInvitation : 202 avec requestId seulement. Ouvrir R01 Command Result pour connaitre le resultat metier et actualiser potVersion. Guest actif et non encore attache ; place libre, invitation non expiree ; observation 0."
+  },
+  {
+    "id": "A01",
+    "folder": "09 - Access Control and Errors",
+    "file": "09 - Access Control and Errors/A01 No Bearer.bru",
+    "method": "GET",
+    "path": "/me/binding",
+    "role": "none",
+    "operation": null,
+    "options": {
+      "id": "A01",
+      "role": "none",
+      "kind": "error",
+      "status": 401
+    },
+    "preconditions": [],
+    "contract": "401 attendu, enveloppe minimale code/message/traceId et no-store."
+  },
+  {
+    "id": "A02",
+    "folder": "09 - Access Control and Errors",
+    "file": "09 - Access Control and Errors/A02 Invalid Cursor.bru",
+    "method": "GET",
+    "path": "/me/pots?cursor=malformed",
+    "role": "actor",
+    "operation": null,
+    "options": {
+      "id": "A02",
+      "role": "actor",
+      "kind": "error",
+      "binding": true,
+      "status": 400
+    },
+    "preconditions": [],
+    "contract": "400 attendu pour un curseur invalide, sans divulgation de donnees."
+  },
+  {
+    "id": "A03",
+    "folder": "09 - Access Control and Errors",
+    "file": "09 - Access Control and Errors/A03 Unknown Identity Field.bru",
+    "method": "POST",
+    "path": "/identity/requests",
+    "role": "owner",
+    "operation": "Registration",
+    "options": {
+      "id": "A03",
+      "role": "owner",
+      "kind": "error",
+      "status": 400,
+      "newKey": true,
+      "operation": "Registration"
+    },
+    "preconditions": [],
+    "contract": "400 avant admission ; requester derive du JWT, jamais forge par le JSON."
+  },
+  {
+    "id": "A04",
+    "folder": "09 - Access Control and Errors",
+    "file": "09 - Access Control and Errors/A04 Replay Same Intention.bru",
+    "method": "POST",
+    "path": "/commands",
+    "role": "owner",
+    "operation": "CreatePot",
+    "options": {
+      "id": "A04",
+      "role": "owner",
+      "kind": "replay",
+      "status": 202,
+      "requires": [
+        "replayAdmission"
+      ],
+      "operation": "CreatePot"
+    },
+    "preconditions": [
+      "replayAdmission"
+    ],
+    "contract": "Reprend exactement le corps et la cle memorises par la derniere admission Command normale ; meme requestId, aucune nouvelle intention. Corps remplace explicitement par la copie en memoire."
+  },
+  {
+    "id": "A05",
+    "folder": "09 - Access Control and Errors",
+    "file": "09 - Access Control and Errors/A05 Conflicting Idempotency Key.bru",
+    "method": "POST",
+    "path": "/commands",
+    "role": "owner",
+    "operation": "CreatePot",
+    "options": {
+      "id": "A05",
+      "role": "owner",
+      "kind": "conflict",
+      "status": 409,
+      "requires": [
+        "replayAdmission"
+      ],
+      "operation": "CreatePot"
+    },
+    "preconditions": [
+      "replayAdmission"
+    ],
+    "contract": "Copie de la derniere intention avec label different sous la meme cle ; 409 attendu, aucune nouvelle admission."
+  },
+  {
+    "id": "A06",
+    "folder": "09 - Access Control and Errors",
+    "file": "09 - Access Control and Errors/A06 Guest Hidden Current Pot.bru",
+    "method": "GET",
+    "path": "/pots/{{potId}}",
+    "role": "guest",
+    "operation": null,
+    "options": {
+      "id": "A06",
+      "role": "guest",
+      "kind": "error",
+      "binding": true,
+      "wait": true,
+      "status": 404,
+      "requires": [
+        "potId",
+        "bindingGuest"
+      ]
+    },
+    "preconditions": [
+      "potId",
+      "bindingGuest"
+    ],
+    "contract": "Guest non attache (avant invitation ou apres depart) : 404 masque, aucune existence divulguee."
+  },
+  {
+    "id": "A07",
+    "folder": "09 - Access Control and Errors",
+    "file": "09 - Access Control and Errors/A07 Guest Hidden Invitation.bru",
+    "method": "GET",
+    "path": "/invitations/by-creation-request/{{invitationRequestId}}",
+    "role": "guest",
+    "operation": null,
+    "options": {
+      "id": "A07",
+      "role": "guest",
+      "kind": "error",
+      "status": 404,
+      "requires": [
+        "invitationRequestId"
+      ]
+    },
+    "preconditions": [
+      "invitationRequestId"
+    ],
+    "contract": "Resultat invitation du createur masque au Guest, meme s il dispose d un lien partage."
+  },
+  {
+    "id": "A08",
+    "folder": "09 - Access Control and Errors",
+    "file": "09 - Access Control and Errors/A08 Guest Hidden Owner Result.bru",
+    "method": "GET",
+    "path": "/commands/{{ownerCommandRequestId}}/result",
+    "role": "guest",
+    "operation": null,
+    "options": {
+      "id": "A08",
+      "role": "guest",
+      "kind": "error",
+      "status": 404,
+      "requires": [
+        "ownerCommandRequestId"
+      ]
+    },
+    "preconditions": [
+      "ownerCommandRequestId"
+    ],
+    "contract": "Les resultats appartiennent a l identite historique du requester, pas aux membres du Pot."
+  },
+  {
+    "id": "A09",
+    "folder": "09 - Access Control and Errors",
+    "file": "09 - Access Control and Errors/A09 Guest Delete Forbidden.bru",
+    "method": "POST",
+    "path": "/commands",
+    "role": "guest",
+    "operation": "DeletePot",
+    "options": {
+      "id": "A09",
+      "role": "guest",
+      "outcome": "REJECTED",
+      "rejection": "FORBIDDEN",
+      "requires": [
+        "potId",
+        "potVersion"
+      ],
+      "operation": "DeletePot",
+      "kind": "commandAdmission"
+    },
+    "preconditions": [
+      "potId",
+      "potVersion"
+    ],
+    "contract": "DeletePot : 202 avec requestId seulement. Ouvrir R01 Command Result pour connaitre le resultat metier et actualiser potVersion. Createur uniquement ; version courante exacte. Verifier le resultat terminal avant les 404."
+  },
+  {
+    "id": "A10",
+    "folder": "09 - Access Control and Errors",
+    "file": "09 - Access Control and Errors/A10 Expired Invitation Rejected.bru",
+    "method": "POST",
+    "path": "/commands",
+    "role": "actor",
+    "operation": "CreateInvitation",
+    "options": {
+      "id": "A10",
+      "role": "actor",
+      "outcome": "REJECTED",
+      "rejection": "INVALID_INVITATION",
+      "requires": [
+        "potId",
+        "potVersion"
+      ],
+      "operation": "CreateInvitation",
+      "kind": "commandAdmission"
+    },
+    "preconditions": [
+      "potId",
+      "potVersion"
+    ],
+    "contract": "CreateInvitation : 202 avec requestId seulement. Ouvrir R01 Command Result pour connaitre le resultat metier et actualiser potVersion. Createur uniquement ; observation 0, expiration UTC future. Le lien est lu separement par V02."
+  },
+  {
+    "id": "A11",
+    "folder": "09 - Access Control and Errors",
+    "file": "09 - Access Control and Errors/A11 Empty Expense Batch.bru",
+    "method": "POST",
+    "path": "/pots/{{potId}}/versions/{{readVersion}}/expenses/query",
+    "role": "actor",
+    "operation": null,
+    "options": {
+      "id": "A11",
+      "role": "actor",
+      "kind": "error",
+      "binding": true,
+      "status": 400,
+      "requires": [
+        "potId",
+        "readVersion"
+      ]
+    },
+    "preconditions": [
+      "potId",
+      "readVersion"
+    ],
+    "contract": "400 : batch vide interdit. Le batch valide est H02 avec 1..50 references."
+  },
+  {
+    "id": "A12",
+    "folder": "09 - Access Control and Errors",
+    "file": "09 - Access Control and Errors/A12 Deleted Current Pot.bru",
+    "method": "GET",
+    "path": "/pots/{{potId}}",
+    "role": "actor",
+    "operation": null,
+    "options": {
+      "id": "A12",
+      "role": "actor",
+      "kind": "error",
+      "binding": true,
+      "wait": true,
+      "status": 404,
+      "requires": [
+        "potId",
+        "deletedVersion"
+      ]
+    },
+    "preconditions": [
+      "potId",
+      "deletedVersion"
+    ],
+    "contract": "Apres R01 COMPLETED DeletePot seulement : courant 404. Le parcours verifie aussi la version terminale et l histoire anterieure."
+  },
+  {
+    "id": "A13",
+    "folder": "09 - Access Control and Errors",
+    "file": "09 - Access Control and Errors/A13 Deleted Terminal Version.bru",
+    "method": "GET",
+    "path": "/pots/{{potId}}/versions/{{deletedVersion}}",
+    "role": "actor",
+    "operation": null,
+    "options": {
+      "id": "A13",
+      "role": "actor",
+      "kind": "error",
+      "binding": true,
+      "wait": true,
+      "status": 404,
+      "requires": [
+        "potId",
+        "deletedVersion"
+      ]
+    },
+    "preconditions": [
+      "potId",
+      "deletedVersion"
+    ],
+    "contract": "Apres preuve terminale DeletePot : version de suppression 404, histoire precedente conservee."
+  },
+  {
+    "id": "A14",
+    "folder": "09 - Access Control and Errors",
+    "file": "09 - Access Control and Errors/A14 Stale Guest Binding.bru",
+    "method": "POST",
+    "path": "/commands",
+    "role": "guest",
+    "operation": "UpdatePotDetails",
+    "options": {
+      "id": "A14",
+      "role": "guest",
+      "kind": "commandAdmission",
+      "outcome": "REJECTED",
+      "rejection": "INVALID_BINDING",
+      "requires": [
+        "potId",
+        "potVersion",
+        "staleGuestBinding"
+      ],
+      "operation": "UpdatePotDetails"
+    },
+    "preconditions": [
+      "potId",
+      "potVersion",
+      "staleGuestBinding"
+    ],
+    "contract": "Apres Unlink/reinscription : ancien binding invalide malgre JWT valide. R01 doit montrer REJECTED INVALID_BINDING."
+  },
+  {
+    "id": "T01",
+    "folder": "80 - Technical",
+    "file": "80 - Technical/T01 Stage Handoff Diagnostics.bru",
+    "method": "GET",
+    "path": "/diagnostics/stage-handoffs?limit=10",
+    "role": "owner",
+    "operation": null,
+    "options": {
+      "id": "T01",
+      "role": "owner",
+      "kind": "diagnostics",
+      "status": 200
+    },
+    "preconditions": [],
+    "contract": "Endpoint technique authentifie READ, sans mutation ni clear. Aucune preuve metier deduite des timings."
+  },
+  {
+    "id": "R02",
+    "folder": "05 - Results",
+    "file": "05 - Results/R02 Historical Guest Result.bru",
+    "method": "GET",
+    "path": "/commands/{historicalCommandRequestId}/result",
+    "role": "guest",
+    "operation": null,
+    "options": {
+      "id": "R02",
+      "role": "guest",
+      "requires": [
+        "historicalCommandRequestId"
+      ],
+      "kind": "historicalCommandResult",
+      "wait": true,
+      "status": 200
+    },
+    "preconditions": [
+      "historicalCommandRequestId"
+    ],
+    "contract": "Historique propre du requester, meme apres Unlink/re-Registration ; 200 COMPLETED."
+  },
+  {
+    "id": "T02",
+    "folder": "80 - Technical",
+    "file": "80 - Technical/T02 READ Health.bru",
+    "method": "GET",
+    "path": "{{managementReadUrl}}/actuator/health",
+    "role": "none",
+    "operation": null,
+    "options": {
+      "id": "T02",
+      "role": "none",
+      "kind": "health",
+      "status": 200,
+      "requires": [
+        "managementReadUrl"
+      ]
+    },
+    "preconditions": [
+      "managementReadUrl"
+    ],
+    "contract": "Endpoint technique seulement"
+  },
+  {
+    "id": "T03",
+    "folder": "80 - Technical",
+    "file": "80 - Technical/T03 READ Prometheus.bru",
+    "method": "GET",
+    "path": "{{managementReadUrl}}/actuator/prometheus",
+    "role": "none",
+    "operation": null,
+    "options": {
+      "id": "T03",
+      "role": "none",
+      "kind": "prometheus",
+      "status": 200,
+      "requires": [
+        "managementReadUrl"
+      ]
+    },
+    "preconditions": [
+      "managementReadUrl"
+    ],
+    "contract": "Endpoint technique seulement"
+  },
+  {
+    "id": "T04",
+    "folder": "80 - Technical",
+    "file": "80 - Technical/T04 Stage Handoff Alias.bru",
+    "method": "GET",
+    "path": "{{readUrl}}/actuator/stage-handoffs?limit=10",
+    "role": "none",
+    "operation": null,
+    "options": {
+      "id": "T04",
+      "role": "none",
+      "kind": "diagnostics",
+      "status": 200,
+      "requires": []
+    },
+    "preconditions": [],
+    "contract": "Endpoint technique seulement"
+  }
+]

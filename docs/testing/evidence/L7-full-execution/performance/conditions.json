@@ -1,0 +1,183 @@
+{
+  "host": {
+    "platform": "macOS-27.0-arm64-arm-64bit-Mach-O",
+    "machine": "arm64"
+  },
+  "dockerEngine": {
+    "cpus": 10,
+    "memoryBytes": 8319504384,
+    "serverVersion": "29.9.2",
+    "os": "linux",
+    "arch": "aarch64"
+  },
+  "A": {
+    "sha": "123b3fd2",
+    "worktree": "/private/tmp/pocoma-l7-perf-a",
+    "services": {
+      "keycloak": {
+        "image": "quay.io/keycloak/keycloak:26.7.0",
+        "limits": {
+          "cpus": 1,
+          "memory": "1073741824"
+        },
+        "runtimeJarSha256": null
+      },
+      "pocoma-business-read-worker": {
+        "image": "sha256:be342f85ced5a78363529b23c3712b159bda24ef9ffb6a9dc533cde4543af6b5",
+        "limits": {
+          "cpus": 0.75,
+          "memory": "671088640"
+        },
+        "runtimeJarSha256": "86de47c4e618df10f1126bc5f9504693b34d1ef5834a604028c7368270bbbc89"
+      },
+      "pocoma-command-worker": {
+        "image": "sha256:be342f85ced5a78363529b23c3712b159bda24ef9ffb6a9dc533cde4543af6b5",
+        "limits": {
+          "cpus": 0.5,
+          "memory": "536870912"
+        },
+        "runtimeJarSha256": "d4c345b82df2b5a7043892cf0e86c9575d750e4d539b696443d07f9a3169e0ad"
+      },
+      "pocoma-http-read": {
+        "image": "sha256:be342f85ced5a78363529b23c3712b159bda24ef9ffb6a9dc533cde4543af6b5",
+        "limits": {
+          "cpus": 0.5,
+          "memory": "536870912"
+        },
+        "runtimeJarSha256": "e82dd354aaa28643938e520802ccef902b8ecda76a554844edd8e035a41207eb"
+      },
+      "pocoma-http-write": {
+        "image": "sha256:be342f85ced5a78363529b23c3712b159bda24ef9ffb6a9dc533cde4543af6b5",
+        "limits": {
+          "cpus": 0.5,
+          "memory": "536870912"
+        },
+        "runtimeJarSha256": "e82dd354aaa28643938e520802ccef902b8ecda76a554844edd8e035a41207eb"
+      },
+      "pocoma-results-worker": {
+        "image": "sha256:be342f85ced5a78363529b23c3712b159bda24ef9ffb6a9dc533cde4543af6b5",
+        "limits": {
+          "cpus": 0.5,
+          "memory": "536870912"
+        },
+        "runtimeJarSha256": "86de47c4e618df10f1126bc5f9504693b34d1ef5834a604028c7368270bbbc89"
+      },
+      "postgres": {
+        "image": "postgres@sha256:18cfe3ef5e6815560c98237d6216d1e5119702fb0f3894c8785dd58b8bbe5d73",
+        "limits": {
+          "cpus": 1,
+          "memory": "1073741824"
+        },
+        "runtimeJarSha256": null
+      }
+    },
+    "runtimeConfigSha256": {
+      "business-read-worker.properties": "0d4a55f78161af0c6c21625eaed44d045168a42a1a2e8e3e455955d6591283d8",
+      "http-read.properties": "d51312978265d728751a82af919711e7cfad856e5011e16d5c41b6a68082b02a",
+      "command-worker.properties": "1c66554afe7e35fb0ee3314d0d9500a77efce9633c50afc60f34a4ef91a2163b",
+      "http-write.properties": "29a7cd6c8da82922e0136a55478cd914b7e3579da9d7f4fcde49c0441162e367",
+      "results-worker.properties": "c6bcfc40eaf0f1c932ce1a20953db1a4d88d7e3896d2be587a2c87664302c320"
+    }
+  },
+  "B": {
+    "sha": "779d7e3eda1aa3d5252fcd19b9ccb2ba749b1844",
+    "worktree": "/private/tmp/pocoma-l7-perf-b",
+    "artifactInventory": "../packaging-b-executables.json",
+    "services": {
+      "keycloak": {
+        "image": "quay.io/keycloak/keycloak:26.7.0",
+        "limits": {
+          "cpus": 1,
+          "memory": "1073741824"
+        },
+        "runtimeJarSha256": null
+      },
+      "pocoma-business-read-worker": {
+        "image": "sha256:be342f85ced5a78363529b23c3712b159bda24ef9ffb6a9dc533cde4543af6b5",
+        "limits": {
+          "cpus": 0.75,
+          "memory": "671088640"
+        },
+        "runtimeJarSha256": "fba96186c6810ba67838105b8aa04bb1f7bd976e58e3fafaa8f44392730bfa1e"
+      },
+      "pocoma-command-worker": {
+        "image": "sha256:be342f85ced5a78363529b23c3712b159bda24ef9ffb6a9dc533cde4543af6b5",
+        "limits": {
+          "cpus": 0.5,
+          "memory": "536870912"
+        },
+        "runtimeJarSha256": "faad68975d343c4ee46b4b9d366c12147d8973167d988aa6ef3dbd79516a7ce6"
+      },
+      "pocoma-http-read": {
+        "image": "sha256:be342f85ced5a78363529b23c3712b159bda24ef9ffb6a9dc533cde4543af6b5",
+        "limits": {
+          "cpus": 0.5,
+          "memory": "536870912"
+        },
+        "runtimeJarSha256": "df902c5ace016f13ddfe0a0b10808e9d573d7c369564b8a140ec130ad3d00dd6"
+      },
+      "pocoma-http-write": {
+        "image": "sha256:be342f85ced5a78363529b23c3712b159bda24ef9ffb6a9dc533cde4543af6b5",
+        "limits": {
+          "cpus": 0.5,
+          "memory": "536870912"
+        },
+        "runtimeJarSha256": "a3e5cd8669e898654624ab859423ad3cb933bdae8652415776c374b8fbedbd3a"
+      },
+      "pocoma-results-worker": {
+        "image": "sha256:be342f85ced5a78363529b23c3712b159bda24ef9ffb6a9dc533cde4543af6b5",
+        "limits": {
+          "cpus": 0.5,
+          "memory": "536870912"
+        },
+        "runtimeJarSha256": "fba96186c6810ba67838105b8aa04bb1f7bd976e58e3fafaa8f44392730bfa1e"
+      },
+      "postgres": {
+        "image": "postgres@sha256:18cfe3ef5e6815560c98237d6216d1e5119702fb0f3894c8785dd58b8bbe5d73",
+        "limits": {
+          "cpus": 1,
+          "memory": "1073741824"
+        },
+        "runtimeJarSha256": null
+      }
+    },
+    "runtimeConfigSha256": {
+      "business-read-worker.properties": "d6eb263c41702498d0305707865ceda709e08d81bfa38954668e5ba188c01103",
+      "http-read.properties": "bd4a077cedf43e5634a0ac44976e2f320491072b2da519f535139e94458103a5",
+      "command-worker.properties": "d7d3143e03918fc234d2a911c9f21a5931b2f6f5993cfc14bd4214f0c743cd30",
+      "http-write.properties": "29a7cd6c8da82922e0136a55478cd914b7e3579da9d7f4fcde49c0441162e367",
+      "results-worker.properties": "7bb82c5bff1ee0de20e12d305e80f967ca66659be0453328befac9d2a8d218a9"
+    }
+  },
+  "topology": {
+    "network": "172.30.177.0/24",
+    "portOffset": 11000,
+    "parallelStacks": false,
+    "observations": "Both sides share the host with existing Docker services and some tests. No CPU isolation at host level."
+  },
+  "profiles": {
+    "short": {
+      "1": 30,
+      "10": 60,
+      "50": 100
+    },
+    "sustained": {
+      "rate": 10,
+      "commands": 1200
+    },
+    "mediumPotPool": 25,
+    "shareholdersPerPot": 20
+  },
+  "scripts": {
+    "repetitions-sustained-populated": {
+      "v3_ab_sequential_discovery.py": "247e2d9916a752fc9b13789302f6c08fb0eaa48e5153215e8d3d0ef0607b70d9",
+      "v3_populated_db_generator.py": "98e994e8c70fb518865486abab6f32e7eb4bbf755bdcc613a835db5ca4ad27cb",
+      "v3_token.py": "0c9bca192c82b5a0e072bf7d39c49f66136a5c27a3f47ca1f5e8b0cfae548955"
+    },
+    "initial-h1": {
+      "v3_ab_sequential_discovery.py": "a183668f22c86aefae6417dc5f496959c50428ecc01a9d5ff755d89753dc3179",
+      "v3_populated_db_generator.py": "98e994e8c70fb518865486abab6f32e7eb4bbf755bdcc613a835db5ca4ad27cb",
+      "v3_token.py": "0c9bca192c82b5a0e072bf7d39c49f66136a5c27a3f47ca1f5e8b0cfae548955"
+    }
+  }
+}

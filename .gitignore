@@ -8,6 +8,17 @@
 # Logs and temporary files
 *.log
 *.tmp
+__pycache__/
+*.pyc
 
 # graft's local graph cache — regenerable, not committed (run `graft build`).
 /graft/
+
+# Raw certification staging only; durable retention must be verified separately.
+/certification-raw/
+
+# Per-instance local playground credentials, volumes metadata and diagnostics
+/.pocoma-local/
+
+# Generated public GUI configuration; no tokens or passwords
+/scripts/bruno-playground/environments/Instance-*.bru

@@ -1,0 +1,57 @@
+{
+  "failed_invocation_id": "4e6173c730f649bdbe3e536274a417e4",
+  "failed_application_sha": "090b5327cd2a4e974bb8907c62c4e65b82a17e62",
+  "corrected_application_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+  "failed_method": "com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest#i5_w04",
+  "failed_assertion_line": 836,
+  "actual_configured_limits": {
+    "Command": 1,
+    "I5ReadPotProbe": 2,
+    "I5ReadCompletionProbe": 3
+  },
+  "historical_selected_order": [
+    "Command",
+    "I5ReadPotProbe",
+    "I5ReadCompletionProbe"
+  ],
+  "I8_regressed_sorted_order": [
+    "Command",
+    "I5ReadCompletionProbe",
+    "I5ReadPotProbe"
+  ],
+  "oracle": "Runtime.workerLimit assigns 1/2/3 by binding position. I8 sorting swapped the two probe identities, so Completion was compared to 2 instead of its configured 3.",
+  "diagnosis": "Concrete composition compatibility regression introduced by I8; no real WorkerCapacity limit overrun demonstrated.",
+  "correction": "Restore the exact historical factory iteration outside READ mode; keep the READ branch sorted exactly as in the failed full.",
+  "production_files_changed": [
+    "app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/consumption/v3/V3ConsumptionWorkerConfiguration.java"
+  ],
+  "historical_test_source_sha256": "3736529ddc327da9c7e47bcbfeda44934f588d644d34e8336cf30aba9b6225ba",
+  "historical_test_changes": [],
+  "L2_engine_capacity_protocol_changes": [],
+  "verification_slice": "COMMAND, already declared secondary; no new slice crossing",
+  "local_replay_required": [
+    "V3WorkerPostgresTest#i5_w04",
+    "V3WorkerResourcesPostgresTest#i5_r06"
+  ],
+  "global_replay_reason": "The mandatory unfiltered gate still has no PASS, and Architecture remains unexecuted after Maven stops at COMMAND. A corrected full is necessary after the bounded local PASS; no unchanged retry or redundant C-I8.",
+  "failed_methods": [
+    "com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest#i5_w04",
+    "com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest#i5_r06"
+  ],
+  "second_error": {
+    "line": 2662,
+    "type": "NoSuchElementException",
+    "cause": "READ wire-fault scenario selects binding index1 and a POT_EVENT. Sorting made index1 the completion probe; the acquire result is empty. Historical order restores the intended POT_EVENT binding."
+  },
+  "full_03_counts": {
+    "tests": 2024,
+    "failures": 1,
+    "errors": 1,
+    "skipped": 0,
+    "expected": 2191
+  },
+  "r05_r12_fresh_outcomes": {
+    "i5_r05": "PASS",
+    "i5_r12": "PASS"
+  }
+}

@@ -1,0 +1,1110 @@
+{
+  "head": "706188b42d403db21e987933890d71b8fcf4b045",
+  "skipped_modules": [
+    "architecture-tests",
+    "composition-runtime-spring",
+    "runtime-binding-consumption-worker",
+    "runtime-command-consumption-worker",
+    "runtime-command-result-consumption-worker",
+    "runtime-event-consumption-worker",
+    "runtime-monolith",
+    "runtime-registration-consumption-worker",
+    "runtime-task-consumption-worker",
+    "runtime-web-api",
+    "supra-consume-binding",
+    "supra-consume-event",
+    "supra-http-read",
+    "supra-http-write"
+  ],
+  "command": [
+    "./mvnw",
+    "--batch-mode",
+    "--no-transfer-progress",
+    "-pl",
+    "runtime-web-api,runtime-command-consumption-worker,runtime-task-consumption-worker,runtime-monolith,architecture-tests",
+    "-am",
+    "-Dtest=com.kartaguez.pocoma.CommandAdmissionPostgresTest,com.kartaguez.pocoma.ConsumptionPilotIsolationTest,com.kartaguez.pocoma.PocomaWebApiApplicationTest,com.kartaguez.pocoma.PotBindingConvergencePostgresTest,com.kartaguez.pocoma.ReadRootsCoexistencePostgresTest,com.kartaguez.pocoma.ReadWorkerResourcesPostgresTest,com.kartaguez.pocoma.RegistrationAdmissionPostgresTest,com.kartaguez.pocoma.RuntimeMonolithPostgresTest,com.kartaguez.pocoma.V3AdmissionFlowPostgresTest,com.kartaguez.pocoma.V3AdmissionHttpTest,com.kartaguez.pocoma.V3HttpCompositionPostgresTest,com.kartaguez.pocoma.V3IdentityRequestMonolithPostgresTest,com.kartaguez.pocoma.V3InvitationHttpTest,com.kartaguez.pocoma.V3InvitationReadPostgresTest,com.kartaguez.pocoma.V3InvitationStandaloneWebPostgresTest,com.kartaguez.pocoma.V3InvitationTopologyPostgresTest,com.kartaguez.pocoma.V3InvitationWritePostgresTest,com.kartaguez.pocoma.V3LinkBrunoPostgresTest,com.kartaguez.pocoma.V3LinkRequestHttpTest,com.kartaguez.pocoma.V3MonolithHttpCompositionPostgresTest,com.kartaguez.pocoma.V3ReadHttpContractTest,com.kartaguez.pocoma.V3WorkerMonolithPostgresTest,com.kartaguez.pocoma.WriteSideClosurePostgresTest,com.kartaguez.pocoma.WriteSideHttpClosureTest,com.kartaguez.pocoma.architecture.BindingLockOwnershipTest,com.kartaguez.pocoma.architecture.DistributedComposeConfigurationTest,com.kartaguez.pocoma.architecture.EventPublicationContractArchitectureTest,com.kartaguez.pocoma.architecture.HexagonalArchitectureTest,com.kartaguez.pocoma.architecture.Pcl3LegacyAbsenceTest,com.kartaguez.pocoma.architecture.Pcl4LegacyQueryReadAbsenceTest,com.kartaguez.pocoma.architecture.Pcl5PipelineLifecycleAbsenceTest,com.kartaguez.pocoma.architecture.Pcl6MonolithAbsenceTest,com.kartaguez.pocoma.architecture.Pcl7ModuleDependencyCollapseTest,com.kartaguez.pocoma.architecture.Pcl8DatabaseDemolitionPostgresTest,com.kartaguez.pocoma.architecture.Pcl8DatabaseDemolitionTest,com.kartaguez.pocoma.architecture.PostWp4OwnershipArchitectureTest,com.kartaguez.pocoma.architecture.RegistrationModuleBoundaryTest,com.kartaguez.pocoma.architecture.Wa67BindingArchitectureTest,com.kartaguez.pocoma.architecture.Wp2BoundaryTest,com.kartaguez.pocoma.architecture.Wp3BoundaryTest,com.kartaguez.pocoma.architecture.Wp4BoundaryTest,com.kartaguez.pocoma.architecture.Wp5TargetTopologyTest,com.kartaguez.pocoma.architecture.ccr.CommandCompletionE2EPostgresTest,com.kartaguez.pocoma.architecture.ccr.CommandResultConsumptionChainPostgresTest,com.kartaguez.pocoma.architecture.ccr.CommandResultTakeoverRacePostgresTest,com.kartaguez.pocoma.architecture.ept.DurableEventToProjectionPostgresTest,com.kartaguez.pocoma.architecture.ept.HistoricalEventRouteEvolutionPostgresTest,com.kartaguez.pocoma.architecture.v3.V3AdmissionArchitectureTest,com.kartaguez.pocoma.architecture.v3.V3ConsumptionEngineArchitectureTest,com.kartaguez.pocoma.architecture.v3.V3ConsumptionFoundationArchitectureTest,com.kartaguez.pocoma.architecture.v3.V3FoundationArchitectureTest,com.kartaguez.pocoma.architecture.v3.V3IdentityAuthorityArchitectureTest,com.kartaguez.pocoma.architecture.v3.V3PotExecutionArchitectureTest,com.kartaguez.pocoma.runtime.binding.BindingRuntimePostgresTest,com.kartaguez.pocoma.runtime.command.consumption.BindingSharedFencePostgresTest,com.kartaguez.pocoma.runtime.command.consumption.CommandConsumptionActuatorTest,com.kartaguez.pocoma.runtime.command.consumption.CommandConsumptionMultiWorkerPostgresTest,com.kartaguez.pocoma.runtime.command.consumption.CommandConsumptionRuntimeContextTest,com.kartaguez.pocoma.runtime.command.consumption.CommandConsumptionRuntimePostgresTest,com.kartaguez.pocoma.runtime.command.consumption.CommandConsumptionWorkerLifecycleTest,com.kartaguez.pocoma.runtime.command.consumption.ConsumptionOwnerTransactionRunnerTest,com.kartaguez.pocoma.runtime.command.consumption.MicrometerConsumptionPollingWorkerObservationTest,com.kartaguez.pocoma.runtime.command.consumption.PotCasConsumptionPostgresTest,com.kartaguez.pocoma.runtime.command.consumption.eventprotocol.EventSequencingAdministrationPostgresTest,com.kartaguez.pocoma.runtime.command.consumption.eventprotocol.EventSequencingPostgresTest,com.kartaguez.pocoma.runtime.command.consumption.eventprotocol.EventSequencingQualificationPostgresTest,com.kartaguez.pocoma.runtime.command.consumption.eventprotocol.EventSequencingTransportPostgresTest,com.kartaguez.pocoma.runtime.command.consumption.eventprotocol.EventSequencingUpgradePostgresTest,com.kartaguez.pocoma.runtime.command.consumption.eventprotocol.PrimaryEventProtocolDormancyPostgresTest,com.kartaguez.pocoma.runtime.command.consumption.eventprotocol.PrimaryEventProtocolStructureTest,com.kartaguez.pocoma.runtime.command.consumption.eventprotocol.PrimaryEventTransactionPostgresTest,com.kartaguez.pocoma.runtime.command.consumption.eventprotocol.RealProducerEventProtocolPostgresTest,com.kartaguez.pocoma.runtime.command.consumption.sequencing.JpaTerminalSequencingPostgresTest,com.kartaguez.pocoma.runtime.command.consumption.sequencing.TerminalSequencingPostgresTest,com.kartaguez.pocoma.runtime.command.v3.ConsumptionBootstrapPostgresTest,com.kartaguez.pocoma.runtime.command.v3.ConsumptionCompositeClassificationTest,com.kartaguez.pocoma.runtime.command.v3.ConsumptionLifecycleCompositionPostgresTest,com.kartaguez.pocoma.runtime.command.v3.DiscoveryCompositionPostgresTest,com.kartaguez.pocoma.runtime.command.v3.I5PhysicalWindowTest,com.kartaguez.pocoma.runtime.command.v3.I5TemporalBudgetTest,com.kartaguez.pocoma.runtime.command.v3.I5TemporalV2Test,com.kartaguez.pocoma.runtime.command.v3.V3IdentityPotCommandPostgresTest,com.kartaguez.pocoma.runtime.command.v3.V3IdentityRequestCompositionPostgresTest,com.kartaguez.pocoma.runtime.command.v3.V3PotCommandCompositionPostgresTest,com.kartaguez.pocoma.runtime.command.v3.V3WorkerAwaitTest,com.kartaguez.pocoma.runtime.command.v3.V3WorkerCompositionPostgresTest,com.kartaguez.pocoma.runtime.command.v3.V3WorkerMetricsTest,com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest,com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest,com.kartaguez.pocoma.runtime.command.v3.dev.V3WorkerDevelopmentToolsTest,com.kartaguez.pocoma.runtime.consumption.v3.StageHandoffTrackerTest,com.kartaguez.pocoma.runtime.consumption.v3.maintenance.ReadMaintenanceBarrierTest,com.kartaguez.pocoma.runtime.consumption.v3.maintenance.ReadinessOracleTest,com.kartaguez.pocoma.runtime.event.consumption.EventConsumptionRuntimeConfigurationTest,com.kartaguez.pocoma.runtime.event.consumption.EventConsumptionRuntimePostgresTest,com.kartaguez.pocoma.runtime.event.consumption.EventConsumptionRuntimeSpringBindingTest,com.kartaguez.pocoma.runtime.event.consumption.EventConsumptionWorkerLifecycleTest,com.kartaguez.pocoma.runtime.event.consumption.PocomaProjectionMaterializationPolicyTest,com.kartaguez.pocoma.runtime.event.consumption.ProjectionMaterializationConsumptionPostgresTest,com.kartaguez.pocoma.runtime.event.consumption.ProjectionTaskSchedulingMigrationPostgresTest,com.kartaguez.pocoma.runtime.registration.RegistrationRuntimePostgresTest,com.kartaguez.pocoma.runtime.result.CommandResultRuntimePostgresTest,com.kartaguez.pocoma.runtime.task.consumption.CanonicalProjectionTaskRuntimePostgresTest,com.kartaguez.pocoma.runtime.task.consumption.ProjectionTaskConsumptionOrchestratorTest,com.kartaguez.pocoma.runtime.task.consumption.ProjectionTaskWorkerLifecycleTest,com.kartaguez.pocoma.runtime.task.consumption.ProjectionTaskWorkerProcessTest,com.kartaguez.pocoma.runtime.task.v3.InterAuthorityPreparationPostgresTest,com.kartaguez.pocoma.runtime.task.v3.InterAuthorityRecoveryPostgresTest,com.kartaguez.pocoma.runtime.task.v3.ReadActivationSettingsTest,com.kartaguez.pocoma.runtime.task.v3.ReadFacadesPostgresTest,com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest,com.kartaguez.pocoma.runtime.task.v3.ReadRuntimeAssemblyPostgresTest,com.kartaguez.pocoma.runtime.task.v3.SubobjectAtomicityPostgresTest,com.kartaguez.pocoma.runtime.task.v3.SubobjectMigrationPostgresTest,com.kartaguez.pocoma.runtime.task.v3.SubobjectStorePostgresTest,com.kartaguez.pocoma.runtime.task.v3.V3ReadQuotaPostgresTest,com.kartaguez.pocoma.runtime.task.v3.V3ReadReconstructionPostgresTest,com.kartaguez.pocoma.runtime.web.authentication.CommandAdmissionResourceServerTest,com.kartaguez.pocoma.runtime.web.authentication.SpringSecurityExternalPrincipalAdapterTest,com.kartaguez.pocoma.supra.consume.event.materialization.ProjectionMaterializationConsumptionServiceTest,com.kartaguez.pocoma.supra.consume.event.materialization.ProjectionMaterializationConsumptionSourceTest,com.kartaguez.pocoma.supra.http.read.CommandResultControllerTest,com.kartaguez.pocoma.supra.http.read.CurrentBindingControllerTest,com.kartaguez.pocoma.supra.http.read.PotQueryControllerTest,com.kartaguez.pocoma.supra.http.read.RegistrationResultControllerTest,com.kartaguez.pocoma.supra.http.write.AsyncCommandControllerTest,com.kartaguez.pocoma.supra.http.write.v3.D4AdmissionCalibrationTest,com.kartaguez.pocoma.supra.http.write.v3.V3AdmissionTransportTest",
+    "-Dsurefire.failIfNoSpecifiedTests=false",
+    "test"
+  ],
+  "classes": {
+    "com.kartaguez.pocoma.runtime.event.consumption.EventConsumptionRuntimeConfigurationTest": [
+      "acceptsOnlyExplicitProjectionTypesMaterializableByTheCanonicalPolicy",
+      "rejectsMissingEmptyDuplicateAndNonMaterializableProjectionTypes"
+    ],
+    "com.kartaguez.pocoma.runtime.event.consumption.EventConsumptionRuntimePostgresTest": [
+      "publicConsumptionEntrypointsRejectPhysicalAmbientTransaction",
+      "activeWorkerGraphUsesOnlyTheFencedProjectionMaterializerAuthority",
+      "pollingWorkerMaterializesOnlyItsPotSegmentThroughTheMetadataOnlyPath",
+      "newlyActivatedAuthBackfillsAnEventAlreadyConsumedByExistingProjectionTypesExactlyOnce"
+    ],
+    "com.kartaguez.pocoma.runtime.event.consumption.EventConsumptionWorkerLifecycleTest": [
+      "springShutdownCallbackWaitsForTheActiveCycle",
+      "disabledWorkerCompletesSpringShutdownImmediately"
+    ],
+    "com.kartaguez.pocoma.runtime.event.consumption.ProjectionMaterializationConsumptionPostgresTest": [
+      "metadataOnlyHappyPathCommitsTaskClaimAndSlotAsOneTransaction",
+      "twoWorkersNeverInvokeTheEffectConcurrentlyForTheSameCandidate",
+      "expiredCurrentClaimMayFinalizeAndStaleEnsureRollsBackAfterTakeover",
+      "ensureFailureRollsBackAndSurfacesAsRuntimeFailureWithoutTerminalFailure",
+      "failureAfterEnsureBeforeCommitLeavesNoOrphanTask",
+      "technicalFailureRemainsBusyThenTakeoverReplaysToSuccess",
+      "consequencesAreIndependentWhileTasksConvergeByProjectionKey",
+      "alreadyDoneIsNotRediscoveredAndDoesNotRepeatEnsure",
+      "concurrentTaskEnsureConvergesAfterHolderCommit",
+      "concurrentTaskEnsureConvergesAfterHolderRollback"
+    ],
+    "com.kartaguez.pocoma.runtime.event.consumption.EventConsumptionRuntimeSpringBindingTest": [
+      "startsWithOneExplicitProjectionTypeAndDerivesItsRoutesFromTheCanonicalPolicy",
+      "startsWithMultipleExplicitProjectionTypesAndDerivesTheirRoutesFromTheCanonicalPolicy",
+      "failsStartupWhenProjectionTypesAreMissing",
+      "failsStartupWhenAProjectionTypeIsNotMaterializableByTheCanonicalPolicy",
+      "failsStartupWhenTheBoundProjectionTypeListContainsADuplicate"
+    ],
+    "com.kartaguez.pocoma.runtime.event.consumption.PocomaProjectionMaterializationPolicyTest": [
+      "declaresOnlyVersionedBusinessEventMaterializations",
+      "derivesMaterializationsForReadPotWorkers",
+      "derivesMaterializationsForPotBalancesWorkers",
+      "derivesDenseMaterializationsForAuthWorkers",
+      "derivesMaterializationsForWorkersServingAllCanonicalProjectionTypes"
+    ],
+    "com.kartaguez.pocoma.runtime.event.consumption.ProjectionTaskSchedulingMigrationPostgresTest": [
+      "upgradesACoherentV9EventTaskToTheDirectEventDerivedIdentity",
+      "refusesAmbiguousLegacyTasksInsteadOfDeduplicatingThem"
+    ],
+    "com.kartaguez.pocoma.runtime.binding.BindingRuntimePostgresTest": [
+      "publicConsumptionEntrypointsRejectPhysicalAmbientTransaction",
+      "preparedSchemaNeverActivatesSequencingAtBindingRuntimeStartup",
+      "attachDetachReattachTraversesAuthorityFactConsumptionAndCurrentBinding",
+      "lateCommitBeforeTheEphemeralCursorIsFoundOnTheNextScan",
+      "baselineFactsRebuildAttachedDetachedAndReattachedWithoutPrimaryBootstrap",
+      "technicalFailureRetriesAfterAReconstructedScanAndThenFinalizesIdempotently",
+      "lostClaimRollsBackProjectionBeforeWinnerAndMultipleWorkersConverge"
+    ],
+    "com.kartaguez.pocoma.ReadRootsCoexistencePostgresTest": [
+      "projectionAndMonolithSharePartitionsSafely"
+    ],
+    "com.kartaguez.pocoma.V3LinkBrunoPostgresTest": [
+      "realKeycloakLinkProtocol"
+    ],
+    "com.kartaguez.pocoma.ReadWorkerResourcesPostgresTest": [
+      "drainAndRestartPreserveDurableProgress",
+      "allParticipantsFitPoolsAndRenewalEnvelope"
+    ],
+    "com.kartaguez.pocoma.RuntimeMonolithPostgresTest": [
+      "composesExactlyOneActiveInstanceOfEveryFunctionalWorkerAndStopsCleanly",
+      "actualCommandAndRegistrationOwnersSharePrimaryPhysicalTransaction(boolean)[1]",
+      "actualCommandAndRegistrationOwnersSharePrimaryPhysicalTransaction(boolean)[2]"
+    ],
+    "com.kartaguez.pocoma.V3AdmissionFlowPostgresTest": [
+      "allElevenPotOperationsThroughWorker",
+      "voluntaryDeparturePreservesHistoryAndIdentity",
+      "registrationAndUnlinkThroughWorker",
+      "invalidBusinessIntentsAreAdmittedThenRejected",
+      "selfUsesWriteAndSurvivesBindingChange",
+      "resultsAndReadProgressIndependently",
+      "brunoB2PublicProtocol"
+    ],
+    "com.kartaguez.pocoma.V3InvitationTopologyPostgresTest": [
+      "invitationPrivilegePreflightsRejectColumnEscalation",
+      "targetThreeFourPartitionsConnectionsRenewalAndRestart"
+    ],
+    "com.kartaguez.pocoma.V3InvitationHttpTest": [
+      "concurrentUnlinkAndAttachmentSerializeAtIdentity",
+      "unlinkCannotPreserveStaleInvitationAuthority",
+      "confidentialLinkAndRestrictedPlaces",
+      "finalNonCreatorDeparturePreservesOtherPotAndHistoricalReads",
+      "brunoB4StandaloneCorpus"
+    ],
+    "com.kartaguez.pocoma.V3InvitationWritePostgresTest": [
+      "atomicCreationAndIdempotence",
+      "creatorOnlyAndExpiredCreation",
+      "twoGuestsOnePlaceAndReusableToken",
+      "oneGuestCannotTakeTwoPlaces",
+      "rollbackAfterInvitationPositionKeepsDensePublication",
+      "expirationAfterPublicationCounterWait"
+    ],
+    "com.kartaguez.pocoma.ConsumptionPilotIsolationTest": [
+      "monolithStartsInertAndRestartsWithoutAnyLegacyWriterOrMigration",
+      "monolithWithIndirectOldRuntimeFailsBeforeProcessing",
+      "monolithRefusesIncompleteReadBootstrapBeforeRefresh"
+    ],
+    "com.kartaguez.pocoma.V3MonolithHttpCompositionPostgresTest": [
+      "monolithRoot"
+    ],
+    "com.kartaguez.pocoma.V3WorkerMonolithPostgresTest": [
+      "i5_mono01"
+    ],
+    "com.kartaguez.pocoma.V3IdentityRequestMonolithPostgresTest": [
+      "l3_registration_command_and_relink_restart",
+      "l3_command_only_preflight",
+      "l3_runtime_identity",
+      "l3_preflight_negative",
+      "l3_indirect_exposure_refused",
+      "l3_delivered_jpa_rejects_prebound_holder",
+      "l3_logging_override_refused"
+    ],
+    "com.kartaguez.pocoma.V3InvitationReadPostgresTest": [
+      "authenticatedEncryptionAndOldKeyRestoration",
+      "monotoneDuplicateAndDivergence",
+      "reconstructOnFreshReadWithoutProducer"
+    ],
+    "com.kartaguez.pocoma.runtime.consumption.v3.StageHandoffTrackerTest": [
+      "testCompleteLifecycleHandoffMetrology",
+      "testRolledBackAttemptDoesNotRecordCommittedMetrics",
+      "testRobustAgainstNullsAndMissingEntries",
+      "testUnauthenticatedSnapshotSanitizesBusinessIdentifiers",
+      "testDetailedMilestoneDecompositionA1ToA4"
+    ],
+    "com.kartaguez.pocoma.runtime.consumption.v3.maintenance.ReadinessOracleTest": [
+      "whenAllCheckpointsCompleteAndNoSlotsAndNoIntegrityErrors_returnsReady",
+      "whenEvenOneCheckpointIsBelowTarget_readyIsRefused",
+      "whenCheckpointIsMissing_readyIsRefused",
+      "whenTargetPrefixMissingExpectedFamily_readyIsRefused",
+      "whenUnexpectedCheckpointAppears_readyIsRefused",
+      "whenDuplicateCheckpointAppears_readyIsRefused",
+      "whenSlotPositionUnresolvedInWrite_readyIsRefused",
+      "whenSlotExistsBelowTarget_readyIsRefused",
+      "whenSlotIsQuarantinedBelowTarget_readyIsRefused",
+      "whenSlotExistsAboveTarget_doesNotBlockReady",
+      "whenRelationalIntegrityViolated_readyIsRefused",
+      "familyMapping_supportsBothCanonicalAndShorthandNames",
+      "emptyInitialState_withZeroPrefix_convergesToReady"
+    ],
+    "com.kartaguez.pocoma.runtime.consumption.v3.maintenance.ReadMaintenanceBarrierTest": [
+      "whenStateIsReady_requestPassesThrough",
+      "whenStateIsMaintenance_returns503WithRetryAfter30",
+      "whenStateIsRebuilding_returns503WithRetryAfter30",
+      "whenStateIsFailed_returns503WithRetryAfter30",
+      "whenAuthorityThrowsException_failsClosedWith503",
+      "cacheTtl500ms_avoidsRepeatedDatabaseCalls",
+      "nonApiV3EndpointsAreNotFiltered",
+      "admissionEndpointsAreNotFiltered_whenAdmissionActive",
+      "inFlightRequestsAndDrain",
+      "multiInstanceSimulation_concurrentRequests",
+      "jdbcAuthority_tryAcquireMaintenance_usesCasConditioningOnReadyAndIdle",
+      "jdbcAuthority_operationFencing_conditionsOnOperationId",
+      "jdbcAuthority_resetFailed_requiresStateFailed",
+      "jdbcAuthority_tryAcquireRecovery_acceptsInterruptedOrFailed",
+      "jdbcAuthority_tryAcquireRecovery_rejectsReadyState"
+    ],
+    "com.kartaguez.pocoma.runtime.result.CommandResultRuntimePostgresTest": [
+      "publicConsumptionEntrypointsRejectPhysicalAmbientTransaction",
+      "terminalEventsMaterializeAllOutcomesUnderDistinctDoneSlotsAndExactOwner",
+      "retryAfterWriterFailureRollsBackAndConverges",
+      "staleResultAndProvenanceRollBackBeforeWinnerPublishes",
+      "identicalReplayIsIdempotentAndDivergentOwnerCannotReplaceResult"
+    ],
+    "com.kartaguez.pocoma.runtime.registration.RegistrationRuntimePostgresTest": [
+      "publicConsumptionEntrypointsRejectPhysicalAmbientTransaction",
+      "workerDrainsTwoRequestsAndRestartCannotReplayTheWinner",
+      "technicalFailureRetriesWithoutBusinessOutcome",
+      "takeoverFencesStaleExecutionAndTwoWorkersConverge",
+      "workerThatBeganBeforeTakeoverCannotPublishAfterWinnerCommits",
+      "actualDistributedRegistrationRootUsesOnePrimaryTransaction(boolean)[1]",
+      "actualDistributedRegistrationRootUsesOnePrimaryTransaction(boolean)[2]"
+    ],
+    "com.kartaguez.pocoma.V3InvitationStandaloneWebPostgresTest": [
+      "exactEuiBindingIndependenceAndMissingKey",
+      "restrictedPlacesWithoutWriteOrDecryption"
+    ],
+    "com.kartaguez.pocoma.WriteSideClosurePostgresTest": [
+      "committedHttpAdmissionIsConsumedThroughTheRealPollingLoop",
+      "staleBindingIsAcceptedThenRejectedByTheWorkerWithoutBusinessMutation"
+    ],
+    "com.kartaguez.pocoma.V3ReadHttpContractTest": [
+      "missingBearer",
+      "forgedSignature",
+      "wrongIssuer",
+      "wrongAudience",
+      "expiredJwt",
+      "notYetValidJwt",
+      "missingEui",
+      "ownBindingAndResults",
+      "bindingTokenAndForeignEui",
+      "terminalResultsOwnership",
+      "terminalResultsWithoutBinding",
+      "historicalAccessAndDeletion",
+      "minimumAndReadDependencies",
+      "coherentSnapshotDuringAdvance",
+      "completeManifestAndExactBatches",
+      "batchCardinalityAndMalformedRefs",
+      "foreignRefsAndMissingSubversions",
+      "navigationCursorAndBindingChange",
+      "navigationMutationsAndPlans",
+      "inputByteBoundaries",
+      "outputByteBoundaries",
+      "lateSerializationFailure",
+      "exactDtoAndSecretLogs",
+      "mediaAndUnknownFields"
+    ],
+    "com.kartaguez.pocoma.RegistrationAdmissionPostgresTest": [
+      "authenticatedRequestCommitsExactlyTheAttestedIdentityBefore202AndReplayIsNew",
+      "unauthenticatedAndSpoofedPayloadLeaveNoRequest",
+      "sqlRejectsMutation",
+      "resultGetIsOpaqueAndOwnedByHistoricalRequestIssuer"
+    ],
+    "com.kartaguez.pocoma.WriteSideHttpClosureTest": [
+      "openApiExposesAsyncAdmissionAndNoLegacyQueryOrMutationOperation"
+    ],
+    "com.kartaguez.pocoma.PotBindingConvergencePostgresTest": [
+      "attachStaleDetachConvergedDetachAndRebindUseTheProjectedUser"
+    ],
+    "com.kartaguez.pocoma.V3LinkRequestHttpTest": [
+      "jwtValidationAndTargetMasking",
+      "missingExpiredAndForbiddenProposal",
+      "summaryAndAcceptedOwnership",
+      "boundedTransportAndNoSynchronousLink"
+    ],
+    "com.kartaguez.pocoma.V3HttpCompositionPostgresTest": [
+      "webRoot",
+      "legacyComponentsRejected",
+      "readOnlyAuthorityAndNoWriteFallback",
+      "typedPortsAndDependencies",
+      "brunoFixtureProvenance"
+    ],
+    "com.kartaguez.pocoma.CommandAdmissionPostgresTest": [
+      "knownIdentityAndCurrentBindingPersistExactTargetEnvelopeWithoutPrimarySelect",
+      "unknownFalseAndDetachedBindingsAreIndistinguishablyAcceptedAsTargetV2",
+      "missingEmptyAndMalformedBindingAreStructuralRejectionsWithoutDurableRow",
+      "rejectsMissingAuthenticationAndInvalidAuthenticatedPrincipalWithoutRecording",
+      "rejectsAnOversizedRequestBeforeAdmission"
+    ],
+    "com.kartaguez.pocoma.V3AdmissionHttpTest": [
+      "commandRegistrationUnlinkAccepted",
+      "sameIdAnd409",
+      "authenticationAndCapturedRequester",
+      "bodyKeyDepthTextBoundaries",
+      "mediaDuplicateUnknownAndForbiddenFields",
+      "limitsChangedReplayOldContract",
+      "overloadAndPhysicalTimeoutRelease",
+      "noSecretOrWriteFallback",
+      "linkAndInvitationNotExposed"
+    ],
+    "com.kartaguez.pocoma.PocomaWebApiApplicationTest": [
+      "commandWebCompositionStartsWithoutLegacyQueryWiring"
+    ],
+    "com.kartaguez.pocoma.runtime.web.authentication.SpringSecurityExternalPrincipalAdapterTest": [
+      "adaptsOnlyClaimsFromAnAlreadyAuthenticatedJwt",
+      "authTimeIsMandatoryAndHasNoFallback",
+      "rejectsAnAuthenticationTimeAfterIssuance"
+    ],
+    "com.kartaguez.pocoma.runtime.web.authentication.CommandAdmissionResourceServerTest": [
+      "acceptsAValidTokenThroughTheStandardResourceServer",
+      "rejectsMissingAndInvalidSignatures",
+      "rejectsIssuerAndAudienceMismatches",
+      "rejectsExpiredAndNotYetValidTokens"
+    ],
+    "com.kartaguez.pocoma.runtime.task.consumption.ProjectionTaskConsumptionOrchestratorTest": [
+      "refreshesCandidatesAfterFirstAcquiredWhileTraversingBusyAndNotReadyInTheCurrentPage"
+    ],
+    "com.kartaguez.pocoma.runtime.task.consumption.ProjectionTaskWorkerProcessTest": [
+      "enabledNonWebRuntimeKeepsTheForkedJvmAliveAfterStartup"
+    ],
+    "com.kartaguez.pocoma.runtime.task.consumption.CanonicalProjectionTaskRuntimePostgresTest": [
+      "publicConsumptionEntrypointsRejectPhysicalAmbientTransaction",
+      "activePollingAuthorityUsesOnlyTheCanonicalProjectionTaskGraph",
+      "allCanonicalProjectionTypesPublishIntoTheCanonicalStore",
+      "authIsDenseAndKeepsOneRelationPerLinkedShareholderAtTheDeletedVersion",
+      "authVersionsMaterializeIndependentlyWhenExecutedNewestFirst",
+      "realPotBalancesTaskRunsThroughLocatorGenericEngineProducerAndFencedFinalization",
+      "realReadPotTasksLoadTheExactHistoricalExpenseDateAtEachVersion",
+      "canonicalProducerPersistsAndExactReadRevalidatesAndInterpretsANonTrivialReadPot",
+      "terminalCanonicalProducerFailurePersistsAndExactReadReturnsFailedForTheSameKey",
+      "historicalExpenseWithoutBusinessDateFailsExplicitlyAndPublishesNothing",
+      "canonicalPublishAndConsumptionFinalizationShareOneLocalTransaction",
+      "canonicalPublishRollsBackWhenFinalizationTransactionFails",
+      "canonicalProjectionFailureAndConsumptionFinalizationShareOneLocalTransaction",
+      "staleProjectionPublishAndFailureRollBackTheirRealSql"
+    ],
+    "com.kartaguez.pocoma.runtime.task.consumption.ProjectionTaskWorkerLifecycleTest": [
+      "springShutdownCallbackWaitsForTheActiveCycle",
+      "disabledWorkerCompletesSpringShutdownImmediately"
+    ],
+    "com.kartaguez.pocoma.runtime.task.v3.ReadFacadesPostgresTest": [
+      "currentHistoryAndConcurrentAdvanceStayExact",
+      "readinessDoesNotInventFreshness",
+      "expenseBatchesRespectExactManifestAndBounds",
+      "bindingAndResultsKeepTheirOwnAuthorities",
+      "navigationIsKeysetAndNeverAuthorizes"
+    ],
+    "com.kartaguez.pocoma.runtime.task.v3.SubobjectStorePostgresTest": [
+      "identicalInsert",
+      "divergentInsert",
+      "allFieldsMatter",
+      "batchAllOrNothing",
+      "concurrentIdentical",
+      "concurrentDivergent",
+      "conflictThenCommittedRead",
+      "reversedBatchesUseTotalOrder",
+      "postgresUuidOrder",
+      "strictCodec",
+      "ownerAndContext"
+    ],
+    "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest": [
+      "recoveryAffectedParticipantConformance",
+      "potVersionRecoveryRequiresCurrentPot",
+      "visibilityRecoverySupersession",
+      "currentBindingRecoverySupersession",
+      "independentProgression",
+      "resultsBeforeDomain",
+      "uncertainCommitHasNoSpeculativeSettlement",
+      "boundedCapacityAndRenewal",
+      "participantConformance(String)[1]",
+      "participantConformance(String)[2]",
+      "participantConformance(String)[3]",
+      "participantConformance(String)[4]",
+      "participantConformance(String)[5]",
+      "participantConformance(String)[6]"
+    ],
+    "com.kartaguez.pocoma.runtime.task.v3.SubobjectAtomicityPostgresTest": [
+      "effectsAndSlotSameUnit",
+      "rollbackAfterDeleteAndEveryBoundary",
+      "rollbackAfterFirstChunkAndBeforeCommit",
+      "faultBetweenReadinessAndDelete",
+      "actualReadiness",
+      "caughtFailurePoisons",
+      "publicationClosure",
+      "deferredCommitRejection",
+      "physicalOracleRejectsIndependentTransactions",
+      "concurrentIdenticalAndDivergentSlots",
+      "lateCaughtCallbackCannotCommit",
+      "lostCommitAck"
+    ],
+    "com.kartaguez.pocoma.runtime.task.v3.SubobjectMigrationPostgresTest": [
+      "freshAndExtension",
+      "physicalImmutability",
+      "keyAndKindAndSqlShapes",
+      "wrongTargetAndUnsafeRoles",
+      "auxiliaryDefinerCannotExposeMutation",
+      "populatedV1CannotBeReplayedWithoutHistory"
+    ],
+    "com.kartaguez.pocoma.runtime.task.v3.V3ReadQuotaPostgresTest": [
+      "invalidInputBeforeQuota",
+      "twoReadersAndImmediateRefusal",
+      "permitsAndConnectionsReleased",
+      "sqlTimeoutPhysicalResolution",
+      "cancellationDuringJdbc",
+      "disconnectDuringEncodingAndSend",
+      "httpInFlightUntilSendEnds",
+      "memoryAndCopies",
+      "jdbcCountsAndCosts",
+      "workersProgressWithoutControlBorrow"
+    ],
+    "com.kartaguez.pocoma.runtime.task.v3.ReadActivationSettingsTest": [
+      "poolKeysAndReservesMatchAssembly",
+      "independentSelectionAndTemporalPreflight",
+      "fiveRuntimeParticipantIsolation"
+    ],
+    "com.kartaguez.pocoma.runtime.task.v3.InterAuthorityPreparationPostgresTest": [
+      "p01ConsecutiveAuthoritiesPhysicalSnapshotsAndAtomicFinalization",
+      "p02CaughtNestedAndForeignScopesNeverOpenAnotherAuthority",
+      "p03ExpiredSourceContextPoisonsEffectsAndFinalEvenWhenCaught",
+      "p03CounterOracleDetectsAForwarderThatDropsTheSharedGuard",
+      "p05WrongAuthorityWriterIsRefusedBeforeAnySourceSql",
+      "p05AllPublicHistoryReadsPoisonCaughtForeignAuthorityAccess",
+      "p04AndP07PhysicalReadAckLossNeverAllowsNextScopeOrCapacitySettlement",
+      "p05CaughtSqlAndJavaDecodeFailuresKeepOriginalClassification",
+      "p06InterruptedPreparationPreservesFlagAndRejectsBeforeNextBegin",
+      "p07ConfirmedReadCleanupLossAndRawErrorKeepDifferentResponsibilities",
+      "p06CancelledFutureDoesNotMeanBlockedSourceCallbackExited",
+      "p08DetachedValuesClosedCursorAndNoSourceAccessDuringFinalization",
+      "p08RetainedSourceSupplierCannotRunInsideReadFinalization",
+      "w01CommandLoadAuthorityAndHistoryKeepOnePhysicalSnapshot",
+      "w03CaughtSpringCallbacksRollbackBeforeCommitAndPreserveCommitAfterCompletion"
+    ],
+    "com.kartaguez.pocoma.runtime.task.v3.V3ReadReconstructionPostgresTest": [
+      "rcv01A_fullResetOnPopulatedRead_writeRemainsIntact",
+      "rcv01B_lateWorkerExclusion_commitFailsAndDoesNotCorruptNewGeneration",
+      "rcv01C_explicitUnavailabilityAfterResetBeforeReplay",
+      "rcv01D_rebuildReplaysFromFiveWriteFamiliesToConvergence",
+      "rcv01G_crashRecoveryAndResume",
+      "rcv01H_quarantineAndIntegrityViolations_blockReady",
+      "rcv01I_concurrentAcquisitionExclusion",
+      "rcv01J_writePermissionIsolation",
+      "rcv01K_crashDuringDdl_safeResumeWithoutDestruction",
+      "rcv01L_sessionAdvisoryLockExclusion",
+      "rcv01M_resumeFromConvergedRequiresValidOracle",
+      "rcv01N_destructiveRecoveryFromFailed"
+    ],
+    "com.kartaguez.pocoma.runtime.task.v3.InterAuthorityRecoveryPostgresTest": [
+      "r01AndR03PresentPreexistingAndAbsentExactOrDivergentEvidence",
+      "r02CoverageIsExactConsumptionPartitionAndSourcePosition",
+      "r04ExactSqlLookupDistinguishesAbsenceCorruptionAndTechnicalFailure",
+      "r04AllFourDeliveredFamiliesUseTheirRealPublicationMapping",
+      "r05OneSnapshotRejectsTheTwoSnapshotFalseCompletedCounterexample",
+      "r06FinalLostAckHasIndependentBusinessProofAndSeparateCapacityResolution",
+      "r07UnknownRecoveryDiscardsCalculatedVerdictAndPermanentlyExcludesEngine",
+      "c03AndC04RenewalsContinueAcrossLongScopesAndDrainWaitsForPhysicalExit",
+      "r08TechnicalModelsRequireCompleteContentAndRespectConformingAbsence",
+      "r09WriteBurnableMatrixNeverConsultsCheckpoint"
+    ],
+    "com.kartaguez.pocoma.runtime.task.v3.ReadRuntimeAssemblyPostgresTest": [
+      "rootsAndPrivilegesAreClosed",
+      "sixParticipantsProgressThroughWorkers"
+    ],
+    "com.kartaguez.pocoma.supra.consume.event.materialization.ProjectionMaterializationConsumptionSourceTest": [
+      "mapsExactlyEventIdAndProjectionTypeToTheConsumptionKey",
+      "consequencesRemainIndependentByEventAndProjectionTypeOnly",
+      "pagesWithTheCandidateOrderingKeyAndKeepsTheCandidateIntact",
+      "rejectsInvalidInputsWithoutCreatingAuthority"
+    ],
+    "com.kartaguez.pocoma.supra.consume.event.materialization.ProjectionMaterializationConsumptionServiceTest": [
+      "suppliesTheExactClaimKeyAndTimestampInsideTheFencedEffect",
+      "lostClaimNeverInvokesEnsure",
+      "ensureFailureIsPropagatedUnchanged"
+    ],
+    "com.kartaguez.pocoma.architecture.BindingLockOwnershipTest": [
+      "everyProductionSourceHasImportedBytecode",
+      "repositoriesCannotEscapeThroughNewCallersOrDelegates",
+      "noProductionDelegateCanExposeAnIndependentStreamAcquisition",
+      "guardRejectsDirectCompositionAndEachSideOfAnIndirectComposition"
+    ],
+    "com.kartaguez.pocoma.architecture.Wp4BoundaryTest": [
+      "directResultsStayOutOfProjectionAndCurrentBinding",
+      "readAndMaterializationEnginesContainNoOuterLayer",
+      "specificConsumersAndHttpHaveNoConcretePersistence",
+      "moduleDependenciesProtectDirectResultBoundary",
+      "pomNamesMatchJavaNamespaces"
+    ],
+    "com.kartaguez.pocoma.architecture.PostWp4OwnershipArchitectureTest": [
+      "durableContractsContainOnlyIntakeLanguage",
+      "admissionAndPublishedReadsDoNotImportExecution",
+      "potReadsProjectedBindingAndResultsReadNeitherBindingNorTask"
+    ],
+    "com.kartaguez.pocoma.architecture.DistributedComposeConfigurationTest": [
+      "distributedWorkersDeclareTheirCanonicalProjectionTypesAndTaskSegments",
+      "taskRuntimePackagesTheStandardPostgresProfile",
+      "distributedCompositionHasNoResidualNatsDependency",
+      "distributedCompositionRunsAndScrapesTheCommandConsumptionWorker"
+    ],
+    "com.kartaguez.pocoma.architecture.Pcl3LegacyAbsenceTest": [
+      "reactorContainsNoPcl3LegacyModuleOrDependencyEdge",
+      "activeProductionHasNoTaskTableReaderWriterMappingOrConfiguration",
+      "activeProductionHasNoLegacyTaskOrOldStoreWriterType"
+    ],
+    "com.kartaguez.pocoma.architecture.Pcl7ModuleDependencyCollapseTest": [
+      "removedModulesAndTheirMavenEdgesStayAbsent",
+      "removedStructuralResidueStaysOutOfProduction",
+      "canonicalInfrastructureRemainsConcrete",
+      "pcl8CandidatesHaveNoApplicationOrRuntimeConfigurationReference"
+    ],
+    "com.kartaguez.pocoma.architecture.Wp5TargetTopologyTest": [
+      "legacyModulesAreGoneAndLkvHasFinalSpecializedOwners",
+      "graphAndRoleBoundariesHaveNoCyclesOrForbiddenArcs",
+      "domainConsumptionExportsOnlyTheExplicitTargetProtocolSurface",
+      "pureFamiliesHaveNoFrameworkOrPersistenceImports"
+    ],
+    "com.kartaguez.pocoma.architecture.Pcl4LegacyQueryReadAbsenceTest": [
+      "reactorContainsNoLegacyQueryModuleOrDependencyEdge",
+      "activeProductionContainsNoLegacyQueryReadTypeWiringOrProperty",
+      "activeProductionContainsNoLegacyReadStoreTableAccess",
+      "canonicalReadResponsibilitiesRemain"
+    ],
+    "com.kartaguez.pocoma.architecture.HexagonalArchitectureTest": [
+      "consumptionDiscoveryDoesNotDecodeBusinessPayloads",
+      "domainDoesNotDependOnOuterLayersOrFrameworks",
+      "potAuthorizationKernelRemainsPureAndProviderNeutral",
+      "potDomainIsSelfContainedAndUsesItsExplicitNamespace",
+      "potPoliciesAndBalanceProjectionRemainPureDomainCode",
+      "authorizationDomainIsGenericAndLegacyAuthorizationScopesAreGone",
+      "targetApplicationAndProcessingPackagesDoNotDependOnLegacyEngineTypes",
+      "potBusinessEventsAndRecordingMetadataBelongToTheDomain",
+      "projectionCoreDependsOnlyOnTheJdkAndItself",
+      "potProjectionContractsDependOnlyOnTheProjectionDomainAndTheJdk",
+      "engineDoesNotDependOnOuterLayersOrFrameworks",
+      "foundationContractsAndPortsStayInwardOnly",
+      "genericConsumptionHasNoCapabilitySpecificDependencies",
+      "projectionContractsEngineDependsOnlyOnTheJdkAndProjectionDomain",
+      "i1ExceptionsDoNotOpenHistoricalPortsOrFrameworks",
+      "exactProjectionReadEngineDependsOnlyOnItsPureContracts",
+      "potReadEngineDependsOnlyOnItsPureApplicationAndDomainContracts",
+      "exactReadPotBoundaryKnowsNoLegacySelectionOrDeliverySubsystem",
+      "projectionTaskEngineRemainsPureAndKnowsNoLegacyExecutionConcept",
+      "commandAdmissionConsumesOnlyTheProviderNeutralAuthenticatedPrincipal",
+      "userIdentityOwnsItsCanonicalTypesAndRemainsFrameworkFree",
+      "bindingLifecycleWriterIsAtomicWhileReadProjectionRemainsOutsideWriteAuthorityAndCommandRuntime",
+      "httpLayersDoNotAccessTheUserIdentityPersistenceAuthorityDirectly",
+      "authenticatedPrincipalBelongsToTheNeutralAuthenticationBoundary",
+      "springSecurityAuthenticationRemainsInTheDedicatedSupra",
+      "consumptionEngineDoesNotDependOnOuterLayers",
+      "targetConsumptionPersistenceDoesNotDependOnLegacyClaimTokens",
+      "transactionalConsumptionExecutionDoesNotDependOnLegacyExecutionGuard",
+      "consumptionDomainDoesNotDependOnApplicationOrOuterLayers",
+      "functionalCommandUseCasesDoNotDependOnDurableConsumption",
+      "potCommandAdaptersStayOutsideTransactionsInfrastructureAndEventSerialization",
+      "genericCommandEngineDependsOnlyOnGenericCommandAndTerminalReasonContracts",
+      "targetCommandConsumptionKeepsIdentityResolutionInsideTheWriteWorkerBoundary",
+      "commandResultReadDependsOnlyOnImmutableResultStore",
+      "commandConsumptionRuntimeComposesGenericPollingWithoutKnowingCommandPayloadsOrHttp",
+      "commandPersistenceDependsInwardAndIntroducesNoJpaEntity",
+      "lkvSupraDependsOnlyOnItsSpecializedEngineAndGenericConsumption",
+      "recordedProcessingModelsDoNotCarryClaimOrLeaseState",
+      "processingReconciliationDoesNotDependOnExecutionGuardsAndObsoleteDecoratorsAreGone",
+      "functionalUseCaseFamiliesDoNotDependOnConsumptionDomain",
+      "functionalBalanceProjectionDoesNotDependOnWorkersOrConsumption",
+      "httpControllersDoNotDependOnJpa",
+      "applicationUseCasesDoNotDependOnWorkersOrClaims",
+      "commandLocatorOwnsConsumptionIdentityAndStaysIndependentFromPotAndOuterLayers",
+      "projectionNDoesNotRequireLatestKnownVersionAtLeastN",
+      "latestKnownVersionIsADirectGenericConsumptionWithoutTaskOrProjectionArtifacts",
+      "legacyTaskRuntimeTypesAreAbsent",
+      "deadEventSchedulingTypesAreAbsent",
+      "synchronousCommandDispatchIsGoneWhilePotBusinessPortsRemain",
+      "httpAdmissionCannotMutateThePotWriteModelDirectly",
+      "genericConsumptionPullLayersStayIndependentFromWorkFamiliesAndFrameworks",
+      "primaryLkvAdaptersDependOnlyOnTheFinalLkvSupraContracts",
+      "readPersistenceDoesNotDependOnPrimaryPersistenceOrOuterLayers",
+      "canonicalProjectionPersistenceDependsOnlyOnProjectionContractsAndInfrastructureLibraries",
+      "genericReadProjectionFoundationKeepsFunctionalSemanticsInside"
+    ],
+    "com.kartaguez.pocoma.architecture.Pcl6MonolithAbsenceTest": [
+      "reactorAndPomsContainNoRemovedRuntimeOrDependencyEdge",
+      "functionalMonolithIsACompositionRootAndNotAReplacementForDistributedRuntimes",
+      "primaryMigrationsV1ToV3HaveOneOwnerAndPreservedBytes",
+      "productionContainsNoLegacyBalanceOrProjectionTaskRuntime",
+      "legacyTablesHaveNoActiveRuntimeAccess",
+      "activeRuntimeSurfacesDoNotReferenceTheMonolith",
+      "canonicalResponsibilitiesRemainPresent"
+    ],
+    "com.kartaguez.pocoma.architecture.Wa67BindingArchitectureTest": [
+      "directProductionSqlAccessesStayInsideTheirDeclaredOwners",
+      "currentRuntimeHasOnlyTheCanonicalCommandAndExactResultShape",
+      "readRuntimeDiscoversOnlyFactsAndHasNoPrimaryBootstrap",
+      "bindingFactsAreAppendOnlyAndBindingMutationsLockStreamBeforeAuthority",
+      "commandV2ObservesWithoutBindingLockAndFencesBeforeOutcomeAndClaim"
+    ],
+    "com.kartaguez.pocoma.architecture.Pcl8DatabaseDemolitionPostgresTest": [
+      "prePclUpgradeAndCleanBootstrapProduceTheSameCanonicalSchema"
+    ],
+    "com.kartaguez.pocoma.architecture.Wp2BoundaryTest": [
+      "projectorHasOnlyPureDomainDependenciesAndNoTechnicalImports",
+      "genericConsumptionAndCurrentBindingReadKeepTheirWp2Boundaries",
+      "physicalOwnersKeepTheirArchitecturalJavaNamespaces",
+      "enginesNeverDependOnRuntimeAndExactReaderHasUniqueIdentity"
+    ],
+    "com.kartaguez.pocoma.architecture.EventPublicationContractArchitectureTest": [
+      "businessProductionAndNarrowTransactionContractRemainTechnologyFree",
+      "onlyTheReadContextIsAllowedAndTransactionOwnershipStillFails",
+      "allDurablePortImplementationsAndPublicationFactoriesAreInventoried",
+      "currentParticipantAnnotationsAndBodyGuardsCannotDisappear",
+      "knownParticipantsHaveNoIndependentResolutionOrExternalEffects",
+      "realWritersAreBodyGuardedAndProducersCannotInvokeSequencingOrReserveDirectly",
+      "negativeFixturesRejectRepositoryBypassSplitTransactionsSavepointsAndWriterCallbacks",
+      "incompatibleExternalDurableCompositionIsRejectedBeforeSending"
+    ],
+    "com.kartaguez.pocoma.architecture.Pcl5PipelineLifecycleAbsenceTest": [
+      "reactorAndPomsContainNoPcl5LegacyModuleOrDependencyEdge",
+      "productionContainsNoPipelineLifecycleOrServingContract",
+      "lifecycleTablesHaveNoActiveProductionAccess",
+      "historicalLifecycleMigrationExistsExactlyOnceAndIsPreserved"
+    ],
+    "com.kartaguez.pocoma.architecture.Wp3BoundaryTest": [
+      "enginesDoNotImportRuntimeHttpOrConcreteInfrastructure",
+      "admissionEnginesDoNotImportSpringSecurity",
+      "capabilitySpecificSuprasDoNotImportSqlAdapters",
+      "newPomNamesOwnTheirJavaNamespaces"
+    ],
+    "com.kartaguez.pocoma.architecture.RegistrationModuleBoundaryTest": [
+      "registrationLegacyFacadeIsGoneAndExecutionRemainsInTargetEngine"
+    ],
+    "com.kartaguez.pocoma.architecture.Pcl8DatabaseDemolitionTest": [
+      "historicalMigrationsRemainByteForByteImmutable",
+      "demolitionMigrationsAreStrictOrderedAndProtectCanonicalObjects",
+      "noSupportedProductionPathReferencesRemovedStructures"
+    ],
+    "com.kartaguez.pocoma.architecture.v3.V3ConsumptionFoundationArchitectureTest": [
+      "v3RoutingDomainRemainsPure",
+      "commonSqlIsByteIdenticalAndHistoricalMigrationsAreUnmodifiedByConstruction",
+      "discoveryFactoryIsExplicitAndKeepsTheNineDefinitions"
+    ],
+    "com.kartaguez.pocoma.architecture.v3.V3IdentityAuthorityArchitectureTest": [
+      "l3_identity_authority_has_no_owner_or_runtime",
+      "l3_real_authority_delegates_without_a_second_lock_protocol",
+      "l3_identity_participant_and_factory_keep_l2_ownership",
+      "l3_canonical_acquisition_is_the_only_eui_writer_path"
+    ],
+    "com.kartaguez.pocoma.architecture.v3.V3ConsumptionEngineArchitectureTest": [
+      "i8QueriesHaveOnlyReadPortsAndNoWriteOrInfrastructureDependencies",
+      "i8ReadRootsUseExplicitCompositionAndExcludeLegacyScanning",
+      "i5WorkerHasNoTransactionOwnerSqlOrTicketAuthority",
+      "engineAndContractsPureAndAgnostic",
+      "rejectedAbstractionsAndPotOwnerAbsent",
+      "persistenceParticipantsCannotOpenTransactionsOrRawEntityManagers",
+      "negativeExamplesReallyFailRules",
+      "lifecycleHasOneHandleAndNoSchedulerOrOwner",
+      "discoveryPortsAndWritersRemainBounded",
+      "businessIdentityAndEnginesAreRejectedByEngineAndWorkerGuards",
+      "i2ParticipantCapabilitiesCannotReceiveTheSharedGuardOrAResource"
+    ],
+    "com.kartaguez.pocoma.architecture.v3.V3FoundationArchitectureTest": [
+      "productionImportsAreNonemptyAndExcludeFixtures",
+      "productionKeepsPureDomainsAndInwardApplicationPorts",
+      "positiveFixturesSatisfyTheSameRules",
+      "eachForbiddenDependencyIsActuallyDetected",
+      "nestedPortsCannotEscapeTheSelectorOrLeakImplementations"
+    ],
+    "com.kartaguez.pocoma.architecture.v3.V3AdmissionArchitectureTest": [
+      "admissionHasNoBusinessAuthorityOrFramework",
+      "dedicatedWriterUsesExistingPhysicalOwner",
+      "httpAssemblyRemainsExplicitAndLinkPhysicalObjectsStayAbsent"
+    ],
+    "com.kartaguez.pocoma.architecture.v3.V3PotExecutionArchitectureTest": [
+      "carch01OrchestrationAndContractsRemainPure",
+      "carch02AllExecutionAndRevisionWritersUsePhysicalOwnerGuards",
+      "carch03ExplicitCompositionAndNoIdentityFixtureInProduction"
+    ],
+    "com.kartaguez.pocoma.architecture.ept.HistoricalEventRouteEvolutionPostgresTest": [
+      "evolvedCurrentPolicyBackfillsOnlyTheNewHistoricalEventConsequence"
+    ],
+    "com.kartaguez.pocoma.architecture.ept.DurableEventToProjectionPostgresTest": [
+      "durableEventOutputIsTheIndependentProjectionTaskRuntimeInput"
+    ],
+    "com.kartaguez.pocoma.architecture.ccr.CommandResultTakeoverRacePostgresTest": [
+      "inFlightPublicationLosesFenceAndUnblocksWinnerPublication",
+      "committedFinalCasMakesWaitingTakeoverObserveDone",
+      "rolledBackFinalCasReleasesSlotAndAllowsTakeover",
+      "twoConcurrentTakeoversInstallOnlyOneCurrentClaim",
+      "rolledBackTakeoverLetsWaitingContenderReuseAttemptTwo"
+    ],
+    "com.kartaguez.pocoma.architecture.ccr.CommandCompletionE2EPostgresTest": [
+      "admissionThroughCommandTerminalEventAndResultProducesAllTerminalResultsDurably",
+      "httpCreateAndUpdateTraverseWorkersAndReadAuthorizedExactPotVersions",
+      "registrationThroughBothReadConsumersFeedsFirstCommandAndRejectedRegistration",
+      "eventFeedsIndependentLkvAndExactProjectionPipelines"
+    ],
+    "com.kartaguez.pocoma.architecture.ccr.CommandResultConsumptionChainPostgresTest": [
+      "validClaimPublishesResultAndFinalizesExactlyOnce",
+      "lostClaimBeforeCommitPublishesNoResult",
+      "exceptionAfterInsertRollsBackResultAndSlotFinalization",
+      "takeoverFencesStaleWorkerAndConvergesToOneResult",
+      "expiredClaimCanStillFinalizeBeforeTakeover",
+      "staleClaimReachesFenceAndRollsBackBeforeWinnerFinalizes",
+      "twoWorkersRaceWithoutDivergentPublication"
+    ],
+    "com.kartaguez.pocoma.supra.http.write.AsyncCommandControllerTest": [
+      "acceptsAnOpaquePayloadWithoutDecodingTheCommand",
+      "rejectsOnlyInvalidHttpEnvelopeFields"
+    ],
+    "com.kartaguez.pocoma.supra.http.write.v3.V3AdmissionTransportTest": [
+      "unresolvedPhysicalTerminationRetainsCapacity",
+      "observedPhysicalTerminationReleasesCapacity"
+    ],
+    "com.kartaguez.pocoma.supra.http.write.v3.D4AdmissionCalibrationTest": [
+      "finiteInputCorpusCpuAllocationAndHeap"
+    ],
+    "com.kartaguez.pocoma.runtime.command.consumption.MicrometerConsumptionPollingWorkerObservationTest": [
+      "recordsOnlyBoundedPollingMetrics"
+    ],
+    "com.kartaguez.pocoma.runtime.command.consumption.CommandConsumptionRuntimePostgresTest": [
+      "retriesARecognizedTransientFailureThenConsumesThroughTheRealRuntimeLoop",
+      "terminalizesBusinessRejectionWithoutMutationOrEvent",
+      "oldObservationSurvivesIndependentMutationAndObsoleteCommandIsRejectedOnce",
+      "terminalizesInvalidPayloadAsFailed",
+      "createAndUpdateExpenseCommandsPersistTheBusinessDateAtTheirExactHistoricalVersions",
+      "publicOwnersRejectAmbientTransactionsBeforeTheirDelegates",
+      "requiredParticipantSharesXidAndLossEscapesUntilPhysicalRollback",
+      "postCommitObservationFailureIsReportedAsCommittedAndCannotBecomeBusinessFailure",
+      "ownerNeverReturnsAppliedWhenDeferredConstraintRejectsItsCommit"
+    ],
+    "com.kartaguez.pocoma.runtime.command.consumption.ConsumptionOwnerTransactionRunnerTest": [
+      "rollbackFailureWithUnconfirmedCompletionCannotBecomeLostClaim",
+      "normalActionReturnWithoutConfirmedCommitCannotBecomeApplied",
+      "replacedRollbackErrorRetainsCasCauseAfterConfirmedPhysicalRollback"
+    ],
+    "com.kartaguez.pocoma.runtime.command.consumption.CommandConsumptionWorkerLifecycleTest": [
+      "springCallbackShutdownReturnsWithoutInterruptingTheActiveCycle",
+      "disabledWorkerCompletesSpringShutdownImmediately"
+    ],
+    "com.kartaguez.pocoma.runtime.command.consumption.CommandConsumptionRuntimeContextTest": [
+      "composesTheGenericWorkerAndCommandLocatorWithConservativeDefaults"
+    ],
+    "com.kartaguez.pocoma.runtime.command.consumption.CommandConsumptionActuatorTest": [
+      "exposesHealthProbesAndPrometheusWhenWorkerIsEnabled"
+    ],
+    "com.kartaguez.pocoma.runtime.command.consumption.BindingSharedFencePostgresTest": [
+      "cWinningDetachRejectsOldRevisionAndOccurrence",
+      "eReattachSameUserRequiresBothNewOccurrenceAndNewRevision",
+      "aTwoDistinctPotsHoldSharedFencesBeforeEitherCommits()[1]",
+      "aTwoDistinctPotsHoldSharedFencesBeforeEitherCommits()[2]",
+      "aTwoDistinctPotsHoldSharedFencesBeforeEitherCommits()[3]",
+      "aTwoDistinctPotsHoldSharedFencesBeforeEitherCommits()[4]",
+      "aTwoDistinctPotsHoldSharedFencesBeforeEitherCommits()[5]",
+      "bDetachWaitsForBothPhysicalResolutionsIncludingRollback()[1]",
+      "bDetachWaitsForBothPhysicalResolutionsIncludingRollback()[2]",
+      "bDetachWaitsForBothPhysicalResolutionsIncludingRollback()[3]",
+      "bDetachWaitsForBothPhysicalResolutionsIncludingRollback()[4]",
+      "bDetachWaitsForBothPhysicalResolutionsIncludingRollback()[5]",
+      "dReadCommittedFreshStatementAfterWaitingSeesCommittedDetach()[1]",
+      "dReadCommittedFreshStatementAfterWaitingSeesCommittedDetach()[2]",
+      "dReadCommittedFreshStatementAfterWaitingSeesCommittedDetach()[3]",
+      "dReadCommittedFreshStatementAfterWaitingSeesCommittedDetach()[4]",
+      "dReadCommittedFreshStatementAfterWaitingSeesCommittedDetach()[5]",
+      "fRollbackReleasesSharedFenceAndRemovesProvisionalMutation()[1]",
+      "fRollbackReleasesSharedFenceAndRemovesProvisionalMutation()[2]",
+      "fRollbackReleasesSharedFenceAndRemovesProvisionalMutation()[3]",
+      "fRollbackReleasesSharedFenceAndRemovesProvisionalMutation()[4]",
+      "fRollbackReleasesSharedFenceAndRemovesProvisionalMutation()[5]",
+      "gTakeoverWhileHoldingBRejectsOldSAndRollsBackPublicationThenUnblocksDetach()[1]",
+      "gTakeoverWhileHoldingBRejectsOldSAndRollsBackPublicationThenUnblocksDetach()[2]",
+      "gTakeoverWhileHoldingBRejectsOldSAndRollsBackPublicationThenUnblocksDetach()[3]",
+      "gTakeoverWhileHoldingBRejectsOldSAndRollsBackPublicationThenUnblocksDetach()[4]",
+      "gTakeoverWhileHoldingBRejectsOldSAndRollsBackPublicationThenUnblocksDetach()[5]",
+      "fRecoveryKeepsBusinessRejectionAndTechnicalConflictDistinctAfterRollback(boolean)[1]",
+      "fRecoveryKeepsBusinessRejectionAndTechnicalConflictDistinctAfterRollback(boolean)[2]"
+    ],
+    "com.kartaguez.pocoma.runtime.command.consumption.CommandConsumptionMultiWorkerPostgresTest": [
+      "twoWorkersDrainTheSameBacklogWithoutDuplicateEffects"
+    ],
+    "com.kartaguez.pocoma.runtime.command.consumption.PotCasConsumptionPostgresTest": [
+      "realCasRollsBackThenNewClaimReloadsVWithImmutableOAndSucceeds",
+      "realCasRollsBackThenNewContextRejectsObsoleteCommandOnce",
+      "temporalCardinalityAnomalyRollsBackAndFailsTechnicallyWithoutRetry",
+      "expectedMissingReferenceRejectsDurablyButUnexpectedHeaderAbsenceRollsBack",
+      "takeoverFencesOldAttemptIncludingItsFlushedBusinessEventAndWinnerCanContinue",
+      "fourRealCasLossesUseExistingOneFiveThirtySecondBudgetThenFailTechnically",
+      "bindingFenceLossKeepsDistinctRecoveryAndRollsBackBeforeRetry",
+      "committedOrUnknownResolutionWithCasCauseNeverSchedulesRetryOrPublishesFailed",
+      "replacedResolutionErrorRetainsRealJpaCasCauseAfterConfirmedPostgresRollback",
+      "productionFenceValidatesAllExactFieldsAndRequiresExistingTransaction",
+      "lifecycleCommittedBeforeBRejectsDetachedAndSameUserReattachedOccurrence",
+      "sharedBindingCommandsCommitIndependentlyAndDetachWaitsForBoth()[1]",
+      "sharedBindingCommandsCommitIndependentlyAndDetachWaitsForBoth()[2]",
+      "sharedBindingCommandsCommitIndependentlyAndDetachWaitsForBoth()[3]",
+      "sharedBindingCommandsCommitIndependentlyAndDetachWaitsForBoth()[4]",
+      "sharedBindingCommandsCommitIndependentlyAndDetachWaitsForBoth()[5]",
+      "bindingWaitAfterFlushRejectsDetachedAndSameUserReattachedOccurrence()[1]",
+      "bindingWaitAfterFlushRejectsDetachedAndSameUserReattachedOccurrence()[2]",
+      "bindingWaitAfterFlushRejectsDetachedAndSameUserReattachedOccurrence()[3]",
+      "bindingWaitAfterFlushRejectsDetachedAndSameUserReattachedOccurrence()[4]",
+      "bindingWaitAfterFlushRejectsDetachedAndSameUserReattachedOccurrence()[5]",
+      "takeoverAfterRealSharedFenceRollsBackAllFlushedBusinessEffects()[1]",
+      "takeoverAfterRealSharedFenceRollsBackAllFlushedBusinessEffects()[2]",
+      "takeoverAfterRealSharedFenceRollsBackAllFlushedBusinessEffects()[3]",
+      "takeoverAfterRealSharedFenceRollsBackAllFlushedBusinessEffects()[4]",
+      "takeoverAfterRealSharedFenceRollsBackAllFlushedBusinessEffects()[5]"
+    ],
+    "com.kartaguez.pocoma.runtime.command.v3.V3PotCommandCompositionPostgresTest": [
+      "compositionUsesOneWriteManagerAndExplicitAuthority",
+      "l3_composition_real_authority_and_classifier"
+    ],
+    "com.kartaguez.pocoma.runtime.command.v3.DiscoveryCompositionPostgresTest": [
+      "sharedPhysicalOwnerAndAuthorities",
+      "explicitPrivilegesDoNotActivatePilot"
+    ],
+    "com.kartaguez.pocoma.runtime.command.v3.V3IdentityRequestCompositionPostgresTest": [
+      "l3_registration_command_and_relink_restart",
+      "l3_command_only_preflight",
+      "l3_runtime_identity",
+      "l3_identity_discovery_checkpoint",
+      "l3_preflight_negative",
+      "l3_indirect_exposure_refused",
+      "l3_delivered_jpa_rejects_prebound_holder",
+      "l3_logging_override_refused",
+      "l3_auxiliary_effective_privilege_matrix",
+      "l3_postgres_diagnostics_without_sensitive_detail"
+    ],
+    "com.kartaguez.pocoma.runtime.command.v3.ConsumptionLifecycleCompositionPostgresTest": [
+      "sharedCapacityAcrossAuthorities",
+      "lifecyclePrivilegesAndInertPilotStaySeparate",
+      "oneOwnerAndNoActiveScheduler",
+      "failureCauseGraphClassification",
+      "renewalsHaveReservedDatabaseAccess"
+    ],
+    "com.kartaguez.pocoma.runtime.command.v3.I5TemporalBudgetTest": [
+      "c_pre",
+      "c_neg"
+    ],
+    "com.kartaguez.pocoma.runtime.command.v3.ConsumptionCompositeClassificationTest": [
+      "isolatedBusinessTechnicalAndPersistenceFaults",
+      "connectionAndStatementCompletionUnknownNeverCount",
+      "excludedWinsAcrossMixedCauseAndSuppressedInBothOrders",
+      "jdbcNextExceptionExclusionWinsInBothOrdersWithCycles",
+      "springJpaCompositePreservesExcludedCauses",
+      "springOriginalApplicationExceptionParticipatesInClassification",
+      "cancellationInterruptionAndTheirStandardWrappersAloneNeverCount",
+      "cancellationDoesNotEraseAProvenCountableFault",
+      "businessTypesWithExcludedCauseRemainNonCountable",
+      "mixedGraphCyclesTerminateAndSqlPrecedesTechnical"
+    ],
+    "com.kartaguez.pocoma.runtime.command.v3.V3WorkerCompositionPostgresTest": [
+      "i5_c01",
+      "i5_c02",
+      "i5_c03",
+      "i5_c04",
+      "i5_c05"
+    ],
+    "com.kartaguez.pocoma.runtime.command.v3.V3IdentityPotCommandPostgresTest": [
+      "l3_negative_stable_and_a1_sql",
+      "l3_a1_illicit_version_rejected",
+      "l3_observation_change_and_l2_retry",
+      "l3_command_lock_until_resolution",
+      "l3_rollback_boundaries",
+      "l3_registration_and_same_user_relink_collide_in_engine",
+      "l3_atomic_command_physical_unit_and_closed_suffix",
+      "l3_real_authority_preserves_claim_fencing",
+      "l3_unknown_commit"
+    ],
+    "com.kartaguez.pocoma.runtime.command.v3.V3WorkerAwaitTest": [
+      "preservesSuccessfulObservationAndTimeout"
+    ],
+    "com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest": [
+      "i5_w01",
+      "i5_w02",
+      "i5_w03",
+      "i5_w04",
+      "i5_w07",
+      "i5_w09",
+      "i5_w12",
+      "i5_w17",
+      "i5_w18",
+      "i5_w10",
+      "i5_w21",
+      "i5_w20",
+      "i5_w14",
+      "i5_w16",
+      "i5_w11",
+      "i5_w13",
+      "i5_w08",
+      "i5_w06",
+      "i5_w19",
+      "i5_w05",
+      "i5_w15"
+    ],
+    "com.kartaguez.pocoma.runtime.command.v3.I5TemporalV2Test": [
+      "v2_preconditions",
+      "v2_negative_checkers",
+      "v2_oracle_counter_examples"
+    ],
+    "com.kartaguez.pocoma.runtime.command.v3.I5PhysicalWindowTest": [
+      "openingClosureAndIncarnationAreIndependentOfSuccess",
+      "missingCoverageOrConflictingTransactionCannotPass"
+    ],
+    "com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest": [
+      "i5_r12",
+      "i5_r11",
+      "i5_r01",
+      "i5_r02",
+      "i5_r03",
+      "i5_r04",
+      "i5_r05",
+      "i5_r05_discovery_skip_locked_interleaving",
+      "i5_r10",
+      "i5_r07",
+      "i5_r08",
+      "i5_r06",
+      "i5_r09"
+    ],
+    "com.kartaguez.pocoma.runtime.command.v3.ConsumptionBootstrapPostgresTest": [
+      "catalogSeedAndTriggerShareExactlyNineStableIdentitiesAndSevenFamilies",
+      "validDistributedPilotIsInertAcrossRestartAndDoesNotTouchHistoricalSentinel",
+      "refusesMissingPartitionWrongSchemaRoleAndAuthorityBeforeProcessing",
+      "refusesSamePhysicalDatabaseEvenWithSeparateCompleteSchemas",
+      "explicitLegacyRuntimeImportFailsBeforeBeanConstruction",
+      "oldWriterSqlFailsOnMissingDedicatedSlotAndRollsBackAdmission",
+      "rejectsAllOldWriterOwnerAndPollerTypesBeforeInstantiation",
+      "noinheritMembershipCannotBypassRuntimePrivilegeGuard"
+    ],
+    "com.kartaguez.pocoma.runtime.command.v3.V3WorkerMetricsTest": [
+      "i5_m01",
+      "i5_m02",
+      "i5_m03"
+    ],
+    "com.kartaguez.pocoma.runtime.command.v3.dev.V3WorkerDevelopmentToolsTest": [
+      "l3_canonical_internal_intention",
+      "l3_private_intention_files"
+    ],
+    "com.kartaguez.pocoma.runtime.command.consumption.sequencing.TerminalSequencingPostgresTest": [
+      "aStartOrderDoesNotAssignPosition",
+      "bRealEWaitThenCommitProgress",
+      "cRollbackReusesEntireReservation",
+      "dExactBlockAndDeterministicUuidOrder",
+      "eOppositePublicationUsesOneTotalFamilyOrder",
+      "fAssociationFailureRollsBackAllFamiliesAndBusiness",
+      "fSavepointsRejectedAndRawBypassFailsClosed",
+      "gEmptyTransactionDoesNotTouchOrWaitOnE",
+      "hCollectorIsPhysicalAndCleanOnSameThread",
+      "iWaitOnERetainsPBSAndPropagatesWaits",
+      "jRunnerAndTransactionalSharePhysicalSuffixAfterFlush",
+      "jConsumptionOwnerConfirmsCommitAndSuffixRollback",
+      "jLateSynchronizationPublicationRejectedWithRollback",
+      "kConcurrentMultiWorkerBatchContentionAndUnsequencedControl"
+    ],
+    "com.kartaguez.pocoma.runtime.command.consumption.sequencing.JpaTerminalSequencingPostgresTest": [
+      "aDeferredJpaInsertAtomicOnSharedConnection",
+      "bRequiredMandatoryAndAutonomousAnnotation",
+      "cNoEventNoEAndRollbackPropagates",
+      "dCallbacksCanWriteAfterBeforeCommitButBeforeDoCommit",
+      "eNestedRejectedButProgrammaticSavepointStillPossible",
+      "fRequiresNewSuspendsCollectorAndOuterRollbackKeepsInnerCommit",
+      "gHibernateCommitCanStillFlushAfterE",
+      "iLateJpaEventRejectedAndEntireTransactionRollsBack",
+      "jCollectorIsCleanOnReusedWorkerThread",
+      "hRealCommandFinalizationAndClaimClosurePrecedeE",
+      "effectiveManagerAndSharedJdbcConnection"
+    ],
+    "com.kartaguez.pocoma.runtime.command.consumption.eventprotocol.EventSequencingUpgradePostgresTest": [
+      "securityDefinerChecksUseInstalledSchemaAndNotCallerOrPublicSchema",
+      "additiveUpgradePreservesAllFourSourcesAndPreparedCurrentSqlTwice"
+    ],
+    "com.kartaguez.pocoma.runtime.command.consumption.eventprotocol.PrimaryEventTransactionPostgresTest": [
+      "standardManagerAndDeferredJpaJdbcSharePhysicalPidXidAndCommitOnlyAfterSuffix",
+      "multipleRunnerRequiredMandatoryParticipantsContributeWithoutClosingOrFlushing",
+      "familyOrderDeclarationOrderUuidOrderAndImmutableSnapshot",
+      "emptyBatchCommitsWithAllSyntheticELockedElsewhereAndAcquiresNoELock",
+      "duplicateCaughtInsideParticipantIrreversiblyPoisonsOwner",
+      "participantActionFailureCaughtByCallerStillPoisons",
+      "nullDeclarationCaughtByCallerStillPoisons",
+      "unknownAmbientRefusedBeforePublicationAndCaughtGuardDoomsPhysicalTransaction",
+      "synchronizationOnlyAmbientIsRefusedAndNoBatchLeaks",
+      "explicitRollbackOnlySkipsSuffixAndCannotReturnSuccess",
+      "actionFailurePropagatesUnchangedAfterConfirmedPhysicalRollback",
+      "deferredFlushPkCollisionIsCommitPhaseButPhysicallyRolledBackAndNeverMerge",
+      "suffixAssociationErrorIsCommitPhaseWithConfirmedPhysicalRollback",
+      "latePublicationAndDeclarationCaughtInAdversarialSuffixStillRollbackEverything",
+      "realConsumptionFinalizesSlotAndClaimBeforeDeferredFlushClosedSnapshotAndSuffix",
+      "suffixFailurePhysicallyRestoresRealConsumptionSlotAndClaim",
+      "successfulTerminalFlushOccursAfterActionReturnsAndBeforeClosedSuffix",
+      "cleanupFallbackWorksWhenSynchronizationRegistrationCannotBeInstalled",
+      "committedAfterCommitObserverFailureIsCommittedAndNeverAutomaticallyReplayed",
+      "beginRefusalHasUnknownResolutionNoActionNoBatchAndNextTransactionIsClean",
+      "unknownCommitClassificationWithDurableRowsDoesNotReplayOrEraseResolution",
+      "unknownRollbackClassificationPreservesActionCauseDespitePhysicalRollbackObservation",
+      "mixedOutcomesOnOneReusedThreadHaveNoResourceOrSnapshotLeak"
+    ],
+    "com.kartaguez.pocoma.runtime.command.consumption.eventprotocol.RealProducerEventProtocolPostgresTest": [
+      "eachWriterCaughtJavaErrorIrreversiblyPoisonsPhysicalOwner",
+      "terminalJavaFailureAfterFirstInsertCannotCommitWhenCaught",
+      "ownerMismatchAndUnknownAmbientCannotCommitEvenWhenCaught",
+      "realWriterDuplicateLateOmittedAndFictitiousReferences",
+      "failureAfterRealSequencingRestoresCommandSlotClaimAndEveryEffect",
+      "incompatibleManagerOrEmfCompositionIsRefusedBeforeAnyEffect",
+      "unsupportedBusinessMappingPoisonsOwnerAndPersistsNothing",
+      "preparedOmissionAndFictitiousAreDetectedByOracleWithoutClaimingSqlCompleteness",
+      "actualBusinessCompositionRunsUnderRestrictedRuntimeRole",
+      "realTaAndThRetryHaveNoPublicationAndNeverWaitForLockedE",
+      "realRegistrationWinningExistingAndRejected(boolean)[1]",
+      "realRegistrationWinningExistingAndRejected(boolean)[2]",
+      "realCommandAppliedBusinessAndTerminalAfterClaim(boolean)[1]",
+      "realCommandAppliedBusinessAndTerminalAfterClaim(boolean)[2]",
+      "multipleRealBusinessAppendsAndAuxiliaryOwnership(boolean)[1]",
+      "multipleRealBusinessAppendsAndAuxiliaryOwnership(boolean)[2]",
+      "bindingAcquireDetachNoopsAndNewRepositoryAuxiliary(boolean)[1]",
+      "bindingAcquireDetachNoopsAndNewRepositoryAuxiliary(boolean)[2]",
+      "realCommandRejectedAndThFailedDeclareOnlyTheirTerminals(boolean)[1]",
+      "realCommandRejectedAndThFailedDeclareOnlyTheirTerminals(boolean)[2]",
+      "eachJdbcWriterCaughtJavaFailureAfterSuccessfulInsertRollsBackPhysically(String)[1]",
+      "eachJdbcWriterCaughtJavaFailureAfterSuccessfulInsertRollsBackPhysically(String)[2]",
+      "eachJdbcWriterCaughtJavaFailureAfterSuccessfulInsertRollsBackPhysically(String)[3]",
+      "eachJdbcWriterCaughtJavaFailureAfterSuccessfulInsertRollsBackPhysically(String)[4]"
+    ],
+    "com.kartaguez.pocoma.runtime.command.consumption.eventprotocol.EventSequencingTransportPostgresTest": [
+      "cutoverTransportLossReconcilesSameOperation(Fault)[1]",
+      "cutoverTransportLossReconcilesSameOperation(Fault)[2]",
+      "unknownCommitReconcilesDurableTruthWithoutBlindReplay(Fault)[1]",
+      "unknownCommitReconcilesDurableTruthWithoutBlindReplay(Fault)[2]"
+    ],
+    "com.kartaguez.pocoma.runtime.command.consumption.eventprotocol.EventSequencingAdministrationPostgresTest": [
+      "upgradeV30PreparedPreservesHistoricMigrationBaselineFact",
+      "psqlAdministrativeScriptsExecuteWithQuotedVariables",
+      "exactCommittedPrefixResumesWithoutChangingAnyPair",
+      "missingHistoricalSourceCannotLeaveOrphanAndMissingAssociationIsDetected",
+      "faultMidBackfillRollsBackAlreadyAssociatedFamiliesAndRelaunches",
+      "interruptionBeforeCommitRollsBackAllAndRelaunchCommitsOnce",
+      "disabledConstraintAndUnsafeFunctionRefuseCutover",
+      "restrictedRuntimeAllowedAndForbiddenOperationsAndTransitiveMembership",
+      "groupCertificateAlsoAuditsEveryMemberLoginAndItsOtherMemberships",
+      "activeProducerTransactionEvenWithoutSourceWriteBlocksCutover",
+      "sourceLockProvidesDatabaseExclusionAndBoundedFailure",
+      "oldWriterRejectedAfterActivationInEveryFamily",
+      "completeDeterministicFourFamilyHistoryAndIdempotentRelaunch(int)[1]",
+      "completeDeterministicFourFamilyHistoryAndIdempotentRelaunch(int)[2]",
+      "completeDeterministicFourFamilyHistoryAndIdempotentRelaunch(int)[3]",
+      "inconsistentPreparedAssociationsRefuseActivationWithoutRepair(String)[1]",
+      "inconsistentPreparedAssociationsRefuseActivationWithoutRepair(String)[2]",
+      "inconsistentPreparedAssociationsRefuseActivationWithoutRepair(String)[3]",
+      "inconsistentPreparedAssociationsRefuseActivationWithoutRepair(String)[4]",
+      "effectivePrivilegesCannotHideBehindColumnsParametersOwnershipOrFunctionGrants(String)[1]",
+      "effectivePrivilegesCannotHideBehindColumnsParametersOwnershipOrFunctionGrants(String)[2]",
+      "effectivePrivilegesCannotHideBehindColumnsParametersOwnershipOrFunctionGrants(String)[3]",
+      "effectivePrivilegesCannotHideBehindColumnsParametersOwnershipOrFunctionGrants(String)[4]"
+    ],
+    "com.kartaguez.pocoma.runtime.command.consumption.eventprotocol.PrimaryEventProtocolStructureTest": [
+      "syntheticWriterHasNoCallbackCollectionMergeOrIndependentResolution",
+      "terminalProbeHasOnlyClosedValuesAndNoBusinessExtensionOrWriterCallback",
+      "realSequencerHasNoBusinessCallbackOrIndependentResolution",
+      "writerBeforeCompletionAndRogueLateMutationAreRejectedStructurallyBeforeInvocation",
+      "externalAcknowledgementCannotBeWiredAsAtomicDurableAcceptance",
+      "dormantTechnicalTypesHaveNoStereotypeConfigurationOrAutoconfigurationEntry"
+    ],
+    "com.kartaguez.pocoma.runtime.command.consumption.eventprotocol.EventSequencingQualificationPostgresTest": [
+      "postgresRestartPreservesDenseHistoryAndAllowsNextPublication",
+      "restorablePreparedBackupRehearsesCutoverOnSeparateDatabase",
+      "actualProducerLockTimeoutRollsBackAndNextOwnerReusesBlock",
+      "realProducersContinueAfterEveryNonemptyHistoricalBoundary",
+      "workerProcessKilledAfterRealSuffixRollsBackAndReusesPosition",
+      "actualDeadlockVictimRollsBackSuffixAndNextProducerIsDense",
+      "afterAssociationFaultAndDeferredConstraintRollbackThroughRealOwner",
+      "preparedAndActiveCapacityCharacterization"
+    ],
+    "com.kartaguez.pocoma.runtime.command.consumption.eventprotocol.EventSequencingPostgresTest": [
+      "blocksFollowDeclaredOrderNotUuidAndShareJpaJdbcPhysicalTransaction",
+      "concurrentOppositeDeclarationsWaitOnPostgresThenObtainCanonicalBlocks",
+      "preparedAndEmptyLotsNeverAccessAuthoritiesEvenUnderExclusiveTableLock",
+      "runtimeRoleCanReserveAndInsertButCannotMutateOrDisarmIntegrity",
+      "deferredChecksAreIndexedAndNeedNoBusinessLocksAtCommit",
+      "waitingTransactionReusesRolledBackBlockAfterSuccessfulSuffix",
+      "reservationRejectsInvalidInputPreparedAndMissingAuthority",
+      "preparedSupportsGuardedCurrentWriterRepeatedlyAndStartupCannotActivate",
+      "realConsumptionFinalizesBeforeEAndSuffixFailureRestoresSlotAndClaim(boolean)[1]",
+      "realConsumptionFinalizesBeforeEAndSuffixFailureRestoresSlotAndClaim(boolean)[2]",
+      "fictitiousDeclarationRollsBackReservation(EventFamily)[1]",
+      "fictitiousDeclarationRollsBackReservation(EventFamily)[2]",
+      "fictitiousDeclarationRollsBackReservation(EventFamily)[3]",
+      "fictitiousDeclarationRollsBackReservation(EventFamily)[4]",
+      "rollbackAfterEachReservationAndAssociationLeavesNoHole(EventFamily)[1]",
+      "rollbackAfterEachReservationAndAssociationLeavesNoHole(EventFamily)[2]",
+      "rollbackAfterEachReservationAndAssociationLeavesNoHole(EventFamily)[3]",
+      "rollbackAfterEachReservationAndAssociationLeavesNoHole(EventFamily)[4]",
+      "completenessIsDeferredAndRejectsMissingAssociationOnCommit(EventFamily)[1]",
+      "completenessIsDeferredAndRejectsMissingAssociationOnCommit(EventFamily)[2]",
+      "completenessIsDeferredAndRejectsMissingAssociationOnCommit(EventFamily)[3]",
+      "completenessIsDeferredAndRejectsMissingAssociationOnCommit(EventFamily)[4]",
+      "fkUniquePositionAndUuidAreStrict(EventFamily)[1]",
+      "fkUniquePositionAndUuidAreStrict(EventFamily)[2]",
+      "fkUniquePositionAndUuidAreStrict(EventFamily)[3]",
+      "fkUniquePositionAndUuidAreStrict(EventFamily)[4]",
+      "overflowRollsBackEveryFamilyAndAllowsLastRepresentablePosition(EventFamily)[1]",
+      "overflowRollsBackEveryFamilyAndAllowsLastRepresentablePosition(EventFamily)[2]",
+      "overflowRollsBackEveryFamilyAndAllowsLastRepresentablePosition(EventFamily)[3]",
+      "overflowRollsBackEveryFamilyAndAllowsLastRepresentablePosition(EventFamily)[4]",
+      "onlyNonemptyFamilyAcquiresItsAuthority(EventFamily)[1]",
+      "onlyNonemptyFamilyAcquiresItsAuthority(EventFamily)[2]",
+      "onlyNonemptyFamilyAcquiresItsAuthority(EventFamily)[3]",
+      "onlyNonemptyFamilyAcquiresItsAuthority(EventFamily)[4]"
+    ],
+    "com.kartaguez.pocoma.runtime.command.consumption.eventprotocol.PrimaryEventProtocolDormancyPostgresTest": [
+      "productionScanWiresPreparedProtocolWithoutTestConfiguration"
+    ],
+    "com.kartaguez.pocoma.supra.http.read.RegistrationResultControllerTest": [
+      "absentAndNonOwnerHaveTheSameOpaque404"
+    ],
+    "com.kartaguez.pocoma.supra.http.read.CurrentBindingControllerTest": [
+      "exposesOnlyTheAuthenticatedIdentityAttachedBinding",
+      "detachedAndAbsentAreTheSameNonOracleResponse"
+    ],
+    "com.kartaguez.pocoma.supra.http.read.PotQueryControllerTest": [
+      "returnsTheExactAuthorizedPot",
+      "concealsUnknownIdentityAndForbidden",
+      "mapsProjectionAvailabilityAndFailure",
+      "rejectsInvalidVersionBeforeCallingTheUseCase"
+    ],
+    "com.kartaguez.pocoma.supra.http.read.CommandResultControllerTest": [
+      "exposesOnlyReadyOwnedTerminalResults",
+      "hidesNotReadyAndFailedExactProjectionsAsNotFound",
+      "hidesOwnerMismatchAsNotFound",
+      "absentAndNonOwnerYieldTheSameOpaque404",
+      "passesOnlyTheAuthenticatedExternalIdentityToTheReadUseCase"
+    ]
+  }
+}

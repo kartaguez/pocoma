@@ -1,0 +1,126 @@
+{
+  "globalBudgetSeconds": 2400,
+  "cumulativeSeconds": 1974.9,
+  "remainingSeconds": 425.1,
+  "runs": [
+    {
+      "runId": "run-r7-E-s1-1",
+      "scenario": "r7-s1-1",
+      "durationSeconds": 106.61,
+      "timestamp": "2026-11-08T12:03:45Z",
+      "success": true
+    },
+    {
+      "runId": "run-r7-E-s2-5",
+      "scenario": "r7-s2-5",
+      "durationSeconds": 107.01,
+      "timestamp": "2026-11-08T12:05:38Z",
+      "success": true
+    },
+    {
+      "runId": "run-r7-E-s3-10",
+      "scenario": "r7-s3-10",
+      "durationSeconds": 136.03,
+      "timestamp": "2026-11-08T12:08:00Z",
+      "success": true
+    },
+    {
+      "runId": "run-r7-E-medium",
+      "scenario": "r7-medium",
+      "durationSeconds": 111.44,
+      "timestamp": "2026-11-08T12:09:57Z",
+      "success": true
+    },
+    {
+      "runId": "run-r7-A-s1-1",
+      "scenario": "r7-s1-1",
+      "durationSeconds": 107.11,
+      "timestamp": "2026-11-08T12:16:51Z",
+      "success": true
+    },
+    {
+      "runId": "run-r7-A-s2-5",
+      "scenario": "r7-s2-5",
+      "durationSeconds": 106.81,
+      "timestamp": "2026-11-08T12:18:44Z",
+      "success": true
+    },
+    {
+      "runId": "run-r7-A-s3-10",
+      "scenario": "r7-s3-10",
+      "durationSeconds": 136.01,
+      "timestamp": "2026-11-08T12:21:06Z",
+      "success": true
+    },
+    {
+      "runId": "run-r7-A-medium",
+      "scenario": "r7-medium",
+      "durationSeconds": 111.93,
+      "timestamp": "2026-11-08T12:23:03Z",
+      "success": true
+    },
+    {
+      "runId": "run-r7-B-s1-1",
+      "scenario": "r7-s1-1",
+      "durationSeconds": 107.13,
+      "timestamp": "2026-11-08T12:29:36Z",
+      "success": true
+    },
+    {
+      "runId": "run-r7-B-s2-5",
+      "scenario": "r7-s2-5",
+      "durationSeconds": 106.83,
+      "timestamp": "2026-11-08T12:31:28Z",
+      "success": true
+    },
+    {
+      "runId": "run-r7-B-s3-10",
+      "scenario": "r7-s3-10",
+      "durationSeconds": 137.02,
+      "timestamp": "2026-11-08T12:33:51Z",
+      "success": true
+    },
+    {
+      "runId": "run-r7-C-s1-1",
+      "scenario": "r7-s1-1",
+      "durationSeconds": 107.1,
+      "timestamp": "2026-11-08T12:40:12Z",
+      "success": true
+    },
+    {
+      "runId": "run-r7-C-s2-5",
+      "scenario": "r7-s2-5",
+      "durationSeconds": 106.51,
+      "timestamp": "2026-11-08T12:42:04Z",
+      "success": true
+    },
+    {
+      "runId": "run-r7-C-s3-10",
+      "scenario": "r7-s3-10",
+      "durationSeconds": 137.42,
+      "timestamp": "2026-11-08T12:44:27Z",
+      "success": true
+    },
+    {
+      "runId": "run-r7-D-s1-1",
+      "scenario": "r7-s1-1",
+      "durationSeconds": 107.12,
+      "timestamp": "2026-11-08T12:50:53Z",
+      "success": true
+    },
+    {
+      "runId": "run-r7-D-s2-5",
+      "scenario": "r7-s2-5",
+      "durationSeconds": 106.83,
+      "timestamp": "2026-11-08T12:52:46Z",
+      "success": true
+    },
+    {
+      "runId": "run-r7-D-s3-10",
+      "scenario": "r7-s3-10",
+      "durationSeconds": 135.99,
+      "timestamp": "2026-11-08T12:55:07Z",
+      "success": true
+    }
+  ]
+}

@@ -1,0 +1,157 @@
+"""Declarative Grafana for the private L7-LB distribution only."""
+import base64
+import json
+from pathlib import Path
+from urllib.parse import urlencode
+from urllib.request import Request, urlopen
+
+ROOT = Path(__file__).resolve().parents[2]
+USERNAME, PASSWORD = 'admin', 'pocoma'
+DASHBOARDS = {'pocoma-runtime': 'Pocoma runtime',
+              'pocoma-v3-overview': 'Pocoma V3 - Architecture & Observability Overview'}
+LEGACY_JOBS = 'pocoma-api|pocoma-command-consumption-worker|pocoma-latest-known-version-consumption-worker|pocoma-event-consumption-workers|pocoma-task-consumption-workers'
+
+
+def dashboards(runtimes):
+    """Reuse L6 panels; adapt only topology selectors and datasource identity."""
+    result = {}
+    for uid in DASHBOARDS:
+        data = json.loads((ROOT / 'docker/grafana/dashboards' / (uid + '.json')).read_text())
+        def adapt(value):
+            if isinstance(value, dict):
+                if value.get('type') == 'prometheus' and 'uid' in value:
+                    value['uid'] = 'Prometheus'
+                for key, child in value.items():
+                    if key == 'expr':
+                        value[key] = child.replace(LEGACY_JOBS, '|'.join(runtimes)).replace(
+                            'MaterializePotVersion|MaterializePotBalance|MaterializePotVisibility|MaterializeCurrentBinding|MaterializeCommandResult|MaterializeIdentityRequestResult',
+                            'PotVersion|PotBalance|PotVisibility|CurrentBinding|CommandResult|IdentityRequestResult')
+                    else:
+                        adapt(child)
+            elif isinstance(value, list):
+                for child in value:
+                    adapt(child)
+        adapt(data)
+        result[uid] = data
+    return result
+
+
+def provision(path, runtimes):
+    root = path / 'grafana'
+    for directory in (root, root / 'provisioning', root / 'provisioning/datasources',
+                      root / 'provisioning/dashboards', root / 'dashboards'):
+        directory.mkdir(exist_ok=True)
+        directory.chmod(0o755)  # UID472 traverses only below the private instance root.
+    datasource = (ROOT / 'docker/grafana/provisioning/datasources/prometheus.yml').read_text()
+    (root / 'provisioning/datasources/prometheus.yml').write_text(datasource.replace('editable: true', 'editable: false'))
+    provider = (ROOT / 'docker/grafana/provisioning/dashboards/dashboards.yml').read_text()
+    (root / 'provisioning/dashboards/dashboards.yml').write_text(
+        provider.replace('editable: true', 'editable: false').replace('/var/lib/grafana/dashboards', '/etc/grafana/dashboards'))
+    for uid, data in dashboards(runtimes).items():
+        (root / 'dashboards' / (uid + '.json')).write_text(json.dumps(data, indent=2) + '\n')
+    for file in root.rglob('*'):
+        if file.is_file():
+            file.chmod(0o644)
+
+
+def service(path, m, label):
+    return dict(image=m['images']['grafana']['digest'], labels={label: m['owner']},
+        environment=dict(GF_SECURITY_ADMIN_USER=USERNAME, GF_SECURITY_ADMIN_PASSWORD=PASSWORD,
+                         GF_USERS_ALLOW_SIGN_UP='false', GF_AUTH_ANONYMOUS_ENABLED='false',
+                         GF_ANALYTICS_REPORTING_ENABLED='false', GF_ANALYTICS_CHECK_FOR_UPDATES='false',
+                         GF_ANALYTICS_CHECK_FOR_PLUGIN_UPDATES='false', GF_PLUGINS_PREINSTALL_DISABLED='true'),
+        ports=[f'127.0.0.1:{m["ports"]["grafana"]}:3000'],
+        volumes=[f'{path}/grafana/provisioning:/etc/grafana/provisioning:ro',
+                 f'{path}/grafana/dashboards:/etc/grafana/dashboards:ro'],
+        tmpfs=['/var/lib/grafana:rw,uid=472,gid=0,mode=0750,size=128m'],
+        mem_limit='384m', cpus=.5,
+        depends_on=['prometheus'])
+
+
+def access(m):
+    if 'grafana' not in m['ports']:
+        return None
+    return dict(url=f'http://127.0.0.1:{m["ports"]["grafana"]}/', username=USERNAME,
+                dashboard=DASHBOARDS['pocoma-runtime'], dashboardUrl=f'http://127.0.0.1:{m["ports"]["grafana"]}/d/pocoma-runtime')
+
+
+def get(m, route):
+    request = Request(access(m)['url'].rstrip('/') + route,
+        headers={'Authorization': 'Basic ' + base64.b64encode((USERNAME + ':' + PASSWORD).encode()).decode()})
+    with urlopen(request, timeout=5) as response:
+        return json.load(response)
+
+
+def query(m, expression):
+    data = get(m, '/api/datasources/proxy/uid/Prometheus/api/v1/query?' + urlencode({'query': expression}))
+    if data.get('status') != 'success':
+        raise RuntimeError('PromQL query failed')
+    return data['data']['result']
+
+
+def checks(m, runtimes, await_check, save, evidence=None, wait=False):
+    result, proof = {}, {'diagnostics': {}, 'panels': []}
+    def check(name, diagnostic, action):
+        try:
+            await_check(action, 60, diagnostic) if wait else action()
+            result[name] = 'PASS'
+        except Exception as error:
+            result[name] = 'FAIL'
+            proof['diagnostics'][name] = dict(code=diagnostic, errorClass=type(error).__name__)
+    def http():
+        health = get(m, '/api/health')
+        user = get(m, '/api/user')
+        if health.get('database') != 'ok' or user.get('login') != USERNAME or not user.get('isGrafanaAdmin'):
+            raise RuntimeError('Grafana health/admin authentication')
+        proof.update(version=health.get('version'), adminAuthenticated=True)
+    def datasource():
+        ds = get(m, '/api/datasources/uid/Prometheus')
+        health = get(m, '/api/datasources/uid/Prometheus/health')
+        if (ds.get('type') != 'prometheus' or ds.get('url') != 'http://prometheus:9090'
+                or not ds.get('isDefault') or health.get('status') != 'OK'):
+            raise RuntimeError('Datasource configuration/health')
+        # Exercise Grafana -> Prometheus, rather than only the host Prometheus API.
+        observed = {}
+        for metric in ('up', 'jvm_memory_used_bytes', 'process_cpu_usage'):
+            rows = query(m, metric)
+            jobs = {r['metric'].get('job') for r in rows
+                    if float(r['value'][1]) >= (1 if metric == 'up' else 0)}
+            if jobs != set(runtimes):
+                raise RuntimeError('Missing runtime metric: ' + metric)
+            observed[metric] = sorted(jobs)
+        if {r['metric'].get('job') for r in query(m, 'count({__name__=~"pocoma_.+"}) by (job)')} != set(runtimes):
+            raise RuntimeError('Missing Pocoma metrics')
+        proof['datasource'] = dict(uid=ds['uid'], url=ds['url'], health=health['status'], metrics=observed)
+    def dashboard():
+        for uid, expected in dashboards(runtimes).items():
+            data = get(m, '/api/dashboards/uid/' + uid)
+            actual = data['dashboard']
+            if not data['meta'].get('provisioned') or actual['title'] != expected['title']:
+                raise RuntimeError('Dashboard provisioning')
+            if actual['panels'] != expected['panels']:
+                raise RuntimeError('Dashboard panel/datasource drift')
+        proof['dashboards'] = DASHBOARDS
+    check('GRAFANA-HTTP', 'GRAFANA_START_TIMEOUT', http)
+    check('GRAFANA-DATASOURCE', 'GRAFANA_DATASOURCE_UNAVAILABLE', datasource)
+    check('GRAFANA-DASHBOARD', 'GRAFANA_DASHBOARD_NOT_PROVISIONED', dashboard)
+    # Capture real panel results and distinguish empty, nonfinite, zero and nonzero.
+    # Empty activity-dependent timers do not block readiness; structural metrics above do.
+    if all(value == 'PASS' for value in result.values()):
+        import math
+        for uid, data in dashboards(runtimes).items():
+            for panel in data['panels']:
+                for target in panel.get('targets', []):
+                    try:
+                        rows = query(m, target['expr'])
+                        values = [float(row['value'][1]) for row in rows]
+                        state = ('ABSENT' if not values else 'NONFINITE' if not any(map(math.isfinite, values))
+                                 else 'ZERO' if all(v == 0 for v in values) else 'PRESENT')
+                        proof['panels'].append(dict(dashboard=uid, panel=panel['title'], refId=target['refId'],
+                                                    expression=target['expr'], state=state, series=len(rows)))
+                    except Exception as error:
+                        result['GRAFANA-DASHBOARD'] = 'FAIL'
+                        proof['diagnostics']['GRAFANA-DASHBOARD'] = dict(code='GRAFANA_PROMQL_UNAVAILABLE', errorClass=type(error).__name__)
+    proof['checks'] = result
+    if evidence:
+        save(evidence / 'grafana.json', proof)
+    return result, proof['diagnostics']

@@ -1,0 +1,102 @@
+[
+  {
+    "label": "pocoma-l5-i1-worker-isolation-01",
+    "seconds": 0.9545124170253985,
+    "archive_bytes": 2091688
+  },
+  {
+    "label": "pocoma-l5-i1-worker-isolation-02",
+    "seconds": 0.919476917013526,
+    "archive_bytes": 2095087
+  },
+  {
+    "label": "development",
+    "seconds": 0.033904500014614314,
+    "archive_bytes": 67689
+  },
+  {
+    "label": "pocoma-l5-i1-architecture-04",
+    "seconds": 11.47399987501558,
+    "archive_bytes": 36887182
+  },
+  {
+    "label": "pocoma-l5-i1-pool-initialization-01",
+    "seconds": 0.8414278340060264,
+    "archive_bytes": 2076138
+  },
+  {
+    "label": "development",
+    "seconds": 0.036148083047010005,
+    "archive_bytes": 74819
+  },
+  {
+    "label": "pocoma-l5-i1-architecture-05",
+    "seconds": 13.079465999966487,
+    "archive_bytes": 35530426
+  },
+  {
+    "label": "pocoma-l5-i1-composition-split-01",
+    "seconds": 1.1007879580138251,
+    "archive_bytes": 2219120
+  },
+  {
+    "label": "development",
+    "seconds": 0.044150875008199364,
+    "archive_bytes": 75397
+  },
+  {
+    "label": "pocoma-l5-i1-architecture-06",
+    "seconds": 11.637622833019122,
+    "archive_bytes": 37028454
+  },
+  {
+    "label": "development",
+    "seconds": 0.04114020796259865,
+    "archive_bytes": 79956
+  },
+  {
+    "label": "pocoma-l5-i1-http-boundary-01",
+    "seconds": 0.9923014160012826,
+    "archive_bytes": 2251674
+  },
+  {
+    "label": "development",
+    "seconds": 0.041543708997778594,
+    "archive_bytes": 79968
+  },
+  {
+    "label": "pocoma-l5-i1-architecture-07",
+    "seconds": 11.347202166973148,
+    "archive_bytes": 38444441
+  },
+  {
+    "label": "development",
+    "seconds": 0.040819665999151766,
+    "archive_bytes": 80147
+  },
+  {
+    "label": "pocoma-l5-i1-optional-port-01",
+    "seconds": 1.0126835830160417,
+    "archive_bytes": 2551456
+  },
+  {
+    "label": "pocoma-l5-i1-architecture-feedback-01",
+    "seconds": 1.092193500022404,
+    "archive_bytes": 2702852
+  },
+  {
+    "label": "development",
+    "seconds": 0.04065716598415747,
+    "archive_bytes": 80746
+  },
+  {
+    "label": "pocoma-l5-i1-architecture-08",
+    "seconds": 11.536949375004042,
+    "archive_bytes": 38748482
+  },
+  {
+    "label": "development",
+    "seconds": 0.039755083969794214,
+    "archive_bytes": 84561
+  }
+]

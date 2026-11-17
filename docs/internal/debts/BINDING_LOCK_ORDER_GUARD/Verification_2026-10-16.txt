@@ -1,0 +1,97 @@
+Extraits de vérification — audit PostgreSQL 2026-10-16
+Baseline e0bd47a40727b850927fa37cd15dde509073f9c7
+Les SHA256 identifient les logs complets temporaires, non inclus au dépôt.
+Les sorties ci-dessous sont des extraits, non la totalité du log Maven.
+
+Campagne initiale : 68 réussites, cinq erreurs avant scénario runtime
+Log: /tmp/pocoma-lock-audit-tests.log
+SHA256: 44507e6df0522101fdc6e5fd9ac9d428ea1b0120f8fb3300efcc5b48992c58fe
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 4.140 s -- in com.kartaguez.pocoma.infra.persistence.read.jdbc.CurrentBindingPersistencePostgresTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.858 s -- in com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.registration.RegistrationAuthorityPostgresTest
+[INFO] Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.378 s -- in com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.identity.JpaUserIdentityAuthorityAdapterPostgresTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.944 s -- in com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.identity.BindingOptimisticCasSemanticsPostgresTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.290 s -- in com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.identity.JpaExternalIdentityBindingLifecycleAdapterPostgresTest
+[INFO] Tests run: 12, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.889 s -- in com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.consumption.TransactionalConsumptionExecutionPostgresTest
+[INFO] Tests run: 12, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.659 s -- in com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.consumption.JpaConsumptionLifecycleAdapterPostgresTest
+[INFO] Tests run: 25, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.345 s -- in com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.command.CommandConsumptionPostgresTest
+[INFO] Tests run: 68, Failures: 0, Errors: 0, Skipped: 0
+Caused by: org.springframework.beans.factory.NoUniqueBeanDefinitionException: No qualifying bean of type 'com.kartaguez.pocoma.port.transaction.TransactionRunner' available: expected single matching bean but found 2: transactionRunner,bindingTransactionRunner
+Caused by: org.springframework.beans.factory.NoUniqueBeanDefinitionException: No qualifying bean of type 'com.kartaguez.pocoma.port.transaction.TransactionRunner' available: expected single matching bean but found 2: transactionRunner,bindingTransactionRunner
+Caused by: org.springframework.beans.factory.NoUniqueBeanDefinitionException: No qualifying bean of type 'com.kartaguez.pocoma.port.transaction.TransactionRunner' available: expected single matching bean but found 2: transactionRunner,bindingTransactionRunner
+Caused by: org.springframework.beans.factory.NoUniqueBeanDefinitionException: No qualifying bean of type 'com.kartaguez.pocoma.port.transaction.TransactionRunner' available: expected single matching bean but found 2: transactionRunner,bindingTransactionRunner
+Caused by: org.springframework.beans.factory.NoUniqueBeanDefinitionException: No qualifying bean of type 'com.kartaguez.pocoma.port.transaction.TransactionRunner' available: expected single matching bean but found 2: transactionRunner,bindingTransactionRunner
+[ERROR] Tests run: 5, Failures: 0, Errors: 5, Skipped: 0, Time elapsed: 4.371 s <<< FAILURE! -- in com.kartaguez.pocoma.runtime.binding.BindingRuntimePostgresTest
+Caused by: org.springframework.beans.factory.NoUniqueBeanDefinitionException: No qualifying bean of type 'com.kartaguez.pocoma.port.transaction.TransactionRunner' available: expected single matching bean but found 2: transactionRunner,bindingTransactionRunner
+Caused by: org.springframework.beans.factory.NoUniqueBeanDefinitionException: No qualifying bean of type 'com.kartaguez.pocoma.port.transaction.TransactionRunner' available: expected single matching bean but found 2: transactionRunner,bindingTransactionRunner
+Caused by: org.springframework.beans.factory.NoUniqueBeanDefinitionException: No qualifying bean of type 'com.kartaguez.pocoma.port.transaction.TransactionRunner' available: expected single matching bean but found 2: transactionRunner,bindingTransactionRunner
+Caused by: org.springframework.beans.factory.NoUniqueBeanDefinitionException: No qualifying bean of type 'com.kartaguez.pocoma.port.transaction.TransactionRunner' available: expected single matching bean but found 2: transactionRunner,bindingTransactionRunner
+Caused by: org.springframework.beans.factory.NoUniqueBeanDefinitionException: No qualifying bean of type 'com.kartaguez.pocoma.port.transaction.TransactionRunner' available: expected single matching bean but found 2: transactionRunner,bindingTransactionRunner
+[ERROR] Tests run: 5, Failures: 0, Errors: 5, Skipped: 0
+[INFO] BUILD FAILURE
+
+Hypothèse sans provenance : deux assertions réfutées par exécution
+Log: /tmp/pocoma-lock-audit-deadlocks.log
+SHA256: 8f40332e032256aa0eb60f7a52c651137508a2bb2096d435687274d6ba0756fe
+[ERROR] Tests run: 2, Failures: 2, Errors: 0, Skipped: 0, Time elapsed: 5.136 s <<< FAILURE! -- in com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.command.CommandConsumptionPostgresTest
+[ERROR] Tests run: 2, Failures: 2, Errors: 0, Skipped: 0
+[INFO] BUILD FAILURE
+
+Témoins corrigés, première suite 27 tests
+Log: /tmp/pocoma-lock-audit-characterization.log
+SHA256: 2d6f5b567e7faccf983244aa2b2a456d1ba981908f3d91b12fabd57f6dc45b66
+LOCK_AUDIT scenario=binding-recovery stalePid=61 initialCurrentPid=60 waitingPid=60 stale=LostClaimException current=committed deadlocks=0
+LOCK_AUDIT scenario=terminal-failure stalePid=61 initialCurrentPid=60 waitingPid=60 stale=LostClaimException current=committed deadlocks=0
+[INFO] Tests run: 27, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 5.737 s -- in com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.command.CommandConsumptionPostgresTest
+[INFO] Tests run: 27, Failures: 0, Errors: 0, Skipped: 0
+[INFO] BUILD SUCCESS
+
+Témoins avec vérification de deux backend_xid, suite 27 tests
+Log: /tmp/pocoma-lock-audit-characterization-final.log
+SHA256: a02a9818727395a87610deb3218f8fbb5a81798fa88401eb7f81d880e6224598
+LOCK_AUDIT concurrent=[{pid=61, xid=806, wait_event_type=Lock}, {pid=62, xid=805, wait_event_type=Client}]
+LOCK_AUDIT scenario=binding-recovery stalePid=62 initialCurrentPid=61 waitingPid=61 stale=LostClaimException current=committed deadlocks=0
+LOCK_AUDIT concurrent=[{pid=61, xid=1128, wait_event_type=Lock}, {pid=62, xid=1127, wait_event_type=Client}]
+LOCK_AUDIT scenario=terminal-failure stalePid=62 initialCurrentPid=61 waitingPid=61 stale=LostClaimException current=committed deadlocks=0
+[INFO] Tests run: 27, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 5.670 s -- in com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.command.CommandConsumptionPostgresTest
+[INFO] Tests run: 27, Failures: 0, Errors: 0, Skipped: 0
+[INFO] BUILD SUCCESS
+
+CurrentBinding, preuve locale six tests
+Log: /tmp/pocoma-lock-audit-current-binding.log
+SHA256: 5177fca6c2c688fe8c2bb80fb991334739a8e3fec57036cf75335cbda866187f
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.370 s -- in com.kartaguez.pocoma.infra.persistence.read.jdbc.CurrentBindingPersistencePostgresTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0
+[INFO] BUILD SUCCESS
+
+Suite complète Command 28 tests avec variante provenance
+Log: /tmp/pocoma-lock-audit-provenance.log
+SHA256: 1af725f8b42613b8932c93a357dbae869956750c7216ac23763a507174d6fe3a
+LOCK_AUDIT concurrent=[{pid=59, xid=806, wait_event_type=Lock}, {pid=60, xid=805, wait_event_type=Client}]
+LOCK_AUDIT scenario=binding-recovery provenance=false stalePid=60 initialCurrentPid=59 waitingPid=59 deadlocks=0 victim=none
+LOCK_AUDIT concurrent=[{pid=59, xid=1056, wait_event_type=Lock}, {pid=60, xid=1055, wait_event_type=Client}]
+LOCK_AUDIT scenario=terminal-failure provenance=true stalePid=60 initialCurrentPid=59 waitingPid=59 deadlocks=1 victim=current
+LOCK_AUDIT concurrent=[{pid=59, xid=1144, wait_event_type=Lock}, {pid=60, xid=1143, wait_event_type=Client}]
+LOCK_AUDIT scenario=terminal-failure provenance=false stalePid=60 initialCurrentPid=59 waitingPid=59 deadlocks=0 victim=none
+[INFO] Tests run: 28, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 6.687 s -- in com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.command.CommandConsumptionPostgresTest
+[INFO] Tests run: 28, Failures: 0, Errors: 0, Skipped: 0
+[INFO] BUILD SUCCESS
+
+Trois caractérisations finales et diagnostic PostgreSQL
+Log: /tmp/pocoma-lock-audit-final-three.log
+SHA256: 5a67a0f86195680983980b2ebc37e9c355f6172b14f9dc09cf930d24839de49e
+LOCK_AUDIT concurrent=[{pid=61, xid=806, wait_event_type=Lock}, {pid=62, xid=805, wait_event_type=Client}]
+LOCK_AUDIT scenario=binding-recovery provenance=false stalePid=62 initialCurrentPid=61 waitingPid=61 deadlocks=0 victim=none
+LOCK_AUDIT concurrent=[{pid=61, xid=823, wait_event_type=Lock}, {pid=62, xid=822, wait_event_type=Client}]
+LOCK_AUDIT SQLSTATE=40P01 ERROR: deadlock detected
+  Détail : Process 61 waits for ShareLock on transaction 822; blocked by process 62.
+Process 62 waits for ShareLock on transaction 823; blocked by process 61.
+  Indice : See server log for query details.
+  Où : while inserting index tuple (0,4) in relation "command_outcomes_pkey"
+LOCK_AUDIT scenario=terminal-failure provenance=true stalePid=62 initialCurrentPid=61 waitingPid=61 deadlocks=1 victim=current
+LOCK_AUDIT concurrent=[{pid=61, xid=839, wait_event_type=Lock}, {pid=62, xid=838, wait_event_type=Client}]
+LOCK_AUDIT scenario=terminal-failure provenance=false stalePid=62 initialCurrentPid=61 waitingPid=61 deadlocks=0 victim=none
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 5.869 s -- in com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.command.CommandConsumptionPostgresTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0
+[INFO] BUILD SUCCESS
+

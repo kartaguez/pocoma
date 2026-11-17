@@ -1,0 +1,213 @@
+{
+  "initialSha": "e0a7ec3bf3ce41bf599df915236a64bc1c599b05",
+  "frozenTestedSha": "a2133b6b43a74999374bc26a222f70c7500fadda",
+  "publishedSha": "commit containing L2_I5_Temporal_Final_Report.md; exact SHA delivered in publication receipt",
+  "classification": "INCONCLUSIVE / availability reserve",
+  "technicalQualification": "FAIL",
+  "runtimeSafetyDefectDemonstrated": false,
+  "declaredSlices": [
+    "COMMAND",
+    "MONOLITH (conditional gate)"
+  ],
+  "unexpectedSliceCrossing": "NONE",
+  "globalArchitectureGate": "NOT REQUIRED / NOT RUN",
+  "fullReactor": "NOT REQUIRED / NOT RUN",
+  "database": "CURRENT V3 fixture only",
+  "composedGate": "NOT RUN after technical FAIL",
+  "singleTargetedAttempt": true,
+  "elapsedCampaignWallSeconds": 107.22902841679752,
+  "prefreezeMavenSeconds": 18.353,
+  "qualificationCases": [
+    {
+      "class": "com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest",
+      "method": "i5_r12",
+      "seconds": "96.788",
+      "status": "FAIL"
+    }
+  ],
+  "commandsActuallyExecuted": {
+    "prefreezeHelperThreeInvocations": [
+      "./mvnw",
+      "-pl",
+      "runtime-command-consumption-worker",
+      "-am",
+      "-Dtest=I5PhysicalWindowTest",
+      "-Dsurefire.failIfNoSpecifiedTests=false",
+      "test"
+    ],
+    "campaignLauncher": "python3 scripts/testing/run-i5-temporal-final.py /private/tmp/pocoma-i5-final-a2133b6b",
+    "targetedMaven": [
+      "./mvnw",
+      "-pl",
+      "runtime-command-consumption-worker",
+      "-am",
+      "-Dtest=V3WorkerResourcesPostgresTest#i5_r12",
+      "-Dsurefire.failIfNoSpecifiedTests=false",
+      "test"
+    ]
+  },
+  "inputsUnchangedDuringCampaign": true,
+  "priorTrackedInputsUnchangedExcept": [
+    "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/I5TemporalV2Postgres.java",
+    "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/V3WorkerResourcesPostgresTest.java"
+  ],
+  "metrics": {
+    "allLeaseAttempts": 1202,
+    "stages": [
+      {
+        "stage": 1,
+        "oracles": "PASS before cleanup",
+        "authorities": {
+          "WRITE": {
+            "attempts": 3,
+            "maxOperationMs": 9.925584,
+            "maxNextAttemptCompleteMs": 58.214875,
+            "maxCumulativeJitterMs": 0.0,
+            "omittedCandidates": 0
+          },
+          "READ": {
+            "attempts": 6,
+            "maxOperationMs": 9.738833,
+            "maxNextAttemptCompleteMs": 52.657375,
+            "maxCumulativeJitterMs": 0.0,
+            "omittedCandidates": 0
+          }
+        },
+        "vectors": [
+          {
+            "leases": 8,
+            "claims": 6,
+            "minLeaseOldDeadlineMarginSeconds": 76.688224,
+            "minClaimOldDeadlineMarginSeconds": 46.777912,
+            "minOldDeadlineMarginSeconds": 46.777912,
+            "maxInitialAgeSeconds": 2.552265
+          },
+          {
+            "leases": 4,
+            "claims": 2,
+            "minLeaseOldDeadlineMarginSeconds": 76.657589,
+            "minClaimOldDeadlineMarginSeconds": 46.665231,
+            "minOldDeadlineMarginSeconds": 46.665231,
+            "maxInitialAgeSeconds": 2.561603
+          }
+        ]
+      },
+      {
+        "stage": 2,
+        "oracles": "PASS before cleanup",
+        "authorities": {
+          "WRITE": {
+            "attempts": 4,
+            "maxOperationMs": 17.463208,
+            "maxNextAttemptCompleteMs": 114.853625,
+            "maxCumulativeJitterMs": 0.0,
+            "omittedCandidates": 2
+          },
+          "READ": {
+            "attempts": 6,
+            "maxOperationMs": 18.098833,
+            "maxNextAttemptCompleteMs": 128.805708,
+            "maxCumulativeJitterMs": 0.0,
+            "omittedCandidates": 2
+          }
+        },
+        "vectors": [
+          {
+            "leases": 8,
+            "claims": 6,
+            "minLeaseOldDeadlineMarginSeconds": 76.651111,
+            "minClaimOldDeadlineMarginSeconds": 47.641144,
+            "minOldDeadlineMarginSeconds": 47.641144,
+            "maxInitialAgeSeconds": 3.408341
+          },
+          {
+            "leases": 4,
+            "claims": 2,
+            "minLeaseOldDeadlineMarginSeconds": 76.635878,
+            "minClaimOldDeadlineMarginSeconds": 46.611938,
+            "minOldDeadlineMarginSeconds": 46.611938,
+            "maxInitialAgeSeconds": 3.42919
+          }
+        ]
+      }
+    ],
+    "excessiveWitnesses": [
+      "C-EXCESS key=98f7268d-d340-581c-b83d-010926223e14/0 removed=true suspended=true unextended={owner_token=4cb334ce-b97f-448d-9f03-9bfd29e4f2d0, owned_until=2026-10-29 21:22:32.845654, now=2026-10-29 21:21:18.948194} holder=Tx[WRITE,main,2462863439933916,9223372036854775807,guarded=false,renewal=false,injected=true,pid=1994,xid=1191,ACTIVE,keys=[98f7268d-d340-581c-b83d-010926223e14/0]]",
+      "C-EXCESS key=a5000000-0000-4000-8000-000000000001/0 removed=true suspended=true unextended={owner_token=fe25f5c3-8d71-4dc5-a9a8-69595a6904ed, owned_until=2026-10-29 21:22:42.948031, now=2026-10-29 21:21:29.073421} holder=Tx[READ,main,2462876194073041,9223372036854775807,guarded=false,renewal=false,injected=true,pid=1997,xid=1492,ACTIVE,keys=[a5000000-0000-4000-8000-000000000001/0]]",
+      "C-EXCESS key=98f7268d-d340-581c-b83d-010926223e14/2 removed=true suspended=true unextended={owner_token=ef9c4b93-9df0-467e-af23-73b1cf8f195a, owned_until=2026-10-29 21:22:55.210934, now=2026-10-29 21:21:41.327985} holder=Tx[WRITE,main,2462886318926250,9223372036854775807,guarded=false,renewal=false,injected=true,pid=2000,xid=1794,ACTIVE,keys=[98f7268d-d340-581c-b83d-010926223e14/2]]",
+      "C-EXCESS key=a5000000-0000-4000-8000-000000000001/2 removed=true suspended=true unextended={owner_token=9a730c0f-76be-4198-8a1f-5f23864e3b92, owned_until=2026-10-29 21:23:05.420273, now=2026-10-29 21:21:51.535828} holder=Tx[READ,main,2462898573437708,9223372036854775807,guarded=false,renewal=false,injected=true,pid=2004,xid=2096,ACTIVE,keys=[a5000000-0000-4000-8000-000000000001/2]]"
+    ],
+    "claimsAfterRetirement": [
+      {
+        "claims": 6,
+        "sameTokenExtended": true
+      },
+      {
+        "claims": 2,
+        "sameTokenExtended": true
+      }
+    ],
+    "sealedBeforeCleanup": true
+  },
+  "archive": {
+    "path": "docs/testing/evidence/L2-I5-temporal-final/qualification-proof.tar.gz",
+    "bytes": 351562,
+    "sha256": "3432e9c930a4a6aa0f69de590fda2b0ca0747e46a34e8d297b86a417c86a46e2",
+    "frozenDiffSha256": "3a67b6c6826b1a9ce7c7c4f7de7f7432ee2adca5957c892372d54ee587e2bdee"
+  },
+  "decisionProposed": "Close this final certification iteration as INCONCLUSIVE. Human decision to continue I6/I7 with explicit availability reserve; AUD-I5-01 and R-AUD-I3-03 do not become PASS; no production eligibility; 30s not certified.",
+  "files": [
+    {
+      "status": "A",
+      "path": "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/I5PhysicalWindow.java"
+    },
+    {
+      "status": "A",
+      "path": "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/I5PhysicalWindowTest.java"
+    },
+    {
+      "status": "M",
+      "path": "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/I5TemporalV2Postgres.java"
+    },
+    {
+      "status": "M",
+      "path": "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/V3WorkerResourcesPostgresTest.java"
+    },
+    {
+      "status": "A",
+      "path": "docs/testing/evidence/L2-I5-temporal-final/reuse.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/testing/evidence/L2-I5-temporal-final/temporal-contract-v3.properties"
+    },
+    {
+      "status": "A",
+      "path": "docs/v3/L2_I5_Temporal_Final_Addendum.md"
+    },
+    {
+      "status": "A",
+      "path": "scripts/testing/run-i5-temporal-final.py"
+    },
+    {
+      "status": "A",
+      "path": "docs/v3/L2_I5_Temporal_Final_Report.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/testing/evidence/L2-I5-temporal-final/counterexample.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/testing/evidence/L2-I5-temporal-final/qualification.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/testing/evidence/L2-I5-temporal-final/qualification-proof.tar.gz"
+    }
+  ],
+  "auxiliarySha256": {
+    "docs/testing/evidence/L2-I5-temporal-final/counterexample.json": "c4e999baf9ffbc097c9b54967247a42203ee520323c0b9b73f81438bc5e3d8bb",
+    "docs/testing/evidence/L2-I5-temporal-final/reuse.json": "abf6c30d86e8a589c1e973aba5c76d788a775ad5afadffb2870dafd96ee97650"
+  }
+}

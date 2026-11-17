@@ -1,0 +1,179 @@
+[
+  {
+    "iterationIndex": 0,
+    "results": [
+      {
+        "test": {
+          "filename": "04 Invitations/B401 JourneyAndVoluntaryDeparture.bru"
+        },
+        "request": {
+          "method": "GET",
+          "url": "http://127.0.0.1:51278/api/v3/me/binding",
+          "headers": {}
+        },
+        "response": {
+          "status": 200,
+          "statusText": "",
+          "headers": {},
+          "url": "http://127.0.0.1/api/v3/me/binding",
+          "responseTime": 30,
+          "duration": 30,
+          "size": 91
+        },
+        "error": null,
+        "status": "pass",
+        "assertionResults": [],
+        "testResults": [
+          {
+            "status": "fail",
+            "description": "Test Script Error",
+            "error": "expected 404 to equal 202",
+            "isScriptError": true
+          }
+        ],
+        "preRequestTestResults": [],
+        "postResponseTestResults": [],
+        "shouldStopRunnerExecution": false,
+        "runDuration": 0.128623125,
+        "name": "B401 JourneyAndVoluntaryDeparture",
+        "suitename": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/04 Invitations/B401 JourneyAndVoluntaryDeparture",
+        "path": "04 Invitations/B401 JourneyAndVoluntaryDeparture",
+        "iterationIndex": 0
+      },
+      {
+        "test": {
+          "filename": "04 Invitations/B402 ConfidentialityAndMasking.bru"
+        },
+        "request": {
+          "method": "GET",
+          "url": "http://127.0.0.1:51278/api/v3/me/binding",
+          "headers": {}
+        },
+        "response": {
+          "status": 200,
+          "statusText": "",
+          "headers": {},
+          "url": "http://127.0.0.1/api/v3/me/binding",
+          "responseTime": 7,
+          "duration": 7,
+          "size": 91
+        },
+        "error": null,
+        "status": "pass",
+        "assertionResults": [],
+        "testResults": [
+          {
+            "status": "fail",
+            "description": "Test Script Error",
+            "error": "expected 404 to equal 202",
+            "isScriptError": true
+          }
+        ],
+        "preRequestTestResults": [],
+        "postResponseTestResults": [],
+        "shouldStopRunnerExecution": false,
+        "runDuration": 0.0381055,
+        "name": "B402 ConfidentialityAndMasking",
+        "suitename": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/04 Invitations/B402 ConfidentialityAndMasking",
+        "path": "04 Invitations/B402 ConfidentialityAndMasking",
+        "iterationIndex": 0
+      },
+      {
+        "test": {
+          "filename": "04 Invitations/B403 ReusableInvitation.bru"
+        },
+        "request": {
+          "method": "GET",
+          "url": "http://127.0.0.1:51278/api/v3/me/binding",
+          "headers": {}
+        },
+        "response": {
+          "status": 200,
+          "statusText": "",
+          "headers": {},
+          "url": "http://127.0.0.1/api/v3/me/binding",
+          "responseTime": 7,
+          "duration": 7,
+          "size": 91
+        },
+        "error": null,
+        "status": "pass",
+        "assertionResults": [],
+        "testResults": [
+          {
+            "status": "fail",
+            "description": "Test Script Error",
+            "error": "expected 404 to equal 202",
+            "isScriptError": true
+          }
+        ],
+        "preRequestTestResults": [],
+        "postResponseTestResults": [],
+        "shouldStopRunnerExecution": false,
+        "runDuration": 0.033669958,
+        "name": "B403 ReusableInvitation",
+        "suitename": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/04 Invitations/B403 ReusableInvitation",
+        "path": "04 Invitations/B403 ReusableInvitation",
+        "iterationIndex": 0
+      },
+      {
+        "test": {
+          "filename": "04 Invitations/B404 ExpiredCreation.bru"
+        },
+        "request": {
+          "method": "GET",
+          "url": "http://127.0.0.1:51278/api/v3/me/binding",
+          "headers": {}
+        },
+        "response": {
+          "status": 200,
+          "statusText": "",
+          "headers": {},
+          "url": "http://127.0.0.1/api/v3/me/binding",
+          "responseTime": 6,
+          "duration": 6,
+          "size": 91
+        },
+        "error": null,
+        "status": "pass",
+        "assertionResults": [],
+        "testResults": [
+          {
+            "status": "fail",
+            "description": "Test Script Error",
+            "error": "expected 404 to equal 202",
+            "isScriptError": true
+          }
+        ],
+        "preRequestTestResults": [],
+        "postResponseTestResults": [],
+        "shouldStopRunnerExecution": false,
+        "runDuration": 0.032958083,
+        "name": "B404 ExpiredCreation",
+        "suitename": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/04 Invitations/B404 ExpiredCreation",
+        "path": "04 Invitations/B404 ExpiredCreation",
+        "iterationIndex": 0
+      }
+    ],
+    "summary": {
+      "totalRequests": 4,
+      "passedRequests": 0,
+      "failedRequests": 4,
+      "errorRequests": 0,
+      "skippedRequests": 0,
+      "skippedByBail": 0,
+      "totalAssertions": 0,
+      "passedAssertions": 0,
+      "failedAssertions": 0,
+      "totalTests": 0,
+      "passedTests": 0,
+      "failedTests": 0,
+      "totalPreRequestTests": 0,
+      "passedPreRequestTests": 0,
+      "failedPreRequestTests": 0,
+      "totalPostResponseTests": 0,
+      "passedPostResponseTests": 0,
+      "failedPostResponseTests": 0
+    }
+  }
+]

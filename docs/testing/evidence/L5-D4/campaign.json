@@ -1,0 +1,47 @@
+{
+  "head": "5193c540c5be2ea6bf31d4fe159c02490ab352aa",
+  "started_utc": "2026-11-04T06:48:18.903674+00:00",
+  "limit_seconds": 1800,
+  "processes": [
+    {
+      "argv": [
+        "javac",
+        "-cp",
+        "~/.m2/repository/com/fasterxml/jackson/core/jackson-annotations/2.21/jackson-annotations-2.21.jar:~/.m2/repository/com/fasterxml/jackson/core/jackson-core/2.21.2/jackson-core-2.21.2.jar:~/.m2/repository/com/fasterxml/jackson/core/jackson-databind/2.21.2/jackson-databind-2.21.2.jar",
+        "-d",
+        "<temporary-classes>",
+        "app/domain-pot/src/main/java/com/kartaguez/pocoma/domain/pot/v3/Fraction.java",
+        "app/engine-read-pot/src/main/java/com/kartaguez/pocoma/engine/read/pot/v3/ReadPotV3Result.java",
+        "<repo>/docs/testing/evidence/L5-D4/Calibration.java"
+      ],
+      "pid": 35889,
+      "process_group": 35889,
+      "exit_code": 0,
+      "seconds": 0.4461050419486128,
+      "reaped": true,
+      "process_group_absent": true
+    },
+    {
+      "argv": [
+        "java",
+        "-Xms64m",
+        "-Xmx256m",
+        "-cp",
+        "<temporary-classes>:~/.m2/repository/com/fasterxml/jackson/core/jackson-annotations/2.21/jackson-annotations-2.21.jar:~/.m2/repository/com/fasterxml/jackson/core/jackson-core/2.21.2/jackson-core-2.21.2.jar:~/.m2/repository/com/fasterxml/jackson/core/jackson-databind/2.21.2/jackson-databind-2.21.2.jar",
+        "Calibration"
+      ],
+      "pid": 35892,
+      "process_group": 35892,
+      "exit_code": 0,
+      "seconds": 1.6576557499938644,
+      "reaped": true,
+      "process_group_absent": true
+    }
+  ],
+  "database_connections": 0,
+  "automatic_retries": 0,
+  "status": "COMPLETED",
+  "elapsed_seconds": 2.1524632920045406,
+  "app_and_sql_unchanged": true,
+  "ended_utc": "2026-11-04T06:48:21.056127+00:00"
+}

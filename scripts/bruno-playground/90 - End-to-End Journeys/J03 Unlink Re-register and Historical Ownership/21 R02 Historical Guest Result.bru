@@ -1,0 +1,41 @@
+meta {
+  name: J03-21-R02 Historical Guest Result
+  type: http
+  seq: 21
+}
+
+get {
+  url: {{readUrl}}/api/v3/commands/{{historicalCommandRequestId}}/result
+  body: none
+  auth: none
+}
+
+headers {
+  Connection: close
+}
+
+settings {
+  timeout: 5000
+}
+
+script:pre-request {
+  const options = {"id":"J03-21-R02","role":"guest","requires":["historicalCommandRequestId"],"kind":"historicalCommandResult","wait":true,"status":200};
+  await require('./lib/workspace.js').prepare(bru, req, options);
+}
+
+tests {
+  const options = {"id":"J03-21-R02","role":"guest","requires":["historicalCommandRequestId"],"kind":"historicalCommandResult","wait":true,"status":200};
+  const work = require('./lib/workspace.js');
+  test('J03-21-R02 transport and privacy', () => work.transport(bru, res, expect, options));
+  test('J03-21-R02 contract and variables', () => {
+    work.verify(bru, req, res, expect, options);
+    work.record(bru, req, res, options);
+  });
+}
+
+docs {
+  Parcours J03 ; etape 21. Source : 05 - Results/R02 Historical Guest Result.bru.
+  Ancien resultat CreatePot de Guest, memorise lors de son admission.
+  Resultat accessible au meme requester JWT apres Unlink et re-Registration.
+  Ne requiert aucun binding actif ; un autre requester obtient 404 (A08).
+}

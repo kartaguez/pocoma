@@ -1,0 +1,120 @@
+{
+  "initial_head": "a2b4e2a07a64e33eafe9e81a0ddc25c7961dc9cc",
+  "initial_branch": "feat/v3-architecture",
+  "initial_worktree_status": "clean, no pre-existing changes in current worktree",
+  "initial_remote_branch_sha": "a2b4e2a07a64e33eafe9e81a0ddc25c7961dc9cc",
+  "remote_checked_again_before_publication": "a2b4e2a07a64e33eafe9e81a0ddc25c7961dc9cc",
+  "application_candidate_sha": "8a007768c23021153764473f6c6686042168df00",
+  "worktrees_before_delivery_cleanup": [
+    {
+      "worktree": "/Users/julien.guezennec/Dev/projects/pocoma",
+      "HEAD": "8a007768c23021153764473f6c6686042168df00",
+      "branch": "refs/heads/feat/v3-architecture",
+      "origin": "current authorized worktree"
+    },
+    {
+      "worktree": "/private/tmp/pocoma-l3-i5-skip-resolution",
+      "HEAD": "5f0846bd585aee52424cbe66e90eafad9ee0b379",
+      "detached": true,
+      "origin": "pre-existing, no modification by I8"
+    },
+    {
+      "worktree": "/private/tmp/pocoma-l4-i8-qualification",
+      "HEAD": "9661538511e7bfe255dfe7572cd8b1ebca6b9fc4",
+      "detached": true,
+      "origin": "I8 temporary qualification"
+    },
+    {
+      "worktree": "/private/tmp/pocoma-l4-i8-qualification-02",
+      "HEAD": "a8933b7924567bf4e893f58dbc10312d2f3ccfc1",
+      "detached": true,
+      "origin": "I8 temporary qualification"
+    },
+    {
+      "worktree": "/private/tmp/pocoma-l4-i8-qualification-03",
+      "HEAD": "03c629d6af52474bda5e5ba56a4268264a8df024",
+      "detached": true,
+      "origin": "I8 temporary qualification"
+    },
+    {
+      "worktree": "/private/tmp/pocoma-l4-i8-qualification-04",
+      "HEAD": "090b5327cd2a4e974bb8907c62c4e65b82a17e62",
+      "detached": true,
+      "origin": "I8 temporary qualification"
+    },
+    {
+      "worktree": "/private/tmp/pocoma-l4-i8-qualification-05",
+      "HEAD": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+      "detached": true,
+      "origin": "I8 temporary qualification"
+    },
+    {
+      "worktree": "/private/tmp/pocoma-l4-i8-qualification-06",
+      "HEAD": "8a007768c23021153764473f6c6686042168df00",
+      "detached": true,
+      "origin": "I8 temporary qualification"
+    },
+    {
+      "worktree": "/private/tmp/pocoma-verification-audit-d0927d94",
+      "HEAD": "d0927d9410ebcd65c221e73c5ecd04e5242fe4e9",
+      "detached": true,
+      "origin": "pre-existing, no modification by I8"
+    },
+    {
+      "worktree": "/Users/julien.guezennec/.codex/worktrees/debt-wa6-integration/pocoma",
+      "HEAD": "2eef3ab9785c524c2fab86f586fc12580c8b1c2e",
+      "detached": true,
+      "origin": "pre-existing, no modification by I8"
+    },
+    {
+      "worktree": "/Users/julien.guezennec/.codex/worktrees/v3-l2-documentation/pocoma",
+      "HEAD": "f81cbd72590a5cb6bdaa083641f8b8ab59371a55",
+      "detached": true,
+      "origin": "pre-existing, no modification by I8"
+    },
+    {
+      "worktree": "/Users/julien.guezennec/.codex/worktrees/v3-l2-i1-close-i2-plan/pocoma",
+      "HEAD": "1fd9ce7529e5da439f32f889f92cec39de2c79fa",
+      "detached": true,
+      "origin": "pre-existing, no modification by I8"
+    }
+  ],
+  "pre_existing_other_worktrees": 5,
+  "qualification": "Authorized composite: productive full -05 at a3470df6 plus Architecture -06 at 8a007768; only two test source differences. Clean checkouts, no editor outputs. Fourth full -06 interrupted after human dispensation.",
+  "publication": "No force push. Final application publication receipt and final delivery message identify the verified remote SHA.",
+  "pre_existing_other_worktree_heads_unchanged": true,
+  "temporary_qualification_worktree_count": 6,
+  "worktrees_after_delivery_cleanup": [
+    {
+      "worktree": "/Users/julien.guezennec/Dev/projects/pocoma",
+      "HEAD": "8a007768c23021153764473f6c6686042168df00",
+      "branch": "refs/heads/feat/v3-architecture"
+    },
+    {
+      "worktree": "/private/tmp/pocoma-l3-i5-skip-resolution",
+      "HEAD": "5f0846bd585aee52424cbe66e90eafad9ee0b379",
+      "detached": true
+    },
+    {
+      "worktree": "/private/tmp/pocoma-verification-audit-d0927d94",
+      "HEAD": "d0927d9410ebcd65c221e73c5ecd04e5242fe4e9",
+      "detached": true
+    },
+    {
+      "worktree": "/Users/julien.guezennec/.codex/worktrees/debt-wa6-integration/pocoma",
+      "HEAD": "2eef3ab9785c524c2fab86f586fc12580c8b1c2e",
+      "detached": true
+    },
+    {
+      "worktree": "/Users/julien.guezennec/.codex/worktrees/v3-l2-documentation/pocoma",
+      "HEAD": "f81cbd72590a5cb6bdaa083641f8b8ab59371a55",
+      "detached": true
+    },
+    {
+      "worktree": "/Users/julien.guezennec/.codex/worktrees/v3-l2-i1-close-i2-plan/pocoma",
+      "HEAD": "1fd9ce7529e5da439f32f889f92cec39de2c79fa",
+      "detached": true
+    }
+  ],
+  "temporary_worktree_cleanup": "All six I8-created clean qualification checkouts removed after evidence archival; five pre-existing other worktrees and their heads preserved."
+}

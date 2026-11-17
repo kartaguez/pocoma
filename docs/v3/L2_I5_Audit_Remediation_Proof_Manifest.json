@@ -1,0 +1,2111 @@
+{
+  "scope": "I5 AUD-I5-01/AUD-I5-02 only; independent re-audit pending",
+  "initial_sha": "1281d468e399aa2a34a0a0a84c74b04b0da69f78",
+  "tested_sha": "8990737ce0b6f7df155d7e80aa698657815dc5ef",
+  "local_verdict": "FAIL \u2014 TEMPORAL QUALIFICATION STOPPED \u2014 DECISION REQUIRED",
+  "slices": {
+    "primary": "COMMAND",
+    "complement": "MONOLITH",
+    "global_architecture_required": false,
+    "full_reactor_required": false,
+    "unexpected_crossing": null
+  },
+  "contract": {
+    "version": "I5-C-90-v1",
+    "path": "../testing/evidence/L2-I5-audit-remediation/temporal-contract-v1.properties",
+    "sha256": "4e07d322074d020f0734d29f05a95b24a073e8caf94d60ba2dae853cda3dc806",
+    "lease_ms": 90000,
+    "claim_ms": 60000,
+    "default_30s": "NOT CERTIFIED",
+    "production": "NOT CERTIFIED",
+    "R": 1,
+    "R_limit": "controlled scenario only; not a runtime guarantee",
+    "oracles": [
+      "C-PRE",
+      "C-NEG",
+      "C-OP",
+      "C-SERVICE",
+      "C-JITTER",
+      "C-PG",
+      "C-LOAD"
+    ],
+    "gc_per_cycle": 1,
+    "cycles_per_variant": 2,
+    "role_connections": {
+      "W1_MW1": 20,
+      "W1_MW4": 32,
+      "W2_MW1": 40,
+      "W2_MW4": 64
+    }
+  },
+  "required_methods": {
+    "com.kartaguez.pocoma.orchestrator.poll.consumption.v3.V3ConsumptionWorkerTest": [
+      "i5_u01",
+      "i5_u02",
+      "i5_u03",
+      "i5_u04",
+      "i5_u05",
+      "i5_u06",
+      "i5_u07",
+      "i5_u08",
+      "i5_u09",
+      "i5_u10",
+      "i5_u11_discovery_tours",
+      "i5_u12_discovery_negatives"
+    ],
+    "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.SlotNavigationPostgresTest": [
+      "i5_n01",
+      "i5_n02",
+      "i5_n03",
+      "i5_n04",
+      "i5_n05",
+      "i5_n06",
+      "i5_n07",
+      "i5_n08"
+    ],
+    "com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest": [
+      "i5_w01",
+      "i5_w02",
+      "i5_w03",
+      "i5_w04",
+      "i5_w05",
+      "i5_w06",
+      "i5_w07",
+      "i5_w08",
+      "i5_w09",
+      "i5_w10",
+      "i5_w11",
+      "i5_w12",
+      "i5_w13",
+      "i5_w14",
+      "i5_w15",
+      "i5_w16",
+      "i5_w17",
+      "i5_w18",
+      "i5_w19",
+      "i5_w20",
+      "i5_w21"
+    ],
+    "com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest": [
+      "i5_r01",
+      "i5_r02",
+      "i5_r03",
+      "i5_r04",
+      "i5_r05",
+      "i5_r06",
+      "i5_r07",
+      "i5_r08",
+      "i5_r09",
+      "i5_r10",
+      "i5_r11",
+      "i5_r12"
+    ],
+    "com.kartaguez.pocoma.runtime.command.v3.V3WorkerCompositionPostgresTest": [
+      "i5_c01",
+      "i5_c02",
+      "i5_c03",
+      "i5_c04",
+      "i5_c05"
+    ],
+    "com.kartaguez.pocoma.runtime.command.v3.V3WorkerMetricsTest": [
+      "i5_m01",
+      "i5_m02",
+      "i5_m03"
+    ],
+    "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.consumption.ReadDiscoveryPrivilegesPostgresTest": [
+      "effectiveDiscoveryColumnPrivileges",
+      "i5_read_pools"
+    ],
+    "com.kartaguez.pocoma.engine.consumption.v3.ConsumptionFailureClassificationTest": [
+      "classifierExceptionAfterConfirmedRollbackReturnsCapacity",
+      "committedPreparationAckCanBeInspected",
+      "countableRequiresKnownCauseAndRollback",
+      "lostUnknownCancellationAndConfigNeverCount",
+      "nullClassificationAfterConfirmedRollbackReturnsCapacity",
+      "oneShotAndCancellation",
+      "rawPreparationExitCannotBeSettledFromSlot",
+      "unresolvedRecoveryCannotBeRetriedOrSettled",
+      "unusedConfirmedClaimCanBeAbandoned"
+    ],
+    "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.L2ManifestProof": [
+      "completionDeleteZeroAndOtherConsumptionKeyUntouched",
+      "completionFromEarlierCallbackPoisonsCurrentAttemptAndWitnessSlotSurvives",
+      "engineRejectsLocallyCorruptRevisionWithoutCessionOrPartialCommit",
+      "l2m_c03_e",
+      "l2m_c03_f",
+      "l2m_c03_g",
+      "l2m_c03_h",
+      "l2m_c04_a",
+      "l2m_c04_b",
+      "l2m_c04_c",
+      "l2m_c04_d",
+      "l2m_c04_e",
+      "l2m_c04_f",
+      "l2m_c04_h",
+      "l2m_c04_i",
+      "l2m_c04_i_result",
+      "l2m_c04_i_status",
+      "l2m_c04_l",
+      "l2m_c06_a",
+      "l2m_c06_e",
+      "l2m_c06_f",
+      "l2m_c06_g",
+      "l2m_c06_h",
+      "l2m_c06_i",
+      "l2m_c06_i_delete",
+      "l2m_c06_i_effect",
+      "l2m_c06_l",
+      "l2m_c06_m",
+      "l2m_e01_a",
+      "l2m_e01_b",
+      "l2m_e01_c",
+      "l2m_e01_e_command_noop",
+      "l2m_e01_e_command_reject",
+      "l2m_e01_f",
+      "l2m_e01_g_pot_comp",
+      "l2m_e01_h",
+      "l2m_e02_a_create",
+      "l2m_e02_a_multitarget",
+      "l2m_e02_a_update",
+      "l2m_e02_b",
+      "l2m_e02_c",
+      "l2m_e02_f_01",
+      "l2m_e02_f_02",
+      "l2m_e02_f_03",
+      "l2m_e02_f_04",
+      "l2m_e02_f_05",
+      "l2m_e02_f_06",
+      "l2m_e02_g_commit_ack",
+      "l2m_e02_g_rollback_ack",
+      "l2m_e02_h",
+      "l2m_e02_i_abs",
+      "l2m_e02_i_unknown",
+      "l2m_e02_i_wrong",
+      "l2m_l1_c_c01",
+      "l2m_l1_c_c02",
+      "l2m_l1_c_c03",
+      "l2m_l1_c_c04",
+      "l2m_l1_c_c05",
+      "l2m_l1_c_c06",
+      "l2m_l1_c_c07",
+      "l2m_l1_c_c08",
+      "l2m_l1_c_c09",
+      "l2m_l1_c_c10",
+      "l2m_l1_c_c11",
+      "l2m_l1_c_c13",
+      "l2m_l1_c_c14",
+      "l2m_l1_c_c15",
+      "l2m_l1_c_c16",
+      "l2m_l1_c_c17",
+      "l2m_l1_c_c18",
+      "l2m_l1_c_c19",
+      "l2m_l1_c_c20",
+      "l2m_l1_c_c21",
+      "l2m_l1_c_c22",
+      "l2m_l1_c_c24",
+      "l2m_l1_c_summary_c01",
+      "l2m_l1_c_summary_c02",
+      "l2m_l1_c_summary_c03",
+      "l2m_l1_c_summary_c04",
+      "l2m_l1_f2_absence_de_chevauchement",
+      "l2m_l1_f2_au_plus_une_ouverte",
+      "l2m_l1_f2_aucun_effet_partiel",
+      "l2m_l1_f2_aucune_v_sans_effet",
+      "l2m_l1_f2_claim_identity_pot",
+      "l2m_l1_f2_completude_composantes",
+      "l2m_l1_f2_continuite_globale",
+      "l2m_l1_f2_continuite_locale",
+      "l2m_l1_f2_f201",
+      "l2m_l1_f2_f202",
+      "l2m_l1_f2_f203",
+      "l2m_l1_f2_f204",
+      "l2m_l1_f2_f205",
+      "l2m_l1_f2_f206",
+      "l2m_l1_f2_f207",
+      "l2m_l1_f2_fermeture_insertion_atomiques",
+      "l2m_l1_f2_from_to_valide",
+      "l2m_l1_f2_identites_references",
+      "l2m_l1_f2_mutations_concurrentes",
+      "l2m_l1_f2_premiere_revision_naissance",
+      "l2m_l1_f2_presence_d_une_ouverte",
+      "l2m_l1_f2_publication_atomique_evenements_resultats",
+      "l2m_l1_f2_summary_f201",
+      "l2m_l1_f2_summary_f202",
+      "l2m_l1_f_f01",
+      "l2m_l1_f_f02",
+      "l2m_l1_f_f03",
+      "l2m_l1_f_f05",
+      "l2m_l1_f_summary_f01",
+      "l2m_l1_f_summary_f02",
+      "l2m_r1_01",
+      "l2m_r1_02",
+      "l2m_r1_03",
+      "l2m_r1_04",
+      "l2m_r1_05",
+      "l2m_r1_05_double",
+      "l2m_r1_05_late",
+      "l2m_r1_05_missing",
+      "l2m_r1_05_wrong",
+      "l2m_r1_06",
+      "l2m_r1_07",
+      "l2m_r1_08",
+      "l2m_r1_09",
+      "l2m_r1_10",
+      "l2m_r8_01",
+      "l2m_r8_02",
+      "l2m_r9_01",
+      "l2m_r9_02",
+      "l2m_r9_03",
+      "l2m_r9_03_completed",
+      "l2m_r9_03_inconsistent",
+      "l2m_r9_03_notcompleted",
+      "l2m_r9_03_unavailable",
+      "l2m_r9_04",
+      "l2m_r9_05",
+      "l2m_r9_06",
+      "l2m_r9_07",
+      "l2m_r9_08",
+      "l2m_r9_09",
+      "l2m_r9_10",
+      "preparationCommitCleanupFailureNeverAnnouncesBusinessCommit",
+      "rollbackAfterEachDenseCounterAndPositionAndAtFlush",
+      "successAtNMinusOneDoesNotAddFailureOrRunCession"
+    ],
+    "com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest": [
+      "autonomousRevisionCaughtFailurePoisonsJpaAndJdbcCallers",
+      "caughtApplicationJdbcJpaFailuresPoisonBothWriteOrders",
+      "commitServerRejectionRollbackAndMaskedCommitRemainDistinct",
+      "guardedLateCallbackRefusedBeforeSqlAndRollback",
+      "jpaJdbcSamePidXidAndClosedContextCannotDirtyWriteAtCommit",
+      "nestedAmbientWrongSourceAndWrongEmfRefused",
+      "originalCallbackCauseSurvivesRollbackFailureAndConfirmedCommitWinsCleanup",
+      "requiresNewJpaAndJdbcCannotCommitEffectOrDelete",
+      "sameOwnerReadAuthorityAtomicAndContextCannotCrossAuthorityOrLifetime"
+    ],
+    "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.CommandExecutionPostgresTest": [
+      "c01DurableMutationsNoopRejectionAndExactHistory",
+      "c02SameComponentCollisionReacquiresAndPreservesObservation",
+      "c03DistinctComponentsAndFinancialWeightCollisionRemainCompatible",
+      "c04DeletionVersusExpenseCreationAndFinancialPayerParticipantBothOrders",
+      "c05ExpenseDeletionReleasesReferenceAndPreservesHistoricalFinancials",
+      "c06AttachmentRevocationNoopAndRejectionAllRevalidate",
+      "c07IdentityRevocationAndNegativeAuthorityFactsStayProtected",
+      "c08NoopObsoleteAfterConcurrentChangeAndMutationAgainstPotDeletion",
+      "c09SameRequestFinalizesOnceAndEquivalentRequestsOwnTheirResults",
+      "c10FaultsBeforeAfterEveryWriterRollbackWholeCommandUnit",
+      "c11DeferredCommitFailureRollsBackAndDoesNotBecomeBusinessRejection",
+      "c12RetryBudgetDelayQuarantineAndConditionalFailureAccounting",
+      "c13RealLostCommitAcknowledgementAndRollbackBeforeCommitRecoverWithoutGuessing",
+      "c14ClaimExpiryAfterActualLockWaitAndOldTokenNeverFinalizes",
+      "c15ClaimProtectedThroughCommitAfterDeadlineAndTakeoverWaits",
+      "c16DenseSequencingWaitsForPhysicalCommitAndRollbackDoesNotConsumePosition",
+      "c17JpaJdbcOnePhysicalUnitAndCaughtErrorsPoisonBothOrders",
+      "c18CompositionRejectsMismatchedManagersAmbientAndPostSuffixWriters",
+      "c19DurableIntentionCodecExactRationalsIntegrityAndNegativeExistence",
+      "c20IndependentNestedEffectsAreRejectedAndOuterUnitPoisoned",
+      "c21NMinusOneFailuresThenSuccessAndExpiryConsumesNoBudget",
+      "c22NoopAndRejectionHoldIdentityAndPotUntilPhysicalResolution",
+      "c23LostFailureCessionAcknowledgementNeverDoubleCounts",
+      "c24PreparationFailureAndInconsistentUsageCannotCommitNegativeFacts",
+      "f02InvalidBindingCompletesWhilePotIsLockedAndIdentityStillFenced",
+      "f02InvalidBindingHoldsIdentityUntilCommit",
+      "f03DurableInvalidListsAreTechnicalAndValidImpossibleTargetsAreBusinessRejections",
+      "f03InvalidAdmissionConstructorsLeaveNoDurableCommandOrSlot",
+      "f04InvitationPrimitiveSerializesCompetingUsersAndSameUserTargets",
+      "f05BusinessForeignKeyViolationStillFailsBeforePublicationAndRollsBack",
+      "f05StaticBusinessConstraintSetExactlyMatchesCatalogAndLeavesPublicationDeferred"
+    ],
+    "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotFinancePostgresTest": [
+      "d10HistoricalDefaultSpecificAndFinancialChangesThroughC",
+      "d11AttachmentsAllSpecificWeightsAndArbitraryRationals",
+      "d12FinancialWeightCollisionRecalculatesFromFreshFacts",
+      "d13GroupedSelectiveFinanceReadsAndCorruptionFailClosed",
+      "d14FinancialRollbackAtEveryPublicationBoundary",
+      "d15OneVersionComposesWeightAndFinancialPrimitives"
+    ],
+    "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.WriteRevisionPostgresTest": [
+      "f202RejectsLocalCorruptionAndRollsBackCandidate",
+      "f203UnrelatedOldGapDoesNotBlockWriteButAuditRejects",
+      "f204FinancialReferenceAndIdentityCorruptionBlockWrite",
+      "f205GroupedBatchesAndNotLoadedRemainSelective",
+      "f206SameRevisionCannotCloseTwiceUnderActualLockWait",
+      "f207EffectIndexAvoidsScanningOldRevisions"
+    ],
+    "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.WriteRevisionPerformancePostgresTest": [
+      "f201WriteDepthProfiles"
+    ],
+    "com.kartaguez.pocoma.runtime.command.v3.V3PotCommandCompositionPostgresTest": [
+      "compositionUsesOneWriteManagerAndExplicitAuthority"
+    ],
+    "com.kartaguez.pocoma.engine.consumption.v3.WorkerCapacityTest": [
+      "partialAndDoubleRelease",
+      "settingsRejectInvalidConfiguration",
+      "simultaneousLimits"
+    ],
+    "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest": [
+      "i3_acquisition_lease_clock",
+      "i3_acquisition_partial",
+      "i3_audit_cession_failure",
+      "i3_audit_cession_unknown_active",
+      "i3_audit_classifier_active",
+      "i3_audit_classifier_exits",
+      "i3_c03_a",
+      "i3_c03_b",
+      "i3_c03_c",
+      "i3_c03_d",
+      "i3_c03_e",
+      "i3_c03_f",
+      "i3_c03_g",
+      "i3_c03_h",
+      "i3_c03_i",
+      "i3_c03_j",
+      "i3_c03_k",
+      "i3_c03_l",
+      "i3_c05_a",
+      "i3_c05_b",
+      "i3_c05_c",
+      "i3_c05_d",
+      "i3_c05_e",
+      "i3_c05_f",
+      "i3_c05_g",
+      "i3_c05_h",
+      "i3_c05_i",
+      "i3_c05_j",
+      "i3_c05_k",
+      "i3_c05_l",
+      "i3_c05_m",
+      "i3_capacity_uncertainty",
+      "i3_cession_once",
+      "i3_failure_classification",
+      "i3_lease_races",
+      "i3_other_slot_progresses",
+      "i3_quarantine_persists",
+      "i3_reactivate",
+      "i3_reactivate_over_cap",
+      "i3_renew_relation_timeout",
+      "i3_renew_s1_s2",
+      "i3_retry_config_prospective",
+      "i3_route_admin_serialization",
+      "i3_sql_costs",
+      "i3_two_admins"
+    ],
+    "com.kartaguez.pocoma.runtime.command.v3.ConsumptionLifecycleCompositionPostgresTest": [
+      "failureCauseGraphClassification",
+      "lifecyclePrivilegesAndInertPilotStaySeparate",
+      "oneOwnerAndNoActiveScheduler",
+      "renewalsHaveReservedDatabaseAccess",
+      "sharedCapacityAcrossAuthorities"
+    ],
+    "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.consumption.ReadConsumptionLifecyclePrivilegesPostgresTest": [
+      "effectiveLeastPrivileges"
+    ],
+    "com.kartaguez.pocoma.runtime.command.v3.ConsumptionCompositeClassificationTest": [
+      "businessTypesWithExcludedCauseRemainNonCountable",
+      "cancellationDoesNotEraseAProvenCountableFault",
+      "cancellationInterruptionAndTheirStandardWrappersAloneNeverCount",
+      "connectionAndStatementCompletionUnknownNeverCount",
+      "excludedWinsAcrossMixedCauseAndSuppressedInBothOrders",
+      "isolatedBusinessTechnicalAndPersistenceFaults",
+      "jdbcNextExceptionExclusionWinsInBothOrdersWithCycles",
+      "mixedGraphCyclesTerminateAndSqlPrecedesTechnical",
+      "springJpaCompositePreservesExcludedCauses",
+      "springOriginalApplicationExceptionParticipatesInClassification"
+    ],
+    "com.kartaguez.pocoma.engine.consumption.v3.DiscoveryEngineTest": [
+      "capacityPreservesUnexaminedSuffix",
+      "coveredPrefixStopsBeforeFirstUnadmittedReference",
+      "filteredPageIsNotEndOfTour",
+      "invalidSourceOrWindowRefusedBeforeAdmission",
+      "quarantinedPresenceIsNotNewWork",
+      "unknownTransactionReturnsNoProgress",
+      "walkUsesUnsignedUuidOrder",
+      "zeroLocalReferencesAdvanceGlobally"
+    ],
+    "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.DiscoveryPostgresTest": [
+      "i4_b01",
+      "i4_b02",
+      "i4_b03",
+      "i4_b04",
+      "i4_b05",
+      "i4_b06",
+      "i4_b07",
+      "i4_b08",
+      "i4_b09",
+      "i4_b10",
+      "i4_b11",
+      "i4_b12",
+      "i4_b13",
+      "i4_b14",
+      "i4_b15",
+      "i4_b16",
+      "i4_b17",
+      "i4_b18",
+      "i4_n01",
+      "i4_n02",
+      "i4_n03",
+      "i4_n04",
+      "i4_n05",
+      "i4_n06",
+      "i4_n07",
+      "i4_n08",
+      "i4_n09",
+      "i4_n10",
+      "i4_n11",
+      "i4_n12",
+      "i4_n13",
+      "i4_n14",
+      "i4_n15",
+      "i4_n16",
+      "i4_n17",
+      "i4_n18",
+      "i4_p01",
+      "i4_p02",
+      "i4_p03",
+      "i4_x01",
+      "i4_x02",
+      "i4_x03",
+      "i4_x04",
+      "i4_x05",
+      "i4_x06",
+      "i4_x07",
+      "i4_x08",
+      "i4_x09",
+      "i4_x10"
+    ],
+    "com.kartaguez.pocoma.runtime.command.v3.DiscoveryCompositionPostgresTest": [
+      "explicitPrivilegesDoNotActivatePilot",
+      "sharedPhysicalOwnerAndAuthorities"
+    ],
+    "com.kartaguez.pocoma.runtime.command.v3.ConsumptionBootstrapPostgresTest": [
+      "catalogSeedAndTriggerShareExactlyNineStableIdentitiesAndSevenFamilies",
+      "explicitLegacyRuntimeImportFailsBeforeBeanConstruction",
+      "noinheritMembershipCannotBypassRuntimePrivilegeGuard",
+      "oldWriterSqlFailsOnMissingDedicatedSlotAndRollsBackAdmission",
+      "refusesMissingPartitionWrongSchemaRoleAndAuthorityBeforeProcessing",
+      "refusesSamePhysicalDatabaseEvenWithSeparateCompleteSchemas",
+      "rejectsAllOldWriterOwnerAndPollerTypesBeforeInstantiation",
+      "validDistributedPilotIsInertAcrossRestartAndDoesNotTouchHistoricalSentinel"
+    ],
+    "com.kartaguez.pocoma.V3WorkerMonolithPostgresTest": [
+      "i5_mono01"
+    ],
+    "com.kartaguez.pocoma.ConsumptionPilotIsolationTest": [
+      "monolithRefusesIncompleteReadBootstrapBeforeRefresh",
+      "monolithStartsInertAndRestartsWithoutAnyLegacyWriterOrMigration",
+      "monolithWithIndirectOldRuntimeFailsBeforeProcessing"
+    ],
+    "com.kartaguez.pocoma.runtime.command.v3.I5TemporalBudgetTest": [
+      "c_neg",
+      "c_pre"
+    ]
+  },
+  "variants": [
+    {
+      "method": "i5_r05",
+      "id": "W1-B32-MW1-held0",
+      "B": 32,
+      "W": 1,
+      "M_W": 1,
+      "held": 0,
+      "status": "LOCAL ORACLES PASS; OVERALL GATE FAIL",
+      "classification": "FRESH on first corrective freeze only",
+      "tested_sha": "05b74814abe810a22f1f6a4c5125d4374325f6fa",
+      "summary": [
+        {
+          "cycle": 1,
+          "worker": 0,
+          "authority": "WRITE",
+          "calls": 1,
+          "candidates": 4,
+          "omitted": 0,
+          "max_service_ns": 70251833,
+          "max_complete_call_ns": 3981291
+        },
+        {
+          "cycle": 1,
+          "worker": 0,
+          "authority": "READ",
+          "calls": 2,
+          "candidates": 8,
+          "omitted": 0,
+          "max_service_ns": 107692666,
+          "max_complete_call_ns": 3241375
+        },
+        {
+          "cycle": 2,
+          "worker": 0,
+          "authority": "WRITE",
+          "calls": 2,
+          "candidates": 4,
+          "omitted": 1,
+          "max_service_ns": 80110916,
+          "max_complete_call_ns": 4451125
+        },
+        {
+          "cycle": 2,
+          "worker": 0,
+          "authority": "READ",
+          "calls": 3,
+          "candidates": 8,
+          "omitted": 1,
+          "max_service_ns": 129065083,
+          "max_complete_call_ns": 3879041
+        }
+      ],
+      "physical_sha256": "d64b47b49785713e989d3b5aac15aa4e3776bb56cd7511479c70e5800b8c024a",
+      "archive": "gate-1-failed-05b74814.tar.gz"
+    },
+    {
+      "method": "i5_r05",
+      "id": "W1-B32-MW1-held1",
+      "B": 32,
+      "W": 1,
+      "M_W": 1,
+      "held": 1,
+      "status": "LOCAL ORACLES PASS; OVERALL GATE FAIL",
+      "classification": "FRESH on first corrective freeze only",
+      "tested_sha": "05b74814abe810a22f1f6a4c5125d4374325f6fa",
+      "summary": [
+        {
+          "cycle": 1,
+          "worker": 0,
+          "authority": "WRITE",
+          "calls": 3,
+          "candidates": 4,
+          "omitted": 0,
+          "max_service_ns": 991965584,
+          "max_complete_call_ns": 4177209
+        },
+        {
+          "cycle": 1,
+          "worker": 0,
+          "authority": "READ",
+          "calls": 4,
+          "candidates": 8,
+          "omitted": 0,
+          "max_service_ns": 994666292,
+          "max_complete_call_ns": 4958500
+        },
+        {
+          "cycle": 2,
+          "worker": 0,
+          "authority": "WRITE",
+          "calls": 3,
+          "candidates": 4,
+          "omitted": 1,
+          "max_service_ns": 137633167,
+          "max_complete_call_ns": 4180583
+        },
+        {
+          "cycle": 2,
+          "worker": 0,
+          "authority": "READ",
+          "calls": 5,
+          "candidates": 8,
+          "omitted": 1,
+          "max_service_ns": 145472584,
+          "max_complete_call_ns": 3225166
+        }
+      ],
+      "physical_sha256": "7b42a64c8004a88d56dd164e52df6a0118a7476f1f48b928e0b0301100c07a5d",
+      "archive": "gate-1-failed-05b74814.tar.gz"
+    },
+    {
+      "method": "i5_r05",
+      "id": "W1-B32-MW4-held-1",
+      "B": 32,
+      "W": 1,
+      "M_W": 4,
+      "held": -1,
+      "status": "LOCAL ORACLES PASS; OVERALL GATE FAIL",
+      "classification": "FRESH on first corrective freeze only",
+      "tested_sha": "05b74814abe810a22f1f6a4c5125d4374325f6fa",
+      "summary": [
+        {
+          "cycle": 1,
+          "worker": 0,
+          "authority": "WRITE",
+          "calls": 1,
+          "candidates": 4,
+          "omitted": 0,
+          "max_service_ns": 78027667,
+          "max_complete_call_ns": 3273208
+        },
+        {
+          "cycle": 1,
+          "worker": 0,
+          "authority": "READ",
+          "calls": 2,
+          "candidates": 8,
+          "omitted": 0,
+          "max_service_ns": 86785709,
+          "max_complete_call_ns": 2976125
+        },
+        {
+          "cycle": 2,
+          "worker": 0,
+          "authority": "WRITE",
+          "calls": 2,
+          "candidates": 4,
+          "omitted": 1,
+          "max_service_ns": 93350542,
+          "max_complete_call_ns": 3773000
+        },
+        {
+          "cycle": 2,
+          "worker": 0,
+          "authority": "READ",
+          "calls": 3,
+          "candidates": 8,
+          "omitted": 1,
+          "max_service_ns": 190411000,
+          "max_complete_call_ns": 3506500
+        }
+      ],
+      "physical_sha256": "b8361ff18cfb7fe5ee23e64ea38e3df28fbbe8021f5dbfc13a3a5ff32e445e88",
+      "archive": "gate-1-failed-05b74814.tar.gz"
+    },
+    {
+      "method": "i5_r05",
+      "id": "W1-B1-MW4-held-1",
+      "B": 1,
+      "W": 1,
+      "M_W": 4,
+      "held": -1,
+      "status": "LOCAL ORACLES PASS; OVERALL GATE FAIL",
+      "classification": "FRESH on first corrective freeze only",
+      "tested_sha": "05b74814abe810a22f1f6a4c5125d4374325f6fa",
+      "summary": [
+        {
+          "cycle": 1,
+          "worker": 0,
+          "authority": "WRITE",
+          "calls": 4,
+          "candidates": 4,
+          "omitted": 0,
+          "max_service_ns": 115806583,
+          "max_complete_call_ns": 2056416
+        },
+        {
+          "cycle": 1,
+          "worker": 0,
+          "authority": "READ",
+          "calls": 8,
+          "candidates": 8,
+          "omitted": 0,
+          "max_service_ns": 187398041,
+          "max_complete_call_ns": 1556208
+        },
+        {
+          "cycle": 2,
+          "worker": 0,
+          "authority": "WRITE",
+          "calls": 5,
+          "candidates": 4,
+          "omitted": 1,
+          "max_service_ns": 165820417,
+          "max_complete_call_ns": 2100916
+        },
+        {
+          "cycle": 2,
+          "worker": 0,
+          "authority": "READ",
+          "calls": 9,
+          "candidates": 8,
+          "omitted": 1,
+          "max_service_ns": 307682291,
+          "max_complete_call_ns": 2216791
+        }
+      ],
+      "physical_sha256": "1d5f2148dbcfc3a267f4804783652255427c5781f82fa70f9c5f3bbc46bce001",
+      "archive": "gate-1-failed-05b74814.tar.gz"
+    },
+    {
+      "method": "i5_r12",
+      "id": "W2-B32-MW1-mixed",
+      "B": 32,
+      "W": 2,
+      "M_W": 1,
+      "status": "FAIL C envelope R=1",
+      "classification": "FRESH counterexample",
+      "tested_sha": "8990737ce0b6f7df155d7e80aa698657815dc5ef",
+      "cycles": "nominal complete; omission cycle SQL complete but qualification rejected",
+      "archive": "targeted-R2-counterexample-8990737c.tar.gz"
+    },
+    {
+      "method": "i5_r12",
+      "id": "W2-B32-MW4-mixed",
+      "B": 32,
+      "W": 2,
+      "M_W": 4,
+      "status": "NOT RUN; contribution INCONCLUSIVE",
+      "reason": "Qualification stopped at the first W2 R=1 counterexample; no rerun to obtain green"
+    },
+    {
+      "method": "i5_r12",
+      "id": "W2-B1-MW1-mixed",
+      "B": 1,
+      "W": 2,
+      "M_W": 1,
+      "status": "NOT RUN; contribution INCONCLUSIVE",
+      "reason": "Qualification stopped at the first W2 R=1 counterexample; no rerun to obtain green"
+    },
+    {
+      "method": "i5_r12",
+      "id": "W2-B1-MW4-mixed",
+      "B": 1,
+      "W": 2,
+      "M_W": 4,
+      "status": "NOT RUN; contribution INCONCLUSIVE",
+      "reason": "Qualification stopped at the first W2 R=1 counterexample; no rerun to obtain green"
+    }
+  ],
+  "metric_scenarios": [
+    "multipage",
+    "omitted",
+    "premature",
+    "empty",
+    "capacity",
+    "no-owner",
+    "rollback",
+    "observer-failure"
+  ],
+  "historical_reuse": "../testing/evidence/L2-I5-audit-remediation/historical-integrity.json",
+  "not_run": [
+    "READ JDBC standalone gate",
+    "global Architecture gate",
+    "Full Reactor",
+    "independent A/B campaigns",
+    "standalone F01-F05 reproducers",
+    "historical migrations campaign"
+  ],
+  "independent_status": "AUD-I5-01 OPEN; AUD-I5-02 implemented and local metric proof PASS but composed gate FAIL; I5 OPEN; R-AUD-I3-03 OPEN; no L2 PASS",
+  "evidence": {
+    "R1-counterexample.json": {
+      "sha256": "08a09eaa25bef939de57e010a9ea66c5d59eed67c14e99cd0e5741dd1e6b3882",
+      "bytes": 3318
+    },
+    "deterministic.tar.gz": {
+      "sha256": "6d7689b1da0f072e4874d9a670089b1533a0b203a7ec697d1bef0000ad6470d2",
+      "bytes": 37834
+    },
+    "fixture-targeted-receipt.json": {
+      "sha256": "75c27844df7eced898a17334a4df9ae6ddae2ccba307e8a37c0d682d6999b43b",
+      "bytes": 992
+    },
+    "gate-1-failed-05b74814.tar.gz": {
+      "sha256": "3aa6b1355fb6eea4d13df43488e4749599e69697cdff202890bceb0b8b47462a",
+      "bytes": 34492532
+    },
+    "gate-1-failed-receipt.json": {
+      "sha256": "8a4345163b581861d6c91e8e1f9804d73ce43cc0ac22302e81a30e5c6886ed0e",
+      "bytes": 233527
+    },
+    "historical-integrity.json": {
+      "sha256": "33c0c0b26f8b4480dfab360189d583b5f18cea5529da5f96daa40fe0e6e770f2",
+      "bytes": 18697
+    },
+    "targeted-R2-counterexample-8990737c.tar.gz": {
+      "sha256": "8fb26e8f55f99b4c1ac48f9e1f57ccdc3e3a5fd59277c020f54e35674a6f6094",
+      "bytes": 43229
+    },
+    "temporal-contract-v1.properties": {
+      "sha256": "4e07d322074d020f0734d29f05a95b24a073e8caf94d60ba2dae853cda3dc806",
+      "bytes": 960
+    }
+  },
+  "deterministic": {
+    "runs": [
+      {
+        "log": "pocoma-i5-remediation-deterministic-1.log",
+        "status": "DIAGNOSTIC compilation failure",
+        "maven_seconds": 4.777,
+        "sha256": "60dbbfc094d700f140d91b3aeb18b86912823d04395fc7585af00511e02fd53b"
+      },
+      {
+        "log": "pocoma-i5-remediation-deterministic-2.log",
+        "status": "PASS",
+        "maven_seconds": 6.78,
+        "sha256": "ba56155275881222a1eb5aca90c88832926b478f8278d25db89379d2c20b31ea"
+      },
+      {
+        "log": "pocoma-i5-remediation-deterministic-3.log",
+        "status": "DIAGNOSTIC compilation failure",
+        "maven_seconds": 6.379,
+        "sha256": "4b8278774800ea92b1e1891c71dcf91d65519a629c2faa55986c811a119889e7"
+      },
+      {
+        "log": "pocoma-i5-remediation-deterministic-4.log",
+        "status": "DIAGNOSTIC compilation failure",
+        "maven_seconds": 6.301,
+        "sha256": "b3d554ece8f2aa57dc9dd3f11eb54de65b62a309a1ceb7036d40bc83b9d21b67"
+      },
+      {
+        "log": "pocoma-i5-remediation-deterministic-5.log",
+        "status": "PASS",
+        "maven_seconds": 6.597,
+        "sha256": "0dcf7dcf2b28f16ab56a74b95a993f705c9ae7f38194a602537119793df32d9b"
+      },
+      {
+        "log": "pocoma-i5-remediation-deterministic-final.log",
+        "status": "PASS",
+        "maven_seconds": 6.614,
+        "sha256": "755cec3ef70f63ed2ee329ee9a45514f01c06f4484925f127c25b9710eeb6aa1"
+      }
+    ],
+    "required_tests": 14,
+    "skips": 0,
+    "archive": "../testing/evidence/L2-I5-audit-remediation/deterministic.tar.gz",
+    "source_scope": "u01-u12 and c_pre/c_neg; last journal-only proof naming/LOAD additions compiled by composed gate"
+  },
+  "scope_integrity": {
+    "changed_through_code_freeze": [
+      "app/orchestrator-poll-consumption/src/main/java/com/kartaguez/pocoma/orchestrator/poll/consumption/v3/V3DiscoveryLoop.java",
+      "app/orchestrator-poll-consumption/src/test/java/com/kartaguez/pocoma/orchestrator/poll/consumption/v3/V3ConsumptionWorkerTest.java",
+      "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/I5TemporalBudgetTest.java",
+      "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/V3WorkerMetricsTest.java",
+      "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/V3WorkerResourcesPostgresTest.java",
+      "docs/testing/evidence/L2-I5-audit-remediation/temporal-contract-v1.properties",
+      "docs/v3/L2_I5_Worker_Development_Runbook.md"
+    ],
+    "production_files": [
+      "app/orchestrator-poll-consumption/src/main/java/com/kartaguez/pocoma/orchestrator/poll/consumption/v3/V3DiscoveryLoop.java"
+    ],
+    "production_delta_lines": 3,
+    "POM_modules_ports_SQL_migrations_defaults_renewals_owners_pools_engines_unchanged": true,
+    "historical_artifacts_unchanged": true
+  },
+  "integrity_checks": {
+    "question": "Can missing, skipped, duplicate, stale or mutated evidence pass the reused checks?",
+    "result": "PASS: all negative witnesses rejected; valid control accepted",
+    "checks_reused_from": [
+      "scripts/testing/verify-v3-l2-i5.py:methods,physical_problems",
+      "scripts/testing/verify-v3-l2-i4.py:require_methods,require_sources,require_compiled,qualified_cases"
+    ],
+    "new_collector_framework": false,
+    "first_gate_input_hashes_match_committed_freeze": true,
+    "input_files_verified": 1231,
+    "contract_hash_unchanged": true,
+    "app_scripts_worktree_clean": true,
+    "missing_or_incomplete_physical_requirements": [
+      "Missing physical marker W2-B32-MW1-mixed-cycle2:C cycle=2 worker=1 ALL_CALLS=",
+      "Missing physical variant W2-B32-MW4-mixed-cycle1",
+      "Missing physical variant W2-B32-MW4-mixed-cycle2",
+      "Missing physical variant W2-B1-MW1-mixed-cycle1",
+      "Missing physical variant W2-B1-MW1-mixed-cycle2",
+      "Missing physical variant W2-B1-MW4-mixed-cycle1",
+      "Missing physical variant W2-B1-MW4-mixed-cycle2"
+    ],
+    "required_method_failure_preserved": true,
+    "compiled_sha256": {
+      "app/orchestrator-poll-consumption/target/classes/com/kartaguez/pocoma/orchestrator/poll/consumption/v3/V3DiscoveryLoop.class": "0228f4c20d3ea4c0bab01ded306461c92ff9a1bbf54aaaff122259af5e380d31",
+      "app/orchestrator-poll-consumption/target/test-classes/com/kartaguez/pocoma/orchestrator/poll/consumption/v3/V3ConsumptionWorkerTest.class": "33446ec450859120055bdd5cafd04d4fda4d6cb24e071f098034e8f50202dac8",
+      "app/runtime-command-consumption-worker/target/test-classes/com/kartaguez/pocoma/runtime/command/v3/I5TemporalBudgetTest.class": "034b7d004599c7b649156841429fe634bb452bc28cf2c07c0ff0371a9935ef26",
+      "app/runtime-command-consumption-worker/target/test-classes/com/kartaguez/pocoma/runtime/command/v3/V3WorkerMetricsTest.class": "ec204b3ba1f78bc55766ef8ceac47f60d3906c562e2b375a3d45d885e9edacc7",
+      "app/runtime-command-consumption-worker/target/test-classes/com/kartaguez/pocoma/runtime/command/v3/V3WorkerResourcesPostgresTest.class": "8b84ac59a720c21ccbcc84396796cae13446a5a0276f5020726e8b992560f35f"
+    },
+    "unchanged_I5_physical_problems": [],
+    "inherited_physical": [
+      {
+        "manifest": "L2_I2_Proof_Manifest.json",
+        "problems": []
+      },
+      {
+        "manifest": "L2_I3_Post_Audit_Proof_Manifest.json",
+        "problems": []
+      },
+      {
+        "manifest": "L2_I4_Proof_Manifest.json",
+        "problems": []
+      }
+    ]
+  },
+  "superseded_physical_requirements": {
+    "ids": [
+      "cadence-32-MW1-held0",
+      "cadence-32-MW1-held1",
+      "cadence-32-MW4-held-1",
+      "cadence-1-MW4-held-1",
+      "C-W2-B32-MW1",
+      "C-W2-B32-MW4",
+      "C-W2-B1-MW1",
+      "C-W2-B1-MW4"
+    ],
+    "reason": "AUD-I5-01 replaces circular old C markers with frozen-contract/SQL/call-journal oracles; old artifacts and manifest unchanged"
+  },
+  "unchanged_physical_requirements": [
+    {
+      "id": "N1",
+      "glob": "**/i5_n01-*.txt",
+      "contains": [],
+      "gates": [
+        "C",
+        "M",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "N2",
+      "glob": "**/i5_n02-*.txt",
+      "contains": [],
+      "gates": [
+        "C",
+        "M",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "N3",
+      "glob": "**/i5_n03-*.txt",
+      "contains": [],
+      "gates": [
+        "C",
+        "M",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "N4",
+      "glob": "**/i5_n04-*.txt",
+      "contains": [],
+      "gates": [
+        "C",
+        "M",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "N5",
+      "glob": "**/i5_n05-*.txt",
+      "contains": [],
+      "gates": [
+        "C",
+        "M",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "N6",
+      "glob": "**/i5_n06-*.txt",
+      "contains": [],
+      "gates": [
+        "C",
+        "M",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "N7",
+      "glob": "**/i5_n07-*.txt",
+      "contains": [],
+      "gates": [
+        "C",
+        "M",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "N8",
+      "glob": "**/i5_n08-*.txt",
+      "contains": [],
+      "gates": [
+        "C",
+        "M",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "H1",
+      "glob": "**/i5_w17-H1.txt",
+      "contains": [],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "H2-WRITE",
+      "glob": "**/i5_w17-H2-WRITE.txt",
+      "contains": [],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "H3-WRITE",
+      "glob": "**/i5_w17-H3-WRITE.txt",
+      "contains": [],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "H4-WRITE-false",
+      "glob": "**/i5_physical-WRITE-cessionfalse-deadlinefalse-H4-afterRetirefalse.txt",
+      "contains": [
+        "external physical rollback",
+        "transport fault scoped to target envelope thread; target wrapper exited with its own ticket retained"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "H4-WRITE-true",
+      "glob": "**/i5_physical-WRITE-cessionfalse-deadlinefalse-H4-afterRetiretrue.txt",
+      "contains": [
+        "external physical rollback",
+        "transport fault scoped to target envelope thread; target wrapper exited with its own ticket retained"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "physical-WRITE-false",
+      "glob": "**/i5_physical-WRITE-cessionfalse-deadlinefalse.txt",
+      "contains": [
+        "external physical rollback",
+        "transport fault scoped to target envelope thread; target wrapper exited with its own ticket retained"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "physical-WRITE-true",
+      "glob": "**/i5_physical-WRITE-cessiontrue-deadlinefalse.txt",
+      "contains": [
+        "external physical rollback",
+        "transport fault scoped to target envelope thread; target wrapper exited with its own ticket retained"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "D6-WRITE",
+      "glob": "**/i5_physical-WRITE-cessionfalse-deadlinetrue.txt",
+      "contains": [
+        "external physical rollback",
+        "transport fault scoped to target envelope thread; target wrapper exited with its own ticket retained"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "P2-WRITE",
+      "glob": "**/i5_r02-P2-WRITE.txt",
+      "contains": [
+        "7 identified",
+        "all10 blocked"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "P1-WRITE",
+      "glob": "**/i5_r03-P1-WRITE.txt",
+      "contains": [],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "P3-P6-WRITE",
+      "glob": "**/i5_r03-P3-P6-WRITE.txt",
+      "contains": [
+        "P3/P6: S2 singleton"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "P4-WRITE",
+      "glob": "**/i5_r04-P4-WRITE.txt",
+      "contains": [
+        "P4 actual relation"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "P5-WRITE-BEFORE",
+      "glob": "**/i5_r06-P5-WRITE-BEFORE.txt",
+      "contains": [
+        "wire=BEFORE"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "P5-WRITE-AFTER",
+      "glob": "**/i5_r06-P5-WRITE-AFTER.txt",
+      "contains": [
+        "wire=AFTER"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "P5-WRITE-RETAIN",
+      "glob": "**/i5_r06-P5-WRITE-RETAIN.txt",
+      "contains": [
+        "wire=RETAIN"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "P7-WRITE",
+      "glob": "**/i5_r09-P7-WRITE.txt",
+      "contains": [
+        "no local rearm/stop callback"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "joint-WRITE",
+      "glob": "**/i5_r02-joint-WRITE.txt",
+      "contains": [
+        "four true post-rollback cessions"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "H2-READ",
+      "glob": "**/i5_w17-H2-READ.txt",
+      "contains": [],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "H3-READ",
+      "glob": "**/i5_w17-H3-READ.txt",
+      "contains": [],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "H4-READ-false",
+      "glob": "**/i5_physical-READ-cessionfalse-deadlinefalse-H4-afterRetirefalse.txt",
+      "contains": [
+        "external physical rollback",
+        "transport fault scoped to target envelope thread; target wrapper exited with its own ticket retained"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "H4-READ-true",
+      "glob": "**/i5_physical-READ-cessionfalse-deadlinefalse-H4-afterRetiretrue.txt",
+      "contains": [
+        "external physical rollback",
+        "transport fault scoped to target envelope thread; target wrapper exited with its own ticket retained"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "physical-READ-false",
+      "glob": "**/i5_physical-READ-cessionfalse-deadlinefalse.txt",
+      "contains": [
+        "external physical rollback",
+        "transport fault scoped to target envelope thread; target wrapper exited with its own ticket retained"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "physical-READ-true",
+      "glob": "**/i5_physical-READ-cessiontrue-deadlinefalse.txt",
+      "contains": [
+        "external physical rollback",
+        "transport fault scoped to target envelope thread; target wrapper exited with its own ticket retained"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "D6-READ",
+      "glob": "**/i5_physical-READ-cessionfalse-deadlinetrue.txt",
+      "contains": [
+        "external physical rollback",
+        "transport fault scoped to target envelope thread; target wrapper exited with its own ticket retained"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "P2-READ",
+      "glob": "**/i5_r02-P2-READ.txt",
+      "contains": [
+        "7 identified",
+        "all10 blocked"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "P1-READ",
+      "glob": "**/i5_r03-P1-READ.txt",
+      "contains": [],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "P3-P6-READ",
+      "glob": "**/i5_r03-P3-P6-READ.txt",
+      "contains": [
+        "P3/P6: S2 singleton"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "P4-READ",
+      "glob": "**/i5_r04-P4-READ.txt",
+      "contains": [
+        "P4 actual relation"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "P5-READ-BEFORE",
+      "glob": "**/i5_r06-P5-READ-BEFORE.txt",
+      "contains": [
+        "wire=BEFORE"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "P5-READ-AFTER",
+      "glob": "**/i5_r06-P5-READ-AFTER.txt",
+      "contains": [
+        "wire=AFTER"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "P5-READ-RETAIN",
+      "glob": "**/i5_r06-P5-READ-RETAIN.txt",
+      "contains": [
+        "wire=RETAIN"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "P7-READ",
+      "glob": "**/i5_r09-P7-READ.txt",
+      "contains": [
+        "no local rearm/stop callback"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "joint-READ",
+      "glob": "**/i5_r02-joint-READ.txt",
+      "contains": [
+        "four true post-rollback cessions"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "D1",
+      "glob": "**/i5_w18-D1.txt",
+      "contains": [],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "D4",
+      "glob": "**/i5_w18-D4.txt",
+      "contains": [],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "D2",
+      "glob": "**/i5_w05-D2.txt",
+      "contains": [],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "D3",
+      "glob": "**/i5_w05-D3.txt",
+      "contains": [],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "crash-admission",
+      "glob": "**/i5_w14-admission.txt",
+      "contains": [
+        "normal expiry/fenced takeover"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "crash-acquire",
+      "glob": "**/i5_w14-acquire.txt",
+      "contains": [
+        "normal expiry/fenced takeover"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "crash-delete",
+      "glob": "**/i5_w14-delete.txt",
+      "contains": [
+        "normal expiry/fenced takeover"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "crash-publication",
+      "glob": "**/i5_w14-publication.txt",
+      "contains": [
+        "normal expiry/fenced takeover"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "crash-commit",
+      "glob": "**/i5_w14-commit.txt",
+      "contains": [
+        "normal expiry/fenced takeover"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "crash-cession",
+      "glob": "**/i5_w14-cession.txt",
+      "contains": [
+        "normal expiry/fenced takeover"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "idle",
+      "glob": "**/i5_w16.txt",
+      "contains": [
+        "idle=before",
+        "idle=after"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "A-inventory",
+      "glob": "**/i5_r02-A-WRITE-READ.txt",
+      "contains": [],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "B-business",
+      "glob": "**/i5_r01-B-WRITE-READ.txt",
+      "contains": [],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "activation",
+      "glob": "**/i5_c05.txt",
+      "contains": [],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "mono",
+      "glob": "**/i5_mono01.txt",
+      "contains": [],
+      "gates": [
+        "M",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "I5-F01-WRITE",
+      "glob": "**/i5_w13-READ-PREPARATION-WRITE.txt",
+      "contains": [
+        "read-only preparation still physically active",
+        "no release/rearm via current ports",
+        "normal lease/claim expiry"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "I5-F01-READ",
+      "glob": "**/i5_w13-READ-PREPARATION-READ.txt",
+      "contains": [
+        "read-only preparation still physically active",
+        "no release/rearm via current ports",
+        "normal lease/claim expiry"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "C-lease-aging",
+      "glob": "**/i5_r10-lease-rotation-WRITE-READ.txt",
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ],
+      "contains": [
+        "real lease SQL wait WRITE",
+        "real lease SQL wait READ",
+        "lease authority=WRITE",
+        "lease authority=READ",
+        "all12leases renewed",
+        "priorDeadlineMarginNs"
+      ]
+    },
+    {
+      "id": "I5-F03-WRITE",
+      "glob": "**/i5_w20-control-unknown-WRITE.txt",
+      "contains": [
+        "Control physical UNKNOWN after local return PID=",
+        "L1 retained with capacity0",
+        "external rollback and deadline did not close pools",
+        "normal fenced restart; one real Command and two READ effects"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "I5-F03-READ",
+      "glob": "**/i5_w20-control-unknown-READ.txt",
+      "contains": [
+        "Control physical UNKNOWN after local return PID=",
+        "L1 retained with capacity0",
+        "external rollback and deadline did not close pools",
+        "normal fenced restart; one real Command and two READ effects"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "I5-F04-CONTROL-WRITE",
+      "glob": "**/i5_w21-recovery-CONTROL-WRITE.txt",
+      "contains": [
+        "Recovery CONTROL physically active after local UNKNOWN PID=",
+        "Repeated drain and later inspection cannot reuse uncertain recovery unit",
+        "external rollback/deadline do not qualify STOPPED",
+        "Normal restart retains one Command result and exactly two technical READ effects"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "I5-F04-CONTROL-READ",
+      "glob": "**/i5_w21-recovery-CONTROL-READ.txt",
+      "contains": [
+        "Recovery CONTROL physically active after local UNKNOWN PID=",
+        "Repeated drain and later inspection cannot reuse uncertain recovery unit",
+        "external rollback/deadline do not qualify STOPPED",
+        "Normal restart retains one Command result and exactly two technical READ effects"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "I5-F04-READ-WRITE",
+      "glob": "**/i5_w21-recovery-READ-WRITE.txt",
+      "contains": [
+        "Recovery READ physically active after local UNKNOWN PID=",
+        "Repeated drain and later inspection cannot reuse uncertain recovery unit",
+        "external rollback/deadline do not qualify STOPPED",
+        "Normal restart retains one Command result and exactly two technical READ effects"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "I5-F04-READ-READ",
+      "glob": "**/i5_w21-recovery-READ-READ.txt",
+      "contains": [
+        "Recovery READ physically active after local UNKNOWN PID=",
+        "Repeated drain and later inspection cannot reuse uncertain recovery unit",
+        "external rollback/deadline do not qualify STOPPED",
+        "Normal restart retains one Command result and exactly two technical READ effects"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "I5-F05-WRITE",
+      "glob": "**/i5_r11-lease-skip-WRITE.txt",
+      "contains": [
+        "SKIP LOCKED omitted live lease authority=WRITE",
+        "blockerPID=",
+        "renewPID=",
+        "same incarnation renewed before prior PG deadline with safety2s",
+        "no new ticket or owner",
+        "original due retained across revalidation"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "I5-F05-READ",
+      "glob": "**/i5_r11-lease-skip-READ.txt",
+      "contains": [
+        "SKIP LOCKED omitted live lease authority=READ",
+        "blockerPID=",
+        "renewPID=",
+        "same incarnation renewed before prior PG deadline with safety2s",
+        "no new ticket or owner",
+        "original due retained across revalidation"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    }
+  ],
+  "fresh_physical_requirements": [
+    {
+      "id": "W1-B32-MW1-held0-cycle1",
+      "glob": "**/audit-C-W1-B32-MW1-held0-cycle1.txt",
+      "contains": [
+        "FROZEN contract=I5-C-90-v1",
+        "sha256=4e07d322074d020f0734d29f05a95b24a073e8caf94d60ba2dae853cda3dc806",
+        "C-LOAD established=",
+        "C cycle=1 authority=WRITE BEFORE=",
+        "C cycle=1 authority=READ BEFORE=",
+        "C cycle=1 worker=0 ALL_CALLS="
+      ]
+    },
+    {
+      "id": "W1-B32-MW1-held0-cycle2",
+      "glob": "**/audit-C-W1-B32-MW1-held0-cycle2.txt",
+      "contains": [
+        "FROZEN contract=I5-C-90-v1",
+        "sha256=4e07d322074d020f0734d29f05a95b24a073e8caf94d60ba2dae853cda3dc806",
+        "C-LOAD established=",
+        "C cycle=2 authority=WRITE BEFORE=",
+        "C cycle=2 authority=READ BEFORE=",
+        "C cycle=2 worker=0 ALL_CALLS="
+      ]
+    },
+    {
+      "id": "W1-B32-MW1-held1-cycle1",
+      "glob": "**/audit-C-W1-B32-MW1-held1-cycle1.txt",
+      "contains": [
+        "FROZEN contract=I5-C-90-v1",
+        "sha256=4e07d322074d020f0734d29f05a95b24a073e8caf94d60ba2dae853cda3dc806",
+        "C-LOAD established=",
+        "C cycle=1 authority=WRITE BEFORE=",
+        "C cycle=1 authority=READ BEFORE=",
+        "C cycle=1 worker=0 ALL_CALLS="
+      ]
+    },
+    {
+      "id": "W1-B32-MW1-held1-cycle2",
+      "glob": "**/audit-C-W1-B32-MW1-held1-cycle2.txt",
+      "contains": [
+        "FROZEN contract=I5-C-90-v1",
+        "sha256=4e07d322074d020f0734d29f05a95b24a073e8caf94d60ba2dae853cda3dc806",
+        "C-LOAD established=",
+        "C cycle=2 authority=WRITE BEFORE=",
+        "C cycle=2 authority=READ BEFORE=",
+        "C cycle=2 worker=0 ALL_CALLS="
+      ]
+    },
+    {
+      "id": "W1-B32-MW4-held-1-cycle1",
+      "glob": "**/audit-C-W1-B32-MW4-held-1-cycle1.txt",
+      "contains": [
+        "FROZEN contract=I5-C-90-v1",
+        "sha256=4e07d322074d020f0734d29f05a95b24a073e8caf94d60ba2dae853cda3dc806",
+        "C-LOAD established=",
+        "C cycle=1 authority=WRITE BEFORE=",
+        "C cycle=1 authority=READ BEFORE=",
+        "C cycle=1 worker=0 ALL_CALLS="
+      ]
+    },
+    {
+      "id": "W1-B32-MW4-held-1-cycle2",
+      "glob": "**/audit-C-W1-B32-MW4-held-1-cycle2.txt",
+      "contains": [
+        "FROZEN contract=I5-C-90-v1",
+        "sha256=4e07d322074d020f0734d29f05a95b24a073e8caf94d60ba2dae853cda3dc806",
+        "C-LOAD established=",
+        "C cycle=2 authority=WRITE BEFORE=",
+        "C cycle=2 authority=READ BEFORE=",
+        "C cycle=2 worker=0 ALL_CALLS="
+      ]
+    },
+    {
+      "id": "W1-B1-MW4-held-1-cycle1",
+      "glob": "**/audit-C-W1-B1-MW4-held-1-cycle1.txt",
+      "contains": [
+        "FROZEN contract=I5-C-90-v1",
+        "sha256=4e07d322074d020f0734d29f05a95b24a073e8caf94d60ba2dae853cda3dc806",
+        "C-LOAD established=",
+        "C cycle=1 authority=WRITE BEFORE=",
+        "C cycle=1 authority=READ BEFORE=",
+        "C cycle=1 worker=0 ALL_CALLS="
+      ]
+    },
+    {
+      "id": "W1-B1-MW4-held-1-cycle2",
+      "glob": "**/audit-C-W1-B1-MW4-held-1-cycle2.txt",
+      "contains": [
+        "FROZEN contract=I5-C-90-v1",
+        "sha256=4e07d322074d020f0734d29f05a95b24a073e8caf94d60ba2dae853cda3dc806",
+        "C-LOAD established=",
+        "C cycle=2 authority=WRITE BEFORE=",
+        "C cycle=2 authority=READ BEFORE=",
+        "C cycle=2 worker=0 ALL_CALLS="
+      ]
+    },
+    {
+      "id": "W2-B32-MW1-mixed-cycle1",
+      "glob": "**/audit-C-W2-B32-MW1-mixed-cycle1.txt",
+      "contains": [
+        "FROZEN contract=I5-C-90-v1",
+        "sha256=4e07d322074d020f0734d29f05a95b24a073e8caf94d60ba2dae853cda3dc806",
+        "C-LOAD established=",
+        "C cycle=1 authority=WRITE BEFORE=",
+        "C cycle=1 authority=READ BEFORE=",
+        "C cycle=1 worker=0 ALL_CALLS=",
+        "C cycle=1 worker=1 ALL_CALLS="
+      ]
+    },
+    {
+      "id": "W2-B32-MW1-mixed-cycle2",
+      "glob": "**/audit-C-W2-B32-MW1-mixed-cycle2.txt",
+      "contains": [
+        "FROZEN contract=I5-C-90-v1",
+        "sha256=4e07d322074d020f0734d29f05a95b24a073e8caf94d60ba2dae853cda3dc806",
+        "C-LOAD established=",
+        "C cycle=2 authority=WRITE BEFORE=",
+        "C cycle=2 authority=READ BEFORE=",
+        "C cycle=2 worker=0 ALL_CALLS=",
+        "C cycle=2 worker=1 ALL_CALLS="
+      ]
+    },
+    {
+      "id": "W2-B32-MW4-mixed-cycle1",
+      "glob": "**/audit-C-W2-B32-MW4-mixed-cycle1.txt",
+      "contains": [
+        "FROZEN contract=I5-C-90-v1",
+        "sha256=4e07d322074d020f0734d29f05a95b24a073e8caf94d60ba2dae853cda3dc806",
+        "C-LOAD established=",
+        "C cycle=1 authority=WRITE BEFORE=",
+        "C cycle=1 authority=READ BEFORE=",
+        "C cycle=1 worker=0 ALL_CALLS=",
+        "C cycle=1 worker=1 ALL_CALLS="
+      ]
+    },
+    {
+      "id": "W2-B32-MW4-mixed-cycle2",
+      "glob": "**/audit-C-W2-B32-MW4-mixed-cycle2.txt",
+      "contains": [
+        "FROZEN contract=I5-C-90-v1",
+        "sha256=4e07d322074d020f0734d29f05a95b24a073e8caf94d60ba2dae853cda3dc806",
+        "C-LOAD established=",
+        "C cycle=2 authority=WRITE BEFORE=",
+        "C cycle=2 authority=READ BEFORE=",
+        "C cycle=2 worker=0 ALL_CALLS=",
+        "C cycle=2 worker=1 ALL_CALLS="
+      ]
+    },
+    {
+      "id": "W2-B1-MW1-mixed-cycle1",
+      "glob": "**/audit-C-W2-B1-MW1-mixed-cycle1.txt",
+      "contains": [
+        "FROZEN contract=I5-C-90-v1",
+        "sha256=4e07d322074d020f0734d29f05a95b24a073e8caf94d60ba2dae853cda3dc806",
+        "C-LOAD established=",
+        "C cycle=1 authority=WRITE BEFORE=",
+        "C cycle=1 authority=READ BEFORE=",
+        "C cycle=1 worker=0 ALL_CALLS=",
+        "C cycle=1 worker=1 ALL_CALLS="
+      ]
+    },
+    {
+      "id": "W2-B1-MW1-mixed-cycle2",
+      "glob": "**/audit-C-W2-B1-MW1-mixed-cycle2.txt",
+      "contains": [
+        "FROZEN contract=I5-C-90-v1",
+        "sha256=4e07d322074d020f0734d29f05a95b24a073e8caf94d60ba2dae853cda3dc806",
+        "C-LOAD established=",
+        "C cycle=2 authority=WRITE BEFORE=",
+        "C cycle=2 authority=READ BEFORE=",
+        "C cycle=2 worker=0 ALL_CALLS=",
+        "C cycle=2 worker=1 ALL_CALLS="
+      ]
+    },
+    {
+      "id": "W2-B1-MW4-mixed-cycle1",
+      "glob": "**/audit-C-W2-B1-MW4-mixed-cycle1.txt",
+      "contains": [
+        "FROZEN contract=I5-C-90-v1",
+        "sha256=4e07d322074d020f0734d29f05a95b24a073e8caf94d60ba2dae853cda3dc806",
+        "C-LOAD established=",
+        "C cycle=1 authority=WRITE BEFORE=",
+        "C cycle=1 authority=READ BEFORE=",
+        "C cycle=1 worker=0 ALL_CALLS=",
+        "C cycle=1 worker=1 ALL_CALLS="
+      ]
+    },
+    {
+      "id": "W2-B1-MW4-mixed-cycle2",
+      "glob": "**/audit-C-W2-B1-MW4-mixed-cycle2.txt",
+      "contains": [
+        "FROZEN contract=I5-C-90-v1",
+        "sha256=4e07d322074d020f0734d29f05a95b24a073e8caf94d60ba2dae853cda3dc806",
+        "C-LOAD established=",
+        "C cycle=2 authority=WRITE BEFORE=",
+        "C cycle=2 authority=READ BEFORE=",
+        "C cycle=2 worker=0 ALL_CALLS=",
+        "C cycle=2 worker=1 ALL_CALLS="
+      ]
+    },
+    {
+      "id": "m03-multipage",
+      "glob": "**/i5_m03-multipage.txt",
+      "contains": [
+        "m03 scenario=multipage",
+        "SQL ownership=",
+        "slots="
+      ]
+    },
+    {
+      "id": "m03-omitted",
+      "glob": "**/i5_m03-omitted.txt",
+      "contains": [
+        "m03 scenario=omitted",
+        "SQL ownership=",
+        "slots="
+      ]
+    },
+    {
+      "id": "m03-premature",
+      "glob": "**/i5_m03-premature.txt",
+      "contains": [
+        "m03 scenario=premature",
+        "SQL ownership=",
+        "slots="
+      ]
+    },
+    {
+      "id": "m03-empty",
+      "glob": "**/i5_m03-empty.txt",
+      "contains": [
+        "m03 scenario=empty",
+        "SQL ownership=",
+        "slots="
+      ]
+    },
+    {
+      "id": "m03-capacity",
+      "glob": "**/i5_m03-capacity.txt",
+      "contains": [
+        "m03 scenario=capacity",
+        "SQL ownership=",
+        "slots="
+      ]
+    },
+    {
+      "id": "m03-no-owner",
+      "glob": "**/i5_m03-no-owner.txt",
+      "contains": [
+        "m03 scenario=no-owner",
+        "SQL ownership=",
+        "slots="
+      ]
+    },
+    {
+      "id": "m03-rollback",
+      "glob": "**/i5_m03-rollback.txt",
+      "contains": [
+        "m03 scenario=rollback",
+        "SQL ownership=",
+        "slots="
+      ]
+    },
+    {
+      "id": "m03-observer-failure",
+      "glob": "**/i5_m03-observer-failure.txt",
+      "contains": [
+        "m03 scenario=observer-failure",
+        "SQL ownership=",
+        "slots="
+      ]
+    }
+  ],
+  "failed_attempts": [
+    {
+      "tested_sha": "05b74814abe810a22f1f6a4c5125d4374325f6fa",
+      "verdict": "FAIL",
+      "C_W2": "INCONCLUSIVE: invalid uppercase fixture name before campaign",
+      "receipt": "../testing/evidence/L2-I5-audit-remediation/gate-1-failed-receipt.json",
+      "archive": "../testing/evidence/L2-I5-audit-remediation/gate-1-failed-05b74814.tar.gz",
+      "elapsed_seconds": 2857.4654879570007,
+      "correction": "lowercase fixture name; original catalog restored before manual metric fixture cleanup",
+      "contract_unchanged": true
+    },
+    {
+      "type": "targeted fixture correction check",
+      "tested_sha": "8990737ce0b6f7df155d7e80aa698657815dc5ef",
+      "verdict": "FAIL",
+      "reason": "Observed Worker1 READ six calls for four candidates with R1; qualification stopped without threshold change",
+      "elapsed_seconds": 65.77492785453796,
+      "receipt": "../testing/evidence/L2-I5-audit-remediation/fixture-targeted-receipt.json",
+      "archive": "../testing/evidence/L2-I5-audit-remediation/targeted-R2-counterexample-8990737c.tar.gz"
+    }
+  ],
+  "qualification_90s": "NOT ACQUIRED",
+  "counterexample": "../testing/evidence/L2-I5-audit-remediation/R1-counterexample.json",
+  "final_composed_gate": {
+    "status": "NOT RUN on 8990737c",
+    "reason": "Mandatory stop after observed R=2; no repeat until green",
+    "first_gate_exit": 1,
+    "first_gate_tests": 1649,
+    "first_gate_method_problems": [
+      "com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest.i5_r12: [{'class': 'com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest', 'method': 'i5_r12', 'state': 'FAIL'}]"
+    ],
+    "first_gate_skips": [
+      {
+        "class": "com.kartaguez.pocoma.runtime.command.consumption.sequencing.TerminalSequencingPostgresTest",
+        "method": "zExploratoryContentionSeparateFromCorrectness",
+        "state": "SKIP"
+      }
+    ]
+  },
+  "metric_result": {
+    "status": "LOCAL PASS; closure blocked by composed gate",
+    "m03_scenarios": [
+      "multipage",
+      "omitted",
+      "premature",
+      "empty",
+      "capacity",
+      "no-owner",
+      "rollback",
+      "observer-failure"
+    ],
+    "first_m03_seconds": 264.204,
+    "corrected_targeted_m03_seconds": 27.206,
+    "counter_positive": "2 after two complete traversals, second with zero admissions",
+    "omitted_and_premature_checkers": "rejected false counts",
+    "targeted_sha": "8990737ce0b6f7df155d7e80aa698657815dc5ef"
+  },
+  "verification_cost": {
+    "first_composed_gate_seconds": 2857.4654879570007,
+    "targeted_fixture_check_seconds": 65.77492785453796,
+    "deterministic_maven_seconds": 37.448,
+    "total_maven_wall_seconds": 2960.6884158115386,
+    "C_and_metric_times_included_not_added_again": true,
+    "documentary_checks": "not individually timed"
+  },
+  "modified_files_exact": [
+    "app/orchestrator-poll-consumption/src/main/java/com/kartaguez/pocoma/orchestrator/poll/consumption/v3/V3DiscoveryLoop.java",
+    "app/orchestrator-poll-consumption/src/test/java/com/kartaguez/pocoma/orchestrator/poll/consumption/v3/V3ConsumptionWorkerTest.java",
+    "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/I5TemporalBudgetTest.java",
+    "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/V3WorkerMetricsTest.java",
+    "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/V3WorkerResourcesPostgresTest.java",
+    "docs/testing/evidence/L2-I5-audit-remediation/R1-counterexample.json",
+    "docs/testing/evidence/L2-I5-audit-remediation/deterministic.tar.gz",
+    "docs/testing/evidence/L2-I5-audit-remediation/fixture-targeted-receipt.json",
+    "docs/testing/evidence/L2-I5-audit-remediation/gate-1-failed-05b74814.tar.gz",
+    "docs/testing/evidence/L2-I5-audit-remediation/gate-1-failed-receipt.json",
+    "docs/testing/evidence/L2-I5-audit-remediation/historical-integrity.json",
+    "docs/testing/evidence/L2-I5-audit-remediation/targeted-R2-counterexample-8990737c.tar.gz",
+    "docs/testing/evidence/L2-I5-audit-remediation/temporal-contract-v1.properties",
+    "docs/v3/L2_I5_Audit_Remediation_Proof_Manifest.json",
+    "docs/v3/L2_I5_Audit_Remediation_Report.md",
+    "docs/v3/L2_I5_Worker_Development_Runbook.md"
+  ]
+}

@@ -1,0 +1,81 @@
+script=bootstrap-l2-routing.sql rc=0 BEGIN
+LOCK TABLE
+ set_config 
+------------
+ i1_read
+(1 row)
+
+             set_config              
+-------------------------------------
+ i1_55e02b6daa5a47b2bc1d693551826ffc
+(1 row)
+
+              set_config               
+---------------------------------------
+ i1_55e02b6daa5a47b2bc1d693551826ffc_a
+(1 row)
+
+ set_config 
+------------
+ READ
+(1 row)
+
+DO
+INSERT 0 7
+INSERT 0 28
+DO
+COMMIT
+
+script=grant-l2-lifecycle.sql rc=0 BEGIN
+ set_config 
+------------
+ fixture
+(1 row)
+
+ set_config 
+------------
+ 
+(1 row)
+
+DO
+ set_config 
+------------
+ i1_read
+(1 row)
+
+             set_config              
+-------------------------------------
+ i1_55e02b6daa5a47b2bc1d693551826ffc
+(1 row)
+
+              set_config               
+---------------------------------------
+ i1_55e02b6daa5a47b2bc1d693551826ffc_a
+(1 row)
+
+              set_config               
+---------------------------------------
+ i1_55e02b6daa5a47b2bc1d693551826ffc_w
+(1 row)
+
+              set_config               
+---------------------------------------
+ i1_55e02b6daa5a47b2bc1d693551826ffc_r
+(1 row)
+
+DO
+GRANT
+GRANT
+GRANT
+GRANT
+GRANT
+GRANT
+DO
+DO
+COMMIT
+
+environment={version=PostgreSQL 17.11 on aarch64-unknown-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit, db=i1_read, schema=i1_55e02b6daa5a47b2bc1d693551826ffc, current_user=i1_55e02b6daa5a47b2bc1d693551826ffc_a, clock_timestamp=2026-11-02 08:38:15.758719} image=postgres@sha256:18cfe3ef5e6815560c98237d6216d1e5119702fb0f3894c8785dd58b8bbe5d73 runtime=i1_55e02b6daa5a47b2bc1d693551826ffc_w admin=i1_55e02b6daa5a47b2bc1d693551826ffc_a
+acquired=ClaimedSlot[consumptionId=ConsumptionId[value=3dec1c8b-6e3e-57e1-82aa-aa0b5f297a4a], consumableId=f2c1f2b7-3eb6-4a9f-9213-bc8e47efa004, claimToken=11555ae2-10c3-4e61-8f6e-14f852aca1cc] partition=1
+caught readiness=class com.kartaguez.pocoma.port.projection.v3.SubobjectConflictException
+external snapshot f2c1f2b7-3eb6-4a9f-9213-bc8e47efa004 {effects=0, slots=1, witnesses=0}
+ROLLED_BACK=Attempt[status=ROLLED_BACK, resolution=ROLLED_BACK, observation=null, cause=org.springframework.transaction.IllegalTransactionStateException: Attempt unit changed, expired or poisoned, failureKind=NON_COUNTABLE, cession=null, cessionResolution=null] snapshot={effects=0, slots=1, witnesses=0}

@@ -1,0 +1,25 @@
+administrative configure-l3-identity-logging.sql WRITE rc=0
+administrative bootstrap-l2-routing.sql WRITE rc=0
+administrative grant-l2-lifecycle.sql WRITE rc=0
+administrative grant-l2-discovery.sql WRITE rc=0
+administrative bootstrap-l2-routing.sql READ rc=0
+administrative grant-l2-lifecycle.sql READ rc=0
+administrative grant-l2-discovery.sql READ rc=0
+administrative grant-l7-write-source-read.sql WRITE rc=0
+initial expected: nine canonical business contracts, no technical probes; no slots/K/effects; fresh i5_98ece20499d34e04ac94b3283ad27b4f
+real Identity request=63c57651-3d99-45a5-bbe8-5b4d2838c20a operation=REGISTRATION terminal and positioned; slot absent
+I4 Command request=0e54f598-11d2-44e6-b1c1-916793becd0d outcome=CHANGED rejection=null
+I4 Command request=2af8870f-24cf-448d-a69f-9e52e6fbed6e outcome=CHANGED rejection=null
+I4 Command request=20769501-9036-408c-8ec7-d0fbbe18480a outcome=CHANGED rejection=null
+I4 Command request=36b6d669-cdcd-47d8-aee8-2e1c7f013498 outcome=CHANGED rejection=null
+administrative bootstrap-l2-routing.sql READ rc=0
+administrative grant-l2-lifecycle.sql READ rc=0
+administrative grant-l2-discovery.sql READ rc=0
+I4 Command request=fed3844e-e8d9-4493-90e7-379c9d3963f8 outcome=CHANGED rejection=null
+physical lease remaining after drain (ms)=239610
+prefix before replay={COMMAND_COMPLETION=4, IDENTITY=2, IDENTITY_COMPLETION=1, INVITATION=0, POT=4}, after new publication={COMMAND_COMPLETION=5, IDENTITY=2, IDENTITY_COMPLETION=1, INVITATION=0, POT=5}
+before={read_command_result=f07560b644ce8db4f7844b3622c8dde5a9dbdd561519882ea6853389c78db73e, read_current_binding=dd431a0f91c61d2da162fb08ac49d5c72ecb6d756b2e541a34ea5a36909a9efa, read_current_invitation=4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945, read_current_pot=c063696c9d0c22cb620f23f87db47ff0c7129ec879c1c8dc8085d755ed0d7271, read_identity_request_result=c5faa4196f19d889e23f48d29965d8a2f2725a8e972da9fbf7f78be6ea1b5802, read_pot_balance=9356420776a5ae8b25333dc4fa1820634c248311c3b1a00da2fd19b6793025d9, read_pot_version=a7a8d9c054af5915ff21e640f3e1268fcdb5cc3f33c50c001001578ed33d3876, read_pot_visibility_state=da6d67bfed4c59995e0c4491c28e3df5ed75d0df321e9dd1a7aebb81a4c793e1, read_subobject_version=19bb600dbace2bdf812e89390e02a2a3512da8da749de6b27937ddcc11ab9197, read_user_pot=5655fdf0bd8ccca60b9fd2ac3678aca1ec7d9221bdd42e89fc7d19bcb5ffdaa0}, replayed={read_command_result=f07560b644ce8db4f7844b3622c8dde5a9dbdd561519882ea6853389c78db73e, read_current_binding=dd431a0f91c61d2da162fb08ac49d5c72ecb6d756b2e541a34ea5a36909a9efa, read_current_invitation=4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945, read_current_pot=c063696c9d0c22cb620f23f87db47ff0c7129ec879c1c8dc8085d755ed0d7271, read_identity_request_result=c5faa4196f19d889e23f48d29965d8a2f2725a8e972da9fbf7f78be6ea1b5802, read_pot_balance=9356420776a5ae8b25333dc4fa1820634c248311c3b1a00da2fd19b6793025d9, read_pot_version=a7a8d9c054af5915ff21e640f3e1268fcdb5cc3f33c50c001001578ed33d3876, read_pot_visibility_state=da6d67bfed4c59995e0c4491c28e3df5ed75d0df321e9dd1a7aebb81a4c793e1, read_subobject_version=19bb600dbace2bdf812e89390e02a2a3512da8da749de6b27937ddcc11ab9197, read_user_pot=5655fdf0bd8ccca60b9fd2ac3678aca1ec7d9221bdd42e89fc7d19bcb5ffdaa0}
+physical {current_database=test, current_schema=i5_98ece20499d34e04ac94b3283ad27b4f, clock_timestamp=2026-11-12 07:10:35.488886, pg_backend_pid=17498, pg_current_xact_id=14219}
+counts {slots=0, checkpoints=0, owned=4}
+physical {current_database=i5_read, current_schema=i5_98ece20499d34e04ac94b3283ad27b4f, clock_timestamp=2026-11-12 07:10:35.497311, pg_backend_pid=17500, pg_current_xact_id=14220}
+counts {slots=0, checkpoints=28, owned=28}

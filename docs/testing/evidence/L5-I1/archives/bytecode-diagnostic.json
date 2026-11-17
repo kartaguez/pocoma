@@ -1,0 +1,20 @@
+{
+  "source": "/private/tmp/pocoma-i1-bytecode-diagnostic",
+  "archive": "archives/bytecode-diagnostic.tar.gz",
+  "sha256": "56b9cf9bca2d6a11bb9c229be0337fad774ae2d142841782eb6415642381a83f",
+  "bytes": 6378,
+  "files": {
+    "ReadPotV3.javap.txt": {
+      "original_sha256": "10efadf7e491af30d24e7aee73a0f10e858a6e6b5b166bd1e4ab63bff050abbf",
+      "published_sha256": "10efadf7e491af30d24e7aee73a0f10e858a6e6b5b166bd1e4ab63bff050abbf",
+      "bytes": 53402
+    },
+    "SHA256SUMS.txt": {
+      "original_sha256": "6324c37935e62f602aae2d70dd2a099a7fbfd065b2b89d755d969bded9e3fde5",
+      "published_sha256": "6324c37935e62f602aae2d70dd2a099a7fbfd065b2b89d755d969bded9e3fde5",
+      "bytes": 157
+    }
+  },
+  "redactions": [],
+  "policy": "Only secret/canary values redacted. Outcomes, identities, counters, timings and original hashes retained. Original process artifacts remain at the private source path."
+}

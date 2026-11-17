@@ -1,0 +1,22 @@
+{
+  "date": "2026-11-14 Europe/Paris",
+  "tool": "mcp__cua_repl",
+  "observed": [
+    "Bruno4.2.1 open collection Pocoma V3 Playground, domain folders and journeys visible",
+    "Instance-demo selected from the GUI environment menu",
+    "E00 Environment Check sent: HTTP200; Tests2 Passed2 Failed0 displayed",
+    "Owner Auth: Authorization Code, PKCE checked, blank client secret, native tokenId playground-owner",
+    "Owner native Keycloak window Sign in to pocoma: username third, code_challenge_method S256 and generated state observed; closed before password",
+    "Guest Auth: Authorization Code, PKCE checked, tokenId playground-guest, login_hint guest",
+    "Guest login opening initially rejected by automatic approval review; user then explicitly authorized the two local sign-ins"
+  ],
+  "notExecuted": [
+    "Completed Owner/Guest native GUI login",
+    "Authenticated individual business request rendered in GUI",
+    "GUI full journey Runner",
+    "GUI identity switch after completed login",
+    "GUI resume after reset"
+  ],
+  "finalToolBlocker": "After campaign, getApp Bruno and com.usebruno.app both returned cgWindowNotFound; computer.launch_app unavailable. No terminal UI workaround.",
+  "humanAcceptance": "PENDING"
+}

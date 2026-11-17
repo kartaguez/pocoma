@@ -1,0 +1,95 @@
+script=bootstrap-l2-routing.sql rc=0 BEGIN
+LOCK TABLE
+ set_config 
+------------
+ i1_read
+(1 row)
+
+             set_config              
+-------------------------------------
+ i1_35c3263e5f8f48b9b4ce6034d0f1b897
+(1 row)
+
+              set_config               
+---------------------------------------
+ i1_35c3263e5f8f48b9b4ce6034d0f1b897_a
+(1 row)
+
+ set_config 
+------------
+ READ
+(1 row)
+
+DO
+INSERT 0 7
+INSERT 0 28
+DO
+COMMIT
+
+script=grant-l2-lifecycle.sql rc=0 BEGIN
+ set_config 
+------------
+ fixture
+(1 row)
+
+ set_config 
+------------
+ 
+(1 row)
+
+DO
+ set_config 
+------------
+ i1_read
+(1 row)
+
+             set_config              
+-------------------------------------
+ i1_35c3263e5f8f48b9b4ce6034d0f1b897
+(1 row)
+
+              set_config               
+---------------------------------------
+ i1_35c3263e5f8f48b9b4ce6034d0f1b897_a
+(1 row)
+
+              set_config               
+---------------------------------------
+ i1_35c3263e5f8f48b9b4ce6034d0f1b897_w
+(1 row)
+
+              set_config               
+---------------------------------------
+ i1_35c3263e5f8f48b9b4ce6034d0f1b897_r
+(1 row)
+
+DO
+GRANT
+GRANT
+GRANT
+GRANT
+GRANT
+GRANT
+DO
+DO
+COMMIT
+
+environment={version=PostgreSQL 17.11 on aarch64-unknown-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit, db=i1_read, schema=i1_35c3263e5f8f48b9b4ce6034d0f1b897, current_user=i1_35c3263e5f8f48b9b4ce6034d0f1b897_a, clock_timestamp=2026-11-02 08:38:27.336054} image=postgres@sha256:18cfe3ef5e6815560c98237d6216d1e5119702fb0f3894c8785dd58b8bbe5d73 runtime=i1_35c3263e5f8f48b9b4ce6034d0f1b897_w admin=i1_35c3263e5f8f48b9b4ce6034d0f1b897_a
+SQL shape rejected=[892abd12-e578-43db-9c99-fdead62997fc, POT_HEADER, 892abd12-e578-43db-9c99-fdead62997fc, 0, 1, {"deleted":false}] state=23514
+SQL shape rejected=[892abd12-e578-43db-9c99-fdead62997fc, POT_HEADER, 05f2116b-5c9f-4cac-af90-884ca3505243, 1, 1, {"deleted":false}] state=23514
+SQL shape rejected=[892abd12-e578-43db-9c99-fdead62997fc, UNKNOWN, 892abd12-e578-43db-9c99-fdead62997fc, 1, 1, {"deleted":false}] state=23514
+SQL shape rejected=[892abd12-e578-43db-9c99-fdead62997fc, POT_HEADER, 892abd12-e578-43db-9c99-fdead62997fc, 1, 2, {"deleted":false}] state=23514
+SQL shape rejected=[892abd12-e578-43db-9c99-fdead62997fc, POT_HEADER, 892abd12-e578-43db-9c99-fdead62997fc, 1, 1, {}] state=23514
+SQL shape rejected=[892abd12-e578-43db-9c99-fdead62997fc, POT_HEADER, 892abd12-e578-43db-9c99-fdead62997fc, 1, 1, {"deleted":null}] state=23514
+SQL shape rejected=[892abd12-e578-43db-9c99-fdead62997fc, POT_HEADER, 892abd12-e578-43db-9c99-fdead62997fc, 1, 1, {"deleted":false,"extra":0}] state=23514
+SQL shape rejected=[892abd12-e578-43db-9c99-fdead62997fc, POT_HEADER, 892abd12-e578-43db-9c99-fdead62997fc, 1, 1, {"deleted":"false"}] state=23514
+SQL shape rejected=[892abd12-e578-43db-9c99-fdead62997fc, SHAREHOLDER_DETAILS, 892abd12-e578-43db-9c99-fdead62997fc, 1, 1, {"name":"A"}] state=23514
+SQL shape rejected=[892abd12-e578-43db-9c99-fdead62997fc, SHAREHOLDER_DETAILS, 892abd12-e578-43db-9c99-fdead62997fc, 1, 1, {"name":null,"userId":null}] state=23514
+SQL shape rejected=[892abd12-e578-43db-9c99-fdead62997fc, POT_DETAILS, 892abd12-e578-43db-9c99-fdead62997fc, 1, 1, {"label":"A","creatorId":null}] state=23514
+SQL shape rejected=[892abd12-e578-43db-9c99-fdead62997fc, POT_DETAILS, 892abd12-e578-43db-9c99-fdead62997fc, 1, 1, {"label":1,"creatorId":"A"}] state=23514
+SQL shape rejected=[892abd12-e578-43db-9c99-fdead62997fc, SHAREHOLDER_WEIGHT, 892abd12-e578-43db-9c99-fdead62997fc, 1, 1, {"defaultWeight":1}] state=23514
+SQL shape rejected=[892abd12-e578-43db-9c99-fdead62997fc, EXPENSE_DETAILS, 892abd12-e578-43db-9c99-fdead62997fc, 1, 1, {"label":"E","date":null}] state=23514
+SQL shape rejected=[892abd12-e578-43db-9c99-fdead62997fc, EXPENSE_FINANCIALS, 892abd12-e578-43db-9c99-fdead62997fc, 1, 1, {"amount":{},"payerId":"x","participants":[]}] state=23514
+SQL shape rejected=[892abd12-e578-43db-9c99-fdead62997fc, EXPENSE_FINANCIALS, 892abd12-e578-43db-9c99-fdead62997fc, 1, 1, {"amount":{},"payerId":"x","participants":{}}] state=23514
+SQL shape rejected=[null, POT_HEADER, 892abd12-e578-43db-9c99-fdead62997fc, 1, 1, {"deleted":false}] state=23502
+SQL shape rejected=[892abd12-e578-43db-9c99-fdead62997fc, POT_HEADER, 892abd12-e578-43db-9c99-fdead62997fc, 1, 1, null] state=23502

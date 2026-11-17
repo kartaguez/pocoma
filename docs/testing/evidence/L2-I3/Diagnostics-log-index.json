@@ -1,0 +1,71 @@
+{
+  "kind": "DIAGNOSTICS ONLY \u2014 never substituted for final gates",
+  "archive": "Diagnostics-raw-logs.tar.gz",
+  "sha256": "5e34edf89c3690a5310177112aed36059501043e15dba0df8b21cfd8e583e982",
+  "files": [
+    {
+      "path": "pocoma-v3-i3-acquisition-result.log",
+      "sha256": "7088de829608d4e40938b3afb1ec97a0d8e4811b96712b0f412289d7fb6b1a2c"
+    },
+    {
+      "path": "pocoma-v3-i3-architecture-inventory-fix.log",
+      "sha256": "33ffb9a46c868a94c6319613e3c081149ed697348d17d5b0d85f8f3b0fd40fa8"
+    },
+    {
+      "path": "pocoma-v3-i3-capacity-5.log",
+      "sha256": "ef36045d0e90553dad8a8bcd7bde50700e8638bb84883d80b0a212810ab8f4e9"
+    },
+    {
+      "path": "pocoma-v3-i3-compile-2.log",
+      "sha256": "bc7b829bf815f86f79bf57f38211c11d731b613bf29fb6ecb425c67350ec86ea"
+    },
+    {
+      "path": "pocoma-v3-i3-compile.log",
+      "sha256": "af91dc2f939cc75ade13f5308895161f870f993467e1ad00b70b729b56d08889"
+    },
+    {
+      "path": "pocoma-v3-i3-engine-2.log",
+      "sha256": "e6bf0bb82a3c8845886928f50c3c42f23cd66ecd610fd56b4cf0fc3605f5bd00"
+    },
+    {
+      "path": "pocoma-v3-i3-engine.log",
+      "sha256": "b26e660ea89b8902f01d7ecc5b99a63c3caf6a3680785aba11369f7840b1e9d9"
+    },
+    {
+      "path": "pocoma-v3-i3-focused-4.log",
+      "sha256": "62e0e12062b63a4f3c0da0d86860dcb3d53ddd5690bb19eca469c1714928f08b"
+    },
+    {
+      "path": "pocoma-v3-i3-focused-6.log",
+      "sha256": "d51cc16e3b25b1a4f640f1af30a5e77affe25c62bc6e0ae3eb3fc51a55381918"
+    },
+    {
+      "path": "pocoma-v3-i3-focused-7.log",
+      "sha256": "6fe929b58ee4a4c72056a712713846a341548cb5bc5d0f22633c369df837e57a"
+    },
+    {
+      "path": "pocoma-v3-i3-last-targeted.log",
+      "sha256": "6056212df6ace7bae9177bcf2bc81f579e3e7bf812328fee73795e49602654c4"
+    },
+    {
+      "path": "pocoma-v3-i3-metadata-last.log",
+      "sha256": "78ae1d40bd0bce98193dfe1964132d847133fabede1f2b9b034d95e6ba239867"
+    },
+    {
+      "path": "pocoma-v3-i3-pg-1.log",
+      "sha256": "f02c74db85ef83efd353add82cb17d057c05a3540353fd415c501337fed03a66"
+    },
+    {
+      "path": "pocoma-v3-i3-pg-2.log",
+      "sha256": "fee0c41cc8e6138d29eafdafe1eb7e732c11bad9472aa6abe1071b62011d1221"
+    },
+    {
+      "path": "pocoma-v3-i3-pg-3.log",
+      "sha256": "0f3a2f519d72d120445fc3cde181c4cabe9e27ff46a2c7dd1e98c55cdb4902dd"
+    },
+    {
+      "path": "pocoma-v3-i3-proof-correction.log",
+      "sha256": "c9330e8f4718db2150c96f2c300f36cac0bbd7386a64fcaaec254d5bde7936dc"
+    }
+  ]
+}

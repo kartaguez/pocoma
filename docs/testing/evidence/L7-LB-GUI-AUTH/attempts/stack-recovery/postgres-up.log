@@ -1,0 +1,72 @@
+ Image postgres@sha256:ef257d85f76e48da1c64832459b59fcaba1a4dac97bf5d7450c77753542eee94 Pulling 
+ 863529d0da69 Pulling fs layer 0B
+ 8a019f30ea14 Pulling fs layer 0B
+ c89215c5eedd Pulling fs layer 0B
+ 6b59a28fa201 Pulling fs layer 0B
+ 00b0e19d2268 Pulling fs layer 0B
+ bbb8a248653b Pulling fs layer 0B
+ 38e7eb8bb034 Pulling fs layer 0B
+ 216c47815005 Pulling fs layer 0B
+ 405d8144726e Pulling fs layer 0B
+ d1977f5fc01c Pulling fs layer 0B
+ 00b0e19d2268 Download complete 0B
+ 8a019f30ea14 Downloading 5.243MB
+ c89215c5eedd Download complete 0B
+ 8a019f30ea14 Downloading 11.53MB
+ 8a019f30ea14 Downloading 22.02MB
+ 8a019f30ea14 Downloading 28.31MB
+ 8a019f30ea14 Downloading 35.65MB
+ 6b59a28fa201 Downloading 2.097MB
+ 38e7eb8bb034 Download complete 0B
+ 8a019f30ea14 Downloading 44.04MB
+ 6b59a28fa201 Download complete 0B
+ 6b59a28fa201 Extracting 1B
+ 8a019f30ea14 Downloading 56.62MB
+ bbb8a248653b Download complete 0B
+ 863529d0da69 Download complete 0B
+ 6b59a28fa201 Extracting 1B
+ d1977f5fc01c Downloading 169B
+ 8a019f30ea14 Downloading 66.06MB
+ 6b59a28fa201 Extracting 1B
+ 8a019f30ea14 Downloading 76.55MB
+ 216c47815005 Download complete 0B
+ d1977f5fc01c Download complete 0B
+ 6b59a28fa201 Extracting 1B
+ 405d8144726e Download complete 0B
+ 8a019f30ea14 Downloading 85.98MB
+ 6b59a28fa201 Extracting 1B
+ 8a019f30ea14 Downloading 96.47MB
+ 38e7eb8bb034 Pull complete 0B
+ 6b59a28fa201 Pull complete 0B
+ bbb8a248653b Pull complete 0B
+ 216c47815005 Pull complete 0B
+ cda1840be011 Download complete 0B
+ 8a019f30ea14 Download complete 0B
+ 8a019f30ea14 Extracting 1B
+ 92f258fa98a9 Download complete 0B
+ 8a019f30ea14 Extracting 1B
+ 8a019f30ea14 Extracting 1B
+ 8a019f30ea14 Extracting 1B
+ 8a019f30ea14 Extracting 1B
+ 8a019f30ea14 Extracting 1B
+ 8a019f30ea14 Extracting 1B
+ 8a019f30ea14 Extracting 1B
+ 00b0e19d2268 Pull complete 0B
+ c89215c5eedd Pull complete 0B
+ 863529d0da69 Pull complete 0B
+ d1977f5fc01c Pull complete 0B
+ 405d8144726e Pull complete 0B
+ 8a019f30ea14 Pull complete 0B
+ Image postgres@sha256:ef257d85f76e48da1c64832459b59fcaba1a4dac97bf5d7450c77753542eee94 Pulled 
+ Volume pocoma-lb-demo-a4951783-data Creating 
+ Network pocoma-lb-demo-a4951783_default Creating 
+ Volume pocoma-lb-demo-a4951783-data Creating 
+ Network pocoma-lb-demo-a4951783_default Creating 
+ Volume pocoma-lb-demo-a4951783-data Created 
+ Volume pocoma-lb-demo-a4951783-data Created 
+ Network pocoma-lb-demo-a4951783_default Created 
+ Network pocoma-lb-demo-a4951783_default Created 
+ Container pocoma-lb-demo-a4951783-postgres-1 Creating 
+ Container pocoma-lb-demo-a4951783-postgres-1 Created 
+ Container pocoma-lb-demo-a4951783-postgres-1 Starting 
+ Container pocoma-lb-demo-a4951783-postgres-1 Started 

@@ -1,0 +1,31 @@
+{
+  "state": "DESTROY_PLAN",
+  "exit": 0,
+  "instance": "i3-workshop",
+  "owner": "325b57b9-b8bf-4c4f-8926-2eb556aa9c22",
+  "project": "pocoma-lb-i3-workshop-325b57b9",
+  "volume": "pocoma-lb-i3-workshop-325b57b9-data",
+  "network": "pocoma-lb-i3-workshop-325b57b9_default",
+  "services": [
+    "http-write",
+    "http-read",
+    "command-worker",
+    "results-worker",
+    "business-read-worker",
+    "postgres",
+    "keycloak",
+    "prometheus"
+  ],
+  "persistentDataLost": [
+    "PostgreSQL WRITE/READ and Keycloak database in owned volume",
+    "Generated credentials, configuration, demo and canary checkpoints"
+  ],
+  "retained": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/i3-workshop/runs",
+  "operations": [
+    "Verify manifest/UUID/resource ownership",
+    "Gracefully stop this instance",
+    "Compose down --volumes for this project only",
+    "Remove generated instance files; retain lock and diagnostic runs"
+  ],
+  "command": "./pocoma-local destroy --instance i3-workshop --confirm DESTROY:i3-workshop"
+}

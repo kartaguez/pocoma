@@ -1,0 +1,1130 @@
+{
+  "gemini-fast": {
+    "original_directory": "/private/var/folders/tv/bctjvrln2mn7t3z1vc6b2wz80000gn/T/pocoma-verify-1793519309309567000",
+    "historical": true,
+    "not_a_fresh_i5_execution": true,
+    "tested_git_head": "0092b4d1bafe644017717865a620f0a35b68fbb5",
+    "dirty_state": " M runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/I5TemporalV2Postgres.java\n M runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/I5TemporalV2Test.java\n M runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/V3WorkerResourcesPostgresTest.java\n M ../scripts/testing/test_verification.py\n M ../scripts/testing/verification-campaigns.json\n M ../scripts/testing/verify.py\n?? ../scripts/testing/__pycache__/\n",
+    "executed_app_inputs_equal_commit": "0ba18ec1e2fb9d9ead4e6ff84b9c839048c82dc3",
+    "app_inputs_checked": 1265,
+    "external_sql_checked": 0,
+    "control_inputs_match": true,
+    "command": [
+      "./mvnw",
+      "--batch-mode",
+      "--no-transfer-progress",
+      "-pl",
+      "engine-consume-registration,domain-pot",
+      "-am",
+      "-Dtest=com.kartaguez.pocoma.domain.pot.aggregate.ShareholderIdentityCollisionTest,com.kartaguez.pocoma.domain.pot.v3.InvitationAttachmentTest,com.kartaguez.pocoma.domain.pot.v3.PotAuthorizationTest,com.kartaguez.pocoma.domain.pot.v3.PotTransitionsTest,com.kartaguez.pocoma.domain.useridentity.UserIdentityModelTest,com.kartaguez.pocoma.domain.useridentity.v3.IdentityTransitionsTest,com.kartaguez.pocoma.domain.useridentity.v3.IdentityValueContractsTest,com.kartaguez.pocoma.engine.consume.registration.v3.ExecuteIdentityRequestTest,com.kartaguez.pocoma.engine.consume.registration.v3.IdentityRequestContractTest",
+      "-Dsurefire.failIfNoSpecifiedTests=false",
+      "-Dpocoma.verification.id=e0157b1e891049c08c8bc51bf748b111",
+      "-Dpocoma.verification.reports=/private/var/folders/tv/bctjvrln2mn7t3z1vc6b2wz80000gn/T/pocoma-verify-1793519309309567000/reports",
+      "test"
+    ],
+    "invocation_id": "e0157b1e891049c08c8bc51bf748b111",
+    "counts": {
+      "tests": 65,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "verdict": "PASS",
+    "seconds": 2.197673,
+    "modules": [
+      "domain-authorization",
+      "domain-event",
+      "domain-user-identity",
+      "domain-pot",
+      "domain-consumption",
+      "port-transaction",
+      "port-binding-authority",
+      "engine-consumption",
+      "contracts-registration",
+      "engine-consume-registration"
+    ],
+    "expected": {
+      "com.kartaguez.pocoma.domain.useridentity.v3.IdentityValueContractsTest": [
+        "idsAndTokensHaveExactOpaqueValueSemanticsWithoutGenerationOrOrdering",
+        "statesRequirePositiveVersionAndUserTokenTogether",
+        "changedIsNonemptyAndCanOnlyCreateTheUserOfItsNewBoundState",
+        "tokensNeverAppearInDefaultDiagnosticRepresentations",
+        "externalKeysPreserveOpaqueTextWithoutCaseUrlOrUnicodeNormalization",
+        "independentUtf8VectorsOrderIssuerThenSubjectWithPrefixesAndUnsignedBytes",
+        "allPermutationsOfCanonicalVectorGroupsSortAndDeduplicateExactKeys",
+        "nulAndIsolatedSurrogatesAreRejectedInEitherFieldAndEitherOperand"
+      ],
+      "com.kartaguez.pocoma.domain.useridentity.v3.IdentityTransitionsTest": [
+        "registrationOfAbsentIdentityCreatesUserAndDirectlyBoundVersionOne",
+        "registrationOfFreeIdentityKeepsIdAndCreatesExactSuccessorAndNewUser",
+        "registrationRejectsBoundIdentityWithoutAUserOrStateChange",
+        "linkAbsentTargetDeducesUserFromInitiatorWithoutCreatingUser",
+        "linkFreeTargetRetainsIdAndExactSuccessor",
+        "selfLinkIsStrictlyRejected",
+        "absentFreeOrStaleInitiatorCannotLinkOrUnlink",
+        "unlinkOtherIdentityOfSameUserDoesNotRequireItsToken",
+        "selfAndLastUnlinkOnlyChangeEuiAndNeverDeleteUser",
+        "unlinkRejectsAbsentFreeAndAnotherUsersTarget",
+        "localHistoryOneThroughFivePreservesOldStatesAndRenewsTokensEvenForSameUser",
+        "crossedUnlinksLoseInitiatorAuthorityAfterFirstSuccess",
+        "inconsistentSnapshotsIdsAndKnownUsedCandidateTokenAreFaults",
+        "versionOverflowIsAFaultAndNeverWrapsToZeroOrNegative",
+        "requiredCandidatesAndSnapshotsCannotBeNull",
+        "linkRejectsAlreadyBoundTargetEvenToSameUser(boolean)[1]",
+        "linkRejectsAlreadyBoundTargetEvenToSameUser(boolean)[2]"
+      ],
+      "com.kartaguez.pocoma.domain.useridentity.UserIdentityModelTest": [
+        "bindingIdIsAnOpaqueUuidValueWithoutOrdering",
+        "externalIdentityPreservesExactIssuerAndSubjectEquality",
+        "userContainsOnlyItsCanonicalIdentity",
+        "bindingRevisionHasLocalNonNegativeValueSemantics",
+        "attachedFactRequiresACompletePositiveRevisionShape",
+        "detachedFactRequiresACompletePositiveRevisionShapeWithUserId"
+      ],
+      "com.kartaguez.pocoma.engine.consume.registration.v3.IdentityRequestContractTest": [
+        "registrationTargetsOnlyItsAuthenticatedRequesterAndOmitsToken",
+        "linkAndUnlinkRequireInitiatorTokenAndAnExactTargetIncludingSelf",
+        "externalUnicodeRemainsExactAndUnstorableKeysFailBeforeAnyAdapter",
+        "immutableAdmissionCapturesProvenanceAndMustMatchBothIdentities",
+        "missingIntentionAndProvenanceAreInvalid",
+        "exactIntentionEqualityIncludesOperationTokenTargetAndAdmission",
+        "publicResultExposesOnlyChangedTargetAndVersionOrClosedRejection",
+        "storedRequestDistinguishesPendingAndTerminalAndRequiresExactResultPresence",
+        "clientIntentionCannotChooseUserAndResultCannotDiscloseTokenOrUser",
+        "observationRequiresEngineReadSnapshotAndReturnsExistingRecoveryVocabulary"
+      ],
+      "com.kartaguez.pocoma.engine.consume.registration.v3.ExecuteIdentityRequestTest": [
+        "l3_participant_order",
+        "l3_technical_not_rejected",
+        "l3_rejection_terminal"
+      ],
+      "com.kartaguez.pocoma.domain.pot.v3.PotAuthorizationTest": [
+        "d07EveryMutationRoleAndPotLifecycleCell",
+        "d08AttachmentDetachmentAndGeneralMultipleAttachment",
+        "d09InvitationEligibilityAndDeletedTargets"
+      ],
+      "com.kartaguez.pocoma.domain.pot.v3.PotTransitionsTest": [
+        "l1a01ImmutableEnvelopesAndCollections",
+        "l1a02CreationVersionsAndStableIdentities",
+        "l1a03ChangedContainsExactlyEffectiveRevisions",
+        "l1a04ObsolescencePrecedesEqualityIncludingReturnToOldValue",
+        "l1a05AtomicWeightBatchesAndPermutations",
+        "l1a06PotDetailsRightsLifecycleAndObservation",
+        "l1a07DetailsAndWeightsAreIndependent",
+        "l1a08FinancialsReferenceAndEqualityVariants",
+        "l1a09DeletionDependenciesAndHeaderOnlyChanges",
+        "l1a10ShareholderDeletionRequiresCreatorAndExhaustiveAbsence",
+        "l1a11ExactRationalsAndIntrinsicFinancialInvariants",
+        "l1a12MixedFactsAreTechnicalAnomalies",
+        "l1a13DeterministicReevaluationPreservesInitialObservation",
+        "l1a14HistoricalCompositionsAndOrdinaryAttachment"
+      ],
+      "com.kartaguez.pocoma.domain.pot.v3.InvitationAttachmentTest": [
+        "outsiderAndUnattachedCreatorAttachOnlyThemselvesWithOneDetailsRevision",
+        "occupiedDeletedAbsentAndAlreadyAttachedRemainRejected",
+        "mixedOrMissingDurableFactsAreTechnicalAnomalies"
+      ],
+      "com.kartaguez.pocoma.domain.pot.aggregate.ShareholderIdentityCollisionTest": [
+        "generatedCollisionCannotReplaceExistingOrEarlierAddedShareholder"
+      ]
+    },
+    "assumptions": "Original toolchain/settings/effective POM/PG observations retained; no new environment certification",
+    "limitations": "Dirty HEAD remains dirty where recorded. Input equality is not a clean historical commit or a fresh run. These filtered recipes are not canonical gates.",
+    "archive": {
+      "path": "docs/testing/evidence/L3-I5/reused/gemini-fast/raw.tar.gz",
+      "bytes": 223150,
+      "sha256": "2c9d37d25567624f5674528e42518cf1638da868c39ba6c9971c4462a380fb90"
+    },
+    "plan": {
+      "path": "docs/testing/evidence/L3-I5/reused/gemini-fast/plan.json.gz",
+      "bytes": 7146,
+      "sha256": "2795c7ad3de4b6cd4bd1d26f10f72a39f1689eecb03166b86a897436730797be"
+    },
+    "result": {
+      "path": "docs/testing/evidence/L3-I5/reused/gemini-fast/result.json.gz",
+      "bytes": 8222,
+      "sha256": "b66088b2a5a010633271eb82430660f4dae9a2cd08a6a94df96e6c56ac8d192b"
+    },
+    "provenance": {
+      "path": "docs/testing/evidence/L3-I5/reused/gemini-fast/provenance.json.gz",
+      "bytes": 65541,
+      "sha256": "bcf31ec66d319edd2866d2ef2cc538c43c61c4a307451f13935fa910406c211c"
+    }
+  },
+  "gemini-change": {
+    "original_directory": "/private/var/folders/tv/bctjvrln2mn7t3z1vc6b2wz80000gn/T/pocoma-verify-1793519316779765000",
+    "historical": true,
+    "not_a_fresh_i5_execution": true,
+    "tested_git_head": "0092b4d1bafe644017717865a620f0a35b68fbb5",
+    "dirty_state": " M runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/I5TemporalV2Postgres.java\n M runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/I5TemporalV2Test.java\n M runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/V3WorkerResourcesPostgresTest.java\n M ../scripts/testing/test_verification.py\n M ../scripts/testing/verification-campaigns.json\n M ../scripts/testing/verify.py\n?? ../scripts/testing/__pycache__/\n",
+    "executed_app_inputs_equal_commit": "0ba18ec1e2fb9d9ead4e6ff84b9c839048c82dc3",
+    "app_inputs_checked": 1265,
+    "external_sql_checked": 6,
+    "control_inputs_match": true,
+    "command": [
+      "./mvnw",
+      "--batch-mode",
+      "--no-transfer-progress",
+      "-pl",
+      "runtime-command-consumption-worker",
+      "-am",
+      "-Dtest=com.kartaguez.pocoma.domain.pot.aggregate.ShareholderIdentityCollisionTest,com.kartaguez.pocoma.domain.pot.v3.InvitationAttachmentTest,com.kartaguez.pocoma.domain.pot.v3.PotAuthorizationTest,com.kartaguez.pocoma.domain.pot.v3.PotTransitionsTest,com.kartaguez.pocoma.domain.useridentity.UserIdentityModelTest,com.kartaguez.pocoma.domain.useridentity.v3.IdentityTransitionsTest,com.kartaguez.pocoma.domain.useridentity.v3.IdentityValueContractsTest,com.kartaguez.pocoma.engine.consume.registration.v3.ExecuteIdentityRequestTest,com.kartaguez.pocoma.engine.consume.registration.v3.IdentityRequestContractTest,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.BindingTokenGeneratorTest,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityAuthorityPostgresTest,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityConcurrencyPostgresTest,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityDiscoveryPostgresTest,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityPotAuthorityPostgresTest,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityPrivilegesPostgresTest,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityPublicationPostgresTest,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityRequestExecutionPostgresTest,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentitySchemaPostgresTest,com.kartaguez.pocoma.runtime.command.v3.V3IdentityPotCommandPostgresTest,com.kartaguez.pocoma.runtime.command.v3.V3IdentityRequestCompositionPostgresTest",
+      "-Dsurefire.failIfNoSpecifiedTests=false",
+      "-Dpocoma.verification.id=381ee72ab43a4d0fa3cbb255deb9f1ec",
+      "-Dpocoma.verification.reports=/private/var/folders/tv/bctjvrln2mn7t3z1vc6b2wz80000gn/T/pocoma-verify-1793519316779765000/reports",
+      "test"
+    ],
+    "invocation_id": "381ee72ab43a4d0fa3cbb255deb9f1ec",
+    "counts": {
+      "tests": 149,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "verdict": "PASS",
+    "seconds": 473.81186,
+    "modules": [
+      "domain-authorization",
+      "domain-event",
+      "domain-user-identity",
+      "contracts-authentication",
+      "domain-pot",
+      "domain-projection",
+      "domain-consumption",
+      "port-transaction",
+      "port-binding-authority",
+      "engine-consumption",
+      "contracts-command",
+      "engine-write-pot",
+      "engine-consume-command",
+      "orchestrator-consumption",
+      "supra-consume-command",
+      "engine-read-command-result",
+      "engine-materialize-command-result",
+      "supra-consume-command-result",
+      "contracts-registration",
+      "engine-admit-registration",
+      "engine-consume-registration",
+      "supra-consume-registration",
+      "engine-read-registration-result",
+      "engine-materialize-registration-result",
+      "supra-consume-registration-result",
+      "port-projection",
+      "engine-produce-projection-task",
+      "engine-read-projection",
+      "projector-pot",
+      "engine-consume-projection-task",
+      "supra-consume-projection-task",
+      "engine-read-current-binding",
+      "engine-read-pot",
+      "engine-materialize-current-binding",
+      "engine-materialize-latest-known-version",
+      "infra-persistence-projection-jdbc",
+      "infra-persistence-read-jdbc",
+      "contracts-observability",
+      "infra-tx-spring",
+      "engine-admit-command",
+      "supra-consume-lkv",
+      "infra-persistence-primary-jpa",
+      "infra-projection-validation-networknt",
+      "orchestrator-poll-consumption",
+      "supra-consume-event",
+      "supra-consume-binding",
+      "supra-http-write",
+      "supra-http-read",
+      "composition-runtime-spring",
+      "runtime-command-consumption-worker"
+    ],
+    "expected": {
+      "com.kartaguez.pocoma.domain.useridentity.v3.IdentityValueContractsTest": [
+        "idsAndTokensHaveExactOpaqueValueSemanticsWithoutGenerationOrOrdering",
+        "statesRequirePositiveVersionAndUserTokenTogether",
+        "changedIsNonemptyAndCanOnlyCreateTheUserOfItsNewBoundState",
+        "tokensNeverAppearInDefaultDiagnosticRepresentations",
+        "externalKeysPreserveOpaqueTextWithoutCaseUrlOrUnicodeNormalization",
+        "independentUtf8VectorsOrderIssuerThenSubjectWithPrefixesAndUnsignedBytes",
+        "allPermutationsOfCanonicalVectorGroupsSortAndDeduplicateExactKeys",
+        "nulAndIsolatedSurrogatesAreRejectedInEitherFieldAndEitherOperand"
+      ],
+      "com.kartaguez.pocoma.domain.useridentity.v3.IdentityTransitionsTest": [
+        "registrationOfAbsentIdentityCreatesUserAndDirectlyBoundVersionOne",
+        "registrationOfFreeIdentityKeepsIdAndCreatesExactSuccessorAndNewUser",
+        "registrationRejectsBoundIdentityWithoutAUserOrStateChange",
+        "linkAbsentTargetDeducesUserFromInitiatorWithoutCreatingUser",
+        "linkFreeTargetRetainsIdAndExactSuccessor",
+        "selfLinkIsStrictlyRejected",
+        "absentFreeOrStaleInitiatorCannotLinkOrUnlink",
+        "unlinkOtherIdentityOfSameUserDoesNotRequireItsToken",
+        "selfAndLastUnlinkOnlyChangeEuiAndNeverDeleteUser",
+        "unlinkRejectsAbsentFreeAndAnotherUsersTarget",
+        "localHistoryOneThroughFivePreservesOldStatesAndRenewsTokensEvenForSameUser",
+        "crossedUnlinksLoseInitiatorAuthorityAfterFirstSuccess",
+        "inconsistentSnapshotsIdsAndKnownUsedCandidateTokenAreFaults",
+        "versionOverflowIsAFaultAndNeverWrapsToZeroOrNegative",
+        "requiredCandidatesAndSnapshotsCannotBeNull",
+        "linkRejectsAlreadyBoundTargetEvenToSameUser(boolean)[1]",
+        "linkRejectsAlreadyBoundTargetEvenToSameUser(boolean)[2]"
+      ],
+      "com.kartaguez.pocoma.domain.useridentity.UserIdentityModelTest": [
+        "bindingIdIsAnOpaqueUuidValueWithoutOrdering",
+        "externalIdentityPreservesExactIssuerAndSubjectEquality",
+        "userContainsOnlyItsCanonicalIdentity",
+        "bindingRevisionHasLocalNonNegativeValueSemantics",
+        "attachedFactRequiresACompletePositiveRevisionShape",
+        "detachedFactRequiresACompletePositiveRevisionShapeWithUserId"
+      ],
+      "com.kartaguez.pocoma.engine.consume.registration.v3.IdentityRequestContractTest": [
+        "registrationTargetsOnlyItsAuthenticatedRequesterAndOmitsToken",
+        "linkAndUnlinkRequireInitiatorTokenAndAnExactTargetIncludingSelf",
+        "externalUnicodeRemainsExactAndUnstorableKeysFailBeforeAnyAdapter",
+        "immutableAdmissionCapturesProvenanceAndMustMatchBothIdentities",
+        "missingIntentionAndProvenanceAreInvalid",
+        "exactIntentionEqualityIncludesOperationTokenTargetAndAdmission",
+        "publicResultExposesOnlyChangedTargetAndVersionOrClosedRejection",
+        "storedRequestDistinguishesPendingAndTerminalAndRequiresExactResultPresence",
+        "clientIntentionCannotChooseUserAndResultCannotDiscloseTokenOrUser",
+        "observationRequiresEngineReadSnapshotAndReturnsExistingRecoveryVocabulary"
+      ],
+      "com.kartaguez.pocoma.engine.consume.registration.v3.ExecuteIdentityRequestTest": [
+        "l3_participant_order",
+        "l3_technical_not_rejected",
+        "l3_rejection_terminal"
+      ],
+      "com.kartaguez.pocoma.domain.pot.v3.PotAuthorizationTest": [
+        "d07EveryMutationRoleAndPotLifecycleCell",
+        "d08AttachmentDetachmentAndGeneralMultipleAttachment",
+        "d09InvitationEligibilityAndDeletedTargets"
+      ],
+      "com.kartaguez.pocoma.domain.pot.v3.PotTransitionsTest": [
+        "l1a01ImmutableEnvelopesAndCollections",
+        "l1a02CreationVersionsAndStableIdentities",
+        "l1a03ChangedContainsExactlyEffectiveRevisions",
+        "l1a04ObsolescencePrecedesEqualityIncludingReturnToOldValue",
+        "l1a05AtomicWeightBatchesAndPermutations",
+        "l1a06PotDetailsRightsLifecycleAndObservation",
+        "l1a07DetailsAndWeightsAreIndependent",
+        "l1a08FinancialsReferenceAndEqualityVariants",
+        "l1a09DeletionDependenciesAndHeaderOnlyChanges",
+        "l1a10ShareholderDeletionRequiresCreatorAndExhaustiveAbsence",
+        "l1a11ExactRationalsAndIntrinsicFinancialInvariants",
+        "l1a12MixedFactsAreTechnicalAnomalies",
+        "l1a13DeterministicReevaluationPreservesInitialObservation",
+        "l1a14HistoricalCompositionsAndOrdinaryAttachment"
+      ],
+      "com.kartaguez.pocoma.domain.pot.v3.InvitationAttachmentTest": [
+        "outsiderAndUnattachedCreatorAttachOnlyThemselvesWithOneDetailsRevision",
+        "occupiedDeletedAbsentAndAlreadyAttachedRemainRejected",
+        "mixedOrMissingDurableFactsAreTechnicalAnomalies"
+      ],
+      "com.kartaguez.pocoma.domain.pot.aggregate.ShareholderIdentityCollisionTest": [
+        "generatedCollisionCannotReplaceExistingOrEarlierAddedShareholder"
+      ],
+      "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.BindingTokenGeneratorTest": [
+        "l3_generator_contract",
+        "l3_real_secure_random_encoding"
+      ],
+      "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityAuthorityPostgresTest": [
+        "l3_history_exact",
+        "l3_last_unlink_and_registration_free",
+        "l3_anchor_absence",
+        "l3_forced_token_collision",
+        "l3_rollback_boundaries",
+        "l3_guards_and_caught_failure_poison"
+      ],
+      "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityConcurrencyPostgresTest": [
+        "l3_registration_race",
+        "l3_link_races",
+        "l3_cross_unlinks",
+        "l3_link_vs_initiator_unlink",
+        "l3_anchor_id_race",
+        "l3_canonical_lock_paths",
+        "l3_canonical_unicode",
+        "l3_disjoint_progress"
+      ],
+      "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentitySchemaPostgresTest": [
+        "l3_sql_negative_shapes",
+        "l3_history_rewrite_forbidden",
+        "l3_anchor_negative_invariants",
+        "l3_sql_publication_closure",
+        "l3_position_constraints",
+        "l3_constraint_catalog",
+        "l3_unstorable_keys",
+        "l3_fk_wait_is_in_prefix",
+        "l3_deferred_commit_has_no_new_business_locks",
+        "l3_bad_server_encoding_preflight",
+        "l3_other_family_suffix_is_untouched"
+      ],
+      "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityPrivilegesPostgresTest": [
+        "l3_internal_admission_idempotence",
+        "l3_effective_privileges",
+        "l3_wrong_authority"
+      ],
+      "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityRequestExecutionPostgresTest": [
+        "l3_atomic_registration",
+        "l3_atomic_link_unlink",
+        "l3_rejection_terminal",
+        "l3_rollback_each_boundary",
+        "l3_fencing",
+        "l3_workers_concurrent_registration",
+        "l3_retry_quarantine",
+        "l3_technical_not_rejected_and_redacted",
+        "l3_completion_misuse",
+        "l3_unavailable_observation",
+        "l3_final_lock_clock",
+        "l3_unknown_commit",
+        "l3_observation_corruption"
+      ],
+      "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityDiscoveryPostgresTest": [
+        "l3_burnable_discovery",
+        "l3_discovery_source_slot_race",
+        "l3_identity_windows"
+      ],
+      "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityPublicationPostgresTest": [
+        "l3_identity_batch",
+        "l3_dense_rollback",
+        "l3_constraints_before_close",
+        "l3_deferred_commit_checks",
+        "l3_identity_pair_contention",
+        "l3_structural_poison_before_counter",
+        "l3_suffix_closed",
+        "l3_physical_unit"
+      ],
+      "com.kartaguez.pocoma.runtime.command.v3.V3IdentityRequestCompositionPostgresTest": [
+        "l3_registration_command_and_relink_restart",
+        "l3_command_only_preflight",
+        "l3_runtime_identity",
+        "l3_identity_discovery_checkpoint",
+        "l3_preflight_negative",
+        "l3_indirect_exposure_refused",
+        "l3_delivered_jpa_rejects_prebound_holder",
+        "l3_logging_override_refused",
+        "l3_auxiliary_effective_privilege_matrix",
+        "l3_postgres_diagnostics_without_sensitive_detail"
+      ],
+      "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityPotAuthorityPostgresTest": [
+        "l3_absent_stable",
+        "l3_free_stable",
+        "l3_invalid_token_same_version",
+        "l3_valid_binding_and_foreign_token",
+        "l3_observation_change",
+        "l3_registration_vs_command",
+        "l3_command_vs_unlink_and_link",
+        "l3_identity_first_commit_and_rollback",
+        "l3_canonical_pot_path",
+        "l3_anchor_constraints_before_suffix",
+        "l3_no_hidden_transaction_and_redaction"
+      ],
+      "com.kartaguez.pocoma.runtime.command.v3.V3IdentityPotCommandPostgresTest": [
+        "l3_negative_stable_and_a1_sql",
+        "l3_a1_illicit_version_rejected",
+        "l3_observation_change_and_l2_retry",
+        "l3_command_lock_until_resolution",
+        "l3_rollback_boundaries",
+        "l3_registration_and_same_user_relink_collide_in_engine",
+        "l3_atomic_command_physical_unit_and_closed_suffix",
+        "l3_real_authority_preserves_claim_fencing",
+        "l3_unknown_commit"
+      ]
+    },
+    "assumptions": "Original toolchain/settings/effective POM/PG observations retained; no new environment certification",
+    "limitations": "Dirty HEAD remains dirty where recorded. Input equality is not a clean historical commit or a fresh run. These filtered recipes are not canonical gates.",
+    "archive": {
+      "path": "docs/testing/evidence/L3-I5/reused/gemini-change/raw.tar.gz",
+      "bytes": 1337821,
+      "sha256": "eeccceca7fb11620b03a80e9e2afb8337a5f9b42ce4a9a94a1e27746fb2e41db"
+    },
+    "plan": {
+      "path": "docs/testing/evidence/L3-I5/reused/gemini-change/plan.json.gz",
+      "bytes": 8545,
+      "sha256": "38cedfd166fbf62a5494370343052feed10fa7d71bb4a43f023dc53708b04a98"
+    },
+    "result": {
+      "path": "docs/testing/evidence/L3-I5/reused/gemini-change/result.json.gz",
+      "bytes": 18381,
+      "sha256": "6c0dd2bb75fc1eae79855f6aaf0959092f5c47389b0cd02ebd7bd59dd4d7e3c9"
+    },
+    "provenance": {
+      "path": "docs/testing/evidence/L3-I5/reused/gemini-change/provenance.json.gz",
+      "bytes": 65862,
+      "sha256": "0ea9820ef0dae79d9750a15df95f14f25e8628355f0663e5eb8bf1c6d1ceeb0b"
+    }
+  },
+  "gemini-integration": {
+    "original_directory": "/private/var/folders/tv/bctjvrln2mn7t3z1vc6b2wz80000gn/T/pocoma-verify-1793520530820202000",
+    "historical": true,
+    "not_a_fresh_i5_execution": true,
+    "tested_git_head": "028930e09c680823dc2ee1f24da3e48df1d0ceae",
+    "dirty_state": "",
+    "executed_app_inputs_equal_commit": "0ba18ec1e2fb9d9ead4e6ff84b9c839048c82dc3",
+    "app_inputs_checked": 1265,
+    "external_sql_checked": 7,
+    "control_inputs_match": true,
+    "command": [
+      "./mvnw",
+      "--batch-mode",
+      "--no-transfer-progress",
+      "-pl",
+      "runtime-command-consumption-worker,runtime-monolith",
+      "-am",
+      "-Dtest=com.kartaguez.pocoma.V3IdentityRequestMonolithPostgresTest,com.kartaguez.pocoma.domain.pot.aggregate.ShareholderIdentityCollisionTest,com.kartaguez.pocoma.domain.pot.v3.InvitationAttachmentTest,com.kartaguez.pocoma.domain.pot.v3.PotAuthorizationTest,com.kartaguez.pocoma.domain.pot.v3.PotTransitionsTest,com.kartaguez.pocoma.domain.useridentity.UserIdentityModelTest,com.kartaguez.pocoma.domain.useridentity.v3.IdentityTransitionsTest,com.kartaguez.pocoma.domain.useridentity.v3.IdentityValueContractsTest,com.kartaguez.pocoma.engine.consume.registration.v3.ExecuteIdentityRequestTest,com.kartaguez.pocoma.engine.consume.registration.v3.IdentityRequestContractTest,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.BindingTokenGeneratorTest,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityAuthorityPostgresTest,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityConcurrencyPostgresTest,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityDiscoveryPostgresTest,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityPotAuthorityPostgresTest,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityPrivilegesPostgresTest,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityPublicationPostgresTest,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityRequestExecutionPostgresTest,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentitySchemaPostgresTest,com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest,com.kartaguez.pocoma.infra.tx.spring.v3.V3FoundationCompositionTest,com.kartaguez.pocoma.infra.tx.spring.v3.V3HistoricalIntervalPostgresTest,com.kartaguez.pocoma.infra.tx.spring.v3.V3SchemaIsolationPostgresTest,com.kartaguez.pocoma.infra.tx.spring.v3.V3TransactionFoundationPostgresTest,com.kartaguez.pocoma.runtime.command.v3.V3IdentityPotCommandPostgresTest,com.kartaguez.pocoma.runtime.command.v3.V3IdentityRequestCompositionPostgresTest,com.kartaguez.pocoma.runtime.command.v3.V3PotCommandCompositionPostgresTest,com.kartaguez.pocoma.runtime.command.v3.V3WorkerCompositionPostgresTest",
+      "-Dsurefire.failIfNoSpecifiedTests=false",
+      "-Dpocoma.verification.id=e883e4ec0614431a88498e65f3c5e349",
+      "-Dpocoma.verification.reports=/private/var/folders/tv/bctjvrln2mn7t3z1vc6b2wz80000gn/T/pocoma-verify-1793520530820202000/reports",
+      "test"
+    ],
+    "invocation_id": "e883e4ec0614431a88498e65f3c5e349",
+    "counts": {
+      "tests": 187,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "verdict": "PASS",
+    "seconds": 571.935724,
+    "modules": [
+      "domain-authorization",
+      "domain-event",
+      "domain-user-identity",
+      "contracts-authentication",
+      "domain-pot",
+      "domain-projection",
+      "domain-consumption",
+      "port-transaction",
+      "port-binding-authority",
+      "engine-consumption",
+      "contracts-command",
+      "engine-write-pot",
+      "engine-consume-command",
+      "orchestrator-consumption",
+      "supra-consume-command",
+      "engine-read-command-result",
+      "engine-materialize-command-result",
+      "supra-consume-command-result",
+      "contracts-registration",
+      "engine-admit-registration",
+      "engine-consume-registration",
+      "supra-consume-registration",
+      "engine-read-registration-result",
+      "engine-materialize-registration-result",
+      "supra-consume-registration-result",
+      "port-projection",
+      "engine-produce-projection-task",
+      "engine-read-projection",
+      "projector-pot",
+      "engine-consume-projection-task",
+      "supra-consume-projection-task",
+      "engine-read-current-binding",
+      "engine-read-pot",
+      "engine-materialize-current-binding",
+      "engine-materialize-latest-known-version",
+      "infra-persistence-projection-jdbc",
+      "infra-persistence-read-jdbc",
+      "contracts-observability",
+      "infra-tx-spring",
+      "engine-admit-command",
+      "supra-consume-lkv",
+      "infra-persistence-primary-jpa",
+      "infra-projection-validation-networknt",
+      "orchestrator-poll-consumption",
+      "supra-consume-event",
+      "supra-consume-binding",
+      "supra-http-write",
+      "supra-http-read",
+      "composition-runtime-spring",
+      "runtime-monolith",
+      "runtime-command-consumption-worker"
+    ],
+    "expected": {
+      "com.kartaguez.pocoma.domain.useridentity.v3.IdentityValueContractsTest": [
+        "idsAndTokensHaveExactOpaqueValueSemanticsWithoutGenerationOrOrdering",
+        "statesRequirePositiveVersionAndUserTokenTogether",
+        "changedIsNonemptyAndCanOnlyCreateTheUserOfItsNewBoundState",
+        "tokensNeverAppearInDefaultDiagnosticRepresentations",
+        "externalKeysPreserveOpaqueTextWithoutCaseUrlOrUnicodeNormalization",
+        "independentUtf8VectorsOrderIssuerThenSubjectWithPrefixesAndUnsignedBytes",
+        "allPermutationsOfCanonicalVectorGroupsSortAndDeduplicateExactKeys",
+        "nulAndIsolatedSurrogatesAreRejectedInEitherFieldAndEitherOperand"
+      ],
+      "com.kartaguez.pocoma.domain.useridentity.v3.IdentityTransitionsTest": [
+        "registrationOfAbsentIdentityCreatesUserAndDirectlyBoundVersionOne",
+        "registrationOfFreeIdentityKeepsIdAndCreatesExactSuccessorAndNewUser",
+        "registrationRejectsBoundIdentityWithoutAUserOrStateChange",
+        "linkAbsentTargetDeducesUserFromInitiatorWithoutCreatingUser",
+        "linkFreeTargetRetainsIdAndExactSuccessor",
+        "selfLinkIsStrictlyRejected",
+        "absentFreeOrStaleInitiatorCannotLinkOrUnlink",
+        "unlinkOtherIdentityOfSameUserDoesNotRequireItsToken",
+        "selfAndLastUnlinkOnlyChangeEuiAndNeverDeleteUser",
+        "unlinkRejectsAbsentFreeAndAnotherUsersTarget",
+        "localHistoryOneThroughFivePreservesOldStatesAndRenewsTokensEvenForSameUser",
+        "crossedUnlinksLoseInitiatorAuthorityAfterFirstSuccess",
+        "inconsistentSnapshotsIdsAndKnownUsedCandidateTokenAreFaults",
+        "versionOverflowIsAFaultAndNeverWrapsToZeroOrNegative",
+        "requiredCandidatesAndSnapshotsCannotBeNull",
+        "linkRejectsAlreadyBoundTargetEvenToSameUser(boolean)[1]",
+        "linkRejectsAlreadyBoundTargetEvenToSameUser(boolean)[2]"
+      ],
+      "com.kartaguez.pocoma.domain.useridentity.UserIdentityModelTest": [
+        "bindingIdIsAnOpaqueUuidValueWithoutOrdering",
+        "externalIdentityPreservesExactIssuerAndSubjectEquality",
+        "userContainsOnlyItsCanonicalIdentity",
+        "bindingRevisionHasLocalNonNegativeValueSemantics",
+        "attachedFactRequiresACompletePositiveRevisionShape",
+        "detachedFactRequiresACompletePositiveRevisionShapeWithUserId"
+      ],
+      "com.kartaguez.pocoma.engine.consume.registration.v3.IdentityRequestContractTest": [
+        "registrationTargetsOnlyItsAuthenticatedRequesterAndOmitsToken",
+        "linkAndUnlinkRequireInitiatorTokenAndAnExactTargetIncludingSelf",
+        "externalUnicodeRemainsExactAndUnstorableKeysFailBeforeAnyAdapter",
+        "immutableAdmissionCapturesProvenanceAndMustMatchBothIdentities",
+        "missingIntentionAndProvenanceAreInvalid",
+        "exactIntentionEqualityIncludesOperationTokenTargetAndAdmission",
+        "publicResultExposesOnlyChangedTargetAndVersionOrClosedRejection",
+        "storedRequestDistinguishesPendingAndTerminalAndRequiresExactResultPresence",
+        "clientIntentionCannotChooseUserAndResultCannotDiscloseTokenOrUser",
+        "observationRequiresEngineReadSnapshotAndReturnsExistingRecoveryVocabulary"
+      ],
+      "com.kartaguez.pocoma.engine.consume.registration.v3.ExecuteIdentityRequestTest": [
+        "l3_participant_order",
+        "l3_technical_not_rejected",
+        "l3_rejection_terminal"
+      ],
+      "com.kartaguez.pocoma.domain.pot.v3.PotAuthorizationTest": [
+        "d07EveryMutationRoleAndPotLifecycleCell",
+        "d08AttachmentDetachmentAndGeneralMultipleAttachment",
+        "d09InvitationEligibilityAndDeletedTargets"
+      ],
+      "com.kartaguez.pocoma.domain.pot.v3.PotTransitionsTest": [
+        "l1a01ImmutableEnvelopesAndCollections",
+        "l1a02CreationVersionsAndStableIdentities",
+        "l1a03ChangedContainsExactlyEffectiveRevisions",
+        "l1a04ObsolescencePrecedesEqualityIncludingReturnToOldValue",
+        "l1a05AtomicWeightBatchesAndPermutations",
+        "l1a06PotDetailsRightsLifecycleAndObservation",
+        "l1a07DetailsAndWeightsAreIndependent",
+        "l1a08FinancialsReferenceAndEqualityVariants",
+        "l1a09DeletionDependenciesAndHeaderOnlyChanges",
+        "l1a10ShareholderDeletionRequiresCreatorAndExhaustiveAbsence",
+        "l1a11ExactRationalsAndIntrinsicFinancialInvariants",
+        "l1a12MixedFactsAreTechnicalAnomalies",
+        "l1a13DeterministicReevaluationPreservesInitialObservation",
+        "l1a14HistoricalCompositionsAndOrdinaryAttachment"
+      ],
+      "com.kartaguez.pocoma.domain.pot.v3.InvitationAttachmentTest": [
+        "outsiderAndUnattachedCreatorAttachOnlyThemselvesWithOneDetailsRevision",
+        "occupiedDeletedAbsentAndAlreadyAttachedRemainRejected",
+        "mixedOrMissingDurableFactsAreTechnicalAnomalies"
+      ],
+      "com.kartaguez.pocoma.domain.pot.aggregate.ShareholderIdentityCollisionTest": [
+        "generatedCollisionCannotReplaceExistingOrEarlierAddedShareholder"
+      ],
+      "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.BindingTokenGeneratorTest": [
+        "l3_generator_contract",
+        "l3_real_secure_random_encoding"
+      ],
+      "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityAuthorityPostgresTest": [
+        "l3_history_exact",
+        "l3_last_unlink_and_registration_free",
+        "l3_anchor_absence",
+        "l3_forced_token_collision",
+        "l3_rollback_boundaries",
+        "l3_guards_and_caught_failure_poison"
+      ],
+      "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityConcurrencyPostgresTest": [
+        "l3_registration_race",
+        "l3_link_races",
+        "l3_cross_unlinks",
+        "l3_link_vs_initiator_unlink",
+        "l3_anchor_id_race",
+        "l3_canonical_lock_paths",
+        "l3_canonical_unicode",
+        "l3_disjoint_progress"
+      ],
+      "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentitySchemaPostgresTest": [
+        "l3_sql_negative_shapes",
+        "l3_history_rewrite_forbidden",
+        "l3_anchor_negative_invariants",
+        "l3_sql_publication_closure",
+        "l3_position_constraints",
+        "l3_constraint_catalog",
+        "l3_unstorable_keys",
+        "l3_fk_wait_is_in_prefix",
+        "l3_deferred_commit_has_no_new_business_locks",
+        "l3_bad_server_encoding_preflight",
+        "l3_other_family_suffix_is_untouched"
+      ],
+      "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityPrivilegesPostgresTest": [
+        "l3_internal_admission_idempotence",
+        "l3_effective_privileges",
+        "l3_wrong_authority"
+      ],
+      "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityRequestExecutionPostgresTest": [
+        "l3_atomic_registration",
+        "l3_atomic_link_unlink",
+        "l3_rejection_terminal",
+        "l3_rollback_each_boundary",
+        "l3_fencing",
+        "l3_workers_concurrent_registration",
+        "l3_retry_quarantine",
+        "l3_technical_not_rejected_and_redacted",
+        "l3_completion_misuse",
+        "l3_unavailable_observation",
+        "l3_final_lock_clock",
+        "l3_unknown_commit",
+        "l3_observation_corruption"
+      ],
+      "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityDiscoveryPostgresTest": [
+        "l3_burnable_discovery",
+        "l3_discovery_source_slot_race",
+        "l3_identity_windows"
+      ],
+      "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityPublicationPostgresTest": [
+        "l3_identity_batch",
+        "l3_dense_rollback",
+        "l3_constraints_before_close",
+        "l3_deferred_commit_checks",
+        "l3_identity_pair_contention",
+        "l3_structural_poison_before_counter",
+        "l3_suffix_closed",
+        "l3_physical_unit"
+      ],
+      "com.kartaguez.pocoma.runtime.command.v3.V3IdentityRequestCompositionPostgresTest": [
+        "l3_registration_command_and_relink_restart",
+        "l3_command_only_preflight",
+        "l3_runtime_identity",
+        "l3_identity_discovery_checkpoint",
+        "l3_preflight_negative",
+        "l3_indirect_exposure_refused",
+        "l3_delivered_jpa_rejects_prebound_holder",
+        "l3_logging_override_refused",
+        "l3_auxiliary_effective_privilege_matrix",
+        "l3_postgres_diagnostics_without_sensitive_detail"
+      ],
+      "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityPotAuthorityPostgresTest": [
+        "l3_absent_stable",
+        "l3_free_stable",
+        "l3_invalid_token_same_version",
+        "l3_valid_binding_and_foreign_token",
+        "l3_observation_change",
+        "l3_registration_vs_command",
+        "l3_command_vs_unlink_and_link",
+        "l3_identity_first_commit_and_rollback",
+        "l3_canonical_pot_path",
+        "l3_anchor_constraints_before_suffix",
+        "l3_no_hidden_transaction_and_redaction"
+      ],
+      "com.kartaguez.pocoma.runtime.command.v3.V3IdentityPotCommandPostgresTest": [
+        "l3_negative_stable_and_a1_sql",
+        "l3_a1_illicit_version_rejected",
+        "l3_observation_change_and_l2_retry",
+        "l3_command_lock_until_resolution",
+        "l3_rollback_boundaries",
+        "l3_registration_and_same_user_relink_collide_in_engine",
+        "l3_atomic_command_physical_unit_and_closed_suffix",
+        "l3_real_authority_preserves_claim_fencing",
+        "l3_unknown_commit"
+      ],
+      "com.kartaguez.pocoma.V3IdentityRequestMonolithPostgresTest": [
+        "l3_registration_command_and_relink_restart",
+        "l3_command_only_preflight",
+        "l3_runtime_identity",
+        "l3_preflight_negative",
+        "l3_indirect_exposure_refused",
+        "l3_delivered_jpa_rejects_prebound_holder",
+        "l3_logging_override_refused"
+      ],
+      "com.kartaguez.pocoma.runtime.command.v3.V3WorkerCompositionPostgresTest": [
+        "i5_c01",
+        "i5_c02",
+        "i5_c03",
+        "i5_c04",
+        "i5_c05"
+      ],
+      "com.kartaguez.pocoma.runtime.command.v3.V3PotCommandCompositionPostgresTest": [
+        "compositionUsesOneWriteManagerAndExplicitAuthority",
+        "l3_composition_real_authority_and_classifier"
+      ],
+      "com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest": [
+        "jpaJdbcSamePidXidAndClosedContextCannotDirtyWriteAtCommit",
+        "guardedLateCallbackRefusedBeforeSqlAndRollback",
+        "caughtApplicationJdbcJpaFailuresPoisonBothWriteOrders",
+        "autonomousRevisionCaughtFailurePoisonsJpaAndJdbcCallers",
+        "requiresNewJpaAndJdbcCannotCommitEffectOrDelete",
+        "nestedAmbientWrongSourceAndWrongEmfRefused",
+        "sameOwnerReadAuthorityAtomicAndContextCannotCrossAuthorityOrLifetime",
+        "commitServerRejectionRollbackAndMaskedCommitRemainDistinct",
+        "originalCallbackCauseSurvivesRollbackFailureAndConfirmedCommitWinsCleanup"
+      ],
+      "com.kartaguez.pocoma.infra.tx.spring.v3.V3TransactionFoundationPostgresTest": [
+        "jpaAndJdbcSharePhysicalTransactionAndBecomeVisibleOnlyAfterCommit",
+        "rollbackInBothWriteOrdersLeavesNoJpaOrJdbcEffect",
+        "caughtRequiredParticipantFailureStillRollsBackTheOwner",
+        "deferredConstraintFailureAtCommitRestoresAllEffects",
+        "observerFailureAfterCommitDoesNotMeanRollback",
+        "contendingConnectionsWaitForPhysicalRollbackBeforeCommitting"
+      ],
+      "com.kartaguez.pocoma.infra.tx.spring.v3.V3HistoricalIntervalPostgresTest": [
+        "resolvesSemiOpenBoundariesAndOpenEndInAnyOrder",
+        "closesAndOpensAtomicallyAndRollbackPreservesHistory",
+        "rejectsInvalidIntervalsAndDuplicateOpenVersions",
+        "reportsGapsAndOverlapsInsteadOfFallingBackToCurrent"
+      ],
+      "com.kartaguez.pocoma.infra.tx.spring.v3.V3SchemaIsolationPostgresTest": [
+        "installsOnlyTheExplicitFoundationFixtureOnRealPostgres",
+        "restartValidatesWithoutReexecutingAndKeepsIndependentHistories"
+      ],
+      "com.kartaguez.pocoma.infra.tx.spring.v3.V3FoundationCompositionTest": [
+        "existingConfigurationInjectsTheActualManagerWithoutApplicationBootstrap",
+        "ambiguousManagersAreRefusedInsteadOfSilentlyChoosingAnAuthority",
+        "explicitRealmCompositionUsesIndependentPhysicalTransactions"
+      ]
+    },
+    "assumptions": "Original toolchain/settings/effective POM/PG observations retained; no new environment certification",
+    "limitations": "Dirty HEAD remains dirty where recorded. Input equality is not a clean historical commit or a fresh run. These filtered recipes are not canonical gates.",
+    "archive": {
+      "path": "docs/testing/evidence/L3-I5/reused/gemini-integration/raw.tar.gz",
+      "bytes": 1480902,
+      "sha256": "c1834214b0bff5d29335583ac0236f7e4a64ded4e22335ab4bb37df685a8a539"
+    },
+    "plan": {
+      "path": "docs/testing/evidence/L3-I5/reused/gemini-integration/plan.json.gz",
+      "bytes": 9389,
+      "sha256": "3329572a15dac953fb8ab0dfaa20e17599099cf1d762f379fea00bfa9815f4af"
+    },
+    "result": {
+      "path": "docs/testing/evidence/L3-I5/reused/gemini-integration/result.json.gz",
+      "bytes": 21132,
+      "sha256": "bd2470fb2716efff60e77cf533efb6d5cca7eeeb3ddad8d50405d318bf02711d"
+    },
+    "provenance": {
+      "path": "docs/testing/evidence/L3-I5/reused/gemini-integration/provenance.json.gz",
+      "bytes": 65784,
+      "sha256": "e5f033491ea3469d6ad51c6149723f228cf97569911dfedd32b6e927fc115eaa"
+    }
+  },
+  "gemini-foundation": {
+    "original_directory": "/private/var/folders/tv/bctjvrln2mn7t3z1vc6b2wz80000gn/T/pocoma-verify-1793521205617258000",
+    "historical": true,
+    "not_a_fresh_i5_execution": true,
+    "tested_git_head": "028930e09c680823dc2ee1f24da3e48df1d0ceae",
+    "dirty_state": "",
+    "executed_app_inputs_equal_commit": "0ba18ec1e2fb9d9ead4e6ff84b9c839048c82dc3",
+    "app_inputs_checked": 1265,
+    "external_sql_checked": 0,
+    "control_inputs_match": true,
+    "command": [
+      "./mvnw",
+      "--batch-mode",
+      "--no-transfer-progress",
+      "-pl",
+      "infra-tx-spring",
+      "-am",
+      "-Dtest=com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunnerTest,com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest,com.kartaguez.pocoma.infra.tx.spring.v3.V3FoundationCompositionTest,com.kartaguez.pocoma.infra.tx.spring.v3.V3HistoricalIntervalPostgresTest,com.kartaguez.pocoma.infra.tx.spring.v3.V3SchemaIsolationPostgresTest,com.kartaguez.pocoma.infra.tx.spring.v3.V3TransactionFoundationPostgresTest",
+      "-Dsurefire.failIfNoSpecifiedTests=false",
+      "-Dpocoma.verification.id=c4a573723a5b4d8dadc4d8e9aee1b074",
+      "-Dpocoma.verification.reports=/private/var/folders/tv/bctjvrln2mn7t3z1vc6b2wz80000gn/T/pocoma-verify-1793521205617258000/reports",
+      "test"
+    ],
+    "invocation_id": "c4a573723a5b4d8dadc4d8e9aee1b074",
+    "counts": {
+      "tests": 28,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "verdict": "PASS",
+    "seconds": 11.449183,
+    "modules": [
+      "port-transaction",
+      "infra-tx-spring"
+    ],
+    "expected": {
+      "com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunnerTest": [
+        "runsActionInTransaction",
+        "runsAfterCommitActionAfterTransactionCommits",
+        "doesNotRunAfterCommitActionWhenTransactionRollsBack",
+        "runsAfterCommitActionImmediatelyWhenNoTransactionIsActive"
+      ],
+      "com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest": [
+        "jpaJdbcSamePidXidAndClosedContextCannotDirtyWriteAtCommit",
+        "guardedLateCallbackRefusedBeforeSqlAndRollback",
+        "caughtApplicationJdbcJpaFailuresPoisonBothWriteOrders",
+        "autonomousRevisionCaughtFailurePoisonsJpaAndJdbcCallers",
+        "requiresNewJpaAndJdbcCannotCommitEffectOrDelete",
+        "nestedAmbientWrongSourceAndWrongEmfRefused",
+        "sameOwnerReadAuthorityAtomicAndContextCannotCrossAuthorityOrLifetime",
+        "commitServerRejectionRollbackAndMaskedCommitRemainDistinct",
+        "originalCallbackCauseSurvivesRollbackFailureAndConfirmedCommitWinsCleanup"
+      ],
+      "com.kartaguez.pocoma.infra.tx.spring.v3.V3FoundationCompositionTest": [
+        "existingConfigurationInjectsTheActualManagerWithoutApplicationBootstrap",
+        "ambiguousManagersAreRefusedInsteadOfSilentlyChoosingAnAuthority",
+        "explicitRealmCompositionUsesIndependentPhysicalTransactions"
+      ],
+      "com.kartaguez.pocoma.infra.tx.spring.v3.V3HistoricalIntervalPostgresTest": [
+        "resolvesSemiOpenBoundariesAndOpenEndInAnyOrder",
+        "closesAndOpensAtomicallyAndRollbackPreservesHistory",
+        "rejectsInvalidIntervalsAndDuplicateOpenVersions",
+        "reportsGapsAndOverlapsInsteadOfFallingBackToCurrent"
+      ],
+      "com.kartaguez.pocoma.infra.tx.spring.v3.V3SchemaIsolationPostgresTest": [
+        "installsOnlyTheExplicitFoundationFixtureOnRealPostgres",
+        "restartValidatesWithoutReexecutingAndKeepsIndependentHistories"
+      ],
+      "com.kartaguez.pocoma.infra.tx.spring.v3.V3TransactionFoundationPostgresTest": [
+        "jpaAndJdbcSharePhysicalTransactionAndBecomeVisibleOnlyAfterCommit",
+        "rollbackInBothWriteOrdersLeavesNoJpaOrJdbcEffect",
+        "caughtRequiredParticipantFailureStillRollsBackTheOwner",
+        "deferredConstraintFailureAtCommitRestoresAllEffects",
+        "observerFailureAfterCommitDoesNotMeanRollback",
+        "contendingConnectionsWaitForPhysicalRollbackBeforeCommitting"
+      ]
+    },
+    "assumptions": "Original toolchain/settings/effective POM/PG observations retained; no new environment certification",
+    "limitations": "Dirty HEAD remains dirty where recorded. Input equality is not a clean historical commit or a fresh run. These filtered recipes are not canonical gates.",
+    "archive": {
+      "path": "docs/testing/evidence/L3-I5/reused/gemini-foundation/raw.tar.gz",
+      "bytes": 102535,
+      "sha256": "1ddda3b712fc55aae67e6752ce58c0e8b3b669fa8567fd5df458bf2d051018d1"
+    },
+    "plan": {
+      "path": "docs/testing/evidence/L3-I5/reused/gemini-foundation/plan.json.gz",
+      "bytes": 6171,
+      "sha256": "d6be9ab80674f188de7de64daca7284434e19739c17f07d9d01e10b7d0bacde1"
+    },
+    "result": {
+      "path": "docs/testing/evidence/L3-I5/reused/gemini-foundation/result.json.gz",
+      "bytes": 6769,
+      "sha256": "1f15571a1955843037d54e74a4d8b2a31c687a3f7bb662eacc85744231ad7426"
+    },
+    "provenance": {
+      "path": "docs/testing/evidence/L3-I5/reused/gemini-foundation/provenance.json.gz",
+      "bytes": 65404,
+      "sha256": "fccf807f86fed299fcf58697f1cde76bd381b666fabc186adbaa85dc87f5df32"
+    }
+  },
+  "gemini-r05": {
+    "original_directory": "/private/var/folders/tv/bctjvrln2mn7t3z1vc6b2wz80000gn/T/pocoma-verify-1793516018441464000",
+    "historical": true,
+    "not_a_fresh_i5_execution": true,
+    "tested_git_head": "0092b4d1bafe644017717865a620f0a35b68fbb5",
+    "dirty_state": " M runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/I5TemporalV2Postgres.java\n M runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/I5TemporalV2Test.java\n M runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/V3WorkerResourcesPostgresTest.java\n M ../scripts/testing/test_verification.py\n M ../scripts/testing/verification-campaigns.json\n M ../scripts/testing/verify.py\n?? ../scripts/testing/__pycache__/\n",
+    "executed_app_inputs_equal_commit": "0ba18ec1e2fb9d9ead4e6ff84b9c839048c82dc3",
+    "app_inputs_checked": 1265,
+    "external_sql_checked": 6,
+    "control_inputs_match": true,
+    "command": [
+      "./mvnw",
+      "--batch-mode",
+      "--no-transfer-progress",
+      "-pl",
+      "runtime-command-consumption-worker",
+      "-am",
+      "-Dtest=com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest#i5_r05",
+      "-Dsurefire.failIfNoSpecifiedTests=false",
+      "-Dpocoma.verification.id=cd87a634f2804df3bd91d312e74007fb",
+      "-Dpocoma.verification.reports=/private/var/folders/tv/bctjvrln2mn7t3z1vc6b2wz80000gn/T/pocoma-verify-1793516018441464000/reports",
+      "test"
+    ],
+    "invocation_id": "cd87a634f2804df3bd91d312e74007fb",
+    "counts": {
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "verdict": "PASS",
+    "seconds": 47.70041,
+    "modules": [
+      "domain-authorization",
+      "domain-event",
+      "domain-user-identity",
+      "contracts-authentication",
+      "domain-pot",
+      "domain-projection",
+      "domain-consumption",
+      "port-transaction",
+      "port-binding-authority",
+      "engine-consumption",
+      "contracts-command",
+      "engine-write-pot",
+      "engine-consume-command",
+      "orchestrator-consumption",
+      "supra-consume-command",
+      "engine-read-command-result",
+      "engine-materialize-command-result",
+      "supra-consume-command-result",
+      "contracts-registration",
+      "engine-admit-registration",
+      "engine-consume-registration",
+      "supra-consume-registration",
+      "engine-read-registration-result",
+      "engine-materialize-registration-result",
+      "supra-consume-registration-result",
+      "port-projection",
+      "engine-produce-projection-task",
+      "engine-read-projection",
+      "projector-pot",
+      "engine-consume-projection-task",
+      "supra-consume-projection-task",
+      "engine-read-current-binding",
+      "engine-read-pot",
+      "engine-materialize-current-binding",
+      "engine-materialize-latest-known-version",
+      "infra-persistence-projection-jdbc",
+      "infra-persistence-read-jdbc",
+      "contracts-observability",
+      "infra-tx-spring",
+      "engine-admit-command",
+      "supra-consume-lkv",
+      "infra-persistence-primary-jpa",
+      "infra-projection-validation-networknt",
+      "orchestrator-poll-consumption",
+      "supra-consume-event",
+      "supra-consume-binding",
+      "supra-http-write",
+      "supra-http-read",
+      "composition-runtime-spring",
+      "runtime-command-consumption-worker"
+    ],
+    "expected": {
+      "com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest": [
+        "i5_r05"
+      ]
+    },
+    "assumptions": "Original toolchain/settings/effective POM/PG observations retained; no new environment certification",
+    "limitations": "Dirty HEAD remains dirty where recorded. Input equality is not a clean historical commit or a fresh run. These filtered recipes are not canonical gates.",
+    "archive": {
+      "path": "docs/testing/evidence/L3-I5/reused/gemini-r05/raw.tar.gz",
+      "bytes": 1088299,
+      "sha256": "c54f922fad6bc4b155fa813c905e0b4c7e91b3cd5e27cfa92c7d7873016da577"
+    },
+    "plan": {
+      "path": "docs/testing/evidence/L3-I5/reused/gemini-r05/plan.json.gz",
+      "bytes": 5721,
+      "sha256": "fe64d26e03c234c8f9fe22f54f65e93586bfa398ae8e19d27b09d5a2816e24e2"
+    },
+    "result": {
+      "path": "docs/testing/evidence/L3-I5/reused/gemini-r05/result.json.gz",
+      "bytes": 6131,
+      "sha256": "88925e61e6aa0f5d4e6626bdc3d801e08d5f4c87de8ca3546d423e35f390bfe7"
+    },
+    "provenance": {
+      "path": "docs/testing/evidence/L3-I5/reused/gemini-r05/provenance.json.gz",
+      "bytes": 65857,
+      "sha256": "222e556b9021c2f24d7ba1154004e612e168a08f7e483c1016c897522a7bd34e"
+    }
+  },
+  "gemini-r12": {
+    "original_directory": "/private/var/folders/tv/bctjvrln2mn7t3z1vc6b2wz80000gn/T/pocoma-verify-1793516071084592000",
+    "historical": true,
+    "not_a_fresh_i5_execution": true,
+    "tested_git_head": "0092b4d1bafe644017717865a620f0a35b68fbb5",
+    "dirty_state": " M runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/I5TemporalV2Postgres.java\n M runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/I5TemporalV2Test.java\n M runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/V3WorkerResourcesPostgresTest.java\n M ../scripts/testing/test_verification.py\n M ../scripts/testing/verification-campaigns.json\n M ../scripts/testing/verify.py\n?? ../scripts/testing/__pycache__/\n",
+    "executed_app_inputs_equal_commit": "0ba18ec1e2fb9d9ead4e6ff84b9c839048c82dc3",
+    "app_inputs_checked": 1265,
+    "external_sql_checked": 6,
+    "control_inputs_match": true,
+    "command": [
+      "./mvnw",
+      "--batch-mode",
+      "--no-transfer-progress",
+      "-pl",
+      "runtime-command-consumption-worker",
+      "-am",
+      "-Dtest=com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest#i5_r12",
+      "-Dsurefire.failIfNoSpecifiedTests=false",
+      "-Dpocoma.verification.id=94527adaae634c3a815004d52cf9968d",
+      "-Dpocoma.verification.reports=/private/var/folders/tv/bctjvrln2mn7t3z1vc6b2wz80000gn/T/pocoma-verify-1793516071084592000/reports",
+      "test"
+    ],
+    "invocation_id": "94527adaae634c3a815004d52cf9968d",
+    "counts": {
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "verdict": "PASS",
+    "seconds": 56.06311,
+    "modules": [
+      "domain-authorization",
+      "domain-event",
+      "domain-user-identity",
+      "contracts-authentication",
+      "domain-pot",
+      "domain-projection",
+      "domain-consumption",
+      "port-transaction",
+      "port-binding-authority",
+      "engine-consumption",
+      "contracts-command",
+      "engine-write-pot",
+      "engine-consume-command",
+      "orchestrator-consumption",
+      "supra-consume-command",
+      "engine-read-command-result",
+      "engine-materialize-command-result",
+      "supra-consume-command-result",
+      "contracts-registration",
+      "engine-admit-registration",
+      "engine-consume-registration",
+      "supra-consume-registration",
+      "engine-read-registration-result",
+      "engine-materialize-registration-result",
+      "supra-consume-registration-result",
+      "port-projection",
+      "engine-produce-projection-task",
+      "engine-read-projection",
+      "projector-pot",
+      "engine-consume-projection-task",
+      "supra-consume-projection-task",
+      "engine-read-current-binding",
+      "engine-read-pot",
+      "engine-materialize-current-binding",
+      "engine-materialize-latest-known-version",
+      "infra-persistence-projection-jdbc",
+      "infra-persistence-read-jdbc",
+      "contracts-observability",
+      "infra-tx-spring",
+      "engine-admit-command",
+      "supra-consume-lkv",
+      "infra-persistence-primary-jpa",
+      "infra-projection-validation-networknt",
+      "orchestrator-poll-consumption",
+      "supra-consume-event",
+      "supra-consume-binding",
+      "supra-http-write",
+      "supra-http-read",
+      "composition-runtime-spring",
+      "runtime-command-consumption-worker"
+    ],
+    "expected": {
+      "com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest": [
+        "i5_r12"
+      ]
+    },
+    "assumptions": "Original toolchain/settings/effective POM/PG observations retained; no new environment certification",
+    "limitations": "Dirty HEAD remains dirty where recorded. Input equality is not a clean historical commit or a fresh run. These filtered recipes are not canonical gates.",
+    "archive": {
+      "path": "docs/testing/evidence/L3-I5/reused/gemini-r12/raw.tar.gz",
+      "bytes": 1090284,
+      "sha256": "b1d7bd3f964926c666cdbdaa6c0c6c0ff232b65f289bfbbfb93471545dda51b8"
+    },
+    "plan": {
+      "path": "docs/testing/evidence/L3-I5/reused/gemini-r12/plan.json.gz",
+      "bytes": 5720,
+      "sha256": "e812b656a332e7861126c4b4b44570cd00ac5c4533bc52a579c0d50ffba5da92"
+    },
+    "result": {
+      "path": "docs/testing/evidence/L3-I5/reused/gemini-r12/result.json.gz",
+      "bytes": 6130,
+      "sha256": "82af249e9ce21adb0765fe814b3ca20322a78739e66e2c4d849fd7d52f104bb4"
+    },
+    "provenance": {
+      "path": "docs/testing/evidence/L3-I5/reused/gemini-r12/provenance.json.gz",
+      "bytes": 65857,
+      "sha256": "222e556b9021c2f24d7ba1154004e612e168a08f7e483c1016c897522a7bd34e"
+    }
+  }
+}

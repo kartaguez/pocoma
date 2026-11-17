@@ -1,0 +1,29 @@
+{
+  "phases": {
+    "input_inventory": {
+      "status": "FINISHED",
+      "seconds": 0.14512620802270249
+    },
+    "discovery": {
+      "status": "FINISHED",
+      "seconds": 2.3088247919804417
+    },
+    "maven": {
+      "status": "FINISHED",
+      "seconds": 54.75246054196032
+    },
+    "collection": {
+      "status": "FINISHED",
+      "seconds": 0.6146167919505388
+    }
+  },
+  "campaign_seconds": 58.78208929102402,
+  "forecast": {
+    "seconds": 60,
+    "basis": "Affected historical capacity and wire-fault oracles after restoring the original assembly order; no deadline",
+    "uncertainty": "HIGH"
+  },
+  "forecast_delta_seconds": -1.2179107089759782,
+  "forecast_exceeded": false,
+  "forecast_is_blocking": false
+}

@@ -1,0 +1,459 @@
+{
+  "verdict": "PASS",
+  "counts": {
+    "tests": 65,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "issues": [],
+  "executions": [
+    {
+      "classname": "com.kartaguez.pocoma.domain.pot.aggregate.ShareholderIdentityCollisionTest",
+      "method": "generatedCollisionCannotReplaceExistingOrEarlierAddedShareholder",
+      "seconds": 0.047,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.domain.pot.v3.InvitationAttachmentTest",
+      "method": "occupiedDeletedAbsentAndAlreadyAttachedRemainRejected",
+      "seconds": 0.001,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.domain.pot.v3.InvitationAttachmentTest",
+      "method": "mixedOrMissingDurableFactsAreTechnicalAnomalies",
+      "seconds": 0.001,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.domain.pot.v3.InvitationAttachmentTest",
+      "method": "outsiderAndUnattachedCreatorAttachOnlyThemselvesWithOneDetailsRevision",
+      "seconds": 0.001,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.domain.pot.v3.PotAuthorizationTest",
+      "method": "d08AttachmentDetachmentAndGeneralMultipleAttachment",
+      "seconds": 0.016,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.domain.pot.v3.PotAuthorizationTest",
+      "method": "d07EveryMutationRoleAndPotLifecycleCell",
+      "seconds": 0.01,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.domain.pot.v3.PotAuthorizationTest",
+      "method": "d09InvitationEligibilityAndDeletedTargets",
+      "seconds": 0.001,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.domain.pot.v3.PotTransitionsTest",
+      "method": "l1a04ObsolescencePrecedesEqualityIncludingReturnToOldValue",
+      "seconds": 0.002,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.domain.pot.v3.PotTransitionsTest",
+      "method": "l1a13DeterministicReevaluationPreservesInitialObservation",
+      "seconds": 0.004,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.domain.pot.v3.PotTransitionsTest",
+      "method": "l1a07DetailsAndWeightsAreIndependent",
+      "seconds": 0.001,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.domain.pot.v3.PotTransitionsTest",
+      "method": "l1a12MixedFactsAreTechnicalAnomalies",
+      "seconds": 0.002,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.domain.pot.v3.PotTransitionsTest",
+      "method": "l1a10ShareholderDeletionRequiresCreatorAndExhaustiveAbsence",
+      "seconds": 0.002,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.domain.pot.v3.PotTransitionsTest",
+      "method": "l1a01ImmutableEnvelopesAndCollections",
+      "seconds": 0.002,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.domain.pot.v3.PotTransitionsTest",
+      "method": "l1a14HistoricalCompositionsAndOrdinaryAttachment",
+      "seconds": 0.001,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.domain.pot.v3.PotTransitionsTest",
+      "method": "l1a03ChangedContainsExactlyEffectiveRevisions",
+      "seconds": 0.0,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.domain.pot.v3.PotTransitionsTest",
+      "method": "l1a08FinancialsReferenceAndEqualityVariants",
+      "seconds": 0.001,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.domain.pot.v3.PotTransitionsTest",
+      "method": "l1a11ExactRationalsAndIntrinsicFinancialInvariants",
+      "seconds": 0.003,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.domain.pot.v3.PotTransitionsTest",
+      "method": "l1a05AtomicWeightBatchesAndPermutations",
+      "seconds": 0.001,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.domain.pot.v3.PotTransitionsTest",
+      "method": "l1a02CreationVersionsAndStableIdentities",
+      "seconds": 0.001,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.domain.pot.v3.PotTransitionsTest",
+      "method": "l1a09DeletionDependenciesAndHeaderOnlyChanges",
+      "seconds": 0.0,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.domain.pot.v3.PotTransitionsTest",
+      "method": "l1a06PotDetailsRightsLifecycleAndObservation",
+      "seconds": 0.0,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.domain.useridentity.UserIdentityModelTest",
+      "method": "externalIdentityPreservesExactIssuerAndSubjectEquality",
+      "seconds": 0.002,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.domain.useridentity.UserIdentityModelTest",
+      "method": "bindingRevisionHasLocalNonNegativeValueSemantics",
+      "seconds": 0.002,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.domain.useridentity.UserIdentityModelTest",
+      "method": "detachedFactRequiresACompletePositiveRevisionShapeWithUserId",
+      "seconds": 0.015,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.domain.useridentity.UserIdentityModelTest",
+      "method": "attachedFactRequiresACompletePositiveRevisionShape",
+      "seconds": 0.002,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.domain.useridentity.UserIdentityModelTest",
+      "method": "bindingIdIsAnOpaqueUuidValueWithoutOrdering",
+      "seconds": 0.001,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.domain.useridentity.UserIdentityModelTest",
+      "method": "userContainsOnlyItsCanonicalIdentity",
+      "seconds": 0.002,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.domain.useridentity.v3.IdentityTransitionsTest",
+      "method": "inconsistentSnapshotsIdsAndKnownUsedCandidateTokenAreFaults",
+      "seconds": 0.031,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.domain.useridentity.v3.IdentityTransitionsTest",
+      "method": "absentFreeOrStaleInitiatorCannotLinkOrUnlink",
+      "seconds": 0.003,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.domain.useridentity.v3.IdentityTransitionsTest",
+      "method": "requiredCandidatesAndSnapshotsCannotBeNull",
+      "seconds": 0.002,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.domain.useridentity.v3.IdentityTransitionsTest",
+      "method": "versionOverflowIsAFaultAndNeverWrapsToZeroOrNegative",
+      "seconds": 0.002,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.domain.useridentity.v3.IdentityTransitionsTest",
+      "method": "localHistoryOneThroughFivePreservesOldStatesAndRenewsTokensEvenForSameUser",
+      "seconds": 0.002,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.domain.useridentity.v3.IdentityTransitionsTest",
+      "method": "crossedUnlinksLoseInitiatorAuthorityAfterFirstSuccess",
+      "seconds": 0.001,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.domain.useridentity.v3.IdentityTransitionsTest",
+      "method": "registrationOfFreeIdentityKeepsIdAndCreatesExactSuccessorAndNewUser",
+      "seconds": 0.001,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.domain.useridentity.v3.IdentityTransitionsTest",
+      "method": "selfAndLastUnlinkOnlyChangeEuiAndNeverDeleteUser",
+      "seconds": 0.001,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.domain.useridentity.v3.IdentityTransitionsTest",
+      "method": "registrationOfAbsentIdentityCreatesUserAndDirectlyBoundVersionOne",
+      "seconds": 0.001,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.domain.useridentity.v3.IdentityTransitionsTest",
+      "method": "linkRejectsAlreadyBoundTargetEvenToSameUser(boolean)[1]",
+      "seconds": 0.005,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.domain.useridentity.v3.IdentityTransitionsTest",
+      "method": "linkRejectsAlreadyBoundTargetEvenToSameUser(boolean)[2]",
+      "seconds": 0.001,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.domain.useridentity.v3.IdentityTransitionsTest",
+      "method": "linkFreeTargetRetainsIdAndExactSuccessor",
+      "seconds": 0.001,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.domain.useridentity.v3.IdentityTransitionsTest",
+      "method": "linkAbsentTargetDeducesUserFromInitiatorWithoutCreatingUser",
+      "seconds": 0.001,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.domain.useridentity.v3.IdentityTransitionsTest",
+      "method": "unlinkRejectsAbsentFreeAndAnotherUsersTarget",
+      "seconds": 0.001,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.domain.useridentity.v3.IdentityTransitionsTest",
+      "method": "registrationRejectsBoundIdentityWithoutAUserOrStateChange",
+      "seconds": 0.001,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.domain.useridentity.v3.IdentityTransitionsTest",
+      "method": "selfLinkIsStrictlyRejected",
+      "seconds": 0.001,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.domain.useridentity.v3.IdentityTransitionsTest",
+      "method": "unlinkOtherIdentityOfSameUserDoesNotRequireItsToken",
+      "seconds": 0.001,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.domain.useridentity.v3.IdentityValueContractsTest",
+      "method": "externalKeysPreserveOpaqueTextWithoutCaseUrlOrUnicodeNormalization",
+      "seconds": 0.001,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.domain.useridentity.v3.IdentityValueContractsTest",
+      "method": "changedIsNonemptyAndCanOnlyCreateTheUserOfItsNewBoundState",
+      "seconds": 0.002,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.domain.useridentity.v3.IdentityValueContractsTest",
+      "method": "idsAndTokensHaveExactOpaqueValueSemanticsWithoutGenerationOrOrdering",
+      "seconds": 0.002,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.domain.useridentity.v3.IdentityValueContractsTest",
+      "method": "statesRequirePositiveVersionAndUserTokenTogether",
+      "seconds": 0.001,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.domain.useridentity.v3.IdentityValueContractsTest",
+      "method": "independentUtf8VectorsOrderIssuerThenSubjectWithPrefixesAndUnsignedBytes",
+      "seconds": 0.004,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.domain.useridentity.v3.IdentityValueContractsTest",
+      "method": "allPermutationsOfCanonicalVectorGroupsSortAndDeduplicateExactKeys",
+      "seconds": 0.048,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.domain.useridentity.v3.IdentityValueContractsTest",
+      "method": "tokensNeverAppearInDefaultDiagnosticRepresentations",
+      "seconds": 0.008,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.domain.useridentity.v3.IdentityValueContractsTest",
+      "method": "nulAndIsolatedSurrogatesAreRejectedInEitherFieldAndEitherOperand",
+      "seconds": 0.003,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.engine.consume.registration.v3.ExecuteIdentityRequestTest",
+      "method": "l3_technical_not_rejected",
+      "seconds": 0.004,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.engine.consume.registration.v3.ExecuteIdentityRequestTest",
+      "method": "l3_rejection_terminal",
+      "seconds": 0.002,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.engine.consume.registration.v3.ExecuteIdentityRequestTest",
+      "method": "l3_participant_order",
+      "seconds": 0.001,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.engine.consume.registration.v3.IdentityRequestContractTest",
+      "method": "clientIntentionCannotChooseUserAndResultCannotDiscloseTokenOrUser",
+      "seconds": 0.025,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.engine.consume.registration.v3.IdentityRequestContractTest",
+      "method": "observationRequiresEngineReadSnapshotAndReturnsExistingRecoveryVocabulary",
+      "seconds": 0.004,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.engine.consume.registration.v3.IdentityRequestContractTest",
+      "method": "registrationTargetsOnlyItsAuthenticatedRequesterAndOmitsToken",
+      "seconds": 0.009,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.engine.consume.registration.v3.IdentityRequestContractTest",
+      "method": "missingIntentionAndProvenanceAreInvalid",
+      "seconds": 0.002,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.engine.consume.registration.v3.IdentityRequestContractTest",
+      "method": "immutableAdmissionCapturesProvenanceAndMustMatchBothIdentities",
+      "seconds": 0.001,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.engine.consume.registration.v3.IdentityRequestContractTest",
+      "method": "externalUnicodeRemainsExactAndUnstorableKeysFailBeforeAnyAdapter",
+      "seconds": 0.003,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.engine.consume.registration.v3.IdentityRequestContractTest",
+      "method": "publicResultExposesOnlyChangedTargetAndVersionOrClosedRejection",
+      "seconds": 0.01,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.engine.consume.registration.v3.IdentityRequestContractTest",
+      "method": "exactIntentionEqualityIncludesOperationTokenTargetAndAdmission",
+      "seconds": 0.006,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.engine.consume.registration.v3.IdentityRequestContractTest",
+      "method": "storedRequestDistinguishesPendingAndTerminalAndRequiresExactResultPresence",
+      "seconds": 0.001,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.engine.consume.registration.v3.IdentityRequestContractTest",
+      "method": "linkAndUnlinkRequireInitiatorTokenAndAnExactTargetIncludingSelf",
+      "seconds": 0.001,
+      "outcome": "PASS"
+    }
+  ],
+  "command": [
+    "./mvnw",
+    "--batch-mode",
+    "--no-transfer-progress",
+    "-pl",
+    "engine-consume-registration,domain-pot",
+    "-am",
+    "-Dtest=com.kartaguez.pocoma.domain.pot.aggregate.ShareholderIdentityCollisionTest,com.kartaguez.pocoma.domain.pot.v3.InvitationAttachmentTest,com.kartaguez.pocoma.domain.pot.v3.PotAuthorizationTest,com.kartaguez.pocoma.domain.pot.v3.PotTransitionsTest,com.kartaguez.pocoma.domain.useridentity.UserIdentityModelTest,com.kartaguez.pocoma.domain.useridentity.v3.IdentityTransitionsTest,com.kartaguez.pocoma.domain.useridentity.v3.IdentityValueContractsTest,com.kartaguez.pocoma.engine.consume.registration.v3.ExecuteIdentityRequestTest,com.kartaguez.pocoma.engine.consume.registration.v3.IdentityRequestContractTest",
+    "-Dsurefire.failIfNoSpecifiedTests=false",
+    "test"
+  ],
+  "level": "FAST",
+  "scope": "identity",
+  "seconds": 6.685618,
+  "started_ns": 1793428804934376000,
+  "exit_code": 0,
+  "artifacts": {
+    "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.aggregate.ShareholderIdentityCollisionTest.xml": "18d3599308037c91b848cca2fedc9e68fca5d4bcb9c58609b6457c1d9d44e6fb",
+    "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.v3.InvitationAttachmentTest.xml": "f39721fc8a6b9be5ad383e322d625b0fe4f40aeb066d64f9e4273e153d041f35",
+    "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.v3.PotAuthorizationTest.xml": "730cdfd323183f575b543b99e7e03964150868d412d431e893f000d637e43a33",
+    "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.v3.PotTransitionsTest.xml": "2faa01ccb28370e2f6379bbb6655aaad0b32efb98a340c46606323a7a78fa107",
+    "app/domain-pot/target/surefire-reports/com.kartaguez.pocoma.domain.pot.aggregate.ShareholderIdentityCollisionTest.txt": "7e0439d12f984051fa2b937f740fc99339d4b57db4e685cdf379b8ed17a4b12e",
+    "app/domain-pot/target/surefire-reports/com.kartaguez.pocoma.domain.pot.v3.InvitationAttachmentTest.txt": "8e4951f4dccdb1106e45bd0058cf2fe9570c24a293b46db5c6200344a6ca93be",
+    "app/domain-pot/target/surefire-reports/com.kartaguez.pocoma.domain.pot.v3.PotAuthorizationTest.txt": "0cf2643f891024b30bd8efa66d7f4e296a451edb8d39896053f64e9509d33f7c",
+    "app/domain-pot/target/surefire-reports/com.kartaguez.pocoma.domain.pot.v3.PotTransitionsTest.txt": "a7a3e93c213f37135d0d9f918f0ed756de7eb3c6a56b99bbff30961acf356036",
+    "app/domain-user-identity/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.useridentity.UserIdentityModelTest.xml": "f93be6eeb7fd0b6326ea1f4b74e6c968c83156490962602dc0900b09d8f778d8",
+    "app/domain-user-identity/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.useridentity.v3.IdentityTransitionsTest.xml": "86a6402c474f04ddf5c488688153062cc2aa4be1d4d206149feb059674a9860d",
+    "app/domain-user-identity/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.useridentity.v3.IdentityValueContractsTest.xml": "4b7230c57a1d93d87a2808663e9c6d10bd79b20cf84ed5a8c978883702ec1341",
+    "app/domain-user-identity/target/surefire-reports/com.kartaguez.pocoma.domain.useridentity.UserIdentityModelTest.txt": "f37eb6bbe81223f187377eb3668c242e479f7054e6a7fed67fd87dfeb13f6bbd",
+    "app/domain-user-identity/target/surefire-reports/com.kartaguez.pocoma.domain.useridentity.v3.IdentityTransitionsTest.txt": "bebf0cb2579b995d0fb0cfa1b71ad577f6d88fc5a49f4a74408980ab55bdf07d",
+    "app/domain-user-identity/target/surefire-reports/com.kartaguez.pocoma.domain.useridentity.v3.IdentityValueContractsTest.txt": "62735088c09e2d7ac14656bfc71829727f35109ac806c375437e39143b4e8bd6",
+    "app/engine-consume-registration/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.consume.registration.v3.ExecuteIdentityRequestTest.xml": "3944353d8a9da02c340ed3f091c6679930053b8b010e52fc7d51cbdd99b9f9a8",
+    "app/engine-consume-registration/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.consume.registration.v3.IdentityRequestContractTest.xml": "d936afdfb7df5f12808d25003051ca5da5e0d7b0fb392e7c6c666b3939800d99",
+    "app/engine-consume-registration/target/surefire-reports/com.kartaguez.pocoma.engine.consume.registration.v3.ExecuteIdentityRequestTest.txt": "150426d7ccba299e9436cc1835710f2f2251e489a096780731e958d874170f40",
+    "app/engine-consume-registration/target/surefire-reports/com.kartaguez.pocoma.engine.consume.registration.v3.IdentityRequestContractTest.txt": "2e4da0ef822ac31a68876d45253dfe2f3b6881e56f537dc49ce8eab77cf67d29"
+  },
+  "raw_sha256": "b0264f7c98aa4ebed1112d8b5c6156e308ee39e7b6e70e907e8c047247c2672a",
+  "previous_reports_not_counted": [],
+  "not_selected": "All methods outside plan.expected for filtered feedback; NOT RUN, never PASS",
+  "quarantined_scenarios": {
+    "i5_r05": {
+      "class": "com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest",
+      "method": "i5_r05",
+      "anchor": "COMMAND",
+      "reason": "Historical I1 failure; I2 PASS 52.451s. Temporal worker campaign, availability reserve remains open.",
+      "reference": "docs/v3/L3_I2_Execution_Report.md",
+      "decision": "Explicit nominative operational isolation authorized by verification optimization mandate; no normative waiver."
+    },
+    "i5_r12": {
+      "class": "com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest",
+      "method": "i5_r12",
+      "anchor": "COMMAND",
+      "reason": "I2 FAIL 95.825s: runtime condition deadline; Runtime.close:553 via I5TemporalV2Postgres.campaign:947. Physical root cause unresolved.",
+      "reference": "docs/v3/L3_I2_Execution_Report.md",
+      "decision": "Explicit nominative operational isolation authorized by verification optimization mandate; no normative waiver."
+    }
+  }
+}

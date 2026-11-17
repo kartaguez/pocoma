@@ -1,0 +1,7 @@
+{
+  "controls": "Initial test scaffolding corrected: undefined guest parameter used its default; installed ASAR hashing required original-fs; public environment test required a copy to avoid mutating shared fixture.",
+  "httpHarness": "Installed Bru sendRequest requires options.shouldVerifyTls; passed the normal TLS-enabled context, no TLS disable.",
+  "availability": "Later live attempts admitted IdentityRequests but timed out; WRITE PENDING/READ absent. Logs show connection loss and thread starvation/clock leap. Owned worker restart drained pending to0. Subsequently all services stopped, Compose catalogue became empty, only pocoma database observed. Origin unassigned; no down/rm/prune/reset issued by this correction. CURRENT bootstrap then initialized missing WRITE/READ on the owned empty cluster.",
+  "interruption": "The attempt producing protocol3 was interrupted and is not a PASS proof.",
+  "final": "Distinct qualification on clean e54cadd4: 17 unit controls, 23 installed4.2.1 controls including script VM and real PG01, CLI JUnit1/1 PASS."
+}

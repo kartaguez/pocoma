@@ -1,0 +1,6 @@
+{
+  "state": "PASS",
+  "since": 1794737366.091634,
+  "mutationsOnPreexistingNonCanaryPots": 0,
+  "method": "Read-only event audit against version-1 creation time; canary excluded"
+}

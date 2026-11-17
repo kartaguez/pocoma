@@ -1,0 +1,92 @@
+{
+  "order": 7,
+  "label": "Q-REGNEW",
+  "request_id": "3ddf3b5e-879f-5a0d-8963-62c8fc5838b8",
+  "created_at": "2026-11-01T08:50:40.302191Z",
+  "operation": "REGISTRATION",
+  "requester_subject": "a",
+  "target_subject": "a",
+  "issuer": "controlled-qid-46873469f44042c5b43d0a0a30b10481",
+  "result": {
+    "request_id": "3ddf3b5e-879f-5a0d-8963-62c8fc5838b8",
+    "outcome": "REJECTED",
+    "target_eui_id": null,
+    "target_version": null,
+    "rejection": "TARGET_ALREADY_BOUND"
+  },
+  "admission": "CONTROLLED_INTERNAL",
+  "terminal_observation": "L3_DEV_IDENTITY_VERIFIED request=3ddf3b5e-879f-5a0d-8963-62c8fc5838b8 result={outcome=REJECTED, target_eui_id=null, target_version=null, rejection=TARGET_ALREADY_BOUND}",
+  "preconditions_pass": true,
+  "obligations": [
+    "O06"
+  ],
+  "variants": [
+    "I01-P"
+  ],
+  "before_fingerprints": {
+    "users": [
+      "2",
+      "7f04b36d46823d51d38d546c2949c731"
+    ],
+    "anchors": [
+      "3",
+      "dbf8f5a0b5abd8f0147271edec1297c4"
+    ],
+    "history": [
+      "4",
+      "4a59406fb0ddabfe3d0597d6a07b144b"
+    ],
+    "mutations": [
+      "6",
+      "079ca03b12f8a8460c3f5aad93d65fb7"
+    ],
+    "COMMAND_COMPLETION": [
+      "0"
+    ],
+    "IDENTITY": [
+      "6"
+    ],
+    "IDENTITY_COMPLETION": [
+      "6"
+    ],
+    "POT": [
+      "0"
+    ]
+  },
+  "after_fingerprints": {
+    "users": [
+      "2",
+      "7f04b36d46823d51d38d546c2949c731"
+    ],
+    "anchors": [
+      "3",
+      "dbf8f5a0b5abd8f0147271edec1297c4"
+    ],
+    "history": [
+      "4",
+      "4a59406fb0ddabfe3d0597d6a07b144b"
+    ],
+    "mutations": [
+      "6",
+      "079ca03b12f8a8460c3f5aad93d65fb7"
+    ],
+    "COMMAND_COMPLETION": [
+      "0"
+    ],
+    "IDENTITY": [
+      "6"
+    ],
+    "IDENTITY_COMPLETION": [
+      "7"
+    ],
+    "POT": [
+      "0"
+    ]
+  },
+  "oracle_result": "t\tt\nIDENTITY\tt\nIDENTITY_COMPLETION\tt\n",
+  "exact_domain_rows_unchanged": true,
+  "verdict": "PASS",
+  "fresh": true,
+  "tested_code_sha": "0ba18ec1e2fb9d9ead4e6ff84b9c839048c82dc3",
+  "invocation_id": "46873469f44042c5b43d0a0a30b10481"
+}

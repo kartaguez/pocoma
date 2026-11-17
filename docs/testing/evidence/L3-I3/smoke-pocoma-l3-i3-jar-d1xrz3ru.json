@@ -1,0 +1,11 @@
+{
+  "kind": "fresh exec-jar R-ID internal bench; no external consent or READ certification",
+  "jar_sha256": "e64b7f2123dcc7b8466440b2542cc7788e091dd9733e900f9accde6b12414eb5",
+  "stages": [],
+  "postgres": "PostgreSQL 17.11 on aarch64-unknown-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit",
+  "status": "CONTRADICTORY EVIDENCE: pre-fix 970609cd accepted PUBLIC token SELECT",
+  "effective_privilege_probe": "UNAUTHORIZED_READ_PRINCIPAL_CAN_SELECT_WRITE_TOKEN_COLUMN count=0",
+  "runtime_preflight": "incorrectly accepted before correction",
+  "private_receipt_sha256": "abba0cb275dfd25f06624364b7059f48856344b10abb53795b52eca091cb1b75",
+  "archive_note": "No credentials/configuration/token files or raw operator logs archived."
+}

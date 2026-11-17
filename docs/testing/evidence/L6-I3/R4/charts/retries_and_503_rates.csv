@@ -1,0 +1,7 @@
+rate,first_attempt_success_pct,final_success_pct,retries_total,write_capacity_503,read_capacity_503
+1.0,100.0,100.0,0,0,0
+1.0,95.1,100.0,5,0,0
+5.0,100.0,100.0,0,0,0
+10.0,100.0,100.0,0,0,0
+20.0,99.67,99.67,0,0,0
+50.0,98.83,98.83,0,0,0

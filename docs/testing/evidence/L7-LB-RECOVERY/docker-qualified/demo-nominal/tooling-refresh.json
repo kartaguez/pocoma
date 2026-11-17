@@ -1,0 +1,12 @@
+{
+  "baseline": "c7df9da4d3e3d7b824dcfc50bd474c46371d310b",
+  "previousInputs": "2ff95718f1c75d90841e6ce80f134b7addbf782764e355846f1548746ca3ca1a",
+  "inputs": "266f0f638960da638f5370be64f134bfbde85e96ee4beea6f8645e1df9e571d4",
+  "jars": {
+    "web-read": "eb3427dfc163a87432b1b7bb5ce163255f59aea7d16eae24d6a2a9ba8d8adf3c",
+    "web-write": "b68fabf6335765798b168a1c356d146a1bf9a1761fce8dd6cd76f29908cd5cd7",
+    "worker-materialize": "5eb4293e2bb4d8bf6b2bbbae6134139575d7e295a875887336b7403b94eb38fd",
+    "worker-process": "7dd339a92cdb9ce70cfd4f59634e44697aad4e40f9929bd896a9d2765062401c"
+  },
+  "method": "PRODUCTION_AND_DEPLOYMENT_EQUIVALENCE; original build SHA retained"
+}

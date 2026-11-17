@@ -1,0 +1,3561 @@
+{
+  "reference_plan_commit": "a2b4e2a07a64e33eafe9e81a0ddc25c7961dc9cc",
+  "tested_application_sha": "8a007768c23021153764473f6c6686042168df00",
+  "full_reactor_verdict": "FAIL — native result retained",
+  "composite_verdict": "COMPOSITE_PASS_APPROVED",
+  "human_decision": "Human_Composite_Qualification_Decision.json",
+  "productive_code_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+  "architecture_oracles_sha": "8a007768c23021153764473f6c6686042168df00",
+  "global_SPEC10_certification": false,
+  "L4_closed": false,
+  "scope": "Internal READ contributions; HTTP/OIDC/consent L5, global operations/performance L6, physical convergence L7 remain deferred.",
+  "rows": [
+    {
+      "obligation": "PRJ-01 P01-A…G/J/K",
+      "plan_allocation": "**R** sources/stores/conformités I3 + recovery corrigé ; **G** G-I3",
+      "fresh_I8_contributions": [],
+      "canonical_method_contributions": [
+        {
+          "method": "com.kartaguez.pocoma.domain.projection.v3.PotVersionContractTest#compositionAndKeys",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.PotVersionReadStorePostgresTest#historyAndReplay",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.PotVersionReadStorePostgresTest#concurrentPublishers",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.PotVersionReadStorePostgresTest#migrationAndPrivileges",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotVersionSourcePostgresTest#exactHistoricalComposition",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#recoveryAffectedParticipantConformance",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#potVersionRecoveryRequiresCurrentPot",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#visibilityRecoverySupersession",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#currentBindingRecoverySupersession",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#independentProgression",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#resultsBeforeDomain",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#uncertainCommitHasNoSpeculativeSettlement",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#boundedCapacityAndRenewal",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance(String)[1]",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance(String)[2]",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance(String)[3]",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance(String)[4]",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance(String)[5]",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance(String)[6]",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.SubobjectAtomicityPostgresTest#effectsAndSlotSameUnit",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.SubobjectAtomicityPostgresTest#rollbackAfterDeleteAndEveryBoundary",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.SubobjectAtomicityPostgresTest#rollbackAfterFirstChunkAndBeforeCommit",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.SubobjectAtomicityPostgresTest#faultBetweenReadinessAndDelete",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.SubobjectAtomicityPostgresTest#actualReadiness",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.SubobjectAtomicityPostgresTest#caughtFailurePoisons",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.SubobjectAtomicityPostgresTest#publicationClosure",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.SubobjectAtomicityPostgresTest#deferredCommitRejection",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.SubobjectAtomicityPostgresTest#physicalOracleRejectsIndependentTransactions",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.SubobjectAtomicityPostgresTest#concurrentIdenticalAndDivergentSlots",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.SubobjectAtomicityPostgresTest#lateCaughtCallbackCannotCommit",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.SubobjectAtomicityPostgresTest#lostCommitAck",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.SubobjectStorePostgresTest#identicalInsert",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.SubobjectStorePostgresTest#divergentInsert",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.SubobjectStorePostgresTest#allFieldsMatter",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.SubobjectStorePostgresTest#batchAllOrNothing",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.SubobjectStorePostgresTest#concurrentIdentical",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.SubobjectStorePostgresTest#concurrentDivergent",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.SubobjectStorePostgresTest#conflictThenCommittedRead",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.SubobjectStorePostgresTest#reversedBatchesUseTotalOrder",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.SubobjectStorePostgresTest#postgresUuidOrder",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.SubobjectStorePostgresTest#strictCodec",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.SubobjectStorePostgresTest#ownerAndContext",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        }
+      ],
+      "tested_application_sha": "8a007768c23021153764473f6c6686042168df00",
+      "invocation_id": "6b091895d103489b857c7027a3481e45",
+      "command": [
+        "./mvnw",
+        "-Dpocoma.verification.id=6b091895d103489b857c7027a3481e45",
+        "-Dpocoma.verification.reports=/private/tmp/pocoma-i8-FULL-04/reports",
+        "test"
+      ],
+      "artifacts": [
+        "runs/FULL-04-FAIL/raw.tar.gz",
+        "runs/Architecture-correction-PASS/raw.tar.gz"
+      ],
+      "native_full_verdict": "FAIL — 2191/4/0/0 retained",
+      "gate_verdict": "COMPOSITE_PASS_APPROVED",
+      "verdict": "QUALIFIED INTERNAL CONTRIBUTIONS ONLY",
+      "authority": "CURRENT V3 PostgreSQL WRITE/READ in separate databases; internal trusted EUI fixture inputs; no cryptographic authentication exercised. Large facade-only manifests may be installed administratively in READ. Pure tests retain their own oracle.",
+      "historical_attribution": "Historical_Reuse_Comparison.json and original L4-I1/I2/I3-I7/Recovery manifests; no historical PASS assigned to new SHA.",
+      "remaining_limit": "Pas six nouvelles recertifications de L2",
+      "qualification_mode": "COMPOSITE APPROVED BY EXPLICIT HUMAN DECISION",
+      "human_decision": "Human_Composite_Qualification_Decision.json",
+      "productive_code_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+      "architecture_oracles_sha": "8a007768c23021153764473f6c6686042168df00"
+    },
+    {
+      "obligation": "PRJ-01 P01-H/I",
+      "plan_allocation": "**N** T04/T05, dépendances absentes/capture V/lecteurs concurrents ; **G** G-I8",
+      "fresh_I8_contributions": [
+        {
+          "test_id": "T04",
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadFacadesPostgresTest#currentHistoryAndConcurrentAdvanceStayExact",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45",
+          "outcome": "PASS",
+          "seconds": 2.901
+        },
+        {
+          "test_id": "T05",
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadFacadesPostgresTest#readinessDoesNotInventFreshness",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45",
+          "outcome": "PASS",
+          "seconds": 2.567
+        }
+      ],
+      "canonical_method_contributions": [
+        {
+          "method": "com.kartaguez.pocoma.domain.projection.v3.PotVersionContractTest#compositionAndKeys",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.PotVersionReadStorePostgresTest#historyAndReplay",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.PotVersionReadStorePostgresTest#concurrentPublishers",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.PotVersionReadStorePostgresTest#migrationAndPrivileges",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotVersionSourcePostgresTest#exactHistoricalComposition",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#recoveryAffectedParticipantConformance",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#potVersionRecoveryRequiresCurrentPot",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#visibilityRecoverySupersession",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#currentBindingRecoverySupersession",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#independentProgression",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#resultsBeforeDomain",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#uncertainCommitHasNoSpeculativeSettlement",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#boundedCapacityAndRenewal",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance(String)[1]",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance(String)[2]",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance(String)[3]",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance(String)[4]",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance(String)[5]",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance(String)[6]",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.SubobjectAtomicityPostgresTest#effectsAndSlotSameUnit",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.SubobjectAtomicityPostgresTest#rollbackAfterDeleteAndEveryBoundary",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.SubobjectAtomicityPostgresTest#rollbackAfterFirstChunkAndBeforeCommit",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.SubobjectAtomicityPostgresTest#faultBetweenReadinessAndDelete",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.SubobjectAtomicityPostgresTest#actualReadiness",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.SubobjectAtomicityPostgresTest#caughtFailurePoisons",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.SubobjectAtomicityPostgresTest#publicationClosure",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.SubobjectAtomicityPostgresTest#deferredCommitRejection",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.SubobjectAtomicityPostgresTest#physicalOracleRejectsIndependentTransactions",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.SubobjectAtomicityPostgresTest#concurrentIdenticalAndDivergentSlots",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.SubobjectAtomicityPostgresTest#lateCaughtCallbackCannotCommit",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.SubobjectAtomicityPostgresTest#lostCommitAck",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.SubobjectStorePostgresTest#identicalInsert",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.SubobjectStorePostgresTest#divergentInsert",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.SubobjectStorePostgresTest#allFieldsMatter",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.SubobjectStorePostgresTest#batchAllOrNothing",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.SubobjectStorePostgresTest#concurrentIdentical",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.SubobjectStorePostgresTest#concurrentDivergent",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.SubobjectStorePostgresTest#conflictThenCommittedRead",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.SubobjectStorePostgresTest#reversedBatchesUseTotalOrder",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.SubobjectStorePostgresTest#postgresUuidOrder",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.SubobjectStorePostgresTest#strictCodec",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.SubobjectStorePostgresTest#ownerAndContext",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        }
+      ],
+      "tested_application_sha": "8a007768c23021153764473f6c6686042168df00",
+      "invocation_id": "6b091895d103489b857c7027a3481e45",
+      "command": [
+        "./mvnw",
+        "-Dpocoma.verification.id=6b091895d103489b857c7027a3481e45",
+        "-Dpocoma.verification.reports=/private/tmp/pocoma-i8-FULL-04/reports",
+        "test"
+      ],
+      "artifacts": [
+        "runs/FULL-04-FAIL/raw.tar.gz",
+        "runs/Architecture-correction-PASS/raw.tar.gz"
+      ],
+      "native_full_verdict": "FAIL — 2191/4/0/0 retained",
+      "gate_verdict": "COMPOSITE_PASS_APPROVED",
+      "verdict": "QUALIFIED INTERNAL CONTRIBUTIONS ONLY",
+      "authority": "CURRENT V3 PostgreSQL WRITE/READ in separate databases; internal trusted EUI fixture inputs; no cryptographic authentication exercised. Large facade-only manifests may be installed administratively in READ. Pure tests retain their own oracle.",
+      "historical_attribution": "Historical_Reuse_Comparison.json and original L4-I1/I2/I3-I7/Recovery manifests; no historical PASS assigned to new SHA.",
+      "remaining_limit": "Réponse interne complète ou indisponible",
+      "qualification_mode": "COMPOSITE APPROVED BY EXPLICIT HUMAN DECISION",
+      "human_decision": "Human_Composite_Qualification_Decision.json",
+      "productive_code_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+      "architecture_oracles_sha": "8a007768c23021153764473f6c6686042168df00"
+    },
+    {
+      "obligation": "PRJ-01 P01-L, manifeste/stockage",
+      "plan_allocation": "**R** compteurs SQL et chargement sélectif local ; **N** T06 taille/absence N+1 de nouvelle façade ; **D L6** profils exhaustifs/histoire longue/WAL/SLO",
+      "fresh_I8_contributions": [
+        {
+          "test_id": "T06",
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadFacadesPostgresTest#expenseBatchesRespectExactManifestAndBounds",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45",
+          "outcome": "PASS",
+          "seconds": 2.625
+        }
+      ],
+      "canonical_method_contributions": [
+        {
+          "method": "com.kartaguez.pocoma.domain.projection.v3.PotVersionContractTest#compositionAndKeys",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.PotVersionReadStorePostgresTest#historyAndReplay",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.PotVersionReadStorePostgresTest#concurrentPublishers",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.PotVersionReadStorePostgresTest#migrationAndPrivileges",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotVersionSourcePostgresTest#exactHistoricalComposition",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#recoveryAffectedParticipantConformance",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#potVersionRecoveryRequiresCurrentPot",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#visibilityRecoverySupersession",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#currentBindingRecoverySupersession",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#independentProgression",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#resultsBeforeDomain",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#uncertainCommitHasNoSpeculativeSettlement",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#boundedCapacityAndRenewal",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance(String)[1]",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance(String)[2]",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance(String)[3]",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance(String)[4]",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance(String)[5]",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance(String)[6]",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.SubobjectAtomicityPostgresTest#effectsAndSlotSameUnit",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.SubobjectAtomicityPostgresTest#rollbackAfterDeleteAndEveryBoundary",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.SubobjectAtomicityPostgresTest#rollbackAfterFirstChunkAndBeforeCommit",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.SubobjectAtomicityPostgresTest#faultBetweenReadinessAndDelete",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.SubobjectAtomicityPostgresTest#actualReadiness",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.SubobjectAtomicityPostgresTest#caughtFailurePoisons",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.SubobjectAtomicityPostgresTest#publicationClosure",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.SubobjectAtomicityPostgresTest#deferredCommitRejection",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.SubobjectAtomicityPostgresTest#physicalOracleRejectsIndependentTransactions",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.SubobjectAtomicityPostgresTest#concurrentIdenticalAndDivergentSlots",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.SubobjectAtomicityPostgresTest#lateCaughtCallbackCannotCommit",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.SubobjectAtomicityPostgresTest#lostCommitAck",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.SubobjectStorePostgresTest#identicalInsert",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.SubobjectStorePostgresTest#divergentInsert",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.SubobjectStorePostgresTest#allFieldsMatter",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.SubobjectStorePostgresTest#batchAllOrNothing",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.SubobjectStorePostgresTest#concurrentIdentical",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.SubobjectStorePostgresTest#concurrentDivergent",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.SubobjectStorePostgresTest#conflictThenCommittedRead",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.SubobjectStorePostgresTest#reversedBatchesUseTotalOrder",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.SubobjectStorePostgresTest#postgresUuidOrder",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.SubobjectStorePostgresTest#strictCodec",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.SubobjectStorePostgresTest#ownerAndContext",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        }
+      ],
+      "tested_application_sha": "8a007768c23021153764473f6c6686042168df00",
+      "invocation_id": "6b091895d103489b857c7027a3481e45",
+      "command": [
+        "./mvnw",
+        "-Dpocoma.verification.id=6b091895d103489b857c7027a3481e45",
+        "-Dpocoma.verification.reports=/private/tmp/pocoma-i8-FULL-04/reports",
+        "test"
+      ],
+      "artifacts": [
+        "runs/FULL-04-FAIL/raw.tar.gz",
+        "runs/Architecture-correction-PASS/raw.tar.gz"
+      ],
+      "native_full_verdict": "FAIL — 2191/4/0/0 retained",
+      "gate_verdict": "COMPOSITE_PASS_APPROVED",
+      "verdict": "QUALIFIED INTERNAL CONTRIBUTIONS ONLY",
+      "authority": "CURRENT V3 PostgreSQL WRITE/READ in separate databases; internal trusted EUI fixture inputs; no cryptographic authentication exercised. Large facade-only manifests may be installed administratively in READ. Pure tests retain their own oracle.",
+      "historical_attribution": "Historical_Reuse_Comparison.json and original L4-I1/I2/I3-I7/Recovery manifests; no historical PASS assigned to new SHA.",
+      "remaining_limit": "Réserve mémoire/volumes I1 conservée, pas de défaut I1 supposé",
+      "qualification_mode": "COMPOSITE APPROVED BY EXPLICIT HUMAN DECISION",
+      "human_decision": "Human_Composite_Qualification_Decision.json",
+      "productive_code_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+      "architecture_oracles_sha": "8a007768c23021153764473f6c6686042168df00"
+    },
+    {
+      "obligation": "PRJ-02 P02-A…J/L, DOM-03",
+      "plan_allocation": "**R** calcul rationnel/source/store/participant, D sans Balance ; **G** G-I4",
+      "fresh_I8_contributions": [],
+      "canonical_method_contributions": [
+        {
+          "method": "com.kartaguez.pocoma.domain.pot.v3.PotBalanceCalculatorTest#d01PayerParticipantAndSeparatePayerExactZeros",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.domain.pot.v3.PotBalanceCalculatorTest#d02DefaultsOverridesAndIndependentHistoricalResults",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.domain.pot.v3.PotBalanceCalculatorTest#d03MultipleExpensesAndRationalsBeyondMachineIntegers",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.domain.pot.v3.PotBalanceCalculatorTest#d04DeletionTerminalAndOutOfOrderAreIndependent",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.domain.pot.v3.PotBalanceCalculatorTest#d05ZeroAndInconsistentInputsNeverProducePartialBalances",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.domain.pot.v3.PotBalanceCalculatorTest#d06SeededSizesPermutationAndIndicativeCost",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.PotBalanceReadStorePostgresTest#historyAndRationals",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.PotBalanceReadStorePostgresTest#concurrentImmutablePublication",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.PotBalanceReadStorePostgresTest#migrationAndPrivileges",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotBalanceSourcePostgresTest#exactHistoricalFinance",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#recoveryAffectedParticipantConformance",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#potVersionRecoveryRequiresCurrentPot",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#visibilityRecoverySupersession",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#currentBindingRecoverySupersession",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#independentProgression",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#resultsBeforeDomain",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#uncertainCommitHasNoSpeculativeSettlement",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#boundedCapacityAndRenewal",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance(String)[1]",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance(String)[2]",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance(String)[3]",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance(String)[4]",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance(String)[5]",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance(String)[6]",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        }
+      ],
+      "tested_application_sha": "8a007768c23021153764473f6c6686042168df00",
+      "invocation_id": "6b091895d103489b857c7027a3481e45",
+      "command": [
+        "./mvnw",
+        "-Dpocoma.verification.id=6b091895d103489b857c7027a3481e45",
+        "-Dpocoma.verification.reports=/private/tmp/pocoma-i8-FULL-04/reports",
+        "test"
+      ],
+      "artifacts": [
+        "runs/FULL-04-FAIL/raw.tar.gz",
+        "runs/Architecture-correction-PASS/raw.tar.gz"
+      ],
+      "native_full_verdict": "FAIL — 2191/4/0/0 retained",
+      "gate_verdict": "COMPOSITE_PASS_APPROVED",
+      "verdict": "QUALIFIED INTERNAL CONTRIBUTIONS ONLY",
+      "authority": "CURRENT V3 PostgreSQL WRITE/READ in separate databases; internal trusted EUI fixture inputs; no cryptographic authentication exercised. Large facade-only manifests may be installed administratively in READ. Pure tests retain their own oracle.",
+      "historical_attribution": "Historical_Reuse_Comparison.json and original L4-I1/I2/I3-I7/Recovery manifests; no historical PASS assigned to new SHA.",
+      "remaining_limit": "Oracle indépendant exact, pas de performance inférée",
+      "qualification_mode": "COMPOSITE APPROVED BY EXPLICIT HUMAN DECISION",
+      "human_decision": "Human_Composite_Qualification_Decision.json",
+      "productive_code_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+      "architecture_oracles_sha": "8a007768c23021153764473f6c6686042168df00"
+    },
+    {
+      "obligation": "PRJ-02 P02-K",
+      "plan_allocation": "**N** T04/T05, balance exacte manquante puis arrivée ; **G** G-I8",
+      "fresh_I8_contributions": [
+        {
+          "test_id": "T04",
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadFacadesPostgresTest#currentHistoryAndConcurrentAdvanceStayExact",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45",
+          "outcome": "PASS",
+          "seconds": 2.901
+        },
+        {
+          "test_id": "T05",
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadFacadesPostgresTest#readinessDoesNotInventFreshness",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45",
+          "outcome": "PASS",
+          "seconds": 2.567
+        }
+      ],
+      "canonical_method_contributions": [
+        {
+          "method": "com.kartaguez.pocoma.domain.pot.v3.PotBalanceCalculatorTest#d01PayerParticipantAndSeparatePayerExactZeros",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.domain.pot.v3.PotBalanceCalculatorTest#d02DefaultsOverridesAndIndependentHistoricalResults",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.domain.pot.v3.PotBalanceCalculatorTest#d03MultipleExpensesAndRationalsBeyondMachineIntegers",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.domain.pot.v3.PotBalanceCalculatorTest#d04DeletionTerminalAndOutOfOrderAreIndependent",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.domain.pot.v3.PotBalanceCalculatorTest#d05ZeroAndInconsistentInputsNeverProducePartialBalances",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.domain.pot.v3.PotBalanceCalculatorTest#d06SeededSizesPermutationAndIndicativeCost",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.PotBalanceReadStorePostgresTest#historyAndRationals",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.PotBalanceReadStorePostgresTest#concurrentImmutablePublication",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.PotBalanceReadStorePostgresTest#migrationAndPrivileges",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotBalanceSourcePostgresTest#exactHistoricalFinance",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#recoveryAffectedParticipantConformance",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#potVersionRecoveryRequiresCurrentPot",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#visibilityRecoverySupersession",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#currentBindingRecoverySupersession",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#independentProgression",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#resultsBeforeDomain",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#uncertainCommitHasNoSpeculativeSettlement",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#boundedCapacityAndRenewal",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance(String)[1]",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance(String)[2]",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance(String)[3]",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance(String)[4]",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance(String)[5]",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance(String)[6]",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        }
+      ],
+      "tested_application_sha": "8a007768c23021153764473f6c6686042168df00",
+      "invocation_id": "6b091895d103489b857c7027a3481e45",
+      "command": [
+        "./mvnw",
+        "-Dpocoma.verification.id=6b091895d103489b857c7027a3481e45",
+        "-Dpocoma.verification.reports=/private/tmp/pocoma-i8-FULL-04/reports",
+        "test"
+      ],
+      "artifacts": [
+        "runs/FULL-04-FAIL/raw.tar.gz",
+        "runs/Architecture-correction-PASS/raw.tar.gz"
+      ],
+      "native_full_verdict": "FAIL — 2191/4/0/0 retained",
+      "gate_verdict": "COMPOSITE_PASS_APPROVED",
+      "verdict": "QUALIFIED INTERNAL CONTRIBUTIONS ONLY",
+      "authority": "CURRENT V3 PostgreSQL WRITE/READ in separate databases; internal trusted EUI fixture inputs; no cryptographic authentication exercised. Large facade-only manifests may be installed administratively in READ. Pure tests retain their own oracle.",
+      "historical_attribution": "Historical_Reuse_Comparison.json and original L4-I1/I2/I3-I7/Recovery manifests; no historical PASS assigned to new SHA.",
+      "remaining_limit": "Jamais V−1/V+1 ; Visibility non requise",
+      "qualification_mode": "COMPOSITE APPROVED BY EXPLICIT HUMAN DECISION",
+      "human_decision": "Human_Composite_Qualification_Decision.json",
+      "productive_code_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+      "architecture_oracles_sha": "8a007768c23021153764473f6c6686042168df00"
+    },
+    {
+      "obligation": "PRJ-02 P02-M",
+      "plan_allocation": "**R** contributions SQL locales ; **D L6** profils, budgets/saturation transversale",
+      "fresh_I8_contributions": [],
+      "canonical_method_contributions": [
+        {
+          "method": "com.kartaguez.pocoma.domain.pot.v3.PotBalanceCalculatorTest#d01PayerParticipantAndSeparatePayerExactZeros",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.domain.pot.v3.PotBalanceCalculatorTest#d02DefaultsOverridesAndIndependentHistoricalResults",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.domain.pot.v3.PotBalanceCalculatorTest#d03MultipleExpensesAndRationalsBeyondMachineIntegers",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.domain.pot.v3.PotBalanceCalculatorTest#d04DeletionTerminalAndOutOfOrderAreIndependent",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.domain.pot.v3.PotBalanceCalculatorTest#d05ZeroAndInconsistentInputsNeverProducePartialBalances",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.domain.pot.v3.PotBalanceCalculatorTest#d06SeededSizesPermutationAndIndicativeCost",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.PotBalanceReadStorePostgresTest#historyAndRationals",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.PotBalanceReadStorePostgresTest#concurrentImmutablePublication",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.PotBalanceReadStorePostgresTest#migrationAndPrivileges",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotBalanceSourcePostgresTest#exactHistoricalFinance",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#recoveryAffectedParticipantConformance",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#potVersionRecoveryRequiresCurrentPot",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#visibilityRecoverySupersession",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#currentBindingRecoverySupersession",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#independentProgression",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#resultsBeforeDomain",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#uncertainCommitHasNoSpeculativeSettlement",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#boundedCapacityAndRenewal",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance(String)[1]",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance(String)[2]",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance(String)[3]",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance(String)[4]",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance(String)[5]",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance(String)[6]",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        }
+      ],
+      "tested_application_sha": "8a007768c23021153764473f6c6686042168df00",
+      "invocation_id": "6b091895d103489b857c7027a3481e45",
+      "command": [
+        "./mvnw",
+        "-Dpocoma.verification.id=6b091895d103489b857c7027a3481e45",
+        "-Dpocoma.verification.reports=/private/tmp/pocoma-i8-FULL-04/reports",
+        "test"
+      ],
+      "artifacts": [
+        "runs/FULL-04-FAIL/raw.tar.gz",
+        "runs/Architecture-correction-PASS/raw.tar.gz"
+      ],
+      "native_full_verdict": "FAIL — 2191/4/0/0 retained",
+      "gate_verdict": "COMPOSITE_PASS_APPROVED",
+      "verdict": "QUALIFIED INTERNAL CONTRIBUTIONS ONLY",
+      "authority": "CURRENT V3 PostgreSQL WRITE/READ in separate databases; internal trusted EUI fixture inputs; no cryptographic authentication exercised. Large facade-only manifests may be installed administratively in READ. Pure tests retain their own oracle.",
+      "historical_attribution": "Historical_Reuse_Comparison.json and original L4-I1/I2/I3-I7/Recovery manifests; no historical PASS assigned to new SHA.",
+      "remaining_limit": "Aucun certificat PRJ-02 global sans variante physique requise",
+      "qualification_mode": "COMPOSITE APPROVED BY EXPLICIT HUMAN DECISION",
+      "human_decision": "Human_Composite_Qualification_Decision.json",
+      "productive_code_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+      "architecture_oracles_sha": "8a007768c23021153764473f6c6686042168df00"
+    },
+    {
+      "obligation": "PRJ-03 P03-A…L/N",
+      "plan_allocation": "**R** règles/guard/store/lecteurs MVCC ; **G** G-I5",
+      "fresh_I8_contributions": [],
+      "canonical_method_contributions": [
+        {
+          "method": "com.kartaguez.pocoma.engine.consume.projectiontask.v3.PotVisibilityRulesTest#visibleSetRules",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.PotVisibilityReadStorePostgresTest#historyAndKeyset",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.PotVisibilityReadStorePostgresTest#concurrentGuardAndAtomicReaders",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.PotVisibilityReadStorePostgresTest#plansAndProfiles",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.PotVisibilityReadStorePostgresTest#migrationAndPrivileges",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotVisibilitySourcePostgresTest#exactHistoricalMembership",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#recoveryAffectedParticipantConformance",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#potVersionRecoveryRequiresCurrentPot",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#visibilityRecoverySupersession",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#currentBindingRecoverySupersession",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#independentProgression",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#resultsBeforeDomain",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#uncertainCommitHasNoSpeculativeSettlement",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#boundedCapacityAndRenewal",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance(String)[1]",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance(String)[2]",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance(String)[3]",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance(String)[4]",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance(String)[5]",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance(String)[6]",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        }
+      ],
+      "tested_application_sha": "8a007768c23021153764473f6c6686042168df00",
+      "invocation_id": "6b091895d103489b857c7027a3481e45",
+      "command": [
+        "./mvnw",
+        "-Dpocoma.verification.id=6b091895d103489b857c7027a3481e45",
+        "-Dpocoma.verification.reports=/private/tmp/pocoma-i8-FULL-04/reports",
+        "test"
+      ],
+      "artifacts": [
+        "runs/FULL-04-FAIL/raw.tar.gz",
+        "runs/Architecture-correction-PASS/raw.tar.gz"
+      ],
+      "native_full_verdict": "FAIL — 2191/4/0/0 retained",
+      "gate_verdict": "COMPOSITE_PASS_APPROVED",
+      "verdict": "QUALIFIED INTERNAL CONTRIBUTIONS ONLY",
+      "authority": "CURRENT V3 PostgreSQL WRITE/READ in separate databases; internal trusted EUI fixture inputs; no cryptographic authentication exercised. Large facade-only manifests may be installed administratively in READ. Pure tests retain their own oracle.",
+      "historical_attribution": "Historical_Reuse_Comparison.json and original L4-I1/I2/I3-I7/Recovery manifests; no historical PASS assigned to new SHA.",
+      "remaining_limit": "Monotonie/tombstones, ensemble exact conservés",
+      "qualification_mode": "COMPOSITE APPROVED BY EXPLICIT HUMAN DECISION",
+      "human_decision": "Human_Composite_Qualification_Decision.json",
+      "productive_code_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+      "architecture_oracles_sha": "8a007768c23021153764473f6c6686042168df00"
+    },
+    {
+      "obligation": "PRJ-03 P03-M et S-01 interne",
+      "plan_allocation": "**N** T07/T08 ; **G** G-I8",
+      "fresh_I8_contributions": [
+        {
+          "test_id": "T07",
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadFacadesPostgresTest#bindingAndResultsKeepTheirOwnAuthorities",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45",
+          "outcome": "PASS",
+          "seconds": 7.641
+        },
+        {
+          "test_id": "T08",
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadFacadesPostgresTest#navigationIsKeysetAndNeverAuthorizes",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45",
+          "outcome": "PASS",
+          "seconds": 2.715
+        }
+      ],
+      "canonical_method_contributions": [
+        {
+          "method": "com.kartaguez.pocoma.engine.consume.projectiontask.v3.PotVisibilityRulesTest#visibleSetRules",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.PotVisibilityReadStorePostgresTest#historyAndKeyset",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.PotVisibilityReadStorePostgresTest#concurrentGuardAndAtomicReaders",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.PotVisibilityReadStorePostgresTest#plansAndProfiles",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.PotVisibilityReadStorePostgresTest#migrationAndPrivileges",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotVisibilitySourcePostgresTest#exactHistoricalMembership",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#recoveryAffectedParticipantConformance",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#potVersionRecoveryRequiresCurrentPot",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#visibilityRecoverySupersession",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#currentBindingRecoverySupersession",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#independentProgression",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#resultsBeforeDomain",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#uncertainCommitHasNoSpeculativeSettlement",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#boundedCapacityAndRenewal",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance(String)[1]",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance(String)[2]",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance(String)[3]",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance(String)[4]",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance(String)[5]",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance(String)[6]",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        }
+      ],
+      "tested_application_sha": "8a007768c23021153764473f6c6686042168df00",
+      "invocation_id": "6b091895d103489b857c7027a3481e45",
+      "command": [
+        "./mvnw",
+        "-Dpocoma.verification.id=6b091895d103489b857c7027a3481e45",
+        "-Dpocoma.verification.reports=/private/tmp/pocoma-i8-FULL-04/reports",
+        "test"
+      ],
+      "artifacts": [
+        "runs/FULL-04-FAIL/raw.tar.gz",
+        "runs/Architecture-correction-PASS/raw.tar.gz"
+      ],
+      "native_full_verdict": "FAIL — 2191/4/0/0 retained",
+      "gate_verdict": "COMPOSITE_PASS_APPROVED",
+      "verdict": "QUALIFIED INTERNAL CONTRIBUTIONS ONLY",
+      "authority": "CURRENT V3 PostgreSQL WRITE/READ in separate databases; internal trusted EUI fixture inputs; no cryptographic authentication exercised. Large facade-only manifests may be installed administratively in READ. Pure tests retain their own oracle.",
+      "historical_attribution": "Historical_Reuse_Comparison.json and original L4-I1/I2/I3-I7/Recovery manifests; no historical PASS assigned to new SHA.",
+      "remaining_limit": "Navigation non autorisante ; curseur HTTP **D L5**",
+      "qualification_mode": "COMPOSITE APPROVED BY EXPLICIT HUMAN DECISION",
+      "human_decision": "Human_Composite_Qualification_Decision.json",
+      "productive_code_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+      "architecture_oracles_sha": "8a007768c23021153764473f6c6686042168df00"
+    },
+    {
+      "obligation": "PRJ-03 P03-O",
+      "plan_allocation": "**R** 10 000 tombstones/plan SQL local ; **D L6** charge/performance globale",
+      "fresh_I8_contributions": [],
+      "canonical_method_contributions": [
+        {
+          "method": "com.kartaguez.pocoma.engine.consume.projectiontask.v3.PotVisibilityRulesTest#visibleSetRules",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.PotVisibilityReadStorePostgresTest#historyAndKeyset",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.PotVisibilityReadStorePostgresTest#concurrentGuardAndAtomicReaders",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.PotVisibilityReadStorePostgresTest#plansAndProfiles",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.PotVisibilityReadStorePostgresTest#migrationAndPrivileges",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotVisibilitySourcePostgresTest#exactHistoricalMembership",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#recoveryAffectedParticipantConformance",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#potVersionRecoveryRequiresCurrentPot",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#visibilityRecoverySupersession",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#currentBindingRecoverySupersession",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#independentProgression",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#resultsBeforeDomain",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#uncertainCommitHasNoSpeculativeSettlement",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#boundedCapacityAndRenewal",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance(String)[1]",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance(String)[2]",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance(String)[3]",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance(String)[4]",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance(String)[5]",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance(String)[6]",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        }
+      ],
+      "tested_application_sha": "8a007768c23021153764473f6c6686042168df00",
+      "invocation_id": "6b091895d103489b857c7027a3481e45",
+      "command": [
+        "./mvnw",
+        "-Dpocoma.verification.id=6b091895d103489b857c7027a3481e45",
+        "-Dpocoma.verification.reports=/private/tmp/pocoma-i8-FULL-04/reports",
+        "test"
+      ],
+      "artifacts": [
+        "runs/FULL-04-FAIL/raw.tar.gz",
+        "runs/Architecture-correction-PASS/raw.tar.gz"
+      ],
+      "native_full_verdict": "FAIL — 2191/4/0/0 retained",
+      "gate_verdict": "COMPOSITE_PASS_APPROVED",
+      "verdict": "QUALIFIED INTERNAL CONTRIBUTIONS ONLY",
+      "authority": "CURRENT V3 PostgreSQL WRITE/READ in separate databases; internal trusted EUI fixture inputs; no cryptographic authentication exercised. Large facade-only manifests may be installed administratively in READ. Pure tests retain their own oracle.",
+      "historical_attribution": "Historical_Reuse_Comparison.json and original L4-I1/I2/I3-I7/Recovery manifests; no historical PASS assigned to new SHA.",
+      "remaining_limit": "Pas de scan historique dans le diff ; pas de SLO revendiqué",
+      "qualification_mode": "COMPOSITE APPROVED BY EXPLICIT HUMAN DECISION",
+      "human_decision": "Human_Composite_Qualification_Decision.json",
+      "productive_code_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+      "architecture_oracles_sha": "8a007768c23021153764473f6c6686042168df00"
+    },
+    {
+      "obligation": "READ-01 R01-A…G/I/K/L/M",
+      "plan_allocation": "**N** T04/T05/T07, version servie, droits puis minVersion/dépendances, concurrent commit/rollback ; **G** G-I8",
+      "fresh_I8_contributions": [
+        {
+          "test_id": "T04",
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadFacadesPostgresTest#currentHistoryAndConcurrentAdvanceStayExact",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45",
+          "outcome": "PASS",
+          "seconds": 2.901
+        },
+        {
+          "test_id": "T05",
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadFacadesPostgresTest#readinessDoesNotInventFreshness",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45",
+          "outcome": "PASS",
+          "seconds": 2.567
+        },
+        {
+          "test_id": "T07",
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadFacadesPostgresTest#bindingAndResultsKeepTheirOwnAuthorities",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45",
+          "outcome": "PASS",
+          "seconds": 7.641
+        }
+      ],
+      "canonical_method_contributions": [],
+      "tested_application_sha": "8a007768c23021153764473f6c6686042168df00",
+      "invocation_id": "6b091895d103489b857c7027a3481e45",
+      "command": [
+        "./mvnw",
+        "-Dpocoma.verification.id=6b091895d103489b857c7027a3481e45",
+        "-Dpocoma.verification.reports=/private/tmp/pocoma-i8-FULL-04/reports",
+        "test"
+      ],
+      "artifacts": [
+        "runs/FULL-04-FAIL/raw.tar.gz",
+        "runs/Architecture-correction-PASS/raw.tar.gz"
+      ],
+      "native_full_verdict": "FAIL — 2191/4/0/0 retained",
+      "gate_verdict": "COMPOSITE_PASS_APPROVED",
+      "verdict": "QUALIFIED INTERNAL CONTRIBUTIONS ONLY",
+      "authority": "CURRENT V3 PostgreSQL WRITE/READ in separate databases; internal trusted EUI fixture inputs; no cryptographic authentication exercised. Large facade-only manifests may be installed administratively in READ. Pure tests retain their own oracle.",
+      "historical_attribution": "Historical_Reuse_Comparison.json and original L4-I1/I2/I3-I7/Recovery manifests; no historical PASS assigned to new SHA.",
+      "remaining_limit": "Part interne L4 ; HTTP/Bruno/AuthN réel **D L5**",
+      "qualification_mode": "COMPOSITE APPROVED BY EXPLICIT HUMAN DECISION",
+      "human_decision": "Human_Composite_Qualification_Decision.json",
+      "productive_code_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+      "architecture_oracles_sha": "8a007768c23021153764473f6c6686042168df00"
+    },
+    {
+      "obligation": "READ-01 R01-H/J",
+      "plan_allocation": "**N** T07 résultats avant métier et T08 Pots/navigation décalés ; **R** indépendance locale antérieure",
+      "fresh_I8_contributions": [
+        {
+          "test_id": "T07",
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadFacadesPostgresTest#bindingAndResultsKeepTheirOwnAuthorities",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45",
+          "outcome": "PASS",
+          "seconds": 7.641
+        },
+        {
+          "test_id": "T08",
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadFacadesPostgresTest#navigationIsKeysetAndNeverAuthorizes",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45",
+          "outcome": "PASS",
+          "seconds": 2.715
+        }
+      ],
+      "canonical_method_contributions": [],
+      "tested_application_sha": "8a007768c23021153764473f6c6686042168df00",
+      "invocation_id": "6b091895d103489b857c7027a3481e45",
+      "command": [
+        "./mvnw",
+        "-Dpocoma.verification.id=6b091895d103489b857c7027a3481e45",
+        "-Dpocoma.verification.reports=/private/tmp/pocoma-i8-FULL-04/reports",
+        "test"
+      ],
+      "artifacts": [
+        "runs/FULL-04-FAIL/raw.tar.gz",
+        "runs/Architecture-correction-PASS/raw.tar.gz"
+      ],
+      "native_full_verdict": "FAIL — 2191/4/0/0 retained",
+      "gate_verdict": "COMPOSITE_PASS_APPROVED",
+      "verdict": "QUALIFIED INTERNAL CONTRIBUTIONS ONLY",
+      "authority": "CURRENT V3 PostgreSQL WRITE/READ in separate databases; internal trusted EUI fixture inputs; no cryptographic authentication exercised. Large facade-only manifests may be installed administratively in READ. Pure tests retain their own oracle.",
+      "historical_attribution": "Historical_Reuse_Comparison.json and original L4-I1/I2/I3-I7/Recovery manifests; no historical PASS assigned to new SHA.",
+      "remaining_limit": "Aucun snapshot global imposé",
+      "qualification_mode": "COMPOSITE APPROVED BY EXPLICIT HUMAN DECISION",
+      "human_decision": "Human_Composite_Qualification_Decision.json",
+      "productive_code_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+      "architecture_oracles_sha": "8a007768c23021153764473f6c6686042168df00"
+    },
+    {
+      "obligation": "READ-01 R01-N",
+      "plan_allocation": "**D L5/L6** sondage/polling et mesure E2E",
+      "fresh_I8_contributions": [],
+      "canonical_method_contributions": [],
+      "tested_application_sha": "8a007768c23021153764473f6c6686042168df00",
+      "invocation_id": "6b091895d103489b857c7027a3481e45",
+      "command": [
+        "./mvnw",
+        "-Dpocoma.verification.id=6b091895d103489b857c7027a3481e45",
+        "-Dpocoma.verification.reports=/private/tmp/pocoma-i8-FULL-04/reports",
+        "test"
+      ],
+      "artifacts": [
+        "runs/FULL-04-FAIL/raw.tar.gz",
+        "runs/Architecture-correction-PASS/raw.tar.gz"
+      ],
+      "native_full_verdict": "FAIL — 2191/4/0/0 retained",
+      "gate_verdict": "COMPOSITE_PASS_APPROVED",
+      "verdict": "DEFERRED",
+      "authority": "CURRENT V3 PostgreSQL WRITE/READ in separate databases; internal trusted EUI fixture inputs; no cryptographic authentication exercised. Large facade-only manifests may be installed administratively in READ. Pure tests retain their own oracle.",
+      "historical_attribution": "Historical_Reuse_Comparison.json and original L4-I1/I2/I3-I7/Recovery manifests; no historical PASS assigned to new SHA.",
+      "remaining_limit": "Horodatage de polling ≠ commit exact",
+      "qualification_mode": "COMPOSITE APPROVED BY EXPLICIT HUMAN DECISION",
+      "human_decision": "Human_Composite_Qualification_Decision.json",
+      "productive_code_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+      "architecture_oracles_sha": "8a007768c23021153764473f6c6686042168df00"
+    },
+    {
+      "obligation": "SEC-01 S01-A/C…N interne",
+      "plan_allocation": "**N** T04–T08 : binding exact, droits à V, masquage avant indisponibilité, créateur sans Shareholder, issuer distinct, références étrangères",
+      "fresh_I8_contributions": [
+        {
+          "test_id": "T04",
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadFacadesPostgresTest#currentHistoryAndConcurrentAdvanceStayExact",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45",
+          "outcome": "PASS",
+          "seconds": 2.901
+        },
+        {
+          "test_id": "T05",
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadFacadesPostgresTest#readinessDoesNotInventFreshness",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45",
+          "outcome": "PASS",
+          "seconds": 2.567
+        },
+        {
+          "test_id": "T06",
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadFacadesPostgresTest#expenseBatchesRespectExactManifestAndBounds",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45",
+          "outcome": "PASS",
+          "seconds": 2.625
+        },
+        {
+          "test_id": "T07",
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadFacadesPostgresTest#bindingAndResultsKeepTheirOwnAuthorities",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45",
+          "outcome": "PASS",
+          "seconds": 7.641
+        },
+        {
+          "test_id": "T08",
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadFacadesPostgresTest#navigationIsKeysetAndNeverAuthorizes",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45",
+          "outcome": "PASS",
+          "seconds": 2.715
+        }
+      ],
+      "canonical_method_contributions": [],
+      "tested_application_sha": "8a007768c23021153764473f6c6686042168df00",
+      "invocation_id": "6b091895d103489b857c7027a3481e45",
+      "command": [
+        "./mvnw",
+        "-Dpocoma.verification.id=6b091895d103489b857c7027a3481e45",
+        "-Dpocoma.verification.reports=/private/tmp/pocoma-i8-FULL-04/reports",
+        "test"
+      ],
+      "artifacts": [
+        "runs/FULL-04-FAIL/raw.tar.gz",
+        "runs/Architecture-correction-PASS/raw.tar.gz"
+      ],
+      "native_full_verdict": "FAIL — 2191/4/0/0 retained",
+      "gate_verdict": "COMPOSITE_PASS_APPROVED",
+      "verdict": "QUALIFIED INTERNAL CONTRIBUTIONS ONLY",
+      "authority": "CURRENT V3 PostgreSQL WRITE/READ in separate databases; internal trusted EUI fixture inputs; no cryptographic authentication exercised. Large facade-only manifests may be installed administratively in READ. Pure tests retain their own oracle.",
+      "historical_attribution": "Historical_Reuse_Comparison.json and original L4-I1/I2/I3-I7/Recovery manifests; no historical PASS assigned to new SHA.",
+      "remaining_limit": "S01-B/O authentification cryptographique réelle et HTTP **D L5** ; l’absence d’EUI attestée est refusée au contrat interne",
+      "qualification_mode": "COMPOSITE APPROVED BY EXPLICIT HUMAN DECISION",
+      "human_decision": "Human_Composite_Qualification_Decision.json",
+      "productive_code_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+      "architecture_oracles_sha": "8a007768c23021153764473f6c6686042168df00"
+    },
+    {
+      "obligation": "SEC-02 S02-A/B/D…J interne, I01-Q",
+      "plan_allocation": "**R** source/store/hors ordre EUI ; **N** T07 fenêtre Unlink/rattrapage, nouveau token, deux EUI ; **G** G-I6/I8",
+      "fresh_I8_contributions": [
+        {
+          "test_id": "T07",
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadFacadesPostgresTest#bindingAndResultsKeepTheirOwnAuthorities",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45",
+          "outcome": "PASS",
+          "seconds": 7.641
+        }
+      ],
+      "canonical_method_contributions": [
+        {
+          "method": "com.kartaguez.pocoma.engine.read.currentbinding.v3.CurrentBindingV3ContractTest#euiStateAndMinVersion",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.CurrentBindingReadStorePostgresTest#historyAndIsolation",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.CurrentBindingReadStorePostgresTest#concurrentVersionsAndDivergence",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.CurrentBindingReadStorePostgresTest#migrationAndPrivileges",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.CurrentBindingSourcePostgresTest#exactEuiHistory",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#recoveryAffectedParticipantConformance",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#potVersionRecoveryRequiresCurrentPot",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#visibilityRecoverySupersession",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#currentBindingRecoverySupersession",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#independentProgression",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#resultsBeforeDomain",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#uncertainCommitHasNoSpeculativeSettlement",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#boundedCapacityAndRenewal",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance(String)[1]",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance(String)[2]",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance(String)[3]",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance(String)[4]",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance(String)[5]",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance(String)[6]",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        }
+      ],
+      "tested_application_sha": "8a007768c23021153764473f6c6686042168df00",
+      "invocation_id": "6b091895d103489b857c7027a3481e45",
+      "command": [
+        "./mvnw",
+        "-Dpocoma.verification.id=6b091895d103489b857c7027a3481e45",
+        "-Dpocoma.verification.reports=/private/tmp/pocoma-i8-FULL-04/reports",
+        "test"
+      ],
+      "artifacts": [
+        "runs/FULL-04-FAIL/raw.tar.gz",
+        "runs/Architecture-correction-PASS/raw.tar.gz"
+      ],
+      "native_full_verdict": "FAIL — 2191/4/0/0 retained",
+      "gate_verdict": "COMPOSITE_PASS_APPROVED",
+      "verdict": "QUALIFIED INTERNAL CONTRIBUTIONS ONLY",
+      "authority": "CURRENT V3 PostgreSQL WRITE/READ in separate databases; internal trusted EUI fixture inputs; no cryptographic authentication exercised. Large facade-only manifests may be installed administratively in READ. Pure tests retain their own oracle.",
+      "historical_attribution": "Historical_Reuse_Comparison.json and original L4-I1/I2/I3-I7/Recovery manifests; no historical PASS assigned to new SHA.",
+      "remaining_limit": "S02-C autorité WRITE attribuée à L3 ; S02-K E2E/SLO **D L5/L6**, aucun délai de révocation inventé",
+      "qualification_mode": "COMPOSITE APPROVED BY EXPLICIT HUMAN DECISION",
+      "human_decision": "Human_Composite_Qualification_Decision.json",
+      "productive_code_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+      "architecture_oracles_sha": "8a007768c23021153764473f6c6686042168df00"
+    },
+    {
+      "obligation": "CommandResult / IdentityRequestResult A10-A…F/J/K",
+      "plan_allocation": "**R** sources, mapping, provenance et immutabilité I7 ; **N** T07 raccordement/sessions internes d’EUI, sans Binding requis ; **G** G-I7",
+      "fresh_I8_contributions": [
+        {
+          "test_id": "T07",
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadFacadesPostgresTest#bindingAndResultsKeepTheirOwnAuthorities",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45",
+          "outcome": "PASS",
+          "seconds": 7.641
+        }
+      ],
+      "canonical_method_contributions": [
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.TerminalResultsReadStorePostgresTest#mappingsAndOwnership",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.TerminalResultsReadStorePostgresTest#concurrentImmutableResults",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.TerminalResultsReadStorePostgresTest#migrationsAndPrivileges",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.TerminalResultSourcesPostgresTest#durableRequestsAndTerminals",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#recoveryAffectedParticipantConformance",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#potVersionRecoveryRequiresCurrentPot",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#visibilityRecoverySupersession",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#currentBindingRecoverySupersession",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#independentProgression",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#resultsBeforeDomain",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#uncertainCommitHasNoSpeculativeSettlement",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#boundedCapacityAndRenewal",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance(String)[1]",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance(String)[2]",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance(String)[3]",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance(String)[4]",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance(String)[5]",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance(String)[6]",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        }
+      ],
+      "tested_application_sha": "8a007768c23021153764473f6c6686042168df00",
+      "invocation_id": "6b091895d103489b857c7027a3481e45",
+      "command": [
+        "./mvnw",
+        "-Dpocoma.verification.id=6b091895d103489b857c7027a3481e45",
+        "-Dpocoma.verification.reports=/private/tmp/pocoma-i8-FULL-04/reports",
+        "test"
+      ],
+      "artifacts": [
+        "runs/FULL-04-FAIL/raw.tar.gz",
+        "runs/Architecture-correction-PASS/raw.tar.gz"
+      ],
+      "native_full_verdict": "FAIL — 2191/4/0/0 retained",
+      "gate_verdict": "COMPOSITE_PASS_APPROVED",
+      "verdict": "QUALIFIED INTERNAL CONTRIBUTIONS ONLY",
+      "authority": "CURRENT V3 PostgreSQL WRITE/READ in separate databases; internal trusted EUI fixture inputs; no cryptographic authentication exercised. Large facade-only manifests may be installed administratively in READ. Pure tests retain their own oracle.",
+      "historical_attribution": "Historical_Reuse_Comparison.json and original L4-I1/I2/I3-I7/Recovery manifests; no historical PASS assigned to new SHA.",
+      "remaining_limit": "Consentement/sessions authentifiées/exposition HTTP **D L5**",
+      "qualification_mode": "COMPOSITE APPROVED BY EXPLICIT HUMAN DECISION",
+      "human_decision": "Human_Composite_Qualification_Decision.json",
+      "productive_code_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+      "architecture_oracles_sha": "8a007768c23021153764473f6c6686042168df00"
+    },
+    {
+      "obligation": "A10-G/H/I",
+      "plan_allocation": "**N** T05/T07 absence/tiers uniforme, résultats retardés et panne réelle ; **D L5** codes/enveloppes/polling/401",
+      "fresh_I8_contributions": [
+        {
+          "test_id": "T05",
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadFacadesPostgresTest#readinessDoesNotInventFreshness",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45",
+          "outcome": "PASS",
+          "seconds": 2.567
+        },
+        {
+          "test_id": "T07",
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadFacadesPostgresTest#bindingAndResultsKeepTheirOwnAuthorities",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45",
+          "outcome": "PASS",
+          "seconds": 7.641
+        }
+      ],
+      "canonical_method_contributions": [
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.TerminalResultsReadStorePostgresTest#mappingsAndOwnership",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.TerminalResultsReadStorePostgresTest#concurrentImmutableResults",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.TerminalResultsReadStorePostgresTest#migrationsAndPrivileges",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.TerminalResultSourcesPostgresTest#durableRequestsAndTerminals",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#recoveryAffectedParticipantConformance",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#potVersionRecoveryRequiresCurrentPot",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#visibilityRecoverySupersession",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#currentBindingRecoverySupersession",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#independentProgression",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#resultsBeforeDomain",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#uncertainCommitHasNoSpeculativeSettlement",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#boundedCapacityAndRenewal",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance(String)[1]",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance(String)[2]",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance(String)[3]",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance(String)[4]",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance(String)[5]",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance(String)[6]",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        }
+      ],
+      "tested_application_sha": "8a007768c23021153764473f6c6686042168df00",
+      "invocation_id": "6b091895d103489b857c7027a3481e45",
+      "command": [
+        "./mvnw",
+        "-Dpocoma.verification.id=6b091895d103489b857c7027a3481e45",
+        "-Dpocoma.verification.reports=/private/tmp/pocoma-i8-FULL-04/reports",
+        "test"
+      ],
+      "artifacts": [
+        "runs/FULL-04-FAIL/raw.tar.gz",
+        "runs/Architecture-correction-PASS/raw.tar.gz"
+      ],
+      "native_full_verdict": "FAIL — 2191/4/0/0 retained",
+      "gate_verdict": "COMPOSITE_PASS_APPROVED",
+      "verdict": "QUALIFIED INTERNAL CONTRIBUTIONS ONLY",
+      "authority": "CURRENT V3 PostgreSQL WRITE/READ in separate databases; internal trusted EUI fixture inputs; no cryptographic authentication exercised. Large facade-only manifests may be installed administratively in READ. Pure tests retain their own oracle.",
+      "historical_attribution": "Historical_Reuse_Comparison.json and original L4-I1/I2/I3-I7/Recovery manifests; no historical PASS assigned to new SHA.",
+      "remaining_limit": "Pas de 503 de commodité sur absence normale",
+      "qualification_mode": "COMPOSITE APPROVED BY EXPLICIT HUMAN DECISION",
+      "human_decision": "Human_Composite_Qualification_Decision.json",
+      "productive_code_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+      "architecture_oracles_sha": "8a007768c23021153764473f6c6686042168df00"
+    },
+    {
+      "obligation": "A11-B…E, suppression/histoire",
+      "plan_allocation": "**R** indépendance et D ; **N** T03/T04/T05 pour chaîne Worker→façade ; **G** G-I3…I8",
+      "fresh_I8_contributions": [
+        {
+          "test_id": "T03",
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadRuntimeAssemblyPostgresTest#sixParticipantsProgressThroughWorkers",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45",
+          "outcome": "PASS",
+          "seconds": 10.659
+        },
+        {
+          "test_id": "T04",
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadFacadesPostgresTest#currentHistoryAndConcurrentAdvanceStayExact",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45",
+          "outcome": "PASS",
+          "seconds": 2.901
+        },
+        {
+          "test_id": "T05",
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadFacadesPostgresTest#readinessDoesNotInventFreshness",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45",
+          "outcome": "PASS",
+          "seconds": 2.567
+        }
+      ],
+      "canonical_method_contributions": [],
+      "tested_application_sha": "8a007768c23021153764473f6c6686042168df00",
+      "invocation_id": "6b091895d103489b857c7027a3481e45",
+      "command": [
+        "./mvnw",
+        "-Dpocoma.verification.id=6b091895d103489b857c7027a3481e45",
+        "-Dpocoma.verification.reports=/private/tmp/pocoma-i8-FULL-04/reports",
+        "test"
+      ],
+      "artifacts": [
+        "runs/FULL-04-FAIL/raw.tar.gz",
+        "runs/Architecture-correction-PASS/raw.tar.gz"
+      ],
+      "native_full_verdict": "FAIL — 2191/4/0/0 retained",
+      "gate_verdict": "COMPOSITE_PASS_APPROVED",
+      "verdict": "QUALIFIED INTERNAL CONTRIBUTIONS ONLY",
+      "authority": "CURRENT V3 PostgreSQL WRITE/READ in separate databases; internal trusted EUI fixture inputs; no cryptographic authentication exercised. Large facade-only manifests may be installed administratively in READ. Pure tests retain their own oracle.",
+      "historical_attribution": "Historical_Reuse_Comparison.json and original L4-I1/I2/I3-I7/Recovery manifests; no historical PASS assigned to new SHA.",
+      "remaining_limit": "A11-A WRITE attribué à L1 ; pas de Balance(D) attendue",
+      "qualification_mode": "COMPOSITE APPROVED BY EXPLICIT HUMAN DECISION",
+      "human_decision": "Human_Composite_Qualification_Decision.json",
+      "productive_code_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+      "architecture_oracles_sha": "8a007768c23021153764473f6c6686042168df00"
+    },
+    {
+      "obligation": "A11-F…K/N, S-02 interne",
+      "plan_allocation": "**N** T04/T06/T07 : manifeste complet, V<D autorisé, D masqué, lots exacts ; **D L5** transport/HTTP et plafonds publics",
+      "fresh_I8_contributions": [
+        {
+          "test_id": "T04",
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadFacadesPostgresTest#currentHistoryAndConcurrentAdvanceStayExact",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45",
+          "outcome": "PASS",
+          "seconds": 2.901
+        },
+        {
+          "test_id": "T06",
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadFacadesPostgresTest#expenseBatchesRespectExactManifestAndBounds",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45",
+          "outcome": "PASS",
+          "seconds": 2.625
+        },
+        {
+          "test_id": "T07",
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadFacadesPostgresTest#bindingAndResultsKeepTheirOwnAuthorities",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45",
+          "outcome": "PASS",
+          "seconds": 7.641
+        }
+      ],
+      "canonical_method_contributions": [],
+      "tested_application_sha": "8a007768c23021153764473f6c6686042168df00",
+      "invocation_id": "6b091895d103489b857c7027a3481e45",
+      "command": [
+        "./mvnw",
+        "-Dpocoma.verification.id=6b091895d103489b857c7027a3481e45",
+        "-Dpocoma.verification.reports=/private/tmp/pocoma-i8-FULL-04/reports",
+        "test"
+      ],
+      "artifacts": [
+        "runs/FULL-04-FAIL/raw.tar.gz",
+        "runs/Architecture-correction-PASS/raw.tar.gz"
+      ],
+      "native_full_verdict": "FAIL — 2191/4/0/0 retained",
+      "gate_verdict": "COMPOSITE_PASS_APPROVED",
+      "verdict": "QUALIFIED INTERNAL CONTRIBUTIONS ONLY",
+      "authority": "CURRENT V3 PostgreSQL WRITE/READ in separate databases; internal trusted EUI fixture inputs; no cryptographic authentication exercised. Large facade-only manifests may be installed administratively in READ. Pure tests retain their own oracle.",
+      "historical_attribution": "Historical_Reuse_Comparison.json and original L4-I1/I2/I3-I7/Recovery manifests; no historical PASS assigned to new SHA.",
+      "remaining_limit": "A11-L/M budgets E2E/charge **D L6**, observation interne D disponible",
+      "qualification_mode": "COMPOSITE APPROVED BY EXPLICIT HUMAN DECISION",
+      "human_decision": "Human_Composite_Qualification_Decision.json",
+      "productive_code_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+      "architecture_oracles_sha": "8a007768c23021153764473f6c6686042168df00"
+    },
+    {
+      "obligation": "EVT-03 E03-A…G/J, six identités/progression",
+      "plan_allocation": "**R** sources/routage/filtre ; **N** T01/T03/T11 vraie composition ; **G** G-I8",
+      "fresh_I8_contributions": [
+        {
+          "test_id": "T01",
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadActivationSettingsTest#independentSelectionAndTemporalPreflight",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45",
+          "outcome": "PASS",
+          "seconds": 0.006
+        },
+        {
+          "test_id": "T03",
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadRuntimeAssemblyPostgresTest#sixParticipantsProgressThroughWorkers",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45",
+          "outcome": "PASS",
+          "seconds": 10.659
+        },
+        {
+          "test_id": "T11",
+          "method": "com.kartaguez.pocoma.ReadRootsCoexistencePostgresTest#projectionAndMonolithSharePartitionsSafely",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45",
+          "outcome": "PASS",
+          "seconds": 205.247
+        }
+      ],
+      "canonical_method_contributions": [],
+      "tested_application_sha": "8a007768c23021153764473f6c6686042168df00",
+      "invocation_id": "6b091895d103489b857c7027a3481e45",
+      "command": [
+        "./mvnw",
+        "-Dpocoma.verification.id=6b091895d103489b857c7027a3481e45",
+        "-Dpocoma.verification.reports=/private/tmp/pocoma-i8-FULL-04/reports",
+        "test"
+      ],
+      "artifacts": [
+        "runs/FULL-04-FAIL/raw.tar.gz",
+        "runs/Architecture-correction-PASS/raw.tar.gz"
+      ],
+      "native_full_verdict": "FAIL — 2191/4/0/0 retained",
+      "gate_verdict": "COMPOSITE_PASS_APPROVED",
+      "verdict": "QUALIFIED INTERNAL CONTRIBUTIONS ONLY",
+      "authority": "CURRENT V3 PostgreSQL WRITE/READ in separate databases; internal trusted EUI fixture inputs; no cryptographic authentication exercised. Large facade-only manifests may be installed administratively in READ. Pure tests retain their own oracle.",
+      "historical_attribution": "Historical_Reuse_Comparison.json and original L4-I1/I2/I3-I7/Recovery manifests; no historical PASS assigned to new SHA.",
+      "remaining_limit": "E03-H/I reset/rejeu indépendant **D L6** ; Invitation **D L5**",
+      "qualification_mode": "COMPOSITE APPROVED BY EXPLICIT HUMAN DECISION",
+      "human_decision": "Human_Composite_Qualification_Decision.json",
+      "productive_code_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+      "architecture_oracles_sha": "8a007768c23021153764473f6c6686042168df00"
+    },
+    {
+      "obligation": "CON-03…06, atomicité et recovery",
+      "plan_allocation": "**R** I1/I2/conformités/recovery, y compris CurrentPot ; **N** T03/T10 témoins dans assemblage, UNKNOWN conservateur ; **G** C-I8",
+      "fresh_I8_contributions": [
+        {
+          "test_id": "T03",
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadRuntimeAssemblyPostgresTest#sixParticipantsProgressThroughWorkers",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45",
+          "outcome": "PASS",
+          "seconds": 10.659
+        },
+        {
+          "test_id": "T10",
+          "method": "com.kartaguez.pocoma.ReadWorkerResourcesPostgresTest#allParticipantsFitPoolsAndRenewalEnvelope",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45",
+          "outcome": "PASS",
+          "seconds": 57.974
+        }
+      ],
+      "canonical_method_contributions": [
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest#i3_c03_a",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest#i3_c03_b",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest#i3_c03_c",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest#i3_c03_d",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest#i3_c03_e",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest#i3_c03_f",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest#i3_c03_g",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest#i3_c03_h",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest#i3_c03_i",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest#i3_c03_j",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest#i3_c03_k",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest#i3_c03_l",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest#i3_lease_races",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest#i3_route_admin_serialization",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest#i3_acquisition_partial",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest#i3_renew_s1_s2",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest#i3_renew_relation_timeout",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest#i3_acquisition_lease_clock",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest#i3_c05_a",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest#i3_c05_b",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest#i3_c05_c",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest#i3_c05_d",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest#i3_c05_e",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest#i3_c05_f",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest#i3_c05_g",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest#i3_c05_h",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest#i3_c05_i",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest#i3_c05_j",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest#i3_c05_k",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest#i3_c05_l",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest#i3_c05_m",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest#i3_failure_classification",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest#i3_cession_once",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest#i3_quarantine_persists",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest#i3_reactivate",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest#i3_two_admins",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest#i3_reactivate_over_cap",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest#i3_other_slot_progresses",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest#i3_retry_config_prospective",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest#i3_audit_cession_unknown_active",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest#i3_audit_classifier_exits",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest#i3_audit_classifier_active",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest#i3_audit_cession_failure",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest#i3_capacity_uncertainty",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest#i3_sql_costs",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.InterAuthorityPreparationPostgresTest#p01ConsecutiveAuthoritiesPhysicalSnapshotsAndAtomicFinalization",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.InterAuthorityPreparationPostgresTest#p02CaughtNestedAndForeignScopesNeverOpenAnotherAuthority",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.InterAuthorityPreparationPostgresTest#p03ExpiredSourceContextPoisonsEffectsAndFinalEvenWhenCaught",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.InterAuthorityPreparationPostgresTest#p03CounterOracleDetectsAForwarderThatDropsTheSharedGuard",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.InterAuthorityPreparationPostgresTest#p05WrongAuthorityWriterIsRefusedBeforeAnySourceSql",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.InterAuthorityPreparationPostgresTest#p05AllPublicHistoryReadsPoisonCaughtForeignAuthorityAccess",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.InterAuthorityPreparationPostgresTest#p04AndP07PhysicalReadAckLossNeverAllowsNextScopeOrCapacitySettlement",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.InterAuthorityPreparationPostgresTest#p05CaughtSqlAndJavaDecodeFailuresKeepOriginalClassification",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.InterAuthorityPreparationPostgresTest#p06InterruptedPreparationPreservesFlagAndRejectsBeforeNextBegin",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.InterAuthorityPreparationPostgresTest#p07ConfirmedReadCleanupLossAndRawErrorKeepDifferentResponsibilities",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.InterAuthorityPreparationPostgresTest#p06CancelledFutureDoesNotMeanBlockedSourceCallbackExited",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.InterAuthorityPreparationPostgresTest#p08DetachedValuesClosedCursorAndNoSourceAccessDuringFinalization",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.InterAuthorityPreparationPostgresTest#p08RetainedSourceSupplierCannotRunInsideReadFinalization",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.InterAuthorityPreparationPostgresTest#w01CommandLoadAuthorityAndHistoryKeepOnePhysicalSnapshot",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.InterAuthorityPreparationPostgresTest#w03CaughtSpringCallbacksRollbackBeforeCommitAndPreserveCommitAfterCompletion",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.InterAuthorityRecoveryPostgresTest#r01AndR03PresentPreexistingAndAbsentExactOrDivergentEvidence",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.InterAuthorityRecoveryPostgresTest#r02CoverageIsExactConsumptionPartitionAndSourcePosition",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.InterAuthorityRecoveryPostgresTest#r04ExactSqlLookupDistinguishesAbsenceCorruptionAndTechnicalFailure",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.InterAuthorityRecoveryPostgresTest#r04AllFourDeliveredFamiliesUseTheirRealPublicationMapping",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.InterAuthorityRecoveryPostgresTest#r05OneSnapshotRejectsTheTwoSnapshotFalseCompletedCounterexample",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.InterAuthorityRecoveryPostgresTest#r06FinalLostAckHasIndependentBusinessProofAndSeparateCapacityResolution",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.InterAuthorityRecoveryPostgresTest#r07UnknownRecoveryDiscardsCalculatedVerdictAndPermanentlyExcludesEngine",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.InterAuthorityRecoveryPostgresTest#c03AndC04RenewalsContinueAcrossLongScopesAndDrainWaitsForPhysicalExit",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.InterAuthorityRecoveryPostgresTest#r08TechnicalModelsRequireCompleteContentAndRespectConformingAbsence",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.InterAuthorityRecoveryPostgresTest#r09WriteBurnableMatrixNeverConsultsCheckpoint",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#recoveryAffectedParticipantConformance",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#potVersionRecoveryRequiresCurrentPot",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#visibilityRecoverySupersession",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#currentBindingRecoverySupersession",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#independentProgression",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#resultsBeforeDomain",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#uncertainCommitHasNoSpeculativeSettlement",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#boundedCapacityAndRenewal",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance(String)[1]",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance(String)[2]",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance(String)[3]",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance(String)[4]",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance(String)[5]",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        },
+        {
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance(String)[6]",
+          "outcome": "PASS",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45"
+        }
+      ],
+      "tested_application_sha": "8a007768c23021153764473f6c6686042168df00",
+      "invocation_id": "6b091895d103489b857c7027a3481e45",
+      "command": [
+        "./mvnw",
+        "-Dpocoma.verification.id=6b091895d103489b857c7027a3481e45",
+        "-Dpocoma.verification.reports=/private/tmp/pocoma-i8-FULL-04/reports",
+        "test"
+      ],
+      "artifacts": [
+        "runs/FULL-04-FAIL/raw.tar.gz",
+        "runs/Architecture-correction-PASS/raw.tar.gz"
+      ],
+      "native_full_verdict": "FAIL — 2191/4/0/0 retained",
+      "gate_verdict": "COMPOSITE_PASS_APPROVED",
+      "verdict": "QUALIFIED INTERNAL CONTRIBUTIONS ONLY",
+      "authority": "CURRENT V3 PostgreSQL WRITE/READ in separate databases; internal trusted EUI fixture inputs; no cryptographic authentication exercised. Large facade-only manifests may be installed administratively in READ. Pure tests retain their own oracle.",
+      "historical_attribution": "Historical_Reuse_Comparison.json and original L4-I1/I2/I3-I7/Recovery manifests; no historical PASS assigned to new SHA.",
+      "remaining_limit": "Pas de réouverture AUD-L4-02 ni de règlement spéculatif",
+      "qualification_mode": "COMPOSITE APPROVED BY EXPLICIT HUMAN DECISION",
+      "human_decision": "Human_Composite_Qualification_Decision.json",
+      "productive_code_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+      "architecture_oracles_sha": "8a007768c23021153764473f6c6686042168df00"
+    },
+    {
+      "obligation": "Ressources, isolation, restart/retard",
+      "plan_allocation": "**N** T02/T05/T09/T10/T11, A07 ; **G** G-I8",
+      "fresh_I8_contributions": [
+        {
+          "test_id": "T02",
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadRuntimeAssemblyPostgresTest#rootsAndPrivilegesAreClosed",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45",
+          "outcome": "PASS",
+          "seconds": 7.261
+        },
+        {
+          "test_id": "T05",
+          "method": "com.kartaguez.pocoma.runtime.task.v3.ReadFacadesPostgresTest#readinessDoesNotInventFreshness",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45",
+          "outcome": "PASS",
+          "seconds": 2.567
+        },
+        {
+          "test_id": "T09",
+          "method": "com.kartaguez.pocoma.ReadWorkerResourcesPostgresTest#drainAndRestartPreserveDurableProgress",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45",
+          "outcome": "PASS",
+          "seconds": 407.178
+        },
+        {
+          "test_id": "T10",
+          "method": "com.kartaguez.pocoma.ReadWorkerResourcesPostgresTest#allParticipantsFitPoolsAndRenewalEnvelope",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45",
+          "outcome": "PASS",
+          "seconds": 57.974
+        },
+        {
+          "test_id": "T11",
+          "method": "com.kartaguez.pocoma.ReadRootsCoexistencePostgresTest#projectionAndMonolithSharePartitionsSafely",
+          "source_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+          "source_invocation_id": "6b091895d103489b857c7027a3481e45",
+          "outcome": "PASS",
+          "seconds": 205.247
+        }
+      ],
+      "canonical_method_contributions": [],
+      "tested_application_sha": "8a007768c23021153764473f6c6686042168df00",
+      "invocation_id": "6b091895d103489b857c7027a3481e45",
+      "command": [
+        "./mvnw",
+        "-Dpocoma.verification.id=6b091895d103489b857c7027a3481e45",
+        "-Dpocoma.verification.reports=/private/tmp/pocoma-i8-FULL-04/reports",
+        "test"
+      ],
+      "artifacts": [
+        "runs/FULL-04-FAIL/raw.tar.gz",
+        "runs/Architecture-correction-PASS/raw.tar.gz"
+      ],
+      "native_full_verdict": "FAIL — 2191/4/0/0 retained",
+      "gate_verdict": "COMPOSITE_PASS_APPROVED",
+      "verdict": "QUALIFIED INTERNAL CONTRIBUTIONS ONLY",
+      "authority": "CURRENT V3 PostgreSQL WRITE/READ in separate databases; internal trusted EUI fixture inputs; no cryptographic authentication exercised. Large facade-only manifests may be installed administratively in READ. Pure tests retain their own oracle.",
+      "historical_attribution": "Historical_Reuse_Comparison.json and original L4-I1/I2/I3-I7/Recovery manifests; no historical PASS assigned to new SHA.",
+      "remaining_limit": "L2/L3 disponibilité sous hypothèses, confiance admin et risques 30 s historiques conservés ; aucune homologation production",
+      "qualification_mode": "COMPOSITE APPROVED BY EXPLICIT HUMAN DECISION",
+      "human_decision": "Human_Composite_Qualification_Decision.json",
+      "productive_code_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+      "architecture_oracles_sha": "8a007768c23021153764473f6c6686042168df00"
+    },
+    {
+      "obligation": "G-I3, G-I4, G-I5, G-I6, G-I7, G-I8",
+      "plan_allocation": "**G** C-I8, obligations individuelles §8.2",
+      "fresh_I8_contributions": [],
+      "canonical_method_contributions": [],
+      "tested_application_sha": "8a007768c23021153764473f6c6686042168df00",
+      "invocation_id": "6b091895d103489b857c7027a3481e45",
+      "command": [
+        "./mvnw",
+        "-Dpocoma.verification.id=6b091895d103489b857c7027a3481e45",
+        "-Dpocoma.verification.reports=/private/tmp/pocoma-i8-FULL-04/reports",
+        "test"
+      ],
+      "artifacts": [
+        "runs/FULL-04-FAIL/raw.tar.gz",
+        "runs/Architecture-correction-PASS/raw.tar.gz"
+      ],
+      "native_full_verdict": "FAIL — 2191/4/0/0 retained",
+      "gate_verdict": "COMPOSITE_PASS_APPROVED",
+      "verdict": "QUALIFIED INTERNAL CONTRIBUTIONS ONLY",
+      "authority": "CURRENT V3 PostgreSQL WRITE/READ in separate databases; internal trusted EUI fixture inputs; no cryptographic authentication exercised. Large facade-only manifests may be installed administratively in READ. Pure tests retain their own oracle.",
+      "historical_attribution": "Historical_Reuse_Comparison.json and original L4-I1/I2/I3-I7/Recovery manifests; no historical PASS assigned to new SHA.",
+      "remaining_limit": "PASS locaux antérieurs ne les satisfont pas",
+      "qualification_mode": "COMPOSITE APPROVED BY EXPLICIT HUMAN DECISION",
+      "human_decision": "Human_Composite_Qualification_Decision.json",
+      "productive_code_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+      "architecture_oracles_sha": "8a007768c23021153764473f6c6686042168df00"
+    },
+    {
+      "obligation": "Architecture reportée + Architecture I8",
+      "plan_allocation": "**G** C-I8 avec ancre explicite",
+      "fresh_I8_contributions": [],
+      "canonical_method_contributions": [
+        {
+          "method": "com.kartaguez.pocoma.architecture.v3.V3ConsumptionEngineArchitectureTest#i8QueriesHaveOnlyReadPortsAndNoWriteOrInfrastructureDependencies",
+          "outcome": "PASS",
+          "source_sha": "8a007768c23021153764473f6c6686042168df00",
+          "source_invocation_id": "9a633445391845689c07678d040e440f"
+        },
+        {
+          "method": "com.kartaguez.pocoma.architecture.v3.V3ConsumptionEngineArchitectureTest#i8ReadRootsUseExplicitCompositionAndExcludeLegacyScanning",
+          "outcome": "PASS",
+          "source_sha": "8a007768c23021153764473f6c6686042168df00",
+          "source_invocation_id": "9a633445391845689c07678d040e440f"
+        },
+        {
+          "method": "com.kartaguez.pocoma.architecture.v3.V3ConsumptionEngineArchitectureTest#i5WorkerHasNoTransactionOwnerSqlOrTicketAuthority",
+          "outcome": "PASS",
+          "source_sha": "8a007768c23021153764473f6c6686042168df00",
+          "source_invocation_id": "9a633445391845689c07678d040e440f"
+        },
+        {
+          "method": "com.kartaguez.pocoma.architecture.v3.V3ConsumptionEngineArchitectureTest#engineAndContractsPureAndAgnostic",
+          "outcome": "PASS",
+          "source_sha": "8a007768c23021153764473f6c6686042168df00",
+          "source_invocation_id": "9a633445391845689c07678d040e440f"
+        },
+        {
+          "method": "com.kartaguez.pocoma.architecture.v3.V3ConsumptionEngineArchitectureTest#rejectedAbstractionsAndPotOwnerAbsent",
+          "outcome": "PASS",
+          "source_sha": "8a007768c23021153764473f6c6686042168df00",
+          "source_invocation_id": "9a633445391845689c07678d040e440f"
+        },
+        {
+          "method": "com.kartaguez.pocoma.architecture.v3.V3ConsumptionEngineArchitectureTest#persistenceParticipantsCannotOpenTransactionsOrRawEntityManagers",
+          "outcome": "PASS",
+          "source_sha": "8a007768c23021153764473f6c6686042168df00",
+          "source_invocation_id": "9a633445391845689c07678d040e440f"
+        },
+        {
+          "method": "com.kartaguez.pocoma.architecture.v3.V3ConsumptionEngineArchitectureTest#negativeExamplesReallyFailRules",
+          "outcome": "PASS",
+          "source_sha": "8a007768c23021153764473f6c6686042168df00",
+          "source_invocation_id": "9a633445391845689c07678d040e440f"
+        },
+        {
+          "method": "com.kartaguez.pocoma.architecture.v3.V3ConsumptionEngineArchitectureTest#lifecycleHasOneHandleAndNoSchedulerOrOwner",
+          "outcome": "PASS",
+          "source_sha": "8a007768c23021153764473f6c6686042168df00",
+          "source_invocation_id": "9a633445391845689c07678d040e440f"
+        },
+        {
+          "method": "com.kartaguez.pocoma.architecture.v3.V3ConsumptionEngineArchitectureTest#discoveryPortsAndWritersRemainBounded",
+          "outcome": "PASS",
+          "source_sha": "8a007768c23021153764473f6c6686042168df00",
+          "source_invocation_id": "9a633445391845689c07678d040e440f"
+        },
+        {
+          "method": "com.kartaguez.pocoma.architecture.v3.V3ConsumptionEngineArchitectureTest#businessIdentityAndEnginesAreRejectedByEngineAndWorkerGuards",
+          "outcome": "PASS",
+          "source_sha": "8a007768c23021153764473f6c6686042168df00",
+          "source_invocation_id": "9a633445391845689c07678d040e440f"
+        },
+        {
+          "method": "com.kartaguez.pocoma.architecture.v3.V3ConsumptionEngineArchitectureTest#i2ParticipantCapabilitiesCannotReceiveTheSharedGuardOrAResource",
+          "outcome": "PASS",
+          "source_sha": "8a007768c23021153764473f6c6686042168df00",
+          "source_invocation_id": "9a633445391845689c07678d040e440f"
+        }
+      ],
+      "tested_application_sha": "8a007768c23021153764473f6c6686042168df00",
+      "invocation_id": "6b091895d103489b857c7027a3481e45",
+      "command": [
+        "./mvnw",
+        "-Dpocoma.verification.id=6b091895d103489b857c7027a3481e45",
+        "-Dpocoma.verification.reports=/private/tmp/pocoma-i8-FULL-04/reports",
+        "test"
+      ],
+      "artifacts": [
+        "runs/FULL-04-FAIL/raw.tar.gz",
+        "runs/Architecture-correction-PASS/raw.tar.gz"
+      ],
+      "native_full_verdict": "FAIL — 2191/4/0/0 retained",
+      "gate_verdict": "COMPOSITE_PASS_APPROVED",
+      "verdict": "167 ARCHITECTURE TESTS PASS; COMPOSITE ACCEPTED",
+      "authority": "CURRENT V3 PostgreSQL WRITE/READ in separate databases; internal trusted EUI fixture inputs; no cryptographic authentication exercised. Large facade-only manifests may be installed administratively in READ. Pure tests retain their own oracle.",
+      "historical_attribution": "Historical_Reuse_Comparison.json and original L4-I1/I2/I3-I7/Recovery manifests; no historical PASS assigned to new SHA.",
+      "remaining_limit": "Nouvelle dépendance/règle auditée, D1–D4 respectées",
+      "qualification_mode": "COMPOSITE APPROVED BY EXPLICIT HUMAN DECISION",
+      "human_decision": "Human_Composite_Qualification_Decision.json",
+      "productive_code_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+      "architecture_oracles_sha": "8a007768c23021153764473f6c6686042168df00"
+    },
+    {
+      "obligation": "Full reactor jalon majeur L4",
+      "plan_allocation": "**G** F-L4",
+      "fresh_I8_contributions": [],
+      "canonical_method_contributions": [],
+      "tested_application_sha": "8a007768c23021153764473f6c6686042168df00",
+      "invocation_id": "6b091895d103489b857c7027a3481e45",
+      "command": [
+        "./mvnw",
+        "-Dpocoma.verification.id=6b091895d103489b857c7027a3481e45",
+        "-Dpocoma.verification.reports=/private/tmp/pocoma-i8-FULL-04/reports",
+        "test"
+      ],
+      "artifacts": [
+        "runs/FULL-04-FAIL/raw.tar.gz",
+        "runs/Architecture-correction-PASS/raw.tar.gz"
+      ],
+      "native_full_verdict": "FAIL — 2191/4/0/0 retained",
+      "gate_verdict": "COMPOSITE_PASS_APPROVED",
+      "verdict": "EXECUTED FAIL; FURTHER FULL EXPLICITLY DISPENSED",
+      "authority": "CURRENT V3 PostgreSQL WRITE/READ in separate databases; internal trusted EUI fixture inputs; no cryptographic authentication exercised. Large facade-only manifests may be installed administratively in READ. Pure tests retain their own oracle.",
+      "historical_attribution": "Historical_Reuse_Comparison.json and original L4-I1/I2/I3-I7/Recovery manifests; no historical PASS assigned to new SHA.",
+      "remaining_limit": "Un FAIL historique n’est ni un PASS neuf ni une exemption",
+      "qualification_mode": "COMPOSITE APPROVED BY EXPLICIT HUMAN DECISION",
+      "human_decision": "Human_Composite_Qualification_Decision.json",
+      "productive_code_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+      "architecture_oracles_sha": "8a007768c23021153764473f6c6686042168df00"
+    },
+    {
+      "obligation": "Réserves I1/I2/I3–I7 et recovery",
+      "plan_allocation": "**R** décisions bornées conservées ; **N/G** seules propriétés affectées et dettes ci-dessus ; **D** limites L5/L6/L7 attribuées",
+      "fresh_I8_contributions": [],
+      "canonical_method_contributions": [],
+      "tested_application_sha": "8a007768c23021153764473f6c6686042168df00",
+      "invocation_id": "6b091895d103489b857c7027a3481e45",
+      "command": [
+        "./mvnw",
+        "-Dpocoma.verification.id=6b091895d103489b857c7027a3481e45",
+        "-Dpocoma.verification.reports=/private/tmp/pocoma-i8-FULL-04/reports",
+        "test"
+      ],
+      "artifacts": [
+        "runs/FULL-04-FAIL/raw.tar.gz",
+        "runs/Architecture-correction-PASS/raw.tar.gz"
+      ],
+      "native_full_verdict": "FAIL — 2191/4/0/0 retained",
+      "gate_verdict": "COMPOSITE_PASS_APPROVED",
+      "verdict": "QUALIFIED INTERNAL CONTRIBUTIONS ONLY",
+      "authority": "CURRENT V3 PostgreSQL WRITE/READ in separate databases; internal trusted EUI fixture inputs; no cryptographic authentication exercised. Large facade-only manifests may be installed administratively in READ. Pure tests retain their own oracle.",
+      "historical_attribution": "Historical_Reuse_Comparison.json and original L4-I1/I2/I3-I7/Recovery manifests; no historical PASS assigned to new SHA.",
+      "remaining_limit": "I2-QUAL-01 résolu ; aucune réserve historique rouverte sans preuve contraire",
+      "qualification_mode": "COMPOSITE APPROVED BY EXPLICIT HUMAN DECISION",
+      "human_decision": "Human_Composite_Qualification_Decision.json",
+      "productive_code_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+      "architecture_oracles_sha": "8a007768c23021153764473f6c6686042168df00"
+    },
+    {
+      "obligation": "CurrentInvitation, ID-02/C-01, INV-01 ; REC-01/C-02, OPS/PERF complets ; convergence physique",
+      "plan_allocation": "**D L5**, **D L6**, **D L7** respectivement",
+      "fresh_I8_contributions": [],
+      "canonical_method_contributions": [],
+      "tested_application_sha": "8a007768c23021153764473f6c6686042168df00",
+      "invocation_id": "6b091895d103489b857c7027a3481e45",
+      "command": [
+        "./mvnw",
+        "-Dpocoma.verification.id=6b091895d103489b857c7027a3481e45",
+        "-Dpocoma.verification.reports=/private/tmp/pocoma-i8-FULL-04/reports",
+        "test"
+      ],
+      "artifacts": [
+        "runs/FULL-04-FAIL/raw.tar.gz",
+        "runs/Architecture-correction-PASS/raw.tar.gz"
+      ],
+      "native_full_verdict": "FAIL — 2191/4/0/0 retained",
+      "gate_verdict": "COMPOSITE_PASS_APPROVED",
+      "verdict": "DEFERRED",
+      "authority": "CURRENT V3 PostgreSQL WRITE/READ in separate databases; internal trusted EUI fixture inputs; no cryptographic authentication exercised. Large facade-only manifests may be installed administratively in READ. Pure tests retain their own oracle.",
+      "historical_attribution": "Historical_Reuse_Comparison.json and original L4-I1/I2/I3-I7/Recovery manifests; no historical PASS assigned to new SHA.",
+      "remaining_limit": "Aucune rationalisation exigée comme préalable à I8",
+      "qualification_mode": "COMPOSITE APPROVED BY EXPLICIT HUMAN DECISION",
+      "human_decision": "Human_Composite_Qualification_Decision.json",
+      "productive_code_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+      "architecture_oracles_sha": "8a007768c23021153764473f6c6686042168df00"
+    }
+  ],
+  "test_manifest": {
+    "T01": {
+      "class": "com.kartaguez.pocoma.runtime.task.v3.ReadActivationSettingsTest",
+      "method": "independentSelectionAndTemporalPreflight"
+    },
+    "T02": {
+      "class": "com.kartaguez.pocoma.runtime.task.v3.ReadRuntimeAssemblyPostgresTest",
+      "method": "rootsAndPrivilegesAreClosed"
+    },
+    "T03": {
+      "class": "com.kartaguez.pocoma.runtime.task.v3.ReadRuntimeAssemblyPostgresTest",
+      "method": "sixParticipantsProgressThroughWorkers"
+    },
+    "T04": {
+      "class": "com.kartaguez.pocoma.runtime.task.v3.ReadFacadesPostgresTest",
+      "method": "currentHistoryAndConcurrentAdvanceStayExact"
+    },
+    "T05": {
+      "class": "com.kartaguez.pocoma.runtime.task.v3.ReadFacadesPostgresTest",
+      "method": "readinessDoesNotInventFreshness"
+    },
+    "T06": {
+      "class": "com.kartaguez.pocoma.runtime.task.v3.ReadFacadesPostgresTest",
+      "method": "expenseBatchesRespectExactManifestAndBounds"
+    },
+    "T07": {
+      "class": "com.kartaguez.pocoma.runtime.task.v3.ReadFacadesPostgresTest",
+      "method": "bindingAndResultsKeepTheirOwnAuthorities"
+    },
+    "T08": {
+      "class": "com.kartaguez.pocoma.runtime.task.v3.ReadFacadesPostgresTest",
+      "method": "navigationIsKeysetAndNeverAuthorizes"
+    },
+    "T09": {
+      "class": "com.kartaguez.pocoma.ReadWorkerResourcesPostgresTest",
+      "method": "drainAndRestartPreserveDurableProgress"
+    },
+    "T10": {
+      "class": "com.kartaguez.pocoma.ReadWorkerResourcesPostgresTest",
+      "method": "allParticipantsFitPoolsAndRenewalEnvelope"
+    },
+    "T11": {
+      "class": "com.kartaguez.pocoma.ReadRootsCoexistencePostgresTest",
+      "method": "projectionAndMonolithSharePartitionsSafely"
+    }
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "state": "DESTROY_PLAN",
+  "exit": 0,
+  "instance": "grafana-validation",
+  "owner": "13ef4f10-14bd-49ae-a07c-850ad4fe7afb",
+  "project": "pocoma-lb-grafana-validation-13ef4f10",
+  "volume": "pocoma-lb-grafana-validation-13ef4f10-data",
+  "network": "pocoma-lb-grafana-validation-13ef4f10_default",
+  "services": [
+    "http-write",
+    "http-read",
+    "command-worker",
+    "results-worker",
+    "business-read-worker",
+    "postgres",
+    "keycloak",
+    "prometheus",
+    "grafana"
+  ],
+  "persistentDataLost": [
+    "PostgreSQL WRITE/READ and Keycloak database in owned volume",
+    "Generated credentials, configuration, demo and canary checkpoints"
+  ],
+  "retained": "./.pocoma-local/instances/grafana-validation/runs",
+  "preservedUnownedVolumes": [
+    "986b8724dec62868f295cc1161a0cb9cd3744d66cfddac82bcf2756550e05280"
+  ],
+  "operations": [
+    "Verify manifest/UUID/resource ownership",
+    "Gracefully stop this instance",
+    "Compose down without --volumes; preserve unowned attached volumes",
+    "Remove only the named data volume after checking its owner/project labels",
+    "Remove generated instance files; retain lock and diagnostic runs"
+  ],
+  "command": "./pocoma-local destroy --instance grafana-validation --confirm DESTROY:grafana-validation",
+  "sha": "c7df9da4d3e3d7b824dcfc50bd474c46371d310b",
+  "dirty": true,
+  "urls": {
+    "write": "http://127.0.0.1:63050",
+    "read": "http://127.0.0.1:63051"
+  },
+  "issuer": "http://localhost:63052/realms/pocoma",
+  "evidence": "./.pocoma-local/instances/grafana-validation/runs/1794693539-5e3a6379"
+}

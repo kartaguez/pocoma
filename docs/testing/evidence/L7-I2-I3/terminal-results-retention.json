@@ -1,0 +1,59 @@
+{
+  "testedSha": {
+    "command": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "exit_code": 0,
+    "output": "85c68b80705bed7faa4d12c74bb3727c0775f2ca\n"
+  },
+  "invocationId": "b565ce2f8ecf41389db688e79ba810f4",
+  "reports": [
+    {
+      "xml": "reports/pocoma-infra-postgres-read/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.read.v3.TerminalResultsReadStorePostgresTest.xml",
+      "sha256": "bf332ecf5d8a0aa708e2a89b3a25def828c893eeea2955ba345811bbb6495408",
+      "class": "com.kartaguez.pocoma.infra.postgres.read.v3.TerminalResultsReadStorePostgresTest",
+      "methods": [
+        {
+          "method": "concurrentImmutableResults",
+          "seconds": 0.28
+        },
+        {
+          "method": "mappingsAndOwnership",
+          "seconds": 0.405
+        },
+        {
+          "method": "migrationsAndPrivileges",
+          "seconds": 0.224
+        }
+      ],
+      "verdict": "PASS"
+    },
+    {
+      "xml": "reports/pocoma-engine-materialize-results/surefire-reports/TEST-com.kartaguez.pocoma.engine.materialize.results.v3.IdentityRequestResultV3ContractTest.xml",
+      "sha256": "3d6fbe878da1756232fb8ac0cd8dcde7bfad9ccaa13d86f9ea14a6c116b55d65",
+      "class": "com.kartaguez.pocoma.engine.materialize.results.v3.IdentityRequestResultV3ContractTest",
+      "methods": [
+        {
+          "method": "terminalContract",
+          "seconds": 0.002
+        }
+      ],
+      "verdict": "PASS"
+    },
+    {
+      "xml": "reports/pocoma-engine-materialize-results/surefire-reports/TEST-com.kartaguez.pocoma.engine.materialize.results.v3.CommandResultV3ContractTest.xml",
+      "sha256": "32cf35c9f3b80323e8021c03508597eac5dd8198b6cc19bf6453593e03313432",
+      "class": "com.kartaguez.pocoma.engine.materialize.results.v3.CommandResultV3ContractTest",
+      "methods": [
+        {
+          "method": "terminalContract",
+          "seconds": 0.035
+        }
+      ],
+      "verdict": "PASS"
+    }
+  ],
+  "scope": "Immutable reread of Command/Identity results, rejection of substitutions and removal, strict outcome sets. This proves storage and typed outcomes in the tested fixture."
+}

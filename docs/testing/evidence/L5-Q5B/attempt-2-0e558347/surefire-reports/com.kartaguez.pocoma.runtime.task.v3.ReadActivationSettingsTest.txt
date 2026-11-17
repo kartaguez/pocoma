@@ -1,0 +1,9 @@
+-------------------------------------------------------------------------------
+Test set: com.kartaguez.pocoma.runtime.task.v3.ReadActivationSettingsTest
+-------------------------------------------------------------------------------
+Tests run: 1, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 0.001 s <<< FAILURE! -- in com.kartaguez.pocoma.runtime.task.v3.ReadActivationSettingsTest
+com.kartaguez.pocoma.runtime.task.v3.ReadActivationSettingsTest.independentSelectionAndTemporalPreflight -- Time elapsed: 0.001 s <<< ERROR!
+java.lang.ArrayIndexOutOfBoundsException: Index 6 out of bounds for length 6
+	at java.base/java.util.ImmutableCollections$ListN.get(ImmutableCollections.java:687)
+	at com.kartaguez.pocoma.runtime.task.v3.ReadActivationSettingsTest.independentSelectionAndTemporalPreflight(ReadActivationSettingsTest.java:85)
+

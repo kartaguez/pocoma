@@ -1,0 +1,29 @@
+{
+  "phases": {
+    "input_inventory": {
+      "status": "FINISHED",
+      "seconds": 0.09073774999706075
+    },
+    "discovery": {
+      "status": "FINISHED",
+      "seconds": 2.886111332991277
+    },
+    "maven": {
+      "status": "FINISHED",
+      "seconds": 1181.5222885830008
+    },
+    "collection": {
+      "status": "FINISHED",
+      "seconds": 4.638419041002635
+    }
+  },
+  "campaign_seconds": 1190.077569000001,
+  "forecast": {
+    "seconds": null,
+    "basis": "UNKNOWN",
+    "uncertainty": "UNKNOWN"
+  },
+  "forecast_delta_seconds": null,
+  "forecast_exceeded": null,
+  "forecast_is_blocking": false
+}

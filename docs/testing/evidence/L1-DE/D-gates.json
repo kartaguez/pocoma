@@ -1,0 +1,46 @@
+[
+  {
+    "gate": "d-arch",
+    "directory": "docs/testing/evidence/L1-DE/d-arch-1792944182710753000",
+    "revision": "69acce7842364d5ee3881d41b8a70257fd09b81d",
+    "command": [
+      "./mvnw",
+      "-pl",
+      "architecture-tests",
+      "-am",
+      "test"
+    ],
+    "counts": {
+      "tests": 1490,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    "mandatory_methods": 87,
+    "mandatory_verdict": "PASS",
+    "global_coverage": "INCONCLUSIVE",
+    "retained": true
+  },
+  {
+    "gate": "d-consumers",
+    "directory": "docs/testing/evidence/L1-DE/d-consumers-1792943908007675000",
+    "revision": "69acce7842364d5ee3881d41b8a70257fd09b81d",
+    "command": [
+      "./mvnw",
+      "-pl",
+      "runtime-command-consumption-worker,runtime-task-consumption-worker",
+      "-am",
+      "test"
+    ],
+    "counts": {
+      "tests": 1255,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    "mandatory_methods": 79,
+    "mandatory_verdict": "PASS",
+    "global_coverage": "INCONCLUSIVE",
+    "retained": true
+  }
+]

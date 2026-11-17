@@ -1,0 +1,46 @@
+{
+  "command": {
+    "archive": "final-command.tar.gz",
+    "sha256": "fcb8fa18b58d14d1d01c6603aa8ef1b49c66048632fc5059831199c2adb2a8ed",
+    "bytes": 31319386,
+    "verified_entries": 1057,
+    "result_sha256": "ce3751799d75e167d81ccbf3893f3ec58ee979cf1d6ce65a09916eab1c7cb48c",
+    "log_sha256": "946680d0cecd108aeb486bf25c6510ce2475e7906725228e9a11423cea55e1ab",
+    "code_sha": "0b08d3bf0bfce1334260cfd5249b13c3040a67bb",
+    "xml_and_physical_artifacts": 1055,
+    "archive_paths": "relative to extracted directory, xml/ and physical/; includes maven.log and result.json"
+  },
+  "read": {
+    "archive": "final-read.tar.gz",
+    "sha256": "538ec1928480d548c5c36697fe3bfa09fe8a6e2a4b55ac04a6e0e0924576a1dc",
+    "bytes": 187371,
+    "verified_entries": 90,
+    "result_sha256": "4c1728016a700b8963774ffb4a393268118c10df00cc31a845671c084f412043",
+    "log_sha256": "85e68ebc0966ef26d0c65315bff88ae07071c6549f452b7133fd332e97c3c14d",
+    "code_sha": "0b08d3bf0bfce1334260cfd5249b13c3040a67bb",
+    "xml_and_physical_artifacts": 88,
+    "archive_paths": "relative to extracted directory, xml/ and physical/; includes maven.log and result.json"
+  },
+  "monolith": {
+    "archive": "final-monolith.tar.gz",
+    "sha256": "b3f15452d8975364f922954450c78dec306e15e003422559750af49a2070b12b",
+    "bytes": 31129810,
+    "verified_entries": 1024,
+    "result_sha256": "c7c992fdf1a40ee42920d3ccf6a81d0e6c8b1671dea24c9dd4a258e486e3bbb4",
+    "log_sha256": "bc0c8d8f0ae2f58bee61c2b58205eff74fd335e2328c2171a03c6b050b91322e",
+    "code_sha": "0b08d3bf0bfce1334260cfd5249b13c3040a67bb",
+    "xml_and_physical_artifacts": 1022,
+    "archive_paths": "relative to extracted directory, xml/ and physical/; includes maven.log and result.json"
+  },
+  "architecture": {
+    "archive": "final-architecture.tar.gz",
+    "sha256": "932094e558f533bc0fcf4beffbe492ff62f050569c4fed3a6526845512eb62d7",
+    "bytes": 31618410,
+    "verified_entries": 1111,
+    "result_sha256": "cb7c818335d445e338388f739de56ad4a30223dc6264d6774c9361a58ae8f2e1",
+    "log_sha256": "b5412c401ffab8a2e1d880a84b3e47c1b963e2deda218fa88028a9ecb36bbbfb",
+    "code_sha": "0b08d3bf0bfce1334260cfd5249b13c3040a67bb",
+    "xml_and_physical_artifacts": 1109,
+    "archive_paths": "relative to extracted directory, xml/ and physical/; includes maven.log and result.json"
+  }
+}

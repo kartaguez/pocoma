@@ -1,0 +1,7 @@
+{
+  "dockerMemoryBytes": 8319504384,
+  "cpus": 10,
+  "freeDiskBytes": 9028079616,
+  "requiredDiskBytes": 2147483648,
+  "buildCached": false
+}

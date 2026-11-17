@@ -1,0 +1,59 @@
+{
+  "checkout": "/Users/julien.guezennec/Dev/projects/pocoma",
+  "git": [
+    {
+      "command": [
+        "git",
+        "status",
+        "--porcelain=v1",
+        "--untracked-files=all"
+      ],
+      "exit": 0,
+      "stdout": "?? docs/v3/V3_Command_Result_Contract_Consistency_Audit.md\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "exit": 0,
+      "stdout": "60b12fc3cb81f42a89db0688b0406a4a986f6ffc\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "git",
+        "ls-remote",
+        "origin",
+        "refs/heads/feat/l7-lb-local-playground"
+      ],
+      "exit": 128,
+      "stdout": "",
+      "stderr": "fatal: unable to access 'https://github.com/kartaguez/pocoma.git/': Could not resolve host: github.com\n"
+    }
+  ],
+  "demoFiles": {
+    "manifest.json": {
+      "sha256": "6f1417dde7f7da6528bcb8a7f41dc2d70c304cb5d5caf98a9ca4f64c2bc1d390",
+      "bytes": 5553
+    },
+    "secrets.json": {
+      "sha256": "bcb69f72756713c6868a4396fdcd7e91c60720e2c73b9ee4d11d1bb88e8c51cd",
+      "bytes": 986
+    },
+    "demo.json": {
+      "sha256": "beb1e07d6ff8cf2d4b550fe8cbab3ef2fe2c6122c5413d3bf631223dfe34c394",
+      "bytes": 391
+    },
+    "canary.json": {
+      "sha256": "625de21f31e749bec3f8fa0da5242d8b6a601f2d1167742352a292012c403c31",
+      "bytes": 1485
+    },
+    "compose.json": {
+      "sha256": "9ad9c214a5b100f5dbbf7ad6779c4d93555195205de5ca78b45090d634aca706",
+      "bytes": 8776
+    }
+  }
+}

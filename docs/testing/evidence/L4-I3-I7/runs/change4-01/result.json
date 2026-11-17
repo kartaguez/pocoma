@@ -1,0 +1,514 @@
+{
+  "verdict": "FAIL",
+  "counts": {
+    "tests": 3,
+    "failures": 0,
+    "errors": 1,
+    "skipped": 0
+  },
+  "issues": [
+    "Expected one fresh execution: com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.CurrentBindingSourcePostgresTest#exactEuiHistory, found 0",
+    "Maven execution failed or interrupted (exit 1); no PASS"
+  ],
+  "executions": [
+    {
+      "classname": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.CurrentBindingReadStorePostgresTest",
+      "method": "historyAndIsolation",
+      "seconds": 0.473,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.CurrentBindingReadStorePostgresTest",
+      "method": "migrationAndPrivileges",
+      "seconds": 0.176,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.CurrentBindingReadStorePostgresTest",
+      "method": "concurrentVersionsAndDivergence",
+      "seconds": 0.117,
+      "outcome": "ERROR",
+      "diagnostic": "com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions$Failure: Attempt transaction ROLLED_BACK"
+    }
+  ],
+  "compilation": {
+    "compiler_events": [
+      {
+        "module": "pocoma-engine-materialize-current-binding",
+        "goal": "compile",
+        "sources": 9,
+        "destination": "target/classes",
+        "line": 616
+      },
+      {
+        "module": "pocoma-infra-persistence-read-jdbc",
+        "goal": "compile",
+        "sources": 15,
+        "destination": "target/classes",
+        "line": 698
+      },
+      {
+        "module": "pocoma-infra-persistence-read-jdbc",
+        "goal": "testCompile",
+        "sources": 16,
+        "destination": "target/test-classes",
+        "line": 705
+      }
+    ],
+    "announced_recompiled_source_inputs": 40,
+    "source_inventory": [
+      {
+        "module": "domain-authorization",
+        "present_main_java": 5,
+        "present_test_java": 3,
+        "included_main_root_java": 5,
+        "included_test_root_java": 3,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "domain-event",
+        "present_main_java": 2,
+        "present_test_java": 1,
+        "included_main_root_java": 2,
+        "included_test_root_java": 1,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "domain-user-identity",
+        "present_main_java": 20,
+        "present_test_java": 3,
+        "included_main_root_java": 20,
+        "included_test_root_java": 3,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "contracts-authentication",
+        "present_main_java": 1,
+        "present_test_java": 0,
+        "included_main_root_java": 1,
+        "included_test_root_java": 0,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "domain-pot",
+        "present_main_java": 91,
+        "present_test_java": 45,
+        "included_main_root_java": 91,
+        "included_test_root_java": 45,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "domain-projection",
+        "present_main_java": 36,
+        "present_test_java": 5,
+        "included_main_root_java": 36,
+        "included_test_root_java": 5,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "domain-consumption",
+        "present_main_java": 27,
+        "present_test_java": 12,
+        "included_main_root_java": 27,
+        "included_test_root_java": 12,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "port-transaction",
+        "present_main_java": 7,
+        "present_test_java": 0,
+        "included_main_root_java": 7,
+        "included_test_root_java": 0,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "port-binding-authority",
+        "present_main_java": 6,
+        "present_test_java": 0,
+        "included_main_root_java": 6,
+        "included_test_root_java": 0,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "engine-consumption",
+        "present_main_java": 56,
+        "present_test_java": 9,
+        "included_main_root_java": 56,
+        "included_test_root_java": 9,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "contracts-command",
+        "present_main_java": 5,
+        "present_test_java": 0,
+        "included_main_root_java": 5,
+        "included_test_root_java": 0,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "engine-write-pot",
+        "present_main_java": 68,
+        "present_test_java": 24,
+        "included_main_root_java": 68,
+        "included_test_root_java": 24,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "engine-consume-command",
+        "present_main_java": 73,
+        "present_test_java": 19,
+        "included_main_root_java": 73,
+        "included_test_root_java": 19,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "orchestrator-consumption",
+        "present_main_java": 15,
+        "present_test_java": 2,
+        "included_main_root_java": 15,
+        "included_test_root_java": 2,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "supra-consume-command",
+        "present_main_java": 5,
+        "present_test_java": 4,
+        "included_main_root_java": 5,
+        "included_test_root_java": 4,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "engine-read-command-result",
+        "present_main_java": 6,
+        "present_test_java": 0,
+        "included_main_root_java": 6,
+        "included_test_root_java": 0,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "engine-materialize-command-result",
+        "present_main_java": 3,
+        "present_test_java": 1,
+        "included_main_root_java": 3,
+        "included_test_root_java": 1,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "contracts-registration",
+        "present_main_java": 2,
+        "present_test_java": 0,
+        "included_main_root_java": 2,
+        "included_test_root_java": 0,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "engine-admit-registration",
+        "present_main_java": 2,
+        "present_test_java": 0,
+        "included_main_root_java": 2,
+        "included_test_root_java": 0,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "engine-consume-registration",
+        "present_main_java": 10,
+        "present_test_java": 3,
+        "included_main_root_java": 10,
+        "included_test_root_java": 3,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "engine-read-registration-result",
+        "present_main_java": 4,
+        "present_test_java": 0,
+        "included_main_root_java": 4,
+        "included_test_root_java": 0,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "engine-materialize-registration-result",
+        "present_main_java": 4,
+        "present_test_java": 1,
+        "included_main_root_java": 4,
+        "included_test_root_java": 1,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "port-projection",
+        "present_main_java": 12,
+        "present_test_java": 0,
+        "included_main_root_java": 12,
+        "included_test_root_java": 0,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "engine-produce-projection-task",
+        "present_main_java": 6,
+        "present_test_java": 2,
+        "included_main_root_java": 6,
+        "included_test_root_java": 2,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "projector-pot",
+        "present_main_java": 5,
+        "present_test_java": 1,
+        "included_main_root_java": 5,
+        "included_test_root_java": 1,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "engine-consume-projection-task",
+        "present_main_java": 30,
+        "present_test_java": 6,
+        "included_main_root_java": 30,
+        "included_test_root_java": 6,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "engine-read-current-binding",
+        "present_main_java": 4,
+        "present_test_java": 2,
+        "included_main_root_java": 4,
+        "included_test_root_java": 2,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "engine-materialize-current-binding",
+        "present_main_java": 9,
+        "present_test_java": 0,
+        "included_main_root_java": 9,
+        "included_test_root_java": 0,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "engine-materialize-latest-known-version",
+        "present_main_java": 6,
+        "present_test_java": 2,
+        "included_main_root_java": 6,
+        "included_test_root_java": 2,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "infra-tx-spring",
+        "present_main_java": 3,
+        "present_test_java": 8,
+        "included_main_root_java": 3,
+        "included_test_root_java": 8,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "infra-persistence-projection-jdbc",
+        "present_main_java": 5,
+        "present_test_java": 1,
+        "included_main_root_java": 5,
+        "included_test_root_java": 1,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "infra-persistence-read-jdbc",
+        "present_main_java": 15,
+        "present_test_java": 16,
+        "included_main_root_java": 15,
+        "included_test_root_java": 16,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "contracts-observability",
+        "present_main_java": 2,
+        "present_test_java": 1,
+        "included_main_root_java": 2,
+        "included_test_root_java": 1,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "engine-admit-command",
+        "present_main_java": 11,
+        "present_test_java": 2,
+        "included_main_root_java": 11,
+        "included_test_root_java": 2,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "supra-consume-lkv",
+        "present_main_java": 8,
+        "present_test_java": 2,
+        "included_main_root_java": 8,
+        "included_test_root_java": 2,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "infra-persistence-primary-jpa",
+        "present_main_java": 103,
+        "present_test_java": 69,
+        "included_main_root_java": 103,
+        "included_test_root_java": 69,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      }
+    ],
+    "reused_source_count": null,
+    "semantics": "Compiler announcements include singular/plural and main/test invocations. Presence is separate. Generated inputs may overlap roots; do not sum inventories. Exact reused files and actual javac reads are not observable from these logs. Resource copies are not Java compilation."
+  },
+  "command": [
+    "./mvnw",
+    "--batch-mode",
+    "--no-transfer-progress",
+    "-pl",
+    "infra-persistence-primary-jpa,infra-persistence-read-jdbc",
+    "-am",
+    "-Dtest=com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.CurrentBindingReadStorePostgresTest#historyAndIsolation+concurrentVersionsAndDivergence+migrationAndPrivileges,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.CurrentBindingSourcePostgresTest#exactEuiHistory",
+    "-Dsurefire.failIfNoSpecifiedTests=false",
+    "-Dpocoma.verification.id=c38204c57b91421b97be333495c09589",
+    "-Dpocoma.verification.reports=/private/tmp/pocoma-i3-i7-change4-01/reports",
+    "test"
+  ],
+  "level": "CHANGE",
+  "scope": "READ-CHANGE-4",
+  "seconds": 5.581761,
+  "discovery_seconds": 1.8544525420293212,
+  "expected_invocations": 4,
+  "started_ns": 1793703911716412000,
+  "exit_code": 1,
+  "artifacts": {
+    "maven.log": "e4e4cd910db592ded7b98ce0a626930277c65efd637128464a764cb558959676",
+    "effective-pom.xml": "ecd88e765b829f63b249b63d63bd427a39719aa51a996725e0ac704243e8a001",
+    "discovery.log": "4f89f9c2e3cd34474139fc2b01612d4c366cda4e397bc81da2b2e3fc0fd8755f",
+    "discovery.process.json": "a32774630b20d7eca5af8dc895b717151253ae5ae63b2e4d6eb91323e830448a",
+    "maven.process.json": "c81596ef50997d04bfa65bb10200ced34da5f504860dc7509152483d59c69ebc",
+    "reports/pocoma-infra-persistence-read-jdbc/surefire-reports/TEST-com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.CurrentBindingReadStorePostgresTest.xml": "88e8dd28a9a9bc4b2dc66d7697c24312cb9a3274afc02166a495ace5ac6eae25",
+    "reports/pocoma-infra-persistence-read-jdbc/surefire-reports/com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.CurrentBindingReadStorePostgresTest.txt": "ba5185a2e4b04ebab278ef76e6d69db73e4cdb40cc8fc430b456f9eeb03d1b2c",
+    "app/infra-persistence-read-jdbc/target/l4-read-evidence/l4_8f679057e1c241409f8b39cd3d6bae2a.txt": "9316f589bda2542729c44c14f7aa7f6738ab19e2ee893a790ddfcdaaab0c40fa",
+    "app/infra-persistence-read-jdbc/target/l4-read-evidence/l4_cfceb86f6b22403980daee98e581aa20.txt": "877d70e5f3729f6973e61095cc309cf00178dd64b41836845f1f48faadc87e2e"
+  },
+  "invocation_id": "c38204c57b91421b97be333495c09589",
+  "reports_root": "/private/tmp/pocoma-i3-i7-change4-01/reports",
+  "raw_sha256": "784d90a61479231fe44a1a6c750828ec9edf4b15e49c7c8a365635a83366b041",
+  "previous_reports_not_counted": [
+    "app/engine-read-current-binding/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.read.currentbinding.v3.CurrentBindingV3ContractTest.xml"
+  ],
+  "not_selected": "All methods outside plan.expected for filtered feedback; NOT RUN, never PASS",
+  "quarantined_scenarios": {
+    "i5_r05": {
+      "class": "com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest",
+      "method": "i5_r05",
+      "anchor": "COMMAND",
+      "status": "QUALIFIED",
+      "active": false,
+      "reason": "Historical I1 failure; I2 PASS 52.451s. Temporal worker campaign, availability reserve remains open.",
+      "reference": "docs/v3/L3_I2_Execution_Report.md",
+      "decision": "Explicit nominative operational isolation authorized by verification optimization mandate; no normative waiver.",
+      "resolution": "Definitively qualified under Gemini counter-audit. Physical Discovery SKIP LOCKED contention validated on real PostgreSQL; false FAIL eliminated; availability/famine detection preserved; R1 reserve closed.",
+      "resolution_reference": "docs/v3/L2_I5_Counter_Audit_and_Definitive_Closure_Report.md",
+      "resolution_decision": "Quarantine lifted. Retained in registry as historical qualified scenario for diagnostic recipe access and CERTIFICATION coverage obligations."
+    },
+    "i5_r12": {
+      "class": "com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest",
+      "method": "i5_r12",
+      "anchor": "COMMAND",
+      "status": "QUALIFIED",
+      "active": false,
+      "reason": "I2 FAIL 95.825s: runtime condition deadline; Runtime.close:553 via I5TemporalV2Postgres.campaign:947. Physical root cause unresolved.",
+      "reference": "docs/v3/L3_I2_Execution_Report.md",
+      "decision": "Explicit nominative operational isolation authorized by verification optimization mandate; no normative waiver.",
+      "resolution": "Definitively qualified under Gemini counter-audit. Verified 2 active workers, 4 physical pools/worker, 8 retained business preparations, 4 concurrent contentions, B1/B32 x M_W1/M_W4, nominal drainage, zero timeouts in canonical gate; R2 reserve closed.",
+      "resolution_reference": "docs/v3/L2_I5_Counter_Audit_and_Definitive_Closure_Report.md",
+      "resolution_decision": "Quarantine lifted. Retained in registry as historical qualified scenario for diagnostic recipe access and CERTIFICATION coverage obligations."
+    }
+  },
+  "active_quarantined_scenarios": {},
+  "historical_quarantined_scenarios": {
+    "i5_r05": {
+      "class": "com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest",
+      "method": "i5_r05",
+      "anchor": "COMMAND",
+      "status": "QUALIFIED",
+      "active": false,
+      "reason": "Historical I1 failure; I2 PASS 52.451s. Temporal worker campaign, availability reserve remains open.",
+      "reference": "docs/v3/L3_I2_Execution_Report.md",
+      "decision": "Explicit nominative operational isolation authorized by verification optimization mandate; no normative waiver.",
+      "resolution": "Definitively qualified under Gemini counter-audit. Physical Discovery SKIP LOCKED contention validated on real PostgreSQL; false FAIL eliminated; availability/famine detection preserved; R1 reserve closed.",
+      "resolution_reference": "docs/v3/L2_I5_Counter_Audit_and_Definitive_Closure_Report.md",
+      "resolution_decision": "Quarantine lifted. Retained in registry as historical qualified scenario for diagnostic recipe access and CERTIFICATION coverage obligations."
+    },
+    "i5_r12": {
+      "class": "com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest",
+      "method": "i5_r12",
+      "anchor": "COMMAND",
+      "status": "QUALIFIED",
+      "active": false,
+      "reason": "I2 FAIL 95.825s: runtime condition deadline; Runtime.close:553 via I5TemporalV2Postgres.campaign:947. Physical root cause unresolved.",
+      "reference": "docs/v3/L3_I2_Execution_Report.md",
+      "decision": "Explicit nominative operational isolation authorized by verification optimization mandate; no normative waiver.",
+      "resolution": "Definitively qualified under Gemini counter-audit. Verified 2 active workers, 4 physical pools/worker, 8 retained business preparations, 4 concurrent contentions, B1/B32 x M_W1/M_W4, nominal drainage, zero timeouts in canonical gate; R2 reserve closed.",
+      "resolution_reference": "docs/v3/L2_I5_Counter_Audit_and_Definitive_Closure_Report.md",
+      "resolution_decision": "Quarantine lifted. Retained in registry as historical qualified scenario for diagnostic recipe access and CERTIFICATION coverage obligations."
+    }
+  },
+  "timing": {
+    "phases": {
+      "input_inventory": {
+        "status": "FINISHED",
+        "seconds": 0.20363649999490008
+      },
+      "discovery": {
+        "status": "FINISHED",
+        "seconds": 1.8542154579772614
+      },
+      "maven": {
+        "status": "FINISHED",
+        "seconds": 5.581397417001426
+      },
+      "collection": {
+        "status": "FINISHED",
+        "seconds": 0.3521582090179436
+      }
+    },
+    "campaign_seconds": 8.50123137497576,
+    "forecast": {
+      "seconds": 300,
+      "basis": "Indicative envelope, not a measured nominal estimate; nominal UNKNOWN",
+      "uncertainty": "HIGH",
+      "blocking": false
+    },
+    "forecast_delta_seconds": -291.49876862502424,
+    "forecast_exceeded": false,
+    "forecast_is_blocking": false
+  },
+  "operational_status": "FAIL"
+}

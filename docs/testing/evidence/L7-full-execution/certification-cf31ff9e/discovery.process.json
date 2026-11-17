@@ -1,0 +1,13 @@
+{
+  "pid": 89138,
+  "process_group": 89138,
+  "command": [
+    "./mvnw",
+    "--batch-mode",
+    "--no-transfer-progress",
+    "-Dpocoma.verification.id=1bec1d05434a4f6c92a0fed40ce462cf",
+    "-Dpocoma.verification.reports=/Users/julien.guezennec/Dev/projects/pocoma/certification-raw/l7-certification-cf31ff9e/reports",
+    "help:effective-pom",
+    "-Doutput=/Users/julien.guezennec/Dev/projects/pocoma/certification-raw/l7-certification-cf31ff9e/effective-pom.xml"
+  ]
+}

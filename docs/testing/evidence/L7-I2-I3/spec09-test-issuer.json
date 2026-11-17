@@ -1,0 +1,21 @@
+{
+  "status": "PASS",
+  "scope": "loopback issuer/JWKS fixture, no application calls or load",
+  "node": "v24.15.0",
+  "signedClaimsVerified": 2,
+  "privateTokenFileMode": "0600",
+  "tokenEndpointAbsent": true,
+  "issuedTokensArchived": false,
+  "testedSha": "26bc6a1aa0fe8df5008286c106b59d3283e37ea4",
+  "commands": [
+    [
+      "node",
+      "--check",
+      "scripts/performance/spec09-test-issuer.mjs"
+    ],
+    [
+      "node",
+      "scripts/performance/test-spec09-test-issuer.mjs"
+    ]
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "provenance" : "READ_FIXTURE — NO PUBLIC ADMISSION PROOF",
+  "cliVersion" : "4.3.0",
+  "cliSeconds" : 4.867701792,
+  "exitCode" : 0,
+  "fixturePublisherCompleted" : true,
+  "expectedScenarios" : [ "B01", "B02", "B03", "B04", "B05", "B06", "B07", "B08", "B09", "B10", "B11", "B12", "B13", "B14", "B15", "B16", "B17", "B18", "B19", "B20", "B21", "B22", "B23", "B24", "B25", "B26", "B27", "B28", "B29", "B30", "B31", "B32" ],
+  "executedScenarioReceipts" : 32,
+  "coverageComplete" : true,
+  "command" : [ "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/node_modules/.bin/bru", "run", "-r", "01 Identity and READ", "--env", "Local", "--sandbox", "developer", "--noproxy", "--reporter-json", "/Users/julien.guezennec/Dev/projects/pocoma/docs/testing/evidence/L7-I2-I3/bruno-b1-01/bruno.json", "--reporter-skip-all-headers", "--reporter-skip-body" ],
+  "fixtureSecondsBeforeCli" : 11.631483
+}

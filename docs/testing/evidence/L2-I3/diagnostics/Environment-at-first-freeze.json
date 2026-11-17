@@ -1,0 +1,182 @@
+{
+  "start_sha": "bb33b56dc86a8a1d31c577f983d7ea1a07bc8128",
+  "i2_baseline": "03f0725c690bcbd9748d3ea59b62136e1a911e05",
+  "code_sha": "e9a6848f0ad98a6057942f92bf4e407eef172ea5",
+  "root": "/private/tmp/pocoma-v3-i3-execution",
+  "python": "3.14.7",
+  "java": "openjdk version \"21\" 2023-09-19 LTS\nOpenJDK Runtime Environment Temurin-21+35 (build 21+35-LTS)\nOpenJDK 64-Bit Server VM Temurin-21+35 (build 21+35-LTS, mixed mode)\n",
+  "maven": "Apache Maven 3.9.14 (996c630dbc656c76214ce58821dcc58be960875b)\nMaven home: /Users/julien.guezennec/.m2/wrapper/dists/apache-maven-3.9.14/db91789b\nJava version: 21, vendor: Eclipse Adoptium, runtime: /Users/julien.guezennec/.sdkman/candidates/java/21-tem\nDefault locale: fr_FR, platform encoding: UTF-8\nOS name: \"mac os x\", version: \"27.0\", arch: \"aarch64\", family: \"mac\"",
+  "postgres_image": "postgres@sha256:18cfe3ef5e6815560c98237d6216d1e5119702fb0f3894c8785dd58b8bbe5d73",
+  "postgres_version_observed": "17.11 (from independent SQL fixture traces)",
+  "pilot": {
+    "B": 32,
+    "M_C": 2,
+    "M_W": 4,
+    "N": 3,
+    "retry_delay_seconds": 30,
+    "lease_seconds": 30,
+    "claim_seconds": 60,
+    "renewal_interval_seconds": 10,
+    "lock_timeout_ms": 500,
+    "statement_timeout_ms": 2000,
+    "technical_transaction_timeout_ms": 3000,
+    "pool_access_timeout_ms_in_saturation_fixture": 1000
+  },
+  "test_variations": "N=1/3/6; retry=0/300ms/1..6s; ownership=200ms for clock proof; claims forced via DB deadline=200/300ms for fencing; capacity=1/3/4; all per-scenario settings archived before stimulus",
+  "files": [
+    {
+      "path": "app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/v3/V3ConsumptionEngineArchitectureTest.java",
+      "sha256": "9437554e0e96b21ccd15eabe5b6277145c4e46c0744f19e8ebc6abefa4eeeb99"
+    },
+    {
+      "path": "app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/command/v3/V3PotCommandComposition.java",
+      "sha256": "57c8f2ce648a0de18270e3a000601f4638af1af886bbb8d2a21365d141d374e5"
+    },
+    {
+      "path": "app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/consumption/v3/V3BootstrapGuard.java",
+      "sha256": "c47aca419a89d43545b18dc901a78a6bc43596e4e5a78362db4e4c0757166a66"
+    },
+    {
+      "path": "app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/consumption/v3/V3ConsumptionLifecycleComposition.java",
+      "sha256": "f3c6015a1ef9e51ce5f5c3a4fb3dcf5bcbefea656ea677057a75879f6d2fa85e"
+    },
+    {
+      "path": "app/engine-consumption/src/main/java/com/kartaguez/pocoma/engine/consumption/v3/ConsumptionEngine.java",
+      "sha256": "c448d8a7f41c39b64787245b2f92f5a2b6fe7eedb033cae95f52575763678da4"
+    },
+    {
+      "path": "app/engine-consumption/src/main/java/com/kartaguez/pocoma/engine/consumption/v3/LifecycleSettings.java",
+      "sha256": "20dc016e8138af13d2bb8cc76b07fa57484eb08062dabd0286ae81412ed614b0"
+    },
+    {
+      "path": "app/engine-consumption/src/main/java/com/kartaguez/pocoma/engine/consumption/v3/PartitionLease.java",
+      "sha256": "b56b18d353ab9fa4e4b3d4fb6c404011483122a48fc49d2a4dd7cbae7a49a5fd"
+    },
+    {
+      "path": "app/engine-consumption/src/main/java/com/kartaguez/pocoma/engine/consumption/v3/WorkerCapacity.java",
+      "sha256": "45ae22c4dd6cc612defaf5de3c08b5e91fae5b17fc80202cd39cc61a131b42d0"
+    },
+    {
+      "path": "app/engine-consumption/src/main/java/com/kartaguez/pocoma/engine/consumption/v3/port/AttemptFailureClassifier.java",
+      "sha256": "d8c84e96da820c32f74a3bc14447d84f47ee1ab969df1505ddd3e104ddb43824"
+    },
+    {
+      "path": "app/engine-consumption/src/main/java/com/kartaguez/pocoma/engine/consumption/v3/port/ConsumptionSlotStore.java",
+      "sha256": "06e1b11576b850ee8ca7d4456786c9dc9275c5f77270c494c9692e9a2b99f043"
+    },
+    {
+      "path": "app/engine-consumption/src/main/java/com/kartaguez/pocoma/engine/consumption/v3/port/PartitionOwnershipStore.java",
+      "sha256": "d42083204c3c9e7791d970df695f2eb22b9006784bfbfed23fcac5e1578227a8"
+    },
+    {
+      "path": "app/engine-consumption/src/test/java/com/kartaguez/pocoma/engine/consumption/v3/ConsumptionFailureClassificationTest.java",
+      "sha256": "589d0a0fd730f7e711ff0a3a7a340c09685fb376b2275a7eae5b1eb01e0d0436"
+    },
+    {
+      "path": "app/engine-consumption/src/test/java/com/kartaguez/pocoma/engine/consumption/v3/WorkerCapacityTest.java",
+      "sha256": "400b720fe343af5cf8ef57844624f75178754b3268b21dae5b11d361a03152da"
+    },
+    {
+      "path": "app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/consumption/JdbcConsumptionSlotStore.java",
+      "sha256": "168987dc0dbf9b34a68b1341c66ed2c9e1a785d8e11fb34e18d89fafd1d9ebf6"
+    },
+    {
+      "path": "app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/consumption/JdbcPartitionOwnershipStore.java",
+      "sha256": "6a864445cfbd57cd139aa04a05fd3cca01e8a12dd771308d4095ef61c32511fa"
+    },
+    {
+      "path": "app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/engine/consumption/v3/I2ReservedClaimFixture.java",
+      "sha256": "1acecf328113e7fc5f38e212722992506bf36ac417a157b0f6c60ab81e37ae57"
+    },
+    {
+      "path": "app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/ConsumptionLifecyclePostgresFixture.java",
+      "sha256": "7026935a1d5160d7fea2b03ca6c69fa3fd1d79b407ca5a0ae63e0f1941f69433"
+    },
+    {
+      "path": "app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/ConsumptionLifecyclePostgresTest.java",
+      "sha256": "503401d3e726599d6db4aa81713aa1cf1b327565a94ca2e24eb8169276da2e29"
+    },
+    {
+      "path": "app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/L1CommandCompatibilityHarness.java",
+      "sha256": "815d62183e3f76065a55719e56368f318eb7acefac3f43ff6a5a360dc4c205ee"
+    },
+    {
+      "path": "app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/L2ManifestProof.java",
+      "sha256": "99cd67ab1a094e139753b084f1e4c61007497507b2968919131e6f80450fdd65"
+    },
+    {
+      "path": "app/infra-persistence-read-jdbc/src/test/java/com/kartaguez/pocoma/infra/persistence/read/jdbc/v3/consumption/ReadConsumptionLifecyclePrivilegesPostgresTest.java",
+      "sha256": "3f12bb1e474383dabd19fd148a15521ddb5feff2e5b32c9b3ce950a2103dab39"
+    },
+    {
+      "path": "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/engine/consumption/v3/CommandReservedClaimFixture.java",
+      "sha256": "02c2cf6211e2f5848c57ff1d559ae90fb1388828a9ce25de90b4ecd158ea9cdf"
+    },
+    {
+      "path": "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/ConsumptionLifecycleCompositionPostgresTest.java",
+      "sha256": "dcbaccadb6994c119c9f598101cb21b27508f468e834aa23ce7ae574b54fe56c"
+    },
+    {
+      "path": "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/V3PotCommandCompositionPostgresTest.java",
+      "sha256": "55122097e0ca76e6c6852fdbfc4ec46dd4645eb26be7a382511a3c679322b1f0"
+    },
+    {
+      "path": "docs/v3/L2_I3_Implementation_Plan.md",
+      "sha256": "cd67dbafddc93ac4f3bfda55aa1a42ab377584883c0fe0176e2fc63623f4f5ed"
+    },
+    {
+      "path": "docs/v3/L2_I3_Proof_Manifest.json",
+      "sha256": "cef5fc2b1994a7a1db22be45e4fdbd3a5fad0c9c2286470532e4df3ffc3f4de5"
+    },
+    {
+      "path": "scripts/testing/test_i3_evidence.py",
+      "sha256": "02d6340fa4ca1de40a0948cdce4c55ebc1f31385eef17b5774fae4d9c72192aa"
+    },
+    {
+      "path": "scripts/testing/verify-v3-l2-i3.py",
+      "sha256": "dbf8e52c38aef674918c2110cd0a5388cd72460a3842b452b7732a0d06e8fc17"
+    },
+    {
+      "path": "scripts/v3/bootstrap-l2-routing.sql",
+      "sha256": "a1c20559057fc02ed947792a463f9e19a5698508e5c913874f620dbde9716d3f"
+    },
+    {
+      "path": "scripts/v3/grant-l2-lifecycle.sql",
+      "sha256": "b2c154d2222d2d77b5f1ade74c8bec3e820b88fddf984a68bbc897be1d294de8"
+    },
+    {
+      "path": "scripts/v3/reactivate-l2-slot.sql",
+      "sha256": "07ee9777e821caf3e96029c5a6beee65cddbf2acef4088e33502aeca927271a4"
+    },
+    {
+      "path": "app/infra-persistence-primary-jpa/src/main/resources/db/v3-consumption-write/migration/V5__consumption_foundation.sql",
+      "sha256": "6e003959336a68f9f5ad371f72e62f7af41e27e92dcf2b0d1443cd35cbc8d14f",
+      "baseline_migration": true
+    },
+    {
+      "path": "app/infra-persistence-primary-jpa/src/main/resources/db/v3-pot/migration/V1__pot_components.sql",
+      "sha256": "48a2e451513f77becddc456b6525a7321de49a71cb4321c0f721a389240d6d18",
+      "baseline_migration": true
+    },
+    {
+      "path": "app/infra-persistence-primary-jpa/src/main/resources/db/v3-pot/migration/V3__point_history_indexes.sql",
+      "sha256": "616534170d04e69802527dc0c43ad0f6f3dde073de187e93a3b4450725f3ae86",
+      "baseline_migration": true
+    },
+    {
+      "path": "app/infra-persistence-primary-jpa/src/main/resources/db/v3-pot/migration/V4__write_effect_indexes.sql",
+      "sha256": "c20cf15c91d0b9f0c6268c976c214ac900adbc0d46dc5330dd8ef6e25242a6cf",
+      "baseline_migration": true
+    },
+    {
+      "path": "app/infra-persistence-primary-jpa/src/main/resources/db/v3-pot-execution/migration/V2__command_execution.sql",
+      "sha256": "f7719a4d7ec585af88761837528a7e244ee4736b73c8669889eb148806b7bc02",
+      "baseline_migration": true
+    },
+    {
+      "path": "app/infra-persistence-read-jdbc/src/main/resources/db/v3-consumption-read/migration/V1__consumption_foundation.sql",
+      "sha256": "3579a121b1360273477e18c7d0d5d5ef080124a389c2939cdb22dfb77cc74e19",
+      "baseline_migration": true
+    }
+  ]
+}

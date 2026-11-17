@@ -1,0 +1,22 @@
+{
+  "diagnostics": {
+    "GRAFANA-HTTP": {
+      "code": "GRAFANA_START_TIMEOUT",
+      "errorClass": "URLError"
+    },
+    "GRAFANA-DATASOURCE": {
+      "code": "GRAFANA_DATASOURCE_UNAVAILABLE",
+      "errorClass": "URLError"
+    },
+    "GRAFANA-DASHBOARD": {
+      "code": "GRAFANA_DASHBOARD_NOT_PROVISIONED",
+      "errorClass": "URLError"
+    }
+  },
+  "panels": [],
+  "checks": {
+    "GRAFANA-HTTP": "FAIL",
+    "GRAFANA-DATASOURCE": "FAIL",
+    "GRAFANA-DASHBOARD": "FAIL"
+  }
+}

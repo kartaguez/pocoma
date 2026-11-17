@@ -1,0 +1,109 @@
+{
+  "files": {
+    "secrets.json": "bcb69f72756713c6868a4396fdcd7e91c60720e2c73b9ee4d11d1bb88e8c51cd",
+    "demo.json": "beb1e07d6ff8cf2d4b550fe8cbab3ef2fe2c6122c5413d3bf631223dfe34c394",
+    "web-read.jar": "eb3427dfc163a87432b1b7bb5ce163255f59aea7d16eae24d6a2a9ba8d8adf3c",
+    "web-write.jar": "b68fabf6335765798b168a1c356d146a1bf9a1761fce8dd6cd76f29908cd5cd7",
+    "worker-materialize.jar": "5eb4293e2bb4d8bf6b2bbbae6134139575d7e295a875887336b7403b94eb38fd",
+    "worker-process.jar": "7dd339a92cdb9ce70cfd4f59634e44697aad4e40f9929bd896a9d2765062401c"
+  },
+  "stableData": {
+    "v3_write.v3_pot_identity": {
+      "count": 27,
+      "sha256": "60d8dba8b9652ea55f107dba97006fbd1806b7e67e7c5119a34062e6b4c66886",
+      "rows": [
+        "0fe2d7cb3e3b317285b7748a8eeb30af",
+        "105cb113fb4f36ac4a2234b09d67a7de",
+        "1384b7017296cf2369d7f7f92191e869",
+        "16e780f84f695c19df9123493b7fdb1b",
+        "19ec48bcf79e3aa123e3dd665b248c39",
+        "2138ea8cd0770fdaea50cbd4f226eede",
+        "2a66af81353025d6d1c0c1f4dac71463",
+        "3a3071d5fdeb4408800ccf7e46d54478",
+        "3e04080a5a0b1fb208dc1f15a0bf2b6f",
+        "3f4b7c2c0544f799ee0115f19ed6e080",
+        "49b4925784e340d5ee23a6b0b9608fdb",
+        "4d8039189070b7e719cf9569cc4d4d1e",
+        "4d884b4a1bfcd1edd46a38aea9764aef",
+        "4ef3080d5a04af2237f6ad5afd7e628d",
+        "502c6556eadd21fe0cadab8ccb96ca69",
+        "588ac6dcbb97ea8066bfbc0b87270659",
+        "7672b2ab044bc5c3eaaea751dfdfe05c",
+        "8027e215de3f1e149101662bf87a16ba",
+        "8aced4a1f511c53b2c94dc61f34ae5a7",
+        "9a7867a80825bef0f95adaf5a0fd2f31",
+        "b4034d17fd75cb662c576fd6558c52ae",
+        "ca4c65a1cba71105ace1ba404f5e35af",
+        "cdd53076b4a5d4dd8878a29f6c6d49f7",
+        "eb7a777683e4c3f5e556487caf263e26",
+        "edccbf12196afa20c7ccf9ec9904088e",
+        "f1be6ae315cfe60e0d9bb13d3779a3c5",
+        "fc53395b482bfd318ae6f51a9526c30d"
+      ]
+    },
+    "keycloak.user_entity": {
+      "count": 4,
+      "sha256": "7a03a5988ff55c338652b5ad855ff6ece0f863e792ba514a6e82895dca3d79c0",
+      "rows": [
+        "03720545aafbe2b8301d3d91e1bdb38e",
+        "20acf0ea677af60eac8b15d7e54aff1d",
+        "282db001ea82c65168162d14e4424328",
+        "dc8834d13fa3c3a9882c912bfadfb6b0"
+      ]
+    },
+    "keycloak.credential": {
+      "count": 4,
+      "sha256": "0a9262ae54cd249e2a9403a9015182266ded0e1a11a211b14973ecde9277d666",
+      "rows": [
+        "3351a87a87b24296bf8af2d1e94a6f7e",
+        "7e1e09de389f868d463582ae0433c88f",
+        "9cd431b846521becf1840f30ca873772",
+        "b64d27fe45fd52c6a08a87628c2e80a0"
+      ]
+    },
+    "keycloak.realm": {
+      "count": 2,
+      "sha256": "ee421c0477b534f7f5d7becfa8aa08fd223aecba45251e44e6923a07dc18305b",
+      "rows": [
+        "02c5f9231ea2ddfb12377cc6178d9eb3",
+        "c808fb4b34d2f4477a545b98737260e4"
+      ]
+    },
+    "keycloak.client": {
+      "count": 14,
+      "sha256": "c817a16e64aa0198d8d68e2467dbb802d012450694f9fbd956afbe36773606d0",
+      "rows": [
+        "5295d7ae1b48ef8e57c92d7b368f67c5",
+        "60c2d5b9678bc7fa3183ad2a0cf10da6",
+        "6335564d51793140a26861cf3ce758d6",
+        "6465aa6ae9575127990ff297ec37bdc9",
+        "650d0e8776c836d6c5b2f2de1330752b",
+        "904debedf2d8f8309351e7d0d323cf56",
+        "958cc5f433801cc08c8012a6e10ac0c7",
+        "95b189d47826a95b526b50bb8da35497",
+        "9bc94f37f0c517370e285bec61977a34",
+        "9de34f7de5cc68718dd8f876d18a0fa2",
+        "b38b5fd25f615bc012f74c3136eba835",
+        "bb269ae935253768971f98e3ff250d45",
+        "c22bcf23c15adb7d503219f27b764cb2",
+        "cd4cfe07d71e415017375b57b2baf3f3"
+      ]
+    }
+  },
+  "unpublishedBruno": {
+    "docs/v3/L7_Local_Playground_Bruno.md": "01c9c53e36b6e6f6f297060ba5ab0aced1f7ecaa28ca16fcde59e1cb84a9adeb",
+    "scripts/bruno-playground/02 - Pots/P01 Create Pot.bru": "0c64981280221e4d4b11963a3623142f16e2ecd0f63d6ed324b9183b77e88bff",
+    "scripts/bruno-playground/02 - Pots/P02 Update Pot Details.bru": "09ed97e1c52489e75c306cd0ad87e8bff3c56acb8c2859e26e4daefaa925e4d4",
+    "scripts/bruno-playground/90 - End-to-End Journeys/J01 Complete Ledger and Invitation/08 P01 Create Pot.bru": "8ba7689fba1cec166746bbdce8cf79fc887f5e00bd9105aaef2a1d25d87a62d9",
+    "scripts/bruno-playground/90 - End-to-End Journeys/J01 Complete Ledger and Invitation/59 P02 Update Pot Details.bru": "bcc39096bebe1d8142f7cbb30cb698318b6de69c105a92502316e0b2784675d9",
+    "scripts/bruno-playground/90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/08 P01 Create Pot.bru": "d6d21d7cd970525ca96e789ae9298a6e29e4c484cf4a92e43d0d62824bd6a9b6",
+    "scripts/bruno-playground/90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/08 P01 Create Pot.bru": "bfe4ffd05b6c6a4ffe48e43a851240ef821ddaaa7028100af54737262b54a862",
+    "scripts/bruno-playground/README.md": "12a144181a2be3dde90640fbec2726b24e327ba7e62350c44bd6e864082ae401",
+    "scripts/bruno-playground/lib/workspace.js": "7f7372cf614d01bc37a7f692a5e7356fbd1e3b2ded59a7e1a163475fb46603da",
+    "scripts/local/test_bruno_gui.js": "8808d64dccd5e5cddda88a12639dcb170e7c4bf472dcfb799be8da39fd9eb4d4"
+  },
+  "externalContainersUnchanged": true,
+  "preexistingVolumesRetained": true,
+  "demoRestored": "RUNNING",
+  "fixtureRetained": "STOPPED; data and diagnostics preserved"
+}

@@ -1,0 +1,5 @@
+{
+  "sha256": "d19af94240310a94df25baaa89818947e4bdae1de3ea90d5c7635c07531881be",
+  "encoding": "gzip lossless",
+  "tests": "NOT RUN: packaging only"
+}

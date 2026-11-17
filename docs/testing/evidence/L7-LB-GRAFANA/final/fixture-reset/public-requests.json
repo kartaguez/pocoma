@@ -1,0 +1,252 @@
+[
+  {
+    "method": "GET",
+    "path": "/me/binding",
+    "status": 404
+  },
+  {
+    "method": "POST",
+    "path": "/identity/requests",
+    "status": 202
+  },
+  {
+    "method": "GET",
+    "path": "/identity/requests/2d3365aa-fbbf-49ec-b986-c2933653c564/result",
+    "status": 404
+  },
+  {
+    "method": "GET",
+    "path": "/identity/requests/2d3365aa-fbbf-49ec-b986-c2933653c564/result",
+    "status": 404
+  },
+  {
+    "method": "GET",
+    "path": "/identity/requests/2d3365aa-fbbf-49ec-b986-c2933653c564/result",
+    "status": 404
+  },
+  {
+    "method": "GET",
+    "path": "/identity/requests/2d3365aa-fbbf-49ec-b986-c2933653c564/result",
+    "status": 200
+  },
+  {
+    "method": "GET",
+    "path": "/me/binding",
+    "status": 200
+  },
+  {
+    "method": "POST",
+    "path": "/commands",
+    "status": 202
+  },
+  {
+    "method": "GET",
+    "path": "/commands/9fde0376-5a91-4ea9-b364-f17b0c5bec9d/result",
+    "status": 404
+  },
+  {
+    "method": "GET",
+    "path": "/commands/9fde0376-5a91-4ea9-b364-f17b0c5bec9d/result",
+    "status": 200
+  },
+  {
+    "method": "POST",
+    "path": "/commands",
+    "status": 202
+  },
+  {
+    "method": "GET",
+    "path": "/commands/2976704e-35f6-4572-a0b8-993b6188328d/result",
+    "status": 404
+  },
+  {
+    "method": "GET",
+    "path": "/commands/2976704e-35f6-4572-a0b8-993b6188328d/result",
+    "status": 404
+  },
+  {
+    "method": "GET",
+    "path": "/commands/2976704e-35f6-4572-a0b8-993b6188328d/result",
+    "status": 200
+  },
+  {
+    "method": "POST",
+    "path": "/commands",
+    "status": 202
+  },
+  {
+    "method": "GET",
+    "path": "/commands/b2ec9c9f-3149-426a-bcf4-6800196bb142/result",
+    "status": 404
+  },
+  {
+    "method": "GET",
+    "path": "/commands/b2ec9c9f-3149-426a-bcf4-6800196bb142/result",
+    "status": 200
+  },
+  {
+    "method": "POST",
+    "path": "/commands",
+    "status": 202
+  },
+  {
+    "method": "GET",
+    "path": "/commands/df140c6c-4ca1-47d5-8982-88b899af75f7/result",
+    "status": 404
+  },
+  {
+    "method": "GET",
+    "path": "/commands/df140c6c-4ca1-47d5-8982-88b899af75f7/result",
+    "status": 200
+  },
+  {
+    "method": "GET",
+    "path": "/invitations/by-creation-request/df140c6c-4ca1-47d5-8982-88b899af75f7",
+    "status": 200
+  },
+  {
+    "method": "GET",
+    "path": "/pots/77560597-1524-53bf-8672-0712091aeb44?minVersion=4",
+    "status": 503
+  },
+  {
+    "method": "GET",
+    "path": "/pots/77560597-1524-53bf-8672-0712091aeb44?minVersion=4",
+    "status": 200
+  },
+  {
+    "method": "POST",
+    "path": "/commands",
+    "status": 202
+  },
+  {
+    "method": "GET",
+    "path": "/commands/c5c95d15-eac3-46e5-98bf-ba87feec9d74/result",
+    "status": 404
+  },
+  {
+    "method": "GET",
+    "path": "/commands/c5c95d15-eac3-46e5-98bf-ba87feec9d74/result",
+    "status": 200
+  },
+  {
+    "method": "POST",
+    "path": "/commands",
+    "status": 202
+  },
+  {
+    "method": "GET",
+    "path": "/commands/0f0baac9-1615-41a3-94e6-a4abaab505f4/result",
+    "status": 404
+  },
+  {
+    "method": "GET",
+    "path": "/commands/0f0baac9-1615-41a3-94e6-a4abaab505f4/result",
+    "status": 200
+  },
+  {
+    "method": "GET",
+    "path": "/pots/c4b60d93-3d6d-5ebe-9283-c90c22cb0ac2/versions/1",
+    "status": 200
+  },
+  {
+    "method": "GET",
+    "path": "/me/binding",
+    "status": 200
+  },
+  {
+    "method": "POST",
+    "path": "/commands",
+    "status": 202
+  },
+  {
+    "method": "GET",
+    "path": "/commands/a245bb2a-f0d6-42af-810f-618696509b84/result",
+    "status": 404
+  },
+  {
+    "method": "GET",
+    "path": "/commands/a245bb2a-f0d6-42af-810f-618696509b84/result",
+    "status": 200
+  },
+  {
+    "method": "GET",
+    "path": "/pots/58be2354-5050-521c-9772-cfba9d924aea?minVersion=1",
+    "status": 200
+  },
+  {
+    "method": "POST",
+    "path": "/commands",
+    "status": 202
+  },
+  {
+    "method": "GET",
+    "path": "/commands/e4eed98f-6451-47eb-a66e-ac1a26830f4e/result",
+    "status": 404
+  },
+  {
+    "method": "GET",
+    "path": "/commands/e4eed98f-6451-47eb-a66e-ac1a26830f4e/result",
+    "status": 200
+  },
+  {
+    "method": "GET",
+    "path": "/pots/58be2354-5050-521c-9772-cfba9d924aea?minVersion=2",
+    "status": 200
+  },
+  {
+    "method": "GET",
+    "path": "/pots/58be2354-5050-521c-9772-cfba9d924aea/versions/2/balance",
+    "status": 200
+  },
+  {
+    "method": "GET",
+    "path": "/me/binding",
+    "status": 401
+  },
+  {
+    "method": "GET",
+    "path": "/me/binding",
+    "status": 404
+  },
+  {
+    "method": "POST",
+    "path": "/identity/requests",
+    "status": 202
+  },
+  {
+    "method": "GET",
+    "path": "/identity/requests/6895ec8c-6eb6-4d94-9127-b4f31f2f7b75/result",
+    "status": 404
+  },
+  {
+    "method": "GET",
+    "path": "/identity/requests/6895ec8c-6eb6-4d94-9127-b4f31f2f7b75/result",
+    "status": 200
+  },
+  {
+    "method": "GET",
+    "path": "/me/binding",
+    "status": 200
+  },
+  {
+    "method": "POST",
+    "path": "/commands",
+    "status": 202
+  },
+  {
+    "method": "GET",
+    "path": "/commands/185ff55c-ef63-4f3d-8f5f-d24b9e5d0723/result",
+    "status": 404
+  },
+  {
+    "method": "GET",
+    "path": "/commands/185ff55c-ef63-4f3d-8f5f-d24b9e5d0723/result",
+    "status": 200
+  },
+  {
+    "method": "GET",
+    "path": "/pots/77560597-1524-53bf-8672-0712091aeb44?minVersion=4",
+    "status": 200
+  }
+]

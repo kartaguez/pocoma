@@ -1,0 +1,152 @@
+{
+  "verdict": "FAIL",
+  "meaning": "Qualification v2 failed on sufficient availability witness; conditional extension property not disproven",
+  "baseline": "52d8eea94f77029727c3e57ba29894e8fc519dce",
+  "freeze": "5eab2e94379ef40c3f9ff54c14a4d04a8f13dcbd",
+  "contractSha256": "b37ccf05c97813ad135b25643c78bad8a1d0893db75eaf3ed9e9778edc82d478",
+  "declaredSlices": [
+    "COMMAND",
+    "MONOLITH"
+  ],
+  "productionDiff": "EMPTY",
+  "unexpectedSliceCrossing": "NONE",
+  "globalArchitectureGate": "NOT REQUIRED / NOT RUN",
+  "fullReactor": "NOT REQUIRED / NOT RUN",
+  "database": "CURRENT V3 only; pinned PostgreSQL image",
+  "gate": "NOT RUN after first W2 qualification failure",
+  "inputsCount": 1227,
+  "inputsCanonicalSha256": "8a8da409cc45c87c39cdba478a10e3af25071e157e4d4d4203e9ed16e146c821",
+  "compiled": {
+    "app/runtime-command-consumption-worker/target/test-classes/com/kartaguez/pocoma/runtime/command/v3/I5TemporalV2Postgres$Journal.class": "067f2b9cc8d9976d904eb78154735915cf1b78fa3d4bc2c024c79ee4aeb5b194",
+    "app/runtime-command-consumption-worker/target/test-classes/com/kartaguez/pocoma/runtime/command/v3/I5TemporalV2Postgres$Tx.class": "40471e0c328b082fe466e00d1d64f2f063f69eb53bfdd0c68e34e279cee00b38",
+    "app/runtime-command-consumption-worker/target/test-classes/com/kartaguez/pocoma/runtime/command/v3/I5TemporalV2Postgres$Holder.class": "aec2d825019004d25d2b3d0bc210798809e882ab90d6292578046a2fcd7270bc",
+    "app/runtime-command-consumption-worker/target/test-classes/com/kartaguez/pocoma/runtime/command/v3/I5TemporalV2Test.class": "3910c24bf3e1108dbe0621b18a0c3ef00ef62de0a99ba9ccd58a06e064b127c5",
+    "app/runtime-command-consumption-worker/target/test-classes/com/kartaguez/pocoma/runtime/command/v3/I5TemporalV2Postgres.class": "3fc44a447c4e8d40ac80efef86802059062118a6a7fb211b8dda302cd0c0693f",
+    "app/runtime-command-consumption-worker/target/test-classes/com/kartaguez/pocoma/runtime/command/v3/I5TemporalV2Postgres$Attempt.class": "021f3b7bdb62bc84ca0f7aec4ea4bd87bbf67b02951138c9e820ad89afc34382"
+  },
+  "historicalIntegrity": {
+    "checkedFiles": 115,
+    "mismatches": [],
+    "manifest": "docs/testing/evidence/L2-I5-audit-remediation/historical-integrity.json"
+  },
+  "reused": [
+    "A/B resource and pool proofs for unchanged runtime",
+    "F01\u2013F05 unchanged safety mechanisms; no new autonomous campaign",
+    "v1 FAIL and R1 counterexample retained unchanged"
+  ],
+  "notRun": [
+    "W2 admissible contention",
+    "W2 excessive contention",
+    "COMMAND + MONOLITH unfiltered gate"
+  ],
+  "stages": [
+    {
+      "name": "W1-B1-MW4",
+      "command": [
+        "./mvnw",
+        "-pl",
+        "runtime-command-consumption-worker",
+        "-am",
+        "-Dtest=V3WorkerResourcesPostgresTest#i5_r05",
+        "-Dsurefire.failIfNoSpecifiedTests=false",
+        "test"
+      ],
+      "elapsedSeconds": 64.16256291698664,
+      "exitCode": 0,
+      "freshCases": [
+        {
+          "class": "com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest",
+          "method": "i5_r05",
+          "seconds": "53.598",
+          "status": "PASS"
+        }
+      ],
+      "accepted": true,
+      "inputsUnchanged": true
+    },
+    {
+      "name": "W2-B32-MW4",
+      "command": [
+        "./mvnw",
+        "-pl",
+        "runtime-command-consumption-worker",
+        "-am",
+        "-Dtest=V3WorkerResourcesPostgresTest#i5_r12",
+        "-Dsurefire.failIfNoSpecifiedTests=false",
+        "test"
+      ],
+      "elapsedSeconds": 30.479224083013833,
+      "exitCode": 1,
+      "freshCases": [
+        {
+          "class": "com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest",
+          "method": "i5_r12",
+          "seconds": "21.747",
+          "status": "FAIL"
+        }
+      ],
+      "accepted": false,
+      "inputsUnchanged": true
+    }
+  ],
+  "qualificationWallSeconds": 94.64178700000048,
+  "deterministicMavenSeconds": 41.624,
+  "audits": {
+    "AUD-I5-01": "OPEN",
+    "R-AUD-I3-03": "OPEN",
+    "I5": "OPEN"
+  },
+  "artifacts": {
+    "qualification-proof.tar.gz": {
+      "bytes": 291456,
+      "sha256": "fa510d8d477ce65dbf16c723c69c52c5569f711d0f078944da6a4c44084a7fe3"
+    },
+    "frozen.diff": {
+      "bytes": 112988,
+      "sha256": "84a3ea766d434bdc2a1d17c0eebb5ae7f7174181204fe2ca4a8c168d413aa235"
+    },
+    "counterexample.json": {
+      "bytes": 2707,
+      "sha256": "ea9c6ae9752bd1fed4c725138e931641da44bfe4725d737beb2fc024c9c309d8"
+    },
+    "deterministic.json": {
+      "bytes": 5632,
+      "sha256": "343e67a7de8df2daccf675acc454856a0d2048c4293d4dccec762025d1f94bb7"
+    },
+    "temporal-contract-v2.properties": {
+      "bytes": 515,
+      "sha256": "b37ccf05c97813ad135b25643c78bad8a1d0893db75eaf3ed9e9778edc82d478"
+    }
+  },
+  "descriptiveObservations": {
+    "W1-B1-MW4": {
+      "attempts": 26,
+      "maxCompleteOperationNs": 4694500,
+      "availabilityFree": 36,
+      "availabilityObstructed": 2,
+      "note": "Counts deduplicated by attempt; availability lines repeat stage1 in stage2 trace. Maxima describe positive phases only."
+    },
+    "W2-B32-MW4": {
+      "attempts": 10,
+      "maxCompleteOperationNs": 3981167,
+      "availabilityFree": 5,
+      "availabilityObstructed": 1,
+      "note": "W2 only worker0 availability checker reached; no new thresholds derived"
+    }
+  },
+  "compiledEntrypoints": {
+    "app/runtime-command-consumption-worker/target/test-classes/com/kartaguez/pocoma/runtime/command/v3/V3WorkerResourcesPostgresTest.class": "6f8742dac48230d307c612dc772f2e359c5578e513577f90b5aad3a7214cc437",
+    "app/orchestrator-poll-consumption/target/test-classes/com/kartaguez/pocoma/orchestrator/poll/consumption/v3/V3ConsumptionWorkerTest.class": "4abca33d4279d791855ae7902c4dadafe854b6977d20778f5100c78edb4cdbe9"
+  },
+  "frozenChangedFiles": [
+    "app/orchestrator-poll-consumption/src/test/java/com/kartaguez/pocoma/orchestrator/poll/consumption/v3/V3ConsumptionWorkerTest.java",
+    "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/I5TemporalV2Postgres.java",
+    "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/I5TemporalV2Test.java",
+    "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/V3WorkerResourcesPostgresTest.java",
+    "docs/testing/evidence/L2-I5-temporal-v2/deterministic.json",
+    "docs/testing/evidence/L2-I5-temporal-v2/temporal-contract-v2.properties",
+    "docs/v3/L2_I5_Temporal_V2_Addendum.md",
+    "scripts/testing/run-i5-temporal-v2.py"
+  ],
+  "rawArchiveIntegrity": "PASS; both fresh XML reports, 1227 inputs and all receipt artifacts checked"
+}

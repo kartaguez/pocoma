@@ -1,0 +1,227 @@
+[
+  {
+    "argv": [
+      "/Users/julien.guezennec/Dev/projects/pocoma/pocoma-local",
+      "start",
+      "--instance",
+      "i3-workshop"
+    ],
+    "phase": "fresh-start",
+    "seconds": 46.633384000044316,
+    "exit": 0,
+    "result": {
+      "state": "READY",
+      "exit": 0,
+      "business": "AVAILABLE",
+      "canary": "AVAILABLE",
+      "qualificationTools": "AVAILABLE",
+      "fullyQualifiable": false,
+      "checks": {
+        "JVM-http-write": "PASS",
+        "JVM-http-read": "PASS",
+        "JVM-command-worker": "PASS",
+        "JVM-results-worker": "PASS",
+        "JVM-business-read-worker": "PASS",
+        "DB-CURRENT": "PASS",
+        "IDP-DISCOVERY": "PASS"
+      },
+      "canaryProof": {
+        "potId": "c8ccce72-d45e-52c6-8176-fd2b5674491b",
+        "version": 2,
+        "runId": "1794645645-0de6ebac",
+        "completedAt": 1794645692.2215948
+      },
+      "observedAt": 1794645692.287047,
+      "instance": "i3-workshop",
+      "project": "pocoma-lb-i3-workshop-bd769e4d",
+      "sha": "587b729a7522adbb2afd2390ffb7c033c0199aa7",
+      "dirty": false,
+      "urls": {
+        "write": "http://127.0.0.1:65406",
+        "read": "http://127.0.0.1:65407"
+      },
+      "issuer": "http://localhost:65408/realms/pocoma",
+      "evidence": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/i3-workshop/runs/1794645645-0de6ebac"
+    }
+  },
+  {
+    "argv": [
+      "/Users/julien.guezennec/Dev/projects/pocoma/pocoma-local",
+      "gui",
+      "--instance",
+      "i3-workshop"
+    ],
+    "phase": "fresh-gui-config",
+    "seconds": 0.527063624933362,
+    "exit": 0,
+    "result": {
+      "state": "GUI_CONFIGURED",
+      "exit": 0,
+      "environment": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-playground/environments/Instance-i3-workshop.bru",
+      "next": "In Bruno select Instance-i3-workshop; 00 - Getting Started / 00 Login Owner and 01 Login Guest > Auth > Get Access Token; Run Folder 90 - End-to-End Journeys / J01.",
+      "instance": "i3-workshop",
+      "project": "pocoma-lb-i3-workshop-bd769e4d",
+      "sha": "587b729a7522adbb2afd2390ffb7c033c0199aa7",
+      "dirty": false,
+      "urls": {
+        "write": "http://127.0.0.1:65406",
+        "read": "http://127.0.0.1:65407"
+      },
+      "issuer": "http://localhost:65408/realms/pocoma",
+      "evidence": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/i3-workshop/runs/1794645692-7b77b595"
+    }
+  },
+  {
+    "argv": [
+      "/Users/julien.guezennec/Dev/projects/pocoma/pocoma-local",
+      "bruno",
+      "--instance",
+      "i3-workshop"
+    ],
+    "phase": "fresh-cli",
+    "seconds": 9.495710915885866,
+    "exit": 0,
+    "result": {
+      "state": "BRUNO_PASS",
+      "exit": 0,
+      "instance": "i3-workshop",
+      "project": "pocoma-lb-i3-workshop-bd769e4d",
+      "sha": "587b729a7522adbb2afd2390ffb7c033c0199aa7",
+      "dirty": false,
+      "urls": {
+        "write": "http://127.0.0.1:65406",
+        "read": "http://127.0.0.1:65407"
+      },
+      "issuer": "http://localhost:65408/realms/pocoma",
+      "evidence": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/i3-workshop/runs/1794645692-28464950"
+    }
+  },
+  {
+    "argv": [
+      "/Users/julien.guezennec/Dev/projects/pocoma/pocoma-local",
+      "reset",
+      "--instance",
+      "i3-workshop",
+      "--dry-run",
+      "--confirm",
+      "RESET:i3-workshop"
+    ],
+    "phase": "reset-plan",
+    "seconds": 0.5242422500159591,
+    "exit": 0,
+    "result": {
+      "state": "RESET_PLAN",
+      "exit": 0,
+      "project": "pocoma-lb-i3-workshop-bd769e4d",
+      "volume": "pocoma-lb-i3-workshop-bd769e4d-data",
+      "instance": "i3-workshop",
+      "sha": "587b729a7522adbb2afd2390ffb7c033c0199aa7",
+      "dirty": false,
+      "urls": {
+        "write": "http://127.0.0.1:65406",
+        "read": "http://127.0.0.1:65407"
+      },
+      "issuer": "http://localhost:65408/realms/pocoma",
+      "evidence": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/i3-workshop/runs/1794645711-729def48"
+    }
+  },
+  {
+    "argv": [
+      "/Users/julien.guezennec/Dev/projects/pocoma/pocoma-local",
+      "reset",
+      "--instance",
+      "i3-workshop",
+      "--confirm",
+      "RESET:i3-workshop"
+    ],
+    "phase": "reset",
+    "seconds": 49.1365013748873,
+    "exit": 0,
+    "result": {
+      "state": "READY",
+      "exit": 0,
+      "business": "AVAILABLE",
+      "canary": "AVAILABLE",
+      "qualificationTools": "AVAILABLE",
+      "fullyQualifiable": false,
+      "checks": {
+        "JVM-http-write": "PASS",
+        "JVM-http-read": "PASS",
+        "JVM-command-worker": "PASS",
+        "JVM-results-worker": "PASS",
+        "JVM-business-read-worker": "PASS",
+        "DB-CURRENT": "PASS",
+        "IDP-DISCOVERY": "PASS"
+      },
+      "canaryProof": {
+        "potId": "19697c63-b8fc-5642-a3c8-ba757a8f83e7",
+        "version": 2,
+        "runId": "1794645711-8f858ab2",
+        "completedAt": 1794645760.822125
+      },
+      "observedAt": 1794645760.898842,
+      "instance": "i3-workshop",
+      "project": "pocoma-lb-i3-workshop-325b57b9",
+      "sha": "587b729a7522adbb2afd2390ffb7c033c0199aa7",
+      "dirty": false,
+      "urls": {
+        "write": "http://127.0.0.1:49760",
+        "read": "http://127.0.0.1:49761"
+      },
+      "issuer": "http://localhost:49762/realms/pocoma",
+      "evidence": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/i3-workshop/runs/1794645711-8f858ab2"
+    }
+  },
+  {
+    "argv": [
+      "/Users/julien.guezennec/Dev/projects/pocoma/pocoma-local",
+      "gui",
+      "--instance",
+      "i3-workshop"
+    ],
+    "phase": "reset-gui-config",
+    "seconds": 0.5710430420003831,
+    "exit": 0,
+    "result": {
+      "state": "GUI_CONFIGURED",
+      "exit": 0,
+      "environment": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-playground/environments/Instance-i3-workshop.bru",
+      "next": "In Bruno select Instance-i3-workshop; 00 - Getting Started / 00 Login Owner and 01 Login Guest > Auth > Get Access Token; Run Folder 90 - End-to-End Journeys / J01.",
+      "instance": "i3-workshop",
+      "project": "pocoma-lb-i3-workshop-325b57b9",
+      "sha": "587b729a7522adbb2afd2390ffb7c033c0199aa7",
+      "dirty": false,
+      "urls": {
+        "write": "http://127.0.0.1:49760",
+        "read": "http://127.0.0.1:49761"
+      },
+      "issuer": "http://localhost:49762/realms/pocoma",
+      "evidence": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/i3-workshop/runs/1794645761-dfbbff7c"
+    }
+  },
+  {
+    "argv": [
+      "/Users/julien.guezennec/Dev/projects/pocoma/pocoma-local",
+      "bruno",
+      "--instance",
+      "i3-workshop"
+    ],
+    "phase": "after-reset-cli",
+    "seconds": 9.28506216709502,
+    "exit": 0,
+    "result": {
+      "state": "BRUNO_PASS",
+      "exit": 0,
+      "instance": "i3-workshop",
+      "project": "pocoma-lb-i3-workshop-325b57b9",
+      "sha": "587b729a7522adbb2afd2390ffb7c033c0199aa7",
+      "dirty": false,
+      "urls": {
+        "write": "http://127.0.0.1:49760",
+        "read": "http://127.0.0.1:49761"
+      },
+      "issuer": "http://localhost:49762/realms/pocoma",
+      "evidence": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/i3-workshop/runs/1794645761-6a2ba742"
+    }
+  }
+]

@@ -1,0 +1,61 @@
+{
+  "initial_remote": "222e06c21a5f0b0ebe35befc693db02d9b919cd2",
+  "tested_code_sha": "3ee575940669feb56b73b10122b5a3406bce6a08",
+  "files": [
+    {
+      "path": "app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/consumption/v3/V3ConsumptionLifecycleComposition.java",
+      "sha256": "a625cfd3a9ea3e524a387120b9e2cadee86412bb0c161319a7669cfb5b8a9ee5",
+      "git_blob": "d293dedf1b4b691dafdb7940581c872613f1fab8"
+    },
+    {
+      "path": "app/engine-consumption/src/main/java/com/kartaguez/pocoma/engine/consumption/v3/ConsumptionEngine.java",
+      "sha256": "c9db070d5298b66e1b2f9db2b8b9e38c3beb30a2b271cada9076106039ca9e0b",
+      "git_blob": "70d9ae50b436d1ea1979114f7602c4158263f882"
+    },
+    {
+      "path": "app/engine-consumption/src/test/java/com/kartaguez/pocoma/engine/consumption/v3/ConsumptionFailureClassificationTest.java",
+      "sha256": "4f364b5754abd28a819ea2060cfc1e5dff3ba27b689da04386d0fb777551e8cb",
+      "git_blob": "20071f3fcf6ce59e24293261291e3896b1f0f612"
+    },
+    {
+      "path": "app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/ConsumptionLifecyclePostgresTest.java",
+      "sha256": "7a27282c0d70e53cac65cfb334b5bddbcc17a15073f29dd7a780ddd5cb76c050",
+      "git_blob": "04c542abb714ae218a7591a50fcf44db89f1d542"
+    },
+    {
+      "path": "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/ConsumptionCompositeClassificationTest.java",
+      "sha256": "c249b1df7574c6922fe669e2bae0ce5170e3d956da9d580a4e3501905ad409a5",
+      "git_blob": "f5d03313523fd1ddb80809a74437cfd11b37617b"
+    },
+    {
+      "path": "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/V3PotCommandCompositionPostgresTest.java",
+      "sha256": "25ba5a90197d1da1c803a824abe2692fca86e40955db014aaa76b8cb785bf7d0",
+      "git_blob": "ca6857405b0ab2403d451e1684f935b0a2ac4238"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I3-post-audit/run-gate.py",
+      "sha256": "2c4ef5d70fda483b78d5554d3aef67b2a735dccf95e2ccb898a8c3d9c14715ee",
+      "git_blob": "19d94b84fb2858d1ba48afc60bc4787bf80abe9c"
+    },
+    {
+      "path": "docs/v3/L2_I3_Post_Audit_Corrections_Report.md",
+      "sha256": "f46fcd1c5ceedaf7c6f87ba8623c0c4fc66551a8bbca239c9ff3323b4ef5ba98",
+      "git_blob": "851880193925e04f40199c3cf000eb9521f08a31"
+    },
+    {
+      "path": "docs/v3/L2_I3_Post_Audit_Proof_Manifest.json",
+      "sha256": "14a92c34e52353f657c18463618e30bd34c33b69bba2f7f3b0a5d41bb62cd6ac",
+      "git_blob": "08855961ed85a1b10d8082d5ee12a3c05f5651e1"
+    }
+  ],
+  "production_changed": [
+    "app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/consumption/v3/V3ConsumptionLifecycleComposition.java",
+    "app/engine-consumption/src/main/java/com/kartaguez/pocoma/engine/consumption/v3/ConsumptionEngine.java"
+  ],
+  "forbidden_changes": [],
+  "historical_uncertainty_assertions": "all preserved; helper extended to cession variant; i3_capacity_uncertainty method byte-identical",
+  "environment": {
+    "platform": "macOS-27.0-arm64-arm-64bit-Mach-O",
+    "java": "openjdk version \"21\" 2023-09-19 LTS\nOpenJDK Runtime Environment Temurin-21+35 (build 21+35-LTS)\nOpenJDK 64-Bit Server VM Temurin-21+35 (build 21+35-LTS, mixed mode)\n"
+  }
+}

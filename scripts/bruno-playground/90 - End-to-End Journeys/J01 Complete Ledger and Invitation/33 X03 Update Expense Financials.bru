@@ -1,0 +1,72 @@
+meta {
+  name: J01-33-X03 Update Expense Financials
+  type: http
+  seq: 33
+}
+
+post {
+  url: {{writeUrl}}/api/v3/commands
+  body: json
+  auth: none
+}
+
+headers {
+  Connection: close
+  Content-Type: application/json
+  Idempotency-Key: {{idempotencyKey}}
+}
+
+body:json {
+  {
+    "operation": "UpdateExpenseFinancials",
+    "potId": "{{potId}}",
+    "observedVersion": {{potVersion}},
+    "bindingToken": "{{bindingActor}}",
+    "payload": {
+      "id": "{{expenseId}}",
+      "amount": {
+        "numerator": "20",
+        "denominator": "3"
+      },
+      "payerId": "{{shareholderOwnerId}}",
+      "participants": [
+        {
+          "id": "{{shareholderOwnerId}}",
+          "weight": null
+        },
+        {
+          "id": "{{shareholderGuestId}}",
+          "weight": null
+        }
+      ]
+    }
+  }
+}
+
+settings {
+  timeout: 5000
+}
+
+script:pre-request {
+  const options = {"id":"J01-33-X03","role":"owner","requires":["potId","potVersion"],"operation":"UpdateExpenseFinancials","kind":"commandAdmission"};
+  await require('./lib/workspace.js').prepare(bru, req, options);
+}
+
+tests {
+  const options = {"id":"J01-33-X03","role":"owner","requires":["potId","potVersion"],"operation":"UpdateExpenseFinancials","kind":"commandAdmission"};
+  const work = require('./lib/workspace.js');
+  test('J01-33-X03 transport and privacy', () => work.transport(bru, res, expect, options));
+  test('J01-33-X03 contract and variables', () => {
+    work.verify(bru, req, res, expect, options);
+    work.record(bru, req, res, options);
+  });
+}
+
+docs {
+  Parcours J01 ; etape 33. Source : 04 - Expenses/X03 Update Expense Financials.bru.
+  UpdateExpenseFinancials : 202 avec requestId seulement. Ouvrir R01 Command Result pour connaitre le resultat metier et actualiser potVersion. Createur ou membre actif ; binding courant, version observee et references valides.
+  Identite : actor. Prerequis : potId, potVersion.
+  Chaque Send appelle la methode et le corps visibles. Les GET asynchrones attendent
+  le meme endpoint au plus 30 s avant l appel affiche ; aucun POST cache.
+  Modifier le JSON librement ; une nouvelle intention recoit une nouvelle cle.
+}

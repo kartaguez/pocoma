@@ -1,0 +1,99 @@
+{
+  "scope": "L1-F2 bounded COMMAND write-depth correction; historical manifests/verdicts immutable; no global V3 certification",
+  "gates": {
+    "command": {
+      "regression_gate": "e-consumers",
+      "command": [
+        "./mvnw",
+        "-pl",
+        "runtime-command-consumption-worker",
+        "-am",
+        "test"
+      ]
+    }
+  },
+  "corrections": [
+    {
+      "source": "app/domain-pot/src/test/java/com/kartaguez/pocoma/domain/pot/v3/InvitationAttachmentTest.java",
+      "class": "com.kartaguez.pocoma.domain.pot.v3.InvitationAttachmentTest",
+      "methods": [
+        "outsiderAndUnattachedCreatorAttachOnlyThemselvesWithOneDetailsRevision",
+        "occupiedDeletedAbsentAndAlreadyAttachedRemainRejected",
+        "mixedOrMissingDurableFactsAreTechnicalAnomalies"
+      ]
+    },
+    {
+      "source": "app/engine-write-pot/src/test/java/com/kartaguez/pocoma/engine/write/pot/v3/PotCommandIntentTest.java",
+      "class": "com.kartaguez.pocoma.engine.write.pot.v3.PotCommandIntentTest",
+      "methods": [
+        "additionsValidateStructureAndCopy",
+        "detailsValidateStructureAndCopy",
+        "weightsValidateStructureAndCopy"
+      ]
+    },
+    {
+      "source": "app/engine-write-pot/src/test/java/com/kartaguez/pocoma/engine/write/pot/v3/ExecutePotCommandTest.java",
+      "class": "com.kartaguez.pocoma.engine.write.pot.v3.ExecutePotCommandTest",
+      "methods": [
+        "f02InvalidBindingNeverReadsOrProtectsPotAndStillFencesIdentity"
+      ]
+    },
+    {
+      "source": "app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/PotCommandJsonTest.java",
+      "class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotCommandJsonTest",
+      "methods": [
+        "allThreeTargetListsRoundTripAndDurableCorruptionIsExplicitlyTechnical"
+      ]
+    },
+    {
+      "source": "app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/CommandExecutionPostgresTest.java",
+      "class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.CommandExecutionPostgresTest",
+      "methods": [
+        "f02InvalidBindingCompletesWhilePotIsLockedAndIdentityStillFenced",
+        "f03DurableInvalidListsAreTechnicalAndValidImpossibleTargetsAreBusinessRejections",
+        "f05StaticBusinessConstraintSetExactlyMatchesCatalogAndLeavesPublicationDeferred",
+        "f02InvalidBindingHoldsIdentityUntilCommit",
+        "f03InvalidAdmissionConstructorsLeaveNoDurableCommandOrSlot",
+        "f04InvitationPrimitiveSerializesCompetingUsersAndSameUserTargets",
+        "f05BusinessForeignKeyViolationStillFailsBeforePublicationAndRollsBack"
+      ]
+    },
+    {
+      "source": "app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/PotHistoryPostgresTest.java",
+      "class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotHistoryPostgresTest",
+      "methods": [
+        "f01PointQueriesUseIndexesAndBoundedBuffersAcrossHistoryDepth",
+        "f01MaintenanceAuditRetainsEveryGlobalChainCheck"
+      ]
+    },
+    {
+      "class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.WriteRevisionPostgresTest",
+      "source": "app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/WriteRevisionPostgresTest.java",
+      "methods": [
+        "f202RejectsLocalCorruptionAndRollsBackCandidate",
+        "f203UnrelatedOldGapDoesNotBlockWriteButAuditRejects",
+        "f204FinancialReferenceAndIdentityCorruptionBlockWrite",
+        "f205GroupedBatchesAndNotLoadedRemainSelective",
+        "f206SameRevisionCannotCloseTwiceUnderActualLockWait",
+        "f207EffectIndexAvoidsScanningOldRevisions"
+      ]
+    },
+    {
+      "class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.WriteRevisionPerformancePostgresTest",
+      "source": "app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/WriteRevisionPerformancePostgresTest.java",
+      "methods": [
+        "f201WriteDepthProfiles"
+      ]
+    }
+  ],
+  "proofs": {
+    "before_source_ref": "35448983",
+    "baseline_production_ref": "b3df3f3e619eeed6fc551177c778b412daa4fa4b",
+    "matrix": "L1_F2_Invariant_Matrix.md",
+    "inventory": "L1_F2_Contradictory_Inventory.md",
+    "global_gate_required": false,
+    "full_reactor_required": false,
+    "expected_java_rows_per_equivalent_mutation": 28,
+    "performance": "identical harness, 5 warmups and 10 measured physical commits per depth; fixture/admission excluded; depth increases by 1 per committed repetition"
+  }
+}

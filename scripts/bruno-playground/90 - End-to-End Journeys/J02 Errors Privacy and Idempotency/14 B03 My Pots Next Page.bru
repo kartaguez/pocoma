@@ -1,0 +1,45 @@
+meta {
+  name: J02-14-B03 My Pots Next Page
+  type: http
+  seq: 14
+}
+
+get {
+  url: {{readUrl}}/api/v3/me/pots?limit={{pageLimit}}&cursor={{nextCursor}}
+  body: none
+  auth: none
+}
+
+headers {
+  Connection: close
+  X-Pocoma-Binding-Token: {{bindingActor}}
+}
+
+settings {
+  timeout: 5000
+}
+
+script:pre-request {
+  const options = {"id":"J02-14-B03","role":"owner","kind":"navigation","binding":true,"status":200,"requires":["nextCursor"]};
+  await require('./lib/workspace.js').prepare(bru, req, options);
+}
+
+tests {
+  const options = {"id":"J02-14-B03","role":"owner","kind":"navigation","binding":true,"status":200,"requires":["nextCursor"]};
+  const work = require('./lib/workspace.js');
+  test('J02-14-B03 transport and privacy', () => work.transport(bru, res, expect, options));
+  test('J02-14-B03 contract and variables', () => {
+    work.verify(bru, req, res, expect, options);
+    bru.setVar('pageLimit', 20);
+    work.record(bru, req, res, options);
+  });
+}
+
+docs {
+  Parcours J02 ; etape 14. Source : 06 - Balances and Navigation/B03 My Pots Next Page.bru.
+  Page suivante apres B02 ; executable seulement si nextCursor non vide. Un jeu neuf peut ne comporter qu une page.
+  Identite : actor. Prerequis : nextCursor.
+  Chaque Send appelle la methode et le corps visibles. Les GET asynchrones attendent
+  le meme endpoint au plus 30 s avant l appel affiche ; aucun POST cache.
+  Modifier le JSON librement ; une nouvelle intention recoit une nouvelle cle.
+}

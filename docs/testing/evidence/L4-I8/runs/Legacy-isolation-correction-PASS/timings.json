@@ -1,0 +1,29 @@
+{
+  "phases": {
+    "input_inventory": {
+      "status": "FINISHED",
+      "seconds": 0.16712479095440358
+    },
+    "discovery": {
+      "status": "FINISHED",
+      "seconds": 2.5457298340043053
+    },
+    "maven": {
+      "status": "FINISHED",
+      "seconds": 16.443169874954037
+    },
+    "collection": {
+      "status": "FINISHED",
+      "seconds": 0.5856819999753498
+    }
+  },
+  "campaign_seconds": 20.678350374975707,
+  "forecast": {
+    "seconds": 60,
+    "basis": "bounded reproduction/correction of three legacy monolith failures",
+    "uncertainty": "HIGH"
+  },
+  "forecast_delta_seconds": -39.32164962502429,
+  "forecast_exceeded": false,
+  "forecast_is_blocking": false
+}

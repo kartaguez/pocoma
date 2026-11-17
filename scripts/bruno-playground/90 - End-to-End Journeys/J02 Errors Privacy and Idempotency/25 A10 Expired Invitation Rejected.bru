@@ -1,0 +1,57 @@
+meta {
+  name: J02-25-A10 Expired Invitation Rejected
+  type: http
+  seq: 25
+}
+
+post {
+  url: {{writeUrl}}/api/v3/commands
+  body: json
+  auth: none
+}
+
+headers {
+  Connection: close
+  Content-Type: application/json
+  Idempotency-Key: {{idempotencyKey}}
+}
+
+body:json {
+  {
+    "operation": "CreateInvitation",
+    "potId": "{{potId}}",
+    "observedVersion": 0,
+    "bindingToken": "{{bindingActor}}",
+    "payload": {
+      "expiresAt": "2000-01-01T00:00:00Z"
+    }
+  }
+}
+
+settings {
+  timeout: 5000
+}
+
+script:pre-request {
+  const options = {"id":"J02-25-A10","role":"owner","outcome":"REJECTED","rejection":"INVALID_INVITATION","requires":["potId","potVersion"],"operation":"CreateInvitation","kind":"commandAdmission"};
+  await require('./lib/workspace.js').prepare(bru, req, options);
+}
+
+tests {
+  const options = {"id":"J02-25-A10","role":"owner","outcome":"REJECTED","rejection":"INVALID_INVITATION","requires":["potId","potVersion"],"operation":"CreateInvitation","kind":"commandAdmission"};
+  const work = require('./lib/workspace.js');
+  test('J02-25-A10 transport and privacy', () => work.transport(bru, res, expect, options));
+  test('J02-25-A10 contract and variables', () => {
+    work.verify(bru, req, res, expect, options);
+    work.record(bru, req, res, options);
+  });
+}
+
+docs {
+  Parcours J02 ; etape 25. Source : 09 - Access Control and Errors/A10 Expired Invitation Rejected.bru.
+  CreateInvitation : 202 avec requestId seulement. Ouvrir R01 Command Result pour connaitre le resultat metier et actualiser potVersion. Createur uniquement ; observation 0, expiration UTC future. Le lien est lu separement par V02.
+  Identite : actor. Prerequis : potId, potVersion.
+  Chaque Send appelle la methode et le corps visibles. Les GET asynchrones attendent
+  le meme endpoint au plus 30 s avant l appel affiche ; aucun POST cache.
+  Modifier le JSON librement ; une nouvelle intention recoit une nouvelle cle.
+}

@@ -1,0 +1,99 @@
+{
+  "cwd": "/private/tmp/pocoma-v3-postaud/app",
+  "feedback_intermediate": {
+    "command": "./mvnw -o -pl runtime-command-consumption-worker,runtime-monolith,architecture-tests -am -Dtest=IdentityAuthorityPostgresTest,IdentityConcurrencyPostgresTest,IdentitySchemaPostgresTest,IdentityPrivilegesPostgresTest,IdentityRequestExecutionPostgresTest,IdentityPublicationPostgresTest,IdentityDiscoveryPostgresTest,ExecuteIdentityRequestTest,V3IdentityRequestCompositionPostgresTest,V3IdentityRequestMonolithPostgresTest,V3WorkerDevelopmentToolsTest,V3IdentityAuthorityArchitectureTest -Dsurefire.failIfNoSpecifiedTests=false test",
+    "exit": 0,
+    "counts": {
+      "tests": 73,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0
+    },
+    "provenance": "uncommitted intermediate before c1172bf4; no frozen input hashes captured for this run; not attributed to final code SHA"
+  },
+  "canonical": {
+    "command": "./mvnw -pl runtime-command-consumption-worker,runtime-monolith,architecture-tests -am test",
+    "tested_code_sha": "c1172bf4a758a9077415d827ca88b359b6360ebb",
+    "status": "FAIL",
+    "full_reactor": false,
+    "exit": 1,
+    "counts": {
+      "tests": 1867,
+      "failures": 1,
+      "errors": 0,
+      "skips": 1
+    },
+    "failure": "V3WorkerResourcesPostgresTest.i5_r12:896; Runtime.close await deadline",
+    "duration": "49:04",
+    "architecture_module": "SKIPPED",
+    "bytecode_qualification": "Preexisting build outputs later proved inconsistent for two legacy classes; see Bytecode-qualification.json. This is not a clean source/bytecode-coherent rebuild."
+  },
+  "before_external": {
+    "directory": "/private/tmp/pocoma-l3-i3-remediation-before",
+    "commands": [
+      "prepare.py",
+      "capture_classpath.py",
+      "run_java.py retained",
+      "run_java.py seed",
+      "run_java.py collision",
+      "security_probes.py",
+      "commit_probes.py"
+    ],
+    "source_sha": "2b3567b1f77051c399772ee7ac787f7dd61ba407",
+    "exit": 0
+  },
+  "after_external": {
+    "directory": "/private/tmp/pocoma-l3-i3-remediation-after",
+    "commands": [
+      "prepare.py",
+      "run_java.py normal",
+      "run_java.py seed",
+      "run_java.py collision",
+      "run_java.py permissions",
+      "after_checks.py",
+      "run_java.py boot-view"
+    ],
+    "source_sha": "c1172bf4a758a9077415d827ca88b359b6360ebb",
+    "boot_view_expected_exit": 1,
+    "other_exits": 0,
+    "compile": "javac guard source into isolated overlay; javac adapted IndependentAudit.java using recorded first-feedback runtime classpath"
+  },
+  "architecture_stale_output": {
+    "command": "./mvnw -o -pl architecture-tests -am '-Dtest=com.kartaguez.pocoma.architecture.*Test,com.kartaguez.pocoma.architecture.v3.*Test,com.kartaguez.pocoma.architecture.ccr.*Test,com.kartaguez.pocoma.architecture.ept.*Test' -Dsurefire.failIfNoSpecifiedTests=false test",
+    "status": "FAIL",
+    "exit": 1,
+    "counts": {
+      "tests": 162,
+      "failures": 2,
+      "errors": 0,
+      "skips": 0
+    },
+    "duration_seconds": 43.265,
+    "qualification": "source/bytecode and lambda-format mismatch in preexisting outputs; failures retained, no test change"
+  },
+  "fresh_feedback": {
+    "cwd": "/private/tmp/pocoma-i3-architecture-fresh/app",
+    "checkout_sha": "c1172bf4a758a9077415d827ca88b359b6360ebb",
+    "command": "./mvnw -o -pl runtime-command-consumption-worker,runtime-monolith,architecture-tests -am '-Dtest=IdentityAuthorityPostgresTest,IdentityConcurrencyPostgresTest,IdentitySchemaPostgresTest,IdentityPrivilegesPostgresTest,IdentityRequestExecutionPostgresTest,IdentityPublicationPostgresTest,IdentityDiscoveryPostgresTest,ExecuteIdentityRequestTest,V3IdentityRequestCompositionPostgresTest,V3IdentityRequestMonolithPostgresTest,V3WorkerDevelopmentToolsTest,com.kartaguez.pocoma.architecture.*Test,com.kartaguez.pocoma.architecture.v3.*Test,com.kartaguez.pocoma.architecture.ccr.*Test,com.kartaguez.pocoma.architecture.ept.*Test' -Dsurefire.failIfNoSpecifiedTests=false test",
+    "status": "BUILD SUCCESS \u2014 focused contribution only",
+    "exit": 0,
+    "counts": {
+      "tests": 232,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0
+    },
+    "duration": "04:14",
+    "reason": "fresh compilation after proven stale outputs; source inputs identical; no rerun of unchanged long L2 tests",
+    "canonical_substitute": false
+  },
+  "other_verification": [
+    "Python AST parsing of worker-dev.py and evidence collector",
+    "unchanged V6/owner/authority/participant/R9/POM source bytes compared to audited Git SHA",
+    "49 before-checkout source inventory SHA-256 checks",
+    "publication and original CT archive member SHA-256 checks",
+    "collector positive use for canonical, stale-output architecture and clean feedback; stale XML negative refusal",
+    "git diff --check; review of staged scope; primary checkout HEAD/branch/status read-only",
+    "known synthetic token checked in memory in PostgreSQL logs; only booleans exported"
+  ]
+}

@@ -1,0 +1,11 @@
+-------------------------------------------------------------------------------
+Test set: com.kartaguez.pocoma.ReadWorkerResourcesPostgresTest
+-------------------------------------------------------------------------------
+Tests run: 2, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 548.7 s <<< FAILURE! -- in com.kartaguez.pocoma.ReadWorkerResourcesPostgresTest
+com.kartaguez.pocoma.ReadWorkerResourcesPostgresTest.allParticipantsFitPoolsAndRenewalEnvelope -- Time elapsed: 17.81 s <<< ERROR!
+java.lang.NullPointerException: Cannot invoke "java.sql.Connection.setAutoCommit(boolean)" because "connection" is null
+	at com.zaxxer.hikari.pool.PoolBase.resetConnectionState(PoolBase.java:223)
+	at com.zaxxer.hikari.pool.PoolEntry.resetConnectionState(PoolEntry.java:106)
+	at com.zaxxer.hikari.pool.ProxyConnection.close(ProxyConnection.java:255)
+	at com.kartaguez.pocoma.ReadWorkerResourcesPostgresTest$RetainingSource.resolve(ReadWorkerResourcesPostgresTest.java:531)
+	at com.kartaguez.pocoma.ReadWorkerResourcesPostgresTest.allParticipantsFitPoolsAndRenewalEnvelope(ReadWorkerResourcesPostgresTest.java:952)

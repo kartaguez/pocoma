@@ -1,0 +1,678 @@
+{
+  "campaigns": [
+    {
+      "campaign": "READ-FAST-1",
+      "level": "FAST",
+      "modules": [
+        "domain-projection",
+        "infra-persistence-read-jdbc"
+      ],
+      "reactor_modules": [
+        "domain-authorization",
+        "domain-event",
+        "domain-user-identity",
+        "domain-pot",
+        "domain-projection",
+        "domain-consumption",
+        "port-transaction",
+        "engine-consumption",
+        "contracts-command",
+        "engine-read-command-result",
+        "engine-read-registration-result",
+        "port-projection",
+        "engine-read-current-binding",
+        "engine-materialize-current-binding",
+        "engine-materialize-latest-known-version",
+        "infra-tx-spring",
+        "infra-persistence-projection-jdbc",
+        "infra-persistence-read-jdbc"
+      ],
+      "closure_size": 18,
+      "methods": [
+        {
+          "classname": "com.kartaguez.pocoma.domain.projection.v3.PotVersionContractTest",
+          "method": "compositionAndKeys",
+          "invocations": 1,
+          "source": "app/domain-projection/src/test/java/com/kartaguez/pocoma/domain/projection/v3/PotVersionContractTest.java"
+        },
+        {
+          "classname": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.PotVersionJsonTest",
+          "method": "strictCanonicalCodec",
+          "invocations": 1,
+          "source": "app/infra-persistence-read-jdbc/src/test/java/com/kartaguez/pocoma/infra/persistence/read/jdbc/v3/PotVersionJsonTest.java"
+        }
+      ],
+      "expected_invocations": 2,
+      "maven_command_from_app": "./mvnw --batch-mode --no-transfer-progress -pl domain-projection,infra-persistence-read-jdbc -am -Dtest=com.kartaguez.pocoma.domain.projection.v3.PotVersionContractTest#compositionAndKeys,com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.PotVersionJsonTest#strictCanonicalCodec -Dsurefire.failIfNoSpecifiedTests=false test",
+      "operator_command": "python3 -B scripts/testing/verify.py FAST READ-FAST-1 --output /absolute/new/evidence-directory",
+      "forecast": {
+        "seconds": 60,
+        "basis": "Indicative envelope, not a measured nominal estimate; nominal UNKNOWN",
+        "uncertainty": "HIGH",
+        "blocking": false
+      }
+    },
+    {
+      "campaign": "READ-FAST-3",
+      "level": "FAST",
+      "modules": [
+        "engine-consume-projection-task"
+      ],
+      "reactor_modules": [
+        "domain-authorization",
+        "domain-event",
+        "domain-pot",
+        "domain-projection",
+        "domain-consumption",
+        "port-transaction",
+        "engine-consumption",
+        "orchestrator-consumption",
+        "port-projection",
+        "projector-pot",
+        "engine-consume-projection-task"
+      ],
+      "closure_size": 11,
+      "methods": [
+        {
+          "classname": "com.kartaguez.pocoma.engine.consume.projectiontask.v3.PotVisibilityRulesTest",
+          "method": "visibleSetRules",
+          "invocations": 1,
+          "source": "app/engine-consume-projection-task/src/test/java/com/kartaguez/pocoma/engine/consume/projectiontask/v3/PotVisibilityRulesTest.java"
+        }
+      ],
+      "expected_invocations": 1,
+      "maven_command_from_app": "./mvnw --batch-mode --no-transfer-progress -pl engine-consume-projection-task -am -Dtest=com.kartaguez.pocoma.engine.consume.projectiontask.v3.PotVisibilityRulesTest#visibleSetRules -Dsurefire.failIfNoSpecifiedTests=false test",
+      "operator_command": "python3 -B scripts/testing/verify.py FAST READ-FAST-3 --output /absolute/new/evidence-directory",
+      "forecast": {
+        "seconds": 60,
+        "basis": "Indicative envelope, not a measured nominal estimate; nominal UNKNOWN",
+        "uncertainty": "HIGH",
+        "blocking": false
+      }
+    },
+    {
+      "campaign": "READ-FAST-4",
+      "level": "FAST",
+      "modules": [
+        "engine-read-current-binding",
+        "engine-materialize-command-result",
+        "engine-materialize-registration-result"
+      ],
+      "reactor_modules": [
+        "domain-authorization",
+        "domain-event",
+        "domain-user-identity",
+        "domain-pot",
+        "domain-consumption",
+        "port-transaction",
+        "port-binding-authority",
+        "engine-consumption",
+        "contracts-command",
+        "engine-write-pot",
+        "engine-consume-command",
+        "engine-read-command-result",
+        "engine-materialize-command-result",
+        "contracts-registration",
+        "engine-consume-registration",
+        "engine-read-registration-result",
+        "engine-materialize-registration-result",
+        "engine-read-current-binding"
+      ],
+      "closure_size": 18,
+      "methods": [
+        {
+          "classname": "com.kartaguez.pocoma.engine.read.currentbinding.v3.CurrentBindingV3ContractTest",
+          "method": "euiStateAndMinVersion",
+          "invocations": 1,
+          "source": "app/engine-read-current-binding/src/test/java/com/kartaguez/pocoma/engine/read/currentbinding/v3/CurrentBindingV3ContractTest.java"
+        },
+        {
+          "classname": "com.kartaguez.pocoma.engine.materialize.commandresult.v3.CommandResultV3ContractTest",
+          "method": "terminalContract",
+          "invocations": 1,
+          "source": "app/engine-materialize-command-result/src/test/java/com/kartaguez/pocoma/engine/materialize/commandresult/v3/CommandResultV3ContractTest.java"
+        },
+        {
+          "classname": "com.kartaguez.pocoma.engine.materialize.registrationresult.v3.IdentityRequestResultV3ContractTest",
+          "method": "terminalContract",
+          "invocations": 1,
+          "source": "app/engine-materialize-registration-result/src/test/java/com/kartaguez/pocoma/engine/materialize/registrationresult/v3/IdentityRequestResultV3ContractTest.java"
+        }
+      ],
+      "expected_invocations": 3,
+      "maven_command_from_app": "./mvnw --batch-mode --no-transfer-progress -pl engine-read-current-binding,engine-materialize-command-result,engine-materialize-registration-result -am -Dtest=com.kartaguez.pocoma.engine.read.currentbinding.v3.CurrentBindingV3ContractTest#euiStateAndMinVersion,com.kartaguez.pocoma.engine.materialize.commandresult.v3.CommandResultV3ContractTest#terminalContract,com.kartaguez.pocoma.engine.materialize.registrationresult.v3.IdentityRequestResultV3ContractTest#terminalContract -Dsurefire.failIfNoSpecifiedTests=false test",
+      "operator_command": "python3 -B scripts/testing/verify.py FAST READ-FAST-4 --output /absolute/new/evidence-directory",
+      "forecast": {
+        "seconds": 60,
+        "basis": "Indicative envelope, not a measured nominal estimate; nominal UNKNOWN",
+        "uncertainty": "HIGH",
+        "blocking": false
+      }
+    },
+    {
+      "campaign": "READ-CHANGE-1",
+      "level": "CHANGE",
+      "modules": [
+        "infra-persistence-primary-jpa",
+        "infra-persistence-read-jdbc"
+      ],
+      "reactor_modules": [
+        "domain-authorization",
+        "domain-event",
+        "domain-user-identity",
+        "contracts-authentication",
+        "domain-pot",
+        "domain-projection",
+        "domain-consumption",
+        "port-transaction",
+        "port-binding-authority",
+        "engine-consumption",
+        "contracts-command",
+        "engine-write-pot",
+        "engine-consume-command",
+        "orchestrator-consumption",
+        "supra-consume-command",
+        "engine-read-command-result",
+        "engine-materialize-command-result",
+        "contracts-registration",
+        "engine-admit-registration",
+        "engine-consume-registration",
+        "engine-read-registration-result",
+        "engine-materialize-registration-result",
+        "port-projection",
+        "engine-produce-projection-task",
+        "projector-pot",
+        "engine-consume-projection-task",
+        "engine-read-current-binding",
+        "engine-materialize-current-binding",
+        "engine-materialize-latest-known-version",
+        "infra-tx-spring",
+        "infra-persistence-projection-jdbc",
+        "infra-persistence-read-jdbc",
+        "contracts-observability",
+        "engine-admit-command",
+        "supra-consume-lkv",
+        "infra-persistence-primary-jpa"
+      ],
+      "closure_size": 36,
+      "methods": [
+        {
+          "classname": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotVersionSourcePostgresTest",
+          "method": "exactHistoricalComposition",
+          "invocations": 1,
+          "source": "app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/PotVersionSourcePostgresTest.java"
+        },
+        {
+          "classname": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.PotVersionReadStorePostgresTest",
+          "method": "historyAndReplay",
+          "invocations": 1,
+          "source": "app/infra-persistence-read-jdbc/src/test/java/com/kartaguez/pocoma/infra/persistence/read/jdbc/v3/PotVersionReadStorePostgresTest.java"
+        },
+        {
+          "classname": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.PotVersionReadStorePostgresTest",
+          "method": "concurrentPublishers",
+          "invocations": 1,
+          "source": "app/infra-persistence-read-jdbc/src/test/java/com/kartaguez/pocoma/infra/persistence/read/jdbc/v3/PotVersionReadStorePostgresTest.java"
+        },
+        {
+          "classname": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.PotVersionReadStorePostgresTest",
+          "method": "migrationAndPrivileges",
+          "invocations": 1,
+          "source": "app/infra-persistence-read-jdbc/src/test/java/com/kartaguez/pocoma/infra/persistence/read/jdbc/v3/PotVersionReadStorePostgresTest.java"
+        }
+      ],
+      "expected_invocations": 4,
+      "maven_command_from_app": "./mvnw --batch-mode --no-transfer-progress -pl infra-persistence-primary-jpa,infra-persistence-read-jdbc -am -Dtest=com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotVersionSourcePostgresTest#exactHistoricalComposition,com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.PotVersionReadStorePostgresTest#historyAndReplay+concurrentPublishers+migrationAndPrivileges -Dsurefire.failIfNoSpecifiedTests=false test",
+      "operator_command": "python3 -B scripts/testing/verify.py CHANGE READ-CHANGE-1 --output /absolute/new/evidence-directory",
+      "forecast": {
+        "seconds": 300,
+        "basis": "Indicative envelope, not a measured nominal estimate; nominal UNKNOWN",
+        "uncertainty": "HIGH",
+        "blocking": false
+      }
+    },
+    {
+      "campaign": "READ-CHANGE-2",
+      "level": "CHANGE",
+      "modules": [
+        "infra-persistence-primary-jpa",
+        "infra-persistence-read-jdbc"
+      ],
+      "reactor_modules": [
+        "domain-authorization",
+        "domain-event",
+        "domain-user-identity",
+        "contracts-authentication",
+        "domain-pot",
+        "domain-projection",
+        "domain-consumption",
+        "port-transaction",
+        "port-binding-authority",
+        "engine-consumption",
+        "contracts-command",
+        "engine-write-pot",
+        "engine-consume-command",
+        "orchestrator-consumption",
+        "supra-consume-command",
+        "engine-read-command-result",
+        "engine-materialize-command-result",
+        "contracts-registration",
+        "engine-admit-registration",
+        "engine-consume-registration",
+        "engine-read-registration-result",
+        "engine-materialize-registration-result",
+        "port-projection",
+        "engine-produce-projection-task",
+        "projector-pot",
+        "engine-consume-projection-task",
+        "engine-read-current-binding",
+        "engine-materialize-current-binding",
+        "engine-materialize-latest-known-version",
+        "infra-tx-spring",
+        "infra-persistence-projection-jdbc",
+        "infra-persistence-read-jdbc",
+        "contracts-observability",
+        "engine-admit-command",
+        "supra-consume-lkv",
+        "infra-persistence-primary-jpa"
+      ],
+      "closure_size": 36,
+      "methods": [
+        {
+          "classname": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotBalanceSourcePostgresTest",
+          "method": "exactHistoricalFinance",
+          "invocations": 1,
+          "source": "app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/PotBalanceSourcePostgresTest.java"
+        },
+        {
+          "classname": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.PotBalanceReadStorePostgresTest",
+          "method": "historyAndRationals",
+          "invocations": 1,
+          "source": "app/infra-persistence-read-jdbc/src/test/java/com/kartaguez/pocoma/infra/persistence/read/jdbc/v3/PotBalanceReadStorePostgresTest.java"
+        },
+        {
+          "classname": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.PotBalanceReadStorePostgresTest",
+          "method": "concurrentImmutablePublication",
+          "invocations": 1,
+          "source": "app/infra-persistence-read-jdbc/src/test/java/com/kartaguez/pocoma/infra/persistence/read/jdbc/v3/PotBalanceReadStorePostgresTest.java"
+        },
+        {
+          "classname": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.PotBalanceReadStorePostgresTest",
+          "method": "migrationAndPrivileges",
+          "invocations": 1,
+          "source": "app/infra-persistence-read-jdbc/src/test/java/com/kartaguez/pocoma/infra/persistence/read/jdbc/v3/PotBalanceReadStorePostgresTest.java"
+        }
+      ],
+      "expected_invocations": 4,
+      "maven_command_from_app": "./mvnw --batch-mode --no-transfer-progress -pl infra-persistence-primary-jpa,infra-persistence-read-jdbc -am -Dtest=com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotBalanceSourcePostgresTest#exactHistoricalFinance,com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.PotBalanceReadStorePostgresTest#historyAndRationals+concurrentImmutablePublication+migrationAndPrivileges -Dsurefire.failIfNoSpecifiedTests=false test",
+      "operator_command": "python3 -B scripts/testing/verify.py CHANGE READ-CHANGE-2 --output /absolute/new/evidence-directory",
+      "forecast": {
+        "seconds": 300,
+        "basis": "Indicative envelope, not a measured nominal estimate; nominal UNKNOWN",
+        "uncertainty": "HIGH",
+        "blocking": false
+      }
+    },
+    {
+      "campaign": "READ-CHANGE-3",
+      "level": "CHANGE",
+      "modules": [
+        "infra-persistence-primary-jpa",
+        "infra-persistence-read-jdbc"
+      ],
+      "reactor_modules": [
+        "domain-authorization",
+        "domain-event",
+        "domain-user-identity",
+        "contracts-authentication",
+        "domain-pot",
+        "domain-projection",
+        "domain-consumption",
+        "port-transaction",
+        "port-binding-authority",
+        "engine-consumption",
+        "contracts-command",
+        "engine-write-pot",
+        "engine-consume-command",
+        "orchestrator-consumption",
+        "supra-consume-command",
+        "engine-read-command-result",
+        "engine-materialize-command-result",
+        "contracts-registration",
+        "engine-admit-registration",
+        "engine-consume-registration",
+        "engine-read-registration-result",
+        "engine-materialize-registration-result",
+        "port-projection",
+        "engine-produce-projection-task",
+        "projector-pot",
+        "engine-consume-projection-task",
+        "engine-read-current-binding",
+        "engine-materialize-current-binding",
+        "engine-materialize-latest-known-version",
+        "infra-tx-spring",
+        "infra-persistence-projection-jdbc",
+        "infra-persistence-read-jdbc",
+        "contracts-observability",
+        "engine-admit-command",
+        "supra-consume-lkv",
+        "infra-persistence-primary-jpa"
+      ],
+      "closure_size": 36,
+      "methods": [
+        {
+          "classname": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotVisibilitySourcePostgresTest",
+          "method": "exactHistoricalMembership",
+          "invocations": 1,
+          "source": "app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/PotVisibilitySourcePostgresTest.java"
+        },
+        {
+          "classname": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.PotVisibilityReadStorePostgresTest",
+          "method": "historyAndKeyset",
+          "invocations": 1,
+          "source": "app/infra-persistence-read-jdbc/src/test/java/com/kartaguez/pocoma/infra/persistence/read/jdbc/v3/PotVisibilityReadStorePostgresTest.java"
+        },
+        {
+          "classname": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.PotVisibilityReadStorePostgresTest",
+          "method": "concurrentGuardAndAtomicReaders",
+          "invocations": 1,
+          "source": "app/infra-persistence-read-jdbc/src/test/java/com/kartaguez/pocoma/infra/persistence/read/jdbc/v3/PotVisibilityReadStorePostgresTest.java"
+        },
+        {
+          "classname": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.PotVisibilityReadStorePostgresTest",
+          "method": "plansAndProfiles",
+          "invocations": 1,
+          "source": "app/infra-persistence-read-jdbc/src/test/java/com/kartaguez/pocoma/infra/persistence/read/jdbc/v3/PotVisibilityReadStorePostgresTest.java"
+        },
+        {
+          "classname": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.PotVisibilityReadStorePostgresTest",
+          "method": "migrationAndPrivileges",
+          "invocations": 1,
+          "source": "app/infra-persistence-read-jdbc/src/test/java/com/kartaguez/pocoma/infra/persistence/read/jdbc/v3/PotVisibilityReadStorePostgresTest.java"
+        }
+      ],
+      "expected_invocations": 5,
+      "maven_command_from_app": "./mvnw --batch-mode --no-transfer-progress -pl infra-persistence-primary-jpa,infra-persistence-read-jdbc -am -Dtest=com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotVisibilitySourcePostgresTest#exactHistoricalMembership,com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.PotVisibilityReadStorePostgresTest#historyAndKeyset+concurrentGuardAndAtomicReaders+plansAndProfiles+migrationAndPrivileges -Dsurefire.failIfNoSpecifiedTests=false test",
+      "operator_command": "python3 -B scripts/testing/verify.py CHANGE READ-CHANGE-3 --output /absolute/new/evidence-directory",
+      "forecast": {
+        "seconds": 300,
+        "basis": "Indicative envelope, not a measured nominal estimate; nominal UNKNOWN",
+        "uncertainty": "HIGH",
+        "blocking": false
+      }
+    },
+    {
+      "campaign": "READ-CHANGE-4",
+      "level": "CHANGE",
+      "modules": [
+        "infra-persistence-primary-jpa",
+        "infra-persistence-read-jdbc"
+      ],
+      "reactor_modules": [
+        "domain-authorization",
+        "domain-event",
+        "domain-user-identity",
+        "contracts-authentication",
+        "domain-pot",
+        "domain-projection",
+        "domain-consumption",
+        "port-transaction",
+        "port-binding-authority",
+        "engine-consumption",
+        "contracts-command",
+        "engine-write-pot",
+        "engine-consume-command",
+        "orchestrator-consumption",
+        "supra-consume-command",
+        "engine-read-command-result",
+        "engine-materialize-command-result",
+        "contracts-registration",
+        "engine-admit-registration",
+        "engine-consume-registration",
+        "engine-read-registration-result",
+        "engine-materialize-registration-result",
+        "port-projection",
+        "engine-produce-projection-task",
+        "projector-pot",
+        "engine-consume-projection-task",
+        "engine-read-current-binding",
+        "engine-materialize-current-binding",
+        "engine-materialize-latest-known-version",
+        "infra-tx-spring",
+        "infra-persistence-projection-jdbc",
+        "infra-persistence-read-jdbc",
+        "contracts-observability",
+        "engine-admit-command",
+        "supra-consume-lkv",
+        "infra-persistence-primary-jpa"
+      ],
+      "closure_size": 36,
+      "methods": [
+        {
+          "classname": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.CurrentBindingReadStorePostgresTest",
+          "method": "historyAndIsolation",
+          "invocations": 1,
+          "source": "app/infra-persistence-read-jdbc/src/test/java/com/kartaguez/pocoma/infra/persistence/read/jdbc/v3/CurrentBindingReadStorePostgresTest.java"
+        },
+        {
+          "classname": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.CurrentBindingReadStorePostgresTest",
+          "method": "concurrentVersionsAndDivergence",
+          "invocations": 1,
+          "source": "app/infra-persistence-read-jdbc/src/test/java/com/kartaguez/pocoma/infra/persistence/read/jdbc/v3/CurrentBindingReadStorePostgresTest.java"
+        },
+        {
+          "classname": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.CurrentBindingReadStorePostgresTest",
+          "method": "migrationAndPrivileges",
+          "invocations": 1,
+          "source": "app/infra-persistence-read-jdbc/src/test/java/com/kartaguez/pocoma/infra/persistence/read/jdbc/v3/CurrentBindingReadStorePostgresTest.java"
+        },
+        {
+          "classname": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.CurrentBindingSourcePostgresTest",
+          "method": "exactEuiHistory",
+          "invocations": 1,
+          "source": "app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/identity/CurrentBindingSourcePostgresTest.java"
+        }
+      ],
+      "expected_invocations": 4,
+      "maven_command_from_app": "./mvnw --batch-mode --no-transfer-progress -pl infra-persistence-primary-jpa,infra-persistence-read-jdbc -am -Dtest=com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.CurrentBindingReadStorePostgresTest#historyAndIsolation+concurrentVersionsAndDivergence+migrationAndPrivileges,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.CurrentBindingSourcePostgresTest#exactEuiHistory -Dsurefire.failIfNoSpecifiedTests=false test",
+      "operator_command": "python3 -B scripts/testing/verify.py CHANGE READ-CHANGE-4 --output /absolute/new/evidence-directory",
+      "forecast": {
+        "seconds": 300,
+        "basis": "Indicative envelope, not a measured nominal estimate; nominal UNKNOWN",
+        "uncertainty": "HIGH",
+        "blocking": false
+      }
+    },
+    {
+      "campaign": "READ-CHANGE-5",
+      "level": "CHANGE",
+      "modules": [
+        "infra-persistence-primary-jpa",
+        "infra-persistence-read-jdbc"
+      ],
+      "reactor_modules": [
+        "domain-authorization",
+        "domain-event",
+        "domain-user-identity",
+        "contracts-authentication",
+        "domain-pot",
+        "domain-projection",
+        "domain-consumption",
+        "port-transaction",
+        "port-binding-authority",
+        "engine-consumption",
+        "contracts-command",
+        "engine-write-pot",
+        "engine-consume-command",
+        "orchestrator-consumption",
+        "supra-consume-command",
+        "engine-read-command-result",
+        "engine-materialize-command-result",
+        "contracts-registration",
+        "engine-admit-registration",
+        "engine-consume-registration",
+        "engine-read-registration-result",
+        "engine-materialize-registration-result",
+        "port-projection",
+        "engine-produce-projection-task",
+        "projector-pot",
+        "engine-consume-projection-task",
+        "engine-read-current-binding",
+        "engine-materialize-current-binding",
+        "engine-materialize-latest-known-version",
+        "infra-tx-spring",
+        "infra-persistence-projection-jdbc",
+        "infra-persistence-read-jdbc",
+        "contracts-observability",
+        "engine-admit-command",
+        "supra-consume-lkv",
+        "infra-persistence-primary-jpa"
+      ],
+      "closure_size": 36,
+      "methods": [
+        {
+          "classname": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.TerminalResultsReadStorePostgresTest",
+          "method": "mappingsAndOwnership",
+          "invocations": 1,
+          "source": "app/infra-persistence-read-jdbc/src/test/java/com/kartaguez/pocoma/infra/persistence/read/jdbc/v3/TerminalResultsReadStorePostgresTest.java"
+        },
+        {
+          "classname": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.TerminalResultsReadStorePostgresTest",
+          "method": "concurrentImmutableResults",
+          "invocations": 1,
+          "source": "app/infra-persistence-read-jdbc/src/test/java/com/kartaguez/pocoma/infra/persistence/read/jdbc/v3/TerminalResultsReadStorePostgresTest.java"
+        },
+        {
+          "classname": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.TerminalResultsReadStorePostgresTest",
+          "method": "migrationsAndPrivileges",
+          "invocations": 1,
+          "source": "app/infra-persistence-read-jdbc/src/test/java/com/kartaguez/pocoma/infra/persistence/read/jdbc/v3/TerminalResultsReadStorePostgresTest.java"
+        },
+        {
+          "classname": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.TerminalResultSourcesPostgresTest",
+          "method": "durableRequestsAndTerminals",
+          "invocations": 1,
+          "source": "app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/identity/TerminalResultSourcesPostgresTest.java"
+        }
+      ],
+      "expected_invocations": 4,
+      "maven_command_from_app": "./mvnw --batch-mode --no-transfer-progress -pl infra-persistence-primary-jpa,infra-persistence-read-jdbc -am -Dtest=com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.TerminalResultsReadStorePostgresTest#mappingsAndOwnership+concurrentImmutableResults+migrationsAndPrivileges,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.TerminalResultSourcesPostgresTest#durableRequestsAndTerminals -Dsurefire.failIfNoSpecifiedTests=false test",
+      "operator_command": "python3 -B scripts/testing/verify.py CHANGE READ-CHANGE-5 --output /absolute/new/evidence-directory",
+      "forecast": {
+        "seconds": 300,
+        "basis": "Indicative envelope, not a measured nominal estimate; nominal UNKNOWN",
+        "uncertainty": "HIGH",
+        "blocking": false
+      }
+    },
+    {
+      "campaign": "READ-INTEGRATION-1",
+      "level": "INTEGRATION",
+      "modules": [
+        "runtime-task-consumption-worker"
+      ],
+      "reactor_modules": [
+        "domain-authorization",
+        "domain-event",
+        "domain-user-identity",
+        "contracts-authentication",
+        "domain-pot",
+        "domain-projection",
+        "domain-consumption",
+        "port-transaction",
+        "port-binding-authority",
+        "engine-consumption",
+        "contracts-command",
+        "engine-write-pot",
+        "engine-consume-command",
+        "orchestrator-consumption",
+        "supra-consume-command",
+        "engine-read-command-result",
+        "engine-materialize-command-result",
+        "supra-consume-command-result",
+        "contracts-registration",
+        "engine-admit-registration",
+        "engine-consume-registration",
+        "supra-consume-registration",
+        "engine-read-registration-result",
+        "engine-materialize-registration-result",
+        "supra-consume-registration-result",
+        "port-projection",
+        "engine-produce-projection-task",
+        "engine-read-projection",
+        "projector-pot",
+        "engine-consume-projection-task",
+        "supra-consume-projection-task",
+        "engine-read-current-binding",
+        "engine-read-pot",
+        "engine-materialize-current-binding",
+        "engine-materialize-latest-known-version",
+        "infra-tx-spring",
+        "infra-persistence-projection-jdbc",
+        "infra-persistence-read-jdbc",
+        "contracts-observability",
+        "engine-admit-command",
+        "supra-consume-lkv",
+        "infra-persistence-primary-jpa",
+        "infra-projection-validation-networknt",
+        "orchestrator-poll-consumption",
+        "supra-consume-event",
+        "supra-consume-binding",
+        "supra-http-write",
+        "supra-http-read",
+        "composition-runtime-spring",
+        "runtime-task-consumption-worker"
+      ],
+      "closure_size": 50,
+      "methods": [
+        {
+          "classname": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest",
+          "method": "participantConformance",
+          "invocations": 6,
+          "source": "app/runtime-task-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/task/v3/ReadParticipantsIntegrationPostgresTest.java"
+        },
+        {
+          "classname": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest",
+          "method": "independentProgression",
+          "invocations": 1,
+          "source": "app/runtime-task-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/task/v3/ReadParticipantsIntegrationPostgresTest.java"
+        },
+        {
+          "classname": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest",
+          "method": "resultsBeforeDomain",
+          "invocations": 1,
+          "source": "app/runtime-task-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/task/v3/ReadParticipantsIntegrationPostgresTest.java"
+        },
+        {
+          "classname": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest",
+          "method": "uncertainCommitHasNoSpeculativeSettlement",
+          "invocations": 1,
+          "source": "app/runtime-task-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/task/v3/ReadParticipantsIntegrationPostgresTest.java"
+        },
+        {
+          "classname": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest",
+          "method": "boundedCapacityAndRenewal",
+          "invocations": 1,
+          "source": "app/runtime-task-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/task/v3/ReadParticipantsIntegrationPostgresTest.java"
+        }
+      ],
+      "expected_invocations": 10,
+      "maven_command_from_app": "./mvnw --batch-mode --no-transfer-progress -pl runtime-task-consumption-worker -am -Dtest=com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance+independentProgression+resultsBeforeDomain+uncertainCommitHasNoSpeculativeSettlement+boundedCapacityAndRenewal -Dsurefire.failIfNoSpecifiedTests=false test",
+      "operator_command": "python3 -B scripts/testing/verify.py INTEGRATION READ-INTEGRATION-1 --output /absolute/new/evidence-directory",
+      "forecast": {
+        "seconds": 900,
+        "basis": "Indicative envelope, not a measured nominal estimate; nominal UNKNOWN",
+        "uncertainty": "HIGH",
+        "blocking": false
+      }
+    }
+  ],
+  "parameter_order": [
+    "POT_VERSION",
+    "POT_BALANCE",
+    "POT_VISIBILITY",
+    "CURRENT_BINDING",
+    "COMMAND_RESULT",
+    "IDENTITY_REQUEST_RESULT"
+  ]
+}

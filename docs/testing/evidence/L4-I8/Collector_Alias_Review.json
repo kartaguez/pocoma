@@ -1,0 +1,14 @@
+{
+  "status": "SOURCE_REVIEWED_ALIAS",
+  "source": "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/consumption/sequencing/JpaTerminalSequencingPostgresTest.java",
+  "sha256": "ffd8b66275bb459df958da6a387ef84474c1cc59da1b8192035d70939c5a3194",
+  "alias": "com.kartaguez.pocoma.runtime.command.consumption.sequencing.CurrentTransactionManagerPostgresTest",
+  "test_methods": [
+    "effectiveManagerAndSharedJdbcConnection"
+  ],
+  "declaration": "package-private top-level class, ordinary @Test, no inheritance/provider/dynamic discovery",
+  "module": "pocoma-runtime-command-consumption-worker",
+  "reason": "effective_inventory already discovers this class, but external_sql_inputs indexes only file stems; add this one reviewed source identity to the in-memory index",
+  "effect_on_maven_selection": "NONE; full command remains ./mvnw test with provenance options",
+  "effect_on_tests_or_assertions": "NONE"
+}

@@ -1,0 +1,82 @@
+{
+  "kind": "fresh exec-jar R-ID internal bench; no external consent or READ certification",
+  "jar_sha256": "37a5df9a03eb36dff2dac62b598139e1b06349354345f9487e4271d2923eb85f",
+  "stages": [
+    {
+      "action": "prepare once",
+      "V3_WRITE": "V1-V6",
+      "READ": "technical V1",
+      "fixture": false
+    },
+    {
+      "action": "start",
+      "pid": 56935,
+      "index": 1
+    },
+    {
+      "action": "demo real Engine",
+      "requests": [
+        "20e7fe5f-be52-4391-9ad2-090a9a101b24",
+        "0e97efe3-5923-4b48-a693-e13cfe85ff1a",
+        "7d4e1af1-1d4a-4307-8c90-a1a5abf20968",
+        "b74ead74-c32e-4131-b52e-afd2812cde8e",
+        "0f9a6b7a-68b3-4798-8c30-1d4d4dcb9845",
+        "30acdd40-105f-47c1-b923-00f12d7adcef",
+        "380126b7-7604-4ed5-bc59-f1dfbbe7f8a1",
+        "0f2380c3-c369-4641-b11b-7411f3c0f94c"
+      ],
+      "operations": "2 Registration, Link, other Unlink, re-Link, self Unlink, last Unlink, rejection"
+    },
+    {
+      "action": "canonical internal idempotence",
+      "request": "20e7fe5f-be52-4391-9ad2-090a9a101b24",
+      "different_file_layout": "same immutable source/result; zero changes"
+    },
+    {
+      "action": "clean stop",
+      "pid": 56935,
+      "exit": 143
+    },
+    {
+      "action": "start",
+      "pid": 57111,
+      "index": 2
+    },
+    {
+      "action": "clean stop",
+      "pid": 57111,
+      "exit": 143
+    },
+    {
+      "action": "restart same database without prepare/reset",
+      "old_terminals": 8,
+      "new_pending_completed": "3772fa95-d64e-4696-a78a-ad2f6034c051"
+    }
+  ],
+  "postgres": "PostgreSQL 17.11 on aarch64-unknown-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit",
+  "before_restart": {
+    "v3_pocoma_user": "{\"count\" : 2, \"digest\" : \"1e1ca773d3c5080bd9945edd4fa76afc\"}",
+    "v3_eui_authority": "{\"count\" : 4, \"digest\" : \"fb783157bc6a373facc5d33e7e665dc1\"}",
+    "v3_eui_version": "{\"count\" : 7, \"digest\" : \"d13caa32dab49d04b1dee65c648706ad\"}",
+    "v3_identity_request": "{\"count\" : 8, \"digest\" : \"bab871967db3899784e0356bc36ef01c\"}",
+    "v3_identity_request_result": "{\"count\" : 8, \"digest\" : \"229a1e45802ac6cab6fddbca5f2ff503\"}",
+    "v3_identity_event": "{\"count\" : 9, \"digest\" : \"3445db9b45e35a6989dfee23cd4d2633\"}",
+    "v3_identity_completion_event": "{\"count\" : 8, \"digest\" : \"ac5a32354cb370c255a8c7841d8ce91f\"}",
+    "v3_event_counter": "{\"count\" : 4, \"digest\" : \"857556be51c67d915f2ccf52154de288\"}",
+    "v3_event_position": "{\"count\" : 17, \"digest\" : \"cf378b3490788c00b8fc28698e474ebd\"}"
+  },
+  "final": {
+    "v3_pocoma_user": "{\"count\" : 3, \"digest\" : \"15135029d15da7623c7ae39e9297cc2e\"}",
+    "v3_eui_authority": "{\"count\" : 5, \"digest\" : \"5e2284d9968a9feb4ed79a529379a192\"}",
+    "v3_eui_version": "{\"count\" : 8, \"digest\" : \"6763f0edf5471b5dfdf8482dad9bb279\"}",
+    "v3_identity_request": "{\"count\" : 9, \"digest\" : \"f362ec37ce9b25b21bd70d03d1ec670b\"}",
+    "v3_identity_request_result": "{\"count\" : 9, \"digest\" : \"1467beec3ae37051ac5fff8eba5dbab8\"}",
+    "v3_identity_event": "{\"count\" : 11, \"digest\" : \"ab0e533a3227bb98e2368ecd2cd50e12\"}",
+    "v3_identity_completion_event": "{\"count\" : 9, \"digest\" : \"a28302b0c6ff970ca628d6096e3e5c72\"}",
+    "v3_event_counter": "{\"count\" : 4, \"digest\" : \"654914cacc02154ef143674eb7ed336a\"}",
+    "v3_event_position": "{\"count\" : 20, \"digest\" : \"87a643699914a71157c8824b8e100dbd\"}"
+  },
+  "status": "PASS bounded R-ID exec jar; canonical gates separate",
+  "private_receipt_sha256": "e6d1c79b09629abb705588dc3cefdb60097caa4fb791b08016214ba1f9acb1c2",
+  "archive_note": "No credentials/configuration/token files or raw operator logs archived."
+}

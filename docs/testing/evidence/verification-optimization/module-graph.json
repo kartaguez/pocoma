@@ -1,0 +1,2042 @@
+{
+  "modules": 60,
+  "edges": {
+    "domain-authorization": [],
+    "domain-event": [],
+    "domain-user-identity": [],
+    "contracts-authentication": [
+      {
+        "module": "domain-user-identity",
+        "scope": "compile",
+        "optional": "false"
+      }
+    ],
+    "domain-pot": [
+      {
+        "module": "domain-authorization",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "domain-event",
+        "scope": "compile",
+        "optional": "false"
+      }
+    ],
+    "domain-projection": [],
+    "domain-consumption": [],
+    "port-transaction": [],
+    "port-binding-authority": [
+      {
+        "module": "port-transaction",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "domain-user-identity",
+        "scope": "compile",
+        "optional": "false"
+      }
+    ],
+    "engine-consumption": [
+      {
+        "module": "port-transaction",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "domain-consumption",
+        "scope": "compile",
+        "optional": "false"
+      }
+    ],
+    "engine-consume-command": [
+      {
+        "module": "contracts-command",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "domain-authorization",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "domain-event",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "domain-user-identity",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "domain-consumption",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "port-binding-authority",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "port-transaction",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "engine-consumption",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "engine-write-pot",
+        "scope": "compile",
+        "optional": "false"
+      }
+    ],
+    "supra-consume-command": [
+      {
+        "module": "contracts-command",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "engine-consume-command",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "orchestrator-consumption",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "engine-consumption",
+        "scope": "compile",
+        "optional": "false"
+      }
+    ],
+    "supra-consume-command-result": [
+      {
+        "module": "orchestrator-consumption",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "engine-consumption",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "domain-consumption",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "engine-materialize-command-result",
+        "scope": "compile",
+        "optional": "false"
+      }
+    ],
+    "engine-read-command-result": [
+      {
+        "module": "contracts-command",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "domain-user-identity",
+        "scope": "compile",
+        "optional": "false"
+      }
+    ],
+    "engine-materialize-command-result": [
+      {
+        "module": "engine-read-command-result",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "engine-consume-command",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "domain-user-identity",
+        "scope": "compile",
+        "optional": "false"
+      }
+    ],
+    "contracts-command": [
+      {
+        "module": "domain-user-identity",
+        "scope": "compile",
+        "optional": "false"
+      }
+    ],
+    "contracts-registration": [
+      {
+        "module": "domain-user-identity",
+        "scope": "compile",
+        "optional": "false"
+      }
+    ],
+    "engine-admit-registration": [
+      {
+        "module": "contracts-authentication",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "contracts-registration",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "port-transaction",
+        "scope": "compile",
+        "optional": "false"
+      }
+    ],
+    "engine-consume-registration": [
+      {
+        "module": "contracts-registration",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "port-binding-authority",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "engine-consumption",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "port-transaction",
+        "scope": "compile",
+        "optional": "false"
+      }
+    ],
+    "supra-consume-registration": [
+      {
+        "module": "engine-consume-registration",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "orchestrator-consumption",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "engine-consumption",
+        "scope": "compile",
+        "optional": "false"
+      }
+    ],
+    "supra-consume-registration-result": [
+      {
+        "module": "orchestrator-consumption",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "engine-consumption",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "domain-consumption",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "engine-materialize-registration-result",
+        "scope": "compile",
+        "optional": "false"
+      }
+    ],
+    "engine-read-registration-result": [
+      {
+        "module": "domain-user-identity",
+        "scope": "compile",
+        "optional": "false"
+      }
+    ],
+    "engine-materialize-registration-result": [
+      {
+        "module": "engine-consume-registration",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "engine-read-registration-result",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "contracts-registration",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "domain-user-identity",
+        "scope": "compile",
+        "optional": "false"
+      }
+    ],
+    "engine-produce-projection-task": [
+      {
+        "module": "domain-event",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "domain-pot",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "domain-projection",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "port-projection",
+        "scope": "compile",
+        "optional": "false"
+      }
+    ],
+    "engine-write-pot": [
+      {
+        "module": "engine-consumption",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "port-transaction",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "domain-pot",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "domain-authorization",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "domain-event",
+        "scope": "compile",
+        "optional": "false"
+      }
+    ],
+    "port-projection": [
+      {
+        "module": "domain-projection",
+        "scope": "compile",
+        "optional": "false"
+      }
+    ],
+    "engine-read-projection": [
+      {
+        "module": "domain-projection",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "port-projection",
+        "scope": "compile",
+        "optional": "false"
+      }
+    ],
+    "engine-consume-projection-task": [
+      {
+        "module": "domain-pot",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "domain-projection",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "port-transaction",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "port-projection",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "engine-consumption",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "orchestrator-consumption",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "projector-pot",
+        "scope": "compile",
+        "optional": "false"
+      }
+    ],
+    "supra-consume-projection-task": [
+      {
+        "module": "orchestrator-consumption",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "engine-consume-projection-task",
+        "scope": "compile",
+        "optional": "false"
+      }
+    ],
+    "engine-read-pot": [
+      {
+        "module": "domain-user-identity",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "engine-read-current-binding",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "domain-authorization",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "domain-projection",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "domain-pot",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "engine-read-projection",
+        "scope": "compile",
+        "optional": "false"
+      }
+    ],
+    "projector-pot": [
+      {
+        "module": "domain-pot",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "domain-projection",
+        "scope": "compile",
+        "optional": "false"
+      }
+    ],
+    "engine-read-current-binding": [
+      {
+        "module": "domain-user-identity",
+        "scope": "compile",
+        "optional": "false"
+      }
+    ],
+    "engine-materialize-current-binding": [
+      {
+        "module": "domain-user-identity",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "port-transaction",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "engine-consumption",
+        "scope": "compile",
+        "optional": "false"
+      }
+    ],
+    "engine-materialize-latest-known-version": [
+      {
+        "module": "domain-pot",
+        "scope": "compile",
+        "optional": "false"
+      }
+    ],
+    "infra-persistence-read-jdbc": [
+      {
+        "module": "engine-materialize-latest-known-version",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "infra-persistence-projection-jdbc",
+        "scope": "test",
+        "optional": "false"
+      },
+      {
+        "module": "port-projection",
+        "scope": "test",
+        "optional": "false"
+      },
+      {
+        "module": "engine-materialize-current-binding",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "engine-read-current-binding",
+        "scope": "compile",
+        "optional": "false"
+      }
+    ],
+    "contracts-observability": [],
+    "infra-tx-spring": [
+      {
+        "module": "port-transaction",
+        "scope": "compile",
+        "optional": "false"
+      }
+    ],
+    "infra-persistence-primary-jpa": [
+      {
+        "module": "contracts-command",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "engine-read-registration-result",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "engine-materialize-registration-result",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "engine-materialize-command-result",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "engine-write-pot",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "engine-materialize-current-binding",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "engine-consume-projection-task",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "engine-produce-projection-task",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "contracts-registration",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "port-transaction",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "port-binding-authority",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "engine-admit-registration",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "engine-consume-registration",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "domain-user-identity",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "engine-admit-command",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "domain-authorization",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "engine-consume-command",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "engine-read-command-result",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "domain-consumption",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "engine-consumption",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "supra-consume-lkv",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "domain-pot",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "contracts-observability",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "infra-tx-spring",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "supra-consume-command",
+        "scope": "test",
+        "optional": "false"
+      }
+    ],
+    "infra-persistence-projection-jdbc": [
+      {
+        "module": "domain-projection",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "port-projection",
+        "scope": "compile",
+        "optional": "false"
+      }
+    ],
+    "infra-projection-validation-networknt": [
+      {
+        "module": "port-projection",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "domain-projection",
+        "scope": "compile",
+        "optional": "false"
+      }
+    ],
+    "orchestrator-consumption": [
+      {
+        "module": "engine-consumption",
+        "scope": "compile",
+        "optional": "false"
+      }
+    ],
+    "engine-admit-command": [
+      {
+        "module": "contracts-command",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "port-transaction",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "contracts-authentication",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "domain-user-identity",
+        "scope": "compile",
+        "optional": "false"
+      }
+    ],
+    "orchestrator-poll-consumption": [
+      {
+        "module": "engine-consumption",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "orchestrator-consumption",
+        "scope": "compile",
+        "optional": "false"
+      }
+    ],
+    "supra-consume-event": [
+      {
+        "module": "orchestrator-consumption",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "engine-produce-projection-task",
+        "scope": "compile",
+        "optional": "false"
+      }
+    ],
+    "supra-consume-binding": [
+      {
+        "module": "orchestrator-consumption",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "engine-materialize-current-binding",
+        "scope": "compile",
+        "optional": "false"
+      }
+    ],
+    "supra-consume-lkv": [
+      {
+        "module": "domain-pot",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "domain-consumption",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "engine-consumption",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "orchestrator-consumption",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "engine-materialize-latest-known-version",
+        "scope": "compile",
+        "optional": "false"
+      }
+    ],
+    "supra-http-write": [
+      {
+        "module": "contracts-command",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "engine-admit-registration",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "contracts-authentication",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "engine-admit-command",
+        "scope": "compile",
+        "optional": "false"
+      }
+    ],
+    "supra-http-read": [
+      {
+        "module": "contracts-command",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "engine-read-command-result",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "engine-read-pot",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "engine-read-registration-result",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "engine-read-current-binding",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "contracts-authentication",
+        "scope": "compile",
+        "optional": "false"
+      }
+    ],
+    "composition-runtime-spring": [
+      {
+        "module": "engine-consume-registration",
+        "scope": "compile",
+        "optional": "true"
+      },
+      {
+        "module": "domain-consumption",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "supra-consume-binding",
+        "scope": "compile",
+        "optional": "true"
+      },
+      {
+        "module": "supra-consume-command",
+        "scope": "compile",
+        "optional": "true"
+      },
+      {
+        "module": "supra-consume-command-result",
+        "scope": "compile",
+        "optional": "true"
+      },
+      {
+        "module": "supra-consume-event",
+        "scope": "compile",
+        "optional": "true"
+      },
+      {
+        "module": "supra-consume-projection-task",
+        "scope": "compile",
+        "optional": "true"
+      },
+      {
+        "module": "supra-consume-registration",
+        "scope": "compile",
+        "optional": "true"
+      },
+      {
+        "module": "supra-consume-registration-result",
+        "scope": "compile",
+        "optional": "true"
+      },
+      {
+        "module": "supra-http-read",
+        "scope": "compile",
+        "optional": "true"
+      },
+      {
+        "module": "supra-http-write",
+        "scope": "compile",
+        "optional": "true"
+      },
+      {
+        "module": "engine-write-pot",
+        "scope": "compile",
+        "optional": "true"
+      },
+      {
+        "module": "engine-consume-projection-task",
+        "scope": "compile",
+        "optional": "true"
+      },
+      {
+        "module": "engine-materialize-current-binding",
+        "scope": "compile",
+        "optional": "true"
+      },
+      {
+        "module": "engine-produce-projection-task",
+        "scope": "compile",
+        "optional": "true"
+      },
+      {
+        "module": "engine-read-command-result",
+        "scope": "compile",
+        "optional": "true"
+      },
+      {
+        "module": "engine-read-current-binding",
+        "scope": "compile",
+        "optional": "true"
+      },
+      {
+        "module": "engine-read-pot",
+        "scope": "compile",
+        "optional": "true"
+      },
+      {
+        "module": "engine-read-projection",
+        "scope": "compile",
+        "optional": "true"
+      },
+      {
+        "module": "engine-read-registration-result",
+        "scope": "compile",
+        "optional": "true"
+      },
+      {
+        "module": "infra-persistence-primary-jpa",
+        "scope": "compile",
+        "optional": "true"
+      },
+      {
+        "module": "infra-persistence-projection-jdbc",
+        "scope": "compile",
+        "optional": "true"
+      },
+      {
+        "module": "infra-persistence-read-jdbc",
+        "scope": "compile",
+        "optional": "true"
+      },
+      {
+        "module": "infra-projection-validation-networknt",
+        "scope": "compile",
+        "optional": "true"
+      },
+      {
+        "module": "infra-tx-spring",
+        "scope": "compile",
+        "optional": "true"
+      },
+      {
+        "module": "orchestrator-consumption",
+        "scope": "compile",
+        "optional": "true"
+      },
+      {
+        "module": "orchestrator-poll-consumption",
+        "scope": "compile",
+        "optional": "true"
+      },
+      {
+        "module": "port-binding-authority",
+        "scope": "compile",
+        "optional": "true"
+      },
+      {
+        "module": "port-projection",
+        "scope": "compile",
+        "optional": "true"
+      },
+      {
+        "module": "port-transaction",
+        "scope": "compile",
+        "optional": "true"
+      },
+      {
+        "module": "contracts-authentication",
+        "scope": "compile",
+        "optional": "true"
+      },
+      {
+        "module": "contracts-observability",
+        "scope": "compile",
+        "optional": "true"
+      }
+    ],
+    "runtime-monolith": [
+      {
+        "module": "composition-runtime-spring",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "supra-consume-binding",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "supra-consume-command",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "supra-consume-command-result",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "supra-consume-event",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "supra-consume-projection-task",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "supra-consume-registration",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "supra-consume-registration-result",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "supra-http-read",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "supra-http-write",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "engine-write-pot",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "engine-consume-projection-task",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "engine-materialize-current-binding",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "engine-produce-projection-task",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "engine-read-command-result",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "engine-read-current-binding",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "engine-read-pot",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "engine-read-projection",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "engine-read-registration-result",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "infra-persistence-primary-jpa",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "infra-persistence-projection-jdbc",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "infra-persistence-read-jdbc",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "infra-projection-validation-networknt",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "infra-tx-spring",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "orchestrator-consumption",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "orchestrator-poll-consumption",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "port-binding-authority",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "port-projection",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "port-transaction",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "contracts-authentication",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "contracts-observability",
+        "scope": "compile",
+        "optional": "false"
+      }
+    ],
+    "runtime-web-api": [
+      {
+        "module": "composition-runtime-spring",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "contracts-command",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "contracts-authentication",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "engine-read-registration-result",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "engine-read-current-binding",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "contracts-registration",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "port-transaction",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "port-projection",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "engine-admit-registration",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "engine-admit-command",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "infra-tx-spring",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "infra-persistence-primary-jpa",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "engine-read-command-result",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "engine-read-projection",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "infra-persistence-projection-jdbc",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "infra-persistence-read-jdbc",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "infra-projection-validation-networknt",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "supra-http-write",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "supra-http-read",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "engine-read-pot",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "contracts-observability",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "supra-consume-command",
+        "scope": "test",
+        "optional": "false"
+      },
+      {
+        "module": "orchestrator-poll-consumption",
+        "scope": "test",
+        "optional": "false"
+      }
+    ],
+    "runtime-event-consumption-worker": [
+      {
+        "module": "composition-runtime-spring",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "engine-produce-projection-task",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "supra-consume-event",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "domain-projection",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "domain-consumption",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "port-transaction",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "domain-pot",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "orchestrator-poll-consumption",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "infra-persistence-primary-jpa",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "infra-tx-spring",
+        "scope": "compile",
+        "optional": "false"
+      }
+    ],
+    "runtime-command-result-consumption-worker": [
+      {
+        "module": "composition-runtime-spring",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "supra-consume-command-result",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "port-transaction",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "engine-read-command-result",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "orchestrator-consumption",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "orchestrator-poll-consumption",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "infra-persistence-primary-jpa",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "infra-tx-spring",
+        "scope": "compile",
+        "optional": "false"
+      }
+    ],
+    "runtime-registration-result-consumption-worker": [
+      {
+        "module": "composition-runtime-spring",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "supra-consume-registration-result",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "contracts-registration",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "port-transaction",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "port-binding-authority",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "domain-consumption",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "engine-consumption",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "orchestrator-consumption",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "orchestrator-poll-consumption",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "infra-persistence-primary-jpa",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "infra-tx-spring",
+        "scope": "compile",
+        "optional": "false"
+      }
+    ],
+    "runtime-registration-consumption-worker": [
+      {
+        "module": "composition-runtime-spring",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "contracts-registration",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "port-transaction",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "port-binding-authority",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "supra-consume-registration",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "domain-consumption",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "engine-consumption",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "orchestrator-consumption",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "orchestrator-poll-consumption",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "infra-persistence-primary-jpa",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "infra-tx-spring",
+        "scope": "compile",
+        "optional": "false"
+      }
+    ],
+    "runtime-latest-known-version-consumption-worker": [
+      {
+        "module": "engine-materialize-latest-known-version",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "domain-consumption",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "port-transaction",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "supra-consume-lkv",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "orchestrator-poll-consumption",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "infra-persistence-primary-jpa",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "infra-persistence-read-jdbc",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "infra-tx-spring",
+        "scope": "compile",
+        "optional": "false"
+      }
+    ],
+    "runtime-binding-consumption-worker": [
+      {
+        "module": "composition-runtime-spring",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "engine-materialize-current-binding",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "supra-consume-binding",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "port-transaction",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "port-binding-authority",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "orchestrator-poll-consumption",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "infra-persistence-primary-jpa",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "infra-persistence-read-jdbc",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "infra-tx-spring",
+        "scope": "compile",
+        "optional": "false"
+      }
+    ],
+    "runtime-task-consumption-worker": [
+      {
+        "module": "composition-runtime-spring",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "supra-consume-projection-task",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "engine-consume-projection-task",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "domain-projection",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "port-transaction",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "port-projection",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "infra-persistence-projection-jdbc",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "infra-persistence-read-jdbc",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "orchestrator-poll-consumption",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "orchestrator-consumption",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "infra-persistence-primary-jpa",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "infra-tx-spring",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "infra-projection-validation-networknt",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "engine-read-projection",
+        "scope": "test",
+        "optional": "false"
+      },
+      {
+        "module": "engine-read-pot",
+        "scope": "test",
+        "optional": "false"
+      }
+    ],
+    "runtime-command-consumption-worker": [
+      {
+        "module": "contracts-registration",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "engine-consume-registration",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "infra-persistence-read-jdbc",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "composition-runtime-spring",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "port-transaction",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "port-binding-authority",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "engine-write-pot",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "supra-consume-command",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "orchestrator-poll-consumption",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "infra-persistence-primary-jpa",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "infra-tx-spring",
+        "scope": "compile",
+        "optional": "false"
+      }
+    ],
+    "architecture-tests": [
+      {
+        "module": "runtime-monolith",
+        "scope": "test",
+        "optional": "false"
+      },
+      {
+        "module": "runtime-task-consumption-worker",
+        "scope": "test",
+        "optional": "false"
+      },
+      {
+        "module": "contracts-command",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "engine-materialize-command-result",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "engine-read-registration-result",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "engine-materialize-registration-result",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "supra-consume-command-result",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "supra-consume-registration-result",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "port-transaction",
+        "scope": "compile",
+        "optional": "false"
+      },
+      {
+        "module": "domain-user-identity",
+        "scope": "test",
+        "optional": "false"
+      },
+      {
+        "module": "contracts-authentication",
+        "scope": "test",
+        "optional": "false"
+      },
+      {
+        "module": "domain-projection",
+        "scope": "test",
+        "optional": "false"
+      },
+      {
+        "module": "engine-admit-command",
+        "scope": "test",
+        "optional": "false"
+      },
+      {
+        "module": "domain-authorization",
+        "scope": "test",
+        "optional": "false"
+      },
+      {
+        "module": "domain-event",
+        "scope": "test",
+        "optional": "false"
+      },
+      {
+        "module": "runtime-event-consumption-worker",
+        "scope": "test",
+        "optional": "false"
+      },
+      {
+        "module": "runtime-latest-known-version-consumption-worker",
+        "scope": "test",
+        "optional": "false"
+      },
+      {
+        "module": "runtime-command-result-consumption-worker",
+        "scope": "test",
+        "optional": "false"
+      },
+      {
+        "module": "runtime-registration-consumption-worker",
+        "scope": "test",
+        "optional": "false"
+      },
+      {
+        "module": "runtime-registration-result-consumption-worker",
+        "scope": "test",
+        "optional": "false"
+      },
+      {
+        "module": "supra-consume-command",
+        "scope": "test",
+        "optional": "false"
+      },
+      {
+        "module": "supra-consume-lkv",
+        "scope": "test",
+        "optional": "false"
+      },
+      {
+        "module": "runtime-task-consumption-worker",
+        "scope": "test",
+        "optional": "false"
+      },
+      {
+        "module": "runtime-command-consumption-worker",
+        "scope": "test",
+        "optional": "false"
+      },
+      {
+        "module": "runtime-binding-consumption-worker",
+        "scope": "test",
+        "optional": "false"
+      },
+      {
+        "module": "domain-consumption",
+        "scope": "test",
+        "optional": "false"
+      },
+      {
+        "module": "engine-consumption",
+        "scope": "test",
+        "optional": "false"
+      },
+      {
+        "module": "engine-consume-command",
+        "scope": "test",
+        "optional": "false"
+      },
+      {
+        "module": "port-projection",
+        "scope": "test",
+        "optional": "false"
+      },
+      {
+        "module": "engine-read-projection",
+        "scope": "test",
+        "optional": "false"
+      },
+      {
+        "module": "engine-read-pot",
+        "scope": "test",
+        "optional": "false"
+      },
+      {
+        "module": "infra-persistence-primary-jpa",
+        "scope": "test",
+        "optional": "false"
+      },
+      {
+        "module": "infra-persistence-read-jdbc",
+        "scope": "test",
+        "optional": "false"
+      },
+      {
+        "module": "infra-persistence-projection-jdbc",
+        "scope": "test",
+        "optional": "false"
+      },
+      {
+        "module": "supra-http-write",
+        "scope": "test",
+        "optional": "false"
+      },
+      {
+        "module": "supra-http-read",
+        "scope": "test",
+        "optional": "false"
+      },
+      {
+        "module": "runtime-web-api",
+        "scope": "test",
+        "optional": "false"
+      }
+    ]
+  },
+  "static_upstream_closures": {
+    "runtime-command-consumption-worker": [
+      "composition-runtime-spring",
+      "contracts-authentication",
+      "contracts-command",
+      "contracts-observability",
+      "contracts-registration",
+      "domain-authorization",
+      "domain-consumption",
+      "domain-event",
+      "domain-pot",
+      "domain-projection",
+      "domain-user-identity",
+      "engine-admit-command",
+      "engine-admit-registration",
+      "engine-consume-command",
+      "engine-consume-projection-task",
+      "engine-consume-registration",
+      "engine-consumption",
+      "engine-materialize-command-result",
+      "engine-materialize-current-binding",
+      "engine-materialize-latest-known-version",
+      "engine-materialize-registration-result",
+      "engine-produce-projection-task",
+      "engine-read-command-result",
+      "engine-read-current-binding",
+      "engine-read-pot",
+      "engine-read-projection",
+      "engine-read-registration-result",
+      "engine-write-pot",
+      "infra-persistence-primary-jpa",
+      "infra-persistence-projection-jdbc",
+      "infra-persistence-read-jdbc",
+      "infra-projection-validation-networknt",
+      "infra-tx-spring",
+      "orchestrator-consumption",
+      "orchestrator-poll-consumption",
+      "port-binding-authority",
+      "port-projection",
+      "port-transaction",
+      "projector-pot",
+      "runtime-command-consumption-worker",
+      "supra-consume-binding",
+      "supra-consume-command",
+      "supra-consume-command-result",
+      "supra-consume-event",
+      "supra-consume-lkv",
+      "supra-consume-projection-task",
+      "supra-consume-registration",
+      "supra-consume-registration-result",
+      "supra-http-read",
+      "supra-http-write"
+    ],
+    "runtime-monolith": [
+      "composition-runtime-spring",
+      "contracts-authentication",
+      "contracts-command",
+      "contracts-observability",
+      "contracts-registration",
+      "domain-authorization",
+      "domain-consumption",
+      "domain-event",
+      "domain-pot",
+      "domain-projection",
+      "domain-user-identity",
+      "engine-admit-command",
+      "engine-admit-registration",
+      "engine-consume-command",
+      "engine-consume-projection-task",
+      "engine-consume-registration",
+      "engine-consumption",
+      "engine-materialize-command-result",
+      "engine-materialize-current-binding",
+      "engine-materialize-latest-known-version",
+      "engine-materialize-registration-result",
+      "engine-produce-projection-task",
+      "engine-read-command-result",
+      "engine-read-current-binding",
+      "engine-read-pot",
+      "engine-read-projection",
+      "engine-read-registration-result",
+      "engine-write-pot",
+      "infra-persistence-primary-jpa",
+      "infra-persistence-projection-jdbc",
+      "infra-persistence-read-jdbc",
+      "infra-projection-validation-networknt",
+      "infra-tx-spring",
+      "orchestrator-consumption",
+      "orchestrator-poll-consumption",
+      "port-binding-authority",
+      "port-projection",
+      "port-transaction",
+      "projector-pot",
+      "runtime-monolith",
+      "supra-consume-binding",
+      "supra-consume-command",
+      "supra-consume-command-result",
+      "supra-consume-event",
+      "supra-consume-lkv",
+      "supra-consume-projection-task",
+      "supra-consume-registration",
+      "supra-consume-registration-result",
+      "supra-http-read",
+      "supra-http-write"
+    ],
+    "architecture-tests": [
+      "architecture-tests",
+      "composition-runtime-spring",
+      "contracts-authentication",
+      "contracts-command",
+      "contracts-observability",
+      "contracts-registration",
+      "domain-authorization",
+      "domain-consumption",
+      "domain-event",
+      "domain-pot",
+      "domain-projection",
+      "domain-user-identity",
+      "engine-admit-command",
+      "engine-admit-registration",
+      "engine-consume-command",
+      "engine-consume-projection-task",
+      "engine-consume-registration",
+      "engine-consumption",
+      "engine-materialize-command-result",
+      "engine-materialize-current-binding",
+      "engine-materialize-latest-known-version",
+      "engine-materialize-registration-result",
+      "engine-produce-projection-task",
+      "engine-read-command-result",
+      "engine-read-current-binding",
+      "engine-read-pot",
+      "engine-read-projection",
+      "engine-read-registration-result",
+      "engine-write-pot",
+      "infra-persistence-primary-jpa",
+      "infra-persistence-projection-jdbc",
+      "infra-persistence-read-jdbc",
+      "infra-projection-validation-networknt",
+      "infra-tx-spring",
+      "orchestrator-consumption",
+      "orchestrator-poll-consumption",
+      "port-binding-authority",
+      "port-projection",
+      "port-transaction",
+      "projector-pot",
+      "runtime-binding-consumption-worker",
+      "runtime-command-consumption-worker",
+      "runtime-command-result-consumption-worker",
+      "runtime-event-consumption-worker",
+      "runtime-latest-known-version-consumption-worker",
+      "runtime-monolith",
+      "runtime-registration-consumption-worker",
+      "runtime-registration-result-consumption-worker",
+      "runtime-task-consumption-worker",
+      "runtime-web-api",
+      "supra-consume-binding",
+      "supra-consume-command",
+      "supra-consume-command-result",
+      "supra-consume-event",
+      "supra-consume-lkv",
+      "supra-consume-projection-task",
+      "supra-consume-registration",
+      "supra-consume-registration-result",
+      "supra-http-read",
+      "supra-http-write"
+    ]
+  },
+  "limitation": "Static direct dependency traversal including test/optional; actual Maven reactor order is authoritative."
+}

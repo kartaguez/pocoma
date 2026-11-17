@@ -1,0 +1,42 @@
+meta {
+  name: V02 Retrieve Private Invitation
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{readUrl}}/api/v3/invitations/by-creation-request/{{invitationRequestId}}
+  body: none
+  auth: none
+}
+
+headers {
+  Connection: close
+}
+
+settings {
+  timeout: 5000
+}
+
+script:pre-request {
+  const options = {"id":"V02","role":"owner","kind":"invitation","wait":true,"status":200,"requires":["invitationRequestId"]};
+  await require('./lib/workspace.js').prepare(bru, req, options);
+}
+
+tests {
+  const options = {"id":"V02","role":"owner","kind":"invitation","wait":true,"status":200,"requires":["invitationRequestId"]};
+  const work = require('./lib/workspace.js');
+  test('V02 transport and privacy', () => work.transport(bru, res, expect, options));
+  test('V02 contract and variables', () => {
+    work.verify(bru, req, res, expect, options);
+    work.record(bru, req, res, options);
+  });
+}
+
+docs {
+  Seul le createur de la requete lit le lien. Capture invitationId et invitationToken en memoire ; ne pas exporter reponses ou variables sensibles.
+  Identite : owner. Prerequis : invitationRequestId.
+  Chaque Send appelle la methode et le corps visibles. Les GET asynchrones attendent
+  le meme endpoint au plus 30 s avant l appel affiche ; aucun POST cache.
+  Modifier le JSON librement ; une nouvelle intention recoit une nouvelle cle.
+}

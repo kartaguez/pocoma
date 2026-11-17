@@ -1,0 +1,65 @@
+{
+  "verdict": "FAIL",
+  "counts": {
+    "tests": 1,
+    "failures": 1,
+    "errors": 0,
+    "skipped": 0
+  },
+  "issues": [],
+  "executions": [
+    {
+      "classname": "com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest",
+      "method": "i5_r12",
+      "seconds": 96.974,
+      "outcome": "FAIL",
+      "diagnostic": "runtime condition deadline ==> expected: <true> but was: <false>"
+    }
+  ],
+  "command": [
+    "./mvnw",
+    "--batch-mode",
+    "--no-transfer-progress",
+    "-pl",
+    "runtime-command-consumption-worker",
+    "-am",
+    "-Dtest=com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest#i5_r12",
+    "-Dsurefire.failIfNoSpecifiedTests=false",
+    "test"
+  ],
+  "level": "QUARANTINE",
+  "scope": "i5_r12",
+  "seconds": 107.701943,
+  "started_ns": 1793429241715310000,
+  "exit_code": 1,
+  "artifacts": {
+    "app/runtime-command-consumption-worker/target/surefire-reports/TEST-com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest.xml": "3a007fb76f4ef50a289760d8a860ef0c3012f6e527309a2fbee4f1e94ff94ac9",
+    "app/runtime-command-consumption-worker/target/surefire-reports/com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest.txt": "f4c3e7962b71953881465e4cf2e26e762b33494e8236fe3ed5cb10a420141f0d",
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/temporal-v3-W2-B32-MW4-final.txt": "7b3423df6364ce3f2c731c94317ec9e528ab1e9656d6a89440d09b3c065568e0",
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/temporal-v3-W2-B32-MW4-stage1.txt": "879f824e467923798ec1445e3956cdd767e44d95fef234c3bfe843efb6b20aa5",
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/temporal-v3-W2-B32-MW4-stage2.txt": "80dbce0d7ee9cb903016e34880d01c1034f082c1c96e8362d6a2c356a0772b6c"
+  },
+  "raw_sha256": "888702d4caf0169db66dea9d85936c9170585671a43e3460ba68a07f994fbffe",
+  "previous_reports_not_counted": [
+    "app/runtime-command-consumption-worker/target/surefire-reports/TEST-com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest.xml"
+  ],
+  "not_selected": "All methods outside plan.expected for filtered feedback; NOT RUN, never PASS",
+  "quarantined_scenarios": {
+    "i5_r05": {
+      "class": "com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest",
+      "method": "i5_r05",
+      "anchor": "COMMAND",
+      "reason": "Historical I1 failure; I2 PASS 52.451s. Temporal worker campaign, availability reserve remains open.",
+      "reference": "docs/v3/L3_I2_Execution_Report.md",
+      "decision": "Explicit nominative operational isolation authorized by verification optimization mandate; no normative waiver."
+    },
+    "i5_r12": {
+      "class": "com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest",
+      "method": "i5_r12",
+      "anchor": "COMMAND",
+      "reason": "I2 FAIL 95.825s: runtime condition deadline; Runtime.close:553 via I5TemporalV2Postgres.campaign:947. Physical root cause unresolved.",
+      "reference": "docs/v3/L3_I2_Execution_Report.md",
+      "decision": "Explicit nominative operational isolation authorized by verification optimization mandate; no normative waiver."
+    }
+  }
+}

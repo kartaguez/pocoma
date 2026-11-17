@@ -1,0 +1,26 @@
+{
+  "attribution": "Surviving I1 target files captured after audit; not originally sealed in Verification.json. XML cases match original sealed observations and log. Physical traces are auxiliary, not a new execution.",
+  "files": [
+    {
+      "source": "app/runtime-command-consumption-worker/target/surefire-reports/TEST-com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest.xml",
+      "original_mtime_ns": 1793360790790667493,
+      "file": "auxiliary/TEST-com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest.xml.gz",
+      "raw_sha256": "5526242a912a796b3de82184d3c44a76b1fe6929cb8d4e64ea7c09741dbd3dfe",
+      "compressed_sha256": "a471762ad1b2606789a04155db50e84eb704f80f4b5b41c93e74d036e7f96a1f"
+    },
+    {
+      "source": "app/runtime-command-consumption-worker/target/v3-i5-evidence/temporal-v2-W1-B1-MW4-final.txt",
+      "original_mtime_ns": 1793360570664943125,
+      "file": "auxiliary/temporal-v2-W1-B1-MW4-final.txt.gz",
+      "raw_sha256": "7dad58c8f62d6d1d3a16a152c096d4a871d3028af50a7fe9c0d9bdef11708326",
+      "compressed_sha256": "24f83d35e64d87dad521036668315ffd9ae275ab7a91179585219e7d2dc62354"
+    },
+    {
+      "source": "app/runtime-command-consumption-worker/target/v3-i5-evidence/temporal-v3-W2-B32-MW4-final.txt",
+      "original_mtime_ns": 1793360775503607021,
+      "file": "auxiliary/temporal-v3-W2-B32-MW4-final.txt.gz",
+      "raw_sha256": "d04d5e7a3d310662a584497711642f9270dd2efd4010d5aa3f0e81d97afff315",
+      "compressed_sha256": "ca47cd7f746d6f74b4a1b2873f79d2c22e6781aa719c5fc5cd52f2b6e4e8a975"
+    }
+  ]
+}

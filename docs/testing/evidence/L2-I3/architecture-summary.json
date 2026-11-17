@@ -1,0 +1,28 @@
+{
+  "gate": "architecture",
+  "sha": "1d7cf51c13671c7c85a5c9c1281f526be2b2abfb",
+  "command": [
+    "./mvnw",
+    "-pl",
+    "architecture-tests",
+    "-am",
+    "test"
+  ],
+  "cwd": "app/",
+  "started_epoch": 1793114969.269709,
+  "elapsed_seconds": 548.665,
+  "exit_code": 0,
+  "tests": 1761,
+  "failures_or_errors": 0,
+  "skips": [
+    {
+      "class": "com.kartaguez.pocoma.runtime.command.consumption.sequencing.TerminalSequencingPostgresTest",
+      "method": "zExploratoryContentionSeparateFromCorrectness",
+      "state": "SKIP"
+    }
+  ],
+  "required_methods": 270,
+  "problems": [],
+  "verdict": "PASS",
+  "log_sha256": "ed0da44bc68ca05e7f2231c0c770f4367e9eeae3897a040c572bfd534a55272c"
+}

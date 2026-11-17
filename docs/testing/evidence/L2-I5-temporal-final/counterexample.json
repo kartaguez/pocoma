@@ -1,0 +1,52 @@
+{
+  "id": "FINAL-W2-PREPARATION-LIFETIME-01",
+  "classification": "INCONCLUSIVE / availability reserve; technical qualification FAIL",
+  "runtimePropertyCounterexample": false,
+  "freeze": "a2133b6b43a74999374bc26a222f70c7500fadda",
+  "contractSha256": "a17342a7a6edcaf72838168614a70402d48c46096f733753c306884d658e73ac",
+  "failedOracle": "Runtime.close awaits STOPPED for 15s; deadline unmet after release of retained Business preparations",
+  "junitFailure": {
+    "message": "runtime condition deadline ==> expected: <true> but was: <false>",
+    "stack": [
+      "org.opentest4j.AssertionFailedError: runtime condition deadline ==> expected: <true> but was: <false>",
+      "\tat org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:158)",
+      "\tat org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:139)",
+      "\tat org.junit.jupiter.api.AssertTrue.failNotTrue(AssertTrue.java:69)",
+      "\tat org.junit.jupiter.api.AssertTrue.assertTrue(AssertTrue.java:41)",
+      "\tat org.junit.jupiter.api.Assertions.assertTrue(Assertions.java:228)",
+      "\tat com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest.await(V3WorkerPostgresTest.java:79)",
+      "\tat com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest.await(V3WorkerPostgresTest.java:73)",
+      "\tat com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest$Runtime.close(V3WorkerPostgresTest.java:553)",
+      "\tat com.kartaguez.pocoma.runtime.command.v3.I5TemporalV2Postgres.campaign(I5TemporalV2Postgres.java:947)",
+      "\tat com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest.i5_r12(V3WorkerResourcesPostgresTest.java:896)"
+    ]
+  },
+  "facts": {
+    "positiveNominalAndAdmissiblePhysicalOracles": "PASS before cleanup, WRITE/READ",
+    "excessiveLocalRetirementWitnesses": 4,
+    "claimsAfterLocalLeaseRetirement": 8,
+    "controlJournalSealedBeforeCleanup": true,
+    "internalPassMarkerBeforeCleanup": true,
+    "processExitCode": 1,
+    "runnerAccepted": false,
+    "sourcesUnchanged": true,
+    "gate": "NOT RUN"
+  },
+  "businessLifetime": {
+    "transactionTimeoutMs": 65000,
+    "socketTimeoutSeconds": 70,
+    "statementTimeoutMs": 60000,
+    "source": "app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/consumption/v3/V3ConsumptionWorkerConfiguration.java:384",
+    "observedServerError": "FATAL: terminating connection due to transaction timeout",
+    "reportedAtLocalTime": "2026-10-29T21:21:56.567+01:00",
+    "retainedPreparationsStartedBeforeFirstVectors": "2026-10-29T20:20:45.227474Z",
+    "releasedAfterClaimsObservation": "2026-10-29T20:21:56.524792Z",
+    "retentionLowerBoundSeconds": 71.297318,
+    "physicalRoRetentionThroughoutExcessivePhase": "NOT ESTABLISHED: lifetime exceeds PostgreSQL transaction timeout"
+  },
+  "interpretation": "Fixture lifetime precondition failed. Safe refusal of STOPPED is compatible with unresolved preparation protection F01. No post-release worker snapshot was captured, so the exact residual local responsibility is not claimed as newly proved. No threshold adjustment, code change or rerun is authorized or performed.",
+  "notRun": [
+    "COMMAND + MONOLITH composed gate",
+    "any further qualification campaign"
+  ]
+}

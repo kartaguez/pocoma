@@ -1,0 +1,30 @@
+{
+  "status": "PASS_STATIC_ONLY",
+  "timestamp": "2026-11-12T13:42:13.195596+00:00",
+  "command": "python3 -B -m unittest discover -v -s scripts/performance -p 'test_l7_spec09_stock.py'",
+  "inputsSha256": {
+    "scripts/performance/stock-l7-spec09-backlog.py": "d489c7587fe6b673f3cfee4711f9293e52579b1892a39a20b795c47defb2150e",
+    "scripts/performance/test_l7_spec09_stock.py": "21f9a7af408822d7d0b19b9838334bb7f3ba28b312ee78851a2e09d691cdd3a9"
+  },
+  "environment": {
+    "Python": "3.14.7",
+    "machine": "arm64",
+    "OS": "Darwin"
+  },
+  "fixture": "10,000 synthetic medium Pot descriptors; network prohibited by the static oracle",
+  "httpRequests": 0,
+  "certificationPerformanceExecuted": false,
+  "log": [
+    "test_duplicate_durable_request_is_rejected (test_l7_spec09_stock.StockContract.test_duplicate_durable_request_is_rejected) ... ok",
+    "test_fixture_validation_rejects_wrong_population_and_duplicate_pots (test_l7_spec09_stock.StockContract.test_fixture_validation_rejects_wrong_population_and_duplicate_pots) ... ok",
+    "test_full_static_plan_never_opens_a_connection_and_refuses_overwrite (test_l7_spec09_stock.StockContract.test_full_static_plan_never_opens_a_connection_and_refuses_overwrite) ... ok",
+    "test_keys_and_intentions_are_stable_and_unique (test_l7_spec09_stock.StockContract.test_keys_and_intentions_are_stable_and_unique) ... ok",
+    "test_unknown_admission_stops_before_the_next_batch (test_l7_spec09_stock.StockContract.test_unknown_admission_stops_before_the_next_batch) ... ok",
+    "test_write_origin_cannot_carry_credentials_or_path (test_l7_spec09_stock.StockContract.test_write_origin_cannot_carry_credentials_or_path) ... ok",
+    "",
+    "----------------------------------------------------------------------",
+    "Ran 6 tests in 0.486s",
+    "",
+    "OK"
+  ]
+}

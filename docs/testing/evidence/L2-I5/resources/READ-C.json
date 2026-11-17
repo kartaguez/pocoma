@@ -1,0 +1,59 @@
+{
+  "authority": "READ",
+  "proof": "C",
+  "status": "LOCAL BOUNDED PASS — INDEPENDENT AUDIT PENDING",
+  "tested_sha": "9a315e16567042d0b9bd017486d9043216b3ecd7",
+  "gate": "F",
+  "gate_result_sha256": "dd9ffc099098d599ed4f269b3a3927f6ff7603988e2cbe910675ecfccfcf7d6f",
+  "invariant": "Full measured service, partial batches conservatively counted per candidate, actual PG deadlines for all12 leases and claims, jitter/polling margins. Slow real SQL1.5s lease-aging scenario. Original due retained through revalidation and complete service included in C. One Worker plus two simultaneously loaded Workers B1/B32 x MW1/4, actual40/64 role connections and fixed server budget. w02 separately covers overlapping ownership.",
+  "evidence": [
+    {
+      "path_in_F_archive": "F/physical/runtime-command-consumption-worker/v3-i5-evidence/i5_r05-C-B1-MW4-held-1.txt",
+      "sha256": "6e8540d5b86e7fb0759fda617394e92bbb75e425528b336797c22ff04b9f4f17"
+    },
+    {
+      "path_in_F_archive": "F/physical/runtime-command-consumption-worker/v3-i5-evidence/i5_r05-C-B32-MW1-held0.txt",
+      "sha256": "8a68414cb918155a1ea7c79fc66e403cf3086c5b86fc4089cbcd944f1475606f"
+    },
+    {
+      "path_in_F_archive": "F/physical/runtime-command-consumption-worker/v3-i5-evidence/i5_r05-C-B32-MW1-held1.txt",
+      "sha256": "0c373acfaf72bb1223b501d8a7a548ecccfbb02a283e2006213019e0efe7dbd0"
+    },
+    {
+      "path_in_F_archive": "F/physical/runtime-command-consumption-worker/v3-i5-evidence/i5_r05-C-B32-MW4-held-1.txt",
+      "sha256": "94a03611728335585ce2165d28e1360c70aad08403235653c32310157977a9e3"
+    },
+    {
+      "path_in_F_archive": "F/physical/runtime-command-consumption-worker/v3-i5-evidence/i5_r10-lease-rotation-WRITE-READ.txt",
+      "sha256": "49745acb32f1c010ed5c679338ea15bff095227a8a7ad3d0329ba2cbaffb1195"
+    },
+    {
+      "path_in_F_archive": "F/physical/runtime-command-consumption-worker/v3-i5-evidence/i5_r11-lease-skip-READ.txt",
+      "sha256": "d2a16d7cdf7992c1dd99cade0184aaef61ac83948452e20256c89789c24dd69f"
+    },
+    {
+      "path_in_F_archive": "F/physical/runtime-command-consumption-worker/v3-i5-evidence/i5_r12-C-W2-B1-MW1.txt",
+      "sha256": "7923d5294124a612ba52422a3c3c379cd5046cba0856061e88838906b7cb8d25"
+    },
+    {
+      "path_in_F_archive": "F/physical/runtime-command-consumption-worker/v3-i5-evidence/i5_r12-C-W2-B1-MW4.txt",
+      "sha256": "076bc229bebc6df43929479b9be425f005940df5d11630be4c0547f24439a352"
+    },
+    {
+      "path_in_F_archive": "F/physical/runtime-command-consumption-worker/v3-i5-evidence/i5_r12-C-W2-B32-MW1.txt",
+      "sha256": "f44755a09afd3df95eea0672543f6e14f9bbc4003c65e01ff65f12bb3426cd09"
+    },
+    {
+      "path_in_F_archive": "F/physical/runtime-command-consumption-worker/v3-i5-evidence/i5_r12-C-W2-B32-MW4.txt",
+      "sha256": "caedbdc355206e82db4a42e4c1c34e22f8dc6d9c8a872c8191cfa8693618426f"
+    }
+  ],
+  "assumptions": [
+    "DEV-only preflight; four physical pools; MW1/4; Business MW+2 Control MW+6",
+    "Control borrow1s lock0.5s SQL2s transaction3s socket5s; no unlisted borrower",
+    "Nominal batch count is an initial guard only; C requires measured whole paths, candidate counts and all PG deadlines",
+    "Cadence/leases/claims validated together; B1 lease90s; deployment envelope must be requalified",
+    "Two-loaded-Worker calibration splits candidates0|1 vs2|3 and jointly covers all12 C/p; two-Worker overlap safety remains w02; server100, pool maxima40/64 plus16 reserved"
+  ],
+  "failure_rule": "No guarantee during durable DB/network outage, global relation blocking or unbounded JVM pause. UNKNOWN remains excluded; incomplete drain is not STOPPED. No fifth pool. R-AUD-I3-03 remains subject to independent audit."
+}

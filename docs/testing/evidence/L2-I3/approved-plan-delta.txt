@@ -1,0 +1,3 @@
+ docs/v3/L2_I3_Implementation_Plan.md     | 574 +++++++++++++++++++++++++++++++
+ docs/v3/V3_Implementation_Master_Plan.md |   5 +
+ 2 files changed, 579 insertions(+)

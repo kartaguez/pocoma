@@ -1,0 +1,26 @@
+package com.kartaguez.pocoma.runtime.command.v3;
+import java.util.*;import java.util.concurrent.atomic.*;import java.util.function.*;
+import com.kartaguez.pocoma.engine.consumption.v3.port.*;
+import com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions;
+import org.testcontainers.postgresql.PostgreSQLContainer;import org.testcontainers.utility.DockerImageName;
+public class I5MaintenanceStopProbe {
+ public static void main(String[] args)throws Exception {
+  try(var pg=new PostgreSQLContainer(DockerImageName.parse(V3WorkerPostgresTest.IMAGE).asCompatibleSubstituteFor("postgres"))) {
+   pg.start();V3WorkerPostgresTest.initialize(pg);
+   try(var f=new V3WorkerPostgresTest.Fixture(pg);var runtime=new V3WorkerPostgresTest.Runtime(f,ConsumptionObservation.noop())) {
+    var id=V3WorkerPostgresTest.pendingAtPartitionZero(f,30100);V3WorkerPostgresTest.admitBeforeStart(f,runtime,id);
+    var engine=runtime.bindings.getFirst().engine();var lease=engine.acquirePartition(0).orElseThrow();var h=engine.acquire(lease,List.of(id)).claims().getFirst();
+    var real=(AttemptTransactions)V3WorkerPostgresTest.field(engine,"transactions");
+    V3WorkerPostgresTest.replace(engine,"transactions",(AttemptTransactions)java.lang.reflect.Proxy.newProxyInstance(AttemptTransactions.class.getClassLoader(),new Class[]{AttemptTransactions.class},(proxy,method,a)->{Object result;try{result=method.invoke(real,a);}catch(java.lang.reflect.InvocationTargetException e){throw e.getCause();}if(method.getName().equals("write"))throw new AttemptTransactions.Failure(AttemptTransactions.Resolution.UNKNOWN,new IllegalStateException("synthetic ACK lost after real final commit"));return result;}));
+    var attempt=engine.execute(h);V3WorkerPostgresTest.replace(engine,"transactions",real);
+    System.out.println("MAINTENANCE before status="+attempt.status()+" resolution="+attempt.resolution()+" capacity="+runtime.capacity.snapshot().worker()+" slots="+f.write.queryForObject("select count(*) from consumption_slot",Integer.class));
+    var fault=V3WorkerResourcesPostgresTest.controlFault(runtime,true,n->n.startsWith("v3-maintenance-"));
+    var close=(Runnable)V3WorkerPostgresTest.field(runtime.worker,"closeResources");var activeAtClose=new AtomicBoolean();
+    V3WorkerPostgresTest.replace(runtime.worker,"closeResources",(Runnable)()->{boolean active=f.write.queryForObject("select exists(select 1 from pg_stat_activity where pid=? and xact_start is not null)",Boolean.class,fault.pid.get());activeAtClose.set(active);System.out.println("MAINTENANCE beforeClose physicalActive="+active+" capacity="+runtime.capacity.snapshot().worker());close.run();});
+    fault.armed.set(true);runtime.worker.requestDrain();runtime.worker.start();V3WorkerPostgresTest.await(()->fault.physical.get()!=null);for(int n=0;n<8;n++){runtime.worker.requestDrain();Thread.sleep(20);}
+    V3WorkerPostgresTest.await(()->runtime.worker.snapshot().state()==com.kartaguez.pocoma.orchestrator.poll.consumption.v3.V3ConsumptionWorker.State.STOPPED);
+    System.out.println("MAINTENANCE stopped=true activeAtPoolClose="+activeAtClose.get());try{fault.resolveRollback();}catch(Exception ignored){}
+   }
+  }
+ }
+}

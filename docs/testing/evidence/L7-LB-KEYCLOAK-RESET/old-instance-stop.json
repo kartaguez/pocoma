@@ -1,0 +1,27 @@
+{
+  "state": "STOPPED",
+  "exit": 0,
+  "volumes": "PRESERVED",
+  "runtimeExitCodes": {
+    "business-read-worker": 143,
+    "command-worker": 143,
+    "http-read": 143,
+    "http-write": 143,
+    "results-worker": 143
+  },
+  "forcedKill": [],
+  "slotsBeforeStop": {
+    "pocoma_write": "0",
+    "pocoma_read": "0"
+  },
+  "instance": "gui-test",
+  "project": "pocoma-lb-gui-test-a39eabe4",
+  "sha": "80792858d6aac9c648ebcfac2fb2d84ccf80154e",
+  "dirty": true,
+  "urls": {
+    "write": "http://127.0.0.1:51869",
+    "read": "http://127.0.0.1:51870"
+  },
+  "issuer": "http://localhost:51871/realms/pocoma",
+  "evidence": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/gui-test/runs/1794673703-3c9fef53"
+}

@@ -1,0 +1,56 @@
+{
+  "instance": "demo",
+  "owner": "33dd8c1d-4dbd-4310-9011-50b0c6de18be",
+  "project": "pocoma-lb-demo-33dd8c1d",
+  "files": {
+    "secrets.json": "bcb69f72756713c6868a4396fdcd7e91c60720e2c73b9ee4d11d1bb88e8c51cd",
+    "demo.json": "beb1e07d6ff8cf2d4b550fe8cbab3ef2fe2c6122c5413d3bf631223dfe34c394"
+  },
+  "stableData": {
+    "users": {
+      "beforeCount": 4,
+      "afterCount": 4,
+      "preserved": true
+    },
+    "credentials": {
+      "beforeCount": 4,
+      "afterCount": 4,
+      "preserved": true
+    },
+    "realms": {
+      "beforeCount": 2,
+      "afterCount": 2,
+      "preserved": true
+    },
+    "clients": {
+      "beforeCount": 14,
+      "afterCount": 14,
+      "preserved": true
+    },
+    "pots": {
+      "beforeCount": 15,
+      "afterCount": 15,
+      "preserved": true
+    },
+    "readPots": {
+      "beforeCount": 15,
+      "afterCount": 15,
+      "preserved": true
+    },
+    "events": {
+      "beforeCount": 63,
+      "afterCount": 64,
+      "preserved": true
+    },
+    "sqlPasswords": {
+      "beforeCount": 1,
+      "afterCount": 1,
+      "preserved": true
+    }
+  },
+  "preservedDataContainers": {
+    "postgres": "74240b3506517c7b8c7502ed41d5ae7b5e207257dfa47b547576335259cfd039",
+    "keycloak": "49b44d7b84ee4989beeb0434c3e053b0dce204088f70fe564fa979a72ca3f589"
+  },
+  "method": "row hashes retained in memory; no credential/domain payload exported; canary excluded from mutable Pot snapshots"
+}

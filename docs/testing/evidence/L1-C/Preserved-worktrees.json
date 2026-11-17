@@ -1,0 +1,61 @@
+[
+  {
+    "root": "/Users/julien.guezennec/Dev/projects/pocoma",
+    "head": "90a3e9bc1a1fdd325d0c36e543824239cd85a431",
+    "status": [
+      " M docker/keycloak/pocoma-realm.json",
+      " M docs/README.md",
+      " D \"scripts/bruno/00 Pot E2E/01 Create Pot.bru\"",
+      " M \"scripts/bruno/00 Pot E2E/02 Get Create Command Result.bru\"",
+      " M \"scripts/bruno/00 Pot E2E/03 Read Pot V1.bru\"",
+      " M \"scripts/bruno/00 Pot E2E/04 Update Pot Details.bru\"",
+      " M \"scripts/bruno/00 Pot E2E/05 Get Update Command Result.bru\"",
+      " M \"scripts/bruno/00 Pot E2E/06 Read Pot V2.bru\"",
+      " M \"scripts/bruno/00 Pot E2E/07 Re-read Pot V1.bru\"",
+      " M \"scripts/bruno/00 Pot E2E/folder.bru\"",
+      "?? app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/adapter/context/UpdateExpenseSharesConcurrencyPostgresTest.java",
+      "?? docs/architecture/Event_Late_Locking_Protocol_Viability_Audit_2026-10-18.md",
+      "?? docs/architecture/Event_Late_Transactional_Numbering_Study_2026-10-18.md",
+      "?? docs/architecture/Mutation_Authorities_Ordered_Publication_Consolidated_Study_2026-10-18.md",
+      "?? docs/architecture/Transactional_Authorities_Fencing_Locks_Audit_2026-10-18.md",
+      "?? docs/testing/evidence/",
+      "?? docs/v3/",
+      "?? \"scripts/bruno/00 Pot E2E/001 Registrations.bru\"",
+      "?? \"scripts/bruno/00 Pot E2E/002 RegistrationResult.bru\"",
+      "?? \"scripts/bruno/00 Pot E2E/003 Me-Binding.bru\"",
+      "?? \"scripts/bruno/00 Pot E2E/004 Create Pot.bru\""
+    ]
+  },
+  {
+    "root": "/private/tmp/pocoma-v3-cleanup",
+    "head": "ddca2827dac7cf13f8b07f620f0cd3b3cb392196",
+    "status": [
+      "M  docs/v3/SPEC-01_Pot_Domain.md",
+      "M  docs/v3/SPEC-03_Events_Requests_Consumables.md",
+      "M  docs/v3/SPEC-04_Read_Projections.md",
+      "M  docs/v3/SPEC-05_Consumption_Discovery.md",
+      "M  docs/v3/SPEC-06_Supra_Contracts.md",
+      "M  docs/v3/SPEC-07_Transverse_Requirements.md",
+      "M  docs/v3/SPEC-08_Observability.md",
+      "M  docs/v3/SPEC-09_Performance.md",
+      "M  docs/v3/SPEC-10_Test_Certification.md",
+      "M  docs/v3/V3_Canon_and_Roadmap.md"
+    ]
+  },
+  {
+    "root": "/private/tmp/pocoma-v3-l1-ab",
+    "head": "56d658f9fd5313db2744fa11ff36699f4376aacb",
+    "status": [
+      "?? docs/testing/evidence/L1-AB/Publication-final.json",
+      "?? docs/testing/evidence/L1-AB/a-arch-1792927315643647000/",
+      "?? docs/testing/evidence/L1-AB/a-consumers-1792927068536741000/",
+      "?? docs/testing/evidence/L1-AB/a-domain-1792927016295840000/",
+      "?? docs/testing/evidence/L1-AB/a-domain-1792927055484795000/",
+      "?? docs/testing/evidence/L1-AB/b-arch-1792929835947767000/",
+      "?? docs/testing/evidence/L1-AB/b-consumers-1792929584286484000/",
+      "?? docs/testing/evidence/L1-AB/b-persistence-1792929220388245000/",
+      "?? docs/testing/evidence/L1-AB/b-persistence-1792929415609261000/",
+      "?? docs/testing/evidence/L1-AB/diagnostic-B/"
+    ]
+  }
+]

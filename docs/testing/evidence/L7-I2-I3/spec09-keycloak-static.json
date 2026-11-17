@@ -1,0 +1,31 @@
+{
+  "status": "PASS_STATIC_ONLY",
+  "timestamp": "2026-11-12T13:55:36.991932+00:00",
+  "command": "python3 -B -m unittest discover -v -s scripts/performance -p 'test_l7_spec09_keycloak.py'",
+  "inputsSha256": {
+    "scripts/performance/run-l7-spec09-keycloak.py": "7e6c8ee9bb8365fa5482a4035b120a5398ed17a4a659efef179af6e46e977951",
+    "scripts/performance/test_l7_spec09_keycloak.py": "188e6defb72e130f101207d1f49d59cc405b482fe70b4337e852b8278179b92e",
+    "scripts/functional-auth-proof.py": "c0b6e6ae959ac93851378ad71d1898c84f3b931f3a7b6973e023b40db05254f5",
+    "docker/keycloak/pocoma-realm.json": "a29c2d5d48c94c58fdd87edc13c95c17385cbf926961913a4ced9bfa7ce0bfc7"
+  },
+  "environment": {
+    "Python": "3.14.7",
+    "machine": "arm64",
+    "OS": "Darwin"
+  },
+  "fixture": "780 synthetic subjects; mocked OIDC, HTTP and SQL; no real issuer process started",
+  "httpRequests": 0,
+  "certificationPerformanceExecuted": false,
+  "log": [
+    "test_issuer_must_identify_a_disposable_realm (test_l7_spec09_keycloak.KeycloakContract.test_issuer_must_identify_a_disposable_realm) ... ok",
+    "test_login_and_exchange_times_are_separate_and_sub_must_match (test_l7_spec09_keycloak.KeycloakContract.test_login_and_exchange_times_are_separate_and_sub_must_match) ... ok",
+    "test_old_binding_must_be_denied_after_unlink (test_l7_spec09_keycloak.KeycloakContract.test_old_binding_must_be_denied_after_unlink) ... ok",
+    "test_realm_has_only_unique_test_subjects_and_keeps_pkce (test_l7_spec09_keycloak.KeycloakContract.test_realm_has_only_unique_test_subjects_and_keeps_pkce) ... ok",
+    "test_reconciliation_requires_matching_completed_pairs (test_l7_spec09_keycloak.KeycloakContract.test_reconciliation_requires_matching_completed_pairs) ... ok",
+    "",
+    "----------------------------------------------------------------------",
+    "Ran 5 tests in 0.003s",
+    "",
+    "OK"
+  ]
+}

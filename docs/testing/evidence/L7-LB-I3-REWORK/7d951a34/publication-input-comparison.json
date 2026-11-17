@@ -1,0 +1,7 @@
+{
+  "testedSha": "7d951a34754c67d8fa88be669c3929ea7c7b2d04",
+  "testedOperationalInputs": "f2fb534fd7f5b91a858c2d8df5d2982505ece2797ef7bbfeca7cd26db04d10ff",
+  "publicationOperationalInputs": "f2fb534fd7f5b91a858c2d8df5d2982505ece2797ef7bbfeca7cd26db04d10ff",
+  "equal": true,
+  "scope": "Following publication changes only docs/v3 and docs/testing/evidence, no request/helper/runtime/app changes. Final publication SHA is resolved from the branch head."
+}

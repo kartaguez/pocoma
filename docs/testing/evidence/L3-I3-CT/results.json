@@ -1,0 +1,40 @@
+{
+  "sha": "2b3567b1f77051c399772ee7ac787f7dd61ba407",
+  "verdict": "FAIL — CORRECTIONS REQUIRED",
+  "findings": [
+    {
+      "id": "AUD-L3-I3-CT-002",
+      "severity": "MAJOR",
+      "status": "DEMONSTRATED",
+      "scope": "Owner view / external SECURITY DEFINER exposes tokens to READ while preflight passes; actual Worker starts with view."
+    },
+    {
+      "id": "AUD-L3-I3-CT-003",
+      "severity": "MAJOR",
+      "status": "DEMONSTRATED",
+      "scope": "Excess TRUNCATE accepted for reactivation/injector; event history removed by committed transactions."
+    },
+    {
+      "id": "AUD-L3-I3-CT-001",
+      "severity": "MINOR",
+      "status": "DEMONSTRATED_CONDITIONAL",
+      "scope": "Prebound holder accepted by JDBC owner crosses physical transactions; delivered JPA Worker rejects it."
+    },
+    {
+      "id": "AUD-L3-I3-CT-004",
+      "severity": "MINOR",
+      "status": "DEMONSTRATED_LOGGING",
+      "scope": "Synthetic token in PostgreSQL UNIQUE DETAIL; Java exceptions redacted; unauthorized log access not demonstrated."
+    }
+  ],
+  "existing_tests_fresh": {
+    "tests": 6,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0
+  },
+  "full_reactor_run": false,
+  "global_architecture_gate_run": false,
+  "production_changes": false,
+  "container_removed": true
+}

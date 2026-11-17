@@ -1,0 +1,15 @@
+{
+  "status": "INCONCLUSIVE_SERVICE_CONTINUITY",
+  "private_file_contents_and_modes_checked": 25,
+  "private_file_differences": 0,
+  "container_count_before": 9,
+  "operations": "Read-only file digest/mode comparisons and docker ps/inspect of safe state fields only. No demo lifecycle or database operation.",
+  "limit": "Not an exhaustive audit of business data in an active instance. No private values retained in evidence.",
+  "intermediate_container_count": 9,
+  "intermediate_container_id_name_state_startedAt_restartCount_identical": true,
+  "container_count_after_user_docker_restore": 0,
+  "service_continuity_proven": false,
+  "external_event": "Docker API became unavailable; user stated they restarted Docker. Read-only docker ps after restore showed no active demo container. Agent did not restart/stop Docker or demo.",
+  "private_file_differences_after_user_docker_restore": 0,
+  "private_file_preservation": "PASS"
+}

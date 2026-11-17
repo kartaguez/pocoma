@@ -1,0 +1,7 @@
+{
+  "path": "app/mvnw.cmd",
+  "reason": "Align original checkout with declared *.cmd text eol=crlf; normalized Git blob unchanged; not executed on Unix",
+  "before_sha256": "4a361e1374a3e5ad6d03e18e9adc0cf181ac5058ac6203b76f0ba3b456b56481",
+  "qualified_checkout_sha256": "46eedb8419bd14fe70d5bb2916d7b6f51806e51b39d5b76a42610384ca929c1c",
+  "normalized_bytes_equal": true
+}

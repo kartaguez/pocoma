@@ -1,0 +1,7 @@
+{
+  "authorization": "User explicitly answered oui to the published plan for 13 instances, 58 containers, 8 volumes and 8 networks; recreate demo only.",
+  "plan": "docs/v3/L7_Local_Playground_Clean_Reset_Approval_Plan.md",
+  "codeSha": "47a0c094f803f019e32c91709e171791cde67f2e",
+  "recordedAt": 1794675314.442208,
+  "scope": "Approved local lifecycle operations only; no app/SQL/worker change, no Maven slice or global/full gate required."
+}

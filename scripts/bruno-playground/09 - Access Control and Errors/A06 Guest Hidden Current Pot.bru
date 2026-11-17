@@ -1,0 +1,43 @@
+meta {
+  name: A06 Guest Hidden Current Pot
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{readUrl}}/api/v3/pots/{{potId}}
+  body: none
+  auth: none
+}
+
+headers {
+  Connection: close
+  X-Pocoma-Binding-Token: {{bindingActor}}
+}
+
+settings {
+  timeout: 5000
+}
+
+script:pre-request {
+  const options = {"id":"A06","role":"guest","kind":"error","binding":true,"wait":true,"status":404,"requires":["potId","bindingGuest"]};
+  await require('./lib/workspace.js').prepare(bru, req, options);
+}
+
+tests {
+  const options = {"id":"A06","role":"guest","kind":"error","binding":true,"wait":true,"status":404,"requires":["potId","bindingGuest"]};
+  const work = require('./lib/workspace.js');
+  test('A06 transport and privacy', () => work.transport(bru, res, expect, options));
+  test('A06 contract and variables', () => {
+    work.verify(bru, req, res, expect, options);
+    work.record(bru, req, res, options);
+  });
+}
+
+docs {
+  Guest non attache (avant invitation ou apres depart) : 404 masque, aucune existence divulguee.
+  Identite : guest. Prerequis : potId, bindingGuest.
+  Chaque Send appelle la methode et le corps visibles. Les GET asynchrones attendent
+  le meme endpoint au plus 30 s avant l appel affiche ; aucun POST cache.
+  Modifier le JSON librement ; une nouvelle intention recoit une nouvelle cle.
+}

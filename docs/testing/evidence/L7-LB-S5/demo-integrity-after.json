@@ -1,0 +1,3657 @@
+{
+  "captured_at_utc": "2026-11-15T20:31:30.658540+00:00",
+  "instance": "demo",
+  "path": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/demo",
+  "manifest_summary": {
+    "instance": "demo",
+    "owner": "33dd8c1d-4dbd-4310-9011-50b0c6de18be",
+    "project": "pocoma-lb-demo-33dd8c1d",
+    "ports": {
+      "write": 54610,
+      "read": 54611,
+      "issuer": 54612,
+      "http-write": 54613,
+      "http-read": 54614,
+      "command-worker": 54615,
+      "results-worker": 54616,
+      "business-read-worker": 54617,
+      "metrics": 54618,
+      "grafana": 61347
+    },
+    "sha": "47a0c094f803f019e32c91709e171791cde67f2e",
+    "state": "STOPPED"
+  },
+  "file_count": 490,
+  "files": {
+    ".DS_Store": {
+      "type": "file",
+      "mode": "0o644",
+      "size": 6148,
+      "mtime_ns": 1794675595691181702,
+      "sha256": "0fd420cefdaf07a939fb9759f0fb213c20712c4131f3b22221c4586b2555e0d3"
+    },
+    "business-read-worker.properties": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 3281,
+      "mtime_ns": 1794740549402642754,
+      "sha256": "fb92e51ffc693da4da45d1b93a3c33ac54f85f0345c0dad3d1f90d37a7c594da"
+    },
+    "canary.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 1483,
+      "mtime_ns": 1794740704549917066,
+      "sha256": "2836f8b8b3f72507c36e139dc68563aea4e3ddc3bc4c3cd195c6b3e96f0dd165"
+    },
+    "command-worker.properties": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 2569,
+      "mtime_ns": 1794740549402160250,
+      "sha256": "34187dbce14b9a2f258029df305217eb6b7fd54f85295ef891f628f1a0f5e3a0"
+    },
+    "compose.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 8776,
+      "mtime_ns": 1794740547303831673,
+      "sha256": "9ad9c214a5b100f5dbbf7ad6779c4d93555195205de5ca78b45090d634aca706"
+    },
+    "demo.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 391,
+      "mtime_ns": 1794675920536424984,
+      "sha256": "beb1e07d6ff8cf2d4b550fe8cbab3ef2fe2c6122c5413d3bf631223dfe34c394"
+    },
+    "grafana": {
+      "type": "dir",
+      "mode": "0o755",
+      "size": 128,
+      "mtime_ns": 1794693130870836691
+    },
+    "grafana/dashboards": {
+      "type": "dir",
+      "mode": "0o755",
+      "size": 128,
+      "mtime_ns": 1794693130871362358
+    },
+    "grafana/dashboards/pocoma-runtime.json": {
+      "type": "file",
+      "mode": "0o644",
+      "size": 9386,
+      "mtime_ns": 1794740547303067917,
+      "sha256": "964fa439dd9f1384911d62f1e56f4ccccf8e728a8d551103345bb639534479c2"
+    },
+    "grafana/dashboards/pocoma-v3-overview.json": {
+      "type": "file",
+      "mode": "0o644",
+      "size": 18570,
+      "mtime_ns": 1794740547303357753,
+      "sha256": "160a2fe53c3e3c893f095ca41cafb59fdf611791f7205e22253520f13ebcf967"
+    },
+    "grafana/provisioning": {
+      "type": "dir",
+      "mode": "0o755",
+      "size": 128,
+      "mtime_ns": 1794693130870797566
+    },
+    "grafana/provisioning/dashboards": {
+      "type": "dir",
+      "mode": "0o755",
+      "size": 96,
+      "mtime_ns": 1794693130870972191
+    },
+    "grafana/provisioning/dashboards/dashboards.yml": {
+      "type": "file",
+      "mode": "0o644",
+      "size": 186,
+      "mtime_ns": 1794740547302651914,
+      "sha256": "3dd46dc596b179827ac55a6d7322c889dd48d0dfd2e8c845b53503d92a556270"
+    },
+    "grafana/provisioning/datasources": {
+      "type": "dir",
+      "mode": "0o755",
+      "size": 96,
+      "mtime_ns": 1794693130870904691
+    },
+    "grafana/provisioning/datasources/prometheus.yml": {
+      "type": "file",
+      "mode": "0o644",
+      "size": 180,
+      "mtime_ns": 1794740547302502496,
+      "sha256": "a992415f937f8999e5576478ef2e6a463387fd1ec4247ff3bc7473b2e4730f56"
+    },
+    "http-read.properties": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 1319,
+      "mtime_ns": 1794740549401769289,
+      "sha256": "84ff84d17c3c12ed6d822f204231c3793dcbed01b0f72c463ccc8ff9f0165ba7"
+    },
+    "http-write.properties": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 1342,
+      "mtime_ns": 1794740549401508245,
+      "sha256": "98065f02410cebad81f0fd3cc751419a8772f1deae526b8ce74499a509541e0d"
+    },
+    "lock": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 0,
+      "mtime_ns": 1794608722154177380,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "manifest.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 5553,
+      "mtime_ns": 1794767417040299550,
+      "sha256": "053d202e1eef83e6ced1824f4d42ad908dd0e705088564442cc5d78baa80e44b"
+    },
+    "pg-init.sql": {
+      "type": "file",
+      "mode": "0o644",
+      "size": 130,
+      "mtime_ns": 1794740547301878324,
+      "sha256": "6442f93fe03d7d2b400afef6a24964a7fc071496d797f5a5d4631a57e94b5393"
+    },
+    "pg-password": {
+      "type": "file",
+      "mode": "0o644",
+      "size": 43,
+      "mtime_ns": 1794740547301335903,
+      "sha256": "043000085e476378a614c972032aa9a4f180bf0ecd5d2e43afcb9783f3e5a952"
+    },
+    "prometheus.yml": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 690,
+      "mtime_ns": 1794740547302180202,
+      "sha256": "ce4f1455585cca2d36024eca5a4fa3e60bf45979b0e0809e10f1bbfc50f86486"
+    },
+    "realm.json": {
+      "type": "file",
+      "mode": "0o644",
+      "size": 4090,
+      "mtime_ns": 1794740547301668323,
+      "sha256": "6f72b29011beb3276d963fe8ed9587999a251aea47ff08afa14b0fe4607eb63b"
+    },
+    "resources.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 141,
+      "mtime_ns": 1794740545480113261,
+      "sha256": "f33d29cb83d4a68b618944798dede4dad69f195476f5ec0baf3e756cd8f55ff1"
+    },
+    "results-worker.properties": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 3056,
+      "mtime_ns": 1794740549402479044,
+      "sha256": "752a21554ec0bd37452a9f62e5574bc5c119bdb78c1c7187183289f443c76835"
+    },
+    "runs": {
+      "type": "dir",
+      "mode": "0o700",
+      "size": 2560,
+      "mtime_ns": 1794767416330703087
+    },
+    "runs/1794608722-44b074d0": {
+      "type": "dir",
+      "mode": "0o700",
+      "size": 256,
+      "mtime_ns": 1794608764108484124
+    },
+    "runs/1794608722-44b074d0/canary-intent.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 20,
+      "mtime_ns": 1794608763841548048,
+      "sha256": "3a5edcf591c207e6da0e2f4e33cae094f72ea646326771ef32114ded92ba890c"
+    },
+    "runs/1794608722-44b074d0/keycloak-up.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 222,
+      "mtime_ns": 1794608729190091021,
+      "sha256": "c442f6e4b1c463aecd544057466542fe9193ea078c606c134da5d5a725879293"
+    },
+    "runs/1794608722-44b074d0/postgres-up.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 610,
+      "mtime_ns": 1794608725023671915,
+      "sha256": "10396b433f0943d94ed504db6c32e4ae41fdaf5ab628cab4b975aec6254d2a9d"
+    },
+    "runs/1794608722-44b074d0/public-requests.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 5115,
+      "mtime_ns": 1794608763983926402,
+      "sha256": "8b42bc4d61b9a6441702260ffc1793719ebf3c6e82d3ffa100f409a32f0f930e"
+    },
+    "runs/1794608722-44b074d0/receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 991,
+      "mtime_ns": 1794608764108373874,
+      "sha256": "20068ed2c1850b27a1bf1e6411daec2430c639c7f47e590c1b1bd5c221e9a60c"
+    },
+    "runs/1794608722-44b074d0/runtimes-up.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 1448,
+      "mtime_ns": 1794608751340668100,
+      "sha256": "fbb300b16661b82acd78cf80698623b042739f2ac33df57f99b38ed9e7aa56b5"
+    },
+    "runs/1794608818-a6c6c71a": {
+      "type": "dir",
+      "mode": "0o700",
+      "size": 224,
+      "mtime_ns": 1794608821861495002
+    },
+    "runs/1794608818-a6c6c71a/bruno-private.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 1192,
+      "mtime_ns": 1794608821812986243,
+      "sha256": "54a240ba1e39d5352aaff4f54cbf47f3e0e4bb3c3833aa298d5a38cb0f0e0403"
+    },
+    "runs/1794608818-a6c6c71a/bruno-receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 449,
+      "mtime_ns": 1794608821813853704,
+      "sha256": "f81d2f673f1b73a68573c52fece161dfd4fa0439a5f8afdeb693f0ded3e0b549"
+    },
+    "runs/1794608818-a6c6c71a/bruno.xml": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 449,
+      "mtime_ns": 1794608821803286508,
+      "sha256": "d984430615e531ac41d0fcb1f8b6d7dbb3e60f6e4b9d51d44f63dd4825b9a918"
+    },
+    "runs/1794608818-a6c6c71a/receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 434,
+      "mtime_ns": 1794608821861409544,
+      "sha256": "14b2f789614125a72afaecf50910469b0cf4690d6347aab052138d045ee2968f"
+    },
+    "runs/1794608818-a6c6c71a/scenarios.jsonl": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 4741,
+      "mtime_ns": 1794608821787581381,
+      "sha256": "6595241994d5f5aecf60e709dbb1990d4a6347383d582a4ccb299f570f638ad5"
+    },
+    "runs/1794609243-5049d4f7": {
+      "type": "dir",
+      "mode": "0o700",
+      "size": 256,
+      "mtime_ns": 1794609251398421742
+    },
+    "runs/1794609243-5049d4f7/canary-intent.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 20,
+      "mtime_ns": 1794609251167131472,
+      "sha256": "6ab494b529914123e1a89c1af4048d148ce57862565cf6d9d5d753af8071f316"
+    },
+    "runs/1794609243-5049d4f7/keycloak-up.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 55,
+      "mtime_ns": 1794609249071687676,
+      "sha256": "a0a15eba3f65a5abc7d327e3618a44d0af09be83675824d2c43ff6fecac822d3"
+    },
+    "runs/1794609243-5049d4f7/postgres-up.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 55,
+      "mtime_ns": 1794609246753342511,
+      "sha256": "8e39c19c3f24fb5d0ec18e9ea9192b2ae3b73bc95dd173f3d998b50298863004"
+    },
+    "runs/1794609243-5049d4f7/public-requests.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 1015,
+      "mtime_ns": 1794609251298781047,
+      "sha256": "a6f62e179a63d615ab4d553c0e027804cad7d99e2d4af3ba9bf2190639c84eac"
+    },
+    "runs/1794609243-5049d4f7/receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 990,
+      "mtime_ns": 1794609251398339575,
+      "sha256": "46a8eb740db909aecb939b85a68e260690bdcf5ca34276104266f107e0d42ee4"
+    },
+    "runs/1794609243-5049d4f7/runtimes-up.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 359,
+      "mtime_ns": 1794609249241040232,
+      "sha256": "d43b242061f9ce59780711f9c51f5486b4ba2366b5f5a8e9c927401e94b9417d"
+    },
+    "runs/1794609890-e6ea2589": {
+      "type": "dir",
+      "mode": "0o700",
+      "size": 224,
+      "mtime_ns": 1794609893631144660
+    },
+    "runs/1794609890-e6ea2589/bruno-private.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 1192,
+      "mtime_ns": 1794609893578450788,
+      "sha256": "dfb70291b0bbfedb675c8af6bb986ebf9782df46ecae6fd7582d4224b1ffd1ce"
+    },
+    "runs/1794609890-e6ea2589/bruno-receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 449,
+      "mtime_ns": 1794609893579524294,
+      "sha256": "f4fd6bfeec50aec5781eed34b4a5fa617d4846144000ee4df9b98b1ff4637231"
+    },
+    "runs/1794609890-e6ea2589/bruno.xml": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 449,
+      "mtime_ns": 1794609893540543664,
+      "sha256": "71d48790af63df35efea1f16f28e480890bccfcc1e36932adc2fe733184b1577"
+    },
+    "runs/1794609890-e6ea2589/receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 434,
+      "mtime_ns": 1794609893631057160,
+      "sha256": "666345d441dbd19fe87df076f562d394d92eb1db2ce2dfe88d627f5b9f46c301"
+    },
+    "runs/1794609890-e6ea2589/scenarios.jsonl": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 4690,
+      "mtime_ns": 1794609893525831917,
+      "sha256": "82b96f8a4f423f7ad8232c7b246d7167815b7fcf86121d7f368a9c6a51daba1a"
+    },
+    "runs/1794610678-c3839dcb": {
+      "type": "dir",
+      "mode": "0o700",
+      "size": 224,
+      "mtime_ns": 1794610685788447191
+    },
+    "runs/1794610678-c3839dcb/bruno-private.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 1192,
+      "mtime_ns": 1794610685648637426,
+      "sha256": "904b422edbfc5beae2dd797deb898cdfe1a1549298538b3f3eb90789f2533855"
+    },
+    "runs/1794610678-c3839dcb/bruno-receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 480,
+      "mtime_ns": 1794610685653103367,
+      "sha256": "486b127fb3d7d45d525122e446d3efd6e6da50c482c0d04588be003f3a5daef9"
+    },
+    "runs/1794610678-c3839dcb/bruno.xml": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 449,
+      "mtime_ns": 1794610685589868229,
+      "sha256": "32efa9441c3e13ab702056db0807cf95278836b5561c5911ad9e475a844e096f"
+    },
+    "runs/1794610678-c3839dcb/receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 433,
+      "mtime_ns": 1794610685788258440,
+      "sha256": "a8a8defcc78298ae5efed605ce1466b91e475ace65755808b953a22572a5c076"
+    },
+    "runs/1794610678-c3839dcb/scenarios.jsonl": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 5288,
+      "mtime_ns": 1794610685563788669,
+      "sha256": "fa5f033dd653edc2f1456840b4e1194888ed971c5cc67d44cba9288f85da8d34"
+    },
+    "runs/1794610678-e7c3c467": {
+      "type": "dir",
+      "mode": "0o700",
+      "size": 96,
+      "mtime_ns": 1794610678661001637
+    },
+    "runs/1794610678-e7c3c467/receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 673,
+      "mtime_ns": 1794610678660825969,
+      "sha256": "afee6b2085f27a4b22e57a76b6484b6aeae1c04b46f4a0198062af1fc3a93a59"
+    },
+    "runs/1794611974-0002ef46": {
+      "type": "dir",
+      "mode": "0o700",
+      "size": 224,
+      "mtime_ns": 1794611978167414677
+    },
+    "runs/1794611974-0002ef46/bruno-private.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 1191,
+      "mtime_ns": 1794611978112879761,
+      "sha256": "d671e806bdfd56de7534e32114f39c1b2024a86353f559b55d7f579dbe45ed0c"
+    },
+    "runs/1794611974-0002ef46/bruno-receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 480,
+      "mtime_ns": 1794611978114687566,
+      "sha256": "7d9d9be17981e8ae81cb5920044b356901ea2a6c309d4c533d4931a316121bf5"
+    },
+    "runs/1794611974-0002ef46/bruno.xml": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 449,
+      "mtime_ns": 1794611978047315260,
+      "sha256": "6738f4d8bc15eb50c999be9f3a6867d720ddb6099a21d9012c7dc35efa00734b"
+    },
+    "runs/1794611974-0002ef46/receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 433,
+      "mtime_ns": 1794611978167322135,
+      "sha256": "6d768f15b671c7f9518e19fd1152e821b901167f12592893610111eea6ac435c"
+    },
+    "runs/1794611974-0002ef46/scenarios.jsonl": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 4690,
+      "mtime_ns": 1794611978019588465,
+      "sha256": "b31db27e0e9b39c111373915a52144990bac4c71e935cff6948c428adbdbdd24"
+    },
+    "runs/1794612066-2fc0ef91": {
+      "type": "dir",
+      "mode": "0o700",
+      "size": 96,
+      "mtime_ns": 1794612067132424460
+    },
+    "runs/1794612066-2fc0ef91/receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 674,
+      "mtime_ns": 1794612067132327293,
+      "sha256": "1114eada65fe5c41f77478dd5127680760dd177f4e753dcf11cd450229b732f2"
+    },
+    "runs/1794612066-f4a61dd6": {
+      "type": "dir",
+      "mode": "0o700",
+      "size": 96,
+      "mtime_ns": 1794612066717376166
+    },
+    "runs/1794612066-f4a61dd6/receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 674,
+      "mtime_ns": 1794612066717247290,
+      "sha256": "1c6ef54079d418af20f569adb09d2c9b35ec8435c273671477e3adb7ef3cd661"
+    },
+    "runs/1794612070-b38ec267": {
+      "type": "dir",
+      "mode": "0o700",
+      "size": 224,
+      "mtime_ns": 1794612073222026329
+    },
+    "runs/1794612070-b38ec267/bruno-private.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 1191,
+      "mtime_ns": 1794612073171791820,
+      "sha256": "e24e8d4e129c9c8715168dd259b60671c981aff01d28566f6b5c3bd9c97a2965"
+    },
+    "runs/1794612070-b38ec267/bruno-receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 480,
+      "mtime_ns": 1794612073173275123,
+      "sha256": "70c0855835f60334d5b229fc2133e4bea64b7fd4f10d66823b1e1f1627976f44"
+    },
+    "runs/1794612070-b38ec267/bruno.xml": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 449,
+      "mtime_ns": 1794612073132305769,
+      "sha256": "b9a692f171cfd7c4828794a773894d6708e95a7d3fbf76bcc1881d9f395aad94"
+    },
+    "runs/1794612070-b38ec267/receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 434,
+      "mtime_ns": 1794612073221933369,
+      "sha256": "857d778a76e7f16faaef9809d97ee5dadcee374793f14a004962c353b7d2163e"
+    },
+    "runs/1794612070-b38ec267/scenarios.jsonl": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 4690,
+      "mtime_ns": 1794612073117412530,
+      "sha256": "ad8575c90c3656fc0c93f78a5231e184a2965576e7758d256beee6e2343fc389"
+    },
+    "runs/1794644533-41aef297": {
+      "type": "dir",
+      "mode": "0o700",
+      "size": 256,
+      "mtime_ns": 1794644536770827135
+    },
+    "runs/1794644533-41aef297/bruno-private.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 3386,
+      "mtime_ns": 1794644536383957748,
+      "sha256": "54a64a6892e2c349897701cc0849653dfbd8421912441077c46c571f0fd4d7b4"
+    },
+    "runs/1794644533-41aef297/bruno-receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 2838,
+      "mtime_ns": 1794644536556517582,
+      "sha256": "89ecc1264c855c6715ea6bd47722d6e95c7eabc4d60b18da9317596850e55b89"
+    },
+    "runs/1794644533-41aef297/bruno.xml": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 41450,
+      "mtime_ns": 1794644536340159430,
+      "sha256": "e244825bd1ced8c46695f7008b8d6d03eef0a9663af131d3d69dd939a97069fe"
+    },
+    "runs/1794644533-41aef297/containers.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 187793,
+      "mtime_ns": 1794644536770965553,
+      "sha256": "aed37c32563666cd8ed7373b7c7f670341e10e7541d858840b719464ae1bc257"
+    },
+    "runs/1794644533-41aef297/receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 433,
+      "mtime_ns": 1794644536604833396,
+      "sha256": "0737a2909ecc24d0ac806109f7de184d6a2396fc9a252e2deae8099ae3bbac3e"
+    },
+    "runs/1794644533-41aef297/scenarios.jsonl": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 188,
+      "mtime_ns": 1794644536325459642,
+      "sha256": "17edb736787212908235785d64a931737c85689dff5d4b418d9bddee1f76ee62"
+    },
+    "runs/1794644584-e5f49c32": {
+      "type": "dir",
+      "mode": "0o700",
+      "size": 256,
+      "mtime_ns": 1794644588044101337
+    },
+    "runs/1794644584-e5f49c32/bruno-private.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 4055,
+      "mtime_ns": 1794644587665196349,
+      "sha256": "faf15311c2c16dc7456d62a83c929c8c1d8604229c39eb11991e9d2981e700a7"
+    },
+    "runs/1794644584-e5f49c32/bruno-receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 2857,
+      "mtime_ns": 1794644587835756000,
+      "sha256": "2d12b4f5ffc0f26aeaf8c015f0b49cfa6d88f373614b3cc42b63ddcbb5c76fac"
+    },
+    "runs/1794644584-e5f49c32/bruno.xml": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 41872,
+      "mtime_ns": 1794644587644596638,
+      "sha256": "82fcac0d3086f493e42f103cdd45a0dc7e8ca7c9d75eb4700cd6c035993d0c87"
+    },
+    "runs/1794644584-e5f49c32/containers.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 187159,
+      "mtime_ns": 1794644588044239422,
+      "sha256": "20bb65677176bcd0c60439da1764648da7c8b2fb268d944b31e86db53a221f87"
+    },
+    "runs/1794644584-e5f49c32/receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 433,
+      "mtime_ns": 1794644587884836362,
+      "sha256": "7cd0af2af58efafffc0f961c6911a96825764645cb772f2eb74d8ff806280f71"
+    },
+    "runs/1794644584-e5f49c32/scenarios.jsonl": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 366,
+      "mtime_ns": 1794644587478427689,
+      "sha256": "f2d3b3c39d9305d3dfabf6df4c3cd574f40b5c5b1b49d305334b11802feca838"
+    },
+    "runs/1794644613-7b59b31e": {
+      "type": "dir",
+      "mode": "0o700",
+      "size": 224,
+      "mtime_ns": 1794644620175263940
+    },
+    "runs/1794644613-7b59b31e/bruno-private.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 23108,
+      "mtime_ns": 1794644619944788422,
+      "sha256": "368681e9b2264fa274aaee3fcb6511a960d30b826c4a3746861c482be6525020"
+    },
+    "runs/1794644613-7b59b31e/bruno-receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 4912,
+      "mtime_ns": 1794644620127940718,
+      "sha256": "9cb124cccf9ef26b0c7fcb1198aed1b4f6134571ff203e5909b41fc3a536a532"
+    },
+    "runs/1794644613-7b59b31e/bruno.xml": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 77247,
+      "mtime_ns": 1794644619883980714,
+      "sha256": "00dc48e85257a899d14cb171913824b92f3172c994361cd6868aa26ee473f64c"
+    },
+    "runs/1794644613-7b59b31e/receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 433,
+      "mtime_ns": 1794644620175161564,
+      "sha256": "07c202cdcccfc1eb3d2da80116e31991d32c4c9b7531028e7c005364f71527d6"
+    },
+    "runs/1794644613-7b59b31e/scenarios.jsonl": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 31617,
+      "mtime_ns": 1794644619871860156,
+      "sha256": "a445e9e5ff12e08c1c2ca24680ac7707fdaf59215508b39d68d022d97c08c2d3"
+    },
+    "runs/1794644761-e2f1a0a6": {
+      "type": "dir",
+      "mode": "0o700",
+      "size": 224,
+      "mtime_ns": 1794644769625896316
+    },
+    "runs/1794644761-e2f1a0a6/bruno-receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 4985,
+      "mtime_ns": 1794644769427356560,
+      "sha256": "39bb0c2a6b350f96fba3f20d06e31a0eb9821840991a1ad9bc75bf80d757fdd7"
+    },
+    "runs/1794644761-e2f1a0a6/bruno.xml": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 78563,
+      "mtime_ns": 1794644769189037977,
+      "sha256": "6827b878eb1bb59cc101773146a0730d2d1faa38b5b3f485fcc0bc54eb26a064"
+    },
+    "runs/1794644761-e2f1a0a6/containers.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 187942,
+      "mtime_ns": 1794644769626033359,
+      "sha256": "8f3dd25b4b36fc65df39867a8022ac21b26f74f570d274c51ccf847ca482ce8e"
+    },
+    "runs/1794644761-e2f1a0a6/receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 433,
+      "mtime_ns": 1794644769474074236,
+      "sha256": "edc450f295664081a10120360fc5f6f5b079419660588b52c7ddbc3cf3c996cd"
+    },
+    "runs/1794644761-e2f1a0a6/scenarios.jsonl": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 31986,
+      "mtime_ns": 1794644769175823035,
+      "sha256": "786d3c7e62a972c2876b56c9fd005912da81e90ff40742c897b504250c4178a7"
+    },
+    "runs/1794644842-2270de8e": {
+      "type": "dir",
+      "mode": "0o700",
+      "size": 96,
+      "mtime_ns": 1794644842717086100
+    },
+    "runs/1794644842-2270de8e/receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 728,
+      "mtime_ns": 1794644842716984099,
+      "sha256": "d3a4ff86428a1a218a2ea37937122a86ba59136b62ce80174c0d57fd98fa9c59"
+    },
+    "runs/1794645506-34217021": {
+      "type": "dir",
+      "mode": "0o700",
+      "size": 160,
+      "mtime_ns": 1794645509366564852
+    },
+    "runs/1794645506-34217021/receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 713,
+      "mtime_ns": 1794645509366435809,
+      "sha256": "6f57e82587f0d5303fbd5fa670d708e69e4c14dd5a2e389032c37bb880ef9b69"
+    },
+    "runs/1794645506-34217021/stop-deps.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 337,
+      "mtime_ns": 1794645509302910287,
+      "sha256": "a8bc35d31b1533a7b56e9fe0693ba7b11038ec2450fd8a0369c0385c7587b588"
+    },
+    "runs/1794645506-34217021/stop-jvm.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 609,
+      "mtime_ns": 1794645507725941957,
+      "sha256": "126f3ee84005a44cf313a090f8ad18a5e01c6881bcc481ee7923abf4653f9865"
+    },
+    "runs/1794648826-3626864f": {
+      "type": "dir",
+      "mode": "0o700",
+      "size": 128,
+      "mtime_ns": 1794648826566188180
+    },
+    "runs/1794648826-3626864f/containers.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 202394,
+      "mtime_ns": 1794648826566336306,
+      "sha256": "d1afb109b56964b4b37ebd3aab8b77183d24370fdafb7bce314edb4cb197041d"
+    },
+    "runs/1794648826-3626864f/receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 277,
+      "mtime_ns": 1794648826401710944,
+      "sha256": "38a42e7d486eaa9597ea5c42f3e9a40bc78172ad681a294b0c4dc49c45ad77ea"
+    },
+    "runs/1794648938-1cda19f8": {
+      "type": "dir",
+      "mode": "0o700",
+      "size": 160,
+      "mtime_ns": 1794648938901442495
+    },
+    "runs/1794648938-1cda19f8/receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 698,
+      "mtime_ns": 1794648938901332619,
+      "sha256": "0910d419310630d3916b44f7bea3b6016bb0e072edcabf74f582f5df7997b302"
+    },
+    "runs/1794648938-1cda19f8/stop-deps.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 337,
+      "mtime_ns": 1794648938849649860,
+      "sha256": "677a0142b717e9a9dc1a4363b12626f93e5a426396e19035ad717868fa5fa4bc"
+    },
+    "runs/1794648938-1cda19f8/stop-jvm.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 609,
+      "mtime_ns": 1794648938574040744,
+      "sha256": "fc9e3c08bc1c969e01512a68390696bf00d5963d9860e3f40176d1c2df56213f"
+    },
+    "runs/1794648949-213240ed": {
+      "type": "dir",
+      "mode": "0o700",
+      "size": 160,
+      "mtime_ns": 1794648949806995833
+    },
+    "runs/1794648949-213240ed/receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 698,
+      "mtime_ns": 1794648949806899749,
+      "sha256": "785d0c9e191f005f359decd6ddfca1c566c2e6be82e2cf32d9f02349b32023be"
+    },
+    "runs/1794648949-213240ed/stop-deps.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 337,
+      "mtime_ns": 1794648949759272694,
+      "sha256": "076aba71a64052b42168943dca76bbb7ef7c7b7f9f2c53d4d2b2a0096ce2050f"
+    },
+    "runs/1794648949-213240ed/stop-jvm.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 609,
+      "mtime_ns": 1794648949486778148,
+      "sha256": "fa2acb023bbdcf365a0ca205292dd78c2145325cc9ab3b162c17243a538f467e"
+    },
+    "runs/1794649026-a7b3944b": {
+      "type": "dir",
+      "mode": "0o700",
+      "size": 128,
+      "mtime_ns": 1794649027229696039
+    },
+    "runs/1794649026-a7b3944b/containers.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 201164,
+      "mtime_ns": 1794649027229845374,
+      "sha256": "8b6c6a9a7d20cf35425ab4ad729defb423e76f3f4a7fb0e7dbb141ccd77f447a"
+    },
+    "runs/1794649026-a7b3944b/receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 1034,
+      "mtime_ns": 1794649027153127056,
+      "sha256": "4e4ba55616c6884a19206dc660e6edc865b608a216733464de5e49bc09a3ad6c"
+    },
+    "runs/1794674979-fd6c90b7": {
+      "type": "dir",
+      "mode": "0o700",
+      "size": 96,
+      "mtime_ns": 1794674980163952406
+    },
+    "runs/1794674979-fd6c90b7/receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 1328,
+      "mtime_ns": 1794674980163860114,
+      "sha256": "90cdc882726860d80a631fdb95c1310353c3682c00a1b1ac74b7814d230b1ac4"
+    },
+    "runs/1794675369-9c6ca086": {
+      "type": "dir",
+      "mode": "0o700",
+      "size": 256,
+      "mtime_ns": 1794675370944454289
+    },
+    "runs/1794675369-9c6ca086/containers.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 198588,
+      "mtime_ns": 1794675370278705847,
+      "sha256": "49b232cd1daa60fe1651c36c511050ad4fd96ab3de30ce04994bc37078587ea9"
+    },
+    "runs/1794675369-9c6ca086/destroy-plan.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 998,
+      "mtime_ns": 1794675369465045437,
+      "sha256": "43a97622279274560d9f274eceda23d542cafd4aae8ba45ab9e88d67aed21d8b"
+    },
+    "runs/1794675369-9c6ca086/destroy.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 2086,
+      "mtime_ns": 1794675370792547663,
+      "sha256": "1dc689c05a0008af1f4ab503c39d1a006e1b6f1fbb84e59076f96125e086c2c5"
+    },
+    "runs/1794675369-9c6ca086/receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 462,
+      "mtime_ns": 1794675370944333704,
+      "sha256": "f51e72ff7053381da22686a1013e51b0b4e4d208a64ef5bbcd3010cd64c510cb"
+    },
+    "runs/1794675369-9c6ca086/stop-deps.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 337,
+      "mtime_ns": 1794675370199692946,
+      "sha256": "f80070d8164b64a4bdd33392f33b637a3c51b7ffa34431e659c959c019be5719"
+    },
+    "runs/1794675369-9c6ca086/stop-jvm.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 609,
+      "mtime_ns": 1794675369934010299,
+      "sha256": "59d4eebb5f824527dcb2b6e0f6aeb1eca1978d15204e785315890035d6aeed28"
+    },
+    "runs/1794675870-dd60c442": {
+      "type": "dir",
+      "mode": "0o700",
+      "size": 320,
+      "mtime_ns": 1794675921086912621
+    },
+    "runs/1794675870-dd60c442/canary-intent.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 20,
+      "mtime_ns": 1794675920786197115,
+      "sha256": "3a5edcf591c207e6da0e2f4e33cae094f72ea646326771ef32114ded92ba890c"
+    },
+    "runs/1794675870-dd60c442/keycloak-auth.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 388,
+      "mtime_ns": 1794675905764046297,
+      "sha256": "fa34412897ebbbd09b9896ea0cb0d75a800e3a4bc7a588bfbc407dba5a8ca0a2"
+    },
+    "runs/1794675870-dd60c442/keycloak-up.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 222,
+      "mtime_ns": 1794675880812311242,
+      "sha256": "247c072c191020fdb31ee87f5b3e89712c6ca994d4fc6baecc193ee973658fb9"
+    },
+    "runs/1794675870-dd60c442/package.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 67085,
+      "mtime_ns": 1794675875844565164,
+      "sha256": "782791fdaf67c8ec732b358afa7769b037d051e49596331e5547ec6efbb6287c"
+    },
+    "runs/1794675870-dd60c442/postgres-up.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 610,
+      "mtime_ns": 1794675876460753285,
+      "sha256": "618695b5215d607f59ceebaae17233de38fe654a7b6a589ca7e6aac91c7a8eaf"
+    },
+    "runs/1794675870-dd60c442/public-requests.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 5704,
+      "mtime_ns": 1794675920932096898,
+      "sha256": "f9317bf34507e81662cb0f1f097dfd55e20c70bb8b95f5260d92b06fad03c016"
+    },
+    "runs/1794675870-dd60c442/receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 1811,
+      "mtime_ns": 1794675921086789787,
+      "sha256": "8107f84a9d1f3e9d84777bd4ba43f4a163f18cf9a7a5937c55856089c27c9131"
+    },
+    "runs/1794675870-dd60c442/runtimes-up.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 1448,
+      "mtime_ns": 1794675907102610403,
+      "sha256": "b6b4ca49541dcc04f43a8ff91cac079ab1bb4da023acc12fa489caa225e0d295"
+    },
+    "runs/1794675921-20b37d2e": {
+      "type": "dir",
+      "mode": "0o700",
+      "size": 128,
+      "mtime_ns": 1794675923731129633
+    },
+    "runs/1794675921-20b37d2e/keycloak-auth.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 387,
+      "mtime_ns": 1794675923541380528,
+      "sha256": "8b95f587fccd5c6b3a86684ab669bf6e03f39e784b4972195f64cd7f17f2cae4"
+    },
+    "runs/1794675921-20b37d2e/receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 1842,
+      "mtime_ns": 1794675923731009174,
+      "sha256": "54dac3cd10d97378f1ea50ee1320b40511a526430800a9b589495cf21d742a64"
+    },
+    "runs/1794675923-3c68e4fa": {
+      "type": "dir",
+      "mode": "0o700",
+      "size": 96,
+      "mtime_ns": 1794675924300957078
+    },
+    "runs/1794675923-3c68e4fa/receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 1104,
+      "mtime_ns": 1794675924300820994,
+      "sha256": "d72cf65e57bf0320dadcf4a37a627503196e3570988a648de8bc3095f6064aed"
+    },
+    "runs/1794675924-654f34d5": {
+      "type": "dir",
+      "mode": "0o700",
+      "size": 192,
+      "mtime_ns": 1794675934597453017
+    },
+    "runs/1794675924-654f34d5/bruno-receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 4984,
+      "mtime_ns": 1794675934538079122,
+      "sha256": "45dabe0f2a08a473122307c47a06519ba2a939168baa11048eb93008c79a2e66"
+    },
+    "runs/1794675924-654f34d5/bruno.xml": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 78563,
+      "mtime_ns": 1794675934333989369,
+      "sha256": "675ca9c540b1e0aafb1efe5c2059251fe94c94c600a0781e51164719bbc44644"
+    },
+    "runs/1794675924-654f34d5/receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 433,
+      "mtime_ns": 1794675934597358308,
+      "sha256": "d4e79ea1f9556cb5db6e77ff8dde53038841df35f3df0558038bfca73931aa92"
+    },
+    "runs/1794675924-654f34d5/scenarios.jsonl": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 32175,
+      "mtime_ns": 1794675934321514527,
+      "sha256": "1f7f0fe18389dd4ec92876e3eeba12170bb8c343ff4366312f68dcc5e40c5641"
+    },
+    "runs/1794676375-378adcb7": {
+      "type": "dir",
+      "mode": "0o700",
+      "size": 288,
+      "mtime_ns": 1794676383298095369
+    },
+    "runs/1794676375-378adcb7/canary-intent.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 20,
+      "mtime_ns": 1794676383050794173,
+      "sha256": "6ab494b529914123e1a89c1af4048d148ce57862565cf6d9d5d753af8071f316"
+    },
+    "runs/1794676375-378adcb7/keycloak-auth.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 388,
+      "mtime_ns": 1794676381174821111,
+      "sha256": "fe083936d8ce4e4773bb508ae8fc296bdff68cdc79827f8627bea2ccebce0c1c"
+    },
+    "runs/1794676375-378adcb7/keycloak-up.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 55,
+      "mtime_ns": 1794676380514346040,
+      "sha256": "dcab6201d264412f5c79bc0c04c75eec6e6cee893d34ce2e99032935c374aa5c"
+    },
+    "runs/1794676375-378adcb7/postgres-up.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 55,
+      "mtime_ns": 1794676378059743884,
+      "sha256": "4c825ff6fcc17b4a82aaffe9ddc3d65ed8b8cc0cfee74cf326416c6b47b5923f"
+    },
+    "runs/1794676375-378adcb7/public-requests.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 1015,
+      "mtime_ns": 1794676383191608126,
+      "sha256": "2f480ccbb182f937a3a5b1c5a0ec42741a5548df81a737ac47b60ad082dff45f"
+    },
+    "runs/1794676375-378adcb7/receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 1812,
+      "mtime_ns": 1794676383297993035,
+      "sha256": "e4ebc0d9a15a2f848e86d94d318af302335fc2d8f814c538dc9c9d34f1d1a87c"
+    },
+    "runs/1794676375-378adcb7/runtimes-up.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 359,
+      "mtime_ns": 1794676381281082852,
+      "sha256": "53b079b975c6942cd6fa57278b23f5f8b89b2ce1481b8e5adbc68cf3ea985bd9"
+    },
+    "runs/1794676383-2babdabc": {
+      "type": "dir",
+      "mode": "0o700",
+      "size": 128,
+      "mtime_ns": 1794676385123870103
+    },
+    "runs/1794676383-2babdabc/keycloak-auth.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 388,
+      "mtime_ns": 1794676385025003250,
+      "sha256": "a782548b3ab09f366912748e0786b16d80c4242a77c646fe9c7199dd836a4b15"
+    },
+    "runs/1794676383-2babdabc/receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 1845,
+      "mtime_ns": 1794676385123768811,
+      "sha256": "f4f3b76085a806717bfae60fca16c9e1a503dd78196c4ae229dfba7dffcfa0be"
+    },
+    "runs/1794676508-e55784d4": {
+      "type": "dir",
+      "mode": "0o700",
+      "size": 288,
+      "mtime_ns": 1794676579832918687
+    },
+    "runs/1794676508-e55784d4/canary-intent.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 20,
+      "mtime_ns": 1794676549619086316,
+      "sha256": "d5b2652e37b62d28aff480b1b6837674a397c264a3a1c776ecb02510c24de9a8"
+    },
+    "runs/1794676508-e55784d4/containers.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 44598,
+      "mtime_ns": 1794676579833017063,
+      "sha256": "9a4f79340cfa9ecd8cfee66c5118e652a40d13d2c50fd7f9487683da6ba8272b"
+    },
+    "runs/1794676508-e55784d4/keycloak-auth.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 386,
+      "mtime_ns": 1794676535141326428,
+      "sha256": "b45286161420eed6a3f332f7bd183fbd6deafa8cc06059c2adeaf6291a3ecbee"
+    },
+    "runs/1794676508-e55784d4/keycloak-up.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 224,
+      "mtime_ns": 1794676515529248406,
+      "sha256": "4bbeab59e65db18ca4e0087456a5f857fe6790c5758cfc328da5439767cd7934"
+    },
+    "runs/1794676508-e55784d4/postgres-up.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 224,
+      "mtime_ns": 1794676511930744869,
+      "sha256": "d0622cf5cefb2708e70e14597182f20dcd60c6f932b14fae0dd12d7f0b10113e"
+    },
+    "runs/1794676508-e55784d4/receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 294,
+      "mtime_ns": 1794676579658096817,
+      "sha256": "b84d0a682f1d113e9ac86e9e5f6661c8e81059f5f6f16b7bd686e4000a23f37c"
+    },
+    "runs/1794676508-e55784d4/runtimes-up.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 1460,
+      "mtime_ns": 1794676539366422870,
+      "sha256": "26cccd5c4deb98b4eec4aeebe9343cbd6041dfb35a5c22c8f1d345169c4b9c58"
+    },
+    "runs/1794676614-6a9698ec": {
+      "type": "dir",
+      "mode": "0o700",
+      "size": 128,
+      "mtime_ns": 1794676616151162338
+    },
+    "runs/1794676614-6a9698ec/keycloak-auth.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 385,
+      "mtime_ns": 1794676616046622026,
+      "sha256": "4f933f3c78926e627ff6b573b6b50ccfead6f62827e0ed1443e39f75aaa71701"
+    },
+    "runs/1794676614-6a9698ec/receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 1845,
+      "mtime_ns": 1794676616151068629,
+      "sha256": "817b566d3bb3d47c33b4dbc03c8038d1a71dd310b2fd71aa42d561bb20a3395e"
+    },
+    "runs/1794677062-67907ce0": {
+      "type": "dir",
+      "mode": "0o700",
+      "size": 160,
+      "mtime_ns": 1794677065043275354
+    },
+    "runs/1794677062-67907ce0/receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 713,
+      "mtime_ns": 1794677065043140728,
+      "sha256": "a23c7abdb02b64ee701352136ba2b82cf3bd55ef0221e35cef550e0961428182"
+    },
+    "runs/1794677062-67907ce0/stop-deps.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 337,
+      "mtime_ns": 1794677064977476578,
+      "sha256": "996e63c8421688b2c3abc2b04e0f3c79e6793ce78d716bcea23a5942dcfaf6b7"
+    },
+    "runs/1794677062-67907ce0/stop-jvm.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 609,
+      "mtime_ns": 1794677063488983161,
+      "sha256": "d1a265f8989a86566c0452a2745ba392486d7bd9efc4ad7fc932a72147f6e32a"
+    },
+    "runs/1794677071-bf51d61a": {
+      "type": "dir",
+      "mode": "0o700",
+      "size": 160,
+      "mtime_ns": 1794677071584643142
+    },
+    "runs/1794677071-bf51d61a/containers.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 62575,
+      "mtime_ns": 1794677071584742017,
+      "sha256": "5d6b43126990f3b7c694f303850760d6102f5e1da2186c98802aef59d775b366"
+    },
+    "runs/1794677071-bf51d61a/keycloak-auth.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 588,
+      "mtime_ns": 1794677071441143835,
+      "sha256": "f42c44c1bdede41cebe1033b2c077cc3a96ad36026cce676fe46c42855f895a8"
+    },
+    "runs/1794677071-bf51d61a/receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 2058,
+      "mtime_ns": 1794677071495495277,
+      "sha256": "6ad85314cbc1269871e14b2b6707555563ee0dee739eaed36a7ff3ecd4dd4721"
+    },
+    "runs/1794677092-2f558f0f": {
+      "type": "dir",
+      "mode": "0o700",
+      "size": 320,
+      "mtime_ns": 1794677316984570822
+    },
+    "runs/1794677092-2f558f0f/canary-intent.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 20,
+      "mtime_ns": 1794677316228646423,
+      "sha256": "05eb680ba6f12fad7f2c7fe0ed8d7e4f969355dba774d4e3ac413353721930e5"
+    },
+    "runs/1794677092-2f558f0f/keycloak-auth.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 388,
+      "mtime_ns": 1794677306130500157,
+      "sha256": "a7fd0f6d51d5b7e53cb839551e7b8f616a7223a1e009eb25ab265a5ccdf314dd"
+    },
+    "runs/1794677092-2f558f0f/keycloak-up.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 111,
+      "mtime_ns": 1794677300370608499,
+      "sha256": "454135443d9522c07251faebd9a644a154011455c7898e02f105b44329df7cf8"
+    },
+    "runs/1794677092-2f558f0f/postgres-up.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 111,
+      "mtime_ns": 1794677095540282311,
+      "sha256": "9f466dc40d6bcfeaa4e9040eb2ad1a19e2fb56b245abaf241f53ad967db5d0c4"
+    },
+    "runs/1794677092-2f558f0f/public-requests.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 1485,
+      "mtime_ns": 1794677316838539247,
+      "sha256": "03d35912e817fc6f2c830c3558e271cc13994bba3276fe48752ba71c721cb8cd"
+    },
+    "runs/1794677092-2f558f0f/receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 1811,
+      "mtime_ns": 1794677316984469613,
+      "sha256": "e83b3be1a7d3dccef744cfbb04d1db6e419ec68525089f2c0f60595335294183"
+    },
+    "runs/1794677092-2f558f0f/recovery-window.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 316,
+      "mtime_ns": 1794677300098067617,
+      "sha256": "8b5a1adb3b60c468d29f0ba57d118d158a337e2176a83e94ecf6e2a2a9099521"
+    },
+    "runs/1794677092-2f558f0f/runtimes-up.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 724,
+      "mtime_ns": 1794677306887508814,
+      "sha256": "c717f78c2bb8490c6329ed5b7eea45b3195d8738d556f75dca700c8a353e9e85"
+    },
+    "runs/1794684654-e3138df0": {
+      "type": "dir",
+      "mode": "0o700",
+      "size": 160,
+      "mtime_ns": 1794684657387455901
+    },
+    "runs/1794684654-e3138df0/receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 712,
+      "mtime_ns": 1794684657387329108,
+      "sha256": "906629e7eaef3260c74be2f7db694c71ed28c007bd76e3875357e0ee95bdecf0"
+    },
+    "runs/1794684654-e3138df0/stop-deps.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 337,
+      "mtime_ns": 1794684657321406394,
+      "sha256": "cb654dc8f7b1c8cd2412eef2134adbafd4a81e9d53be3919f697bab6ce422d27"
+    },
+    "runs/1794684654-e3138df0/stop-jvm.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 609,
+      "mtime_ns": 1794684655821711289,
+      "sha256": "0bbf24c9972862f306b2f42f679f572c18f58a303a526143442ceae3ba4a2681"
+    },
+    "runs/1794692985-6c43355c": {
+      "type": "dir",
+      "mode": "0o700",
+      "size": 128,
+      "mtime_ns": 1794692987614033359
+    },
+    "runs/1794692985-6c43355c/containers.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 132162,
+      "mtime_ns": 1794692987614136568,
+      "sha256": "94933c5d5c932b6978b9a95ed568f8a6bd34502bd7a1bc3735733cb8882df0d7"
+    },
+    "runs/1794692985-6c43355c/receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 253,
+      "mtime_ns": 1794692987546908176,
+      "sha256": "465535b9aa8d6fca3bc693dde120bc9769963e53effd60857f1f68d9364aef0d"
+    },
+    "runs/1794693129-6ad82b07": {
+      "type": "dir",
+      "mode": "0o700",
+      "size": 480,
+      "mtime_ns": 1794693155260211007
+    },
+    "runs/1794693129-6ad82b07/canary-intent.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 20,
+      "mtime_ns": 1794693152743753693,
+      "sha256": "4003b6218582d146b930feb69d463cdf70d2a891e9e97f110bdf5d6459a31744"
+    },
+    "runs/1794693129-6ad82b07/compose-before-upgrade.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 7591,
+      "mtime_ns": 1794693130870578190,
+      "sha256": "0a798cbcea5deb9e6f02781ec251a452a0868db7ad59d2b32b7309d5aeaee1ba"
+    },
+    "runs/1794693129-6ad82b07/grafana-upgrade.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 1554,
+      "mtime_ns": 1794693130911222584,
+      "sha256": "4e7067230737364b4c4415ebcf68299e66a38512eddda17fb0b5f0bbdae5db0e"
+    },
+    "runs/1794693129-6ad82b07/grafana.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 9372,
+      "mtime_ns": 1794693155197196538,
+      "sha256": "6bcbab08e53bef038add3ccfb6006429e8fa4b4f89186c4b86ff3f9b40176c90"
+    },
+    "runs/1794693129-6ad82b07/keycloak-auth.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 387,
+      "mtime_ns": 1794693143204383180,
+      "sha256": "43f84f018e06ad2c8310cc632c821101a0729c7fcb92b68803fbb2712c9119a4"
+    },
+    "runs/1794693129-6ad82b07/keycloak-up.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 111,
+      "mtime_ns": 1794693137961434825,
+      "sha256": "454135443d9522c07251faebd9a644a154011455c7898e02f105b44329df7cf8"
+    },
+    "runs/1794693129-6ad82b07/manifest-before-upgrade.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 3315,
+      "mtime_ns": 1794693130870380315,
+      "sha256": "f0e95ad101a406d23f8ef732142a2c13ad75f316b7565e5b1321815bc4276d89"
+    },
+    "runs/1794693129-6ad82b07/package.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 67085,
+      "mtime_ns": 1794693135326776253,
+      "sha256": "c9e0416ac4c7356b606b8b717ff54f38df30faa3a796c80dbcbaa1e6fa2d4f33"
+    },
+    "runs/1794693129-6ad82b07/postgres-up.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 111,
+      "mtime_ns": 1794693135709603529,
+      "sha256": "9f466dc40d6bcfeaa4e9040eb2ad1a19e2fb56b245abaf241f53ad967db5d0c4"
+    },
+    "runs/1794693129-6ad82b07/public-requests.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 1487,
+      "mtime_ns": 1794693153382711016,
+      "sha256": "6abf8bb704bf74f6717b3dea1dd006f1bf9408fc00e5ac2b7a8ad5d4aeaf0175"
+    },
+    "runs/1794693129-6ad82b07/receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 2085,
+      "mtime_ns": 1794693155260104757,
+      "sha256": "34fb53dcfee98e6d138c5398af6b3a907cbcc42a8fb0580a7a45566dc36a1ff5"
+    },
+    "runs/1794693129-6ad82b07/recovery-window.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 302,
+      "mtime_ns": 1794693137815158025,
+      "sha256": "bad07592cb702803296e100fdbdafc84afd8eeca3fd4cc1493f476c296baefcc"
+    },
+    "runs/1794693129-6ad82b07/runtimes-up.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 942,
+      "mtime_ns": 1794693144182792630,
+      "sha256": "937f51ecb21d25d624f6dc5f449af1e8afe08d8e5c6cae29431f58cd2812c01d"
+    },
+    "runs/1794693156-d16d899d": {
+      "type": "dir",
+      "mode": "0o700",
+      "size": 160,
+      "mtime_ns": 1794693158256592406
+    },
+    "runs/1794693156-d16d899d/grafana.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 9378,
+      "mtime_ns": 1794693158132108680,
+      "sha256": "99913b81bb9e1c65733eeae726678c7edf9fb6d254b3cff2c340a31d4e384d41"
+    },
+    "runs/1794693156-d16d899d/keycloak-auth.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 388,
+      "mtime_ns": 1794693157792451218,
+      "sha256": "746a54f5649fb15cb76c0f1f9893e5e83a6e1149328b7d42aa7eb6bfaef9160d"
+    },
+    "runs/1794693156-d16d899d/receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 2117,
+      "mtime_ns": 1794693158256444948,
+      "sha256": "3cf3d223a05744152e06c79526c58aee622466e9d364f397b8ae11d56a808558"
+    },
+    "runs/1794693158-666953db": {
+      "type": "dir",
+      "mode": "0o700",
+      "size": 192,
+      "mtime_ns": 1794693166519827362
+    },
+    "runs/1794693158-666953db/bruno-receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 4984,
+      "mtime_ns": 1794693166472504792,
+      "sha256": "e1015b5f4bd3a3cd959354e558e3fb7fd0f433d1377821efde1918228ee649ab"
+    },
+    "runs/1794693158-666953db/bruno.xml": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 78563,
+      "mtime_ns": 1794693166255133886,
+      "sha256": "c5a8634017a17f1b9701cd6d438d7edbd689169436f65cbc6b05f96783fcbd91"
+    },
+    "runs/1794693158-666953db/receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 433,
+      "mtime_ns": 1794693166519645362,
+      "sha256": "60dfba4db6c2faac4907859e396cd4f303ccf7161aa19e5b1f9a6c5a72de57f4"
+    },
+    "runs/1794693158-666953db/scenarios.jsonl": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 31986,
+      "mtime_ns": 1794693166239832489,
+      "sha256": "46e389852b38405dcbb96fa1e57e27599dab26c03612d8ad5a7364d39df7af0e"
+    },
+    "runs/1794693166-759acc06": {
+      "type": "dir",
+      "mode": "0o700",
+      "size": 192,
+      "mtime_ns": 1794693168427841982
+    },
+    "runs/1794693166-759acc06/containers.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 234059,
+      "mtime_ns": 1794693168427977940,
+      "sha256": "809a7d107a02c9a87888228994b69873113a2b336e0b839addc86e586f5cf253"
+    },
+    "runs/1794693166-759acc06/grafana.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 484,
+      "mtime_ns": 1794693168217431128,
+      "sha256": "6d902968be36e1193509a9d7656db8ea514aed8be6f301f081ae49bdcb0b608b"
+    },
+    "runs/1794693166-759acc06/keycloak-auth.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 387,
+      "mtime_ns": 1794693168208381490,
+      "sha256": "059929581825f50a0ecdc8ca5cfd974aa096c88dabe203f1d8155f865b6f7136"
+    },
+    "runs/1794693166-759acc06/receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 2480,
+      "mtime_ns": 1794693168320806990,
+      "sha256": "5ceb31ef30752d33291da594a2d24591728109f937c4e126267ac6432b5ff447"
+    },
+    "runs/1794693171-06b51706": {
+      "type": "dir",
+      "mode": "0o700",
+      "size": 192,
+      "mtime_ns": 1794693172971640633
+    },
+    "runs/1794693171-06b51706/containers.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 243184,
+      "mtime_ns": 1794693172971767967,
+      "sha256": "9c843d1eadc4830db850a8b818da99f1fb926f81e389626060378d39d8933305"
+    },
+    "runs/1794693171-06b51706/grafana.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 464,
+      "mtime_ns": 1794693172834391096,
+      "sha256": "999eafdd579319b8db8dd5e90adf1e29f96808122f7c7e1fb94bd89cf7ba6596"
+    },
+    "runs/1794693171-06b51706/keycloak-auth.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 387,
+      "mtime_ns": 1794693172768470249,
+      "sha256": "ed1496b9190d5da9c4f0bdc8af3a3b54f77809ccabdd7866ed6a5b357597aade"
+    },
+    "runs/1794693171-06b51706/receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 2265,
+      "mtime_ns": 1794693172892795433,
+      "sha256": "36fd4c5278bde6789b5d60744da0ce843f77ebfaff70d850e2e6bbd5eee77fa4"
+    },
+    "runs/1794693173-e8d733b5": {
+      "type": "dir",
+      "mode": "0o700",
+      "size": 320,
+      "mtime_ns": 1794693180672833964
+    },
+    "runs/1794693173-e8d733b5/canary-intent.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 20,
+      "mtime_ns": 1794693180178570065,
+      "sha256": "217d7580dfbd675e980e6f8c40746e317d894b7aeb547af8f38dd9fc5d89e3b3"
+    },
+    "runs/1794693173-e8d733b5/grafana.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 9386,
+      "mtime_ns": 1794693180611168415,
+      "sha256": "7cede9948b7b2e08ecff625c2ed0ade98bb11ff684fa23f1d057262b3db3c224"
+    },
+    "runs/1794693173-e8d733b5/keycloak-auth.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 387,
+      "mtime_ns": 1794693178427491428,
+      "sha256": "528f1ba80b3e23ec68b16542f1b2951177f93c759f1fcfb3b117f752476f2d72"
+    },
+    "runs/1794693173-e8d733b5/keycloak-up.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 55,
+      "mtime_ns": 1794693178089135635,
+      "sha256": "dcab6201d264412f5c79bc0c04c75eec6e6cee893d34ce2e99032935c374aa5c"
+    },
+    "runs/1794693173-e8d733b5/postgres-up.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 55,
+      "mtime_ns": 1794693175958896477,
+      "sha256": "4c825ff6fcc17b4a82aaffe9ddc3d65ed8b8cc0cfee74cf326416c6b47b5923f"
+    },
+    "runs/1794693173-e8d733b5/public-requests.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 1015,
+      "mtime_ns": 1794693180304878711,
+      "sha256": "8863973d3278cc694b7822a4118d9512c8f49090ba3b07c54aebff0f140e40a8"
+    },
+    "runs/1794693173-e8d733b5/receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 2086,
+      "mtime_ns": 1794693180672743256,
+      "sha256": "cc98173c79c7c03898807ffaa602e470ab6a76e774885f097e1adcce37cde6bc"
+    },
+    "runs/1794693173-e8d733b5/runtimes-up.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 413,
+      "mtime_ns": 1794693178544565393,
+      "sha256": "dbfc83d9942d5c4dc4b9d745e3eac5b427a502b93b130b2a07137f98301fd2fb"
+    },
+    "runs/1794693180-2eba1172": {
+      "type": "dir",
+      "mode": "0o700",
+      "size": 160,
+      "mtime_ns": 1794693183300407067
+    },
+    "runs/1794693180-2eba1172/receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 712,
+      "mtime_ns": 1794693183300297775,
+      "sha256": "c5ea8cabf82b762ae871cf17219c707e3a2ca76dffcb862f7325426670605cec"
+    },
+    "runs/1794693180-2eba1172/stop-deps.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 446,
+      "mtime_ns": 1794693183240144019,
+      "sha256": "37e6668290a02bffaa10947dcfafbe68bc6fd34309ec52f618e2df5c1aa17922"
+    },
+    "runs/1794693180-2eba1172/stop-jvm.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 609,
+      "mtime_ns": 1794693181739581212,
+      "sha256": "ba543f5375efec60857f94168d3bc64c7ffb9b925d92029cfc243f8ec40e0dc8"
+    },
+    "runs/1794693183-e2450e83": {
+      "type": "dir",
+      "mode": "0o700",
+      "size": 352,
+      "mtime_ns": 1794693437540178020
+    },
+    "runs/1794693183-e2450e83/canary-intent.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 20,
+      "mtime_ns": 1794693436486282375,
+      "sha256": "d84c8b0add6c1e36232555ba907cf76abd6a4429a924980584b0c37672ae82d4"
+    },
+    "runs/1794693183-e2450e83/grafana.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 9370,
+      "mtime_ns": 1794693437481922975,
+      "sha256": "11137768dbb67957128c4d92c15b9c385e906276c67b7b8bade64b4c33577fb6"
+    },
+    "runs/1794693183-e2450e83/keycloak-auth.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 388,
+      "mtime_ns": 1794693426921352739,
+      "sha256": "753794a98e16b2462ea46bcbd9bc256fa89531908276cf90efe2163c3ffb1d6a"
+    },
+    "runs/1794693183-e2450e83/keycloak-up.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 111,
+      "mtime_ns": 1794693421677796718,
+      "sha256": "454135443d9522c07251faebd9a644a154011455c7898e02f105b44329df7cf8"
+    },
+    "runs/1794693183-e2450e83/postgres-up.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 111,
+      "mtime_ns": 1794693185202143928,
+      "sha256": "9f466dc40d6bcfeaa4e9040eb2ad1a19e2fb56b245abaf241f53ad967db5d0c4"
+    },
+    "runs/1794693183-e2450e83/public-requests.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 1487,
+      "mtime_ns": 1794693437101227203,
+      "sha256": "305b944f4612204294a823622229fffb035854f0bdbe5f00a7132f8856aa3c21"
+    },
+    "runs/1794693183-e2450e83/receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 2086,
+      "mtime_ns": 1794693437540088645,
+      "sha256": "9f9961158be3e4596c46419dce8bff4d32c296fd9a18d6d26a06d2c61c52a050"
+    },
+    "runs/1794693183-e2450e83/recovery-window.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 318,
+      "mtime_ns": 1794693421398561554,
+      "sha256": "db957666287e2e4468dbcd022a4d26646dd12283957731cfa9f7538d11e3c7d7"
+    },
+    "runs/1794693183-e2450e83/runtimes-up.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 833,
+      "mtime_ns": 1794693427764083572,
+      "sha256": "c8f1b00e5fc22e425456aaa85ea8ef3cfd14f8aa8f506966cfe3ebb3341a90a1"
+    },
+    "runs/1794693437-073b93cb": {
+      "type": "dir",
+      "mode": "0o700",
+      "size": 160,
+      "mtime_ns": 1794693439530689554
+    },
+    "runs/1794693437-073b93cb/grafana.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 9367,
+      "mtime_ns": 1794693439435111454,
+      "sha256": "1e4f7a479924b8c294b09034a36bf2e5c0bdae681dbddf313ea09fe4ea248ab4"
+    },
+    "runs/1794693437-073b93cb/keycloak-auth.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 388,
+      "mtime_ns": 1794693439154665705,
+      "sha256": "63e56b172ce3069f4c2b5be91c3fc52bd3e48749e9f9ef733566c70f6c6809b6"
+    },
+    "runs/1794693437-073b93cb/receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 2118,
+      "mtime_ns": 1794693439530596554,
+      "sha256": "b18d1cf4610b78f233534722bf9bf507c657311863b0a3bc65694109c20637e2"
+    },
+    "runs/1794693439-112db2df": {
+      "type": "dir",
+      "mode": "0o700",
+      "size": 160,
+      "mtime_ns": 1794693442104937244
+    },
+    "runs/1794693439-112db2df/receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 712,
+      "mtime_ns": 1794693442104824369,
+      "sha256": "42ec536d7eedc702ddadee755ee8a514031fb21514136bd169773d4ed394e644"
+    },
+    "runs/1794693439-112db2df/stop-deps.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 446,
+      "mtime_ns": 1794693442038878396,
+      "sha256": "16ef886c364db2e3b062c1e306d95bbd02d1413ded89cdaf5552e0dfcec818f3"
+    },
+    "runs/1794693439-112db2df/stop-jvm.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 609,
+      "mtime_ns": 1794693440553202069,
+      "sha256": "6df6a506833f32238175fe0c3dc16c6c30765bbd37631f36a4af0bb4fa8bd4d3"
+    },
+    "runs/1794693630-0a1ccafb": {
+      "type": "dir",
+      "mode": "0o700",
+      "size": 480,
+      "mtime_ns": 1794693691419611564
+    },
+    "runs/1794693630-0a1ccafb/canary-intent.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 20,
+      "mtime_ns": 1794693690333765496,
+      "sha256": "36ddfbfcf4d13b3eddb033eb08053e0312f1aa97674b7c90c2fd514c533a28c3"
+    },
+    "runs/1794693630-0a1ccafb/compose-before-upgrade.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 8776,
+      "mtime_ns": 1794693632873634080,
+      "sha256": "9ad9c214a5b100f5dbbf7ad6779c4d93555195205de5ca78b45090d634aca706"
+    },
+    "runs/1794693630-0a1ccafb/grafana-upgrade.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 1593,
+      "mtime_ns": 1794693632916544144,
+      "sha256": "fcb78f82feb4758306ae9ab138dcee4a12ecc075a22351138c0f6a64b4ce742a"
+    },
+    "runs/1794693630-0a1ccafb/grafana.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 9304,
+      "mtime_ns": 1794693691362281896,
+      "sha256": "8db89426cfcd04a0d334f834a8e4a10720a8be8dd5c7b8685a1a84379c951912"
+    },
+    "runs/1794693630-0a1ccafb/keycloak-auth.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 388,
+      "mtime_ns": 1794693680654391858,
+      "sha256": "8cfe0d25bf419a2f8666c5479545bb3eeac85fac9b435fa759cfa619b4b8cacf"
+    },
+    "runs/1794693630-0a1ccafb/keycloak-up.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 111,
+      "mtime_ns": 1794693674831730894,
+      "sha256": "454135443d9522c07251faebd9a644a154011455c7898e02f105b44329df7cf8"
+    },
+    "runs/1794693630-0a1ccafb/manifest-before-upgrade.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 5337,
+      "mtime_ns": 1794693632873391538,
+      "sha256": "b6ab843ab283672d249d12660dfd8cf7299acf67fcbea51ccfa57686a0c5d98f"
+    },
+    "runs/1794693630-0a1ccafb/package.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 67085,
+      "mtime_ns": 1794693637239818677,
+      "sha256": "7e36b26845a7b0d42d30cc0f5fd13ec5501aa3e1a9c155ff647428f01a5accfb"
+    },
+    "runs/1794693630-0a1ccafb/postgres-up.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 111,
+      "mtime_ns": 1794693637646979697,
+      "sha256": "9f466dc40d6bcfeaa4e9040eb2ad1a19e2fb56b245abaf241f53ad967db5d0c4"
+    },
+    "runs/1794693630-0a1ccafb/public-requests.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 1487,
+      "mtime_ns": 1794693690944723860,
+      "sha256": "a9007b7c4438c0024ab503815dd8384f787fe400af9e59923fb11ff7c841b889"
+    },
+    "runs/1794693630-0a1ccafb/receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 2085,
+      "mtime_ns": 1794693691419518897,
+      "sha256": "9ce319f00742d85d7f798c438c948331171f826b153c062985396ab6ca09c789"
+    },
+    "runs/1794693630-0a1ccafb/recovery-window.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 315,
+      "mtime_ns": 1794693674638085774,
+      "sha256": "29edcfce71aae024d0ea38a770241bcf04b228c546838c1e8664d4dacc73359c"
+    },
+    "runs/1794693630-0a1ccafb/runtimes-up.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 833,
+      "mtime_ns": 1794693681502998158,
+      "sha256": "b1958ae0ddc3857d56f6a03fa32c508ed90675bda3f7e87db61ebc3a1a2a40d9"
+    },
+    "runs/1794693692-ca45321d": {
+      "type": "dir",
+      "mode": "0o700",
+      "size": 160,
+      "mtime_ns": 1794693694275480089
+    },
+    "runs/1794693692-ca45321d/grafana.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 9310,
+      "mtime_ns": 1794693694177040318,
+      "sha256": "ea3e1cf54ec8f82fbaf48bc49d408f833e867af39b6b5f8e28ddb613a857e8a9"
+    },
+    "runs/1794693692-ca45321d/keycloak-auth.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 388,
+      "mtime_ns": 1794693693895607234,
+      "sha256": "139bb4aca9ceaf82735671d72bb69d9e1121a0f841dc7aed9920039c0e7d109b"
+    },
+    "runs/1794693692-ca45321d/receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 2117,
+      "mtime_ns": 1794693694275383172,
+      "sha256": "e601bc1ecd821f724b86733ce2a4b8f66244b0af3523cfe04d392c42303cc840"
+    },
+    "runs/1794693694-bd876d28": {
+      "type": "dir",
+      "mode": "0o700",
+      "size": 192,
+      "mtime_ns": 1794693702976048901
+    },
+    "runs/1794693694-bd876d28/bruno-receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 4984,
+      "mtime_ns": 1794693702921095861,
+      "sha256": "953a67f8f72d6d84b86544da57f8cf28ca424938006b570c9f5fe5b1694d3d3b"
+    },
+    "runs/1794693694-bd876d28/bruno.xml": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 78563,
+      "mtime_ns": 1794693702671229616,
+      "sha256": "d18d8a8c033fcb38eba7f7f0636c8f126e00d37a73a10a3c73e22795d4300c73"
+    },
+    "runs/1794693694-bd876d28/receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 433,
+      "mtime_ns": 1794693702975927609,
+      "sha256": "40184f1ffef761e32fca47bcd73bc28b3c4bd31c69fe81c958d86c8c4e655bc8"
+    },
+    "runs/1794693694-bd876d28/scenarios.jsonl": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 32184,
+      "mtime_ns": 1794693702663214354,
+      "sha256": "cb8f7ef5aa57f671b4d7f54f08844cc841754c4e73fcfc80f7c6ed12c12227c3"
+    },
+    "runs/1794693710-16b378bc": {
+      "type": "dir",
+      "mode": "0o700",
+      "size": 160,
+      "mtime_ns": 1794693712023365353
+    },
+    "runs/1794693710-16b378bc/grafana.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 9321,
+      "mtime_ns": 1794693711899563294,
+      "sha256": "a220b1a6003a479c6909707bc181143c5afb1f7d8f2940849ad58ca7013b2ced"
+    },
+    "runs/1794693710-16b378bc/keycloak-auth.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 386,
+      "mtime_ns": 1794693711626919140,
+      "sha256": "9f779e07bd012001cfabe94719db908abd9ce92089f38a00af25a4e3bea4a5b7"
+    },
+    "runs/1794693710-16b378bc/receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 2117,
+      "mtime_ns": 1794693712023241436,
+      "sha256": "1d83b22c1cf3aaae7cdce7c3dd528f582404abb1f030e04da87194967291eb7b"
+    },
+    "runs/1794693712-e16c7c72": {
+      "type": "dir",
+      "mode": "0o700",
+      "size": 192,
+      "mtime_ns": 1794693713812327546
+    },
+    "runs/1794693712-e16c7c72/containers.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 378460,
+      "mtime_ns": 1794693713812511421,
+      "sha256": "7c52f87bf46e9cd73fdf86d961b6cbf0952296bdff404b15a1a6b508d859ede7"
+    },
+    "runs/1794693712-e16c7c72/grafana.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 484,
+      "mtime_ns": 1794693713629306649,
+      "sha256": "6d902968be36e1193509a9d7656db8ea514aed8be6f301f081ae49bdcb0b608b"
+    },
+    "runs/1794693712-e16c7c72/keycloak-auth.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 388,
+      "mtime_ns": 1794693713621831430,
+      "sha256": "041a9060902197d7d712a74edf4b65b2bf18d91977a4a5cdc9defa8894067fdd"
+    },
+    "runs/1794693712-e16c7c72/receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 2481,
+      "mtime_ns": 1794693713732401094,
+      "sha256": "7550a38ed7f13701f190508c363b0a597e7ac231d714e8a0b8f919b6f0867ae1"
+    },
+    "runs/1794693716-7277dc3f": {
+      "type": "dir",
+      "mode": "0o700",
+      "size": 192,
+      "mtime_ns": 1794693718239514899
+    },
+    "runs/1794693716-7277dc3f/containers.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 381638,
+      "mtime_ns": 1794693718239698691,
+      "sha256": "465634ca4ae1704f32564140e802375b7e590ae869417f0c279e911e71e56fea"
+    },
+    "runs/1794693716-7277dc3f/grafana.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 464,
+      "mtime_ns": 1794693718101126152,
+      "sha256": "999eafdd579319b8db8dd5e90adf1e29f96808122f7c7e1fb94bd89cf7ba6596"
+    },
+    "runs/1794693716-7277dc3f/keycloak-auth.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 388,
+      "mtime_ns": 1794693718054852167,
+      "sha256": "5208445c5f562436d5183a0a930b6d122c28d7a362b22228afbd92be5ce85fbd"
+    },
+    "runs/1794693716-7277dc3f/receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 2266,
+      "mtime_ns": 1794693718160333740,
+      "sha256": "a164e2dc0bc65e19f2e50b78c347f66e8a2de6134f65ec3798e38792acb32fa5"
+    },
+    "runs/1794693718-cd1f2886": {
+      "type": "dir",
+      "mode": "0o700",
+      "size": 320,
+      "mtime_ns": 1794693726651533575
+    },
+    "runs/1794693718-cd1f2886/canary-intent.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 20,
+      "mtime_ns": 1794693725632054189,
+      "sha256": "8c42f2f0f40067a83b359e0aa22dadf3caf38d39f94acdba37e8f6c3a24458c1"
+    },
+    "runs/1794693718-cd1f2886/grafana.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 9321,
+      "mtime_ns": 1794693726588656774,
+      "sha256": "a220b1a6003a479c6909707bc181143c5afb1f7d8f2940849ad58ca7013b2ced"
+    },
+    "runs/1794693718-cd1f2886/keycloak-auth.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 388,
+      "mtime_ns": 1794693723922758489,
+      "sha256": "90cd505ecdf84ebc9faf7556c52ab43c67b261fa2823a0d7589108553b5a5a60"
+    },
+    "runs/1794693718-cd1f2886/keycloak-up.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 55,
+      "mtime_ns": 1794693723595521963,
+      "sha256": "dcab6201d264412f5c79bc0c04c75eec6e6cee893d34ce2e99032935c374aa5c"
+    },
+    "runs/1794693718-cd1f2886/postgres-up.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 55,
+      "mtime_ns": 1794693721389027817,
+      "sha256": "4c825ff6fcc17b4a82aaffe9ddc3d65ed8b8cc0cfee74cf326416c6b47b5923f"
+    },
+    "runs/1794693718-cd1f2886/public-requests.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 1017,
+      "mtime_ns": 1794693725752072742,
+      "sha256": "8923f7eed68508cf56586782cc6a7c4cbca16ab0e4281e8fb2525aa0a846e4b7"
+    },
+    "runs/1794693718-cd1f2886/receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 2087,
+      "mtime_ns": 1794693726651445617,
+      "sha256": "85a76cf1e86fff279f4b02c8bccc17a1644db256dc80a74e356e2dbc579daaef"
+    },
+    "runs/1794693718-cd1f2886/runtimes-up.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 413,
+      "mtime_ns": 1794693724039742996,
+      "sha256": "233d687df6ecbb42fc1d586b60d1289958cfdbbc5f89e08fbae0c1e087db2934"
+    },
+    "runs/1794693726-5b7418d5": {
+      "type": "dir",
+      "mode": "0o700",
+      "size": 160,
+      "mtime_ns": 1794693729290069361
+    },
+    "runs/1794693726-5b7418d5/receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 712,
+      "mtime_ns": 1794693729289973319,
+      "sha256": "4c551f05ba55396052dc46f05d4fa5f8dc785599e0d231ac264128992c1c7b35"
+    },
+    "runs/1794693726-5b7418d5/stop-deps.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 446,
+      "mtime_ns": 1794693729229437688,
+      "sha256": "37e6668290a02bffaa10947dcfafbe68bc6fd34309ec52f618e2df5c1aa17922"
+    },
+    "runs/1794693726-5b7418d5/stop-jvm.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 609,
+      "mtime_ns": 1794693727712377398,
+      "sha256": "f1cbd49076fcadf5b6b53de159031f362ce3bb0246db71d965f4ff06cd7649d6"
+    },
+    "runs/1794693729-2b5d9f78": {
+      "type": "dir",
+      "mode": "0o700",
+      "size": 352,
+      "mtime_ns": 1794693976026493860
+    },
+    "runs/1794693729-2b5d9f78/canary-intent.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 21,
+      "mtime_ns": 1794693974877982824,
+      "sha256": "ea577eca1ad41ba377562ce669fd843fc5de7c9c9de6531912ef42392a02e65e"
+    },
+    "runs/1794693729-2b5d9f78/grafana.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 9304,
+      "mtime_ns": 1794693975955693047,
+      "sha256": "8db89426cfcd04a0d334f834a8e4a10720a8be8dd5c7b8685a1a84379c951912"
+    },
+    "runs/1794693729-2b5d9f78/keycloak-auth.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 388,
+      "mtime_ns": 1794693965466060041,
+      "sha256": "47b5c3479d9edca9ab789247682c772ecebcaae15828f497c95f677be06672dd"
+    },
+    "runs/1794693729-2b5d9f78/keycloak-up.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 111,
+      "mtime_ns": 1794693959724717948,
+      "sha256": "454135443d9522c07251faebd9a644a154011455c7898e02f105b44329df7cf8"
+    },
+    "runs/1794693729-2b5d9f78/postgres-up.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 111,
+      "mtime_ns": 1794693731638405925,
+      "sha256": "9f466dc40d6bcfeaa4e9040eb2ad1a19e2fb56b245abaf241f53ad967db5d0c4"
+    },
+    "runs/1794693729-2b5d9f78/public-requests.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 1608,
+      "mtime_ns": 1794693975615898334,
+      "sha256": "8a37d778e9d0f232b5261d1e060723d4adccd436402e7dee7d528daeb19b3524"
+    },
+    "runs/1794693729-2b5d9f78/receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 2086,
+      "mtime_ns": 1794693976026404360,
+      "sha256": "76f66ecb280d4e6b058a7beda6c8bc7efc61a6d227949a9db884c7e172394839"
+    },
+    "runs/1794693729-2b5d9f78/recovery-window.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 317,
+      "mtime_ns": 1794693959445577409,
+      "sha256": "e393ad51a290723792f53fd4fe444f936b1d6efe4fb9affe0115252ff9bd4132"
+    },
+    "runs/1794693729-2b5d9f78/runtimes-up.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 833,
+      "mtime_ns": 1794693966310484751,
+      "sha256": "2620c0bde9f5ec6d67559455c77d7b4131cfca498dcb11a89a1bd5616610e707"
+    },
+    "runs/1794693976-670f04db": {
+      "type": "dir",
+      "mode": "0o700",
+      "size": 160,
+      "mtime_ns": 1794693977995823195
+    },
+    "runs/1794693976-670f04db/grafana.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 9306,
+      "mtime_ns": 1794693977869337591,
+      "sha256": "b1afe96faa79e11aa76cc56f03c8c27baba94cd7180be6d0003f2181a1238758"
+    },
+    "runs/1794693976-670f04db/keycloak-auth.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 387,
+      "mtime_ns": 1794693977589717885,
+      "sha256": "2737afd03541de627769e7995883f30ccfd7b6786022d7127a90ecafa850538f"
+    },
+    "runs/1794693976-670f04db/receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 2118,
+      "mtime_ns": 1794693977995732445,
+      "sha256": "48cec3b386b2fe4279ea048221f925c4aa6ab2f825d8137544fa6982c908d799"
+    },
+    "runs/1794693978-3f8ab2e7": {
+      "type": "dir",
+      "mode": "0o700",
+      "size": 160,
+      "mtime_ns": 1794693980530087910
+    },
+    "runs/1794693978-3f8ab2e7/receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 712,
+      "mtime_ns": 1794693980529978910,
+      "sha256": "5902f3e08ebe7ef2c71cdd2ff4a10ce4dac657e62e22611a3bb8fd49c7f63cd4"
+    },
+    "runs/1794693978-3f8ab2e7/stop-deps.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 446,
+      "mtime_ns": 1794693980467012816,
+      "sha256": "37e6668290a02bffaa10947dcfafbe68bc6fd34309ec52f618e2df5c1aa17922"
+    },
+    "runs/1794693978-3f8ab2e7/stop-jvm.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 609,
+      "mtime_ns": 1794693978988117541,
+      "sha256": "db37088edff994d507828355fbca262bd532845a557fae1744bdad98ee44985e"
+    },
+    "runs/1794694267-57fde28a": {
+      "type": "dir",
+      "mode": "0o700",
+      "size": 352,
+      "mtime_ns": 1794694289812586487
+    },
+    "runs/1794694267-57fde28a/canary-intent.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 21,
+      "mtime_ns": 1794694288736718643,
+      "sha256": "30bede7f831777203f8ec575581e9def451d8e326f793b8426a97349531ec88d"
+    },
+    "runs/1794694267-57fde28a/grafana.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 9304,
+      "mtime_ns": 1794694289740143047,
+      "sha256": "8db89426cfcd04a0d334f834a8e4a10720a8be8dd5c7b8685a1a84379c951912"
+    },
+    "runs/1794694267-57fde28a/keycloak-auth.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 387,
+      "mtime_ns": 1794694278497904925,
+      "sha256": "824f4bdaf44cbe8a51de3439af004534b542de96ebaf71ad6c159cb114d18dd9"
+    },
+    "runs/1794694267-57fde28a/keycloak-up.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 111,
+      "mtime_ns": 1794694272734980384,
+      "sha256": "454135443d9522c07251faebd9a644a154011455c7898e02f105b44329df7cf8"
+    },
+    "runs/1794694267-57fde28a/postgres-up.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 111,
+      "mtime_ns": 1794694270474001158,
+      "sha256": "9f466dc40d6bcfeaa4e9040eb2ad1a19e2fb56b245abaf241f53ad967db5d0c4"
+    },
+    "runs/1794694267-57fde28a/public-requests.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 1491,
+      "mtime_ns": 1794694289358974523,
+      "sha256": "83127e45a352fe7809a69f3e20f69dd9eeba7f8bfda0eb872c865e9d5838b96c"
+    },
+    "runs/1794694267-57fde28a/receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 2087,
+      "mtime_ns": 1794694289812501029,
+      "sha256": "e6b70e65e3874ee35462b7ea331472f384c0c7e9feb88d0f05a7f30bb4f5d7ee"
+    },
+    "runs/1794694267-57fde28a/recovery-window.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 302,
+      "mtime_ns": 1794694272593018548,
+      "sha256": "378bd95fa4fe3bdeee66ee858e0fdc6eb1f52f5c29ba92bc9541dc15be547450"
+    },
+    "runs/1794694267-57fde28a/runtimes-up.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 833,
+      "mtime_ns": 1794694279349591771,
+      "sha256": "038fd82276e486e9a907ecf9c7d439f39debaf49784df5e10d4e7a1cac710e3f"
+    },
+    "runs/1794694289-c943787e": {
+      "type": "dir",
+      "mode": "0o700",
+      "size": 160,
+      "mtime_ns": 1794694291863626986
+    },
+    "runs/1794694289-c943787e/grafana.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 9305,
+      "mtime_ns": 1794694291757356912,
+      "sha256": "76b00e80d604f23006dd0fa48c8944856caddd3c26e1a1c089caeec24f103b49"
+    },
+    "runs/1794694289-c943787e/keycloak-auth.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 388,
+      "mtime_ns": 1794694291466664272,
+      "sha256": "6139bf8540abfc7898a9f15d2d9d048d3e26c5583ffbf606b9770ccd0b9290cc"
+    },
+    "runs/1794694289-c943787e/receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 2119,
+      "mtime_ns": 1794694291863528444,
+      "sha256": "d9d8ee456bdda3670e03aaa12712e01d050e7fe940209edfaaafdc831005e7a8"
+    },
+    "runs/1794733791-1158f421": {
+      "type": "dir",
+      "mode": "0o700",
+      "size": 192,
+      "mtime_ns": 1794733795398106800
+    },
+    "runs/1794733791-1158f421/containers.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 428427,
+      "mtime_ns": 1794733795398655430,
+      "sha256": "417f01a47306f66ffed4d048fb7430668a95e8e61a8f470dac0775c8ecec6fe9"
+    },
+    "runs/1794733791-1158f421/grafana.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 9310,
+      "mtime_ns": 1794733795088656183,
+      "sha256": "ea3e1cf54ec8f82fbaf48bc49d408f833e867af39b6b5f8e28ddb613a857e8a9"
+    },
+    "runs/1794733791-1158f421/keycloak-auth.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 387,
+      "mtime_ns": 1794733794501776696,
+      "sha256": "b18c31b2a41bd39a06fcbcbb43279e1e6556fb24b342c6d2eeeec658dbce77db"
+    },
+    "runs/1794733791-1158f421/receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 2130,
+      "mtime_ns": 1794733795243921580,
+      "sha256": "e71368d98fe2b8fe2a4ca2db610096ac43e78f1b5cc3f5fd280f1fb50b15127b"
+    },
+    "runs/1794737124-a1417807": {
+      "type": "dir",
+      "mode": "0o700",
+      "size": 480,
+      "mtime_ns": 1794737137682632577
+    },
+    "runs/1794737124-a1417807/canary-intent.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 21,
+      "mtime_ns": 1794737136051347683,
+      "sha256": "2e6b7bc1b07c31c0828cd5e4fbf56609c54f7f2b879447630eba4044f8e63018"
+    },
+    "runs/1794737124-a1417807/command-observations.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 2172,
+      "mtime_ns": 1794737136708921558,
+      "sha256": "ee31997126cfab1331f7fac67dd6c6404159d7d2c8c4f97b63b79d8325cb1480"
+    },
+    "runs/1794737124-a1417807/generation-before.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 1178,
+      "mtime_ns": 1794737125561536572,
+      "sha256": "d414448d1229ed09c1523f95e2cc9aa02d2b21cfeacaaede7f3b8dd9e7e3bf6c"
+    },
+    "runs/1794737124-a1417807/grafana.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 9325,
+      "mtime_ns": 1794737137609222963,
+      "sha256": "baf58a08655963a703badedc05b6e86d36e86612274a8289485b1dd07ca3118d"
+    },
+    "runs/1794737124-a1417807/keycloak-auth.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 388,
+      "mtime_ns": 1794737132534163891,
+      "sha256": "c0532710f8404ab245ffc71318f242ab53cd375f8a8877c4d663d5e1dacf196e"
+    },
+    "runs/1794737124-a1417807/keycloak-up.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 55,
+      "mtime_ns": 1794737131616720051,
+      "sha256": "dcab6201d264412f5c79bc0c04c75eec6e6cee893d34ce2e99032935c374aa5c"
+    },
+    "runs/1794737124-a1417807/postgres-up.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 55,
+      "mtime_ns": 1794737129108730240,
+      "sha256": "4c825ff6fcc17b4a82aaffe9ddc3d65ed8b8cc0cfee74cf326416c6b47b5923f"
+    },
+    "runs/1794737124-a1417807/public-requests.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 2528,
+      "mtime_ns": 1794737137161654386,
+      "sha256": "10cf09d7c6df4e8e74f55a035457f29d215e4e607ccc245bc02ea3c3906fa289"
+    },
+    "runs/1794737124-a1417807/receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 5562,
+      "mtime_ns": 1794737137682543701,
+      "sha256": "fd21edcdef5f45767120753ba00babedd797358717af082836da187e6ee39308"
+    },
+    "runs/1794737124-a1417807/runtimes-up.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 413,
+      "mtime_ns": 1794737132695078445,
+      "sha256": "9add32788adea2c45fa84a9d232a57d2f2d931dbe90fa3a196e2eae22be9504c"
+    },
+    "runs/1794737124-a1417807/start-attempt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 288,
+      "mtime_ns": 1794737137611331898,
+      "sha256": "ff813368be00c9d05d204011fe1eea5ab334d88285c7c93c7edd4768e17f300a"
+    },
+    "runs/1794737124-a1417807/tooling-refresh.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 680,
+      "mtime_ns": 1794737125143706285,
+      "sha256": "bfd34e399653431d32d037e82b7344eede2170a0eb78a3cb4d5b9e81f5fd7bb3"
+    },
+    "runs/1794737124-a1417807/worker-recovery.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 3664,
+      "mtime_ns": 1794737135739044613,
+      "sha256": "071349cf68a8916c4cf173eadd6c09ff8504794adc14664ecc59024126a2ad4f"
+    },
+    "runs/1794737138-afad62a9": {
+      "type": "dir",
+      "mode": "0o700",
+      "size": 160,
+      "mtime_ns": 1794737141568150325
+    },
+    "runs/1794737138-afad62a9/grafana.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 9319,
+      "mtime_ns": 1794737141034613738,
+      "sha256": "26c153b206521669e334ce4d67c6619a0daf5d112d126f51cc9dad65a8e803df"
+    },
+    "runs/1794737138-afad62a9/keycloak-auth.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 387,
+      "mtime_ns": 1794737140692501127,
+      "sha256": "8392cf6cf6fa84c29302dff84966592056434321cab53616665afc719496b1b6"
+    },
+    "runs/1794737138-afad62a9/receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 5634,
+      "mtime_ns": 1794737141568031991,
+      "sha256": "c5e30f4bec0ab6523b1b441ce39e62d2cd18235e80f3b43ebc87b97e5c8663ac"
+    },
+    "runs/1794737141-a1ff5d15": {
+      "type": "dir",
+      "mode": "0o700",
+      "size": 192,
+      "mtime_ns": 1794737144742384625
+    },
+    "runs/1794737141-a1ff5d15/grafana.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 9319,
+      "mtime_ns": 1794737144210566885,
+      "sha256": "26c153b206521669e334ce4d67c6619a0daf5d112d126f51cc9dad65a8e803df"
+    },
+    "runs/1794737141-a1ff5d15/keycloak-auth.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 387,
+      "mtime_ns": 1794737143830158120,
+      "sha256": "f1cb292849e16085a5d51df51eb049e0c4cf79edc998fd4989a777c45cc48faa"
+    },
+    "runs/1794737141-a1ff5d15/late-result.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 315,
+      "mtime_ns": 1794737143835953877,
+      "sha256": "ab58556e1c0bcb3260fc002ef3f74abd066cdec047835ebb4979969bdb419bab"
+    },
+    "runs/1794737141-a1ff5d15/receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 5990,
+      "mtime_ns": 1794737144742295791,
+      "sha256": "1f5d3842f9f748072fc2fe704e81c5b65d6c2546414c1d96b57ea69d7d589fd9"
+    },
+    "runs/1794737144-44c7adc3": {
+      "type": "dir",
+      "mode": "0o700",
+      "size": 448,
+      "mtime_ns": 1794737156575699015
+    },
+    "runs/1794737144-44c7adc3/canary-intent.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 21,
+      "mtime_ns": 1794737155159592879,
+      "sha256": "a203d49e2b7d1430b98983e96b3e4824f7626679ddf8a37e961e706f68798c8c"
+    },
+    "runs/1794737144-44c7adc3/command-observations.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 2169,
+      "mtime_ns": 1794737155423368752,
+      "sha256": "e6af802a0b8621818efadf0251b4556c9168d4dc9b3101681e531c4c4bd84177"
+    },
+    "runs/1794737144-44c7adc3/generation-before.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 1178,
+      "mtime_ns": 1794737145547394941,
+      "sha256": "d414448d1229ed09c1523f95e2cc9aa02d2b21cfeacaaede7f3b8dd9e7e3bf6c"
+    },
+    "runs/1794737144-44c7adc3/grafana.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 9319,
+      "mtime_ns": 1794737156504132208,
+      "sha256": "26c153b206521669e334ce4d67c6619a0daf5d112d126f51cc9dad65a8e803df"
+    },
+    "runs/1794737144-44c7adc3/keycloak-auth.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 388,
+      "mtime_ns": 1794737151666362328,
+      "sha256": "99c595802122c00d146db8ff1111297d2f4be6ef3a1938c565057404b78d3af1"
+    },
+    "runs/1794737144-44c7adc3/keycloak-up.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 55,
+      "mtime_ns": 1794737151245254139,
+      "sha256": "dcab6201d264412f5c79bc0c04c75eec6e6cee893d34ce2e99032935c374aa5c"
+    },
+    "runs/1794737144-44c7adc3/postgres-up.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 55,
+      "mtime_ns": 1794737148791056404,
+      "sha256": "4c825ff6fcc17b4a82aaffe9ddc3d65ed8b8cc0cfee74cf326416c6b47b5923f"
+    },
+    "runs/1794737144-44c7adc3/public-requests.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 1951,
+      "mtime_ns": 1794737155846126538,
+      "sha256": "aa70ea938778efa73f44206be54fee7d7f604fba8ea9b11199fa5a7ea0d70019"
+    },
+    "runs/1794737144-44c7adc3/receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 5559,
+      "mtime_ns": 1794737156575601222,
+      "sha256": "bf074c0b8135e94d923e2470818e6db53a72fd49a4e5d60524732e4f9b3e37d4"
+    },
+    "runs/1794737144-44c7adc3/runtimes-up.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 413,
+      "mtime_ns": 1794737151791329290,
+      "sha256": "207ae417eaf64da075e65499fd4a02b61b70be9ff103958fc8543141dab0c66c"
+    },
+    "runs/1794737144-44c7adc3/start-attempt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 287,
+      "mtime_ns": 1794737156506084349,
+      "sha256": "5eb194a75cad4b565863bcfcd13d4356a24759779d635574951dd1cfe2479960"
+    },
+    "runs/1794737144-44c7adc3/worker-recovery.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 3666,
+      "mtime_ns": 1794737155110722303,
+      "sha256": "94d5931aec7b8f29dfc69ae084b16f334966719fa7660a2a1dbc9412065fb782"
+    },
+    "runs/1794737157-f149d1ef": {
+      "type": "dir",
+      "mode": "0o700",
+      "size": 192,
+      "mtime_ns": 1794737166554215683
+    },
+    "runs/1794737157-f149d1ef/bruno-receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 4984,
+      "mtime_ns": 1794737166499180806,
+      "sha256": "42bd74e73a03946f245ca0cb1621715b5517b36870719b58471bd37282d636ba"
+    },
+    "runs/1794737157-f149d1ef/bruno.xml": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 78563,
+      "mtime_ns": 1794737166255834604,
+      "sha256": "6d3cd396447410e1f9492cf2147032f049d42948cd1cfde25d59ecb20f98fae4"
+    },
+    "runs/1794737157-f149d1ef/receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 433,
+      "mtime_ns": 1794737166554115724,
+      "sha256": "c7a70f129ffd89dfbda471686f6cab5fe8af0688582ba64a7ce20c0f6ef9bf6e"
+    },
+    "runs/1794737157-f149d1ef/scenarios.jsonl": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 32680,
+      "mtime_ns": 1794737166244465759,
+      "sha256": "b14074c70439bbb852c28115276c3fe8f1bb7a94059469de8eda7c0794e2b5a1"
+    },
+    "runs/1794737166-96eb55d7": {
+      "type": "dir",
+      "mode": "0o700",
+      "size": 160,
+      "mtime_ns": 1794737169400944784
+    },
+    "runs/1794737166-96eb55d7/grafana.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 9321,
+      "mtime_ns": 1794737168919192047,
+      "sha256": "a220b1a6003a479c6909707bc181143c5afb1f7d8f2940849ad58ca7013b2ced"
+    },
+    "runs/1794737166-96eb55d7/keycloak-auth.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 387,
+      "mtime_ns": 1794737168496621762,
+      "sha256": "4f203336adef3aa5e6318697b51a2e47eded8ebca6270262e5fd586a4eb8937d"
+    },
+    "runs/1794737166-96eb55d7/receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 5633,
+      "mtime_ns": 1794737169400839200,
+      "sha256": "8763beb0f360268317cb9563ff2f6f1a48af72e31eb43153b512a10f4fb53b6d"
+    },
+    "runs/1794737366-e5e7e883": {
+      "type": "dir",
+      "mode": "0o700",
+      "size": 480,
+      "mtime_ns": 1794737377825070410
+    },
+    "runs/1794737366-e5e7e883/canary-intent.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 21,
+      "mtime_ns": 1794737376416217043,
+      "sha256": "863438185f3855a9eb94bc8290252bee6bc769047d4dd627caea60c8dadc5c19"
+    },
+    "runs/1794737366-e5e7e883/command-observations.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 2171,
+      "mtime_ns": 1794737376566384383,
+      "sha256": "6ec908ba30c8e49d3573fb5d2fc8736dfb11aab4a489c3333d3cbd4584c99cb8"
+    },
+    "runs/1794737366-e5e7e883/generation-before.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 1178,
+      "mtime_ns": 1794737367390733971,
+      "sha256": "d414448d1229ed09c1523f95e2cc9aa02d2b21cfeacaaede7f3b8dd9e7e3bf6c"
+    },
+    "runs/1794737366-e5e7e883/grafana.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 9312,
+      "mtime_ns": 1794737377332706250,
+      "sha256": "0551f7aaf129b850f3e702b68bbd6950a4e4721607400fe7e149e27c7fa40b36"
+    },
+    "runs/1794737366-e5e7e883/keycloak-auth.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 388,
+      "mtime_ns": 1794737373547620426,
+      "sha256": "e6f3807b12caaebdb39a88e09239ffe9affdbd2faa3a551de12c4899133e5ed8"
+    },
+    "runs/1794737366-e5e7e883/keycloak-up.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 55,
+      "mtime_ns": 1794737373143473754,
+      "sha256": "dcab6201d264412f5c79bc0c04c75eec6e6cee893d34ce2e99032935c374aa5c"
+    },
+    "runs/1794737366-e5e7e883/postgres-up.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 55,
+      "mtime_ns": 1794737370979190527,
+      "sha256": "4c825ff6fcc17b4a82aaffe9ddc3d65ed8b8cc0cfee74cf326416c6b47b5923f"
+    },
+    "runs/1794737366-e5e7e883/public-requests.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 1763,
+      "mtime_ns": 1794737376964026000,
+      "sha256": "0df2ecd3fd815706c3e34ccb2588e3544ffd1de33485b61ff9ba269fe35acc61"
+    },
+    "runs/1794737366-e5e7e883/receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 5562,
+      "mtime_ns": 1794737377824982910,
+      "sha256": "526aa33f542fbc78d32a5adc0f1f40100397df4d70a15771a376b49259963e07"
+    },
+    "runs/1794737366-e5e7e883/runtimes-up.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 413,
+      "mtime_ns": 1794737373674404403,
+      "sha256": "1a503e388b3689456aac19722e4d1defbef2a2d1c5a8516e99f03b8aab657e5a"
+    },
+    "runs/1794737366-e5e7e883/start-attempt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 288,
+      "mtime_ns": 1794737377771568546,
+      "sha256": "89de4a514b479e8aff6af7d62d5a149450d453306650537305dc5b960d5d6339"
+    },
+    "runs/1794737366-e5e7e883/tooling-refresh.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 680,
+      "mtime_ns": 1794737367011779093,
+      "sha256": "1848ada69c969fc1d21352acb5e7a71ed147480246cd14fe6fa6873ad565ce1d"
+    },
+    "runs/1794737366-e5e7e883/worker-recovery.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 3662,
+      "mtime_ns": 1794737376364728238,
+      "sha256": "7e514330ba76b6d180ccb6aec495a0950551458bb6a8915049a94005feb132cb"
+    },
+    "runs/1794737378-485fcdc6": {
+      "type": "dir",
+      "mode": "0o700",
+      "size": 160,
+      "mtime_ns": 1794737381049203752
+    },
+    "runs/1794737378-485fcdc6/grafana.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 9318,
+      "mtime_ns": 1794737380498646480,
+      "sha256": "62bd27d6e184dd24c7643beb1c105e81afff37a14e2300de5ed6da5c74de01d1"
+    },
+    "runs/1794737378-485fcdc6/keycloak-auth.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 388,
+      "mtime_ns": 1794737380189938815,
+      "sha256": "e48df0a0d236c4f0081dcf43962947f45eb14bc7be3696f0466c18392ded001a"
+    },
+    "runs/1794737378-485fcdc6/receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 5634,
+      "mtime_ns": 1794737381049111918,
+      "sha256": "653bd85fab802c207d6bbb3c7d14b0a8713b677b5d24656b64c25ce403ad3329"
+    },
+    "runs/1794737381-73976bbf": {
+      "type": "dir",
+      "mode": "0o700",
+      "size": 192,
+      "mtime_ns": 1794737383686094473
+    },
+    "runs/1794737381-73976bbf/grafana.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 9318,
+      "mtime_ns": 1794737383209318611,
+      "sha256": "62bd27d6e184dd24c7643beb1c105e81afff37a14e2300de5ed6da5c74de01d1"
+    },
+    "runs/1794737381-73976bbf/keycloak-auth.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 387,
+      "mtime_ns": 1794737382868000381,
+      "sha256": "972feb19e5db820978eb34b0811e9c29d34116c147bd6a84140c243b2c438913"
+    },
+    "runs/1794737381-73976bbf/late-result.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 314,
+      "mtime_ns": 1794737382874358684,
+      "sha256": "c13f378b589c4e20523ddb034c99ed5383561f412b8c1ec7ca034821df47d641"
+    },
+    "runs/1794737381-73976bbf/receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 5989,
+      "mtime_ns": 1794737383686003973,
+      "sha256": "24998586fa77152bb56637c2baa4f4981448ed33e8677fa6656da94080bf8f61"
+    },
+    "runs/1794737383-74900178": {
+      "type": "dir",
+      "mode": "0o700",
+      "size": 448,
+      "mtime_ns": 1794737393874303437
+    },
+    "runs/1794737383-74900178/canary-intent.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 21,
+      "mtime_ns": 1794737392462883757,
+      "sha256": "f13811a58d9a3cef947f676ffe7da3297a94ea821ae3e4845f15988744352fa1"
+    },
+    "runs/1794737383-74900178/command-observations.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 2169,
+      "mtime_ns": 1794737392598524933,
+      "sha256": "6657722ff325335e5e3e8afc28cca185992a8f78f9d58157252af4dd5352cb6d"
+    },
+    "runs/1794737383-74900178/generation-before.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 1178,
+      "mtime_ns": 1794737384355151444,
+      "sha256": "d414448d1229ed09c1523f95e2cc9aa02d2b21cfeacaaede7f3b8dd9e7e3bf6c"
+    },
+    "runs/1794737383-74900178/grafana.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 9321,
+      "mtime_ns": 1794737393420169014,
+      "sha256": "a220b1a6003a479c6909707bc181143c5afb1f7d8f2940849ad58ca7013b2ced"
+    },
+    "runs/1794737383-74900178/keycloak-auth.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 388,
+      "mtime_ns": 1794737389649141556,
+      "sha256": "19a85a447dfbe367be71f8e9a6e9fcaadb04417f3ad71171426c4dbb53d4097e"
+    },
+    "runs/1794737383-74900178/keycloak-up.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 55,
+      "mtime_ns": 1794737389344428508,
+      "sha256": "dcab6201d264412f5c79bc0c04c75eec6e6cee893d34ce2e99032935c374aa5c"
+    },
+    "runs/1794737383-74900178/postgres-up.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 55,
+      "mtime_ns": 1794737387315077034,
+      "sha256": "4c825ff6fcc17b4a82aaffe9ddc3d65ed8b8cc0cfee74cf326416c6b47b5923f"
+    },
+    "runs/1794737383-74900178/public-requests.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 1763,
+      "mtime_ns": 1794737393067652482,
+      "sha256": "aebc97bcd12952aa4730945854cd83d9d31152bba7cd9332d7e627da96116384"
+    },
+    "runs/1794737383-74900178/receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 5560,
+      "mtime_ns": 1794737393874216520,
+      "sha256": "e8ab6258558ce2d2065c3018e77d1dcc88f1d0c22709d5979ec184522a97aadd"
+    },
+    "runs/1794737383-74900178/runtimes-up.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 413,
+      "mtime_ns": 1794737389795497030,
+      "sha256": "9fa0e702b418296b29aec415e17eb6bc1cdd48b210d599ab6e22e37cf3459971"
+    },
+    "runs/1794737383-74900178/start-attempt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 287,
+      "mtime_ns": 1794737393823054300,
+      "sha256": "8d8f4fb02eac4c4b14a6af11bed05834f506a94c006a36e6cdb49c55e52bfcdb"
+    },
+    "runs/1794737383-74900178/worker-recovery.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 3663,
+      "mtime_ns": 1794737392425244026,
+      "sha256": "7e2383f4f850fc9007ff6841f0e95af224538d1349ec1597754a6c10fee9bcd1"
+    },
+    "runs/1794737394-1aee501b": {
+      "type": "dir",
+      "mode": "0o700",
+      "size": 192,
+      "mtime_ns": 1794737401944876064
+    },
+    "runs/1794737394-1aee501b/bruno-receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 4984,
+      "mtime_ns": 1794737401893710219,
+      "sha256": "84a8dfaed146160bfb260c3b31d76dea43d47fb9b591b4aef63434b1e800e144"
+    },
+    "runs/1794737394-1aee501b/bruno.xml": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 78563,
+      "mtime_ns": 1794737401680089683,
+      "sha256": "74c00c036a30e4b7a4aa1e7a672bd1eb53631aab6d29b54300f95288b7417b2f"
+    },
+    "runs/1794737394-1aee501b/receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 433,
+      "mtime_ns": 1794737401944785522,
+      "sha256": "35721081fb4d15f82b154577881c2499fc4449c0e788111a92a0e8fa65447e1f"
+    },
+    "runs/1794737394-1aee501b/scenarios.jsonl": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 31986,
+      "mtime_ns": 1794737401667392160,
+      "sha256": "3efc0c61de9069ea15f4fe538b8e901a3ced6f3ec588ea36809426f1aedef9d3"
+    },
+    "runs/1794737402-34a7c41b": {
+      "type": "dir",
+      "mode": "0o700",
+      "size": 160,
+      "mtime_ns": 1794737405249086325
+    },
+    "runs/1794737402-34a7c41b/receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 712,
+      "mtime_ns": 1794737405248949032,
+      "sha256": "3dc22c7ed1066b8031b8f7eb7aa9dd320b019d5191dfb62764811369500dfdcc"
+    },
+    "runs/1794737402-34a7c41b/stop-deps.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 446,
+      "mtime_ns": 1794737405185184207,
+      "sha256": "4622ec31aabf05e39267efaeebf0c40981d551be964e5b146ecdd53b92c1f072"
+    },
+    "runs/1794737402-34a7c41b/stop-jvm.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 609,
+      "mtime_ns": 1794737403356132201,
+      "sha256": "a580f4245062c26627231d733925c2e4bd193064ee46fd2ba0547cfcc5bd8312"
+    },
+    "runs/1794737729-6fe51fe0": {
+      "type": "dir",
+      "mode": "0o700",
+      "size": 448,
+      "mtime_ns": 1794737758648359184
+    },
+    "runs/1794737729-6fe51fe0/canary-intent.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 21,
+      "mtime_ns": 1794737755810014111,
+      "sha256": "139e99cf408fbe6e0caed291dcf5bd8a739f8372076f4361f549305b3f9adbe6"
+    },
+    "runs/1794737729-6fe51fe0/command-observations.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 2171,
+      "mtime_ns": 1794737757150333946,
+      "sha256": "8c90673ea6351c785e29ca19c9698d0d5f5c5bfec1625b1381da043829d1c85c"
+    },
+    "runs/1794737729-6fe51fe0/generation-before.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 1183,
+      "mtime_ns": 1794737730539134580,
+      "sha256": "10ba58492dbada410505686daa818980e4cafe7f81b30666786ce2331ec75d9d"
+    },
+    "runs/1794737729-6fe51fe0/grafana.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 9307,
+      "mtime_ns": 1794737758162920207,
+      "sha256": "ef8fe9a424a30a1f79859648be9a1180203b8fde4b80f109eaf480b17185af1d"
+    },
+    "runs/1794737729-6fe51fe0/keycloak-auth.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 387,
+      "mtime_ns": 1794737741966498074,
+      "sha256": "58680a4bc7d4dd2ada86cdc3b3e10b62eee53585ce0cb8f3da3111912239e4f2"
+    },
+    "runs/1794737729-6fe51fe0/keycloak-up.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 111,
+      "mtime_ns": 1794737735411361872,
+      "sha256": "454135443d9522c07251faebd9a644a154011455c7898e02f105b44329df7cf8"
+    },
+    "runs/1794737729-6fe51fe0/postgres-up.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 111,
+      "mtime_ns": 1794737733294117456,
+      "sha256": "9f466dc40d6bcfeaa4e9040eb2ad1a19e2fb56b245abaf241f53ad967db5d0c4"
+    },
+    "runs/1794737729-6fe51fe0/public-requests.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 3501,
+      "mtime_ns": 1794737757666088260,
+      "sha256": "284799690871865732a1dac1be3c7f7688226eafade0fb0bc667437fe8bb88ca"
+    },
+    "runs/1794737729-6fe51fe0/receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 5560,
+      "mtime_ns": 1794737758648270725,
+      "sha256": "e8a90f0ae96ed5dd370245dc0aa1cc69a7a8f021a0fed39e1c3c9d605ea47457"
+    },
+    "runs/1794737729-6fe51fe0/runtimes-up.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 833,
+      "mtime_ns": 1794737743039658800,
+      "sha256": "cf464d41427d6f872c870a56e0dca8b1c7de30b7cada1ebde0c3480f7ea9cede"
+    },
+    "runs/1794737729-6fe51fe0/start-attempt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 286,
+      "mtime_ns": 1794737758592710385,
+      "sha256": "b689122741e634cbee5a30123d9d580794f4f436c93dbf6c76b77d29786358d0"
+    },
+    "runs/1794737729-6fe51fe0/worker-recovery.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 3670,
+      "mtime_ns": 1794737754725402373,
+      "sha256": "627fd9a2f12417efcd7c03a856aec7b933663934321a6aea2548db739e1f8d76"
+    },
+    "runs/1794737758-1e00b163": {
+      "type": "dir",
+      "mode": "0o700",
+      "size": 160,
+      "mtime_ns": 1794737762286342028
+    },
+    "runs/1794737758-1e00b163/grafana.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 9313,
+      "mtime_ns": 1794737761493220187,
+      "sha256": "5859e946a57d04d8910e4d0a9a9c0cd50485575797df397c058918aae90cad89"
+    },
+    "runs/1794737758-1e00b163/keycloak-auth.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 387,
+      "mtime_ns": 1794737761173225427,
+      "sha256": "8203d235a02d9731a67875a38856fc82695823e1962de1d9814e280db657945f"
+    },
+    "runs/1794737758-1e00b163/receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 5632,
+      "mtime_ns": 1794737762286230861,
+      "sha256": "d8313affa88fb305af73af9935a293c3c28b74e9035cd82103f441734d863fa7"
+    },
+    "runs/1794740351-71788887": {
+      "type": "dir",
+      "mode": "0o700",
+      "size": 192,
+      "mtime_ns": 1794740355752113741
+    },
+    "runs/1794740351-71788887/containers.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 436123,
+      "mtime_ns": 1794740355752383326,
+      "sha256": "2691e0c1b3b97173870f595decb56ea1942cd5161cb373fae3eb3e1c27152789"
+    },
+    "runs/1794740351-71788887/grafana.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 9310,
+      "mtime_ns": 1794740355071248459,
+      "sha256": "ea3e1cf54ec8f82fbaf48bc49d408f833e867af39b6b5f8e28ddb613a857e8a9"
+    },
+    "runs/1794740351-71788887/keycloak-auth.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 387,
+      "mtime_ns": 1794740354622770716,
+      "sha256": "d0654fcf282740e3351aa4cab894cde8523d55b50b36f99cd89b707e9a5f9388"
+    },
+    "runs/1794740351-71788887/receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 5657,
+      "mtime_ns": 1794740355652661582,
+      "sha256": "b2bf5959b461d3d52ff59ab1e7cb9f27a90bb4dd12a86e0d76026fdf728de51d"
+    },
+    "runs/1794740461-2c11834b": {
+      "type": "dir",
+      "mode": "0o700",
+      "size": 160,
+      "mtime_ns": 1794740464666882848
+    },
+    "runs/1794740461-2c11834b/receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 712,
+      "mtime_ns": 1794740464666786930,
+      "sha256": "588172820f6b14759d9096df6cfe83e75fb29364a0182c88583090152c540b61"
+    },
+    "runs/1794740461-2c11834b/stop-deps.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 446,
+      "mtime_ns": 1794740464613452760,
+      "sha256": "16ef886c364db2e3b062c1e306d95bbd02d1413ded89cdaf5552e0dfcec818f3"
+    },
+    "runs/1794740461-2c11834b/stop-jvm.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 609,
+      "mtime_ns": 1794740463043514014,
+      "sha256": "ad4c037372c216c3f7c0ad37671ebc3f99891ac2b51d6cb7a8dbe85ba44f1ae7"
+    },
+    "runs/1794740543-85587d0e": {
+      "type": "dir",
+      "mode": "0o700",
+      "size": 448,
+      "mtime_ns": 1794740705516103471
+    },
+    "runs/1794740543-85587d0e/canary-intent.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 21,
+      "mtime_ns": 1794740703396390477,
+      "sha256": "cfd0608c884448edccb4d7d33a2110c262ef88eddf33c44bf7b905d8cf387e3b"
+    },
+    "runs/1794740543-85587d0e/command-observations.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 2170,
+      "mtime_ns": 1794740704118917878,
+      "sha256": "b80381d2258048f919bb58bf3bc2378d05fdbf6906b3f86c7545cbcffbddc520"
+    },
+    "runs/1794740543-85587d0e/generation-before.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 1184,
+      "mtime_ns": 1794740544559456089,
+      "sha256": "a509866494131b259ece05e926baa5e39995f7ab60efd41996fe2daff8002d83"
+    },
+    "runs/1794740543-85587d0e/grafana.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 9308,
+      "mtime_ns": 1794740704959323209,
+      "sha256": "4f057f9548bab3502de7935ba60569ecf5b8b2648cae9158027de8dee61e7894"
+    },
+    "runs/1794740543-85587d0e/keycloak-auth.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 387,
+      "mtime_ns": 1794740555960430390,
+      "sha256": "fac88f246bb80675bfef715d52306dbb429380db2f32a160ab3d2265758fc24a"
+    },
+    "runs/1794740543-85587d0e/keycloak-up.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 111,
+      "mtime_ns": 1794740549562707765,
+      "sha256": "454135443d9522c07251faebd9a644a154011455c7898e02f105b44329df7cf8"
+    },
+    "runs/1794740543-85587d0e/postgres-up.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 111,
+      "mtime_ns": 1794740547515297381,
+      "sha256": "9f466dc40d6bcfeaa4e9040eb2ad1a19e2fb56b245abaf241f53ad967db5d0c4"
+    },
+    "runs/1794740543-85587d0e/public-requests.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 2528,
+      "mtime_ns": 1794740704550346570,
+      "sha256": "eb5d550d8eef63321bc584a0ea5f82d2cce8da42457145c0630d363b25eb63bb"
+    },
+    "runs/1794740543-85587d0e/receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 5559,
+      "mtime_ns": 1794740705515995346,
+      "sha256": "4d99ff42791f7d943a38cf28a521ef263c27a97e612c1011214af5dae42f77a6"
+    },
+    "runs/1794740543-85587d0e/runtimes-up.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 833,
+      "mtime_ns": 1794740557059672636,
+      "sha256": "da122b3ac462757e5a81b04b8862730c13397d61dd6c5add7cce7f17b848579c"
+    },
+    "runs/1794740543-85587d0e/start-attempt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 287,
+      "mtime_ns": 1794740705445675708,
+      "sha256": "f84ed48ed83e26eb937fa161cd698edff1e5205e54793bd602eecb37859e2eed"
+    },
+    "runs/1794740543-85587d0e/worker-recovery.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 79509,
+      "mtime_ns": 1794740702814692560,
+      "sha256": "739a77626de681e16926cbde1c76cc7538f88f729ff07e2bb4d7e34b979e4b84"
+    },
+    "runs/1794740903-1c5182c4": {
+      "type": "dir",
+      "mode": "0o700",
+      "size": 160,
+      "mtime_ns": 1794740907073646201
+    },
+    "runs/1794740903-1c5182c4/grafana.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 9310,
+      "mtime_ns": 1794740906513633330,
+      "sha256": "ea3e1cf54ec8f82fbaf48bc49d408f833e867af39b6b5f8e28ddb613a857e8a9"
+    },
+    "runs/1794740903-1c5182c4/keycloak-auth.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 387,
+      "mtime_ns": 1794740906136478899,
+      "sha256": "be004b7b73e2626d2b7d2b6f3ac4c5e51ff675e843794325cf3564d047e95010"
+    },
+    "runs/1794740903-1c5182c4/receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 5632,
+      "mtime_ns": 1794740907073554201,
+      "sha256": "00808e9a0e1717d193402b6867f73688e11cb41667973bf02048c50554f963db"
+    },
+    "runs/1794767416-c2368f9d": {
+      "type": "dir",
+      "mode": "0o700",
+      "size": 160,
+      "mtime_ns": 1794767417089889718
+    },
+    "runs/1794767416-c2368f9d/receipt.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 697,
+      "mtime_ns": 1794767417089783467,
+      "sha256": "8014fdb5cd73912eb9d2c87bbeac619a9de1227bfc79e215e51c3e14bd26b654"
+    },
+    "runs/1794767416-c2368f9d/stop-deps.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 446,
+      "mtime_ns": 1794767417040053841,
+      "sha256": "dc632adba9ab974cd5b4d46504414bbb35d574875edd0cffe7b62ca85b4b2e30"
+    },
+    "runs/1794767416-c2368f9d/stop-jvm.log": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 609,
+      "mtime_ns": 1794767416750636877,
+      "sha256": "15d85b4e9d65564088f6d60eb79f0f8929186a3639c255331f89841cdde2c193"
+    },
+    "secrets.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 986,
+      "mtime_ns": 1794675871737796635,
+      "sha256": "bcb69f72756713c6868a4396fdcd7e91c60720e2c73b9ee4d11d1bb88e8c51cd"
+    },
+    "start-history.json": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 651,
+      "mtime_ns": 1794740705444980786,
+      "sha256": "0ca8a0209895478b8a9c9b1373f681a1c0bc1026cdf0bb7cbff28a1d752074ab"
+    },
+    "web-read.jar": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 35332093,
+      "mtime_ns": 1794740547096249787,
+      "sha256": "eb3427dfc163a87432b1b7bb5ce163255f59aea7d16eae24d6a2a9ba8d8adf3c"
+    },
+    "web-write.jar": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 35426244,
+      "mtime_ns": 1794740547152783149,
+      "sha256": "b68fabf6335765798b168a1c356d146a1bf9a1761fce8dd6cd76f29908cd5cd7"
+    },
+    "worker-materialize.jar": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 30328545,
+      "mtime_ns": 1794740547200152773,
+      "sha256": "5eb4293e2bb4d8bf6b2bbbae6134139575d7e295a875887336b7403b94eb38fd"
+    },
+    "worker-process.jar": {
+      "type": "file",
+      "mode": "0o600",
+      "size": 67281696,
+      "mtime_ns": 1794740547300498855,
+      "sha256": "7dd339a92cdb9ce70cfd4f59634e44697aad4e40f9929bd896a9d2765062401c"
+    }
+  },
+  "containers": [
+    {
+      "id": "7f6af382162c503baa6f354c77adb792db7666142bd319a7f1ee823d2c2ab0aa",
+      "name": "/pocoma-lb-demo-33dd8c1d-business-read-worker-1",
+      "image": "eclipse-temurin@sha256:66bb900643426ad01996d25bada7d56751913f9cec3b827fcb715d2ec9a0fbfc",
+      "state": {
+        "status": "exited",
+        "running": false,
+        "exit_code": 255,
+        "started_at": "2026-11-15T11:48:34.64434188Z",
+        "finished_at": "2026-11-15T16:12:04.044766208Z"
+      },
+      "restart_count": 0,
+      "mounts": [
+        {
+          "type": "bind",
+          "name": null,
+          "source": "/Users/julien.guezennec/dev/projects/pocoma/.pocoma-local/instances/demo/worker-materialize.jar",
+          "destination": "/app/runtime.jar"
+        },
+        {
+          "type": "bind",
+          "name": null,
+          "source": "/Users/julien.guezennec/dev/projects/pocoma/.pocoma-local/instances/demo/business-read-worker.properties",
+          "destination": "/app/settings.properties"
+        }
+      ],
+      "ports": {}
+    },
+    {
+      "id": "6c25ba8f69bae681c62a4a97616f16e0e49572006e0345ce146b151f12323ae7",
+      "name": "/pocoma-lb-demo-33dd8c1d-command-worker-1",
+      "image": "eclipse-temurin@sha256:66bb900643426ad01996d25bada7d56751913f9cec3b827fcb715d2ec9a0fbfc",
+      "state": {
+        "status": "exited",
+        "running": false,
+        "exit_code": 255,
+        "started_at": "2026-11-15T11:48:34.529240921Z",
+        "finished_at": "2026-11-15T16:12:04.050771667Z"
+      },
+      "restart_count": 0,
+      "mounts": [
+        {
+          "type": "bind",
+          "name": null,
+          "source": "/Users/julien.guezennec/dev/projects/pocoma/.pocoma-local/instances/demo/worker-process.jar",
+          "destination": "/app/runtime.jar"
+        },
+        {
+          "type": "bind",
+          "name": null,
+          "source": "/Users/julien.guezennec/dev/projects/pocoma/.pocoma-local/instances/demo/command-worker.properties",
+          "destination": "/app/settings.properties"
+        }
+      ],
+      "ports": {}
+    },
+    {
+      "id": "6b1995775e6f2b6d623dd4220f148472700f35fd4b8d03cc1d2554f3e02b2fbb",
+      "name": "/pocoma-lb-demo-33dd8c1d-grafana-1",
+      "image": "grafana/grafana@sha256:ba93c9d192e58b23e064c7f501d453426ccf4a85065bf25b705ab1e98602bfb1",
+      "state": {
+        "status": "exited",
+        "running": false,
+        "exit_code": 255,
+        "started_at": "2026-11-15T11:48:34.943933796Z",
+        "finished_at": "2026-11-15T16:12:04.051825417Z"
+      },
+      "restart_count": 0,
+      "mounts": [
+        {
+          "type": "bind",
+          "name": null,
+          "source": "/Users/julien.guezennec/dev/projects/pocoma/.pocoma-local/instances/demo/grafana/dashboards",
+          "destination": "/etc/grafana/dashboards"
+        },
+        {
+          "type": "bind",
+          "name": null,
+          "source": "/Users/julien.guezennec/dev/projects/pocoma/.pocoma-local/instances/demo/grafana/provisioning",
+          "destination": "/etc/grafana/provisioning"
+        }
+      ],
+      "ports": {}
+    },
+    {
+      "id": "ea86a191856938a3f2fc2a23036bf1a1cfbfde75d05f613d6e8d64fa2353960f",
+      "name": "/pocoma-lb-demo-33dd8c1d-http-read-1",
+      "image": "eclipse-temurin@sha256:66bb900643426ad01996d25bada7d56751913f9cec3b827fcb715d2ec9a0fbfc",
+      "state": {
+        "status": "exited",
+        "running": false,
+        "exit_code": 255,
+        "started_at": "2026-11-15T11:48:34.436395796Z",
+        "finished_at": "2026-11-15T16:12:04.04891825Z"
+      },
+      "restart_count": 0,
+      "mounts": [
+        {
+          "type": "bind",
+          "name": null,
+          "source": "/Users/julien.guezennec/dev/projects/pocoma/.pocoma-local/instances/demo/web-read.jar",
+          "destination": "/app/runtime.jar"
+        },
+        {
+          "type": "bind",
+          "name": null,
+          "source": "/Users/julien.guezennec/dev/projects/pocoma/.pocoma-local/instances/demo/http-read.properties",
+          "destination": "/app/settings.properties"
+        }
+      ],
+      "ports": {}
+    },
+    {
+      "id": "19e17b3e2a76b16410bc5f06bea5b25818b3ef276ac76a73084a96e6be25ab2b",
+      "name": "/pocoma-lb-demo-33dd8c1d-http-write-1",
+      "image": "eclipse-temurin@sha256:66bb900643426ad01996d25bada7d56751913f9cec3b827fcb715d2ec9a0fbfc",
+      "state": {
+        "status": "exited",
+        "running": false,
+        "exit_code": 255,
+        "started_at": "2026-11-15T11:48:34.352871671Z",
+        "finished_at": "2026-11-15T16:12:04.044991833Z"
+      },
+      "restart_count": 0,
+      "mounts": [
+        {
+          "type": "bind",
+          "name": null,
+          "source": "/Users/julien.guezennec/dev/projects/pocoma/.pocoma-local/instances/demo/web-write.jar",
+          "destination": "/app/runtime.jar"
+        },
+        {
+          "type": "bind",
+          "name": null,
+          "source": "/Users/julien.guezennec/dev/projects/pocoma/.pocoma-local/instances/demo/http-write.properties",
+          "destination": "/app/settings.properties"
+        }
+      ],
+      "ports": {}
+    },
+    {
+      "id": "49b44d7b84ee4989beeb0434c3e053b0dce204088f70fe564fa979a72ca3f589",
+      "name": "/pocoma-lb-demo-33dd8c1d-keycloak-1",
+      "image": "quay.io/keycloak/keycloak@sha256:0f198be292568439d700cdbfb893e69a6009bb43a94a06a945b1d3d506c76b13",
+      "state": {
+        "status": "exited",
+        "running": false,
+        "exit_code": 255,
+        "started_at": "2026-11-15T11:48:29.419968877Z",
+        "finished_at": "2026-11-15T16:12:04.054362583Z"
+      },
+      "restart_count": 0,
+      "mounts": [
+        {
+          "type": "bind",
+          "name": null,
+          "source": "/Users/julien.guezennec/dev/projects/pocoma/.pocoma-local/instances/demo/realm.json",
+          "destination": "/opt/keycloak/data/import/pocoma-realm.json"
+        }
+      ],
+      "ports": {}
+    },
+    {
+      "id": "74240b3506517c7b8c7502ed41d5ae7b5e207257dfa47b547576335259cfd039",
+      "name": "/pocoma-lb-demo-33dd8c1d-postgres-1",
+      "image": "postgres@sha256:ef257d85f76e48da1c64832459b59fcaba1a4dac97bf5d7450c77753542eee94",
+      "state": {
+        "status": "exited",
+        "running": false,
+        "exit_code": 255,
+        "started_at": "2026-11-15T11:48:29.194037502Z",
+        "finished_at": "2026-11-15T16:12:04.045035833Z"
+      },
+      "restart_count": 0,
+      "mounts": [
+        {
+          "type": "bind",
+          "name": null,
+          "source": "/host_mnt/Users/julien.guezennec/dev/projects/pocoma/.pocoma-local/instances/demo/pg-init.sql",
+          "destination": "/docker-entrypoint-initdb.d/01-keycloak.sql"
+        },
+        {
+          "type": "bind",
+          "name": null,
+          "source": "/host_mnt/Users/julien.guezennec/dev/projects/pocoma/.pocoma-local/instances/demo/pg-password",
+          "destination": "/run/pg-password"
+        },
+        {
+          "type": "volume",
+          "name": "pocoma-lb-demo-33dd8c1d-data",
+          "source": "/var/lib/docker/volumes/pocoma-lb-demo-33dd8c1d-data/_data",
+          "destination": "/var/lib/postgresql/data"
+        }
+      ],
+      "ports": {}
+    },
+    {
+      "id": "48e316d8aef78c01ff41e46bc4bd356d193da23845a9c91f85b37cd2e9981ab1",
+      "name": "/pocoma-lb-demo-33dd8c1d-prometheus-1",
+      "image": "prom/prometheus@sha256:63805ebb8d2b3920190daf1cb14a60871b16fd38bed42b857a3182bc621f4996",
+      "state": {
+        "status": "exited",
+        "running": false,
+        "exit_code": 255,
+        "started_at": "2026-11-15T11:48:34.278825171Z",
+        "finished_at": "2026-11-15T16:12:04.044583708Z"
+      },
+      "restart_count": 0,
+      "mounts": [
+        {
+          "type": "volume",
+          "name": "c4b0f254fb8dd331655ec936159235309d41ac29818f08ed5c0608d98451761f",
+          "source": "/var/lib/docker/volumes/c4b0f254fb8dd331655ec936159235309d41ac29818f08ed5c0608d98451761f/_data",
+          "destination": "/prometheus"
+        },
+        {
+          "type": "bind",
+          "name": null,
+          "source": "/Users/julien.guezennec/dev/projects/pocoma/.pocoma-local/instances/demo/prometheus.yml",
+          "destination": "/etc/prometheus/prometheus.yml"
+        }
+      ],
+      "ports": {}
+    },
+    {
+      "id": "f7a4b68bdd95399fcca9865edf9dd43d222c55c84182d2f1ccf28274fa805c5d",
+      "name": "/pocoma-lb-demo-33dd8c1d-results-worker-1",
+      "image": "eclipse-temurin@sha256:66bb900643426ad01996d25bada7d56751913f9cec3b827fcb715d2ec9a0fbfc",
+      "state": {
+        "status": "exited",
+        "running": false,
+        "exit_code": 255,
+        "started_at": "2026-11-15T11:48:34.796467796Z",
+        "finished_at": "2026-11-15T16:12:04.050472167Z"
+      },
+      "restart_count": 0,
+      "mounts": [
+        {
+          "type": "bind",
+          "name": null,
+          "source": "/Users/julien.guezennec/dev/projects/pocoma/.pocoma-local/instances/demo/worker-materialize.jar",
+          "destination": "/app/runtime.jar"
+        },
+        {
+          "type": "bind",
+          "name": null,
+          "source": "/Users/julien.guezennec/dev/projects/pocoma/.pocoma-local/instances/demo/results-worker.properties",
+          "destination": "/app/settings.properties"
+        }
+      ],
+      "ports": {}
+    }
+  ],
+  "volumes": [
+    {
+      "name": "pocoma-lb-demo-33dd8c1d-data",
+      "driver": "local",
+      "created_at": "2026-11-14T17:04:36Z",
+      "labels": {
+        "com.docker.compose.config-hash": "1aa509c4d80647465ec4d3682954217f8d67265079c8c734d550423b3232f9db",
+        "com.docker.compose.project": "pocoma-lb-demo-33dd8c1d",
+        "com.docker.compose.version": "5.6.1",
+        "com.docker.compose.volume": "data",
+        "io.pocoma.local.owner": "33dd8c1d-4dbd-4310-9011-50b0c6de18be"
+      },
+      "mountpoint": "/var/lib/docker/volumes/pocoma-lb-demo-33dd8c1d-data/_data"
+    }
+  ],
+  "networks": [
+    {
+      "id": "d944fc6475c00a38475cf28429082fd2be502fcd5d93b7a000632d3b8b105bfc",
+      "name": "pocoma-lb-demo-33dd8c1d_default",
+      "driver": "bridge",
+      "created": "2026-11-14T17:04:36.2039748Z",
+      "labels": {
+        "com.docker.compose.config-hash": "5c52313ffe42d3a26ce628befa37cdf8ef5c52cb0745e8d7b745e20e99873e5f",
+        "com.docker.compose.network": "default",
+        "com.docker.compose.project": "pocoma-lb-demo-33dd8c1d",
+        "com.docker.compose.version": "5.6.1",
+        "io.pocoma.local.owner": "33dd8c1d-4dbd-4310-9011-50b0c6de18be"
+      }
+    }
+  ]
+}

@@ -1,0 +1,133 @@
+{
+  "note": "Verbatim excerpts from fresh COMMAND physical traces; full snapshots, assertions in source and passing XML are retained in the archive. Later gates repeat these scenarios and are not added as new guarantees.",
+  "observations": [
+    {
+      "gate": "command",
+      "tested_code_sha": "3ee575940669feb56b73b10122b5a3406bce6a08",
+      "artifact": "physical/infra-persistence-primary-jpa/v3-i3-evidence/i3_audit_classifier_exits-WRITE.txt",
+      "observations": [
+        "AUDIT classifier=runtime physical=ROLLED_BACK ticket=1->0 without inspection; no cession; subsequent acquisition committed",
+        "AUDIT classifier=error physical=ROLLED_BACK ticket=1->0 without inspection; no cession; subsequent acquisition committed",
+        "AUDIT classifier=null physical=ROLLED_BACK ticket=1->0 without inspection; no cession; subsequent acquisition committed",
+        "VARIANT PASS i3_audit_classifier_exits WRITE"
+      ]
+    },
+    {
+      "gate": "command",
+      "tested_code_sha": "3ee575940669feb56b73b10122b5a3406bce6a08",
+      "artifact": "physical/infra-persistence-primary-jpa/v3-i3-evidence/i3_audit_classifier_exits-READ.txt",
+      "observations": [
+        "AUDIT classifier=runtime physical=ROLLED_BACK ticket=1->0 without inspection; no cession; subsequent acquisition committed",
+        "AUDIT classifier=error physical=ROLLED_BACK ticket=1->0 without inspection; no cession; subsequent acquisition committed",
+        "AUDIT classifier=null physical=ROLLED_BACK ticket=1->0 without inspection; no cession; subsequent acquisition committed",
+        "VARIANT PASS i3_audit_classifier_exits READ"
+      ]
+    },
+    {
+      "gate": "command",
+      "tested_code_sha": "3ee575940669feb56b73b10122b5a3406bce6a08",
+      "artifact": "physical/infra-persistence-primary-jpa/v3-i3-evidence/i3_audit_classifier_active-WRITE.txt",
+      "observations": [
+        "AUDIT classifier callback active after rollback; two inspections=0; ticket=1",
+        "AUDIT classifier local exit confirmed; ticket=0; capacity reacquired once",
+        "VARIANT PASS i3_audit_classifier_active WRITE"
+      ]
+    },
+    {
+      "gate": "command",
+      "tested_code_sha": "3ee575940669feb56b73b10122b5a3406bce6a08",
+      "artifact": "physical/infra-persistence-primary-jpa/v3-i3-evidence/i3_audit_classifier_active-READ.txt",
+      "observations": [
+        "AUDIT classifier callback active after rollback; two inspections=0; ticket=1",
+        "AUDIT classifier local exit confirmed; ticket=0; capacity reacquired once",
+        "VARIANT PASS i3_audit_classifier_active READ"
+      ]
+    },
+    {
+      "gate": "command",
+      "tested_code_sha": "3ee575940669feb56b73b10122b5a3406bce6a08",
+      "artifact": "physical/infra-persistence-primary-jpa/v3-i3-evidence/i3_audit_cession_failure-WRITE.txt",
+      "observations": [
+        "AUDIT cession unreported=false physical=ROLLED_BACK count=0; cessions=1; ticket=1->0; capacity reacquired; no replay",
+        "AUDIT cession unreported=true physical=ROLLED_BACK count=0; cessions=1; ticket=1->0; capacity reacquired; no replay",
+        "VARIANT PASS i3_audit_cession_failure WRITE"
+      ]
+    },
+    {
+      "gate": "command",
+      "tested_code_sha": "3ee575940669feb56b73b10122b5a3406bce6a08",
+      "artifact": "physical/infra-persistence-primary-jpa/v3-i3-evidence/i3_audit_cession_failure-READ.txt",
+      "observations": [
+        "AUDIT cession unreported=false physical=ROLLED_BACK count=0; cessions=1; ticket=1->0; capacity reacquired; no replay",
+        "AUDIT cession unreported=true physical=ROLLED_BACK count=0; cessions=1; ticket=1->0; capacity reacquired; no replay",
+        "VARIANT PASS i3_audit_cession_failure READ"
+      ]
+    },
+    {
+      "gate": "command",
+      "tested_code_sha": "3ee575940669feb56b73b10122b5a3406bce6a08",
+      "artifact": "physical/infra-persistence-primary-jpa/v3-i3-evidence/i3_audit_cession_unknown_active-WRITE.txt",
+      "observations": [
+        "AUDIT physical transaction active after local exit cession=true PID=5735 XID=3129",
+        "local Engine exited; physical cession transaction still open, uncommitted UPDATE; capacity=Snapshot[worker=1, consumptions={ConsumptionId[value=98f7268d-d340-581c-b83d-010926223e14]=1}] DB=2026-10-27T18:08:24.837445Z",
+        "VARIANT PASS i3_audit_cession_unknown_active WRITE"
+      ]
+    },
+    {
+      "gate": "command",
+      "tested_code_sha": "3ee575940669feb56b73b10122b5a3406bce6a08",
+      "artifact": "physical/infra-persistence-primary-jpa/v3-i3-evidence/i3_audit_cession_unknown_active-READ.txt",
+      "observations": [
+        "AUDIT physical transaction active after local exit cession=true PID=5839 XID=3147",
+        "local Engine exited; physical cession transaction still open, uncommitted UPDATE; capacity=Snapshot[worker=1, consumptions={ConsumptionId[value=3dec1c8b-6e3e-57e1-82aa-aa0b5f297a4a]=1}] DB=2026-10-27T18:08:25.424151Z",
+        "VARIANT PASS i3_audit_cession_unknown_active READ"
+      ]
+    },
+    {
+      "gate": "command",
+      "tested_code_sha": "3ee575940669feb56b73b10122b5a3406bce6a08",
+      "artifact": "physical/infra-persistence-primary-jpa/v3-i3-evidence/i3_capacity_uncertainty-WRITE.txt",
+      "observations": [
+        "WIRE VARIANT PASS phase=acquisition fault=BEFORE_COMMIT server commit replies=0 external effects=0",
+        "WIRE VARIANT PASS phase=acquisition fault=AFTER_COMMIT server commit replies=1 external effects=0",
+        "AUDIT physical transaction active after local exit cession=false PID=635 XID=961",
+        "local Engine exited; physical final transaction still open, uncommitted DELETE/expected effects; capacity=Snapshot[worker=1, consumptions={ConsumptionId[value=98f7268d-d340-581c-b83d-010926223e14]=1}] DB=2026-10-27T18:07:36.603440Z",
+        "absent slot did not release until coherent business R9; no replay/no budget",
+        "VARIANT PASS i3_capacity_uncertainty WRITE"
+      ]
+    },
+    {
+      "gate": "command",
+      "tested_code_sha": "3ee575940669feb56b73b10122b5a3406bce6a08",
+      "artifact": "physical/infra-persistence-primary-jpa/v3-i3-evidence/i3_capacity_uncertainty-READ.txt",
+      "observations": [
+        "WIRE VARIANT PASS phase=acquisition fault=BEFORE_COMMIT server commit replies=0 external effects=0",
+        "WIRE VARIANT PASS phase=acquisition fault=AFTER_COMMIT server commit replies=1 external effects=0",
+        "AUDIT physical transaction active after local exit cession=false PID=806 XID=1006",
+        "local Engine exited; physical final transaction still open, uncommitted DELETE/expected effects; capacity=Snapshot[worker=1, consumptions={ConsumptionId[value=3dec1c8b-6e3e-57e1-82aa-aa0b5f297a4a]=1}] DB=2026-10-27T18:07:37.558097Z",
+        "absent slot did not release until coherent business R9; no replay/no budget",
+        "VARIANT PASS i3_capacity_uncertainty READ"
+      ]
+    },
+    {
+      "gate": "command",
+      "tested_code_sha": "3ee575940669feb56b73b10122b5a3406bce6a08",
+      "artifact": "physical/infra-persistence-primary-jpa/v3-i3-evidence/i3_c05_h-WRITE.txt",
+      "observations": [
+        "WIRE VARIANT PASS phase=cession fault=BEFORE_COMMIT server commit replies=0 external effects=0",
+        "WIRE VARIANT PASS phase=cession fault=AFTER_COMMIT server commit replies=1 external effects=0",
+        "VARIANT PASS i3_c05_h WRITE"
+      ]
+    },
+    {
+      "gate": "command",
+      "tested_code_sha": "3ee575940669feb56b73b10122b5a3406bce6a08",
+      "artifact": "physical/infra-persistence-primary-jpa/v3-i3-evidence/i3_c05_h-READ.txt",
+      "observations": [
+        "WIRE VARIANT PASS phase=cession fault=BEFORE_COMMIT server commit replies=0 external effects=0",
+        "WIRE VARIANT PASS phase=cession fault=AFTER_COMMIT server commit replies=1 external effects=0",
+        "VARIANT PASS i3_c05_h READ"
+      ]
+    }
+  ]
+}

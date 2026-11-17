@@ -1,0 +1,27 @@
+{
+  "state": "STOPPED",
+  "exit": 0,
+  "volumes": "PRESERVED",
+  "runtimeExitCodes": {
+    "business-read-worker": 143,
+    "command-worker": 143,
+    "http-read": 143,
+    "http-write": 143,
+    "results-worker": 143
+  },
+  "forcedKill": [],
+  "slotsBeforeStop": {
+    "pocoma_write": "0",
+    "pocoma_read": "0"
+  },
+  "instance": "recovery-evidence-fix",
+  "project": "pocoma-lb-recovery-evidence-fix-71045f8b",
+  "sha": "b7b12c3da8b9fbca0d085110b13ffd1523c6dd7a",
+  "dirty": true,
+  "urls": {
+    "write": "http://127.0.0.1:56456",
+    "read": "http://127.0.0.1:56457"
+  },
+  "issuer": "http://localhost:56458/realms/pocoma",
+  "evidence": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/recovery-evidence-fix/runs/1794737727-391b29eb"
+}

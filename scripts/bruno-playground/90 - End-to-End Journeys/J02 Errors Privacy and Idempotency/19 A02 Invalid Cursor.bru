@@ -1,0 +1,44 @@
+meta {
+  name: J02-19-A02 Invalid Cursor
+  type: http
+  seq: 19
+}
+
+get {
+  url: {{readUrl}}/api/v3/me/pots?cursor=malformed
+  body: none
+  auth: none
+}
+
+headers {
+  Connection: close
+  X-Pocoma-Binding-Token: {{bindingActor}}
+}
+
+settings {
+  timeout: 5000
+}
+
+script:pre-request {
+  const options = {"id":"J02-19-A02","role":"owner","kind":"error","binding":true,"status":400};
+  await require('./lib/workspace.js').prepare(bru, req, options);
+}
+
+tests {
+  const options = {"id":"J02-19-A02","role":"owner","kind":"error","binding":true,"status":400};
+  const work = require('./lib/workspace.js');
+  test('J02-19-A02 transport and privacy', () => work.transport(bru, res, expect, options));
+  test('J02-19-A02 contract and variables', () => {
+    work.verify(bru, req, res, expect, options);
+    work.record(bru, req, res, options);
+  });
+}
+
+docs {
+  Parcours J02 ; etape 19. Source : 09 - Access Control and Errors/A02 Invalid Cursor.bru.
+  400 attendu pour un curseur invalide, sans divulgation de donnees.
+  Identite : actor. Prerequis : URLs de l environnement ; session native si role authentifie.
+  Chaque Send appelle la methode et le corps visibles. Les GET asynchrones attendent
+  le meme endpoint au plus 30 s avant l appel affiche ; aucun POST cache.
+  Modifier le JSON librement ; une nouvelle intention recoit une nouvelle cle.
+}

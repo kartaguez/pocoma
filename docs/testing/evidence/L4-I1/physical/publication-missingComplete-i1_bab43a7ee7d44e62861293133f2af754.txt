@@ -1,0 +1,80 @@
+script=bootstrap-l2-routing.sql rc=0 BEGIN
+LOCK TABLE
+ set_config 
+------------
+ i1_read
+(1 row)
+
+             set_config              
+-------------------------------------
+ i1_bab43a7ee7d44e62861293133f2af754
+(1 row)
+
+              set_config               
+---------------------------------------
+ i1_bab43a7ee7d44e62861293133f2af754_a
+(1 row)
+
+ set_config 
+------------
+ READ
+(1 row)
+
+DO
+INSERT 0 7
+INSERT 0 28
+DO
+COMMIT
+
+script=grant-l2-lifecycle.sql rc=0 BEGIN
+ set_config 
+------------
+ fixture
+(1 row)
+
+ set_config 
+------------
+ 
+(1 row)
+
+DO
+ set_config 
+------------
+ i1_read
+(1 row)
+
+             set_config              
+-------------------------------------
+ i1_bab43a7ee7d44e62861293133f2af754
+(1 row)
+
+              set_config               
+---------------------------------------
+ i1_bab43a7ee7d44e62861293133f2af754_a
+(1 row)
+
+              set_config               
+---------------------------------------
+ i1_bab43a7ee7d44e62861293133f2af754_w
+(1 row)
+
+              set_config               
+---------------------------------------
+ i1_bab43a7ee7d44e62861293133f2af754_r
+(1 row)
+
+DO
+GRANT
+GRANT
+GRANT
+GRANT
+GRANT
+GRANT
+DO
+DO
+COMMIT
+
+environment={version=PostgreSQL 17.11 on aarch64-unknown-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit, db=i1_read, schema=i1_bab43a7ee7d44e62861293133f2af754, current_user=i1_bab43a7ee7d44e62861293133f2af754_a, clock_timestamp=2026-11-02 08:38:18.632211} image=postgres@sha256:18cfe3ef5e6815560c98237d6216d1e5119702fb0f3894c8785dd58b8bbe5d73 runtime=i1_bab43a7ee7d44e62861293133f2af754_w admin=i1_bab43a7ee7d44e62861293133f2af754_a
+acquired=ClaimedSlot[consumptionId=ConsumptionId[value=3dec1c8b-6e3e-57e1-82aa-aa0b5f297a4a], consumableId=76ebd47c-55b2-42db-9d6a-39f66c36e6ed, claimToken=01ca9e20-d574-469e-bcf3-b571c40a7f4a] partition=1
+external snapshot 76ebd47c-55b2-42db-9d6a-39f66c36e6ed {effects=0, slots=1, witnesses=0}
+ROLLED_BACK=Attempt[status=ROLLED_BACK, resolution=ROLLED_BACK, observation=null, cause=java.lang.IllegalStateException: Missing or failed completion, failureKind=NON_COUNTABLE, cession=null, cessionResolution=null] snapshot={effects=0, slots=1, witnesses=0}

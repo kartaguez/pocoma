@@ -1,0 +1,89 @@
+{
+  "commands": [
+    {
+      "cwd": "app/ (original)",
+      "command": "./mvnw --batch-mode --no-transfer-progress -pl engine-admit-command,engine-admit-registration -am compile",
+      "log": "pocoma-l5-i2-compile-01.log",
+      "result": "FAIL \u2014 ambiguous Amount import"
+    },
+    {
+      "cwd": "app/ (original)",
+      "command": "./mvnw --batch-mode --no-transfer-progress -pl supra-http-write,infra-persistence-primary-jpa -am compile",
+      "log": "pocoma-l5-i2-compile-02.log",
+      "result": "Maven exit 0; diagnostic only because JDT shared targets"
+    },
+    {
+      "cwd": "app/ (original)",
+      "command": "./mvnw --batch-mode --no-transfer-progress -pl runtime-web-api,runtime-monolith -am compile",
+      "log": "pocoma-l5-i2-compile-03.log",
+      "result": "Maven exit 0; diagnostic only because JDT shared targets"
+    },
+    {
+      "cwd": "repository root (original)",
+      "command": "./app/mvnw --batch-mode --no-transfer-progress -f app/pom.xml -pl engine-admit-command,engine-admit-registration,engine-write-pot,engine-consume-registration -am clean",
+      "log": "pocoma-l5-i2-clean-a1.log",
+      "result": "Local FAST closure clean, not full reactor"
+    },
+    {
+      "cwd": "isolated app/",
+      "command": "./mvnw --batch-mode --no-transfer-progress -pl runtime-web-api,runtime-command-consumption-worker,runtime-monolith -am test-compile",
+      "log": "pocoma-l5-i2-test-compile-01.log",
+      "result": "SUCCESS \u2014 no tests executed"
+    },
+    {
+      "cwd": "isolated scripts/bruno-v3/",
+      "command": "npm ci --ignore-scripts --no-audit --no-fund",
+      "log": "pocoma-l5-i2-npm.log",
+      "result": "SUCCESS \u2014 lockfile Bruno 4.3.0"
+    },
+    {
+      "cwd": "repository root",
+      "command": "python3 -B scripts/testing/test_verification.py",
+      "log": "pocoma-l5-i2-selector-tests-final.log",
+      "result": "32 PASS"
+    },
+    {
+      "cwd": "repository root",
+      "command": "node --check scripts/bruno-v3/lib/i2-admission.js",
+      "result": "SUCCESS \u2014 syntax only"
+    },
+    {
+      "cwd": "repository root",
+      "command": "python3 -m py_compile scripts/testing/preflight-l5-i2-gates.py",
+      "result": "SUCCESS \u2014 syntax only; generated pycache removed"
+    },
+    {
+      "cwd": "repository root",
+      "command": "java /private/tmp/pocoma-l5-i2-await-diagnosis/AwaitRaceProof.java",
+      "result": "SUCCESS \u2014 deterministic counterexample of original extracted await helper: true first observation, false second read causes original helper failure; diagnostic only, source/hash retained",
+      "log": "pocoma-l5-i2-await-diagnosis/AwaitRaceProof.java + source.json (separate retained archive)"
+    },
+    {
+      "cwd": "repository root",
+      "command": "javac -d /private/tmp/pocoma-l5-i2-unicode-diagnosis/classes /private/tmp/pocoma-l5-i2-unicode-diagnosis/original-sources/*.java /private/tmp/pocoma-l5-i2-unicode-diagnosis/CanonicalUtf8Proof.java",
+      "result": "SUCCESS \u2014 original four pure contract classes compiled in separate temp output, no Maven targets touched",
+      "log": "pocoma-l5-i2-unicode-diagnosis/original-reproduction.log and source-hashes.json (retained archive)"
+    },
+    {
+      "cwd": "repository root",
+      "command": "java -cp /private/tmp/pocoma-l5-i2-unicode-diagnosis/classes CanonicalUtf8Proof",
+      "result": "SUCCESS \u2014 confirmed original intent/scope alias for isolated surrogate and question mark; diagnostic only",
+      "log": "pocoma-l5-i2-unicode-diagnosis/original-reproduction.log and source-hashes.json (retained archive)"
+    },
+    {
+      "cwd": "host process supervision",
+      "command": "kill -TERM 34510",
+      "result": "Collector interrupted; Maven/forks reaped and lock released; original CLI non-PASS preserved",
+      "reason": "New controller profile missing, source invalidates gate",
+      "log": "pocoma-l5-i2-c-01/result.json and timings.json (retained archive)"
+    },
+    {
+      "cwd": "host process supervision",
+      "command": "kill -TERM 33929",
+      "result": "Collector interrupted; Maven/forks reaped and lock released; original CLI non-PASS preserved",
+      "reason": "Original Unicode intent/scope alias confirmed, source invalidates gate",
+      "log": "pocoma-l5-i2-c-03/result.json and timings.json (retained archive)"
+    }
+  ],
+  "durations": "Native diagnostic compile Maven Total time appears in logs; independent monotonic duration not measured. No test PASS inferred from compile/clean/syntax."
+}

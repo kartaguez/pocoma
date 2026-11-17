@@ -1,0 +1,17 @@
+{
+  "pid": 73993,
+  "process_group": 73993,
+  "command": [
+    "./mvnw",
+    "--batch-mode",
+    "--no-transfer-progress",
+    "-pl",
+    "runtime-worker-process",
+    "-am",
+    "-Dtest=com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest#i5_r12",
+    "-Dsurefire.failIfNoSpecifiedTests=false",
+    "-Dpocoma.verification.id=f749df9d17244bd8ae1c557a171dd933",
+    "-Dpocoma.verification.reports=/Users/julien.guezennec/Dev/projects/pocoma/certification-raw/l7-i2-i3-r12-after-fixture/reports",
+    "test"
+  ]
+}

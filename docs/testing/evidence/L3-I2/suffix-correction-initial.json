@@ -1,0 +1,379 @@
+{
+  "name": "suffix-correction-initial",
+  "command": "./mvnw -pl architecture-tests -am -Dtest=IdentityAuthorityPostgresTest,IdentityConcurrencyPostgresTest,IdentitySchemaPostgresTest,BindingTokenGeneratorTest,V3IdentityAuthorityArchitectureTest,V3ConsumptionEngineArchitectureTest,V3PotExecutionArchitectureTest,EventPublicationContractArchitectureTest -Dsurefire.failIfNoSpecifiedTests=false test",
+  "cwd": "app/",
+  "exit_code": 1,
+  "build": "FAILURE",
+  "head_at_capture": "6ed1599ac41c22844882cf1df7fb1e70f23002e9",
+  "input_sha256": {
+    "app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/v3/V3IdentityAuthorityArchitectureTest.java": "181cba9f07d5826f1da1d6602e11973601ea001cbf4e27ee467434bf47d23244",
+    "app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/identity/JdbcIdentityAuthority.java": "8a38429bd52c47755673d5a638acaaf5a5a7f982cfe77a7911dc4aacd19dd158",
+    "app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/identity/SecureBindingTokenGenerator.java": "70da6efc3dfeb9cf68c5abac52741e47146e5b78e11bb57447da889b8f29fccc",
+    "app/infra-persistence-primary-jpa/src/main/resources/db/v3-identity/migration/V6__identity_authority_and_requests.sql": "f1d21844ff391a67bf693c9b21c92c9950a9d9e76cf43dabd50c445ab212293e",
+    "app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/identity/BindingTokenGeneratorTest.java": "4a5656c0ae4c0e945d5a5104e7049ee2e676fc918a4f3a618dcb8320aab5a5ef",
+    "app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/identity/IdentityAuthorityPostgresTest.java": "23ab347b0400511de8957759886fcde63e4dcc6d975bbb7fe3fb9111fb4f57b8",
+    "app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/identity/IdentityConcurrencyPostgresTest.java": "de7e9f5451ca9787feb277113d20e08327db2b8afc4f99cb44260b39473e2a07",
+    "app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/identity/IdentitySchemaPostgresTest.java": "292f339bb594aa751333647b71c43c614334d57a6eec4d456632ea3e28394ff1"
+  },
+  "totals": {
+    "tests": 27,
+    "failures": 1,
+    "errors": 0,
+    "skipped": 0
+  },
+  "suites": [
+    {
+      "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityConcurrencyPostgresTest",
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentitySchemaPostgresTest",
+      "tests": 11,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.BindingTokenGeneratorTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityAuthorityPostgresTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "cases": [
+    {
+      "suite": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityConcurrencyPostgresTest",
+      "name": "l3_link_vs_initiator_unlink",
+      "status": "PASS",
+      "seconds": "0.875",
+      "detail": null
+    },
+    {
+      "suite": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityConcurrencyPostgresTest",
+      "name": "l3_disjoint_progress",
+      "status": "PASS",
+      "seconds": "0.338",
+      "detail": null
+    },
+    {
+      "suite": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityConcurrencyPostgresTest",
+      "name": "l3_canonical_unicode",
+      "status": "PASS",
+      "seconds": "0.873",
+      "detail": null
+    },
+    {
+      "suite": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityConcurrencyPostgresTest",
+      "name": "l3_link_races",
+      "status": "PASS",
+      "seconds": "0.722",
+      "detail": null
+    },
+    {
+      "suite": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityConcurrencyPostgresTest",
+      "name": "l3_anchor_id_race",
+      "status": "PASS",
+      "seconds": "0.416",
+      "detail": null
+    },
+    {
+      "suite": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityConcurrencyPostgresTest",
+      "name": "l3_cross_unlinks",
+      "status": "PASS",
+      "seconds": "0.355",
+      "detail": null
+    },
+    {
+      "suite": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityConcurrencyPostgresTest",
+      "name": "l3_canonical_lock_paths",
+      "status": "PASS",
+      "seconds": "0.287",
+      "detail": null
+    },
+    {
+      "suite": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityConcurrencyPostgresTest",
+      "name": "l3_registration_race",
+      "status": "PASS",
+      "seconds": "0.416",
+      "detail": null
+    },
+    {
+      "suite": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentitySchemaPostgresTest",
+      "name": "l3_position_constraints",
+      "status": "PASS",
+      "seconds": "0.604",
+      "detail": null
+    },
+    {
+      "suite": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentitySchemaPostgresTest",
+      "name": "l3_anchor_negative_invariants",
+      "status": "PASS",
+      "seconds": "1.24",
+      "detail": null
+    },
+    {
+      "suite": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentitySchemaPostgresTest",
+      "name": "l3_unstorable_keys",
+      "status": "PASS",
+      "seconds": "0.7",
+      "detail": null
+    },
+    {
+      "suite": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentitySchemaPostgresTest",
+      "name": "l3_deferred_commit_has_no_new_business_locks",
+      "status": "PASS",
+      "seconds": "0.404",
+      "detail": null
+    },
+    {
+      "suite": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentitySchemaPostgresTest",
+      "name": "l3_sql_publication_closure",
+      "status": "FAIL",
+      "seconds": "0.474",
+      "detail": "pot-family ==> Expected java.lang.RuntimeException to be thrown, but nothing was thrown."
+    },
+    {
+      "suite": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentitySchemaPostgresTest",
+      "name": "l3_sql_negative_shapes",
+      "status": "PASS",
+      "seconds": "1.108",
+      "detail": null
+    },
+    {
+      "suite": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentitySchemaPostgresTest",
+      "name": "l3_history_rewrite_forbidden",
+      "status": "PASS",
+      "seconds": "1.404",
+      "detail": null
+    },
+    {
+      "suite": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentitySchemaPostgresTest",
+      "name": "l3_fk_wait_is_in_prefix",
+      "status": "PASS",
+      "seconds": "0.32",
+      "detail": null
+    },
+    {
+      "suite": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentitySchemaPostgresTest",
+      "name": "l3_bad_server_encoding_preflight",
+      "status": "PASS",
+      "seconds": "0.245",
+      "detail": null
+    },
+    {
+      "suite": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentitySchemaPostgresTest",
+      "name": "l3_other_family_suffix_is_untouched",
+      "status": "PASS",
+      "seconds": "0.311",
+      "detail": null
+    },
+    {
+      "suite": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentitySchemaPostgresTest",
+      "name": "l3_constraint_catalog",
+      "status": "PASS",
+      "seconds": "0.325",
+      "detail": null
+    },
+    {
+      "suite": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.BindingTokenGeneratorTest",
+      "name": "l3_generator_contract",
+      "status": "PASS",
+      "seconds": "0.002",
+      "detail": null
+    },
+    {
+      "suite": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.BindingTokenGeneratorTest",
+      "name": "l3_real_secure_random_encoding",
+      "status": "PASS",
+      "seconds": "0.003",
+      "detail": null
+    },
+    {
+      "suite": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityAuthorityPostgresTest",
+      "name": "l3_rollback_boundaries",
+      "status": "PASS",
+      "seconds": "1.596",
+      "detail": null
+    },
+    {
+      "suite": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityAuthorityPostgresTest",
+      "name": "l3_history_exact",
+      "status": "PASS",
+      "seconds": "0.587",
+      "detail": null
+    },
+    {
+      "suite": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityAuthorityPostgresTest",
+      "name": "l3_anchor_absence",
+      "status": "PASS",
+      "seconds": "0.335",
+      "detail": null
+    },
+    {
+      "suite": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityAuthorityPostgresTest",
+      "name": "l3_last_unlink_and_registration_free",
+      "status": "PASS",
+      "seconds": "0.335",
+      "detail": null
+    },
+    {
+      "suite": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityAuthorityPostgresTest",
+      "name": "l3_forced_token_collision",
+      "status": "PASS",
+      "seconds": "0.491",
+      "detail": null
+    },
+    {
+      "suite": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityAuthorityPostgresTest",
+      "name": "l3_guards_and_caught_failure_poison",
+      "status": "PASS",
+      "seconds": "0.381",
+      "detail": null
+    }
+  ],
+  "completed_at": [
+    "2026-10-30T14:46:03+01:00"
+  ],
+  "duration": [
+    " 24.457 s"
+  ],
+  "log_sha256": "b8b53cb79bf2314459d8473a38801a8472853bf2f836cba890e9f40a5c89d4f6",
+  "archive": {
+    "path": "suffix-correction-initial.tar.gz",
+    "sha256": "dc29b0cc77ec342afadbceeb88e358241b8631fcbb6f4eac49a5d9d35207e78b",
+    "bytes": 72365
+  },
+  "members": {
+    "app/infra-persistence-primary-jpa/target/l3-i2-evidence/IdentityAuthorityPostgresTest-l3_anchor_absence.txt": {
+      "bytes": 6024,
+      "sha256": "46050c8743e3740ff79a877befcabe31ff9475c816e6a097597a31812e80f266"
+    },
+    "app/infra-persistence-primary-jpa/target/l3-i2-evidence/IdentityAuthorityPostgresTest-l3_forced_token_collision.txt": {
+      "bytes": 6525,
+      "sha256": "b930bebbab1cf50dbee711e6532e15837be3a9d09e12a47292a60da837babe9f"
+    },
+    "app/infra-persistence-primary-jpa/target/l3-i2-evidence/IdentityAuthorityPostgresTest-l3_guards_and_caught_failure_poison.txt": {
+      "bytes": 1600,
+      "sha256": "fed6cf9056c7eba1fdcd81e3664cfbfed9482627640e0e01a12437b2d323a7e1"
+    },
+    "app/infra-persistence-primary-jpa/target/l3-i2-evidence/IdentityAuthorityPostgresTest-l3_history_exact.txt": {
+      "bytes": 19123,
+      "sha256": "e28d0854b869b0effa810c389fc867cb03d07ef3aceb19cfe5e293e8e62eb4fd"
+    },
+    "app/infra-persistence-primary-jpa/target/l3-i2-evidence/IdentityAuthorityPostgresTest-l3_last_unlink_and_registration_free.txt": {
+      "bytes": 7635,
+      "sha256": "b797a01687579a496f3e80344753da2ec8e7c63a6dea462e7fb8592226697c9c"
+    },
+    "app/infra-persistence-primary-jpa/target/l3-i2-evidence/IdentityAuthorityPostgresTest-l3_rollback_boundaries.txt": {
+      "bytes": 9813,
+      "sha256": "25943847e153d0ff4a5decfc2048f90371514c4d772ca13e97aa3c8c35e413e7"
+    },
+    "app/infra-persistence-primary-jpa/target/l3-i2-evidence/IdentityConcurrencyPostgresTest-l3_anchor_id_race.txt": {
+      "bytes": 13504,
+      "sha256": "85eb2fa3a8147bc4380816323fef7132a91687295a2fd371eab2b8e3b6929c82"
+    },
+    "app/infra-persistence-primary-jpa/target/l3-i2-evidence/IdentityConcurrencyPostgresTest-l3_canonical_lock_paths.txt": {
+      "bytes": 5321,
+      "sha256": "7a76d64e05bfd1d3a21e68876dceb9174aacc69f007257f49b1e96e2022555e8"
+    },
+    "app/infra-persistence-primary-jpa/target/l3-i2-evidence/IdentityConcurrencyPostgresTest-l3_canonical_unicode.txt": {
+      "bytes": 123305,
+      "sha256": "8da22685de8d2d8ee4e12e9f2d7a26bbfe48c6b02d9b2a613cf5ee185729ff53"
+    },
+    "app/infra-persistence-primary-jpa/target/l3-i2-evidence/IdentityConcurrencyPostgresTest-l3_cross_unlinks.txt": {
+      "bytes": 9285,
+      "sha256": "12a2a70a406bd840c6555eb416dc82255e285c3d2831780ac15e72067cc38bfa"
+    },
+    "app/infra-persistence-primary-jpa/target/l3-i2-evidence/IdentityConcurrencyPostgresTest-l3_disjoint_progress.txt": {
+      "bytes": 5965,
+      "sha256": "0ae2efab5f9fa46a71e369af681b815f89155c8c0f834e7d93966e0b8d95dca2"
+    },
+    "app/infra-persistence-primary-jpa/target/l3-i2-evidence/IdentityConcurrencyPostgresTest-l3_link_races.txt": {
+      "bytes": 33149,
+      "sha256": "852289e616ae2e1065fae8b713f0900edf7e505cc9ece2f407ee0b9ef093ceec"
+    },
+    "app/infra-persistence-primary-jpa/target/l3-i2-evidence/IdentityConcurrencyPostgresTest-l3_link_vs_initiator_unlink.txt": {
+      "bytes": 14021,
+      "sha256": "5ffc98daf379b743317b8a0056d2e06568f4060afaab3b22a389e5c7ae4fa053"
+    },
+    "app/infra-persistence-primary-jpa/target/l3-i2-evidence/IdentityConcurrencyPostgresTest-l3_registration_race.txt": {
+      "bytes": 13413,
+      "sha256": "1cde1164953f7194091a78834e4a0699d634e2492e05965b88aa162ff38ac70a"
+    },
+    "app/infra-persistence-primary-jpa/target/l3-i2-evidence/IdentitySchemaPostgresTest-l3_anchor_negative_invariants.txt": {
+      "bytes": 4773,
+      "sha256": "ce77945d307164b8b257ab4c9c42d33a101a237359a9b220751ac7b907bd4620"
+    },
+    "app/infra-persistence-primary-jpa/target/l3-i2-evidence/IdentitySchemaPostgresTest-l3_bad_server_encoding_preflight.txt": {
+      "bytes": 1017,
+      "sha256": "d30f3ecd411f433c338a71a5e90e51f02a92a8a60be163a3d87bac37781faf2b"
+    },
+    "app/infra-persistence-primary-jpa/target/l3-i2-evidence/IdentitySchemaPostgresTest-l3_constraint_catalog.txt": {
+      "bytes": 23040,
+      "sha256": "1d9975d7bf54b67bc091c5cf3900b666ae9624a341b99474fbeadca42c41754e"
+    },
+    "app/infra-persistence-primary-jpa/target/l3-i2-evidence/IdentitySchemaPostgresTest-l3_deferred_commit_has_no_new_business_locks.txt": {
+      "bytes": 10628,
+      "sha256": "597f813b2b0c35ecbca93fb3aab1bfa31b2ebdd4fb3b7454e3d8ae62611f2397"
+    },
+    "app/infra-persistence-primary-jpa/target/l3-i2-evidence/IdentitySchemaPostgresTest-l3_fk_wait_is_in_prefix.txt": {
+      "bytes": 5764,
+      "sha256": "6e3c9dadea848da7b2132de7aca6913b29f63e7eb357d4e314de553c0f7afb04"
+    },
+    "app/infra-persistence-primary-jpa/target/l3-i2-evidence/IdentitySchemaPostgresTest-l3_history_rewrite_forbidden.txt": {
+      "bytes": 4435,
+      "sha256": "6b64f79c7e0c0240d50ffacd8f53efabc076cae76fa46db58f18098f47399092"
+    },
+    "app/infra-persistence-primary-jpa/target/l3-i2-evidence/IdentitySchemaPostgresTest-l3_other_family_suffix_is_untouched.txt": {
+      "bytes": 1555,
+      "sha256": "6fbf3c02c23185d3b011dd75efc2ac545e74492d5f604071d31b425a12cf4665"
+    },
+    "app/infra-persistence-primary-jpa/target/l3-i2-evidence/IdentitySchemaPostgresTest-l3_position_constraints.txt": {
+      "bytes": 1263,
+      "sha256": "8306d8ec1e8872e3e0aac3b184b739441d927f94a0c91a8d04f50cb3fe738127"
+    },
+    "app/infra-persistence-primary-jpa/target/l3-i2-evidence/IdentitySchemaPostgresTest-l3_sql_negative_shapes.txt": {
+      "bytes": 4490,
+      "sha256": "c612317f8d8fc449fee695bae442dfe54c84fb4e9f3f470ee529f30d62cf36dd"
+    },
+    "app/infra-persistence-primary-jpa/target/l3-i2-evidence/IdentitySchemaPostgresTest-l3_sql_publication_closure.txt": {
+      "bytes": 4348,
+      "sha256": "8b8ede3a308212a9ca320d2e01452139bf477243a40d043d22b7c8d429070c71"
+    },
+    "app/infra-persistence-primary-jpa/target/l3-i2-evidence/IdentitySchemaPostgresTest-l3_unstorable_keys.txt": {
+      "bytes": 999,
+      "sha256": "a6a6fa22e1abf54b04fc35d93f4555eeca6228695caae3770d059c56ad7699da"
+    },
+    "app/infra-persistence-primary-jpa/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.BindingTokenGeneratorTest.xml": {
+      "bytes": 34499,
+      "sha256": "bb95f34553e63999115aae104ea7cac0dc0cb7d04d3049e4b399a34955b7065e"
+    },
+    "app/infra-persistence-primary-jpa/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityAuthorityPostgresTest.xml": {
+      "bytes": 48067,
+      "sha256": "702f3ee2bbe079fe76d77bdcd5691357795b7d03f49127e2379f66d75f68c0d3"
+    },
+    "app/infra-persistence-primary-jpa/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityConcurrencyPostgresTest.xml": {
+      "bytes": 54659,
+      "sha256": "1fd3ecafb1c07a5688f9906c92b5da58cfd4b48c748f6a7dfab6a310ab04b565"
+    },
+    "app/infra-persistence-primary-jpa/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentitySchemaPostgresTest.xml": {
+      "bytes": 59808,
+      "sha256": "efdc5e3dc4a07e86c77fd8400d3fe3bf0864f0688a28b1bd0d376ec64182cd8a"
+    },
+    "maven.log": {
+      "bytes": 125471,
+      "sha256": "b8b53cb79bf2314459d8473a38801a8472853bf2f836cba890e9f40a5c89d4f6"
+    }
+  }
+}

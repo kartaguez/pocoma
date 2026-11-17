@@ -1,0 +1,32 @@
+{
+  "runId": "run-smoke-1794004221",
+  "scenario": "smoke",
+  "timestamp": "2026-11-06T22:30:24Z",
+  "k6ClientMetrics": {
+    "available": false,
+    "error": "Summary file not found: /Users/julien.guezennec/Dev/projects/pocoma/docs/testing/evidence/L6-I3/run-smoke-1794004221_k6_summary.json"
+  },
+  "engineTelemetry": {
+    "admissionRequestsTotal": 1.0,
+    "attemptOutcomesCommitted": 37.0,
+    "attemptOutcomesRetried": null,
+    "readQuotaPermitsAvailable": 2.0,
+    "readQuotaRejectionsTotal": 0.0,
+    "admissionCapacityAvailable": 1.0
+  },
+  "systemTelemetry": {
+    "jvmHeapUsedBytes": 0.0,
+    "jvmNonHeapUsedBytes": 1626368.0,
+    "jvmGcPauseCount": 347.0,
+    "jvmGcPauseSumSeconds": 1.058,
+    "processCpuUsage": 0.07151979565772669,
+    "systemCpuUsage": 0.10114211690644812,
+    "jvmLiveThreads": 51.0,
+    "hikariActiveConnections": 0.0,
+    "hikariIdleConnections": 33.0,
+    "hikariPendingThreads": 0.0
+  },
+  "postgresTelemetry": {
+    "error": "name 'POSTGRES_PASSWORD' is not defined"
+  }
+}

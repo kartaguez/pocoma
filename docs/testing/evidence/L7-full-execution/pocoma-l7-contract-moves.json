@@ -1,0 +1,105 @@
+{
+  "moves": [
+    {
+      "from": "app/contracts-command/src/main/java/com/kartaguez/pocoma/contracts/command/v3/AdmissionAssociation.java",
+      "to": "app/contract-write-admission/src/main/java/com/kartaguez/pocoma/contract/writeadmission/AdmissionAssociation.java"
+    },
+    {
+      "from": "app/contracts-command/src/main/java/com/kartaguez/pocoma/contracts/command/v3/AdmissionFailure.java",
+      "to": "app/contract-write-admission/src/main/java/com/kartaguez/pocoma/contract/writeadmission/AdmissionFailure.java"
+    },
+    {
+      "from": "app/contracts-command/src/main/java/com/kartaguez/pocoma/contracts/command/v3/AdmissionFields.java",
+      "to": "app/contract-write-admission/src/main/java/com/kartaguez/pocoma/contract/writeadmission/AdmissionFields.java"
+    },
+    {
+      "from": "app/contracts-command/src/main/java/com/kartaguez/pocoma/contracts/command/v3/AdmissionProtection.java",
+      "to": "app/contract-write-admission/src/main/java/com/kartaguez/pocoma/contract/writeadmission/AdmissionProtection.java"
+    },
+    {
+      "from": "app/contracts-registration/src/main/java/com/kartaguez/pocoma/contracts/registration/v3/IdentityRequest.java",
+      "to": "app/contract-write-admission/src/main/java/com/kartaguez/pocoma/contract/writeadmission/IdentityRequest.java"
+    },
+    {
+      "from": "app/contracts-registration/src/main/java/com/kartaguez/pocoma/contracts/registration/v3/LinkProposal.java",
+      "to": "app/contract-write-admission/src/main/java/com/kartaguez/pocoma/contract/writeadmission/LinkProposal.java"
+    },
+    {
+      "from": "app/engine-write-pot/src/main/java/com/kartaguez/pocoma/engine/write/pot/port/execution/v3/PotCommand.java",
+      "to": "app/contract-write-admission/src/main/java/com/kartaguez/pocoma/contract/writeadmission/PotCommand.java"
+    },
+    {
+      "from": "app/engine-admit-command/src/main/java/com/kartaguez/pocoma/engine/admit/command/v3/CommandAdmissionInput.java",
+      "to": "app/contract-write-admission/src/main/java/com/kartaguez/pocoma/contract/writeadmission/CommandAdmissionInput.java"
+    },
+    {
+      "from": "app/engine-admit-registration/src/main/java/com/kartaguez/pocoma/engine/admit/registration/v3/IdentityAdmissionInput.java",
+      "to": "app/contract-write-admission/src/main/java/com/kartaguez/pocoma/contract/writeadmission/IdentityAdmissionInput.java"
+    },
+    {
+      "from": "app/engine-admit-registration/src/main/java/com/kartaguez/pocoma/engine/admit/registration/v3/LinkProposalInput.java",
+      "to": "app/contract-write-admission/src/main/java/com/kartaguez/pocoma/contract/writeadmission/LinkProposalInput.java"
+    },
+    {
+      "from": "app/engine-read-command-result/src/main/java/com/kartaguez/pocoma/engine/read/commandresult/v3/CommandTerminalResult.java",
+      "to": "app/domain-projection/src/main/java/com/kartaguez/pocoma/domain/projection/v3/CommandTerminalResult.java"
+    },
+    {
+      "from": "app/engine-read-registration-result/src/main/java/com/kartaguez/pocoma/engine/read/registrationresult/v3/IdentityTerminalResult.java",
+      "to": "app/domain-projection/src/main/java/com/kartaguez/pocoma/domain/projection/v3/IdentityTerminalResult.java"
+    },
+    {
+      "from": "app/engine-read-command-result/src/main/java/com/kartaguez/pocoma/engine/read/commandresult/v3/CommandTerminalResultStore.java",
+      "to": "app/port-projection/src/main/java/com/kartaguez/pocoma/port/projection/v3/CommandTerminalResultStore.java"
+    },
+    {
+      "from": "app/engine-read-registration-result/src/main/java/com/kartaguez/pocoma/engine/read/registrationresult/v3/IdentityTerminalResultStore.java",
+      "to": "app/port-projection/src/main/java/com/kartaguez/pocoma/port/projection/v3/IdentityTerminalResultStore.java"
+    },
+    {
+      "from": "app/engine-materialize-current-binding/src/main/java/com/kartaguez/pocoma/engine/materialize/currentbinding/v3/CurrentBindingStore.java",
+      "to": "app/port-projection/src/main/java/com/kartaguez/pocoma/port/projection/v3/CurrentBindingStore.java"
+    },
+    {
+      "from": "app/engine-read-pot/src/main/java/com/kartaguez/pocoma/engine/read/pot/v3/ReadPotV3Result.java",
+      "to": "app/contract-read-query/src/main/java/com/kartaguez/pocoma/contract/readquery/ReadPotV3Result.java"
+    },
+    {
+      "from": "app/engine-read-pot/src/main/java/com/kartaguez/pocoma/engine/read/pot/v3/ReadLimitsV3.java",
+      "to": "app/contract-read-query/src/main/java/com/kartaguez/pocoma/contract/readquery/ReadLimitsV3.java"
+    }
+  ],
+  "types": {
+    "com.kartaguez.pocoma.contracts.command.v3.AdmissionAssociation": "com.kartaguez.pocoma.contract.writeadmission.AdmissionAssociation",
+    "com.kartaguez.pocoma.contracts.command.v3.AdmissionFailure": "com.kartaguez.pocoma.contract.writeadmission.AdmissionFailure",
+    "com.kartaguez.pocoma.contracts.command.v3.AdmissionFields": "com.kartaguez.pocoma.contract.writeadmission.AdmissionFields",
+    "com.kartaguez.pocoma.contracts.command.v3.AdmissionProtection": "com.kartaguez.pocoma.contract.writeadmission.AdmissionProtection",
+    "com.kartaguez.pocoma.contracts.registration.v3.IdentityRequest": "com.kartaguez.pocoma.contract.writeadmission.IdentityRequest",
+    "com.kartaguez.pocoma.contracts.registration.v3.LinkProposal": "com.kartaguez.pocoma.contract.writeadmission.LinkProposal",
+    "com.kartaguez.pocoma.engine.write.pot.port.execution.v3.PotCommand": "com.kartaguez.pocoma.contract.writeadmission.PotCommand",
+    "com.kartaguez.pocoma.engine.admit.command.v3.CommandAdmissionInput": "com.kartaguez.pocoma.contract.writeadmission.CommandAdmissionInput",
+    "com.kartaguez.pocoma.engine.admit.registration.v3.IdentityAdmissionInput": "com.kartaguez.pocoma.contract.writeadmission.IdentityAdmissionInput",
+    "com.kartaguez.pocoma.engine.admit.registration.v3.LinkProposalInput": "com.kartaguez.pocoma.contract.writeadmission.LinkProposalInput",
+    "com.kartaguez.pocoma.engine.read.commandresult.v3.CommandTerminalResult": "com.kartaguez.pocoma.domain.projection.v3.CommandTerminalResult",
+    "com.kartaguez.pocoma.engine.read.registrationresult.v3.IdentityTerminalResult": "com.kartaguez.pocoma.domain.projection.v3.IdentityTerminalResult",
+    "com.kartaguez.pocoma.engine.read.commandresult.v3.CommandTerminalResultStore": "com.kartaguez.pocoma.port.projection.v3.CommandTerminalResultStore",
+    "com.kartaguez.pocoma.engine.read.registrationresult.v3.IdentityTerminalResultStore": "com.kartaguez.pocoma.port.projection.v3.IdentityTerminalResultStore",
+    "com.kartaguez.pocoma.engine.materialize.currentbinding.v3.CurrentBindingStore": "com.kartaguez.pocoma.port.projection.v3.CurrentBindingStore",
+    "com.kartaguez.pocoma.engine.read.pot.v3.ReadPotV3Result": "com.kartaguez.pocoma.contract.readquery.ReadPotV3Result",
+    "com.kartaguez.pocoma.engine.read.pot.v3.ReadLimitsV3": "com.kartaguez.pocoma.contract.readquery.ReadLimitsV3",
+    "com.kartaguez.pocoma.engine.read.pot.v3.ReadPotV3.Queries": "com.kartaguez.pocoma.contract.readquery.PotRead.Queries",
+    "com.kartaguez.pocoma.engine.read.pot.v3.ReadPotV3.BindingReader": "com.kartaguez.pocoma.contract.readquery.PotRead.BindingReader",
+    "com.kartaguez.pocoma.engine.read.pot.v3.ReadInvitation.Link": "com.kartaguez.pocoma.contract.readquery.InvitationRead.Link",
+    "com.kartaguez.pocoma.engine.read.pot.v3.ReadInvitation.Place": "com.kartaguez.pocoma.contract.readquery.InvitationRead.Place",
+    "com.kartaguez.pocoma.engine.read.pot.v3.ReadInvitation.Queries": "com.kartaguez.pocoma.contract.readquery.InvitationRead.Queries",
+    "com.kartaguez.pocoma.engine.read.currentbinding.v3.GetCurrentBindingV3.Query": "com.kartaguez.pocoma.contract.readquery.BindingRead.Query",
+    "com.kartaguez.pocoma.engine.read.currentbinding.v3.GetCurrentBindingV3.Status": "com.kartaguez.pocoma.contract.readquery.BindingRead.Status",
+    "com.kartaguez.pocoma.engine.read.currentbinding.v3.GetCurrentBindingV3.View": "com.kartaguez.pocoma.contract.readquery.BindingRead.View",
+    "com.kartaguez.pocoma.engine.read.currentbinding.v3.GetCurrentBindingV3.Answer": "com.kartaguez.pocoma.contract.readquery.BindingRead.Answer",
+    "com.kartaguez.pocoma.engine.read.commandresult.v3.GetCommandTerminalResult.Query": "com.kartaguez.pocoma.contract.readquery.CommandResultRead.Query",
+    "com.kartaguez.pocoma.engine.read.registrationresult.v3.GetIdentityTerminalResult.Query": "com.kartaguez.pocoma.contract.readquery.IdentityResultRead.Query",
+    "com.kartaguez.pocoma.engine.admit.registration.v3.AdmitLinkProposal.Summary": "com.kartaguez.pocoma.contract.writeadmission.IssueLinkProposal.Summary",
+    "com.kartaguez.pocoma.engine.admit.registration.v3.AdmitLinkProposal.Created": "com.kartaguez.pocoma.contract.writeadmission.IssueLinkProposal.Created",
+    "com.kartaguez.pocoma.engine.admit.registration.v3.AdmitLinkProposal.Accepted": "com.kartaguez.pocoma.contract.writeadmission.IssueLinkProposal.Accepted"
+  }
+}

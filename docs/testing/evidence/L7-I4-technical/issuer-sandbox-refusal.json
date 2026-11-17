@@ -1,0 +1,7 @@
+{
+  "status": "ENVIRONMENT_REFUSAL",
+  "command": "node scripts/performance/test-spec09-test-issuer.mjs",
+  "error": "listen EPERM: operation not permitted 127.0.0.1",
+  "effect": "No listener or traffic; subsequent authorized elevated invocation passed.",
+  "emptyStdoutArtifact": "issuer-controls-02.json"
+}

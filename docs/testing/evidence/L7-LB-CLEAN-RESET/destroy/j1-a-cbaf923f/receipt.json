@@ -1,0 +1,15 @@
+{
+  "state": "DESTROYED",
+  "exit": 0,
+  "project": "pocoma-lb-j1-a-cbaf923f-9288f629",
+  "diagnostics": "PRESERVED",
+  "instance": "j1-a-cbaf923f",
+  "sha": "47a0c094f803f019e32c91709e171791cde67f2e",
+  "dirty": true,
+  "urls": {
+    "write": "http://127.0.0.1:55699",
+    "read": "http://127.0.0.1:55700"
+  },
+  "issuer": "http://localhost:55701/realms/pocoma",
+  "evidence": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/j1-a-cbaf923f/runs/1794675380-4b853a65"
+}

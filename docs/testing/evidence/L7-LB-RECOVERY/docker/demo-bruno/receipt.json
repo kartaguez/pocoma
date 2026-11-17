@@ -1,0 +1,14 @@
+{
+  "state": "BRUNO_PASS",
+  "exit": 0,
+  "instance": "demo",
+  "project": "pocoma-lb-demo-33dd8c1d",
+  "sha": "b7b12c3da8b9fbca0d085110b13ffd1523c6dd7a",
+  "dirty": true,
+  "urls": {
+    "write": "http://127.0.0.1:54610",
+    "read": "http://127.0.0.1:54611"
+  },
+  "issuer": "http://localhost:54612/realms/pocoma",
+  "evidence": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/demo/runs/1794737157-f149d1ef"
+}

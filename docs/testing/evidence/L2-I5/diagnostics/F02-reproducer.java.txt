@@ -1,0 +1,22 @@
+package com.kartaguez.pocoma.orchestrator.poll.consumption.v3;
+import java.util.*;
+import com.kartaguez.pocoma.domain.consumption.v3.ConsumptionDefinition;
+public class I5LeaseOrderProbe {
+ public static void main(String[] args)throws Exception {
+  try(var f=new V3ConsumptionWorkerTest.Fixture(2,1,true,null)) {
+   for(var binding:f.bindings) f.worker.lease(binding,0);
+   long old=System.nanoTime()-10_000_000_000L;
+   for(var e:f.worker.leases.values())e.renewedAt=old;
+   var renew=new V3RenewalService(f.worker);var seen=new HashSet<V3ConsumptionWorker.LeaseEntry>();
+   for(int round=0;round<4;round++) {
+    var before=new IdentityHashMap<V3ConsumptionWorker.LeaseEntry,Long>();
+    for(var e:f.worker.leases.values())before.put(e,e.renewedAt);
+    if(!renew.renewLeasesOnce(ConsumptionDefinition.Authority.WRITE))throw new AssertionError();
+    for(var e:f.worker.leases.values())if(e.renewedAt!=before.get(e))seen.add(e);
+    // Deterministic virtual elapsed opportunity; no transaction/DB property is inferred.
+    for(var e:f.worker.leases.values())e.renewedAt-=f.worker.settings.renewalInterval().toNanos()+1;
+   }
+   System.out.println("LEASE_ORDER rounds=4 candidates=2 distinctRenewed="+seen.size());
+  }
+ }
+}

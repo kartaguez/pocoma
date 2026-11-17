@@ -1,0 +1,23 @@
+package com.kartaguez.pocoma.runtime.command.v3;
+import java.util.concurrent.atomic.*;import java.util.*;
+import com.kartaguez.pocoma.engine.consumption.v3.port.*;
+import org.testcontainers.postgresql.PostgreSQLContainer;import org.testcontainers.utility.DockerImageName;
+public class I5ControlStopProbe {
+ public static void main(String[] args)throws Exception {
+  try(var pg=new PostgreSQLContainer(DockerImageName.parse(V3WorkerPostgresTest.IMAGE).asCompatibleSubstituteFor("postgres"))) {
+   pg.start();V3WorkerPostgresTest.initialize(pg);
+   try(var f=new V3WorkerPostgresTest.Fixture(pg);var runtime=new V3WorkerPostgresTest.Runtime(f,ConsumptionObservation.noop())) {
+    var fault=V3WorkerResourcesPostgresTest.controlFault(runtime,true,n->n.startsWith("v3-discovery-")||n.startsWith("v3-consumption-"));
+    var close=(Runnable)V3WorkerPostgresTest.field(runtime.worker,"closeResources");var activeAtClose=new AtomicBoolean();
+    V3WorkerPostgresTest.replace(runtime.worker,"closeResources",(Runnable)()-> {
+     boolean active=f.write.queryForObject("select exists(select 1 from pg_stat_activity where pid=? and xact_start is not null)",Boolean.class,fault.pid.get());activeAtClose.set(active);System.out.println("CONTROL_STOP beforeClose physicalActive="+active+" capacity="+runtime.capacity.snapshot().worker()+" operations="+runtime.worker.snapshot().operations());close.run();
+    });
+    fault.armed.set(true);runtime.worker.start();V3WorkerPostgresTest.await(()->fault.physical.get()!=null);V3WorkerPostgresTest.await(()->runtime.worker.snapshot().operations()==0);
+    System.out.println("CONTROL_STOP localUnknown state="+runtime.worker.snapshot().state()+" capacity="+runtime.capacity.snapshot().worker());runtime.worker.requestDrain();
+    V3WorkerPostgresTest.await(()->runtime.worker.snapshot().state()==com.kartaguez.pocoma.orchestrator.poll.consumption.v3.V3ConsumptionWorker.State.STOPPED);
+    System.out.println("CONTROL_STOP stopped=true activeAtPoolClose="+activeAtClose.get());
+    try{fault.resolveRollback();}catch(Exception ignored){}
+   }
+  }
+ }
+}

@@ -1,0 +1,1 @@
+OK: 745 baseline artifacts; 105 historical Git sources; 0 local gzip reconstructions; all retention rows verified; no application certification

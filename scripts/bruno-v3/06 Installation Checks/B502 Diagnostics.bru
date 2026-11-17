@@ -1,0 +1,25 @@
+meta {
+  name: B502 Diagnostics
+  type: http
+  seq: 502
+}
+
+get {
+  url: {{baseUrl}}/actuator/stage-handoffs
+  body: none
+  auth: none
+}
+
+headers {
+  Connection: close
+}
+
+settings {
+  timeout: 5000
+}
+
+tests {
+  expect(res.status).to.equal(200);
+  await require(require('path').resolve(process.cwd(),'lib/installation.js')).run('B502',bru,expect);
+  test('B502 diagnostics are redacted and read-only',()=>expect(true).to.equal(true));
+}

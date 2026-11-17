@@ -1,0 +1,9 @@
+{
+  "application_inputs": 1282,
+  "identical_app_bytes_primary_targeted_composed_isolated": true,
+  "identical_external_sql_inputs": true,
+  "primary_workspace": "/Users/julien.guezennec/Dev/projects/pocoma",
+  "isolated_workspace": "/private/tmp/pocoma-l4-i1-clean-qualification",
+  "isolated_invocation": "5779c9b92c5b45ae877ff1367625b7ea",
+  "interpretation": "Source/configuration equivalence only; final gate verdict remains in its own result.json."
+}

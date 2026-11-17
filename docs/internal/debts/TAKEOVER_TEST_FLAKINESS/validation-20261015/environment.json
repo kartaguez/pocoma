@@ -1,0 +1,15 @@
+{
+  "baseline_commit": "eef30128b21222c74a20f85d9145cf62167d20a7",
+  "corrected_commit": "fa9be0a161680869eb032a2379f283605334eeb9",
+  "baseline_test_sha256": "f354c5a4e02546b23a2384b9c12b0a9a2584df78f72c32082c927e74bd22025c",
+  "corrected_test_sha256": "7b0dffccf1ad973fcfab91aa5c05c7b785d3b016c3a239cab538d31034b65061",
+  "full_reactor_projects": 61,
+  "selected_projects": 60,
+  "postgres_version": "17.11",
+  "postgres_image": "postgres:17-alpine",
+  "postgres_digest": "postgres@sha256:18cfe3ef5e6815560c98237d6216d1e5119702fb0f3894c8785dd58b8bbe5d73",
+  "docker_engine": "29.4.0",
+  "docker_desktop": "4.70.0",
+  "jdk": "Eclipse Adoptium 21",
+  "maven": "3.9.14"
+}

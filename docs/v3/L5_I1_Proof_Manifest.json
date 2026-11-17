@@ -1,0 +1,318 @@
+{
+  "schema": 1,
+  "date": "2026-11-04",
+  "initial_sha": "f46d63a9bc4505c43610376eeba40a5854431230",
+  "qualified_source_sha": "46b94ce69a4b0f42474d38ac10b26daa78bb6b23",
+  "branch": "feat/v3-architecture",
+  "verdict": "I1 IMPLEMENTED — LOCAL BOUNDED PASS WITH RESERVATIONS",
+  "human_decision": "L5_I1_Human_Ratification_and_GO.md",
+  "scope": {
+    "primary": "WEB",
+    "secondary": [
+      "PROJECTION",
+      "COMMAND — minimal classpath non-regression only"
+    ],
+    "additional_root": "runtime-monolith",
+    "global_architecture": "REQUIRED — runtime isolation and test dependency changes, policy §17",
+    "full_native_reactor": "NOT REQUIRED / NOT RUN at I1; due Q5 under D6",
+    "unexpected_impact": "HTTP test classpath altered default Legacy Worker scan; optional READ supertype then affected minimal COMMAND classloading. Both corrected and tested; no Command production source/dependency change.",
+    "I2_I3_I4_Q5": "NOT STARTED"
+  },
+  "junit": {
+    "tests": 40,
+    "states": {
+      "PASS": 40,
+      "FAIL": 0,
+      "ERROR": 0,
+      "SKIP": 0
+    },
+    "groups": {
+      "H": 24,
+      "Q": 10,
+      "C": 6
+    },
+    "attribution": "latest trusted observed invocation per identity, including non-PASS; separate mandatory gate verdict; no historical result overwritten"
+  },
+  "bruno": {
+    "scenarios": 32,
+    "failures": 0,
+    "full_qualified_run_requests": 66,
+    "expense_delta_requests": 0,
+    "fresh_full_qualified_run": "pocoma-l5-i1-optional-port-01",
+    "source_sha": "46b94ce69a4b0f42474d38ac10b26daa78bb6b23",
+    "fixture_provenance": "READ_FIXTURE — NO PUBLIC ADMISSION PROOF",
+    "authentication_provider": "NOT QUALIFIED — local signed JWT/JWKS fixture only"
+  },
+  "t1_b1_seconds": 1426.0378419570043,
+  "forecast_seconds": 900,
+  "forecast_interruptive": false,
+  "global_architecture": {
+    "verdict": "PASS",
+    "counts": {
+      "tests": 2231,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "expected_invocations": 2231,
+    "maven_seconds": 5213.848515,
+    "collector_monotonic_seconds": 4281.1263409999665,
+    "maven_monotonic_seconds": 4273.249066499993,
+    "observed_maven_clock_gap_seconds": 940.5994485000065,
+    "command": [
+      "./mvnw",
+      "--batch-mode",
+      "--no-transfer-progress",
+      "-pl",
+      "architecture-tests",
+      "-am",
+      "-Dpocoma.verification.id=5e0fd9bb61ec4b33bf99cf3b38938761",
+      "-Dpocoma.verification.reports=/private/tmp/pocoma-l5-i1-architecture-08/reports",
+      "test"
+    ],
+    "proof": "../testing/evidence/L5-I1/archives/pocoma-l5-i1-architecture-08.tar.gz"
+  },
+  "archives": [
+    {
+      "archive": "archives/bytecode-diagnostic.tar.gz",
+      "sha256": "56b9cf9bca2d6a11bb9c229be0337fad774ae2d142841782eb6415642381a83f",
+      "bytes": 6378,
+      "label": "bytecode-diagnostic",
+      "redacted_files": 0
+    },
+    {
+      "archive": "archives/development.tar.gz",
+      "sha256": "f3e5b5ea48d629c70589004e8054c1c4abcb5a5002a8135dcf50e1dbde0b6095",
+      "bytes": 84561,
+      "label": "development",
+      "redacted_files": 2
+    },
+    {
+      "archive": "archives/pocoma-l5-i1-architecture-01.tar.gz",
+      "sha256": "9563f70a6f2a9b3db37fdbb53bae5f5ff4fbb437d14c551ded86fea51f3bbf3c",
+      "bytes": 1232029,
+      "label": "pocoma-l5-i1-architecture-01",
+      "redacted_files": 0
+    },
+    {
+      "archive": "archives/pocoma-l5-i1-architecture-02.tar.gz",
+      "sha256": "4e7e91e6e943afa132a763d0f9d09a4bd639e8d5cc25919300860dfd34f4a05e",
+      "bytes": 1795545,
+      "label": "pocoma-l5-i1-architecture-02",
+      "redacted_files": 0
+    },
+    {
+      "archive": "archives/pocoma-l5-i1-architecture-03.tar.gz",
+      "sha256": "8dbc320c3f4ef5aac55791c8c984560410202961cf4a29bbd777caeab3d56aee",
+      "bytes": 36898039,
+      "label": "pocoma-l5-i1-architecture-03",
+      "redacted_files": 118
+    },
+    {
+      "archive": "archives/pocoma-l5-i1-architecture-04.tar.gz",
+      "sha256": "42aeab0f9a76902692ac8d9c084390520b9e6416e775e5d9ee26ea700f0d7b26",
+      "bytes": 36887182,
+      "label": "pocoma-l5-i1-architecture-04",
+      "redacted_files": 122
+    },
+    {
+      "archive": "archives/pocoma-l5-i1-architecture-05.tar.gz",
+      "sha256": "7154594b2359fbd94d62810f6fd74f5c1a579d5719ee3401611ec19f8ba437d4",
+      "bytes": 35530426,
+      "label": "pocoma-l5-i1-architecture-05",
+      "redacted_files": 117
+    },
+    {
+      "archive": "archives/pocoma-l5-i1-architecture-06.tar.gz",
+      "sha256": "a4f80a96e04ac2b5fd3b9bdefa399e30914f9dda888e7e9359e5794c05543c43",
+      "bytes": 37028454,
+      "label": "pocoma-l5-i1-architecture-06",
+      "redacted_files": 118
+    },
+    {
+      "archive": "archives/pocoma-l5-i1-architecture-07.tar.gz",
+      "sha256": "96c17e676ea060a6546b0484812578899ccbde5e0f751bbb1749f1c3c9e87afa",
+      "bytes": 38444441,
+      "label": "pocoma-l5-i1-architecture-07",
+      "redacted_files": 118
+    },
+    {
+      "archive": "archives/pocoma-l5-i1-architecture-08.tar.gz",
+      "sha256": "424c65eaaf1a12d8f2e8d8243f9aa8dd663b2fc3827af02ad693aa0c214f5bd5",
+      "bytes": 38748482,
+      "label": "pocoma-l5-i1-architecture-08",
+      "redacted_files": 118
+    },
+    {
+      "archive": "archives/pocoma-l5-i1-architecture-feedback-01.tar.gz",
+      "sha256": "45fe08d2a9d3e3e27d69595e9e72d64b9c4111b0e143ef445af680727170d7cc",
+      "bytes": 2702852,
+      "label": "pocoma-l5-i1-architecture-feedback-01",
+      "redacted_files": 0
+    },
+    {
+      "archive": "archives/pocoma-l5-i1-b1-correction-01.tar.gz",
+      "sha256": "1ef1eeb7e94863426dbfeb1f9d4c32f41f0c08ab8db28fdcef87ec22519d995f",
+      "bytes": 9334,
+      "label": "pocoma-l5-i1-b1-correction-01",
+      "redacted_files": 0
+    },
+    {
+      "archive": "archives/pocoma-l5-i1-cold-01.tar.gz",
+      "sha256": "6c3b99155a121f3f1324f40b4c6ebc0400aa7feaafe0f23cc96a3bd1be2d6be1",
+      "bytes": 2169752,
+      "label": "pocoma-l5-i1-cold-01",
+      "redacted_files": 0
+    },
+    {
+      "archive": "archives/pocoma-l5-i1-completion-01.tar.gz",
+      "sha256": "725112c71d30b38c50efce3e95184feaf44609d4d3d93b59a47e20419b857f25",
+      "bytes": 2167913,
+      "label": "pocoma-l5-i1-completion-01",
+      "redacted_files": 0
+    },
+    {
+      "archive": "archives/pocoma-l5-i1-completion-02.tar.gz",
+      "sha256": "459aa4e542921f1f7043c2269d19907a438dc01e0a8fa11edbbb9299dae6e759",
+      "bytes": 2201057,
+      "label": "pocoma-l5-i1-completion-02",
+      "redacted_files": 5
+    },
+    {
+      "archive": "archives/pocoma-l5-i1-completion-03.tar.gz",
+      "sha256": "0cdf3d7b0a978d71a2c871f2148aac6651c500cdf8825b615c0f3bdd7299ea44",
+      "bytes": 2192003,
+      "label": "pocoma-l5-i1-completion-03",
+      "redacted_files": 0
+    },
+    {
+      "archive": "archives/pocoma-l5-i1-completion-04.tar.gz",
+      "sha256": "7081e1443fb1b0334a91f59787f5bcc05e947356349d1861b465a87934044479",
+      "bytes": 2165471,
+      "label": "pocoma-l5-i1-completion-04",
+      "redacted_files": 0
+    },
+    {
+      "archive": "archives/pocoma-l5-i1-completion-05.tar.gz",
+      "sha256": "79f8d19e4740e75f3391598aeef9379ded204292987eb4ccaebf0fad9dfbd0f2",
+      "bytes": 2151402,
+      "label": "pocoma-l5-i1-completion-05",
+      "redacted_files": 8
+    },
+    {
+      "archive": "archives/pocoma-l5-i1-completion-06.tar.gz",
+      "sha256": "d866b92b0098669d5f3dde4ee2c8de46665c7e3049a15010f4200d1443d51836",
+      "bytes": 2165869,
+      "label": "pocoma-l5-i1-completion-06",
+      "redacted_files": 0
+    },
+    {
+      "archive": "archives/pocoma-l5-i1-completion-07.tar.gz",
+      "sha256": "898dfcd453ba22450dc8b2410e23951fe25a659bb5567adde8ae4391958fbf53",
+      "bytes": 2164145,
+      "label": "pocoma-l5-i1-completion-07",
+      "redacted_files": 0
+    },
+    {
+      "archive": "archives/pocoma-l5-i1-composition-split-01.tar.gz",
+      "sha256": "0548502d1ef954890d6dfd9a0c8dc826e987de8033bde55da1d8020c047c1387",
+      "bytes": 2219120,
+      "label": "pocoma-l5-i1-composition-split-01",
+      "redacted_files": 0
+    },
+    {
+      "archive": "archives/pocoma-l5-i1-correction-01.tar.gz",
+      "sha256": "430bf83bcc04459203acd91e0377d5006c2098a92c9652dbb75c4d7c6120373d",
+      "bytes": 1147213,
+      "label": "pocoma-l5-i1-correction-01",
+      "redacted_files": 0
+    },
+    {
+      "archive": "archives/pocoma-l5-i1-final-delta.tar.gz",
+      "sha256": "a73f2eee50350c06bfceb471da6c9174dbe83549c33c1387c32b063ead993cd3",
+      "bytes": 2162840,
+      "label": "pocoma-l5-i1-final-delta",
+      "redacted_files": 0
+    },
+    {
+      "archive": "archives/pocoma-l5-i1-formal-01.tar.gz",
+      "sha256": "bf44ce0c34f6d1faa7ba042c59cf36c4a3892e25cb38f638828abba336ac7934",
+      "bytes": 2160979,
+      "label": "pocoma-l5-i1-formal-01",
+      "redacted_files": 0
+    },
+    {
+      "archive": "archives/pocoma-l5-i1-http-boundary-01.tar.gz",
+      "sha256": "0904851ba0e4958d13a71149efc57f49cb21226c04966998f0f75e715214f71b",
+      "bytes": 2251674,
+      "label": "pocoma-l5-i1-http-boundary-01",
+      "redacted_files": 0
+    },
+    {
+      "archive": "archives/pocoma-l5-i1-isolated-01.tar.gz",
+      "sha256": "1ea2bdca98bbba53dd6921e5fde642b05a7a55e819087c3a82e662a6297cc760",
+      "bytes": 2179784,
+      "label": "pocoma-l5-i1-isolated-01",
+      "redacted_files": 0
+    },
+    {
+      "archive": "archives/pocoma-l5-i1-isolated-02.tar.gz",
+      "sha256": "ebdf7a348451d256db525d33add455fd41416ed971e94d5343dee049b839ae6a",
+      "bytes": 2182066,
+      "label": "pocoma-l5-i1-isolated-02",
+      "redacted_files": 0
+    },
+    {
+      "archive": "archives/pocoma-l5-i1-optional-port-01.tar.gz",
+      "sha256": "c8d14d40920313fe7795e2770fe96ff967e3090fc7879d794775ec915c275a71",
+      "bytes": 2551456,
+      "label": "pocoma-l5-i1-optional-port-01",
+      "redacted_files": 0
+    },
+    {
+      "archive": "archives/pocoma-l5-i1-pool-initialization-01.tar.gz",
+      "sha256": "a0d8f2561950fcfa7ea4e25eba025ea5ab8ef2702be33d464631e94a3c20bd3a",
+      "bytes": 2076138,
+      "label": "pocoma-l5-i1-pool-initialization-01",
+      "redacted_files": 0
+    },
+    {
+      "archive": "archives/pocoma-l5-i1-worker-isolation-01.tar.gz",
+      "sha256": "d3d73da29708a1c7a4718dd7f9253f7612038c1e30d9cf10fdaa37c86c3cece8",
+      "bytes": 2091688,
+      "label": "pocoma-l5-i1-worker-isolation-01",
+      "redacted_files": 0
+    },
+    {
+      "archive": "archives/pocoma-l5-i1-worker-isolation-02.tar.gz",
+      "sha256": "b4cab09ed5110ab6876f9d457d9967c31f6191df6c64ce43a6c6a9e100defd4b",
+      "bytes": 2095087,
+      "label": "pocoma-l5-i1-worker-isolation-02",
+      "redacted_files": 0
+    }
+  ],
+  "summary": "../testing/evidence/L5-I1/Qualification_Summary.json",
+  "matrix": "../testing/evidence/L5-I1/Requirements_Test_Evidence_Matrix.md",
+  "inventory": "../testing/evidence/L5-I1/File_Inventory.json",
+  "reservations": [
+    "Real AuthN provider/consent NOT QUALIFIED",
+    "Internal JDBC/OS/socket copies and exact server-only allocation not fully quantified",
+    "PostgreSQL wire framing bytes NOT MEASURED",
+    "Local two-request bench is not production capacity/SLO approval",
+    "L1–L4 and lease180 reservations retained",
+    "No L5 closure, global SPEC-10 certification or final human I1 closure"
+  ],
+  "publication": {
+    "authorized": true,
+    "remote_branch": "origin/feat/v3-architecture",
+    "force_push": false,
+    "delivery_sha": "Git revision containing this manifest; reported after push verification, avoiding self-reference"
+  },
+  "redaction_policy": "Only secret/canary values redacted; adjacent per-archive metadata maps original to published hashes. Original raw hashes do not claim equality to redacted bytes.",
+  "all_controlled_verification_seconds": 15362.734794829856,
+  "all_controlled_verification_basis": "Sum of recorded owner/collector monotonic windows; not civil wall time when clocks diverge. See Clock_Measurement_Analysis.json.",
+  "clock_measurements": "../testing/evidence/L5-I1/Clock_Measurement_Analysis.json",
+  "bruno_counters": "../testing/evidence/L5-I1/Bruno_Observed_Counters.json",
+  "physical_measurements": "../testing/evidence/L5-I1/D4_Observed_Measurements.json",
+  "archive_integrity_check": "../testing/evidence/L5-I1/Archive_Integrity_Check.json"
+}

@@ -1,0 +1,183 @@
+{
+  "classification": "CALCULATED, no further experimental invocation",
+  "response_cap_bytes": 4194304,
+  "input_cap_bytes": 65536,
+  "pot_grand_margin_percent": 79.40962314605713,
+  "batch_long_margin_percent": 83.70916843414307,
+  "input_50_margin_percent": 86.5020751953125,
+  "cap_to_grand_ratio": 4.856637676393519,
+  "cap_to_batch_long_ratio": 6.138422068618311,
+  "input_cap_to_50_ratio": 7.408546235586706,
+  "two_fixed_buffers_bytes": 8388608,
+  "batch_selects_excluding_transaction_driver": {
+    "49": 3,
+    "50": 3,
+    "51": 3,
+    "85": 3,
+    "86": 4
+  },
+  "current_grand_pot_selects_excluding_transaction_driver": 6,
+  "historical_grand_pot_selects_excluding_transaction_driver": 5,
+  "profile_sample_summary": {
+    "pot-0": {
+      "max_wall_ms": 1.142791,
+      "max_cpu_ms": 1.144,
+      "max_thread_allocated_bytes": 151888
+    },
+    "pot-0-wide-utf8-r1024": {
+      "max_wall_ms": 2.942542,
+      "max_cpu_ms": 1.272,
+      "max_thread_allocated_bytes": 905368
+    },
+    "manifest-0-wide": {
+      "max_wall_ms": 0.014417,
+      "max_cpu_ms": 0.015,
+      "max_thread_allocated_bytes": 664
+    },
+    "pot-200": {
+      "max_wall_ms": 0.463541,
+      "max_cpu_ms": 0.45,
+      "max_thread_allocated_bytes": 80968
+    },
+    "pot-200-wide-utf8-r1024": {
+      "max_wall_ms": 1.000917,
+      "max_cpu_ms": 1.001,
+      "max_thread_allocated_bytes": 1008952
+    },
+    "manifest-200-wide": {
+      "max_wall_ms": 0.167417,
+      "max_cpu_ms": 0.168,
+      "max_thread_allocated_bytes": 67712
+    },
+    "pot-2000": {
+      "max_wall_ms": 1.598,
+      "max_cpu_ms": 1.598,
+      "max_thread_allocated_bytes": 876152
+    },
+    "pot-2000-wide-utf8-r1024": {
+      "max_wall_ms": 4.405458,
+      "max_cpu_ms": 4.303,
+      "max_thread_allocated_bytes": 5487640
+    },
+    "manifest-2000-wide": {
+      "max_wall_ms": 0.413333,
+      "max_cpu_ms": 0.412,
+      "max_thread_allocated_bytes": 965744
+    },
+    "batch-49-p20-r3": {
+      "max_wall_ms": 0.74425,
+      "max_cpu_ms": 0.73,
+      "max_thread_allocated_bytes": 972208
+    },
+    "input-batch-49": {
+      "max_wall_ms": 0.018708,
+      "max_cpu_ms": 0.019,
+      "max_thread_allocated_bytes": 17296
+    },
+    "batch-50-p20-r3": {
+      "max_wall_ms": 0.722917,
+      "max_cpu_ms": 0.723,
+      "max_thread_allocated_bytes": 992360
+    },
+    "input-batch-50": {
+      "max_wall_ms": 0.02475,
+      "max_cpu_ms": 0.025,
+      "max_thread_allocated_bytes": 18064
+    },
+    "batch-51-p20-r3": {
+      "max_wall_ms": 0.712083,
+      "max_cpu_ms": 0.713,
+      "max_thread_allocated_bytes": 1011856
+    },
+    "input-batch-51": {
+      "max_wall_ms": 0.021917,
+      "max_cpu_ms": 0.022,
+      "max_thread_allocated_bytes": 17968
+    },
+    "batch-85-p20-r3": {
+      "max_wall_ms": 1.225125,
+      "max_cpu_ms": 1.225,
+      "max_thread_allocated_bytes": 1882944
+    },
+    "input-batch-85": {
+      "max_wall_ms": 0.024167,
+      "max_cpu_ms": 0.024,
+      "max_thread_allocated_bytes": 29360
+    },
+    "batch-86-p20-r3": {
+      "max_wall_ms": 1.193042,
+      "max_cpu_ms": 1.193,
+      "max_thread_allocated_bytes": 1895312
+    },
+    "input-batch-86": {
+      "max_wall_ms": 0.039459,
+      "max_cpu_ms": 0.04,
+      "max_thread_allocated_bytes": 29696
+    },
+    "batch-50-p20-r256-utf8": {
+      "max_wall_ms": 3.893916,
+      "max_cpu_ms": 3.711,
+      "max_thread_allocated_bytes": 10184184
+    },
+    "batch-50-p100-r1024-utf8": {
+      "max_wall_ms": 74.1935,
+      "max_cpu_ms": 72.555,
+      "max_thread_allocated_bytes": 107334888
+    },
+    "balance-100-r1024": {
+      "max_wall_ms": 1.406292,
+      "max_cpu_ms": 1.404,
+      "max_thread_allocated_bytes": 2133160
+    },
+    "navigation-20": {
+      "max_wall_ms": 0.0405,
+      "max_cpu_ms": 0.024,
+      "max_thread_allocated_bytes": 3288
+    },
+    "navigation-100": {
+      "max_wall_ms": 0.05775,
+      "max_cpu_ms": 0.039,
+      "max_thread_allocated_bytes": 13448
+    },
+    "navigation-101": {
+      "max_wall_ms": 0.021875,
+      "max_cpu_ms": 0.023,
+      "max_thread_allocated_bytes": 13576
+    },
+    "binding-own": {
+      "max_wall_ms": 0.008208,
+      "max_cpu_ms": 0.008,
+      "max_thread_allocated_bytes": 704
+    },
+    "command-result": {
+      "max_wall_ms": 0.006041,
+      "max_cpu_ms": 0.006,
+      "max_thread_allocated_bytes": 872
+    },
+    "identity-result": {
+      "max_wall_ms": 0.00625,
+      "max_cpu_ms": 0.007,
+      "max_thread_allocated_bytes": 824
+    },
+    "error": {
+      "max_wall_ms": 0.01475,
+      "max_cpu_ms": 0.015,
+      "max_thread_allocated_bytes": 776
+    },
+    "byte-boundary--1": {
+      "max_wall_ms": 2.207958,
+      "max_cpu_ms": 2.208,
+      "max_thread_allocated_bytes": 8292184
+    },
+    "byte-boundary-0": {
+      "max_wall_ms": 2.458791,
+      "max_cpu_ms": 2.179,
+      "max_thread_allocated_bytes": 8292184
+    },
+    "byte-boundary-1": {
+      "max_wall_ms": 2.414083,
+      "max_cpu_ms": 2.111,
+      "max_thread_allocated_bytes": 8292192
+    }
+  }
+}

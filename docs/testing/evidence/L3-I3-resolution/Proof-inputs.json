@@ -1,0 +1,90 @@
+{
+  "audited_source_sha": "2b3567b1f77051c399772ee7ac787f7dd61ba407",
+  "before_checkout_head": "00cdc16253ef9900224c7c6be90a0a814d2baf73",
+  "before_inventory_sources_matching_audited_sha": 49,
+  "before_application_classes": "reused from original audit checkout; external harness recompiled; not a fresh complete Maven baseline build",
+  "publication_base": "00cdc16253ef9900224c7c6be90a0a814d2baf73",
+  "final_code_sha": "c1172bf4a758a9077415d827ca88b359b6360ebb",
+  "after_guard": "source at final_code_sha compiled with javac into external overlay; unchanged dependencies from recorded first-feedback runtime classpath",
+  "source_files": [
+    {
+      "path": "app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/consumption/v3/V3BootstrapGuard.java",
+      "sha256_at_code_freeze": "e2072b038dd6343ed06dcff54430e31019b7bcea3979218be8263eca14adbd94"
+    },
+    {
+      "path": "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/V3IdentityRequestCompositionPostgresTest.java",
+      "sha256_at_code_freeze": "6bbcdf4798e2c63ad6695ec2938ea3ddce7f7287ec7a2faf873942fdd2f15129"
+    },
+    {
+      "path": "app/runtime-monolith/src/test/java/com/kartaguez/pocoma/V3IdentityRequestMonolithPostgresTest.java",
+      "sha256_at_code_freeze": "4720286db9b092342ee46be628138214c58132ba1f76519642b31c619ec226ce"
+    },
+    {
+      "path": "docs/v3/L3_I3_Findings_Resolution_Report.md",
+      "sha256_at_code_freeze": "2c7c6cebd3bd2563d81b209408d614313edc0be8576943ebd289958830781bc6"
+    },
+    {
+      "path": "docs/v3/L3_I3_Identity_Development_Runbook.md",
+      "sha256_at_code_freeze": "21bafe6ea4070c0550e582c4fd33e41423ab8b92ff33da25010bb811a5a2ef50"
+    },
+    {
+      "path": "scripts/v3/configure-l3-identity-logging.sql",
+      "sha256_at_code_freeze": "705dbb6e09bd185863b4af8a12c4ba672e08223946083094879ece2316a63824"
+    },
+    {
+      "path": "scripts/v3/grant-l2-discovery.sql",
+      "sha256_at_code_freeze": "27e3207620bdaf018c4e8442031cd5c25c0a83a8797c1116d84e3234824cd2ff"
+    },
+    {
+      "path": "scripts/v3/grant-l2-lifecycle.sql",
+      "sha256_at_code_freeze": "48915676f8464b3397fa1d020c2b9f8d3b5cb4dbf630cb4176b6f1f1fdff2647"
+    },
+    {
+      "path": "scripts/v3/grant-l2-worker-dev.sql",
+      "sha256_at_code_freeze": "a7fd3165ca37baacacc17f298e4a9ae790b7cbbc79b87974b8c506fbf33ab19b"
+    },
+    {
+      "path": "scripts/v3/worker-dev.py",
+      "sha256_at_code_freeze": "49d35d2c7e7b4375d12ea5f0090711c78ae421fc2b9b4404527bb57c9a79b0d2"
+    }
+  ],
+  "protected_files": [
+    {
+      "path": "app/infra-tx-spring/src/main/java/com/kartaguez/pocoma/infra/tx/spring/v3/SpringAttemptTransactions.java",
+      "unchanged_since_audited_sha": true,
+      "sha256": "3ff26ac72df478387699a8a051e5b3683ce0be531fad0254318a46df4ad58a46"
+    },
+    {
+      "path": "app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/identity/JdbcIdentityAuthority.java",
+      "unchanged_since_audited_sha": true,
+      "sha256": "6f746c240ff7c26f51403531e42762a0d47fabc8cf1bd8cef66671e9d9672f88"
+    },
+    {
+      "path": "app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/identity/JdbcIdentityRequestObservation.java",
+      "unchanged_since_audited_sha": true,
+      "sha256": "911f138f531e182031b7dec34fc195d39deb0af6e6b2277d2d768b9f20ea0d22"
+    },
+    {
+      "path": "app/engine-consume-registration/src/main/java/com/kartaguez/pocoma/engine/consume/registration/v3/ExecuteIdentityRequest.java",
+      "unchanged_since_audited_sha": true,
+      "sha256": "6b40413aabe2494f8225b1cf5ba1a5fea88ec04b48bf39aee7a8abe9596367dc"
+    },
+    {
+      "path": "app/infra-persistence-primary-jpa/src/main/resources/db/v3-identity/migration/V6__identity_authority_and_requests.sql",
+      "unchanged_since_audited_sha": true,
+      "sha256": "f1d21844ff391a67bf693c9b21c92c9950a9d9e76cf43dabd50c445ab212293e"
+    },
+    {
+      "path": "app/pom.xml",
+      "unchanged_since_audited_sha": true,
+      "sha256": "e033ef6dad062d0e5f889a723c189dd79e1c2b328a363d65aab77f4a0e994e02"
+    }
+  ],
+  "correction_diff": {
+    "path": "docs/testing/evidence/L3-I3-resolution/Correction-code.diff.patch.gz",
+    "command": "git diff --binary 00cdc162 c1172bf4",
+    "uncompressed_bytes": 76851,
+    "uncompressed_sha256": "0ff6771ac4a0d19bf5797832a3026339e64f029f13086482bd80600b24cc0fb3",
+    "lossless_gzip": true
+  }
+}

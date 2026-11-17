@@ -1,0 +1,11 @@
+{
+  "status": "PASS",
+  "jar_sha256": "75cb7c59f222c74f6173a68ab888397f860fe069bedca72e5203552f81f6a697",
+  "scope": "DEV real Command / READ technical only",
+  "request_count": 2,
+  "raw_prometheus": {
+    "path": "prometheus.txt.gz",
+    "uncompressed_sha256": "bee046a9d0b8ac8d67fadfe83a047025e8f3977d7ac95eb43ce7c016a30b636e",
+    "note": "Exact raw scrape bytes, losslessly compressed; no whitespace normalization"
+  }
+}

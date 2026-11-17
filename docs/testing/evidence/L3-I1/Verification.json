@@ -1,0 +1,2689 @@
+{
+  "baseline": "140d13c3101a4e297bdea5141d167d189b7dcd02",
+  "branch": "feat/v3-architecture",
+  "source_sha256": {
+    "app/contracts-registration/src/main/java/com/kartaguez/pocoma/contracts/registration/v3/IdentityRequest.java": "1d0693af2117df802f01b170c37326c1f5c5e50515f7ee8cf338f5dfb672e4c7",
+    "app/domain-user-identity/src/main/java/com/kartaguez/pocoma/domain/useridentity/v3/BindingToken.java": "d287c18129b11170735c3f0a90a7725713b0e2d91f832d9783026fb4aae34509",
+    "app/domain-user-identity/src/main/java/com/kartaguez/pocoma/domain/useridentity/v3/ExternalUserIdentity.java": "f90d82dc4e42196d12956bccf8bd0cb5e754b4b5d4a7891aad5983b0af4d753a",
+    "app/domain-user-identity/src/main/java/com/kartaguez/pocoma/domain/useridentity/v3/ExternalUserIdentityId.java": "e094a15b98fe09c0aff65e7d90eb1211546728d35f1e73a265c519f6f766d7b5",
+    "app/domain-user-identity/src/main/java/com/kartaguez/pocoma/domain/useridentity/v3/IdentityTransitionResult.java": "2e26e67e6bf8e9f1b2d83e99bbf741709da1343d832f1fac8a28d1fea9848ae4",
+    "app/domain-user-identity/src/main/java/com/kartaguez/pocoma/domain/useridentity/v3/IdentityTransitions.java": "4add9a8d3d14226b945a9bbd5ac6c38fe5fff7c27c6c2d26f436f9f528047e8f",
+    "app/domain-user-identity/src/test/java/com/kartaguez/pocoma/domain/useridentity/v3/IdentityTransitionsTest.java": "108c32a8e162b3d19c6f95c04bee4bf0eb6ad6758721202aae770561164ccd11",
+    "app/domain-user-identity/src/test/java/com/kartaguez/pocoma/domain/useridentity/v3/IdentityValueContractsTest.java": "b0c11a5e80461974c2a5a50bd36be9a099df6a4d98699924299371c9145e7b39",
+    "app/engine-consume-registration/src/main/java/com/kartaguez/pocoma/engine/consume/registration/v3/IdentityAuthority.java": "71eb2bf81966ee69eac31fe761b241607ce958de9909972bce77bf1e1de3f296",
+    "app/engine-consume-registration/src/main/java/com/kartaguez/pocoma/engine/consume/registration/v3/IdentityRequestObservation.java": "0dd816995de079f4e094ef00e3d95556e716c97079dc5340a77311c6a6167985",
+    "app/engine-consume-registration/src/main/java/com/kartaguez/pocoma/engine/consume/registration/v3/IdentityRequestStore.java": "8a5efd31ec50c3246d56144fc64ebb4672ec66e0147f2d5c326c14a3de4ce982",
+    "app/engine-consume-registration/src/test/java/com/kartaguez/pocoma/engine/consume/registration/v3/IdentityRequestContractTest.java": "c125d4c4448ac4246d671ff615e54c15acebf25b43c2289c6bd96a81827a347f",
+    "app/engine-consume-registration/pom.xml": "476cf47b7c5996f63a4f8dc8f656c314e15b38a51c45ea7b075e46ad90c517f3"
+  },
+  "primary_slice": "COMMAND",
+  "secondary_slices": [],
+  "global_architecture_gate": "REQUIRED / NOT PASSED: canonical composed gate failed in COMMAND; architecture module skipped",
+  "architecture_feedback": "targeted contribution, not a replacement for the failed gate",
+  "verdict": "I1 LOCAL BOUNDED PASS NOT ISSUED",
+  "full_reactor": "NOT REQUIRED / NOT RUN",
+  "unexpected_production_slice_crossings": [],
+  "runs": [
+    {
+      "name": "local",
+      "source_attribution": "preliminary feedback before final candidate-ID check",
+      "kind": "unfiltered local proof",
+      "command": "./mvnw -pl domain-user-identity,contracts-registration,engine-consume-registration -am test",
+      "cwd": "app/",
+      "exit_code": 0,
+      "build": "SUCCESS",
+      "totals": {
+        "tests": 109,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "suites": [
+        {
+          "tests": 17,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.useridentity.v3.IdentityTransitionsTest"
+        },
+        {
+          "tests": 8,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.useridentity.v3.IdentityValueContractsTest"
+        },
+        {
+          "tests": 6,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.useridentity.UserIdentityModelTest"
+        },
+        {
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.consumption.segmentation.PartitionHashTest"
+        },
+        {
+          "tests": 5,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.consumption.segmentation.WorkerSegmentTest"
+        },
+        {
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailureTest"
+        },
+        {
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailureCodeTest"
+        },
+        {
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalReasonTest"
+        },
+        {
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.consumption.key.ConsumptionKeyTest"
+        },
+        {
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.consumption.provenance.ConsumptionProvenanceTest"
+        },
+        {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.consumption.v3.RoutingV1Test"
+        },
+        {
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.consumption.claim.ClaimTest"
+        },
+        {
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.consumption.claim.ClaimLeaseTest"
+        },
+        {
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.consumption.claim.WorkerIdTest"
+        },
+        {
+          "tests": 4,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.consumption.claim.ConsumptionSlotTest"
+        },
+        {
+          "tests": 4,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.consumption.v3.WorkerCapacityTest"
+        },
+        {
+          "tests": 9,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.consumption.v3.ConsumptionFailureClassificationTest"
+        },
+        {
+          "tests": 8,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.consumption.v3.DiscoveryEngineTest"
+        },
+        {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.service.transaction.consumption.TransactionalConsumptionUseCaseTest"
+        },
+        {
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.service.consumption.AcquireConsumptionPreconditionTest"
+        },
+        {
+          "tests": 5,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.service.consumption.ExecuteConsumptionServiceTest"
+        },
+        {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.service.consumption.DefaultConsumptionFailurePolicyTest"
+        },
+        {
+          "tests": 4,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.service.consumption.FinalizeConsumptionServiceTest"
+        },
+        {
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.consume.registration.RegistrationPublicationContractTest"
+        },
+        {
+          "tests": 10,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.consume.registration.v3.IdentityRequestContractTest"
+        }
+      ],
+      "compressed_log": "local.log.gz",
+      "log_sha256": "466cfc689e84c301c679f041760d86f12571edb920f2f77aa6bf03c8a85a930b",
+      "compressed_sha256": "73d5d0ba843500233c477ee7b2342bc440bfe44839d7ed8add7a91c5daaa906b",
+      "finished_at": "2026-10-30T12:01:24+01:00",
+      "time": "2.860 s"
+    },
+    {
+      "name": "local-final",
+      "source_attribution": "source_sha256 manifest",
+      "kind": "unfiltered local proof",
+      "command": "./mvnw -pl domain-user-identity,contracts-registration,engine-consume-registration -am test",
+      "cwd": "app/",
+      "exit_code": 0,
+      "build": "SUCCESS",
+      "totals": {
+        "tests": 109,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "suites": [
+        {
+          "tests": 17,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.useridentity.v3.IdentityTransitionsTest"
+        },
+        {
+          "tests": 8,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.useridentity.v3.IdentityValueContractsTest"
+        },
+        {
+          "tests": 6,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.useridentity.UserIdentityModelTest"
+        },
+        {
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.consumption.segmentation.PartitionHashTest"
+        },
+        {
+          "tests": 5,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.consumption.segmentation.WorkerSegmentTest"
+        },
+        {
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailureTest"
+        },
+        {
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailureCodeTest"
+        },
+        {
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalReasonTest"
+        },
+        {
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.consumption.key.ConsumptionKeyTest"
+        },
+        {
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.consumption.provenance.ConsumptionProvenanceTest"
+        },
+        {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.consumption.v3.RoutingV1Test"
+        },
+        {
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.consumption.claim.ClaimTest"
+        },
+        {
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.consumption.claim.ClaimLeaseTest"
+        },
+        {
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.consumption.claim.WorkerIdTest"
+        },
+        {
+          "tests": 4,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.consumption.claim.ConsumptionSlotTest"
+        },
+        {
+          "tests": 4,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.consumption.v3.WorkerCapacityTest"
+        },
+        {
+          "tests": 9,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.consumption.v3.ConsumptionFailureClassificationTest"
+        },
+        {
+          "tests": 8,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.consumption.v3.DiscoveryEngineTest"
+        },
+        {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.service.transaction.consumption.TransactionalConsumptionUseCaseTest"
+        },
+        {
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.service.consumption.AcquireConsumptionPreconditionTest"
+        },
+        {
+          "tests": 5,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.service.consumption.ExecuteConsumptionServiceTest"
+        },
+        {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.service.consumption.DefaultConsumptionFailurePolicyTest"
+        },
+        {
+          "tests": 4,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.service.consumption.FinalizeConsumptionServiceTest"
+        },
+        {
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.consume.registration.RegistrationPublicationContractTest"
+        },
+        {
+          "tests": 10,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.consume.registration.v3.IdentityRequestContractTest"
+        }
+      ],
+      "compressed_log": "local-final.log.gz",
+      "log_sha256": "a35c9a0cca079c78bb1ea14a90fcd13c2b5b9fbc9e4aed6d4d7870ae322108d7",
+      "compressed_sha256": "3b38350eebd011c3f63110a4f243026e94da9bd647bef409f1cd6c02c1c63a17",
+      "finished_at": "2026-10-30T12:02:18+01:00",
+      "time": "2.738 s"
+    },
+    {
+      "name": "gates",
+      "source_attribution": "source_sha256 manifest",
+      "kind": "unfiltered mandatory composed gate",
+      "command": "./mvnw -pl runtime-command-consumption-worker,architecture-tests -am test",
+      "cwd": "app/",
+      "exit_code": 1,
+      "build": "FAILURE",
+      "totals": {
+        "tests": 1795,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 1
+      },
+      "suites": [
+        {
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.authorization.CapabilitySetsTest"
+        },
+        {
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.authorization.PermissionTest"
+        },
+        {
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.authorization.ExternalAuthorityPermissionTranslatorTest"
+        },
+        {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.event.EventTypeTest"
+        },
+        {
+          "tests": 17,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.useridentity.v3.IdentityTransitionsTest"
+        },
+        {
+          "tests": 8,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.useridentity.v3.IdentityValueContractsTest"
+        },
+        {
+          "tests": 6,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.useridentity.UserIdentityModelTest"
+        },
+        {
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.pot.draft.ExpenseShareDraftTest"
+        },
+        {
+          "tests": 4,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.pot.association.ExpenseShareTest"
+        },
+        {
+          "tests": 7,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.pot.entity.ShareholderTest"
+        },
+        {
+          "tests": 11,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.pot.aggregate.PotHeaderTest"
+        },
+        {
+          "tests": 16,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.pot.aggregate.ExpenseHeaderTest"
+        },
+        {
+          "tests": 22,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.pot.aggregate.PotShareholdersTest"
+        },
+        {
+          "tests": 10,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.pot.aggregate.ExpenseSharesTest"
+        },
+        {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.pot.aggregate.ShareholderIdentityCollisionTest"
+        },
+        {
+          "tests": 10,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.pot.value.FractionTest"
+        },
+        {
+          "tests": 7,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.pot.value.AmountTest"
+        },
+        {
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.pot.value.NameTest"
+        },
+        {
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.pot.value.LabelTest"
+        },
+        {
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.pot.value.id.PotIdTest"
+        },
+        {
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.pot.value.id.ShareholderIdTest"
+        },
+        {
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.pot.value.id.EntityIdTest"
+        },
+        {
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.pot.value.id.ExpenseIdTest"
+        },
+        {
+          "tests": 5,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.pot.value.WeightTest"
+        },
+        {
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.pot.value.UserIdTest"
+        },
+        {
+          "tests": 4,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.pot.created.PotCreatedTest"
+        },
+        {
+          "tests": 9,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.pot.created.ExpenseCreatedTest"
+        },
+        {
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.pot.version.PotGlobalVersionTest"
+        },
+        {
+          "tests": 6,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.pot.v3.PotBalanceCalculatorTest"
+        },
+        {
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.pot.v3.PotAuthorizationTest"
+        },
+        {
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.pot.v3.InvitationAttachmentTest"
+        },
+        {
+          "tests": 14,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.pot.v3.PotTransitionsTest"
+        },
+        {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.pot.authorization.PotActionRequirementsTest"
+        },
+        {
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.pot.authorization.TokenCapabilityPolicyTest"
+        },
+        {
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.pot.authorization.PotAuthorizationFactResolverTest"
+        },
+        {
+          "tests": 9,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.pot.authorization.AuthorizationKernelTest"
+        },
+        {
+          "tests": 5,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.pot.authorization.PotBusinessAuthorizationPolicyTest"
+        },
+        {
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationExceptionTest"
+        },
+        {
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.pot.event.PotDeletedEventTest"
+        },
+        {
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.pot.event.PotCreatedEventTest"
+        },
+        {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.pot.event.RecordedEventTest"
+        },
+        {
+          "tests": 4,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.pot.event.BusinessEventContractTest"
+        },
+        {
+          "tests": 4,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.pot.event.PotShareholdersAddedEventTest"
+        },
+        {
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.pot.event.PotDetailsUpdatedEventTest"
+        },
+        {
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.pot.factory.ExpenseFactoryTest"
+        },
+        {
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.pot.factory.PotFactoryTest"
+        },
+        {
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.pot.policy.CreatePotAuthorizationPolicyTest"
+        },
+        {
+          "tests": 7,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.projection.balance.PotBalancesCalculatorTest"
+        },
+        {
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.projection.balance.BalanceTest"
+        },
+        {
+          "tests": 4,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.projection.balance.PotBalancesTest"
+        },
+        {
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.projection.balance.BalanceMapOperationsTest"
+        },
+        {
+          "tests": 11,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.projection.ProjectionValidatorTest"
+        },
+        {
+          "tests": 4,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.projection.JsonAndDefinitionTest"
+        },
+        {
+          "tests": 5,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.projection.ProjectionValueObjectsTest"
+        },
+        {
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.consumption.segmentation.PartitionHashTest"
+        },
+        {
+          "tests": 5,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.consumption.segmentation.WorkerSegmentTest"
+        },
+        {
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailureTest"
+        },
+        {
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailureCodeTest"
+        },
+        {
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalReasonTest"
+        },
+        {
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.consumption.key.ConsumptionKeyTest"
+        },
+        {
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.consumption.provenance.ConsumptionProvenanceTest"
+        },
+        {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.consumption.v3.RoutingV1Test"
+        },
+        {
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.consumption.claim.ClaimTest"
+        },
+        {
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.consumption.claim.ClaimLeaseTest"
+        },
+        {
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.consumption.claim.WorkerIdTest"
+        },
+        {
+          "tests": 4,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.domain.consumption.claim.ConsumptionSlotTest"
+        },
+        {
+          "tests": 4,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.consumption.v3.WorkerCapacityTest"
+        },
+        {
+          "tests": 9,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.consumption.v3.ConsumptionFailureClassificationTest"
+        },
+        {
+          "tests": 8,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.consumption.v3.DiscoveryEngineTest"
+        },
+        {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.service.transaction.consumption.TransactionalConsumptionUseCaseTest"
+        },
+        {
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.service.consumption.AcquireConsumptionPreconditionTest"
+        },
+        {
+          "tests": 5,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.service.consumption.ExecuteConsumptionServiceTest"
+        },
+        {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.service.consumption.DefaultConsumptionFailurePolicyTest"
+        },
+        {
+          "tests": 4,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.service.consumption.FinalizeConsumptionServiceTest"
+        },
+        {
+          "tests": 5,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.write.pot.snapshot.PotHeaderSnapshotTest"
+        },
+        {
+          "tests": 6,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.write.pot.context.DeletePotContextTest"
+        },
+        {
+          "tests": 6,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.write.pot.context.AddPotShareholdersContextTest"
+        },
+        {
+          "tests": 4,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.write.pot.context.UpdateExpenseSharesContextTest"
+        },
+        {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.write.pot.context.TerminalPotDeleteExpenseContextsTest"
+        },
+        {
+          "tests": 10,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.write.pot.context.CommandObsolescenceContextsTest"
+        },
+        {
+          "tests": 6,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.write.pot.context.UpdatePotDetailsContextTest"
+        },
+        {
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.write.pot.security.UserContextTest"
+        },
+        {
+          "tests": 7,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.write.pot.v3.ExecutePotCommandTest"
+        },
+        {
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.write.pot.v3.PotCommandIntentTest"
+        },
+        {
+          "tests": 6,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.write.pot.service.UpdatePotShareholdersDetailsServiceTest"
+        },
+        {
+          "tests": 6,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.write.pot.service.CreateExpenseServiceTest"
+        },
+        {
+          "tests": 8,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.write.pot.service.UpdatePotDetailsServiceTest"
+        },
+        {
+          "tests": 7,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.write.pot.service.DeletePotServiceTest"
+        },
+        {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.write.pot.service.ServiceVisibilityTest"
+        },
+        {
+          "tests": 6,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.write.pot.service.DeleteExpenseServiceTest"
+        },
+        {
+          "tests": 7,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.write.pot.service.UpdateExpenseDetailsServiceTest"
+        },
+        {
+          "tests": 8,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.write.pot.service.AddPotShareholdersServiceTest"
+        },
+        {
+          "tests": 10,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.write.pot.service.CreatePotServiceTest"
+        },
+        {
+          "tests": 6,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.write.pot.service.UpdateExpenseSharesServiceTest"
+        },
+        {
+          "tests": 5,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.write.pot.service.UpdatePotShareholdersWeightsServiceTest"
+        },
+        {
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.write.pot.service.ExistingExpenseAuthorizationContextTest"
+        },
+        {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.write.pot.service.NonPersistentEventPublicationTest"
+        },
+        {
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.write.pot.exception.BusinessEntityNotFoundExceptionTest"
+        },
+        {
+          "tests": 4,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.consume.command.consumption.CommandConsumptionExecutionTest"
+        },
+        {
+          "tests": 4,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.consume.command.dispatch.CommandDispatcherTest"
+        },
+        {
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.consume.command.discovery.CommandConsumptionDiscoveryModelTest"
+        },
+        {
+          "tests": 5,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.consume.command.decode.CommandDecoderRegistryTest"
+        },
+        {
+          "tests": 12,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.consume.command.pot.dispatch.PotCommandUseCaseAdapterTest"
+        },
+        {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.consume.command.pot.dispatch.NonPersistentDispatchRelayTest"
+        },
+        {
+          "tests": 5,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.consume.command.pot.decode.PotCommandPayloadDecodersTest"
+        },
+        {
+          "tests": 7,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.consume.command.pot.intent.UpdateExpenseSharesCommandTest"
+        },
+        {
+          "tests": 8,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.consume.command.pot.intent.UpdatePotShareholdersWeightsCommandTest"
+        },
+        {
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.consume.command.pot.intent.DeletePotCommandTest"
+        },
+        {
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.consume.command.pot.intent.DeleteExpenseCommandTest"
+        },
+        {
+          "tests": 6,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.consume.command.pot.intent.UpdateExpenseDetailsCommandTest"
+        },
+        {
+          "tests": 9,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.consume.command.pot.intent.AddPotShareholdersCommandTest"
+        },
+        {
+          "tests": 9,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.consume.command.pot.intent.CreateExpenseCommandTest"
+        },
+        {
+          "tests": 4,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.consume.command.pot.intent.UpdatePotDetailsCommandTest"
+        },
+        {
+          "tests": 6,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.consume.command.pot.intent.UpdatePotShareholdersDetailsCommandTest"
+        },
+        {
+          "tests": 13,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.consume.command.execution.ExecuteRecordedCommandServiceTest"
+        },
+        {
+          "tests": 6,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.consume.command.model.PublicationAcceptanceContractTest"
+        },
+        {
+          "tests": 4,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.consume.command.model.CommandModelTest"
+        },
+        {
+          "tests": 8,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.orchestrator.consumption.SequentialConsumptionOrchestratorTest"
+        },
+        {
+          "tests": 6,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.orchestrator.consumption.AcquireThenFinalizeConsumptionOrchestratorTest"
+        },
+        {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.supra.consume.command.CommandConsumptionLocatorTest"
+        },
+        {
+          "tests": 5,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.supra.consume.command.failure.CommandConsumptionTechnicalFailureClassifierTest"
+        },
+        {
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.supra.consume.command.failure.CommandConsumptionFailurePolicyTest"
+        },
+        {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.supra.consume.command.CommandConsumptionKeysTest"
+        },
+        {
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.materialize.commandresult.CommandResultTest"
+        },
+        {
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.consume.registration.RegistrationPublicationContractTest"
+        },
+        {
+          "tests": 10,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.consume.registration.v3.IdentityRequestContractTest"
+        },
+        {
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.materialize.registrationresult.RegistrationResultServiceTest"
+        },
+        {
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.produce.projectiontask.ProjectionMaterializationDiscoveryModelTest"
+        },
+        {
+          "tests": 5,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.produce.projectiontask.ProjectionMaterializationPolicyTest"
+        },
+        {
+          "tests": 13,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.read.projection.service.ExactProjectionReadServiceTest"
+        },
+        {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.projector.pot.ProjectorDeterminismTest"
+        },
+        {
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.consume.projectiontask.input.AuthProjectorTest"
+        },
+        {
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.consume.projectiontask.input.PotBalancesProjectorTest"
+        },
+        {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.consume.projectiontask.input.ReadPotProjectorTest"
+        },
+        {
+          "tests": 12,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.consume.projectiontask.engine.ProjectionEngineServiceTest"
+        },
+        {
+          "tests": 5,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.consume.projectiontask.ProjectionTaskConsumptionServiceTest"
+        },
+        {
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.read.currentbinding.GetCurrentBindingServiceTest"
+        },
+        {
+          "tests": 5,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.read.pot.ProjectionDefinitionsTest"
+        },
+        {
+          "tests": 7,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.read.pot.ProjectionInterpretersTest"
+        },
+        {
+          "tests": 5,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.read.pot.PotReadApiTest"
+        },
+        {
+          "tests": 8,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.read.pot.ReadPotServiceTest"
+        },
+        {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.materialize.latestknownversion.AdvanceLatestKnownVersionServiceTest"
+        },
+        {
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.materialize.latestknownversion.LatestKnownVersionTest"
+        },
+        {
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.infra.persistence.projection.jdbc.JsonValueCodecTest"
+        },
+        {
+          "tests": 18,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.infra.persistence.read.jdbc.JdbcProjectionStoreAdapterPostgresTest"
+        },
+        {
+          "tests": 6,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.infra.persistence.read.jdbc.CurrentBindingPersistencePostgresTest"
+        },
+        {
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.infra.persistence.read.jdbc.LatestKnownVersionPersistencePostgresTest"
+        },
+        {
+          "tests": 6,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.infra.persistence.read.jdbc.CurrentBindingTerminalCutoverMigrationPostgresTest"
+        },
+        {
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.infra.persistence.read.jdbc.ReadStorePersistencePostgresTest"
+        },
+        {
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.consumption.ReadDiscoveryPrivilegesPostgresTest"
+        },
+        {
+          "tests": 4,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.consumption.ReadConsumptionFoundationPostgresTest"
+        },
+        {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.consumption.ReadConsumptionLifecyclePrivilegesPostgresTest"
+        },
+        {
+          "tests": 5,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.infra.persistence.read.jdbc.CommandResultExactIdentityCutoverMigrationPostgresTest"
+        },
+        {
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.contracts.observability.trace.TraceContextHolderTest"
+        },
+        {
+          "tests": 9,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest"
+        },
+        {
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.infra.tx.spring.v3.V3SchemaIsolationPostgresTest"
+        },
+        {
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.infra.tx.spring.v3.V3FoundationCompositionTest"
+        },
+        {
+          "tests": 4,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.infra.tx.spring.v3.V3HistoricalIntervalPostgresTest"
+        },
+        {
+          "tests": 6,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.infra.tx.spring.v3.V3TransactionFoundationPostgresTest"
+        },
+        {
+          "tests": 4,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunnerTest"
+        },
+        {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.admit.command.SubmitRecordedCommandServiceTest"
+        },
+        {
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.engine.admit.command.CommandAuthenticationEvidenceFactoryTest"
+        },
+        {
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.supra.consume.lkv.EventOrderingKeyTest"
+        },
+        {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.supra.consume.lkv.LatestKnownVersionConsumptionLocatorTest"
+        },
+        {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.repository.consumption.JpaConsumptionSlotRepositoryFencingQueryTest"
+        },
+        {
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.entity.outbox.PotPartitionerTest"
+        },
+        {
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.outbox.JpaPotCommandEventAppendAdapterTest"
+        },
+        {
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.outbox.BusinessEventRecordMapperTest"
+        },
+        {
+          "tests": 8,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.registration.RegistrationAuthorityPostgresTest"
+        },
+        {
+          "tests": 10,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.context.CommandObsolescencePostgresTest"
+        },
+        {
+          "tests": 15,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.context.UpdateExpenseSharesConcurrencyPostgresTest"
+        },
+        {
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.context.JpaPotContextAdapterTest"
+        },
+        {
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.context.JpaExpenseContextAdapterTest"
+        },
+        {
+          "tests": 7,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.core.JpaExpenseSharesAdapterTest"
+        },
+        {
+          "tests": 6,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.core.JpaExpenseHeaderAdapterTest"
+        },
+        {
+          "tests": 7,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.core.JpaPotHeaderAdapterTest"
+        },
+        {
+          "tests": 7,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.core.JpaPotShareholdersAdapterTest"
+        },
+        {
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.identity.ExternalIdentityBindingFactRecordMapperTest"
+        },
+        {
+          "tests": 11,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.identity.JpaUserIdentityAuthorityAdapterPostgresTest"
+        },
+        {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.identity.BindingOptimisticCasSemanticsPostgresTest"
+        },
+        {
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.identity.JpaExternalIdentityBindingLifecycleAdapterPostgresTest"
+        },
+        {
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.processing.event.JpaEventPortPostgresTest"
+        },
+        {
+          "tests": 9,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.processing.event.JdbcProjectionMaterializationDiscoveryAdapterPostgresTest"
+        },
+        {
+          "tests": 26,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.consumption.TransactionalConsumptionExecutionPostgresTest"
+        },
+        {
+          "tests": 12,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.consumption.JpaConsumptionLifecycleAdapterPostgresTest"
+        },
+        {
+          "tests": 4,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.JpaPotGlobalVersionAdapterTest"
+        },
+        {
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.command.RecordedCommandRecordMapperTest"
+        },
+        {
+          "tests": 13,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.command.JpaRecordedCommandAdapterPostgresTest"
+        },
+        {
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.command.JdbcCommandResultStorePostgresTest"
+        },
+        {
+          "tests": 36,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.command.CommandConsumptionPostgresTest"
+        },
+        {
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.projection.JdbcProjectionTaskStoreAdapterPostgresTest"
+        },
+        {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.projection.JpaProjectedExpenseAdapterTest"
+        },
+        {
+          "tests": 6,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotFinancePostgresTest"
+        },
+        {
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotHistoryCardinalityPostgresTest"
+        },
+        {
+          "tests": 49,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.DiscoveryPostgresTest"
+        },
+        {
+          "tests": 142,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.L2ManifestProof"
+        },
+        {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.WriteRevisionPerformancePostgresTest"
+        },
+        {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotCommandJsonTest"
+        },
+        {
+          "tests": 15,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.consumption.ConsumptionFoundationPostgresTest"
+        },
+        {
+          "tests": 8,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.SlotNavigationPostgresTest"
+        },
+        {
+          "tests": 4,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.L1IntegrationPostgresTest"
+        },
+        {
+          "tests": 21,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotHistoryPostgresTest"
+        },
+        {
+          "tests": 45,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest"
+        },
+        {
+          "tests": 6,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.WriteRevisionPostgresTest"
+        },
+        {
+          "tests": 31,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.CommandExecutionPostgresTest"
+        },
+        {
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.migration.CommandResultBackfillMigrationPostgresTest"
+        },
+        {
+          "tests": 7,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.migration.CanonicalBusinessEventTypesMigrationPostgresTest"
+        },
+        {
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.migration.ExternalIdentityBindingLifecycleMigrationPostgresTest"
+        },
+        {
+          "tests": 5,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.migration.PrimaryMigrationsPostgresTest"
+        },
+        {
+          "tests": 4,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.migration.RecordedCommandContractionMigrationPostgresTest"
+        },
+        {
+          "tests": 7,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.migration.ExternalIdentityBindingCanonicalMigrationPostgresTest"
+        },
+        {
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.infra.projection.validation.networknt.NetworkntJsonSchemaValidatorTest"
+        },
+        {
+          "tests": 7,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.orchestrator.poll.consumption.ConsumptionPollingWorkerTest"
+        },
+        {
+          "tests": 13,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.orchestrator.poll.consumption.v3.V3ConsumptionWorkerTest"
+        },
+        {
+          "tests": 4,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.supra.consume.event.materialization.ProjectionMaterializationConsumptionSourceTest"
+        },
+        {
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.supra.consume.event.materialization.ProjectionMaterializationConsumptionServiceTest"
+        },
+        {
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.supra.http.write.AsyncCommandControllerTest"
+        },
+        {
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.supra.http.read.CurrentBindingControllerTest"
+        },
+        {
+          "tests": 4,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.supra.http.read.PotQueryControllerTest"
+        },
+        {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.supra.http.read.RegistrationResultControllerTest"
+        },
+        {
+          "tests": 5,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.supra.http.read.CommandResultControllerTest"
+        },
+        {
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.ConsumptionPilotIsolationTest"
+        },
+        {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.V3WorkerMonolithPostgresTest"
+        },
+        {
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.RuntimeMonolithPostgresTest"
+        },
+        {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.PotBindingConvergencePostgresTest"
+        },
+        {
+          "tests": 4,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.runtime.web.authentication.CommandAdmissionResourceServerTest"
+        },
+        {
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.runtime.web.authentication.SpringSecurityExternalPrincipalAdapterTest"
+        },
+        {
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.WriteSideClosurePostgresTest"
+        },
+        {
+          "tests": 4,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.RegistrationAdmissionPostgresTest"
+        },
+        {
+          "tests": 5,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.CommandAdmissionPostgresTest"
+        },
+        {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.WriteSideHttpClosureTest"
+        },
+        {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.PocomaWebApiApplicationTest"
+        },
+        {
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.runtime.event.consumption.ProjectionTaskSchedulingMigrationPostgresTest"
+        },
+        {
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.runtime.event.consumption.EventConsumptionRuntimeConfigurationTest"
+        },
+        {
+          "tests": 5,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.runtime.event.consumption.EventConsumptionRuntimeSpringBindingTest"
+        },
+        {
+          "tests": 4,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.runtime.event.consumption.EventConsumptionRuntimePostgresTest"
+        },
+        {
+          "tests": 5,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.runtime.event.consumption.PocomaProjectionMaterializationPolicyTest"
+        },
+        {
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.runtime.event.consumption.EventConsumptionWorkerLifecycleTest"
+        },
+        {
+          "tests": 10,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.runtime.event.consumption.ProjectionMaterializationConsumptionPostgresTest"
+        },
+        {
+          "tests": 5,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.runtime.result.CommandResultRuntimePostgresTest"
+        },
+        {
+          "tests": 4,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.runtime.registrationresult.RegistrationResultRuntimePostgresTest"
+        },
+        {
+          "tests": 7,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.runtime.registration.RegistrationRuntimePostgresTest"
+        },
+        {
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.runtime.latestknownversion.MeteredAdvanceLatestKnownVersionUseCaseTest"
+        },
+        {
+          "tests": 8,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.runtime.latestknownversion.LatestKnownVersionRuntimePostgresTest"
+        },
+        {
+          "tests": 7,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.runtime.binding.BindingRuntimePostgresTest"
+        },
+        {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.runtime.task.consumption.ProjectionTaskWorkerProcessTest"
+        },
+        {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.runtime.task.consumption.ProjectionTaskConsumptionOrchestratorTest"
+        },
+        {
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.runtime.task.consumption.ProjectionTaskWorkerLifecycleTest"
+        },
+        {
+          "tests": 14,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.runtime.task.consumption.CanonicalProjectionTaskRuntimePostgresTest"
+        },
+        {
+          "tests": 26,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.runtime.command.consumption.PotCasConsumptionPostgresTest"
+        },
+        {
+          "tests": 10,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.runtime.command.consumption.sequencing.JpaTerminalSequencingPostgresTest"
+        },
+        {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.runtime.command.consumption.sequencing.CurrentTransactionManagerPostgresTest"
+        },
+        {
+          "tests": 14,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 1,
+          "name": "com.kartaguez.pocoma.runtime.command.consumption.sequencing.TerminalSequencingPostgresTest"
+        },
+        {
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.runtime.command.consumption.CommandConsumptionWorkerLifecycleTest"
+        },
+        {
+          "tests": 9,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.runtime.command.consumption.CommandConsumptionRuntimePostgresTest"
+        },
+        {
+          "tests": 29,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.runtime.command.consumption.BindingSharedFencePostgresTest"
+        },
+        {
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.runtime.command.consumption.ConsumptionOwnerTransactionRunnerTest"
+        },
+        {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.runtime.command.consumption.CommandConsumptionActuatorTest"
+        },
+        {
+          "tests": 24,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.runtime.command.consumption.eventprotocol.RealProducerEventProtocolPostgresTest"
+        },
+        {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.runtime.command.consumption.eventprotocol.PrimaryEventProtocolDormancyPostgresTest"
+        },
+        {
+          "tests": 8,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.runtime.command.consumption.eventprotocol.EventSequencingQualificationPostgresTest"
+        },
+        {
+          "tests": 23,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.runtime.command.consumption.eventprotocol.EventSequencingAdministrationPostgresTest"
+        },
+        {
+          "tests": 4,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.runtime.command.consumption.eventprotocol.EventSequencingTransportPostgresTest"
+        },
+        {
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.runtime.command.consumption.eventprotocol.EventSequencingUpgradePostgresTest"
+        },
+        {
+          "tests": 6,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.runtime.command.consumption.eventprotocol.PrimaryEventProtocolStructureTest"
+        },
+        {
+          "tests": 34,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.runtime.command.consumption.eventprotocol.EventSequencingPostgresTest"
+        },
+        {
+          "tests": 23,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.runtime.command.consumption.eventprotocol.PrimaryEventTransactionPostgresTest"
+        },
+        {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.runtime.command.consumption.CommandConsumptionRuntimeContextTest"
+        },
+        {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.runtime.command.consumption.MicrometerConsumptionPollingWorkerObservationTest"
+        },
+        {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.runtime.command.consumption.CommandConsumptionMultiWorkerPostgresTest"
+        },
+        {
+          "tests": 21,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest"
+        },
+        {
+          "tests": 8,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.runtime.command.v3.ConsumptionBootstrapPostgresTest"
+        },
+        {
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.runtime.command.v3.I5TemporalV2Test"
+        },
+        {
+          "tests": 5,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.runtime.command.v3.V3WorkerCompositionPostgresTest"
+        },
+        {
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.runtime.command.v3.DiscoveryCompositionPostgresTest"
+        },
+        {
+          "tests": 10,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.runtime.command.v3.ConsumptionCompositeClassificationTest"
+        },
+        {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.runtime.command.v3.V3PotCommandCompositionPostgresTest"
+        },
+        {
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.runtime.command.v3.V3WorkerMetricsTest"
+        },
+        {
+          "tests": 12,
+          "failures": 2,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest"
+        },
+        {
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.runtime.command.v3.I5TemporalBudgetTest"
+        },
+        {
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.runtime.command.v3.I5PhysicalWindowTest"
+        },
+        {
+          "tests": 5,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.runtime.command.v3.ConsumptionLifecycleCompositionPostgresTest"
+        }
+      ],
+      "compressed_log": "gates.log.gz",
+      "log_sha256": "27a54285e28f0c215aa60e086ad8bdbf750821ff9c094bb4feed1043be67c620",
+      "compressed_sha256": "b620bbc0efb8a7c8ad1d4d0b8528f81195b0e1eae1ef649ab957cb5162753297",
+      "finished_at": "2026-10-30T12:46:34+01:00",
+      "time": "44:05 min"
+    },
+    {
+      "name": "architecture-feedback",
+      "source_attribution": "source_sha256 manifest",
+      "kind": "targeted architecture contribution with explicit test filter",
+      "command": "./mvnw -pl architecture-tests -am -Dtest=com.kartaguez.pocoma.architecture.BindingLockOwnershipTest,com.kartaguez.pocoma.architecture.DistributedComposeConfigurationTest,com.kartaguez.pocoma.architecture.EventPublicationContractArchitectureTest,com.kartaguez.pocoma.architecture.HexagonalArchitectureTest,com.kartaguez.pocoma.architecture.Pcl3LegacyAbsenceTest,com.kartaguez.pocoma.architecture.Pcl4LegacyQueryReadAbsenceTest,com.kartaguez.pocoma.architecture.Pcl5PipelineLifecycleAbsenceTest,com.kartaguez.pocoma.architecture.Pcl6MonolithAbsenceTest,com.kartaguez.pocoma.architecture.Pcl7ModuleDependencyCollapseTest,com.kartaguez.pocoma.architecture.Pcl8DatabaseDemolitionPostgresTest,com.kartaguez.pocoma.architecture.Pcl8DatabaseDemolitionTest,com.kartaguez.pocoma.architecture.PostWp4OwnershipArchitectureTest,com.kartaguez.pocoma.architecture.RegistrationModuleBoundaryTest,com.kartaguez.pocoma.architecture.Wa67BindingArchitectureTest,com.kartaguez.pocoma.architecture.Wp2BoundaryTest,com.kartaguez.pocoma.architecture.Wp3BoundaryTest,com.kartaguez.pocoma.architecture.Wp4BoundaryTest,com.kartaguez.pocoma.architecture.Wp5TargetTopologyTest,com.kartaguez.pocoma.architecture.ccr.CommandCompletionE2EPostgresTest,com.kartaguez.pocoma.architecture.ccr.CommandResultConsumptionChainPostgresTest,com.kartaguez.pocoma.architecture.ccr.CommandResultTakeoverRacePostgresTest,com.kartaguez.pocoma.architecture.ept.DurableEventToProjectionPostgresTest,com.kartaguez.pocoma.architecture.ept.HistoricalEventRouteEvolutionPostgresTest,com.kartaguez.pocoma.architecture.v3.V3ConsumptionEngineArchitectureTest,com.kartaguez.pocoma.architecture.v3.V3ConsumptionFoundationArchitectureTest,com.kartaguez.pocoma.architecture.v3.V3FoundationArchitectureTest,com.kartaguez.pocoma.architecture.v3.V3PotExecutionArchitectureTest -Dsurefire.failIfNoSpecifiedTests=false test",
+      "cwd": "app/",
+      "exit_code": 0,
+      "build": "SUCCESS",
+      "totals": {
+        "tests": 159,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "suites": [
+        {
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.architecture.Pcl8DatabaseDemolitionTest"
+        },
+        {
+          "tests": 4,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.architecture.Wp2BoundaryTest"
+        },
+        {
+          "tests": 4,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.architecture.BindingLockOwnershipTest"
+        },
+        {
+          "tests": 4,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.architecture.DistributedComposeConfigurationTest"
+        },
+        {
+          "tests": 4,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.architecture.Wp3BoundaryTest"
+        },
+        {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.architecture.Pcl8DatabaseDemolitionPostgresTest"
+        },
+        {
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.architecture.Pcl3LegacyAbsenceTest"
+        },
+        {
+          "tests": 54,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.architecture.HexagonalArchitectureTest"
+        },
+        {
+          "tests": 4,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.architecture.Pcl4LegacyQueryReadAbsenceTest"
+        },
+        {
+          "tests": 5,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.architecture.Wp4BoundaryTest"
+        },
+        {
+          "tests": 4,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.architecture.Pcl7ModuleDependencyCollapseTest"
+        },
+        {
+          "tests": 7,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.architecture.Pcl6MonolithAbsenceTest"
+        },
+        {
+          "tests": 8,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.architecture.EventPublicationContractArchitectureTest"
+        },
+        {
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.architecture.PostWp4OwnershipArchitectureTest"
+        },
+        {
+          "tests": 4,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.architecture.Wp5TargetTopologyTest"
+        },
+        {
+          "tests": 5,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.architecture.Wa67BindingArchitectureTest"
+        },
+        {
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.architecture.v3.V3ConsumptionFoundationArchitectureTest"
+        },
+        {
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.architecture.v3.V3PotExecutionArchitectureTest"
+        },
+        {
+          "tests": 8,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.architecture.v3.V3ConsumptionEngineArchitectureTest"
+        },
+        {
+          "tests": 5,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.architecture.v3.V3FoundationArchitectureTest"
+        },
+        {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.architecture.ept.DurableEventToProjectionPostgresTest"
+        },
+        {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.architecture.ept.HistoricalEventRouteEvolutionPostgresTest"
+        },
+        {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.architecture.RegistrationModuleBoundaryTest"
+        },
+        {
+          "tests": 4,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.architecture.Pcl5PipelineLifecycleAbsenceTest"
+        },
+        {
+          "tests": 5,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.architecture.ccr.CommandResultTakeoverRacePostgresTest"
+        },
+        {
+          "tests": 7,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.architecture.ccr.CommandResultConsumptionChainPostgresTest"
+        },
+        {
+          "tests": 4,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "name": "com.kartaguez.pocoma.architecture.ccr.CommandCompletionE2EPostgresTest"
+        }
+      ],
+      "compressed_log": "architecture-feedback.log.gz",
+      "log_sha256": "15fb67697d184eea265be55b927d71c07b41af4d8ec31542ad79340594acc145",
+      "compressed_sha256": "0de93ae0a7218e10d5c939bffcb55ce67057d49b070df9b321de54e32163e377",
+      "finished_at": "2026-10-30T12:51:17+01:00",
+      "time": "44.147 s"
+    }
+  ],
+  "environment": {
+    "java": "openjdk version \"21\" 2023-09-19 LTS\nOpenJDK Runtime Environment Temurin-21+35 (build 21+35-LTS)\nOpenJDK 64-Bit Server VM Temurin-21+35 (build 21+35-LTS, mixed mode)\n",
+    "maven": "Apache Maven 3.9.14 (996c630dbc656c76214ce58821dcc58be960875b)\nMaven home: /Users/julien.guezennec/.m2/wrapper/dists/apache-maven-3.9.14/db91789b\nJava version: 21, vendor: Eclipse Adoptium, runtime: /Users/julien.guezennec/.sdkman/candidates/java/21-tem\nDefault locale: fr_FR, platform encoding: UTF-8\nOS name: \"mac os x\", version: \"27.0\", arch: \"aarch64\", family: \"mac\"\n",
+    "postgres_versions_from_flyway": [
+      "16.15",
+      "17.11"
+    ]
+  },
+  "required_i1_tests": {
+    "com.kartaguez.pocoma.domain.useridentity.v3.IdentityTransitionsTest": 17,
+    "com.kartaguez.pocoma.domain.useridentity.v3.IdentityValueContractsTest": 8,
+    "com.kartaguez.pocoma.engine.consume.registration.v3.IdentityRequestContractTest": 10
+  },
+  "skips": [
+    {
+      "module": "runtime-command-consumption-worker",
+      "suite": "com.kartaguez.pocoma.runtime.command.consumption.sequencing.TerminalSequencingPostgresTest",
+      "name": "zExploratoryContentionSeparateFromCorrectness",
+      "class": "com.kartaguez.pocoma.runtime.command.consumption.sequencing.TerminalSequencingPostgresTest",
+      "time": "0.0",
+      "status": "SKIPPED",
+      "detail": "System property [step3b.measure] does not exist",
+      "run": "gates"
+    }
+  ],
+  "failures": [
+    {
+      "module": "runtime-command-consumption-worker",
+      "suite": "com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest",
+      "name": "i5_r05",
+      "class": "com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest",
+      "time": "19.009",
+      "status": "FAILURE",
+      "detail": "B missing independent available window 98f7268d-d340-581c-b83d-010926223e14/1 ==> expected: <true> but was: <false>",
+      "run": "gates"
+    },
+    {
+      "module": "runtime-command-consumption-worker",
+      "suite": "com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest",
+      "name": "i5_r12",
+      "class": "com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest",
+      "time": "94.762",
+      "status": "FAILURE",
+      "detail": "runtime condition deadline ==> expected: <true> but was: <false>",
+      "run": "gates"
+    }
+  ],
+  "testcases": {
+    "file": "testcases.json.gz",
+    "count": 1954,
+    "sha256": "5365f851b8c2f7d3da00eb91c821ef6a1a4c49fd71876f4d780375c57eba173b",
+    "freshness": "Original gate reports checked against gate log creation before targeted run; architecture feedback reports checked against its own log creation."
+  },
+  "baseline_failure_reproduction": "NOT RUN; unchanged source comparison is not an execution on baseline and does not prove a pre-existing failure",
+  "unchanged_l2_sources": {
+    "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/V3WorkerResourcesPostgresTest.java": "a27364322bd9d3251290fb46a55b6c473d80544a57e2d12cec1b03720f5821ba",
+    "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/I5TemporalV2Postgres.java": "b0c9da9dde2959f56a2bed1a9b679331836f1f3800a4387dfb8b0ca4515ba64a",
+    "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/V3WorkerPostgresTest.java": "1237b1e3ab1a5e0db0a61c087e667524b677684cd6220d77f25d30e0eff5fcbd"
+  },
+  "implementation_commit": "ddffcb44c92d02d335f41b55122aa6c7d885d0e2"
+}

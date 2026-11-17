@@ -1,0 +1,15 @@
+{
+  "state": "DESTROYED",
+  "exit": 0,
+  "project": "pocoma-lb-keycloak-validation-final-8dcc274e",
+  "diagnostics": "PRESERVED",
+  "instance": "keycloak-validation-final",
+  "sha": "47a0c094f803f019e32c91709e171791cde67f2e",
+  "dirty": true,
+  "urls": {
+    "write": "http://127.0.0.1:51879",
+    "read": "http://127.0.0.1:51880"
+  },
+  "issuer": "http://localhost:51881/realms/pocoma",
+  "evidence": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/keycloak-validation-final/runs/1794675386-58d07e2f"
+}

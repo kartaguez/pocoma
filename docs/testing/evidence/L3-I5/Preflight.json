@@ -1,0 +1,36 @@
+{
+  "start_head": "0ba18ec1e2fb9d9ead4e6ff84b9c839048c82dc3",
+  "remote_head_observed": "0ba18ec1e2fb9d9ead4e6ff84b9c839048c82dc3",
+  "branch": "feat/v3-architecture",
+  "initial_checkout_status": "clean",
+  "commit_check": "Full SHA in mandate absent; actual short prefix uniquely identifies the dossier on both local/remote",
+  "worktrees": [
+    {
+      "path": "/Users/julien.guezennec/Dev/projects/pocoma",
+      "status": "clean at preflight; preserved"
+    },
+    {
+      "path": "/private/tmp/pocoma-verification-audit-d0927d94",
+      "status": "clean at preflight; preserved"
+    },
+    {
+      "path": "/Users/julien.guezennec/.codex/worktrees/debt-wa6-integration/pocoma",
+      "status": "clean at preflight; preserved"
+    },
+    {
+      "path": "/Users/julien.guezennec/.codex/worktrees/v3-l2-documentation/pocoma",
+      "status": "clean at preflight; preserved"
+    },
+    {
+      "path": "/Users/julien.guezennec/.codex/worktrees/v3-l2-i1-close-i2-plan/pocoma",
+      "status": "clean at preflight; preserved"
+    }
+  ],
+  "declared_primary_slice": "COMMAND",
+  "secondary_slices": [],
+  "production_impact": "NONE",
+  "database": "CURRENT V3 new WRITE V1-V6 / READ technical V1; no historical migration campaign; TRUSTED baseline NONE",
+  "new_global_gate": "NOT REQUIRED / NOT RUN for documentary/operator remediation; O20 remains REQUIRED and unacquired under ARB-I5-01",
+  "full_reactor": "NOT REQUIRED / NOT RUN; no major Wave/main/release or production graph change",
+  "unexpected_slice_crossing": "NONE"
+}

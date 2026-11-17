@@ -1,0 +1,29 @@
+{
+  "phases": {
+    "input_inventory": {
+      "status": "FINISHED",
+      "seconds": 0.21513104200130329
+    },
+    "discovery": {
+      "status": "FINISHED",
+      "seconds": 2.2426124999765307
+    },
+    "maven": {
+      "status": "FINISHED",
+      "seconds": 681.3163099999656
+    },
+    "collection": {
+      "status": "FINISHED",
+      "seconds": 0.7122932909987867
+    }
+  },
+  "campaign_seconds": 686.1875821250142,
+  "forecast": {
+    "seconds": 900,
+    "basis": "I8 plan central forecast; no deadline",
+    "uncertainty": "HIGH"
+  },
+  "forecast_delta_seconds": -213.81241787498584,
+  "forecast_exceeded": false,
+  "forecast_is_blocking": false
+}

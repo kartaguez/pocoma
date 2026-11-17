@@ -1,0 +1,599 @@
+{
+  "protocol": "3 separate JVM forks/variant, 8 warmups/profile, 10 timed/thread-allocation samples/profile/fork; absolute heap after observed explicit full GC with input+result retained; no SLO",
+  "baseline": "2fb9a536f3894e797923c0b49aeba1a9b5adfda2",
+  "tested_sha": "c94e7a4bec479ccbf22b058fd341ae0350c2ca67",
+  "profiles": {
+    "before": {
+      "5": {
+        "forks": [
+          {
+            "file": "before-3.txt",
+            "nanos": [
+              323125,
+              224167,
+              241334,
+              195542,
+              201458,
+              183083,
+              160250,
+              138959,
+              132750,
+              153000
+            ],
+            "allocated_bytes": [
+              439608,
+              439608,
+              439672,
+              439608,
+              439608,
+              439608,
+              439608,
+              439608,
+              439608,
+              439608
+            ],
+            "retained_result_heap_bytes": 3740720
+          },
+          {
+            "file": "before-2.txt",
+            "nanos": [
+              291375,
+              216708,
+              221791,
+              187167,
+              186500,
+              170375,
+              150791,
+              128958,
+              124542,
+              144584
+            ],
+            "allocated_bytes": [
+              439608,
+              439608,
+              439672,
+              439608,
+              439608,
+              439608,
+              439608,
+              439608,
+              439608,
+              439608
+            ],
+            "retained_result_heap_bytes": 3740776
+          },
+          {
+            "file": "before-1.txt",
+            "nanos": [
+              362209,
+              248917,
+              269375,
+              204375,
+              207709,
+              190458,
+              165542,
+              299833,
+              154458,
+              174750
+            ],
+            "allocated_bytes": [
+              439608,
+              439672,
+              439608,
+              439608,
+              439608,
+              439608,
+              439608,
+              439608,
+              439608,
+              439608
+            ],
+            "retained_result_heap_bytes": 3740864
+          }
+        ],
+        "samples": 30,
+        "median_ms": 0.1888125,
+        "min_ms": 0.124542,
+        "max_ms": 0.362209,
+        "median_allocated_bytes": 439608.0,
+        "median_retained_result_heap_bytes": 3740776,
+        "min_retained_result_heap_bytes": 3740720,
+        "max_retained_result_heap_bytes": 3740864
+      },
+      "20": {
+        "forks": [
+          {
+            "file": "before-3.txt",
+            "nanos": [
+              2352042,
+              2199417,
+              2203250,
+              2155083,
+              2222375,
+              2047125,
+              2043125,
+              2012875,
+              1964834,
+              2220917
+            ],
+            "allocated_bytes": [
+              15464904,
+              15464904,
+              15464904,
+              15464904,
+              15464904,
+              15464904,
+              15464904,
+              15454504,
+              15360904,
+              15360904
+            ],
+            "retained_result_heap_bytes": 2749960
+          },
+          {
+            "file": "before-2.txt",
+            "nanos": [
+              2271000,
+              2111250,
+              2087791,
+              2051000,
+              2186167,
+              2084791,
+              2084209,
+              2059625,
+              2260000,
+              2289708
+            ],
+            "allocated_bytes": [
+              15464064,
+              15464064,
+              15464064,
+              15464064,
+              15464064,
+              15464064,
+              15464064,
+              15464064,
+              15464064,
+              15464064
+            ],
+            "retained_result_heap_bytes": 2749264
+          },
+          {
+            "file": "before-1.txt",
+            "nanos": [
+              2693417,
+              2357708,
+              2286166,
+              2221958,
+              2368750,
+              2179708,
+              2188791,
+              2308458,
+              2242584,
+              2282917
+            ],
+            "allocated_bytes": [
+              15473856,
+              15473856,
+              15473856,
+              15473856,
+              15473856,
+              15370376,
+              15369856,
+              15369856,
+              15369856,
+              15369856
+            ],
+            "retained_result_heap_bytes": 2748840
+          }
+        ],
+        "samples": 30,
+        "median_ms": 2.2013335,
+        "min_ms": 1.964834,
+        "max_ms": 2.693417,
+        "median_allocated_bytes": 15464064.0,
+        "median_retained_result_heap_bytes": 2749264,
+        "min_retained_result_heap_bytes": 2748840,
+        "max_retained_result_heap_bytes": 2749960
+      },
+      "100": {
+        "forks": [
+          {
+            "file": "before-3.txt",
+            "nanos": [
+              134840625,
+              134190083,
+              133958167,
+              134202792,
+              134097500,
+              133292000,
+              133176167,
+              134104584,
+              133783458,
+              133615292
+            ],
+            "allocated_bytes": [
+              768207992,
+              768207992,
+              768207992,
+              768208368,
+              768176840,
+              768176840,
+              768176840,
+              768176840,
+              768176840,
+              768176840
+            ],
+            "retained_result_heap_bytes": 18657584
+          },
+          {
+            "file": "before-2.txt",
+            "nanos": [
+              139355500,
+              137918791,
+              138467041,
+              138251459,
+              138929417,
+              139573791,
+              138805542,
+              138347250,
+              138373875,
+              138700625
+            ],
+            "allocated_bytes": [
+              768207992,
+              768207992,
+              768207992,
+              768208368,
+              768176840,
+              768176840,
+              768176840,
+              768176840,
+              768176840,
+              768176840
+            ],
+            "retained_result_heap_bytes": 18656792
+          },
+          {
+            "file": "before-1.txt",
+            "nanos": [
+              146057875,
+              145443667,
+              144623417,
+              144358291,
+              144572583,
+              144378042,
+              144435958,
+              144906667,
+              143579542,
+              144452000
+            ],
+            "allocated_bytes": [
+              768256920,
+              768225392,
+              768225392,
+              768225392,
+              768225392,
+              768225392,
+              768225392,
+              768225392,
+              768225392,
+              768225392
+            ],
+            "retained_result_heap_bytes": 18656792
+          }
+        ],
+        "samples": 30,
+        "median_ms": 138.583833,
+        "min_ms": 133.176167,
+        "max_ms": 146.057875,
+        "median_allocated_bytes": 768207992.0,
+        "median_retained_result_heap_bytes": 18656792,
+        "min_retained_result_heap_bytes": 18656792,
+        "max_retained_result_heap_bytes": 18657584
+      }
+    },
+    "after": {
+      "5": {
+        "forks": [
+          {
+            "file": "after-1.txt",
+            "nanos": [
+              302084,
+              247958,
+              188125,
+              181000,
+              176208,
+              171000,
+              168584,
+              164125,
+              151667,
+              133292
+            ],
+            "allocated_bytes": [
+              309680,
+              309048,
+              309048,
+              309048,
+              309048,
+              309048,
+              309048,
+              309048,
+              309048,
+              309048
+            ],
+            "retained_result_heap_bytes": 3732736
+          },
+          {
+            "file": "after-3.txt",
+            "nanos": [
+              314083,
+              252292,
+              183916,
+              175584,
+              183667,
+              170833,
+              183208,
+              159083,
+              159417,
+              135834
+            ],
+            "allocated_bytes": [
+              310640,
+              310008,
+              310008,
+              310008,
+              310008,
+              310008,
+              310008,
+              310008,
+              310008,
+              310008
+            ],
+            "retained_result_heap_bytes": 3732800
+          },
+          {
+            "file": "after-2.txt",
+            "nanos": [
+              288917,
+              228708,
+              185375,
+              172041,
+              187125,
+              167084,
+              163166,
+              169375,
+              146542,
+              130333
+            ],
+            "allocated_bytes": [
+              309680,
+              309048,
+              309048,
+              309048,
+              309048,
+              309048,
+              309048,
+              309048,
+              309048,
+              309048
+            ],
+            "retained_result_heap_bytes": 3732736
+          }
+        ],
+        "samples": 30,
+        "median_ms": 0.17381249999999998,
+        "min_ms": 0.130333,
+        "max_ms": 0.314083,
+        "median_allocated_bytes": 309048.0,
+        "median_retained_result_heap_bytes": 3732736,
+        "min_retained_result_heap_bytes": 3732736,
+        "max_retained_result_heap_bytes": 3732800
+      },
+      "20": {
+        "forks": [
+          {
+            "file": "after-1.txt",
+            "nanos": [
+              2105709,
+              1931166,
+              1920125,
+              1897250,
+              1827916,
+              1817666,
+              1826000,
+              1944792,
+              1827000,
+              1809958
+            ],
+            "allocated_bytes": [
+              9227088,
+              9227088,
+              9227088,
+              9227088,
+              9227088,
+              9227088,
+              9227088,
+              9227088,
+              9227088,
+              9227088
+            ],
+            "retained_result_heap_bytes": 2737960
+          },
+          {
+            "file": "after-3.txt",
+            "nanos": [
+              1984084,
+              1823375,
+              1832833,
+              1807459,
+              1767292,
+              1815375,
+              1792042,
+              1886333,
+              1764583,
+              1753125
+            ],
+            "allocated_bytes": [
+              9222816,
+              9222816,
+              9222816,
+              9222816,
+              9222816,
+              9222816,
+              9222816,
+              9222816,
+              9222816,
+              9222816
+            ],
+            "retained_result_heap_bytes": 2738440
+          },
+          {
+            "file": "after-2.txt",
+            "nanos": [
+              2123125,
+              1942625,
+              1924791,
+              1902833,
+              1868125,
+              1930083,
+              1920000,
+              2002708,
+              1880583,
+              1870042
+            ],
+            "allocated_bytes": [
+              9223104,
+              9223104,
+              9223104,
+              9223104,
+              9223104,
+              9223104,
+              9223104,
+              9223104,
+              9223104,
+              9223104
+            ],
+            "retained_result_heap_bytes": 2738384
+          }
+        ],
+        "samples": 30,
+        "median_ms": 1.8753125,
+        "min_ms": 1.753125,
+        "max_ms": 2.123125,
+        "median_allocated_bytes": 9223104.0,
+        "median_retained_result_heap_bytes": 2738384,
+        "min_retained_result_heap_bytes": 2737960,
+        "max_retained_result_heap_bytes": 2738440
+      },
+      "100": {
+        "forks": [
+          {
+            "file": "after-1.txt",
+            "nanos": [
+              100529916,
+              99570083,
+              99527333,
+              101063458,
+              100827666,
+              100472416,
+              100112875,
+              100415459,
+              102441416,
+              99801042
+            ],
+            "allocated_bytes": [
+              427918112,
+              427918112,
+              427918112,
+              427918488,
+              427886960,
+              427886960,
+              427886960,
+              427886960,
+              427886960,
+              427886960
+            ],
+            "retained_result_heap_bytes": 18635072
+          },
+          {
+            "file": "after-3.txt",
+            "nanos": [
+              94745333,
+              93474209,
+              94983125,
+              94911292,
+              95082625,
+              95616709,
+              93319292,
+              93101875,
+              93181833,
+              93356000
+            ],
+            "allocated_bytes": [
+              427785304,
+              427785304,
+              427785304,
+              427785680,
+              427754152,
+              427754152,
+              427754152,
+              427754152,
+              427754152,
+              427754152
+            ],
+            "retained_result_heap_bytes": 18635176
+          },
+          {
+            "file": "after-2.txt",
+            "nanos": [
+              97189291,
+              95615583,
+              95530875,
+              94946959,
+              95080375,
+              95420958,
+              94442542,
+              94234792,
+              94013875,
+              94008791
+            ],
+            "allocated_bytes": [
+              427943264,
+              427943264,
+              427943264,
+              427943640,
+              427912112,
+              427912112,
+              427912112,
+              427912112,
+              427912112,
+              427912112
+            ],
+            "retained_result_heap_bytes": 18635496
+          }
+        ],
+        "samples": 30,
+        "median_ms": 95.2517915,
+        "min_ms": 93.101875,
+        "max_ms": 102.441416,
+        "median_allocated_bytes": 427886960.0,
+        "median_retained_result_heap_bytes": 18635176,
+        "min_retained_result_heap_bytes": 18635072,
+        "max_retained_result_heap_bytes": 18635496
+      }
+    }
+  },
+  "rss": {
+    "before": {
+      "maximum_resident_set_bytes": 157843456,
+      "peak_memory_footprint_bytes": 130941936,
+      "scope": "one additional separate JVM executing all three profiles, not a per-profile RSS estimate"
+    },
+    "after": {
+      "maximum_resident_set_bytes": 160464896,
+      "peak_memory_footprint_bytes": 135873472,
+      "scope": "one additional separate JVM executing all three profiles, not a per-profile RSS estimate"
+    }
+  }
+}

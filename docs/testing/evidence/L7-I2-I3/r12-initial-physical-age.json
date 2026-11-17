@@ -1,0 +1,345 @@
+{
+  "method": "PostgreSQL clock_timestamp minus expiry minus the configured TTL, expressed as now - (expiry - TTL). Failed scenarios archive only the authorities observed before the first failing assertion.",
+  "attempts": [
+    {
+      "campaign": "architecture-attempt-01",
+      "r12Outcome": "PASS",
+      "member": "app/runtime-worker-process/target/v3-i5-evidence/temporal-v3-W2-B32-MW4-final.txt",
+      "sha256": "03c18e34e921749fe922d613bd560843d1d289cf028e27b1781e8afe7a1c5f9b",
+      "limitSeconds": 5,
+      "maxCapturedAgeSeconds": 2.682552,
+      "beforeFirstRenewalWindow": [
+        {
+          "key": "lease/a5000000-0000-4000-8000-000000000001/0",
+          "ttlSeconds": 90,
+          "ageSeconds": 2.677687
+        },
+        {
+          "key": "lease/a5000000-0000-4000-8000-000000000002/0",
+          "ttlSeconds": 90,
+          "ageSeconds": 2.662538
+        },
+        {
+          "key": "lease/a5000000-0000-4000-8000-000000000001/1",
+          "ttlSeconds": 90,
+          "ageSeconds": 2.64254
+        },
+        {
+          "key": "lease/a5000000-0000-4000-8000-000000000002/1",
+          "ttlSeconds": 90,
+          "ageSeconds": 2.638363
+        },
+        {
+          "key": "lease/a5000000-0000-4000-8000-000000000001/2",
+          "ttlSeconds": 90,
+          "ageSeconds": 0.20663
+        },
+        {
+          "key": "lease/a5000000-0000-4000-8000-000000000002/2",
+          "ttlSeconds": 90,
+          "ageSeconds": 0.189766
+        },
+        {
+          "key": "lease/a5000000-0000-4000-8000-000000000001/3",
+          "ttlSeconds": 90,
+          "ageSeconds": 0.167619
+        },
+        {
+          "key": "lease/a5000000-0000-4000-8000-000000000002/3",
+          "ttlSeconds": 90,
+          "ageSeconds": 0.162767
+        },
+        {
+          "key": "claim/a5000000-0000-4000-8000-000000000001/47694137-e5b3-4f34-903f-d3c7aa7283bd",
+          "ttlSeconds": 60,
+          "ageSeconds": 2.659252
+        },
+        {
+          "key": "claim/a5000000-0000-4000-8000-000000000002/28ccdbc5-5a91-46af-a615-4ccdbd6f499e",
+          "ttlSeconds": 60,
+          "ageSeconds": 2.64588
+        },
+        {
+          "key": "claim/a5000000-0000-4000-8000-000000000001/4cb000b3-7a9e-4319-8c61-4cad83dc17c9",
+          "ttlSeconds": 60,
+          "ageSeconds": 2.631538
+        },
+        {
+          "key": "claim/a5000000-0000-4000-8000-000000000001/06eb11c2-400b-458e-a1f6-47af43fd3dc3",
+          "ttlSeconds": 60,
+          "ageSeconds": 0.18976
+        },
+        {
+          "key": "claim/a5000000-0000-4000-8000-000000000002/0913bbd4-8416-4324-833c-be8081eb033b",
+          "ttlSeconds": 60,
+          "ageSeconds": 0.171656
+        },
+        {
+          "key": "claim/a5000000-0000-4000-8000-000000000001/1bac66a8-489c-4f63-9827-b737bdfbfbca",
+          "ttlSeconds": 60,
+          "ageSeconds": 0.154634
+        },
+        {
+          "key": "lease/98f7268d-d340-581c-b83d-010926223e14/0",
+          "ttlSeconds": 90,
+          "ageSeconds": 2.682552
+        },
+        {
+          "key": "lease/98f7268d-d340-581c-b83d-010926223e14/1",
+          "ttlSeconds": 90,
+          "ageSeconds": 2.643408
+        },
+        {
+          "key": "lease/98f7268d-d340-581c-b83d-010926223e14/2",
+          "ttlSeconds": 90,
+          "ageSeconds": 0.211063
+        },
+        {
+          "key": "lease/98f7268d-d340-581c-b83d-010926223e14/3",
+          "ttlSeconds": 90,
+          "ageSeconds": 0.169541
+        },
+        {
+          "key": "claim/98f7268d-d340-581c-b83d-010926223e14/a5000000-0000-4000-0000-00000001637a",
+          "ttlSeconds": 60,
+          "ageSeconds": 2.672267
+        },
+        {
+          "key": "claim/98f7268d-d340-581c-b83d-010926223e14/a5000000-0000-4000-0000-000000016761",
+          "ttlSeconds": 60,
+          "ageSeconds": 0.204496
+        }
+      ]
+    },
+    {
+      "campaign": "full",
+      "r12Outcome": "FAIL",
+      "member": "app/runtime-worker-process/target/v3-i5-evidence/temporal-v3-W2-B32-MW4-final.txt",
+      "sha256": "9a4a30589599dadb396835606ee4a828d09e31a398c420d8927bc8d6ffd7202e",
+      "limitSeconds": 5,
+      "maxCapturedAgeSeconds": 5.796025,
+      "beforeFirstRenewalWindow": [
+        {
+          "key": "lease/a5000000-0000-4000-8000-000000000001/0",
+          "ttlSeconds": 90,
+          "ageSeconds": 5.796025
+        },
+        {
+          "key": "lease/a5000000-0000-4000-8000-000000000002/0",
+          "ttlSeconds": 90,
+          "ageSeconds": 5.779575
+        },
+        {
+          "key": "lease/a5000000-0000-4000-8000-000000000001/1",
+          "ttlSeconds": 90,
+          "ageSeconds": 5.763094
+        },
+        {
+          "key": "lease/a5000000-0000-4000-8000-000000000002/1",
+          "ttlSeconds": 90,
+          "ageSeconds": 5.751229
+        },
+        {
+          "key": "lease/a5000000-0000-4000-8000-000000000001/2",
+          "ttlSeconds": 90,
+          "ageSeconds": 0.258605
+        },
+        {
+          "key": "lease/a5000000-0000-4000-8000-000000000002/2",
+          "ttlSeconds": 90,
+          "ageSeconds": 0.246835
+        },
+        {
+          "key": "lease/a5000000-0000-4000-8000-000000000001/3",
+          "ttlSeconds": 90,
+          "ageSeconds": 0.234053
+        },
+        {
+          "key": "lease/a5000000-0000-4000-8000-000000000002/3",
+          "ttlSeconds": 90,
+          "ageSeconds": 0.228529
+        },
+        {
+          "key": "claim/a5000000-0000-4000-8000-000000000001/18779e6b-a5b1-47f0-a19a-17b191658c1c",
+          "ttlSeconds": 60,
+          "ageSeconds": 5.776212
+        },
+        {
+          "key": "claim/a5000000-0000-4000-8000-000000000002/2d0d016a-b5ff-48a0-9023-9c06cddc5037",
+          "ttlSeconds": 60,
+          "ageSeconds": 5.767601
+        },
+        {
+          "key": "claim/a5000000-0000-4000-8000-000000000001/0cc44579-c837-4298-a03d-eaffb5cd2186",
+          "ttlSeconds": 60,
+          "ageSeconds": 5.749916
+        },
+        {
+          "key": "claim/a5000000-0000-4000-8000-000000000001/314e32dd-9c43-48a5-8585-e00ada3e7d04",
+          "ttlSeconds": 60,
+          "ageSeconds": 0.208514
+        },
+        {
+          "key": "claim/a5000000-0000-4000-8000-000000000002/1ddfb7b9-496f-4d4a-975a-e14893b07908",
+          "ttlSeconds": 60,
+          "ageSeconds": 0.204432
+        },
+        {
+          "key": "claim/a5000000-0000-4000-8000-000000000001/15f27913-ec15-4867-93c2-6d2fab25eff3",
+          "ttlSeconds": 60,
+          "ageSeconds": 0.198002
+        }
+      ]
+    },
+    {
+      "campaign": "r12-isolated",
+      "r12Outcome": "FAIL",
+      "member": "app/runtime-worker-process/target/v3-i5-evidence/temporal-v3-W2-B32-MW4-final.txt",
+      "sha256": "64ea442b89546a13f9e0d3f7b397f3a6fe5c14ac1011535c7231b886dff118b7",
+      "limitSeconds": 5,
+      "maxCapturedAgeSeconds": 5.107858,
+      "beforeFirstRenewalWindow": [
+        {
+          "key": "lease/98f7268d-d340-581c-b83d-010926223e14/0",
+          "ttlSeconds": 90,
+          "ageSeconds": 5.107858
+        },
+        {
+          "key": "lease/98f7268d-d340-581c-b83d-010926223e14/1",
+          "ttlSeconds": 90,
+          "ageSeconds": 5.047464
+        },
+        {
+          "key": "lease/98f7268d-d340-581c-b83d-010926223e14/2",
+          "ttlSeconds": 90,
+          "ageSeconds": 0.266934
+        },
+        {
+          "key": "lease/98f7268d-d340-581c-b83d-010926223e14/3",
+          "ttlSeconds": 90,
+          "ageSeconds": 0.220706
+        },
+        {
+          "key": "claim/98f7268d-d340-581c-b83d-010926223e14/a5000000-0000-4000-0000-00000001637a",
+          "ttlSeconds": 60,
+          "ageSeconds": 5.098022
+        },
+        {
+          "key": "claim/98f7268d-d340-581c-b83d-010926223e14/a5000000-0000-4000-0000-000000016761",
+          "ttlSeconds": 60,
+          "ageSeconds": 0.257357
+        }
+      ]
+    },
+    {
+      "campaign": "r12-after-fixture",
+      "r12Outcome": "PASS",
+      "member": "app/runtime-worker-process/target/v3-i5-evidence/temporal-v3-W2-B32-MW4-final.txt",
+      "sha256": "138c16db1bf976c644328fe9d8c323470661ba5510b568f91b3d1bca8c179efd",
+      "limitSeconds": 5,
+      "maxCapturedAgeSeconds": 0.321514,
+      "beforeFirstRenewalWindow": [
+        {
+          "key": "lease/98f7268d-d340-581c-b83d-010926223e14/2",
+          "ttlSeconds": 90,
+          "ageSeconds": 0.321513
+        },
+        {
+          "key": "lease/98f7268d-d340-581c-b83d-010926223e14/0",
+          "ttlSeconds": 90,
+          "ageSeconds": 0.321514
+        },
+        {
+          "key": "lease/98f7268d-d340-581c-b83d-010926223e14/3",
+          "ttlSeconds": 90,
+          "ageSeconds": 0.26512
+        },
+        {
+          "key": "lease/98f7268d-d340-581c-b83d-010926223e14/1",
+          "ttlSeconds": 90,
+          "ageSeconds": 0.247685
+        },
+        {
+          "key": "claim/98f7268d-d340-581c-b83d-010926223e14/a5000000-0000-4000-0000-000000016761",
+          "ttlSeconds": 60,
+          "ageSeconds": 0.311498
+        },
+        {
+          "key": "claim/98f7268d-d340-581c-b83d-010926223e14/a5000000-0000-4000-0000-00000001637a",
+          "ttlSeconds": 60,
+          "ageSeconds": 0.304211
+        },
+        {
+          "key": "lease/a5000000-0000-4000-8000-000000000001/0",
+          "ttlSeconds": 90,
+          "ageSeconds": 0.309282
+        },
+        {
+          "key": "lease/a5000000-0000-4000-8000-000000000001/2",
+          "ttlSeconds": 90,
+          "ageSeconds": 0.30907
+        },
+        {
+          "key": "lease/a5000000-0000-4000-8000-000000000002/2",
+          "ttlSeconds": 90,
+          "ageSeconds": 0.301541
+        },
+        {
+          "key": "lease/a5000000-0000-4000-8000-000000000001/3",
+          "ttlSeconds": 90,
+          "ageSeconds": 0.294269
+        },
+        {
+          "key": "lease/a5000000-0000-4000-8000-000000000002/3",
+          "ttlSeconds": 90,
+          "ageSeconds": 0.280814
+        },
+        {
+          "key": "lease/a5000000-0000-4000-8000-000000000002/0",
+          "ttlSeconds": 90,
+          "ageSeconds": 0.276764
+        },
+        {
+          "key": "lease/a5000000-0000-4000-8000-000000000001/1",
+          "ttlSeconds": 90,
+          "ageSeconds": 0.242718
+        },
+        {
+          "key": "lease/a5000000-0000-4000-8000-000000000002/1",
+          "ttlSeconds": 90,
+          "ageSeconds": 0.227721
+        },
+        {
+          "key": "claim/a5000000-0000-4000-8000-000000000001/004abdbf-e855-4988-b908-1cf1adace0f3",
+          "ttlSeconds": 60,
+          "ageSeconds": 0.271577
+        },
+        {
+          "key": "claim/a5000000-0000-4000-8000-000000000001/03e56e9d-0de2-4e4b-9b91-379d87ded44f",
+          "ttlSeconds": 60,
+          "ageSeconds": 0.270175
+        },
+        {
+          "key": "claim/a5000000-0000-4000-8000-000000000002/40f2a3ee-0969-4966-8043-d082ba25f9a2",
+          "ttlSeconds": 60,
+          "ageSeconds": 0.263804
+        },
+        {
+          "key": "claim/a5000000-0000-4000-8000-000000000002/1622e4c4-53c3-4de7-b8bf-30f9210a5f1f",
+          "ttlSeconds": 60,
+          "ageSeconds": 0.24929
+        },
+        {
+          "key": "claim/a5000000-0000-4000-8000-000000000001/37af07ee-f813-4553-842b-1235e453ed16",
+          "ttlSeconds": 60,
+          "ageSeconds": 0.239664
+        },
+        {
+          "key": "claim/a5000000-0000-4000-8000-000000000001/38ccf9e9-b470-41dd-98d2-b707a8864412",
+          "ttlSeconds": 60,
+          "ageSeconds": 0.22539
+        }
+      ]
+    }
+  ]
+}

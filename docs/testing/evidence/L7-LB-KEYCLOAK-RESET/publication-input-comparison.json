@@ -1,0 +1,10 @@
+{
+  "testedSha": "80792858d6aac9c648ebcfac2fb2d84ccf80154e",
+  "dirtyAtTest": true,
+  "inputs": "999c85a83150de0611375397a9bab97760f04b44490b824a34f6a509ad33fc58",
+  "publicationInputs": "999c85a83150de0611375397a9bab97760f04b44490b824a34f6a509ad33fc58",
+  "frozenFiles": 806,
+  "changedFrozenFiles": [],
+  "privateSecretsOrJwtFound": false,
+  "scope": "Final Git commit adds reports/evidence; executable/configuration/test bytes identical to final qualification."
+}

@@ -1,0 +1,31 @@
+{
+  "command": [
+    "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/node_modules/.bin/bru",
+    "run",
+    "-r",
+    "04 Invitations",
+    "--env",
+    "Local",
+    "--sandbox",
+    "developer",
+    "--noproxy",
+    "--reporter-json",
+    "/Users/julien.guezennec/Dev/projects/pocoma/docs/testing/evidence/L7-I2-I3/bruno-fresh-06/B401/bruno.json",
+    "--reporter-skip-all-headers",
+    "--reporter-skip-body"
+  ],
+  "exit": 0,
+  "seconds": 6.629664083942771,
+  "expected": [
+    "B401",
+    "B402",
+    "B403",
+    "B404"
+  ],
+  "actual": [
+    "B401",
+    "B402",
+    "B403",
+    "B404"
+  ]
+}

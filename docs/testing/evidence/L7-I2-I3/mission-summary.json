@@ -1,0 +1,88 @@
+{
+  "baseline": "d5da8f4200c4f60832d9590edfaff224ddaec9b9",
+  "reactorCandidate": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+  "gates": {
+    "full": {
+      "sha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+      "seconds": 5654.867099,
+      "verdict": "PASS",
+      "tests": 1057
+    },
+    "architecture": {
+      "sha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+      "seconds": 5566.754222,
+      "verdict": "PASS",
+      "tests": 1057,
+      "moduleTests": 47
+    }
+  },
+  "finalGateMavenSeconds": 11221.62,
+  "recordedExecutionSeconds": 26423.59,
+  "durationScope": "Somme des durées murales documentées pour Maven, packaging et Bruno, y compris les tentatives échouées et interrompues. Hors analyse, développement, pauses et petits contrôles statiques.",
+  "matrix": {
+    "HISTORICAL_REUSABLE": 5,
+    "HISTORICAL_PARTIAL": 49,
+    "MISSING": 67,
+    "CURRENT_FULL": 15,
+    "CURRENT_PARTIAL": 384,
+    "RETIRED_BY_HUMAN_DECISION": 2
+  },
+  "verdicts": {
+    "L7.2": "L7_I2_CERTIFIED_WITH_RESERVATIONS",
+    "L7.3": "L7_I3_NOT_CERTIFIED",
+    "L7.4": "L7_I4_PREPARATION_BLOCKED",
+    "global": "BLOCKED_BY_UNRESOLVED_SAFETY_OR_FUNCTIONAL_FAILURE"
+  },
+  "globalReason": "Certaines obligations bloquantes L7.3 demeurent sans preuve complète. Le jalon F01-E est arbitré et préparé ; la métrologie et les stocks SPEC-09 restent à calibrer. Les gates passent.",
+  "performanceCertificationExecuted": false,
+  "l7_5Executed": false,
+  "additionalStaticChecks": {
+    "tests": 17,
+    "failures": 0,
+    "command": "python3 -B -m unittest discover -v -s scripts/performance -p 'test_l7_spec09_*.py'",
+    "scope": "Offline preparation only; no benchmark executed"
+  },
+  "f01eDecision": "Human: first authorized /me/pots response with new bindingToken, p95 500 ms unchanged",
+  "remainingL73Missing": 53,
+  "effortScope": "Execution wall time recorded in receipts. Human-equivalent effort and CPU-hours were not instrumented; no estimate presented as measurement.",
+  "modifiedModules": [
+    "architecture-tests",
+    "compose-polling-burnable-write-postgres",
+    "compose-polling-nonburnable-materialize-postgres",
+    "compose-web-read-postgres",
+    "compose-web-write-postgres",
+    "contract-write-admission",
+    "domain-identity",
+    "engine-admit-identity",
+    "engine-write-identity",
+    "infra-observability-micrometer",
+    "infra-postgres-write",
+    "runtime-monolith",
+    "runtime-web-read",
+    "runtime-worker-materialize",
+    "runtime-worker-process",
+    "supra-web-read",
+    "supra-web-write"
+  ],
+  "commitsBeforeReportPublication": [
+    "133b84ed48611b2d3a2d98a28cccfa9e5399cd43 feat(v3): retire Link and prepare L7 qualification",
+    "db5fc79fe090f4acf90504d23185e88457076a51 test(v3): verify qualified SQL privilege denials",
+    "85c68b80705bed7faa4d12c74bb3727c0775f2ca test(v3): retain fixture provenance and validate runtime authority",
+    "b366397518a0dd01ab6053c5b27ac01067838e70 test(perf): pin independent Pots for planned SPEC-09 stimuli",
+    "5fbec4d1db38d4d0eaed5e8c70232880fd214e9a test(perf): prepare verified fixtures for split SPEC-09 endpoints",
+    "2922a9826059dc031b6204c080f53201b4ca11d9 test(architecture): qualify private intentions with Unlink",
+    "e671c575e5f705b16dbbeb0acc8fc59e7aa2ff75 test(perf): prepare exact F01-G backlog reconciliation",
+    "8547868e6d60a00bc4e3ccb0dc87f8c3683d19e5 docs(l7): reconcile qualification and retain campaign receipts",
+    "26bc6a1aa0fe8df5008286c106b59d3283e37ea4 test(perf): prepare isolated SPEC-09 test issuer",
+    "aed0c79aa619812eb2eb7ad2a5c9ab9e8def47e8 docs(l7): record replay routing and performance preparation checks",
+    "3d41cfa5c274d1a941c25432fdf59b1917dd98d5 test(consumption): provision both worker fixtures before measuring renewal",
+    "ee35aa9a133bcc32cdeb78219f54822fc77a7fc6 docs(l7): retain renewal failures and corrected physical proofs",
+    "7494e9bf0226ab086d33a89e464b2a32e5812838 test(read): qualify new WRITE arrivals during active replay",
+    "a06e9a5b6965c2fa9c2c8797644a3dbb7d3f1f73 docs(l7): retain the active READ replay qualification",
+    "a6fbb630bfe4dc0a9b76c4eba552e4ee616a4ca8 docs(l7): retain the integrated W19 failure and isolated replay",
+    "680ec4581b96a5c58bdbfaf138e9985b902f66f6 test(consumption): isolate the physical W19 lock window from worker startup",
+    "5ae89228c16347ed536ac18eaf9a8946a5ac4d32 test(invitation): verify PostgreSQL rollback and dense replay of creation",
+    "da36c1e8396356d4a8957a54e5146e67f02ed8d2 test(perf): prepare Registration, PKCE and backlog campaigns with ratified F01-E oracle"
+  ],
+  "finalSourceRelation": "Final Maven gates tested 5ae89228. Subsequent changes only documentation, archived evidence and static SPEC-09 preparation outside app; no productive app, SQL bootstrap or Bruno input changed."
+}

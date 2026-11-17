@@ -1,0 +1,28 @@
+administrative bootstrap-l2-routing.sql WRITE rc=0
+administrative grant-l2-lifecycle.sql WRITE rc=0
+administrative grant-l2-discovery.sql WRITE rc=0
+administrative bootstrap-l2-worker-dev.sql WRITE rc=0
+administrative grant-l2-worker-dev.sql WRITE rc=0
+administrative bootstrap-l2-routing.sql READ rc=0
+administrative grant-l2-lifecycle.sql READ rc=0
+administrative grant-l2-discovery.sql READ rc=0
+administrative bootstrap-l2-worker-dev.sql READ rc=0
+administrative grant-l2-worker-dev.sql READ rc=0
+initial expected: nine business contracts plus two technical READ probes; no slots/K/effects; fresh i5_cd518ccf48dc4a8289d240e6413d5f51
+injected internal PENDING request=a5000000-0000-4000-0000-0000000003e8 expected one PotV1 plus POT/COMPLETION, two technical READ effects
+injected internal PENDING request=a5000000-0000-4000-0000-0000000003e9 expected one PotV1 plus POT/COMPLETION, two technical READ effects
+injected internal PENDING request=a5000000-0000-4000-0000-0000000003ea expected one PotV1 plus POT/COMPLETION, two technical READ effects
+injected internal PENDING request=a5000000-0000-4000-0000-0000000003eb expected one PotV1 plus POT/COMPLETION, two technical READ effects
+injected internal PENDING request=a5000000-0000-4000-0000-0000000003ec expected one PotV1 plus POT/COMPLETION, two technical READ effects
+injected internal PENDING request=a5000000-0000-4000-0000-0000000003ed expected one PotV1 plus POT/COMPLETION, two technical READ effects
+prepared 6 real Command publications before Worker threads; all effects resolved, READ untouched
+discovery and READ lease renewal confirmed before injection discoveries=16 read renewals=1
+injected internal PENDING request=a5000000-0000-4000-0000-000000004a38 expected one PotV1 plus POT/COMPLETION, two technical READ effects
+actual acquisition wait {pid=148, backend_xid=849, wait_event=advisory, blockers={171}}
+released live acquisition {pid=148, backend_xid=849, wait_event=advisory, blockers={171}}
+observed PostgreSQL blocking window lower bound ns=6370834
+I5-O-SLOW MW=1 timeout=false opportunities=[ConsumptionId[value=98f7268d-d340-581c-b83d-010926223e14], ConsumptionId[value=a5000000-0000-4000-8000-000000000001], ConsumptionId[value=a5000000-0000-4000-8000-000000000002], ConsumptionId[value=98f7268d-d340-581c-b83d-010926223e14], ConsumptionId[value=a5000000-0000-4000-8000-000000000001], ConsumptionId[value=a5000000-0000-4000-8000-000000000002], ConsumptionId[value=98f7268d-d340-581c-b83d-010926223e14], ConsumptionId[value=a5000000-0000-4000-8000-000000000001], ConsumptionId[value=a5000000-0000-4000-8000-000000000002], ConsumptionId[value=98f7268d-d340-581c-b83d-010926223e14], ConsumptionId[value=a5000000-0000-4000-8000-000000000001], ConsumptionId[value=a5000000-0000-4000-8000-000000000002], ConsumptionId[value=98f7268d-d340-581c-b83d-010926223e14], ConsumptionId[value=a5000000-0000-4000-8000-000000000001], ConsumptionId[value=a5000000-0000-4000-8000-000000000002], ConsumptionId[value=98f7268d-d340-581c-b83d-010926223e14], ConsumptionId[value=a5000000-0000-4000-8000-000000000001], ConsumptionId[value=a5000000-0000-4000-8000-000000000002], ConsumptionId[value=98f7268d-d340-581c-b83d-010926223e14], ConsumptionId[value=a5000000-0000-4000-8000-000000000001], ConsumptionId[value=a5000000-0000-4000-8000-000000000002], ConsumptionId[value=98f7268d-d340-581c-b83d-010926223e14], ConsumptionId[value=a5000000-0000-4000-8000-000000000001], ConsumptionId[value=a5000000-0000-4000-8000-000000000002], ConsumptionId[value=98f7268d-d340-581c-b83d-010926223e14], ConsumptionId[value=a5000000-0000-4000-8000-000000000001], ConsumptionId[value=a5000000-0000-4000-8000-000000000002], ConsumptionId[value=98f7268d-d340-581c-b83d-010926223e14], ConsumptionId[value=a5000000-0000-4000-8000-000000000001], ConsumptionId[value=a5000000-0000-4000-8000-000000000002], ConsumptionId[value=98f7268d-d340-581c-b83d-010926223e14], ConsumptionId[value=a5000000-0000-4000-8000-000000000001], ConsumptionId[value=a5000000-0000-4000-8000-000000000002], ConsumptionId[value=98f7268d-d340-581c-b83d-010926223e14], ConsumptionId[value=a5000000-0000-4000-8000-000000000001], ConsumptionId[value=a5000000-0000-4000-8000-000000000002], ConsumptionId[value=98f7268d-d340-581c-b83d-010926223e14], ConsumptionId[value=a5000000-0000-4000-8000-000000000001], ConsumptionId[value=a5000000-0000-4000-8000-000000000002], ConsumptionId[value=98f7268d-d340-581c-b83d-010926223e14], ConsumptionId[value=a5000000-0000-4000-8000-000000000001], ConsumptionId[value=a5000000-0000-4000-8000-000000000002], ConsumptionId[value=98f7268d-d340-581c-b83d-010926223e14], ConsumptionId[value=a5000000-0000-4000-8000-000000000001], ConsumptionId[value=a5000000-0000-4000-8000-000000000002], ConsumptionId[value=98f7268d-d340-581c-b83d-010926223e14]] durations=[PT0.005329875S, PT0.001776459S, PT0.002654416S, PT0.001152792S, PT0.001463666S, PT0.000924S, PT0.003977042S, PT0.02535225S, PT0.002362541S, PT0.001531917S, PT0.001422375S, PT0.0013405S, PT0.001407S, PT0.001706S, PT0.001698833S, PT0.0052105S]; no temporal fairness bound under durable blocking
+physical {current_database=test, current_schema=i5_cd518ccf48dc4a8289d240e6413d5f51, clock_timestamp=2026-11-12 14:33:13.307561, pg_backend_pid=200, pg_current_xact_id=940}
+counts {slots=0, checkpoints=3, owned=3}
+physical {current_database=i5_read, current_schema=i5_cd518ccf48dc4a8289d240e6413d5f51, clock_timestamp=2026-11-12 14:33:13.319198, pg_backend_pid=202, pg_current_xact_id=943}
+counts {slots=0, checkpoints=8, owned=8}

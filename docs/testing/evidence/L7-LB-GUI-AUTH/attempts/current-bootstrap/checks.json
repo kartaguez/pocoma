@@ -1,0 +1,9 @@
+{
+  "JVM-http-write": "PASS",
+  "JVM-http-read": "PASS",
+  "JVM-command-worker": "PASS",
+  "JVM-results-worker": "PASS",
+  "JVM-business-read-worker": "PASS",
+  "DB-CURRENT": "PASS",
+  "IDP-DISCOVERY": "PASS"
+}

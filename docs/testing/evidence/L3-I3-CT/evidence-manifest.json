@@ -1,0 +1,261 @@
+{
+  "reference_sha": "2b3567b1f77051c399772ee7ac787f7dd61ba407",
+  "files": [
+    {
+      "path": "IndependentAudit$1.class",
+      "bytes": 2786,
+      "sha256": "3d26b1f2ed7f01fb138d7c045f98422f4c029b1271d510e8cfc39152939f5acb"
+    },
+    {
+      "path": "IndependentAudit.class",
+      "bytes": 47126,
+      "sha256": "34aca878310a50d33db2bc34e9627c8b5a48c0e1e268c07bf6e9d0945a661f38"
+    },
+    {
+      "path": "IndependentAudit.java",
+      "bytes": 26028,
+      "sha256": "5f196d384f9aae1f2bd340360632d73665ab4a345ed7ff414389f1f49460eddc"
+    },
+    {
+      "path": "README.md",
+      "bytes": 3732,
+      "sha256": "923ff429fe6f70642ef0cd001bbbfc820d4df6fd72a3e2fe71eaf564b7948041"
+    },
+    {
+      "path": "Rapport_Audit_Contradictoire_L3_I3.md",
+      "bytes": 38284,
+      "sha256": "c6f28e2e2348b2d33b99bb7d86511cd3a9ccfe2bf2d0abc3f06dcaba795f2d6a"
+    },
+    {
+      "path": "TEST-com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityPrivilegesPostgresTest.xml",
+      "bytes": 44178,
+      "sha256": "d44f75ff75c8b414d4c2aa55e511e57e7e84849b1c871c2dbefd7e8a086f748f"
+    },
+    {
+      "path": "TEST-com.kartaguez.pocoma.runtime.command.v3.V3IdentityRequestCompositionPostgresTest.xml",
+      "bytes": 290302,
+      "sha256": "c61f5d9a05e5482147d23a48cde8795863200ed848e89878ae2820b93390a5bb"
+    },
+    {
+      "path": "boot-view-jpa.log",
+      "bytes": 7672,
+      "sha256": "18f46feefe16a291917a2937b105dedc5774a0eaf493ad9e43e9cce74237da18"
+    },
+    {
+      "path": "boot-view-v2.log",
+      "bytes": 7417,
+      "sha256": "f85e445dbe4858902692d58027fb4684f3df59d690f382b87f5d9a6e6f196815"
+    },
+    {
+      "path": "capture_classpath.py",
+      "bytes": 631,
+      "sha256": "8b0a7f4020ad97d0ecb84cc7958c1486020c4b45501412e512db015170a3a3d3"
+    },
+    {
+      "path": "catalog-final.txt",
+      "bytes": 2443,
+      "sha256": "36ead01b75be5814b4d11378f0c97b7d1dc3de3f483ae074a1d1563260445a02"
+    },
+    {
+      "path": "classpath.txt",
+      "bytes": 19214,
+      "sha256": "7c119abddfe25d3f77eea4ee400a4dce539a0a2caa59f186b5ed207f9cc45fda"
+    },
+    {
+      "path": "collision-authorized.log",
+      "bytes": 455,
+      "sha256": "2f7860a3929f10ee42da41ec94a9740a28ff50bb6063f8dd845fa00f96b1b5b2"
+    },
+    {
+      "path": "commit-probes.log",
+      "bytes": 593,
+      "sha256": "57e10cab74ec282def88705a34cd1847052e4ca3c04d883ba070341afb4c078b"
+    },
+    {
+      "path": "commit_probes.py",
+      "bytes": 1465,
+      "sha256": "2ae9e993d0d79402c7aa4b8d4b394558e0f50d4f4be0b653f76274c1d239e7fb"
+    },
+    {
+      "path": "concurrent-authorized.log",
+      "bytes": 541,
+      "sha256": "805669f70930ad8dc0ce7dd31a197e98445695951f75c09b267e7a4642ec08f3"
+    },
+    {
+      "path": "concurrent.log",
+      "bytes": 332,
+      "sha256": "01e2eeb374cdf4f89cf108bb0dc0798ba88221e13c2fbebddf07f42a90e9224b"
+    },
+    {
+      "path": "git-final-status.json",
+      "bytes": 160,
+      "sha256": "bfda12a73e977d168f360814dd4f253b5b1f23b5ae66e15a7e40569dded8dd06"
+    },
+    {
+      "path": "harness-development-notes.txt",
+      "bytes": 1424,
+      "sha256": "a7bfa4469e8e826d0a0bfb7240fcc3fb1c694378df0d33c50927d282d45ccb95"
+    },
+    {
+      "path": "image-digest.json",
+      "bytes": 85,
+      "sha256": "c84a277283175495f805b35d0270356c2f562116a0b8285bab9afc3399aa5c52"
+    },
+    {
+      "path": "maven-initial-environment-failure.log",
+      "bytes": 98620,
+      "sha256": "74a3154b63a65204eebbb4de8b9eb2e527237308f91c0089b3568af96af7c0a6"
+    },
+    {
+      "path": "maven-targeted-success.log",
+      "bytes": 337941,
+      "sha256": "5d526f4f63478618d49211c19a6a38e1461ea266d1fd6c46d91797014f2e5243"
+    },
+    {
+      "path": "memory-authorized.log",
+      "bytes": 460,
+      "sha256": "f71455fc96d52093c8368f736ca83d1e65e95354d9f5918c437f25449144bb4f"
+    },
+    {
+      "path": "normal-authorized.log",
+      "bytes": 710,
+      "sha256": "81758ceca1025f93a59b6bfff7930f5f888355dad6161ba2188c967839bcc884"
+    },
+    {
+      "path": "normal.log",
+      "bytes": 391,
+      "sha256": "15583843c0a914ba058602174392f395d9c8637c2d0d69e533f10812b124fbde"
+    },
+    {
+      "path": "permissions-authorized.log",
+      "bytes": 1746,
+      "sha256": "cecda35dfbbc8273d36ac94a252d0feb3b4ef057173439bc9cf75bd803f780b4"
+    },
+    {
+      "path": "permissions-v2.log",
+      "bytes": 1747,
+      "sha256": "0ac54550aeb4e2354aa379fc9c5125332506205f995478a4cf4e7ba05ca2454c"
+    },
+    {
+      "path": "preflight-authorized.log",
+      "bytes": 23,
+      "sha256": "ab10f73d5a930cfea18b32fe3e5d301ed5d990fc096d37a5113ad06952f9b252"
+    },
+    {
+      "path": "preflight-final.log",
+      "bytes": 23,
+      "sha256": "ab10f73d5a930cfea18b32fe3e5d301ed5d990fc096d37a5113ad06952f9b252"
+    },
+    {
+      "path": "preflight-v2.log",
+      "bytes": 23,
+      "sha256": "ab10f73d5a930cfea18b32fe3e5d301ed5d990fc096d37a5113ad06952f9b252"
+    },
+    {
+      "path": "preflight.log",
+      "bytes": 2356,
+      "sha256": "4a40c54c8de8be46d423eb0067e75e7066ea1abd6cc711566ed93aaa1d1958a6"
+    },
+    {
+      "path": "prepare.py",
+      "bytes": 2636,
+      "sha256": "c09b373bf3e3662a98d095de3432ca887ccb7fe8ef106b44efd9fdb3fdf0b815"
+    },
+    {
+      "path": "reconnect-authorized.log",
+      "bytes": 5194,
+      "sha256": "516fcef7885804bc4523ea35ab82d76280231329283277e9d2e873b715f6f1ad"
+    },
+    {
+      "path": "reconnect.log",
+      "bytes": 531,
+      "sha256": "232648d160b407b6da83be91c811ef56ebf6d9d961fc3fbb1a4d5a842fff8114"
+    },
+    {
+      "path": "results.json",
+      "bytes": 1290,
+      "sha256": "2fc18ac1a2ec173390d1b711c7a06f63c86898e530b7b27fefd9042abd60357a"
+    },
+    {
+      "path": "retained-authorized.log",
+      "bytes": 592,
+      "sha256": "1e9ed299f60e89168d2caf55eb149bbc4f155f70fdd5d5a7261c1b84544b9bc7"
+    },
+    {
+      "path": "retained.log",
+      "bytes": 1924,
+      "sha256": "427a0225d512a43926e0b94a6bfb97ae0f9c345e5adcf86ac0753b97ed8d122c"
+    },
+    {
+      "path": "run_java.py",
+      "bytes": 540,
+      "sha256": "45b6ccd79374882fb767781a5265a25983d5fac3096a47a17afa2fcfa4e9d271"
+    },
+    {
+      "path": "security-summary-v3.log",
+      "bytes": 2401,
+      "sha256": "f04dff35c3137df74bb19eb71d2d53a7a85759716709d02a2a46ce15fa1d803a"
+    },
+    {
+      "path": "security-summary.log",
+      "bytes": 2574,
+      "sha256": "2b0a6198c5082163c0d237ea98b17319603cb4b1f1a9414ab9153b97dda40bee"
+    },
+    {
+      "path": "security_probes.py",
+      "bytes": 1769,
+      "sha256": "2fcc66b1a0e538138d883f43b41ada3a1e0852233853701febeb0830db3fe318"
+    },
+    {
+      "path": "seed-authorized.log",
+      "bytes": 468,
+      "sha256": "5f8258bb5ba6320ef409d65d8fbf11460c357bdb0b7d1afcfee186aecde89fc7"
+    },
+    {
+      "path": "server-log-sanitized-observation.txt",
+      "bytes": 204,
+      "sha256": "abd66d222c13058b396dae0dc9ad99cb118e26e4cedf7d8641a10da539160dc0"
+    },
+    {
+      "path": "setup.json",
+      "bytes": 248,
+      "sha256": "5f06cf53e64808641a10931ad92192994fc12ade39977262bc8e9b10d6c5d8af"
+    },
+    {
+      "path": "sources-manifest.json",
+      "bytes": 10309,
+      "sha256": "86fe1bd5c4a947026d55fbe1880c6399b27cd8903026eb99eb3f32490fe3807a"
+    },
+    {
+      "path": "truncate-audit_a-v3_identity_event.log",
+      "bytes": 114,
+      "sha256": "807fb2b2478f0e3c4371cfc50f2e9d977a0807bb2d4a76762a09d3650929a59e"
+    },
+    {
+      "path": "truncate-audit_i-v3_identity_event.log",
+      "bytes": 114,
+      "sha256": "68f73f490092ac8010d535e5f194ce95489149e77e964a20ce09e110f0438111"
+    },
+    {
+      "path": "truncate-commit-audit_a-final.log",
+      "bytes": 80,
+      "sha256": "cc317c73dd9ece71014ca2ed9a6c9a710887e311193e0ae1b6ef0d6fd77d16cd"
+    },
+    {
+      "path": "truncate-commit-audit_i-final.log",
+      "bytes": 91,
+      "sha256": "ac552b4f30f3cba7a7ad9c7ddb0ca2d1ca3c096adee1cbade3e2ebdd4cdaeffb"
+    },
+    {
+      "path": "unknown-authorized.log",
+      "bytes": 627,
+      "sha256": "a1520ac9040037d99a9b2e6bb918156fef0c033c89da05b9cde0f2f324fee3a7"
+    },
+    {
+      "path": "unknown-final.log",
+      "bytes": 750,
+      "sha256": "d49cb44b417abbc3f63e42277ddc305dea4bf5e934596d47d82425f3ce460e04"
+    }
+  ],
+  "note": "Raw PostgreSQL logs were never exported; server diagnostic values are redacted. Compile diagnostics are summarized in harness-development-notes, not reconstructed as raw output."
+}

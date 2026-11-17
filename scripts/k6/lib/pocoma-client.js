@@ -15,21 +15,21 @@ export class PocomaClient {
     return this.command('POST', '/api/pots', { label }, 'create_pot', [201]);
   }
 
-  updatePotDetails(potId, label, expectedVersion) {
+  updatePotDetails(potId, label, observedVersion) {
     return this.command(
       'PATCH',
       `/api/pots/${potId}/details`,
-      { label, expectedVersion },
+      { label, observedVersion },
       'update_pot_details',
       [200, 409],
     );
   }
 
-  deletePot(potId, expectedVersion) {
-    return this.command('DELETE', `/api/pots/${potId}`, { expectedVersion }, 'delete_pot', [200, 409]);
+  deletePot(potId, observedVersion) {
+    return this.command('DELETE', `/api/pots/${potId}`, { observedVersion }, 'delete_pot', [200, 409]);
   }
 
-  addShareholders(potId, expectedVersion) {
+  addShareholders(potId, observedVersion) {
     return this.command(
       'POST',
       `/api/pots/${potId}/shareholders`,
@@ -38,14 +38,14 @@ export class PocomaClient {
           { name: 'Alice', weightNumerator: 1, weightDenominator: 2 },
           { name: 'Bob', weightNumerator: 1, weightDenominator: 2 },
         ],
-        expectedVersion,
+        observedVersion,
       },
       'add_pot_shareholders',
       [201],
     );
   }
 
-  linkShareholders(potId, aliceShareholderId, bobShareholderId, aliceUserId, bobUserId, expectedVersion) {
+  linkShareholders(potId, aliceShareholderId, bobShareholderId, aliceUserId, bobUserId, observedVersion) {
     return this.command(
       'PATCH',
       `/api/pots/${potId}/shareholders/details`,
@@ -54,14 +54,14 @@ export class PocomaClient {
           { shareholderId: aliceShareholderId, name: 'Alice', userId: aliceUserId },
           { shareholderId: bobShareholderId, name: 'Bob', userId: bobUserId },
         ],
-        expectedVersion,
+        observedVersion,
       },
       'link_pot_shareholders',
       [200],
     );
   }
 
-  createExpense(potId, payerId, aliceShareholderId, bobShareholderId, label, expectedVersion, amount = 42) {
+  createExpense(potId, payerId, aliceShareholderId, bobShareholderId, label, observedVersion, amount = 42) {
     return this.command(
       'POST',
       `/api/pots/${potId}/expenses`,
@@ -74,14 +74,14 @@ export class PocomaClient {
           { shareholderId: aliceShareholderId, weightNumerator: 1, weightDenominator: 2 },
           { shareholderId: bobShareholderId, weightNumerator: 1, weightDenominator: 2 },
         ],
-        expectedVersion,
+        observedVersion,
       },
       'create_expense',
       [201, 409],
     );
   }
 
-  updateExpenseDetails(expenseId, payerId, label, expectedVersion, amount = 45) {
+  updateExpenseDetails(expenseId, payerId, label, observedVersion, amount = 45) {
     return this.command(
       'PATCH',
       `/api/expenses/${expenseId}/details`,
@@ -90,14 +90,14 @@ export class PocomaClient {
         amountNumerator: amount,
         amountDenominator: 1,
         label,
-        expectedVersion,
+        observedVersion,
       },
       'update_expense_details',
       [200, 409],
     );
   }
 
-  updateExpenseShares(expenseId, aliceShareholderId, bobShareholderId, expectedVersion) {
+  updateExpenseShares(expenseId, aliceShareholderId, bobShareholderId, observedVersion) {
     return this.command(
       'PATCH',
       `/api/expenses/${expenseId}/shares`,
@@ -106,15 +106,15 @@ export class PocomaClient {
           { shareholderId: aliceShareholderId, weightNumerator: 2, weightDenominator: 5 },
           { shareholderId: bobShareholderId, weightNumerator: 3, weightDenominator: 5 },
         ],
-        expectedVersion,
+        observedVersion,
       },
       'update_expense_shares',
       [200, 409],
     );
   }
 
-  deleteExpense(expenseId, expectedVersion) {
-    return this.command('DELETE', `/api/expenses/${expenseId}`, { expectedVersion }, 'delete_expense', [200, 409]);
+  deleteExpense(expenseId, observedVersion) {
+    return this.command('DELETE', `/api/expenses/${expenseId}`, { observedVersion }, 'delete_expense', [200, 409]);
   }
 
   listPots() {

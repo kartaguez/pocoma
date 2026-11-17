@@ -1,0 +1,24 @@
+{
+  "measurement_summary": {},
+  "manifest_sha256": "af5079415617b870189fa87e828fe6e219ae456688f06873dff7cb7fb2c5c81b",
+  "gate": "read",
+  "sha": "0b08d3bf0bfce1334260cfd5249b13c3040a67bb",
+  "command": [
+    "./mvnw",
+    "-pl",
+    "infra-persistence-read-jdbc",
+    "-am",
+    "test"
+  ],
+  "cwd": "app/",
+  "started_epoch": 1793195674.3388329,
+  "elapsed_seconds": 23.145,
+  "exit_code": 0,
+  "tests": 372,
+  "failures_or_errors": 0,
+  "skips": [],
+  "required_methods": 10,
+  "problems": [],
+  "verdict": "PASS",
+  "log_sha256": "85e68ebc0966ef26d0c65315bff88ae07071c6549f452b7133fd332e97c3c14d"
+}

@@ -1,0 +1,394 @@
+{
+  "scope": "L1 A–E internal proof only; A/B/C continuation GO confirmed by human; D internal PASS; final independent L1 audit required",
+  "suites": {
+    "A": {
+      "class": "com.kartaguez.pocoma.domain.pot.v3.PotTransitionsTest",
+      "methods": [
+        "l1a01ImmutableEnvelopesAndCollections",
+        "l1a02CreationVersionsAndStableIdentities",
+        "l1a03ChangedContainsExactlyEffectiveRevisions",
+        "l1a04ObsolescencePrecedesEqualityIncludingReturnToOldValue",
+        "l1a05AtomicWeightBatchesAndPermutations",
+        "l1a06PotDetailsRightsLifecycleAndObservation",
+        "l1a07DetailsAndWeightsAreIndependent",
+        "l1a08FinancialsReferenceAndEqualityVariants",
+        "l1a09DeletionDependenciesAndHeaderOnlyChanges",
+        "l1a10ShareholderDeletionRequiresCreatorAndExhaustiveAbsence",
+        "l1a11ExactRationalsAndIntrinsicFinancialInvariants",
+        "l1a12MixedFactsAreTechnicalAnomalies",
+        "l1a13DeterministicReevaluationPreservesInitialObservation",
+        "l1a14HistoricalCompositionsAndOrdinaryAttachment"
+      ]
+    },
+    "ARCH": {
+      "class": "com.kartaguez.pocoma.architecture.v3.V3FoundationArchitectureTest",
+      "methods": [
+        "productionImportsAreNonemptyAndExcludeFixtures",
+        "productionKeepsPureDomainsAndInwardApplicationPorts",
+        "positiveFixturesSatisfyTheSameRules",
+        "eachForbiddenDependencyIsActuallyDetected",
+        "nestedPortsCannotEscapeTheSelectorOrLeakImplementations"
+      ]
+    },
+    "B": {
+      "class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotHistoryPostgresTest",
+      "methods": [
+        "b01FreshSchemaRestartAndExactCatalog",
+        "b02ReconstructsV1ThroughV9IndependentlyInRandomOrder",
+        "b03HalfOpenIntervalsAndOnlyChangedComponents",
+        "b04ShareholderDeletionD01MRetainsAllOldStates",
+        "b05RollbackAndNoopPreserveMetadataAndIntervals",
+        "b06SelectiveReadsDistinguishAbsentAndNotLoadedAndHistoricalRights",
+        "b07ReferenceSearchIsExhaustiveForPayerAndParticipantAndIgnoresDeletedExpenses",
+        "b08ExactArbitraryRationalsRoundTripAndOptionalOverride",
+        "b09RejectsGapsOverlapsMissingComponentsAndNoncanonicalRationals",
+        "b10DatabaseConstraintsRejectDuplicateOpenCrossPotAndMalformedRationals",
+        "b11SnapshotRemainsCoherentWhileAnotherConnectionCommits",
+        "b12GroupedReadCountDoesNotGrowPerExpense",
+        "b13CallerTransactionAndIsolationAreMandatory",
+        "b14SharesJpaPhysicalTransactionAndRollback",
+        "b15CorruptReferencesAndMissingParticipantsAreNeverNegativeFacts",
+        "b16LastCreationFailureRollsBackEveryComponentAndVersion",
+        "b17DeferredIntegrityRejectsEmptyVersionAndIncompleteCreation",
+        "b18CommittedVersionCannotReceiveAnotherProposalLater",
+        "b19PhysicalTransactionIdentityKeepsItsEpoch"
+      ]
+    },
+    "C-UNIT": {
+      "class": "com.kartaguez.pocoma.engine.write.pot.v3.ExecutePotCommandTest",
+      "methods": [
+        "u01ChangedUsesOneOrderedFinalUnit",
+        "u02NoopAndBusinessRejectionNeverWriteRevisions",
+        "u03CollisionNeverRetriesWithinClaimOrPretendsBusinessRejection",
+        "u04LostClaimNeverWritesOrConsumesFailureBudget",
+        "u05TechnicalAndInconsistentFactsRemainDistinctAndCanExhaustPolicy",
+        "u06TerminalReplaySkipsPreparationAndAllWrites"
+      ]
+    },
+    "C-PG": {
+      "class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.CommandExecutionPostgresTest",
+      "methods": [
+        "c01DurableMutationsNoopRejectionAndExactHistory",
+        "c02SameComponentCollisionReacquiresAndPreservesObservation",
+        "c03DistinctComponentsAndFinancialWeightCollisionRemainCompatible",
+        "c04DeletionVersusExpenseCreationAndFinancialPayerParticipantBothOrders",
+        "c05ExpenseDeletionReleasesReferenceAndPreservesHistoricalFinancials",
+        "c06AttachmentRevocationNoopAndRejectionAllRevalidate",
+        "c07IdentityRevocationAndNegativeAuthorityFactsStayProtected",
+        "c08NoopObsoleteAfterConcurrentChangeAndMutationAgainstPotDeletion",
+        "c09SameRequestFinalizesOnceAndEquivalentRequestsOwnTheirResults",
+        "c10FaultsBeforeAfterEveryWriterRollbackWholeCommandUnit",
+        "c11DeferredCommitFailureRollsBackAndDoesNotBecomeBusinessRejection",
+        "c12RetryBudgetDelayQuarantineAndConditionalFailureAccounting",
+        "c13RealLostCommitAcknowledgementAndRollbackBeforeCommitRecoverWithoutGuessing",
+        "c14ClaimExpiryAfterActualLockWaitAndOldTokenNeverFinalizes",
+        "c15ClaimProtectedThroughCommitAfterDeadlineAndTakeoverWaits",
+        "c16DenseSequencingWaitsForPhysicalCommitAndRollbackDoesNotConsumePosition",
+        "c17JpaJdbcOnePhysicalUnitAndCaughtErrorsPoisonBothOrders",
+        "c18CompositionRejectsMismatchedManagersAmbientAndPostSuffixWriters",
+        "c19DurableIntentionCodecExactRationalsIntegrityAndNegativeExistence",
+        "c20IndependentNestedEffectsAreRejectedAndOuterUnitPoisoned",
+        "c21NMinusOneFailuresThenSuccessAndExpiryConsumesNoBudget",
+        "c22NoopAndRejectionHoldIdentityAndPotUntilPhysicalResolution",
+        "c23LostFailureCessionAcknowledgementNeverDoubleCounts",
+        "c24PreparationFailureAndInconsistentUsageCannotCommitNegativeFacts"
+      ]
+    },
+    "C-COMPOSITION": {
+      "class": "com.kartaguez.pocoma.runtime.command.v3.V3PotCommandCompositionPostgresTest",
+      "methods": [
+        "compositionUsesOneWriteManagerAndExplicitAuthority"
+      ]
+    },
+    "C-ARCH": {
+      "class": "com.kartaguez.pocoma.architecture.v3.V3PotExecutionArchitectureTest",
+      "methods": [
+        "carch01OrchestrationAndContractsRemainPure",
+        "carch02AllExecutionAndRevisionWritersUsePhysicalOwnerGuards",
+        "carch03ExplicitCompositionAndNoIdentityFixtureInProduction"
+      ]
+    },
+    "D-FIN": {
+      "class": "com.kartaguez.pocoma.domain.pot.v3.PotBalanceCalculatorTest",
+      "methods": [
+        "d01PayerParticipantAndSeparatePayerExactZeros",
+        "d02DefaultsOverridesAndIndependentHistoricalResults",
+        "d03MultipleExpensesAndRationalsBeyondMachineIntegers",
+        "d04DeletionTerminalAndOutOfOrderAreIndependent",
+        "d05ZeroAndInconsistentInputsNeverProducePartialBalances",
+        "d06SeededSizesPermutationAndIndicativeCost"
+      ]
+    },
+    "D-RIGHTS": {
+      "class": "com.kartaguez.pocoma.domain.pot.v3.PotAuthorizationTest",
+      "methods": [
+        "d07EveryMutationRoleAndPotLifecycleCell",
+        "d08AttachmentDetachmentAndGeneralMultipleAttachment",
+        "d09InvitationEligibilityAndDeletedTargets"
+      ]
+    },
+    "D-PG": {
+      "class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotFinancePostgresTest",
+      "methods": [
+        "d10HistoricalDefaultSpecificAndFinancialChangesThroughC",
+        "d11AttachmentsAllSpecificWeightsAndArbitraryRationals",
+        "d12FinancialWeightCollisionRecalculatesFromFreshFacts",
+        "d13GroupedSelectiveFinanceReadsAndCorruptionFailClosed",
+        "d14FinancialRollbackAtEveryPublicationBoundary",
+        "d15OneVersionComposesWeightAndFinancialPrimitives"
+      ]
+    },
+    "E-PG": {
+      "class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.L1IntegrationPostgresTest",
+      "methods": [
+        "e01CanonicalV1ThroughV9AllEightComponentsAndExactBalances",
+        "e02D01MNoopsRejectionsAndHistoricalDeletedShareholder",
+        "e03FinancialNoopObsoleteEqualityAndReplayHaveOnlyCompletions",
+        "e04OldCreationObservationMixedBatchAndExpenseDeletionDependencies"
+      ]
+    }
+  },
+  "gates": {
+    "a-domain": {
+      "command": [
+        "./mvnw",
+        "-pl",
+        "domain-pot",
+        "-am",
+        "test"
+      ],
+      "suites": [
+        "A"
+      ]
+    },
+    "a-consumers": {
+      "command": [
+        "./mvnw",
+        "-pl",
+        "runtime-command-consumption-worker,runtime-task-consumption-worker",
+        "-am",
+        "test"
+      ],
+      "suites": [
+        "A"
+      ]
+    },
+    "a-arch": {
+      "command": [
+        "./mvnw",
+        "-pl",
+        "architecture-tests",
+        "-am",
+        "test"
+      ],
+      "suites": [
+        "A",
+        "ARCH"
+      ]
+    },
+    "b-persistence": {
+      "command": [
+        "./mvnw",
+        "-pl",
+        "infra-persistence-primary-jpa",
+        "-am",
+        "test"
+      ],
+      "suites": [
+        "A",
+        "B"
+      ]
+    },
+    "b-consumers": {
+      "command": [
+        "./mvnw",
+        "-pl",
+        "runtime-command-consumption-worker,runtime-task-consumption-worker",
+        "-am",
+        "test"
+      ],
+      "suites": [
+        "A",
+        "B"
+      ]
+    },
+    "b-arch": {
+      "command": [
+        "./mvnw",
+        "-pl",
+        "architecture-tests",
+        "-am",
+        "test"
+      ],
+      "suites": [
+        "A",
+        "B",
+        "ARCH"
+      ]
+    },
+    "c-persistence": {
+      "command": [
+        "./mvnw",
+        "-pl",
+        "infra-persistence-primary-jpa",
+        "-am",
+        "test"
+      ],
+      "suites": [
+        "A",
+        "B",
+        "C-UNIT",
+        "C-PG"
+      ]
+    },
+    "c-consumers": {
+      "command": [
+        "./mvnw",
+        "-pl",
+        "runtime-command-consumption-worker,runtime-event-consumption-worker,runtime-task-consumption-worker",
+        "-am",
+        "test"
+      ],
+      "suites": [
+        "A",
+        "B",
+        "C-UNIT",
+        "C-PG",
+        "C-COMPOSITION"
+      ]
+    },
+    "c-arch": {
+      "command": [
+        "./mvnw",
+        "-pl",
+        "architecture-tests",
+        "-am",
+        "test"
+      ],
+      "suites": [
+        "A",
+        "B",
+        "C-UNIT",
+        "C-PG",
+        "C-COMPOSITION",
+        "ARCH",
+        "C-ARCH"
+      ]
+    },
+    "d-domain": {
+      "command": [
+        "./mvnw",
+        "-pl",
+        "domain-pot",
+        "-am",
+        "test"
+      ],
+      "suites": [
+        "A",
+        "D-FIN",
+        "D-RIGHTS"
+      ]
+    },
+    "d-consumers": {
+      "command": [
+        "./mvnw",
+        "-pl",
+        "runtime-command-consumption-worker,runtime-task-consumption-worker",
+        "-am",
+        "test"
+      ],
+      "suites": [
+        "A",
+        "B",
+        "C-UNIT",
+        "C-PG",
+        "D-FIN",
+        "D-RIGHTS",
+        "D-PG",
+        "C-COMPOSITION"
+      ]
+    },
+    "d-arch": {
+      "command": [
+        "./mvnw",
+        "-pl",
+        "architecture-tests",
+        "-am",
+        "test"
+      ],
+      "suites": [
+        "A",
+        "B",
+        "C-UNIT",
+        "C-PG",
+        "D-FIN",
+        "D-RIGHTS",
+        "D-PG",
+        "C-COMPOSITION",
+        "ARCH",
+        "C-ARCH"
+      ]
+    },
+    "e-consumers": {
+      "command": [
+        "./mvnw",
+        "-pl",
+        "runtime-command-consumption-worker,runtime-event-consumption-worker,runtime-task-consumption-worker",
+        "-am",
+        "test"
+      ],
+      "suites": [
+        "A",
+        "B",
+        "C-UNIT",
+        "C-PG",
+        "D-FIN",
+        "D-RIGHTS",
+        "D-PG",
+        "C-COMPOSITION",
+        "E-PG"
+      ]
+    },
+    "e-arch": {
+      "command": [
+        "./mvnw",
+        "-pl",
+        "architecture-tests",
+        "-am",
+        "test"
+      ],
+      "suites": [
+        "A",
+        "B",
+        "C-UNIT",
+        "C-PG",
+        "D-FIN",
+        "D-RIGHTS",
+        "D-PG",
+        "C-COMPOSITION",
+        "ARCH",
+        "C-ARCH",
+        "E-PG"
+      ]
+    },
+    "e-full": {
+      "command": [
+        "./mvnw",
+        "test"
+      ],
+      "suites": [
+        "A",
+        "B",
+        "C-UNIT",
+        "C-PG",
+        "D-FIN",
+        "D-RIGHTS",
+        "D-PG",
+        "C-COMPOSITION",
+        "ARCH",
+        "C-ARCH",
+        "E-PG"
+      ]
+    }
+  }
+}

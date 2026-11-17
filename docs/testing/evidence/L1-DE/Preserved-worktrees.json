@@ -1,0 +1,72 @@
+[
+  {
+    "path": "/Users/julien.guezennec/Dev/projects/pocoma",
+    "head": "90a3e9bc1a1fdd325d0c36e543824239cd85a431",
+    "status": " M docker/keycloak/pocoma-realm.json\u0000 M docs/README.md\u0000 D scripts/bruno/00 Pot E2E/01 Create Pot.bru\u0000 M scripts/bruno/00 Pot E2E/02 Get Create Command Result.bru\u0000 M scripts/bruno/00 Pot E2E/03 Read Pot V1.bru\u0000 M scripts/bruno/00 Pot E2E/04 Update Pot Details.bru\u0000 M scripts/bruno/00 Pot E2E/05 Get Update Command Result.bru\u0000 M scripts/bruno/00 Pot E2E/06 Read Pot V2.bru\u0000 M scripts/bruno/00 Pot E2E/07 Re-read Pot V1.bru\u0000 M scripts/bruno/00 Pot E2E/folder.bru\u0000?? app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/adapter/context/UpdateExpenseSharesConcurrencyPostgresTest.java\u0000?? docs/architecture/Event_Late_Locking_Protocol_Viability_Audit_2026-10-18.md\u0000?? docs/architecture/Event_Late_Transactional_Numbering_Study_2026-10-18.md\u0000?? docs/architecture/Mutation_Authorities_Ordered_Publication_Consolidated_Study_2026-10-18.md\u0000?? docs/architecture/Transactional_Authorities_Fencing_Locks_Audit_2026-10-18.md\u0000?? docs/testing/evidence/\u0000?? docs/v3/\u0000?? scripts/bruno/00 Pot E2E/001 Registrations.bru\u0000?? scripts/bruno/00 Pot E2E/002 RegistrationResult.bru\u0000?? scripts/bruno/00 Pot E2E/003 Me-Binding.bru\u0000?? scripts/bruno/00 Pot E2E/004 Create Pot.bru\u0000",
+    "diff_sha256": "d366d41c03890e227c3c322d779f633ce2378034e490055c30e874a0912cf04b",
+    "index_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "/private/tmp/pocoma-v3-c01-c02",
+    "head": "8764433da01fa010f01a56be01c8dc69a4ac8b3a",
+    "status": "",
+    "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "index_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "/private/tmp/pocoma-v3-cleanup",
+    "head": "ddca2827dac7cf13f8b07f620f0cd3b3cb392196",
+    "status": "M  docs/v3/SPEC-01_Pot_Domain.md\u0000M  docs/v3/SPEC-03_Events_Requests_Consumables.md\u0000M  docs/v3/SPEC-04_Read_Projections.md\u0000M  docs/v3/SPEC-05_Consumption_Discovery.md\u0000M  docs/v3/SPEC-06_Supra_Contracts.md\u0000M  docs/v3/SPEC-07_Transverse_Requirements.md\u0000M  docs/v3/SPEC-08_Observability.md\u0000M  docs/v3/SPEC-09_Performance.md\u0000M  docs/v3/SPEC-10_Test_Certification.md\u0000M  docs/v3/V3_Canon_and_Roadmap.md\u0000",
+    "diff_sha256": "aedb8bf74cc8b3fdb7e0b10863beebc9e1af04dfa7cb57c4e6dd86e9fd07b2d2",
+    "index_sha256": "aedb8bf74cc8b3fdb7e0b10863beebc9e1af04dfa7cb57c4e6dd86e9fd07b2d2"
+  },
+  {
+    "path": "/private/tmp/pocoma-v3-l0",
+    "head": "5cc5db870c9cde91fd86997b365a61705dc95cf3",
+    "status": "",
+    "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "index_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "/private/tmp/pocoma-v3-l1-ab",
+    "head": "56d658f9fd5313db2744fa11ff36699f4376aacb",
+    "status": "?? docs/testing/evidence/L1-AB/Publication-final.json\u0000?? docs/testing/evidence/L1-AB/a-arch-1792927315643647000/\u0000?? docs/testing/evidence/L1-AB/a-consumers-1792927068536741000/\u0000?? docs/testing/evidence/L1-AB/a-domain-1792927016295840000/\u0000?? docs/testing/evidence/L1-AB/a-domain-1792927055484795000/\u0000?? docs/testing/evidence/L1-AB/b-arch-1792929835947767000/\u0000?? docs/testing/evidence/L1-AB/b-consumers-1792929584286484000/\u0000?? docs/testing/evidence/L1-AB/b-persistence-1792929220388245000/\u0000?? docs/testing/evidence/L1-AB/b-persistence-1792929415609261000/\u0000?? docs/testing/evidence/L1-AB/diagnostic-B/\u0000",
+    "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "index_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "/private/tmp/pocoma-v3-l1-c",
+    "head": "9dfe5a8d55d95bba29bb6a07e5c387c4ae8b0164",
+    "status": "?? docs/testing/evidence/L1-C/Publication-final.json\u0000?? docs/testing/evidence/L1-C/c-arch-1792938960331069000/\u0000?? docs/testing/evidence/L1-C/c-consumers-1792936420840846000/\u0000?? docs/testing/evidence/L1-C/c-consumers-1792938621686215000/\u0000?? docs/testing/evidence/L1-C/c-persistence-1792936040239651000/\u0000?? docs/testing/evidence/L1-C/c-persistence-1792936284247759000/\u0000?? docs/testing/evidence/L1-C/c-persistence-1792936743519592000/\u0000",
+    "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "index_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "/private/tmp/pocoma-v3-l1-consolidation",
+    "head": "8221692287420cd69feebd170df7c9ea6c279fdd",
+    "status": "",
+    "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "index_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "/private/tmp/pocoma-v3-l1-plan",
+    "head": "9a349bbcd86d900b34e927cc29e16dd172ee7ab4",
+    "status": "",
+    "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "index_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "/private/tmp/pocoma-v3-n01",
+    "head": "df113c8fea3443fe83f428c5e5eef1767ee42d03",
+    "status": "",
+    "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "index_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "/Users/julien.guezennec/.codex/worktrees/debt-wa6-integration/pocoma",
+    "head": "2eef3ab9785c524c2fab86f586fc12580c8b1c2e",
+    "status": "",
+    "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "index_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+]

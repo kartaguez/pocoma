@@ -1,0 +1,76 @@
+meta {
+  name: J01-12-S01 Add Owner and Free Guest
+  type: http
+  seq: 12
+}
+
+post {
+  url: {{writeUrl}}/api/v3/commands
+  body: json
+  auth: none
+}
+
+headers {
+  Connection: close
+  Content-Type: application/json
+  Idempotency-Key: {{idempotencyKey}}
+}
+
+body:json {
+  {
+    "operation": "AddShareholders",
+    "potId": "{{potId}}",
+    "observedVersion": {{potVersion}},
+    "bindingToken": "{{bindingActor}}",
+    "payload": {
+      "targets": [
+        {
+          "id": "{{shareholderOwnerId}}",
+          "name": "Owner",
+          "attachment": "SELF",
+          "weight": {
+            "numerator": "1",
+            "denominator": "1"
+          }
+        },
+        {
+          "id": "{{shareholderGuestId}}",
+          "name": "Guest",
+          "attachment": "FREE",
+          "weight": {
+            "numerator": "1",
+            "denominator": "1"
+          }
+        }
+      ]
+    }
+  }
+}
+
+settings {
+  timeout: 5000
+}
+
+script:pre-request {
+  const options = {"id":"J01-12-S01","role":"owner","requires":["potId","potVersion"],"operation":"AddShareholders","kind":"commandAdmission"};
+  await require('./lib/workspace.js').prepare(bru, req, options);
+}
+
+tests {
+  const options = {"id":"J01-12-S01","role":"owner","requires":["potId","potVersion"],"operation":"AddShareholders","kind":"commandAdmission"};
+  const work = require('./lib/workspace.js');
+  test('J01-12-S01 transport and privacy', () => work.transport(bru, res, expect, options));
+  test('J01-12-S01 contract and variables', () => {
+    work.verify(bru, req, res, expect, options);
+    work.record(bru, req, res, options);
+  });
+}
+
+docs {
+  Parcours J01 ; etape 12. Source : 03 - Shareholders/S01 Add Owner and Free Guest.bru.
+  AddShareholders : 202 avec requestId seulement. Ouvrir R01 Command Result pour connaitre le resultat metier et actualiser potVersion. Createur ou membre actif ; binding courant, version observee et references valides.
+  Identite : actor. Prerequis : potId, potVersion.
+  Chaque Send appelle la methode et le corps visibles. Les GET asynchrones attendent
+  le meme endpoint au plus 30 s avant l appel affiche ; aucun POST cache.
+  Modifier le JSON librement ; une nouvelle intention recoit une nouvelle cle.
+}

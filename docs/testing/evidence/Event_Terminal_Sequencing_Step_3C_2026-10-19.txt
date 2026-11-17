@@ -1,0 +1,295 @@
+Step 3C — executed 2026-10-19, baseline e3bd16028db542d58163b2a5d8236679a6485367
+Final canonical command (cwd app/): ./mvnw -pl runtime-command-consumption-worker -am test
+Exit: 0; BUILD SUCCESS; total time 01:53 min; finished 2026-10-19T17:21:14+02:00
+Per-class executed totals (excluding aggregate summary lines): tests=1006 failures=0 errors=0 skipped=1
+New Step 3C tests: 10 experimental + 1 unchanged-manager observation; all passed, none skipped.
+PostgreSQL 17.11, postgres:17-alpine, READ COMMITTED; Spring Boot 4.0.5, Spring 7.0.6, Hibernate 7.2.7.Final; Java 21.
+Experimental schema: experiment_3c in ephemeral container; no production migration.
+Existing slice bootstrap retained (policy Trusted baseline NONE). No additional historical migration gate.
+No production source, POM, dependency, retry, Consumption or Flyway file changed.
+No global architecture gate, no full reactor, no unexpected slice crossing.
+
+Initial targeted iterations: Docker sandbox failure, PER_CLASS container initialization failure, Spring savepoint rejection (test corrected to raw JDBC).
+Targeted command: ./mvnw -pl runtime-command-consumption-worker -am test -Dtest=JpaTerminalSequencingPostgresTest -Dsurefire.failIfNoSpecifiedTests=false
+Targeted command with default-manager observation: ./mvnw -pl runtime-command-consumption-worker -am test -Dtest=JpaTerminalSequencingPostgresTest,CurrentTransactionManagerPostgresTest -Dsurefire.failIfNoSpecifiedTests=false
+The latter passed 9 tests before final additions i/j; final canonical run below includes all 11.
+
+Non-test shutdown diagnostic retained:
+[ERROR] Surefire is going to kill self fork JVM. The exit has elapsed 30 seconds after System.exit(0).
+The Maven run returned 0. This diagnostic is not presented as a failed assertion or silently removed; no runtime/thread debt corrected in this study.
+
+Server/fixture observations (verbatim):
+STEP3C [prepareForCommit, prepareForCommit, flush, physicalCommit]
+STEP3C [prepareForCommit, prepareForCommit, prepareForCommit, flush, physicalCommit]
+STEP3C [prepareForCommit, prepareForCommit, prepareForCommit, prepareForCommit, prepareForCommit, prepareForCommit, prepareForCommit, insert:625e4a5d-7914-49f2-b05d-194a8e40ac97, prepareForCommit, prepareForCommit, prepareForCommit, prepareForCommit, prepareForCommit, prepareForCommit, prepareForCommit, prepareForCommit, prepareForCommit, prepareForCommit, flush, verified:S-DONE/claim-closed/terminal-event, E:1:{pid=61, xid=815}, position:625e4a5d-7914-49f2-b05d-194a8e40ac97, physicalCommit]
+STEP3C [prepareForCommit, prepareForCommit, prepareForCommit, insert:9490ebb8-f4d0-4dc6-b2c1-4671cacc3965, flush, E:1:{pid=61, xid=838}, position:9490ebb8-f4d0-4dc6-b2c1-4671cacc3965, physicalCommit]
+STEP3C POST-E COUNTEREXAMPLE [{ord=7, phase=business_event_outbox:INSERT, pid=61, xid=838}, {ord=8, phase=authority:UPDATE, pid=61, xid=838}, {ord=9, phase=position:INSERT, pid=61, xid=838}, {ord=10, phase=business_event_outbox:UPDATE, pid=61, xid=838}]
+STEP3C [prepareForCommit, prepareForCommit, prepareForCommit, beforeCommit, prepareForCommit, prepareForCommit, beforeCompletion, prepareForCommit, prepareForCommit, insert:f0dc7161-f4c9-4e23-a9c2-5cb083d36e4f, insert:bd9afda5-0dad-4b04-a54e-c6063b65b306, insert:23547531-92fc-42cb-acf8-d44defb6f541, flush, E:1:{pid=61, xid=849}, position:f0dc7161-f4c9-4e23-a9c2-5cb083d36e4f, E:2:{pid=61, xid=849}, position:bd9afda5-0dad-4b04-a54e-c6063b65b306, E:3:{pid=61, xid=849}, position:23547531-92fc-42cb-acf8-d44defb6f541, physicalCommit]
+STEP3C [prepareForCommit, prepareForCommit, prepareForCommit, insert:c68ff6b1-cb32-4131-9031-b35f55167297, flush, E:1:{pid=62, xid=860}, position:c68ff6b1-cb32-4131-9031-b35f55167297, physicalCommit]
+STEP3C [prepareForCommit, flush, physicalCommit]
+STEP3C [prepareForCommit, prepareForCommit, prepareForCommit, insert:d042bc89-0a55-44bb-adc5-da50be6ce07e, flush, E:1:{pid=61, xid=882}, position:d042bc89-0a55-44bb-adc5-da50be6ce07e, physicalCommit]
+STEP3C DATABASE [{ord=30, phase=business_event_outbox:INSERT, pid=61, xid=882}, {ord=31, phase=authority:UPDATE, pid=61, xid=882}, {ord=32, phase=position:INSERT, pid=61, xid=882}]
+STEP3C [prepareForCommit, prepareForCommit, prepareForCommit, prepareForCommit, prepareForCommit, prepareForCommit, prepareForCommit, insert:dd6d6d4b-2c11-4dad-853a-1a808776ec41, insert:ae923be1-4451-4302-952a-87c836e804bb, flush, E:1:{pid=61, xid=893}, position:dd6d6d4b-2c11-4dad-853a-1a808776ec41, E:2:{pid=61, xid=893}, position:ae923be1-4451-4302-952a-87c836e804bb, physicalCommit]
+STEP3C [prepareForCommit, prepareForCommit, prepareForCommit, insert:796f5591-4651-4d83-9d4f-d28816b1e3e6, flush, E:3:{pid=61, xid=894}, position:796f5591-4651-4d83-9d4f-d28816b1e3e6, physicalCommit]
+STEP3C [prepareForCommit, prepareForCommit, prepareForCommit, insert:f76dd9e2-4d89-4ff2-90cf-921419ef2aab, flush, E:1:{pid=61, xid=905}, position:f76dd9e2-4d89-4ff2-90cf-921419ef2aab, physicalCommit]
+STEP3C [prepareForCommit, prepareForCommit, prepareForCommit, insert:3210128d-7d11-44b8-8703-008aa2fed681, flush, E:2:{pid=61, xid=906}, position:3210128d-7d11-44b8-8703-008aa2fed681, physicalCommit]
+STEP3C CURRENT manager=org.springframework.orm.jpa.JpaTransactionManager managers=[transactionManager] {pid=61, xid=798}
+
+Per-class Maven results (verbatim):
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.024 s -- in com.kartaguez.pocoma.domain.authorization.CapabilitySetsTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.003 s -- in com.kartaguez.pocoma.domain.authorization.PermissionTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.003 s -- in com.kartaguez.pocoma.domain.authorization.ExternalAuthorityPermissionTranslatorTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.019 s -- in com.kartaguez.pocoma.domain.event.EventTypeTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.035 s -- in com.kartaguez.pocoma.domain.useridentity.UserIdentityModelTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.037 s -- in com.kartaguez.pocoma.domain.pot.draft.ExpenseShareDraftTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.004 s -- in com.kartaguez.pocoma.domain.pot.association.ExpenseShareTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.005 s -- in com.kartaguez.pocoma.domain.pot.entity.ShareholderTest
+[INFO] Tests run: 11, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.006 s -- in com.kartaguez.pocoma.domain.pot.aggregate.PotHeaderTest
+[INFO] Tests run: 16, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.013 s -- in com.kartaguez.pocoma.domain.pot.aggregate.ExpenseHeaderTest
+[INFO] Tests run: 22, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.018 s -- in com.kartaguez.pocoma.domain.pot.aggregate.PotShareholdersTest
+[INFO] Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.006 s -- in com.kartaguez.pocoma.domain.pot.aggregate.ExpenseSharesTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.003 s -- in com.kartaguez.pocoma.domain.pot.aggregate.ShareholderIdentityCollisionTest
+[INFO] Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.005 s -- in com.kartaguez.pocoma.domain.pot.value.FractionTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.003 s -- in com.kartaguez.pocoma.domain.pot.value.AmountTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.004 s -- in com.kartaguez.pocoma.domain.pot.value.NameTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s -- in com.kartaguez.pocoma.domain.pot.value.LabelTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s -- in com.kartaguez.pocoma.domain.pot.value.id.PotIdTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s -- in com.kartaguez.pocoma.domain.pot.value.id.ShareholderIdTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s -- in com.kartaguez.pocoma.domain.pot.value.id.EntityIdTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s -- in com.kartaguez.pocoma.domain.pot.value.id.ExpenseIdTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.002 s -- in com.kartaguez.pocoma.domain.pot.value.WeightTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s -- in com.kartaguez.pocoma.domain.pot.value.UserIdTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.002 s -- in com.kartaguez.pocoma.domain.pot.created.PotCreatedTest
+[INFO] Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.008 s -- in com.kartaguez.pocoma.domain.pot.created.ExpenseCreatedTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.002 s -- in com.kartaguez.pocoma.domain.pot.version.PotGlobalVersionTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.002 s -- in com.kartaguez.pocoma.domain.pot.authorization.PotActionRequirementsTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.002 s -- in com.kartaguez.pocoma.domain.pot.authorization.TokenCapabilityPolicyTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.004 s -- in com.kartaguez.pocoma.domain.pot.authorization.PotAuthorizationFactResolverTest
+[INFO] Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.004 s -- in com.kartaguez.pocoma.domain.pot.authorization.AuthorizationKernelTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.002 s -- in com.kartaguez.pocoma.domain.pot.authorization.PotBusinessAuthorizationPolicyTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.002 s -- in com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationExceptionTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.004 s -- in com.kartaguez.pocoma.domain.pot.event.PotDeletedEventTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.004 s -- in com.kartaguez.pocoma.domain.pot.event.PotCreatedEventTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.003 s -- in com.kartaguez.pocoma.domain.pot.event.RecordedEventTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.005 s -- in com.kartaguez.pocoma.domain.pot.event.BusinessEventContractTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.003 s -- in com.kartaguez.pocoma.domain.pot.event.PotShareholdersAddedEventTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s -- in com.kartaguez.pocoma.domain.pot.event.PotDetailsUpdatedEventTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s -- in com.kartaguez.pocoma.domain.pot.factory.ExpenseFactoryTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.002 s -- in com.kartaguez.pocoma.domain.pot.factory.PotFactoryTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.002 s -- in com.kartaguez.pocoma.domain.pot.policy.CreatePotAuthorizationPolicyTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.006 s -- in com.kartaguez.pocoma.domain.projection.balance.PotBalancesCalculatorTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s -- in com.kartaguez.pocoma.domain.projection.balance.BalanceTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s -- in com.kartaguez.pocoma.domain.projection.balance.PotBalancesTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s -- in com.kartaguez.pocoma.domain.projection.balance.BalanceMapOperationsTest
+[INFO] Tests run: 11, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.031 s -- in com.kartaguez.pocoma.domain.projection.ProjectionValidatorTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.006 s -- in com.kartaguez.pocoma.domain.projection.JsonAndDefinitionTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.022 s -- in com.kartaguez.pocoma.domain.projection.ProjectionValueObjectsTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.023 s -- in com.kartaguez.pocoma.domain.consumption.segmentation.PartitionHashTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.004 s -- in com.kartaguez.pocoma.domain.consumption.segmentation.WorkerSegmentTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.007 s -- in com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailureTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s -- in com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailureCodeTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s -- in com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalReasonTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.005 s -- in com.kartaguez.pocoma.domain.consumption.key.ConsumptionKeyTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.003 s -- in com.kartaguez.pocoma.domain.consumption.provenance.ConsumptionProvenanceTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.016 s -- in com.kartaguez.pocoma.domain.consumption.claim.ClaimTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s -- in com.kartaguez.pocoma.domain.consumption.claim.ClaimLeaseTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s -- in com.kartaguez.pocoma.domain.consumption.claim.WorkerIdTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.004 s -- in com.kartaguez.pocoma.domain.consumption.claim.ConsumptionSlotTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.019 s -- in com.kartaguez.pocoma.engine.service.transaction.consumption.TransactionalConsumptionUseCaseTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.024 s -- in com.kartaguez.pocoma.engine.service.consumption.AcquireConsumptionPreconditionTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.008 s -- in com.kartaguez.pocoma.engine.service.consumption.ExecuteConsumptionServiceTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.002 s -- in com.kartaguez.pocoma.engine.service.consumption.DefaultConsumptionFailurePolicyTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.005 s -- in com.kartaguez.pocoma.engine.service.consumption.FinalizeConsumptionServiceTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.033 s -- in com.kartaguez.pocoma.engine.write.pot.snapshot.PotHeaderSnapshotTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.005 s -- in com.kartaguez.pocoma.engine.write.pot.context.DeletePotContextTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.004 s -- in com.kartaguez.pocoma.engine.write.pot.context.AddPotShareholdersContextTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.002 s -- in com.kartaguez.pocoma.engine.write.pot.context.UpdateExpenseSharesContextTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s -- in com.kartaguez.pocoma.engine.write.pot.context.TerminalPotDeleteExpenseContextsTest
+[INFO] Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.022 s -- in com.kartaguez.pocoma.engine.write.pot.context.CommandObsolescenceContextsTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.003 s -- in com.kartaguez.pocoma.engine.write.pot.context.UpdatePotDetailsContextTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.002 s -- in com.kartaguez.pocoma.engine.write.pot.security.UserContextTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.008 s -- in com.kartaguez.pocoma.engine.write.pot.service.UpdatePotShareholdersDetailsServiceTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.007 s -- in com.kartaguez.pocoma.engine.write.pot.service.CreateExpenseServiceTest
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.004 s -- in com.kartaguez.pocoma.engine.write.pot.service.UpdatePotDetailsServiceTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.003 s -- in com.kartaguez.pocoma.engine.write.pot.service.DeletePotServiceTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s -- in com.kartaguez.pocoma.engine.write.pot.service.ServiceVisibilityTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.003 s -- in com.kartaguez.pocoma.engine.write.pot.service.DeleteExpenseServiceTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.004 s -- in com.kartaguez.pocoma.engine.write.pot.service.UpdateExpenseDetailsServiceTest
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.004 s -- in com.kartaguez.pocoma.engine.write.pot.service.AddPotShareholdersServiceTest
+[INFO] Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.004 s -- in com.kartaguez.pocoma.engine.write.pot.service.CreatePotServiceTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.003 s -- in com.kartaguez.pocoma.engine.write.pot.service.UpdateExpenseSharesServiceTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.003 s -- in com.kartaguez.pocoma.engine.write.pot.service.UpdatePotShareholdersWeightsServiceTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s -- in com.kartaguez.pocoma.engine.write.pot.service.ExistingExpenseAuthorizationContextTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s -- in com.kartaguez.pocoma.engine.write.pot.exception.BusinessEntityNotFoundExceptionTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.041 s -- in com.kartaguez.pocoma.engine.consume.command.consumption.CommandConsumptionExecutionTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.005 s -- in com.kartaguez.pocoma.engine.consume.command.dispatch.CommandDispatcherTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.002 s -- in com.kartaguez.pocoma.engine.consume.command.discovery.CommandConsumptionDiscoveryModelTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.005 s -- in com.kartaguez.pocoma.engine.consume.command.decode.CommandDecoderRegistryTest
+[INFO] Tests run: 12, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.021 s -- in com.kartaguez.pocoma.engine.consume.command.pot.dispatch.PotCommandUseCaseAdapterTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.142 s -- in com.kartaguez.pocoma.engine.consume.command.pot.decode.PotCommandPayloadDecodersTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.003 s -- in com.kartaguez.pocoma.engine.consume.command.pot.intent.UpdateExpenseSharesCommandTest
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.004 s -- in com.kartaguez.pocoma.engine.consume.command.pot.intent.UpdatePotShareholdersWeightsCommandTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s -- in com.kartaguez.pocoma.engine.consume.command.pot.intent.DeletePotCommandTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s -- in com.kartaguez.pocoma.engine.consume.command.pot.intent.DeleteExpenseCommandTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.002 s -- in com.kartaguez.pocoma.engine.consume.command.pot.intent.UpdateExpenseDetailsCommandTest
+[INFO] Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.003 s -- in com.kartaguez.pocoma.engine.consume.command.pot.intent.AddPotShareholdersCommandTest
+[INFO] Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.004 s -- in com.kartaguez.pocoma.engine.consume.command.pot.intent.CreateExpenseCommandTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.002 s -- in com.kartaguez.pocoma.engine.consume.command.pot.intent.UpdatePotDetailsCommandTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.002 s -- in com.kartaguez.pocoma.engine.consume.command.pot.intent.UpdatePotShareholdersDetailsCommandTest
+[INFO] Tests run: 13, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.008 s -- in com.kartaguez.pocoma.engine.consume.command.execution.ExecuteRecordedCommandServiceTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.002 s -- in com.kartaguez.pocoma.engine.consume.command.model.CommandModelTest
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.049 s -- in com.kartaguez.pocoma.orchestrator.consumption.SequentialConsumptionOrchestratorTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.007 s -- in com.kartaguez.pocoma.orchestrator.consumption.AcquireThenFinalizeConsumptionOrchestratorTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.040 s -- in com.kartaguez.pocoma.supra.consume.command.CommandConsumptionLocatorTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.007 s -- in com.kartaguez.pocoma.supra.consume.command.failure.CommandConsumptionTechnicalFailureClassifierTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.002 s -- in com.kartaguez.pocoma.supra.consume.command.failure.CommandConsumptionFailurePolicyTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s -- in com.kartaguez.pocoma.supra.consume.command.CommandConsumptionKeysTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.042 s -- in com.kartaguez.pocoma.engine.materialize.commandresult.CommandResultTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.038 s -- in com.kartaguez.pocoma.engine.materialize.registrationresult.RegistrationResultServiceTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.025 s -- in com.kartaguez.pocoma.engine.produce.projectiontask.ProjectionMaterializationDiscoveryModelTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.006 s -- in com.kartaguez.pocoma.engine.produce.projectiontask.ProjectionMaterializationPolicyTest
+[INFO] Tests run: 13, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.037 s -- in com.kartaguez.pocoma.engine.read.projection.service.ExactProjectionReadServiceTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.025 s -- in com.kartaguez.pocoma.projector.pot.ProjectorDeterminismTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.028 s -- in com.kartaguez.pocoma.engine.consume.projectiontask.input.AuthProjectorTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.007 s -- in com.kartaguez.pocoma.engine.consume.projectiontask.input.PotBalancesProjectorTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.002 s -- in com.kartaguez.pocoma.engine.consume.projectiontask.input.ReadPotProjectorTest
+[INFO] Tests run: 12, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.010 s -- in com.kartaguez.pocoma.engine.consume.projectiontask.engine.ProjectionEngineServiceTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.018 s -- in com.kartaguez.pocoma.engine.consume.projectiontask.ProjectionTaskConsumptionServiceTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.042 s -- in com.kartaguez.pocoma.engine.read.currentbinding.GetCurrentBindingServiceTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.026 s -- in com.kartaguez.pocoma.engine.read.pot.ProjectionDefinitionsTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.012 s -- in com.kartaguez.pocoma.engine.read.pot.ProjectionInterpretersTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.006 s -- in com.kartaguez.pocoma.engine.read.pot.PotReadApiTest
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.023 s -- in com.kartaguez.pocoma.engine.read.pot.ReadPotServiceTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.035 s -- in com.kartaguez.pocoma.engine.materialize.latestknownversion.AdvanceLatestKnownVersionServiceTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.002 s -- in com.kartaguez.pocoma.engine.materialize.latestknownversion.LatestKnownVersionTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.089 s -- in com.kartaguez.pocoma.infra.persistence.projection.jdbc.JsonValueCodecTest
+[INFO] Tests run: 18, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 4.221 s -- in com.kartaguez.pocoma.infra.persistence.read.jdbc.JdbcProjectionStoreAdapterPostgresTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.902 s -- in com.kartaguez.pocoma.infra.persistence.read.jdbc.CurrentBindingPersistencePostgresTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.120 s -- in com.kartaguez.pocoma.infra.persistence.read.jdbc.LatestKnownVersionPersistencePostgresTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.799 s -- in com.kartaguez.pocoma.infra.persistence.read.jdbc.CurrentBindingTerminalCutoverMigrationPostgresTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.436 s -- in com.kartaguez.pocoma.infra.persistence.read.jdbc.ReadStorePersistencePostgresTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.521 s -- in com.kartaguez.pocoma.infra.persistence.read.jdbc.CommandResultExactIdentityCutoverMigrationPostgresTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.025 s -- in com.kartaguez.pocoma.contracts.observability.trace.TraceContextHolderTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.146 s -- in com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunnerTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.040 s -- in com.kartaguez.pocoma.engine.admit.command.SubmitRecordedCommandServiceTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.003 s -- in com.kartaguez.pocoma.engine.admit.command.CommandAuthenticationEvidenceFactoryTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.023 s -- in com.kartaguez.pocoma.supra.consume.lkv.EventOrderingKeyTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.017 s -- in com.kartaguez.pocoma.supra.consume.lkv.LatestKnownVersionConsumptionLocatorTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.021 s -- in com.kartaguez.pocoma.infra.persistence.primary.jpa.repository.consumption.JpaConsumptionSlotRepositoryFencingQueryTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.004 s -- in com.kartaguez.pocoma.infra.persistence.primary.jpa.entity.outbox.PotPartitionerTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.596 s -- in com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.outbox.JpaPotCommandEventAppendAdapterTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.019 s -- in com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.outbox.BusinessEventRecordMapperTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.262 s -- in com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.registration.RegistrationAuthorityPostgresTest
+[INFO] Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.265 s -- in com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.context.CommandObsolescencePostgresTest
+[INFO] Tests run: 15, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.824 s -- in com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.context.UpdateExpenseSharesConcurrencyPostgresTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.345 s -- in com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.context.JpaPotContextAdapterTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.188 s -- in com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.context.JpaExpenseContextAdapterTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.169 s -- in com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.core.JpaExpenseSharesAdapterTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.168 s -- in com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.core.JpaExpenseHeaderAdapterTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.156 s -- in com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.core.JpaPotHeaderAdapterTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.164 s -- in com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.core.JpaPotShareholdersAdapterTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s -- in com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.identity.ExternalIdentityBindingFactRecordMapperTest
+[INFO] Tests run: 11, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.283 s -- in com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.identity.JpaUserIdentityAuthorityAdapterPostgresTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.914 s -- in com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.identity.BindingOptimisticCasSemanticsPostgresTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.182 s -- in com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.identity.JpaExternalIdentityBindingLifecycleAdapterPostgresTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.060 s -- in com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.processing.event.JpaEventPortPostgresTest
+[INFO] Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.337 s -- in com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.processing.event.JdbcProjectionMaterializationDiscoveryAdapterPostgresTest
+[INFO] Tests run: 26, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.783 s -- in com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.consumption.TransactionalConsumptionExecutionPostgresTest
+[INFO] Tests run: 12, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.321 s -- in com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.consumption.JpaConsumptionLifecycleAdapterPostgresTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.212 s -- in com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.JpaPotGlobalVersionAdapterTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.003 s -- in com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.command.RecordedCommandRecordMapperTest
+[INFO] Tests run: 13, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.211 s -- in com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.command.JpaRecordedCommandAdapterPostgresTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.156 s -- in com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.command.JdbcCommandResultStorePostgresTest
+[INFO] Tests run: 36, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.258 s -- in com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.command.CommandConsumptionPostgresTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.156 s -- in com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.projection.JdbcProjectionTaskStoreAdapterPostgresTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.131 s -- in com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.projection.JpaProjectedExpenseAdapterTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.473 s -- in com.kartaguez.pocoma.infra.persistence.primary.jpa.migration.CommandResultBackfillMigrationPostgresTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.841 s -- in com.kartaguez.pocoma.infra.persistence.primary.jpa.migration.CanonicalBusinessEventTypesMigrationPostgresTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.290 s -- in com.kartaguez.pocoma.infra.persistence.primary.jpa.migration.ExternalIdentityBindingLifecycleMigrationPostgresTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.971 s -- in com.kartaguez.pocoma.infra.persistence.primary.jpa.migration.PrimaryMigrationsPostgresTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.879 s -- in com.kartaguez.pocoma.infra.persistence.primary.jpa.migration.RecordedCommandContractionMigrationPostgresTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.973 s -- in com.kartaguez.pocoma.infra.persistence.primary.jpa.migration.ExternalIdentityBindingCanonicalMigrationPostgresTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.104 s -- in com.kartaguez.pocoma.infra.projection.validation.networknt.NetworkntJsonSchemaValidatorTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.136 s -- in com.kartaguez.pocoma.orchestrator.poll.consumption.ConsumptionPollingWorkerTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.031 s -- in com.kartaguez.pocoma.supra.consume.event.materialization.ProjectionMaterializationConsumptionSourceTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.006 s -- in com.kartaguez.pocoma.supra.consume.event.materialization.ProjectionMaterializationConsumptionServiceTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.534 s -- in com.kartaguez.pocoma.supra.http.write.AsyncCommandControllerTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.047 s -- in com.kartaguez.pocoma.supra.http.read.CurrentBindingControllerTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.469 s -- in com.kartaguez.pocoma.supra.http.read.PotQueryControllerTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.004 s -- in com.kartaguez.pocoma.supra.http.read.RegistrationResultControllerTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.006 s -- in com.kartaguez.pocoma.supra.http.read.CommandResultControllerTest
+[INFO] Tests run: 26, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 7.158 s -- in com.kartaguez.pocoma.runtime.command.consumption.PotCasConsumptionPostgresTest
+[INFO] Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.734 s -- in com.kartaguez.pocoma.runtime.command.consumption.sequencing.JpaTerminalSequencingPostgresTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.463 s -- in com.kartaguez.pocoma.runtime.command.consumption.sequencing.CurrentTransactionManagerPostgresTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.114 s -- in com.kartaguez.pocoma.runtime.command.consumption.CommandConsumptionWorkerLifecycleTest
+[INFO] Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.163 s -- in com.kartaguez.pocoma.runtime.command.consumption.CommandConsumptionRuntimePostgresTest
+[INFO] Tests run: 28, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.811 s -- in com.kartaguez.pocoma.runtime.command.consumption.BindingSharedFencePostgresTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.004 s -- in com.kartaguez.pocoma.runtime.command.consumption.ConsumptionOwnerTransactionRunnerTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.621 s -- in com.kartaguez.pocoma.runtime.command.consumption.CommandConsumptionActuatorTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.297 s -- in com.kartaguez.pocoma.runtime.command.consumption.CommandConsumptionRuntimeContextTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.006 s -- in com.kartaguez.pocoma.runtime.command.consumption.MicrometerConsumptionPollingWorkerObservationTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.506 s -- in com.kartaguez.pocoma.runtime.command.consumption.CommandConsumptionMultiWorkerPostgresTest
+
+Final Maven build closure (verbatim):
+[INFO] Reactor Summary for pocoma 0.0.1-SNAPSHOT:
+[INFO]
+[INFO] pocoma ............................................. SUCCESS [  0.013 s]
+[INFO] pocoma-domain-authorization ........................ SUCCESS [  0.557 s]
+[INFO] pocoma-domain-event ................................ SUCCESS [  0.276 s]
+[INFO] pocoma-domain-user-identity ........................ SUCCESS [  0.296 s]
+[INFO] pocoma-contracts-authentication .................... SUCCESS [  0.008 s]
+[INFO] pocoma-domain-pot .................................. SUCCESS [  0.511 s]
+[INFO] pocoma-domain-projection ........................... SUCCESS [  0.313 s]
+[INFO] pocoma-domain-consumption .......................... SUCCESS [  0.342 s]
+[INFO] pocoma-port-transaction ............................ SUCCESS [  0.005 s]
+[INFO] pocoma-port-binding-authority ...................... SUCCESS [  0.006 s]
+[INFO] pocoma-engine-consumption .......................... SUCCESS [  0.767 s]
+[INFO] pocoma-contracts-command ........................... SUCCESS [  0.006 s]
+[INFO] pocoma-engine-write-pot ............................ SUCCESS [  0.447 s]
+[INFO] pocoma-engine-consume-command ...................... SUCCESS [  0.969 s]
+[INFO] pocoma-orchestrator-consumption .................... SUCCESS [  0.409 s]
+[INFO] pocoma-supra-consume-command ....................... SUCCESS [  0.379 s]
+[INFO] pocoma-engine-read-command-result .................. SUCCESS [  0.007 s]
+[INFO] pocoma-engine-materialize-command-result ........... SUCCESS [  0.365 s]
+[INFO] pocoma-supra-consume-command-result ................ SUCCESS [  0.029 s]
+[INFO] pocoma-contracts-registration ...................... SUCCESS [  0.004 s]
+[INFO] pocoma-engine-admit-registration ................... SUCCESS [  0.006 s]
+[INFO] pocoma-engine-consume-registration ................. SUCCESS [  0.005 s]
+[INFO] pocoma-supra-consume-registration .................. SUCCESS [  0.025 s]
+[INFO] pocoma-engine-read-registration-result ............. SUCCESS [  0.005 s]
+[INFO] pocoma-engine-materialize-registration-result ...... SUCCESS [  0.279 s]
+[INFO] pocoma-supra-consume-registration-result ........... SUCCESS [  0.024 s]
+[INFO] pocoma-port-projection ............................. SUCCESS [  0.005 s]
+[INFO] pocoma-engine-produce-projection-task .............. SUCCESS [  0.297 s]
+[INFO] pocoma-engine-read-projection ...................... SUCCESS [  0.309 s]
+[INFO] pocoma-projector-pot ............................... SUCCESS [  0.282 s]
+[INFO] pocoma-engine-consume-projection-task .............. SUCCESS [  0.445 s]
+[INFO] pocoma-supra-consume-projection-task ............... SUCCESS [  0.023 s]
+[INFO] pocoma-engine-read-current-binding ................. SUCCESS [  0.300 s]
+[INFO] pocoma-engine-read-pot ............................. SUCCESS [  0.354 s]
+[INFO] pocoma-engine-materialize-current-binding .......... SUCCESS [  0.024 s]
+[INFO] pocoma-engine-materialize-latest-known-version ..... SUCCESS [  0.293 s]
+[INFO] pocoma-infra-persistence-projection-jdbc ........... SUCCESS [  0.357 s]
+[INFO] pocoma-infra-persistence-read-jdbc ................. SUCCESS [ 12.518 s]
+[INFO] pocoma-contracts-observability ..................... SUCCESS [  0.296 s]
+[INFO] pocoma-infra-tx-spring ............................. SUCCESS [  0.419 s]
+[INFO] pocoma-engine-admit-command ........................ SUCCESS [  0.304 s]
+[INFO] pocoma-supra-consume-lkv ........................... SUCCESS [  0.369 s]
+[INFO] pocoma-infra-persistence-primary-jpa ............... SUCCESS [01:06 min]
+[INFO] pocoma-infra-projection-validation-networknt ....... SUCCESS [  0.378 s]
+[INFO] pocoma-orchestrator-poll-consumption ............... SUCCESS [  0.464 s]
+[INFO] pocoma-supra-consume-event ......................... SUCCESS [  0.358 s]
+[INFO] pocoma-supra-consume-binding ....................... SUCCESS [  0.037 s]
+[INFO] pocoma-supra-http-write ............................ SUCCESS [  0.856 s]
+[INFO] pocoma-supra-http-read ............................. SUCCESS [  0.840 s]
+[INFO] pocoma-composition-runtime-spring .................. SUCCESS [  0.277 s]
+[INFO] pocoma-runtime-command-consumption-worker .......... SUCCESS [ 20.352 s]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  01:53 min
+[INFO] Finished at: 2026-10-19T17:21:14+02:00
+[INFO] ------------------------------------------------------------------------
+
+Skipped class summary (verbatim; included in totals above):
+[WARNING] Tests run: 14, Failures: 0, Errors: 0, Skipped: 1, Time elapsed: 1.665 s -- in com.kartaguez.pocoma.runtime.command.consumption.sequencing.TerminalSequencingPostgresTest

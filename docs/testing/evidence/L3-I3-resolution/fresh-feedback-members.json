@@ -1,0 +1,407 @@
+[
+  {
+    "path": "fresh-feedback/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.BindingLockOwnershipTest.xml",
+    "bytes": 56768,
+    "sha256": "61f64b1321b40dc65f43096904f52237676c8b1bd903bc09d69d356ae46bc72e"
+  },
+  {
+    "path": "fresh-feedback/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.DistributedComposeConfigurationTest.xml",
+    "bytes": 56686,
+    "sha256": "26094eb4dc0093a5278bbd476004152d39d8188a22fd836989247eb979e81a17"
+  },
+  {
+    "path": "fresh-feedback/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.EventPublicationContractArchitectureTest.xml",
+    "bytes": 57722,
+    "sha256": "3511668320909af0eb3f8ab5f87c7880df1ba6be08b42bbf63118f5375e615c7"
+  },
+  {
+    "path": "fresh-feedback/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.HexagonalArchitectureTest.xml",
+    "bytes": 64993,
+    "sha256": "1c5671e579b431f4882341e8a4240180d865749e4edef783f9c33afe4933ceb8"
+  },
+  {
+    "path": "fresh-feedback/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.Pcl3LegacyAbsenceTest.xml",
+    "bytes": 56526,
+    "sha256": "19395d2422c540d60b3c9754aa2e7a79a2477d06753fb8cde08e471d9014b9a3"
+  },
+  {
+    "path": "fresh-feedback/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.Pcl4LegacyQueryReadAbsenceTest.xml",
+    "bytes": 56705,
+    "sha256": "a4ae88f80d208fb901bd07f67cd2b9984d3b8ad9c77b94dc0aa97dcc6eb4df61"
+  },
+  {
+    "path": "fresh-feedback/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.Pcl5PipelineLifecycleAbsenceTest.xml",
+    "bytes": 57064,
+    "sha256": "7e1c2281d2fb8db42e74e686a6c547d31621a05efe443c752a9b0abebd6dcac3"
+  },
+  {
+    "path": "fresh-feedback/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.Pcl6MonolithAbsenceTest.xml",
+    "bytes": 57144,
+    "sha256": "65cc21c8d4fff741198f2bfbc4630852626ae0200e1d35a6075e146bc3e87154"
+  },
+  {
+    "path": "fresh-feedback/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.Pcl7ModuleDependencyCollapseTest.xml",
+    "bytes": 56706,
+    "sha256": "b3ade150190da674bd989c9a7e21c312c1d1e2a8e4b1e9061262f38704fb0b4b"
+  },
+  {
+    "path": "fresh-feedback/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.Pcl8DatabaseDemolitionPostgresTest.xml",
+    "bytes": 75839,
+    "sha256": "6745fd284b380326209c6e9e7776d34f9954bf39b6f102b24a592a1c81e31465"
+  },
+  {
+    "path": "fresh-feedback/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.Pcl8DatabaseDemolitionTest.xml",
+    "bytes": 56467,
+    "sha256": "ad92723ad51911ab6e763592919e8db0a2eafd7b2d6cce7f0b17b39bc96d73ec"
+  },
+  {
+    "path": "fresh-feedback/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.PostWp4OwnershipArchitectureTest.xml",
+    "bytes": 56552,
+    "sha256": "c8a62cd46d5a1e223e5a629caa8e12c039ac8d556427bdc938ae6fb71747052c"
+  },
+  {
+    "path": "fresh-feedback/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.RegistrationModuleBoundaryTest.xml",
+    "bytes": 56570,
+    "sha256": "5b81a4dd885c117b341b3c89e79bd2daed366410222eedf6d54281b1bb5a5fb8"
+  },
+  {
+    "path": "fresh-feedback/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.Wa67BindingArchitectureTest.xml",
+    "bytes": 56901,
+    "sha256": "3bb965de62a4f3b25774b870d2f0ac9bdb46bc9ceac3d9cbbb6fa985361990d3"
+  },
+  {
+    "path": "fresh-feedback/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.Wp2BoundaryTest.xml",
+    "bytes": 56590,
+    "sha256": "c78a81813997a8d6481ea58bf9e4bdc2d4fc6a199172f6a1c9ad594a078f5cd9"
+  },
+  {
+    "path": "fresh-feedback/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.Wp3BoundaryTest.xml",
+    "bytes": 56535,
+    "sha256": "02a1cecfed6f5cc9eafd6e3d059e738b0d07d61f2766d1044fe407b8489105c5"
+  },
+  {
+    "path": "fresh-feedback/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.Wp4BoundaryTest.xml",
+    "bytes": 56747,
+    "sha256": "69a60264b48e431ea4dccd28f95f21294c7055f06f087e8c806ce3986466e1d3"
+  },
+  {
+    "path": "fresh-feedback/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.Wp5TargetTopologyTest.xml",
+    "bytes": 56670,
+    "sha256": "d5aa0ed16a942807e20c1c4c80a030b86c5d72a85f6f3ecd72c06057904a8fa9"
+  },
+  {
+    "path": "fresh-feedback/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.ccr.CommandCompletionE2EPostgresTest.xml",
+    "bytes": 234962,
+    "sha256": "d8db4ccaee89da1a4cfa1d41040468758b0b23b1fcd1891e5b605046b70ff755"
+  },
+  {
+    "path": "fresh-feedback/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.ccr.CommandResultConsumptionChainPostgresTest.xml",
+    "bytes": 71382,
+    "sha256": "236e57eeaf31b95fc0a7a9d6b93a7dcba4583ba207d94a7736f6cc91771817a4"
+  },
+  {
+    "path": "fresh-feedback/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.ccr.CommandResultTakeoverRacePostgresTest.xml",
+    "bytes": 75709,
+    "sha256": "7f4158c9ec6aaae877a9c82a87b97a74ec805a41b2e20d1a0bde62b132702a24"
+  },
+  {
+    "path": "fresh-feedback/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.ept.DurableEventToProjectionPostgresTest.xml",
+    "bytes": 75425,
+    "sha256": "c4dab59b6c7d7b52eee27da4785dd6aa7d03ef7035b22cdb24b7b303dd513118"
+  },
+  {
+    "path": "fresh-feedback/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.ept.HistoricalEventRouteEvolutionPostgresTest.xml",
+    "bytes": 71684,
+    "sha256": "c5b26fd7fe7fc4b89cbaa4ce7a18fe4a0c48dcd3466139139ee9de9ad5719a17"
+  },
+  {
+    "path": "fresh-feedback/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.v3.V3ConsumptionEngineArchitectureTest.xml",
+    "bytes": 57383,
+    "sha256": "6e35545acffde81e5cc01899326f3ae86812f568f7fd9ca2abbf5bfe557b7415"
+  },
+  {
+    "path": "fresh-feedback/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.v3.V3ConsumptionFoundationArchitectureTest.xml",
+    "bytes": 56598,
+    "sha256": "d5bf3ece812cbef05f6ee9b3e1bb03e27ff264a350233fe2e81e4db4860cc659"
+  },
+  {
+    "path": "fresh-feedback/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.v3.V3FoundationArchitectureTest.xml",
+    "bytes": 56854,
+    "sha256": "4698fbfe8a1e043f64378eb4e9c030d860aab1eb45f152a5da58198442f91a5b"
+  },
+  {
+    "path": "fresh-feedback/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.v3.V3IdentityAuthorityArchitectureTest.xml",
+    "bytes": 56580,
+    "sha256": "e03ac8ed254cbeb2fde5cc2cbfffa3ee926555ef3095290854019eb4b6b83fe4"
+  },
+  {
+    "path": "fresh-feedback/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.v3.V3PotExecutionArchitectureTest.xml",
+    "bytes": 56569,
+    "sha256": "49e408e6eb2dca8e2ab97bee26a65ee5a1aaa9127a373c720976f89d66e71305"
+  },
+  {
+    "path": "fresh-feedback/junit/engine-consume-registration/TEST-com.kartaguez.pocoma.engine.consume.registration.v3.ExecuteIdentityRequestTest.xml",
+    "bytes": 9106,
+    "sha256": "b1e0b04d307a2c9d109123faf819dcdb2ef4f07ac1270ff44f0479bad5caa282"
+  },
+  {
+    "path": "fresh-feedback/junit/infra-persistence-primary-jpa/TEST-com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityAuthorityPostgresTest.xml",
+    "bytes": 49136,
+    "sha256": "dc71f6a2709ae9f0131a5cb133f1e448afa0e0fea848f6f24430457c61abf389"
+  },
+  {
+    "path": "fresh-feedback/junit/infra-persistence-primary-jpa/TEST-com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityConcurrencyPostgresTest.xml",
+    "bytes": 53498,
+    "sha256": "887ae2237711acd8e8a82699e5ab6007a4a4d04033db3454a20b91415c739bae"
+  },
+  {
+    "path": "fresh-feedback/junit/infra-persistence-primary-jpa/TEST-com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityDiscoveryPostgresTest.xml",
+    "bytes": 42541,
+    "sha256": "00138d435ccffc1988d5fc0cbb581b6f476da1fa8b710b1172e269759127a6de"
+  },
+  {
+    "path": "fresh-feedback/junit/infra-persistence-primary-jpa/TEST-com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityPrivilegesPostgresTest.xml",
+    "bytes": 42550,
+    "sha256": "9d3aa2eb88ca4eb31b6053896eb9d0ceb8862671d276e4b68ead08e70ce65685"
+  },
+  {
+    "path": "fresh-feedback/junit/infra-persistence-primary-jpa/TEST-com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityPublicationPostgresTest.xml",
+    "bytes": 55750,
+    "sha256": "a3278f495807769fe4573077b4df6f2976a9303a1a18c8258345ca2818f5982b"
+  },
+  {
+    "path": "fresh-feedback/junit/infra-persistence-primary-jpa/TEST-com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityRequestExecutionPostgresTest.xml",
+    "bytes": 87990,
+    "sha256": "246d74039855da952387c7fc3786b7bd81910961feeddadedba98d4cbf45934e"
+  },
+  {
+    "path": "fresh-feedback/junit/infra-persistence-primary-jpa/TEST-com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentitySchemaPostgresTest.xml",
+    "bytes": 60106,
+    "sha256": "555f5d2b2166267c5c3fd2a4de23c1eaaba5dabd4835f379a459d4d376ef0b7c"
+  },
+  {
+    "path": "fresh-feedback/junit/runtime-command-consumption-worker/TEST-com.kartaguez.pocoma.runtime.command.v3.V3IdentityRequestCompositionPostgresTest.xml",
+    "bytes": 447706,
+    "sha256": "c4d08b9c9a0c339473032fa64fab3c2e953261bb671593be96eb45bcf1b37fdd"
+  },
+  {
+    "path": "fresh-feedback/junit/runtime-command-consumption-worker/TEST-com.kartaguez.pocoma.runtime.command.v3.dev.V3WorkerDevelopmentToolsTest.xml",
+    "bytes": 44891,
+    "sha256": "85da14ccabb47cb599ab6997c2f3b9af91d5fc19f83d33d507cd6889a61ad4d1"
+  },
+  {
+    "path": "fresh-feedback/junit/runtime-monolith/TEST-com.kartaguez.pocoma.V3IdentityRequestMonolithPostgresTest.xml",
+    "bytes": 417311,
+    "sha256": "99a776988e195283ff3b029991fe89239d25f0caa5ab706d7b246bf469cef07d"
+  },
+  {
+    "path": "fresh-feedback/maven.log",
+    "bytes": 1279218,
+    "sha256": "faf4c283fb2f9beb192f42f58b2185967851d6a585e911728989488975b24edd"
+  },
+  {
+    "path": "fresh-feedback/postgres/infra-persistence-primary-jpa/IdentityDiscoveryPostgresTest-l3_burnable_discovery.txt",
+    "bytes": 11394,
+    "sha256": "5726d999785d980880e2d93886974cf882c9b7c8dacbfeedaec6cda1e14afe46"
+  },
+  {
+    "path": "fresh-feedback/postgres/infra-persistence-primary-jpa/IdentityDiscoveryPostgresTest-l3_discovery_source_slot_race.txt",
+    "bytes": 9391,
+    "sha256": "a9e984cfa25a3127c6c6c38e5f728db83336a312c1142ac9f063cf4a037e4600"
+  },
+  {
+    "path": "fresh-feedback/postgres/infra-persistence-primary-jpa/IdentityDiscoveryPostgresTest-l3_identity_windows.txt",
+    "bytes": 23576,
+    "sha256": "b7d9328b8ba937316b42fc9fec7920b667203c7e00b8391c1b236e8efb18216a"
+  },
+  {
+    "path": "fresh-feedback/postgres/infra-persistence-primary-jpa/IdentityPrivilegesPostgresTest-l3_effective_privileges.txt",
+    "bytes": 20141,
+    "sha256": "216ba58347f1552e5b2dc446663623f3d5d80d220f7a7317c1b467adbf8c291c"
+  },
+  {
+    "path": "fresh-feedback/postgres/infra-persistence-primary-jpa/IdentityPrivilegesPostgresTest-l3_internal_admission_idempotence.txt",
+    "bytes": 9279,
+    "sha256": "1609f1c7ab4e0ed220a4067b6f3984997a2c5e364eb975f792ef175d3b5ae4dd"
+  },
+  {
+    "path": "fresh-feedback/postgres/infra-persistence-primary-jpa/IdentityPrivilegesPostgresTest-l3_wrong_authority.txt",
+    "bytes": 502,
+    "sha256": "02a963962663bb001a5c306d1d42b2c85ecf4c1f5c223640e4f47e0811c98c91"
+  },
+  {
+    "path": "fresh-feedback/postgres/infra-persistence-primary-jpa/IdentityPublicationPostgresTest-l3_constraints_before_close.txt",
+    "bytes": 15013,
+    "sha256": "510e09e3a4fc19f5db96cdd66a50f1f306e649e226d7b3ac58e9bfa3cf5ab60f"
+  },
+  {
+    "path": "fresh-feedback/postgres/infra-persistence-primary-jpa/IdentityPublicationPostgresTest-l3_deferred_commit_checks.txt",
+    "bytes": 15216,
+    "sha256": "54a3066a514d6ec04f2fca3c83fe3b3d0944c6e69a4a21f541afc82791003c29"
+  },
+  {
+    "path": "fresh-feedback/postgres/infra-persistence-primary-jpa/IdentityPublicationPostgresTest-l3_dense_rollback.txt",
+    "bytes": 13778,
+    "sha256": "c4893ae5bf44ddf341c2a8fdef0f7e168c2e279dc0025561116bbdc62b322385"
+  },
+  {
+    "path": "fresh-feedback/postgres/infra-persistence-primary-jpa/IdentityPublicationPostgresTest-l3_identity_batch.txt",
+    "bytes": 21879,
+    "sha256": "12b263cf4808b7223d51e3637b9a89d360891c14b447c90a36a1e3b62df4361d"
+  },
+  {
+    "path": "fresh-feedback/postgres/infra-persistence-primary-jpa/IdentityPublicationPostgresTest-l3_identity_pair_contention.txt",
+    "bytes": 39299,
+    "sha256": "616d965ee59ca6f5d472159e1cee3d706bd166d1909bcf8635e3ab737cc1a2c0"
+  },
+  {
+    "path": "fresh-feedback/postgres/infra-persistence-primary-jpa/IdentityPublicationPostgresTest-l3_physical_unit.txt",
+    "bytes": 7207,
+    "sha256": "ea32177c578ad96ccc48d88362412400355aa969bbe7db6ee8ae926daf4a8dd9"
+  },
+  {
+    "path": "fresh-feedback/postgres/infra-persistence-primary-jpa/IdentityPublicationPostgresTest-l3_structural_poison_before_counter.txt",
+    "bytes": 7483,
+    "sha256": "8e07c977730424397b988e8206698960242eb722cee49b4a6d4e453541e4617f"
+  },
+  {
+    "path": "fresh-feedback/postgres/infra-persistence-primary-jpa/IdentityPublicationPostgresTest-l3_suffix_closed.txt",
+    "bytes": 7809,
+    "sha256": "48d3bda802e3d7930564e31374a1caf4455c1e646f7c7f02b3cb5ce05583994e"
+  },
+  {
+    "path": "fresh-feedback/postgres/infra-persistence-primary-jpa/IdentityRequestExecutionPostgresTest-l3_atomic_link_unlink.txt",
+    "bytes": 51174,
+    "sha256": "48e4f08808c4fa05aff10cda4f5ee5e12065945aa48a7a088af3c809e567178e"
+  },
+  {
+    "path": "fresh-feedback/postgres/infra-persistence-primary-jpa/IdentityRequestExecutionPostgresTest-l3_atomic_registration.txt",
+    "bytes": 8353,
+    "sha256": "f20aec6e0887d83501bd9eb41c82d9868299b0c70d7b1de5468cbbf0b3539f79"
+  },
+  {
+    "path": "fresh-feedback/postgres/infra-persistence-primary-jpa/IdentityRequestExecutionPostgresTest-l3_completion_misuse.txt",
+    "bytes": 25886,
+    "sha256": "10533a0342bd25649013f6a60c0db073b2ba64e4cd6c06b7dece63eb97a3e4bc"
+  },
+  {
+    "path": "fresh-feedback/postgres/infra-persistence-primary-jpa/IdentityRequestExecutionPostgresTest-l3_fencing.txt",
+    "bytes": 15125,
+    "sha256": "6e19ebbe25da3919a4e024bde8fcfaee2e5e1101468eee583b12fa94d8818a4a"
+  },
+  {
+    "path": "fresh-feedback/postgres/infra-persistence-primary-jpa/IdentityRequestExecutionPostgresTest-l3_final_lock_clock.txt",
+    "bytes": 11508,
+    "sha256": "fe7e55a66b0fc36df910a64d14590050f7e097edb2cdbaa7aaed5aafc72eac93"
+  },
+  {
+    "path": "fresh-feedback/postgres/infra-persistence-primary-jpa/IdentityRequestExecutionPostgresTest-l3_observation_corruption.txt",
+    "bytes": 9253,
+    "sha256": "2f1132cfb691f4853592ee4c1b97f9ee4da7403a8b0433f741f66d46d214a721"
+  },
+  {
+    "path": "fresh-feedback/postgres/infra-persistence-primary-jpa/IdentityRequestExecutionPostgresTest-l3_rejection_terminal.txt",
+    "bytes": 14678,
+    "sha256": "54c6e648ed22e47932b021a18ab861611c5455d9ae24933f40974d6032c48502"
+  },
+  {
+    "path": "fresh-feedback/postgres/infra-persistence-primary-jpa/IdentityRequestExecutionPostgresTest-l3_retry_quarantine.txt",
+    "bytes": 21051,
+    "sha256": "56440ca52c9cef24447b18491185d27a0f99d0d0a300fbdbe721b61a8a34a071"
+  },
+  {
+    "path": "fresh-feedback/postgres/infra-persistence-primary-jpa/IdentityRequestExecutionPostgresTest-l3_rollback_each_boundary.txt",
+    "bytes": 230250,
+    "sha256": "de9812cf6981eabf421bc8f98dcfa80323c3ad14831590749fe0fe2ad0dd0ba7"
+  },
+  {
+    "path": "fresh-feedback/postgres/infra-persistence-primary-jpa/IdentityRequestExecutionPostgresTest-l3_technical_not_rejected_and_redacted.txt",
+    "bytes": 12834,
+    "sha256": "03599ed0d3d3aeca0b29b2028dd065963068726e21af215e043cf87be7d8605a"
+  },
+  {
+    "path": "fresh-feedback/postgres/infra-persistence-primary-jpa/IdentityRequestExecutionPostgresTest-l3_unavailable_observation.txt",
+    "bytes": 4210,
+    "sha256": "715ef7854641a5d3f453c63b7b0667b56ba06fc38ae730b0bfa66e737b88a8e7"
+  },
+  {
+    "path": "fresh-feedback/postgres/infra-persistence-primary-jpa/IdentityRequestExecutionPostgresTest-l3_unknown_commit.txt",
+    "bytes": 7905,
+    "sha256": "474f1619c8724b11c5ba33e5fcccc12e88b2f35ec9f75ec9dc2af9f0296c3096"
+  },
+  {
+    "path": "fresh-feedback/postgres/infra-persistence-primary-jpa/IdentityRequestExecutionPostgresTest-l3_workers_concurrent_registration.txt",
+    "bytes": 14054,
+    "sha256": "38a0b0ab61e8ffc4861bbcc02c10f46a7dd6eaff02beaa1f1f67340bd8185b6d"
+  },
+  {
+    "path": "fresh-feedback/postgres/runtime-command-consumption-worker/l3_auxiliary_effective_privilege_matrix.txt",
+    "bytes": 1667,
+    "sha256": "52a00cb645960b88cbc3bbc936f9135e5885e6a30cabb19da060e95a9a113973"
+  },
+  {
+    "path": "fresh-feedback/postgres/runtime-command-consumption-worker/l3_delivered_jpa_rejects_prebound_holder.txt",
+    "bytes": 1278,
+    "sha256": "5e39c7bc52165621c84e736760fd6ab2a86dde6af35030db00c45a7a467505ee"
+  },
+  {
+    "path": "fresh-feedback/postgres/runtime-command-consumption-worker/l3_identity_discovery_checkpoint.txt",
+    "bytes": 1361,
+    "sha256": "a3fc9498adec3b2b165cad754c920f6d3830e797ff93095c6f68f5706aaf8f36"
+  },
+  {
+    "path": "fresh-feedback/postgres/runtime-command-consumption-worker/l3_indirect_exposure_refused.txt",
+    "bytes": 2154,
+    "sha256": "dc569f299d87a8f55de69449314bf38f79ace1faf925d26ded086b3c340e5cca"
+  },
+  {
+    "path": "fresh-feedback/postgres/runtime-command-consumption-worker/l3_logging_override_refused.txt",
+    "bytes": 1132,
+    "sha256": "0cbc5f26e2aa81be05f9023296047c2238f2e410c0fc1af5fb5a7dd1e8ef054c"
+  },
+  {
+    "path": "fresh-feedback/postgres/runtime-command-consumption-worker/l3_postgres_diagnostics_without_sensitive_detail.txt",
+    "bytes": 1434,
+    "sha256": "6fee260687fd40e2070aa56ffcae1583f89bd5c00df99629ca53e0008435473b"
+  },
+  {
+    "path": "fresh-feedback/postgres/runtime-command-consumption-worker/l3_preflight_negative.txt",
+    "bytes": 1374,
+    "sha256": "ed918f9be861ee4a712ac283db9a62a0c478d79da37a2ee730fc40710f16adb4"
+  },
+  {
+    "path": "fresh-feedback/postgres/runtime-command-consumption-worker/l3_runtime_identity.txt",
+    "bytes": 2160,
+    "sha256": "d34e2286dfc891e79db8db8ddb4b33e02d377f0c43f14201ccc60436fc70e06a"
+  },
+  {
+    "path": "fresh-feedback/postgres/runtime-monolith/l3_delivered_jpa_rejects_prebound_holder.txt",
+    "bytes": 1278,
+    "sha256": "56f0b939d42a3e81d29626639d1b9718a17b898a725d9d4c47398a426c604058"
+  },
+  {
+    "path": "fresh-feedback/postgres/runtime-monolith/l3_indirect_exposure_refused.txt",
+    "bytes": 2154,
+    "sha256": "e69be02091a04efb52204436c1170f3be2c6059d8bfc7756a97ae68bb0f9426c"
+  },
+  {
+    "path": "fresh-feedback/postgres/runtime-monolith/l3_logging_override_refused.txt",
+    "bytes": 1131,
+    "sha256": "ee3650e70d4afb5e85fe35129ae9fa7a545ec09f6fe5ae2553be9e67bf307829"
+  },
+  {
+    "path": "fresh-feedback/postgres/runtime-monolith/l3_preflight_negative.txt",
+    "bytes": 1372,
+    "sha256": "d913a1b07d517d848263c86343987335f0e73162377c28ac7df5deb8d070962d"
+  },
+  {
+    "path": "fresh-feedback/postgres/runtime-monolith/l3_runtime_identity.txt",
+    "bytes": 2161,
+    "sha256": "f8c290297b979b4a414492744d4e48e92bcac79dc6b29e3ed6cd350630488824"
+  },
+  {
+    "path": "fresh-feedback/summary.json",
+    "bytes": 44660,
+    "sha256": "68761af89b9856783fe45d6f6df36bd33b4f403daac448de143d6c3904c5bbbc"
+  }
+]

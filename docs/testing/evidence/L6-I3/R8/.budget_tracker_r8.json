@@ -1,0 +1,49 @@
+{
+  "globalBudgetSeconds": 1800,
+  "cumulativeSeconds": 252.86,
+  "remainingSeconds": 1547.14,
+  "runs": [
+    {
+      "runId": "run-r8-smoke-1794146979",
+      "scenario": "smoke",
+      "durationSeconds": 25.74,
+      "timestamp": "2026-11-08T14:10:05Z",
+      "success": false
+    },
+    {
+      "runId": "run-r8-smoke-1794148077",
+      "scenario": "smoke",
+      "durationSeconds": 25.73,
+      "timestamp": "2026-11-08T14:28:23Z",
+      "success": false
+    },
+    {
+      "runId": "run-r8-smoke-1794148320",
+      "scenario": "smoke",
+      "durationSeconds": 76.3,
+      "timestamp": "2026-11-08T14:33:17Z",
+      "success": false
+    },
+    {
+      "runId": "run-r8-smoke-1794149901",
+      "scenario": "smoke",
+      "durationSeconds": 3.2,
+      "timestamp": "2026-11-08T14:58:25Z",
+      "success": true
+    },
+    {
+      "runId": "run-r8-r8-s1-1-1794149936",
+      "scenario": "r8-s1-1",
+      "durationSeconds": 61.27,
+      "timestamp": "2026-11-08T14:59:57Z",
+      "success": true
+    },
+    {
+      "runId": "run-r8-r8-s2-5-1794150003",
+      "scenario": "r8-s2-5",
+      "durationSeconds": 60.62,
+      "timestamp": "2026-11-08T15:01:04Z",
+      "success": true
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "date": "2026-11-13",
+  "timezone": "Europe/Paris",
+  "host": "Apple M4",
+  "hostMemoryBytes": 17179869184,
+  "macOS": "27.0 / 26A428",
+  "dockerArchitecture": "aarch64",
+  "dockerMemoryBytes": 8319504384,
+  "dockerCPUs": 10,
+  "brunoGUIInstalled": "4.2.1",
+  "brunoCLITested": "4.3.0"
+}

@@ -1,0 +1,145 @@
+{
+  "source": "/private/tmp/pocoma-l5-i1-final-delta",
+  "archive": "archives/pocoma-l5-i1-final-delta.tar.gz",
+  "sha256": "a73f2eee50350c06bfceb471da6c9174dbe83549c33c1387c32b063ead993cd3",
+  "bytes": 2162840,
+  "files": {
+    "B1/bruno.json": {
+      "original_sha256": "2d535bd9adf375d32c0714488de6371a8a3afd2259c49abfb127d116c712d7f2",
+      "published_sha256": "2d535bd9adf375d32c0714488de6371a8a3afd2259c49abfb127d116c712d7f2",
+      "bytes": 8698
+    },
+    "B1/bruno.log": {
+      "original_sha256": "4cd03504d96e5d436a14728f1bf60fcb923c4bf3a95683d7aa52c1a08a40a809",
+      "published_sha256": "4cd03504d96e5d436a14728f1bf60fcb923c4bf3a95683d7aa52c1a08a40a809",
+      "bytes": 1766
+    },
+    "B1/receipt.json": {
+      "original_sha256": "81371fd65580bf004dc33e3837c8b52af3fa3cd5e9fa845433e14fe0b5d21025",
+      "published_sha256": "81371fd65580bf004dc33e3837c8b52af3fa3cd5e9fa845433e14fe0b5d21025",
+      "bytes": 688
+    },
+    "B1/requests.jsonl": {
+      "original_sha256": "6b2185a0fc67f76597342ffa8e433ddaceed1ab313bf7b319a854f6a2dda1d22",
+      "published_sha256": "6b2185a0fc67f76597342ffa8e433ddaceed1ab313bf7b319a854f6a2dda1d22",
+      "bytes": 270
+    },
+    "B1.log": {
+      "original_sha256": "faea8772d50a0b746d4aaab21ae6638d614123442b561d683b3510e7c634c021",
+      "published_sha256": "faea8772d50a0b746d4aaab21ae6638d614123442b561d683b3510e7c634c021",
+      "bytes": 5262
+    },
+    "T1/discovery.log": {
+      "original_sha256": "321e074a286b17c9370f7e7ad31421b4bbc49c9975d7bc4409cc709bd7512ab2",
+      "published_sha256": "321e074a286b17c9370f7e7ad31421b4bbc49c9975d7bc4409cc709bd7512ab2",
+      "bytes": 9545
+    },
+    "T1/discovery.process.json": {
+      "original_sha256": "79b0871281bba999e25e74f7d34810c0e88e4a2c80e308c80a33f8ce47089fed",
+      "published_sha256": "79b0871281bba999e25e74f7d34810c0e88e4a2c80e308c80a33f8ce47089fed",
+      "bytes": 758
+    },
+    "T1/effective-pom.xml": {
+      "original_sha256": "c3d95eb71347a652e85d979121c902071cfdb4907aa0f2c5694f7028f065e8c2",
+      "published_sha256": "c3d95eb71347a652e85d979121c902071cfdb4907aa0f2c5694f7028f065e8c2",
+      "bytes": 20184434
+    },
+    "T1/maven.log": {
+      "original_sha256": "31d4692e6854b95cf234c936b53403997515ec51ede60bae938521cbeb5ff302",
+      "published_sha256": "31d4692e6854b95cf234c936b53403997515ec51ede60bae938521cbeb5ff302",
+      "bytes": 90328
+    },
+    "T1/maven.process.json": {
+      "original_sha256": "21ae14973d92f960a6eac47db445f8bcadd97babcba8854bf628179ee09b079e",
+      "published_sha256": "21ae14973d92f960a6eac47db445f8bcadd97babcba8854bf628179ee09b079e",
+      "bytes": 669
+    },
+    "T1/plan.json": {
+      "original_sha256": "f5c638bd1c84194939e34b358d1b385be2f5801e2fbe56c28a07c843c4b605a1",
+      "published_sha256": "f5c638bd1c84194939e34b358d1b385be2f5801e2fbe56c28a07c843c4b605a1",
+      "bytes": 55677
+    },
+    "T1/provenance.json": {
+      "original_sha256": "99cd5b9258e26641dcfa64c20aff80c40e11d0785c01dd9f3b4da96a00e37438",
+      "published_sha256": "99cd5b9258e26641dcfa64c20aff80c40e11d0785c01dd9f3b4da96a00e37438",
+      "bytes": 265310
+    },
+    "T1/raw.tar.gz": {
+      "original_sha256": "04c6f65f309a4fb16cfb0323d8a0a504076b4c587897e857879c3ace802f7a7a",
+      "published_sha256": "04c6f65f309a4fb16cfb0323d8a0a504076b4c587897e857879c3ace802f7a7a",
+      "bytes": 1052924
+    },
+    "T1/reports/pocoma-runtime-task-consumption-worker/surefire-reports/TEST-com.kartaguez.pocoma.runtime.task.v3.V3ReadQuotaPostgresTest.xml": {
+      "original_sha256": "907ee7ba4d016f9e570cc3c7fc2049c0ece6e7bad999b4a333363927413de0c8",
+      "published_sha256": "907ee7ba4d016f9e570cc3c7fc2049c0ece6e7bad999b4a333363927413de0c8",
+      "bytes": 56416
+    },
+    "T1/reports/pocoma-runtime-task-consumption-worker/surefire-reports/com.kartaguez.pocoma.runtime.task.v3.V3ReadQuotaPostgresTest.txt": {
+      "original_sha256": "d32b3fd0cd8755dda3b19d52cdf8b1fc6bfefde10c32b278b25f53eb11e9fa46",
+      "published_sha256": "d32b3fd0cd8755dda3b19d52cdf8b1fc6bfefde10c32b278b25f53eb11e9fa46",
+      "bytes": 370
+    },
+    "T1/reports/pocoma-runtime-web-api/surefire-reports/TEST-com.kartaguez.pocoma.V3ReadHttpContractTest.xml": {
+      "original_sha256": "86bd04235cdbe673c93552d1c60dadbb5bc15f94c4e4ec4bfb1227d2e4ab2b64",
+      "published_sha256": "86bd04235cdbe673c93552d1c60dadbb5bc15f94c4e4ec4bfb1227d2e4ab2b64",
+      "bytes": 57276
+    },
+    "T1/reports/pocoma-runtime-web-api/surefire-reports/com.kartaguez.pocoma.V3ReadHttpContractTest.txt": {
+      "original_sha256": "60614af23709e41571ccbc55d012fa27adf0cc7c339d51d9c938ef789208ceae",
+      "published_sha256": "60614af23709e41571ccbc55d012fa27adf0cc7c339d51d9c938ef789208ceae",
+      "bytes": 336
+    },
+    "T1/result.json": {
+      "original_sha256": "37c56ce9503675417cdf704c7874da011c1710a52b517a4ba81e3729b1f87763",
+      "published_sha256": "37c56ce9503675417cdf704c7874da011c1710a52b517a4ba81e3729b1f87763",
+      "bytes": 25135
+    },
+    "T1/timings.json": {
+      "original_sha256": "e22e41f6b233dc0862fc87e014e207242c1cbfe2feea12803bde79110a22375f",
+      "published_sha256": "e22e41f6b233dc0862fc87e014e207242c1cbfe2feea12803bde79110a22375f",
+      "bytes": 750
+    },
+    "T1.log": {
+      "original_sha256": "8700d07bbcfa67cc2e0c72b0be84d076b7a91a4d54420db950b0700f4b569d1c",
+      "published_sha256": "8700d07bbcfa67cc2e0c72b0be84d076b7a91a4d54420db950b0700f4b569d1c",
+      "bytes": 695
+    },
+    "campaign.json": {
+      "original_sha256": "981ec9ffbde996ef8bc9f3a97c972d4c8c44b3c49afd50f3de24e0ef569ca875",
+      "published_sha256": "981ec9ffbde996ef8bc9f3a97c972d4c8c44b3c49afd50f3de24e0ef569ca875",
+      "bytes": 30028
+    },
+    "physical/HTTP-i1_910940cefc9b43aab19f2c3a5a24b0f6.json": {
+      "original_sha256": "65754d9d13e625cf850c71eb0fb0ca238721447bc2e1bded33d8cfbf44e6c010",
+      "published_sha256": "65754d9d13e625cf850c71eb0fb0ca238721447bc2e1bded33d8cfbf44e6c010",
+      "bytes": 292
+    },
+    "physical/Q08-memory.json": {
+      "original_sha256": "80b4eb3d242cf286b155724e4e7ebb01d48a71c8b0e807c7459cab1054cbd54a",
+      "published_sha256": "80b4eb3d242cf286b155724e4e7ebb01d48a71c8b0e807c7459cab1054cbd54a",
+      "bytes": 8800
+    },
+    "physical/Q09-jdbc.json": {
+      "original_sha256": "716def701370a7fef419921e234e850f87fa09b3c3b4ddbcc3e6a608febcd1dd",
+      "published_sha256": "716def701370a7fef419921e234e850f87fa09b3c3b4ddbcc3e6a608febcd1dd",
+      "bytes": 15142
+    },
+    "physical/Quota-i1_5822bb2f8fdd42429d7d97268906ad96.json": {
+      "original_sha256": "787c12ed2d39d689e20fb2c017dc31447a5fa47f7ef89901bcb54b30821795c5",
+      "published_sha256": "787c12ed2d39d689e20fb2c017dc31447a5fa47f7ef89901bcb54b30821795c5",
+      "bytes": 2600
+    },
+    "physical/Quota-i1_6dd68557989d4f598493698308a47a6f.json": {
+      "original_sha256": "dc85bad838c42341cbf605b57fcc9d44a0392360403b53e3ca7047d75fb90bc5",
+      "published_sha256": "dc85bad838c42341cbf605b57fcc9d44a0392360403b53e3ca7047d75fb90bc5",
+      "bytes": 12785
+    },
+    "physical/Quota-i1_e3f488e37fb5463285aa861f8b51a400.json": {
+      "original_sha256": "5f25159260356485a50146d7f2216bf2ae4889fc294c96e7ef2a0c92095b2287",
+      "published_sha256": "5f25159260356485a50146d7f2216bf2ae4889fc294c96e7ef2a0c92095b2287",
+      "bytes": 12733
+    }
+  },
+  "redactions": [],
+  "policy": "Only secret/canary values redacted. Outcomes, identities, counters, timings and original hashes retained. Original process artifacts remain at the private source path."
+}

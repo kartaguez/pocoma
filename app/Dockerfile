@@ -5,7 +5,8 @@ ARG RUNTIME_MODULE
 ARG RUNTIME_ARTIFACT
 
 COPY . .
-RUN ./mvnw -pl ${RUNTIME_MODULE} -am package -DskipTests
+RUN case "$RUNTIME_MODULE" in runtime-web-write|runtime-web-read|runtime-worker-process|runtime-worker-materialize|runtime-monolith) ;; *) exit 2;; esac
+RUN ./mvnw -pl "$RUNTIME_MODULE" -am package -DskipTests
 
 FROM eclipse-temurin:21-jre
 WORKDIR /app

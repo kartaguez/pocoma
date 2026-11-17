@@ -1,0 +1,297 @@
+diff --git a/app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/ccr/CommandResultConsumptionChainPostgresTest.java b/app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/ccr/CommandResultConsumptionChainPostgresTest.java
+index e676bad5..ad4a8b70 100644
+--- a/app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/ccr/CommandResultConsumptionChainPostgresTest.java
++++ b/app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/ccr/CommandResultConsumptionChainPostgresTest.java
+@@ -1,14 +1,20 @@
+ package com.kartaguez.pocoma.architecture.ccr;
+ 
+ import static org.junit.jupiter.api.Assertions.*;
++import static org.mockito.Mockito.verify;
+ 
+ import java.sql.Timestamp;
++import java.time.Clock;
+ import java.time.Duration;
+ import java.time.Instant;
++import java.time.ZoneId;
++import java.time.ZoneOffset;
+ import java.util.List;
++import java.util.Optional;
+ import java.util.UUID;
+ import java.util.concurrent.Executors;
+ import java.util.concurrent.TimeUnit;
++import java.util.concurrent.atomic.AtomicReference;
+ 
+ import org.junit.jupiter.api.BeforeEach;
+ import org.junit.jupiter.api.Test;
+@@ -23,11 +29,18 @@ import org.springframework.jdbc.core.JdbcTemplate;
+ import org.springframework.dao.DataIntegrityViolationException;
+ import org.springframework.test.context.DynamicPropertyRegistry;
+ import org.springframework.test.context.DynamicPropertySource;
++import org.springframework.test.context.bean.override.convention.TestBean;
++import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
+ import org.testcontainers.containers.PostgreSQLContainer;
+ 
++import com.kartaguez.pocoma.contracts.command.CommandId;
++import com.kartaguez.pocoma.domain.consumption.claim.Claim;
+ import com.kartaguez.pocoma.domain.consumption.claim.ClaimLease;
+ import com.kartaguez.pocoma.domain.consumption.claim.WorkerId;
++import com.kartaguez.pocoma.domain.consumption.lifecycle.ConsumptionStatus;
++import com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalOutcome;
+ import com.kartaguez.pocoma.domain.consumption.provenance.ConsumptionInput;
++import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
+ import com.kartaguez.pocoma.engine.materialize.commandresult.MaterializeCommandResultService;
+ import com.kartaguez.pocoma.engine.exception.consumption.LostClaimException;
+ import com.kartaguez.pocoma.engine.port.in.consumption.contract.BusinessConsumptionOutcome;
+@@ -37,8 +50,12 @@ import com.kartaguez.pocoma.engine.port.in.consumption.result.AcquireResult;
+ import com.kartaguez.pocoma.engine.port.in.consumption.result.ConsumptionExecutionResult;
+ import com.kartaguez.pocoma.engine.port.in.consumption.usecase.AcquireConsumptionUseCase;
+ import com.kartaguez.pocoma.engine.port.in.consumption.usecase.ExecuteConsumptionUseCase;
++import com.kartaguez.pocoma.engine.port.out.consumption.ConsumptionQueryPort;
++import com.kartaguez.pocoma.engine.read.commandresult.ImmutableCommandResult;
++import com.kartaguez.pocoma.engine.read.commandresult.PublishedCommandResult;
+ import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.command.JdbcCommandResultSource;
+ import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.command.JdbcCommandResultStore;
++import com.kartaguez.pocoma.infra.persistence.primary.jpa.repository.consumption.JpaConsumptionSlotRepository;
+ import com.kartaguez.pocoma.infra.persistence.read.jdbc.ReadStoreAccessAutoConfiguration;
+ import com.kartaguez.pocoma.infra.persistence.read.jdbc.ReadStoreMigrationAutoConfiguration;
+ import com.kartaguez.pocoma.supra.consume.commandresult.CommandResultConsumptionLocator;
+@@ -46,11 +63,14 @@ import com.kartaguez.pocoma.runtime.result.CommandResultRuntimeConfiguration;
+ import com.kartaguez.pocoma.orchestrator.consumption.ConsumptionOrchestrator;
+ import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionOrchestrationInput;
+ import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionOrchestrationBudget;
++import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionOrchestrationCounters;
++import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionOrchestrationResult;
+ 
+ /** CCR: Result publication shares the existing Consumption execution transaction and final fence. */
+ @SpringBootTest(classes = CommandResultConsumptionChainPostgresTest.TestApplication.class, properties = {
+ 		"pocoma.command-result-consumption.enabled=false", "spring.jpa.hibernate.ddl-auto=validate" })
+ class CommandResultConsumptionChainPostgresTest {
++	private static final Instant T0 = Instant.parse("2026-10-15T10:00:00Z");
+ 	private static final PostgreSQLContainer<?> POSTGRES = new PostgreSQLContainer<>("postgres:17-alpine")
+ 			.withDatabaseName("pocoma").withUsername("pocoma").withPassword("pocoma");
+ 	static { POSTGRES.start(); }
+@@ -66,8 +86,17 @@ class CommandResultConsumptionChainPostgresTest {
+ 	@Autowired JdbcCommandResultSource source;
+ 	@Autowired MaterializeCommandResultService materializer;
+ 	@Autowired ConsumptionOrchestrator orchestrator;
++	@Autowired ConsumptionQueryPort consumption;
++	@Autowired JdbcCommandResultStore store;
++	@TestBean(name = "commandResultClock", methodName = "testClock", enforceOverride = true)
++	Clock clock;
++	// Observe the real SQL CAS; no repository behavior is stubbed.
++	@MockitoSpyBean JpaConsumptionSlotRepository slots;
++
++	static Clock testClock() { return new ControlledClock(T0, ZoneOffset.UTC); }
+ 
+ 	@BeforeEach void clean() {
++		((ControlledClock) clock).set(T0);
+ 		jdbc.execute("truncate table command_results, command_terminal_events, command_outcomes, recorded_commands cascade");
+ 		jdbc.execute("truncate table consumption_inputs, consumption_results, consumption_slots, consumption_claims cascade");
+ 	}
+@@ -106,14 +135,80 @@ class CommandResultConsumptionChainPostgresTest {
+ 	@Test void takeoverFencesStaleWorkerAndConvergesToOneResult() {
+ 		Seed seed = seed();
+ 		var stale = claim(seed.eventId());
+-		jdbc.update("update consumption_claims set lease_until=now() where claim_id=?",
+-				stale.claim().claimId().value());
+-		orchestrator.run(input("takeover"));
+-		assertEquals(1L, count("command_results"));
+-		assertEquals("DONE", jdbc.queryForObject("select status from consumption_slots", String.class));
++		expireWhileStillCurrent(stale.claim());
++		var result = assertInstanceOf(ConsumptionOrchestrationResult.Idle.class,
++				orchestrator.run(input("takeover")));
++		assertEquals(new ConsumptionOrchestrationCounters(1, 1), result.counters());
++		var claims = consumption.findClaims(stale.claim().slotId());
++		assertEquals(2, claims.size());
++		Claim winner = claims.get(1);
++		assertTakeover(stale.claim(), winner);
++		assertWinnerFinalized(seed, winner);
++		var slotBeforeReplay = consumption.findSlot(winner.slotId()).orElseThrow();
++		// This replay still checks provenance uniqueness. The separate test below proves the CAS fence.
+ 		assertThrows(DataIntegrityViolationException.class,
+ 				() -> execute.execute(execution(stale, seed, false)));
+-		assertEquals(1L, count("command_results"));
++		assertEquals(claims, consumption.findClaims(winner.slotId()));
++		assertEquals(slotBeforeReplay, consumption.findSlot(winner.slotId()).orElseThrow());
++		assertWinnerFinalized(seed, winner);
++	}
++
++	@Test void expiredClaimCanStillFinalizeBeforeTakeover() {
++		Seed seed = seed();
++		var original = claim(seed.eventId());
++		expireWhileStillCurrent(original.claim());
++		execute.execute(execution(original, seed, false));
++		assertWinnerFinalized(seed, original.claim());
++		assertEquals(1L, count("consumption_claims"));
++		assertInstanceOf(AcquireResult.AlreadyDone.class, acquire.acquire(new AcquireConsumptionInput(
++				CommandResultConsumptionLocator.key(seed.eventId()), new WorkerId("too-late"), lease())));
++	}
++
++	@Test void staleClaimReachesFenceAndRollsBackBeforeWinnerFinalizes() {
++		Seed seed = seed();
++		var stale = claim(seed.eventId());
++		expireWhileStillCurrent(stale.claim());
++		var winner = claim(seed.eventId(), "takeover");
++		assertTakeover(stale.claim(), winner.claim());
++		var slotAfterTakeover = consumption.findSlot(winner.claim().slotId()).orElseThrow();
++		assertEquals(ConsumptionStatus.PENDING, slotAfterTakeover.status());
++		assertEquals(Optional.of(winner.claim().claimId()), slotAfterTakeover.currentClaimId());
++		assertEquals(2L, slotAfterTakeover.revision());
++		assertEquals(winner.claim(), consumption.findClaim(winner.claim().claimId()).orElseThrow());
++		var claimsAfterTakeover = consumption.findClaims(winner.claim().slotId());
++		assertEquals(0L, count("command_results"));
++		assertEquals(0L, count("consumption_inputs"));
++
++		var failure = assertThrows(LostClaimException.class, () -> execute.execute(new ExecuteConsumptionInput(
++				stale.claim().slotId(), stale.claim().claimId(), context -> {
++					// No winner publication or provenance exists yet: the actual INSERT must succeed.
++					materializer.materialize(seed.commandId(), source.reload(seed.eventId()));
++					assertEquals(1L, count("command_results"));
++					assertResultContent(seed);
++					return new ConsumptionExecutionResult(new BusinessConsumptionOutcome.Success(),
++							List.of(new ConsumptionInput(context.slotId(), "COMMAND_TERMINAL_EVENT",
++									seed.eventId().toString(), 1)), List.of());
++				})));
++		assertEquals(stale.claim().slotId(), failure.slotId());
++		assertEquals(stale.claim().claimId(), failure.claimId());
++		verify(slots).terminalize(stale.claim().slotId(), stale.claim().claimId().value(),
++				"SUCCESS", null, clock.instant());
++		assertEquals(0L, count("command_results"));
++		assertEquals(0L, count("consumption_inputs"));
++		assertEquals(0L, count("consumption_results"));
++		assertEquals(slotAfterTakeover, consumption.findSlot(winner.claim().slotId()).orElseThrow());
++		assertEquals(claimsAfterTakeover, consumption.findClaims(winner.claim().slotId()));
++
++		execute.execute(execution(winner, seed, false));
++		verify(slots).terminalize(winner.claim().slotId(), winner.claim().claimId().value(),
++				"SUCCESS", null, clock.instant());
++		assertWinnerFinalized(seed, winner.claim());
++		assertEquals(2L, count("consumption_claims"));
++		var completedSlot = consumption.findSlot(winner.claim().slotId()).orElseThrow();
++		assertInstanceOf(AcquireResult.AlreadyDone.class, acquire.acquire(new AcquireConsumptionInput(
++				CommandResultConsumptionLocator.key(seed.eventId()), new WorkerId("replay"), lease())));
++		assertEquals(completedSlot, consumption.findSlot(winner.claim().slotId()).orElseThrow());
++		assertWinnerFinalized(seed, winner.claim());
+ 	}
+ 
+ 	@Test void twoWorkersRaceWithoutDivergentPublication() throws Exception {
+@@ -130,8 +225,68 @@ class CommandResultConsumptionChainPostgresTest {
+ 	}
+ 
+ 	private AcquireResult.Acquired claim(UUID eventId) {
++		return claim(eventId, "worker");
++	}
++
++	private AcquireResult.Acquired claim(UUID eventId, String worker) {
+ 		return assertInstanceOf(AcquireResult.Acquired.class, acquire.acquire(new AcquireConsumptionInput(
+-				CommandResultConsumptionLocator.key(eventId), new WorkerId("worker"), lease())));
++				CommandResultConsumptionLocator.key(eventId), new WorkerId(worker), lease())));
++	}
++
++	private void expireWhileStillCurrent(Claim claim) {
++		assertEquals(T0, claim.claimedAt());
++		assertEquals(T0.plusSeconds(30), claim.leaseUntil());
++		assertFalse(claim.isLeaseExpiredAt(clock.instant()));
++		assertEquals(claim, consumption.findClaim(claim.claimId()).orElseThrow());
++		((ControlledClock) clock).set(T0.plusSeconds(31));
++		Claim persisted = consumption.findClaim(claim.claimId()).orElseThrow();
++		assertTrue(persisted.isLeaseExpiredAt(clock.instant()));
++		assertTrue(persisted.isOpen());
++		assertEquals(claim, persisted);
++		assertEquals(Optional.of(claim.claimId()),
++				consumption.findSlot(claim.slotId()).orElseThrow().currentClaimId());
++	}
++
++	private void assertTakeover(Claim stale, Claim winner) {
++		assertNotEquals(stale.claimId(), winner.claimId());
++		assertEquals(stale.slotId(), winner.slotId());
++		assertEquals(1, stale.attemptNumber());
++		assertEquals(2, winner.attemptNumber());
++		assertEquals(new WorkerId("takeover"), winner.claimedBy());
++		assertEquals(clock.instant(), winner.claimedAt());
++		assertEquals(clock.instant().plus(lease().duration()), winner.leaseUntil());
++		assertEquals(stale.invalidateForTakeoverAt(clock.instant()),
++				consumption.findClaim(stale.claimId()).orElseThrow());
++		assertEquals(2L, count("consumption_claims"));
++	}
++
++	private void assertWinnerFinalized(Seed seed, Claim winner) {
++		assertEquals(1L, count("consumption_slots"));
++		var slot = consumption.findSlot(winner.slotId()).orElseThrow();
++		assertEquals(ConsumptionStatus.DONE, slot.status());
++		assertEquals(Optional.of(TerminalOutcome.SUCCESS), slot.terminalOutcome());
++		assertEquals(Optional.empty(), slot.terminalReason());
++		assertEquals(Optional.empty(), slot.currentClaimId());
++		assertEquals(Optional.of(clock.instant()), slot.doneAt());
++		assertEquals(winner.attemptNumber() + 1L, slot.revision());
++		assertEquals(Claim.active(winner.claimId(), winner.slotId(), winner.claimedBy(),
++				winner.attemptNumber(), winner.claimedAt(), lease()).succeedAt(clock.instant()),
++				consumption.findClaim(winner.claimId()).orElseThrow());
++		assertEquals(1L, count("command_results"));
++		assertResultContent(seed);
++		assertEquals(List.of(new ConsumptionInput(winner.slotId(), "COMMAND_TERMINAL_EVENT",
++				seed.eventId().toString(), 1)), jdbc.query("""
++			select slot_id, subject_type, subject_id, subject_version from consumption_inputs
++			""", (rs, row) -> new ConsumptionInput(rs.getObject("slot_id", UUID.class),
++					rs.getString("subject_type"), rs.getString("subject_id"), rs.getLong("subject_version"))));
++		assertEquals(0L, count("consumption_results"));
++	}
++
++	private void assertResultContent(Seed seed) {
++		var commandId = new CommandId(seed.commandId());
++		assertEquals(new ImmutableCommandResult(new ExternalIdentity("issuer", "subject"),
++				new PublishedCommandResult.Applied(commandId, seed.potId(), 7, seed.resolvedAt())),
++				store.find(commandId).orElseThrow());
+ 	}
+ 
+ 	private ExecuteConsumptionInput execution(AcquireResult.Acquired acquired, Seed seed, boolean failAfterInsert) {
+@@ -145,22 +300,23 @@ class CommandResultConsumptionChainPostgresTest {
+ 	}
+ 
+ 	private Seed seed() {
+-		UUID commandId = UUID.randomUUID(), eventId = UUID.randomUUID();
+-		Timestamp now = Timestamp.from(Instant.now());
++		UUID commandId = UUID.randomUUID(), eventId = UUID.randomUUID(), potId = UUID.randomUUID();
++		Instant resolvedAt = clock.instant();
++		Timestamp now = Timestamp.from(resolvedAt);
+ 		jdbc.update("""
+ 			insert into recorded_commands(command_id,command_type,payload_json,submitted_at,
+ 			 auth_issuer,auth_subject,binding_id,auth_valid_until,auth_external_authorities_json)
+ 			values (?,'TEST','{}',?,'issuer','subject',?,?, '[]'::jsonb)
+-			""", commandId, now, UUID.randomUUID(), Timestamp.from(Instant.now().plusSeconds(60)));
++			""", commandId, now, UUID.randomUUID(), Timestamp.from(resolvedAt.plusSeconds(60)));
+ 		jdbc.update("""
+ 			insert into command_outcomes(command_id,outcome_type,pot_id,resulting_version,public_code,resolved_at)
+ 			values (?,'APPLIED',?,7,null,?)
+-			""", commandId, UUID.randomUUID(), now);
++			""", commandId, potId, now);
+ 		jdbc.update("""
+ 			insert into command_terminal_events(event_id,event_type,command_id,command_partition_hash,trace_id,recorded_at)
+ 			values (?,'COMMAND_APPLIED',?,0,null,?)
+ 			""", eventId, commandId, now);
+-		return new Seed(commandId, eventId);
++		return new Seed(commandId, eventId, potId, resolvedAt);
+ 	}
+ 
+ 	private static ClaimLease lease() { return new ClaimLease(Duration.ofSeconds(30)); }
+@@ -169,7 +325,19 @@ class CommandResultConsumptionChainPostgresTest {
+ 				new ConsumptionOrchestrationBudget(10, 10));
+ 	}
+ 	private long count(String table) { return jdbc.queryForObject("select count(*) from " + table, Long.class); }
+-	private record Seed(UUID commandId, UUID eventId) {}
++	private record Seed(UUID commandId, UUID eventId, UUID potId, Instant resolvedAt) {}
++
++	private static final class ControlledClock extends Clock {
++		private final AtomicReference<Instant> time;
++		private final ZoneId zone;
++
++		ControlledClock(Instant instant, ZoneId zone) { this(new AtomicReference<>(instant), zone); }
++		private ControlledClock(AtomicReference<Instant> time, ZoneId zone) { this.time = time; this.zone = zone; }
++		void set(Instant instant) { time.set(instant); }
++		@Override public ZoneId getZone() { return zone; }
++		@Override public Clock withZone(ZoneId zone) { return new ControlledClock(time, zone); }
++		@Override public Instant instant() { return time.get(); }
++	}
+ 
+ 	@SpringBootConfiguration
+ 	@EnableAutoConfiguration(exclude = {ReadStoreAccessAutoConfiguration.class,

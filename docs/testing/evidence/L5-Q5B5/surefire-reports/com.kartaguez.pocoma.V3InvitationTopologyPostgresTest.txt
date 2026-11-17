@@ -1,0 +1,13 @@
+-------------------------------------------------------------------------------
+Test set: com.kartaguez.pocoma.V3InvitationTopologyPostgresTest
+-------------------------------------------------------------------------------
+Tests run: 2, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 18.83 s <<< FAILURE! -- in com.kartaguez.pocoma.V3InvitationTopologyPostgresTest
+com.kartaguez.pocoma.V3InvitationTopologyPostgresTest.targetThreeFourPartitionsConnectionsRenewalAndRestart -- Time elapsed: 10.55 s <<< FAILURE!
+org.opentest4j.AssertionFailedError: expected: <PT3M> but was: <PT4M>
+	at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:158)
+	at org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:139)
+	at org.junit.jupiter.api.AssertEquals.failNotEqual(AssertEquals.java:201)
+	at org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:184)
+	at org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:179)
+	at org.junit.jupiter.api.Assertions.assertEquals(Assertions.java:1188)
+	at com.kartaguez.pocoma.V3InvitationTopologyPostgresTest.targetThreeFourPartitionsConnectionsRenewalAndRestart(V3InvitationTopologyPostgresTest.java:90)

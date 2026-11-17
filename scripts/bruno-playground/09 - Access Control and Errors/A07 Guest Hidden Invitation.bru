@@ -1,0 +1,42 @@
+meta {
+  name: A07 Guest Hidden Invitation
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{readUrl}}/api/v3/invitations/by-creation-request/{{invitationRequestId}}
+  body: none
+  auth: none
+}
+
+headers {
+  Connection: close
+}
+
+settings {
+  timeout: 5000
+}
+
+script:pre-request {
+  const options = {"id":"A07","role":"guest","kind":"error","status":404,"requires":["invitationRequestId"]};
+  await require('./lib/workspace.js').prepare(bru, req, options);
+}
+
+tests {
+  const options = {"id":"A07","role":"guest","kind":"error","status":404,"requires":["invitationRequestId"]};
+  const work = require('./lib/workspace.js');
+  test('A07 transport and privacy', () => work.transport(bru, res, expect, options));
+  test('A07 contract and variables', () => {
+    work.verify(bru, req, res, expect, options);
+    work.record(bru, req, res, options);
+  });
+}
+
+docs {
+  Resultat invitation du createur masque au Guest, meme s il dispose d un lien partage.
+  Identite : guest. Prerequis : invitationRequestId.
+  Chaque Send appelle la methode et le corps visibles. Les GET asynchrones attendent
+  le meme endpoint au plus 30 s avant l appel affiche ; aucun POST cache.
+  Modifier le JSON librement ; une nouvelle intention recoit une nouvelle cle.
+}

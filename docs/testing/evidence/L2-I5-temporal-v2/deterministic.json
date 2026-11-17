@@ -1,0 +1,139 @@
+{
+  "command": "./mvnw -pl runtime-command-consumption-worker -am -Dtest=I5TemporalV2Test,V3ConsumptionWorkerTest -Dsurefire.failIfNoSpecifiedTests=false test",
+  "cases": [
+    {
+      "classname": "com.kartaguez.pocoma.orchestrator.poll.consumption.v3.V3ConsumptionWorkerTest",
+      "method": "i5_v2_selector_bound",
+      "seconds": "0.053",
+      "status": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.orchestrator.poll.consumption.v3.V3ConsumptionWorkerTest",
+      "method": "i5_u01",
+      "seconds": "0.007",
+      "status": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.orchestrator.poll.consumption.v3.V3ConsumptionWorkerTest",
+      "method": "i5_u02",
+      "seconds": "0.001",
+      "status": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.orchestrator.poll.consumption.v3.V3ConsumptionWorkerTest",
+      "method": "i5_u03",
+      "seconds": "0.001",
+      "status": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.orchestrator.poll.consumption.v3.V3ConsumptionWorkerTest",
+      "method": "i5_u04",
+      "seconds": "0.037",
+      "status": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.orchestrator.poll.consumption.v3.V3ConsumptionWorkerTest",
+      "method": "i5_u05",
+      "seconds": "0.016",
+      "status": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.orchestrator.poll.consumption.v3.V3ConsumptionWorkerTest",
+      "method": "i5_u06",
+      "seconds": "0.106",
+      "status": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.orchestrator.poll.consumption.v3.V3ConsumptionWorkerTest",
+      "method": "i5_u07",
+      "seconds": "0.042",
+      "status": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.orchestrator.poll.consumption.v3.V3ConsumptionWorkerTest",
+      "method": "i5_u08",
+      "seconds": "0.002",
+      "status": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.orchestrator.poll.consumption.v3.V3ConsumptionWorkerTest",
+      "method": "i5_u09",
+      "seconds": "0.029",
+      "status": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.orchestrator.poll.consumption.v3.V3ConsumptionWorkerTest",
+      "method": "i5_u10",
+      "seconds": "0.008",
+      "status": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.orchestrator.poll.consumption.v3.V3ConsumptionWorkerTest",
+      "method": "i5_u11_discovery_tours",
+      "seconds": "0.012",
+      "status": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.orchestrator.poll.consumption.v3.V3ConsumptionWorkerTest",
+      "method": "i5_u12_discovery_negatives",
+      "seconds": "0.008",
+      "status": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.runtime.command.v3.I5TemporalV2Test",
+      "method": "v2_preconditions",
+      "seconds": "0.017",
+      "status": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.runtime.command.v3.I5TemporalV2Test",
+      "method": "v2_negative_checkers",
+      "seconds": "0.006",
+      "status": "PASS"
+    }
+  ],
+  "buildInvocations": [
+    {
+      "log": "/private/tmp/pocoma-i5-v2-deterministic-final.log",
+      "sha256": "1d55cb923d6c1ecc820a3da38e68117b36056ce922bbebf0c364c161c22b321d",
+      "mavenSeconds": 6.844
+    },
+    {
+      "log": "/private/tmp/pocoma-i5-v2-deterministic-freeze.log",
+      "sha256": "dc2db892bb45837595d7d3cdfa8535c57ca9a1041cb6739ba07fa9ad691152d3",
+      "mavenSeconds": 6.887
+    },
+    {
+      "log": "/private/tmp/pocoma-i5-v2-deterministic-frozen.log",
+      "sha256": "fc69e0998f3698497b5f5384c6fcdfbff1596573894257b6db95cf73b9b34ee9",
+      "mavenSeconds": 7.201
+    },
+    {
+      "log": "/private/tmp/pocoma-i5-v2-deterministic-last.log",
+      "sha256": "783b93c359741c9bc789217da402c9f75139a655acbd2008fbe479bb59166c28",
+      "mavenSeconds": 6.831
+    },
+    {
+      "log": "/private/tmp/pocoma-i5-v2-deterministic-prefreeze.log",
+      "sha256": "e50ff674a4b0fbb16f7a9c5f1932be7541015873bb26d0ea319b22493b654117",
+      "mavenSeconds": 6.672
+    },
+    {
+      "log": "/private/tmp/pocoma-i5-v2-deterministic.log",
+      "sha256": "89218ba91c559e0cbba02505c6c0b83ddbb3c96b001a55079358fc78bbda4e8d",
+      "mavenSeconds": 7.189
+    }
+  ],
+  "totalMavenSeconds": 41.624,
+  "inputs": {
+    "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/I5TemporalV2Postgres.java": "e017df9fff758e3316fbaf89edf9a0e6a1b7c14a364ae50278baab1caabc3ab0",
+    "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/I5TemporalV2Test.java": "48ef57cc48fc9be99535186eb1be8ff6df72fd90a1474777cce9d8a0e83d25a3",
+    "app/orchestrator-poll-consumption/src/test/java/com/kartaguez/pocoma/orchestrator/poll/consumption/v3/V3ConsumptionWorkerTest.java": "9c21610f5aace9a6c4e890969cc864b74727ffabfa3f4ad04e2d76ed115c09a2",
+    "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/V3WorkerResourcesPostgresTest.java": "543fc3248e4a397c55aa3ef2e2d2c37719eea09158fc19b9c6c88af49868d968",
+    "docs/testing/evidence/L2-I5-temporal-v2/temporal-contract-v2.properties": "b37ccf05c97813ad135b25643c78bad8a1d0893db75eaf3ed9e9778edc82d478"
+  },
+  "xml": {
+    "app/orchestrator-poll-consumption/target/surefire-reports/TEST-com.kartaguez.pocoma.orchestrator.poll.consumption.v3.V3ConsumptionWorkerTest.xml": "3f563b418142c157f19021ab11cd5f7bb0900ff92f0f5c59bce4d94eb9d9b174",
+    "app/runtime-command-consumption-worker/target/surefire-reports/TEST-com.kartaguez.pocoma.runtime.command.v3.I5TemporalV2Test.xml": "f992f8c983bf4f732188e2fa5d0be32a236adc0afb3b3c10c1dca445016a7ff0"
+  }
+}

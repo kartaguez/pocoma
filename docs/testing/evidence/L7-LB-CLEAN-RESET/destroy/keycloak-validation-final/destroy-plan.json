@@ -1,0 +1,31 @@
+{
+  "state": "DESTROY_PLAN",
+  "exit": 0,
+  "instance": "keycloak-validation-final",
+  "owner": "8dcc274e-1d11-4afd-95cf-8974bfa6c3f9",
+  "project": "pocoma-lb-keycloak-validation-final-8dcc274e",
+  "volume": "pocoma-lb-keycloak-validation-final-8dcc274e-data",
+  "network": "pocoma-lb-keycloak-validation-final-8dcc274e_default",
+  "services": [
+    "http-write",
+    "http-read",
+    "command-worker",
+    "results-worker",
+    "business-read-worker",
+    "postgres",
+    "keycloak",
+    "prometheus"
+  ],
+  "persistentDataLost": [
+    "PostgreSQL WRITE/READ and Keycloak database in owned volume",
+    "Generated credentials, configuration, demo and canary checkpoints"
+  ],
+  "retained": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/keycloak-validation-final/runs",
+  "operations": [
+    "Verify manifest/UUID/resource ownership",
+    "Gracefully stop this instance",
+    "Compose down --volumes for this project only",
+    "Remove generated instance files; retain lock and diagnostic runs"
+  ],
+  "command": "./pocoma-local destroy --instance keycloak-validation-final --confirm DESTROY:keycloak-validation-final"
+}

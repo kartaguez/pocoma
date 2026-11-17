@@ -1,0 +1,8 @@
+rate,admission_server_ms,write_queue_wait_ms,write_prepare_ms,write_finalize_ms,read_discovery_ms,read_proj_prepare_ms,read_proj_finalize_ms,read_propagation_lag_ms
+1.0,3.29,108.87,2.23,9.83,inf,4.13,3.39,0.0
+1.0,2.08,109.12,2.07,8.67,inf,6.67,5.69,1035.8
+1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+5.0,1.64,101.29,1.55,6.91,inf,8.32,8.69,0.0
+10.0,1.63,103.94,1.39,6.02,inf,12.66,12.08,0.0
+20.0,1.71,104.62,1.7,7.27,inf,19.85,13.36,0.0
+50.0,1.39,104.59,1.63,5.53,inf,5.27,4.37,0.0

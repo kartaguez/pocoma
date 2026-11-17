@@ -1,0 +1,1070 @@
+{
+  "format_version": 1,
+  "lot": "L4/I1",
+  "verdict": "IMPLEMENTED — LOCAL BOUNDED PASS",
+  "initial_sha": "4028f2fa9f053e75dd60bb0ccefd091014a4fb9d",
+  "tested_head": "4028f2fa9f053e75dd60bb0ccefd091014a4fb9d",
+  "tested_worktree": "dirty; exact before/after hashes in each provenance.json",
+  "owner_correction_commit": "9e8c18a9830fa151808f6aef8a96ae978a199c87",
+  "final_application_commit": "533c14746b61395691845edf19f40e5444f9edd9",
+  "delivery_commit_locator": "git log -1 --format=%H -- docs/v3/L4_I1_Proof_Manifest.json",
+  "branch": "feat/v3-architecture",
+  "app_blobs_match_all_tested_inputs": true,
+  "matched_app_inputs": 1282,
+  "verification": {
+    "initial_primary": "PROJECTION",
+    "revised_slices": [
+      "PROJECTION",
+      "COMMAND"
+    ],
+    "unexpected_crossing": "infra-tx-spring: indispensable late poisoning guard, proven by the real L2/PostgreSQL failing oracle",
+    "global_architecture": "REQUIRED; unfiltered execution",
+    "full_reactor": "NOT REQUIRED / NOT RUN; bounded V3 Units, affected consumers explicitly covered",
+    "database": "CURRENT V3 fresh + populated L2 extension; transitive historical migration runs retained in canonical gates",
+    "trusted_baseline": "NONE"
+  },
+  "campaigns": [
+    {
+      "name": "targeted",
+      "invocation_id": "bc033ccb299f41e2aec0411aacf208b7",
+      "verdict": "PASS",
+      "counts": {
+        "tests": 37,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "expected_invocations": 37,
+      "command": [
+        "./mvnw",
+        "--batch-mode",
+        "--no-transfer-progress",
+        "-pl",
+        "runtime-task-consumption-worker",
+        "-am",
+        "-Dtest=com.kartaguez.pocoma.domain.projection.v3.SubobjectVersionTest,com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.SubobjectJsonTest,com.kartaguez.pocoma.runtime.task.v3.SubobjectAtomicityPostgresTest,com.kartaguez.pocoma.runtime.task.v3.SubobjectMigrationPostgresTest,com.kartaguez.pocoma.runtime.task.v3.SubobjectStorePostgresTest",
+        "-Dsurefire.failIfNoSpecifiedTests=false",
+        "-Dpocoma.verification.id=bc033ccb299f41e2aec0411aacf208b7",
+        "-Dpocoma.verification.reports=/tmp/l4-i1-evidence-targeted-owner-fixed/reports",
+        "test"
+      ],
+      "seconds": 20.793712,
+      "raw_sha256": "ac5f503091147223af99305ea03acfb14cf07ad7ff5ab565de1e28671cc29b22",
+      "result": "docs/testing/evidence/L4-I1/targeted/result.json",
+      "source_provenance": "docs/testing/evidence/L4-I1/targeted/provenance.json",
+      "filtered": true,
+      "reviewed_source_aliases": {}
+    },
+    {
+      "name": "foundation",
+      "invocation_id": "e3ea8ce8a578468f804eb93ca3301c58",
+      "verdict": "PASS",
+      "counts": {
+        "tests": 29,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "expected_invocations": 29,
+      "command": [
+        "./mvnw",
+        "--batch-mode",
+        "--no-transfer-progress",
+        "-pl",
+        "infra-tx-spring",
+        "-am",
+        "-Dtest=com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunnerTest,com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest,com.kartaguez.pocoma.infra.tx.spring.v3.V3FoundationCompositionTest,com.kartaguez.pocoma.infra.tx.spring.v3.V3HistoricalIntervalPostgresTest,com.kartaguez.pocoma.infra.tx.spring.v3.V3SchemaIsolationPostgresTest,com.kartaguez.pocoma.infra.tx.spring.v3.V3TransactionFoundationPostgresTest",
+        "-Dsurefire.failIfNoSpecifiedTests=false",
+        "-Dpocoma.verification.id=e3ea8ce8a578468f804eb93ca3301c58",
+        "-Dpocoma.verification.reports=/private/tmp/l4-i1-foundation-owner-fixed/reports",
+        "test"
+      ],
+      "seconds": 11.362606,
+      "raw_sha256": "5cdf2230e44c250737545fb7c2cbadc82bfefa48e7e102e1ab25befd1d443e2e",
+      "result": "docs/testing/evidence/L4-I1/foundation/result.json",
+      "source_provenance": "docs/testing/evidence/L4-I1/foundation/provenance.json",
+      "filtered": true,
+      "reviewed_source_aliases": {}
+    },
+    {
+      "name": "projection-command",
+      "invocation_id": "d8eade5a0ea24492b2fbbdcce0efc6b1",
+      "verdict": "PASS",
+      "counts": {
+        "tests": 1833,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "expected_invocations": 1833,
+      "command": [
+        "./mvnw",
+        "--batch-mode",
+        "--no-transfer-progress",
+        "-pl",
+        "runtime-task-consumption-worker,runtime-command-consumption-worker",
+        "-am",
+        "-Dstep3b.measure=true",
+        "-Dpocoma.verification.id=d8eade5a0ea24492b2fbbdcce0efc6b1",
+        "-Dpocoma.verification.reports=/tmp/l4-i1-evidence-projection-command-owner-fixed/reports",
+        "test"
+      ],
+      "seconds": 3060.575769,
+      "raw_sha256": "bbd931fd08c7c6ba34b69c49b06d2daece9ebdc28e08f747f5f1df32180cac3c",
+      "result": "docs/testing/evidence/L4-I1/projection-command/result.json",
+      "source_provenance": "docs/testing/evidence/L4-I1/projection-command/provenance.json",
+      "filtered": false,
+      "reviewed_source_aliases": {
+        "com.kartaguez.pocoma.runtime.command.consumption.sequencing.CurrentTransactionManagerPostgresTest": "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/consumption/sequencing/JpaTerminalSequencingPostgresTest.java"
+      }
+    },
+    {
+      "name": "architecture",
+      "invocation_id": "5779c9b92c5b45ae877ff1367625b7ea",
+      "verdict": "PASS",
+      "counts": {
+        "tests": 2096,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "expected_invocations": 2096,
+      "command": [
+        "./mvnw",
+        "--batch-mode",
+        "--no-transfer-progress",
+        "-pl",
+        "architecture-tests",
+        "-am",
+        "-Dstep3b.measure=true",
+        "-Dpocoma.verification.id=5779c9b92c5b45ae877ff1367625b7ea",
+        "-Dpocoma.verification.reports=/tmp/l4-i1-evidence-architecture-clean/reports",
+        "test"
+      ],
+      "seconds": 3237.730606,
+      "raw_sha256": "ba0b30d6c39d87cb7f560d6f39055d201728d048c1bbfb260c423eb7b94dbb5a",
+      "result": "docs/testing/evidence/L4-I1/architecture/result.json",
+      "source_provenance": "docs/testing/evidence/L4-I1/architecture/provenance.json",
+      "filtered": false,
+      "reviewed_source_aliases": {
+        "com.kartaguez.pocoma.runtime.command.consumption.sequencing.CurrentTransactionManagerPostgresTest": "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/consumption/sequencing/JpaTerminalSequencingPostgresTest.java"
+      }
+    }
+  ],
+  "implementation_files": {
+    "tested_head": "4028f2fa9f053e75dd60bb0ccefd091014a4fb9d",
+    "tested_worktree": "dirty; precise input hashes in each provenance.json",
+    "files": [
+      {
+        "path": "app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/HexagonalArchitectureTest.java",
+        "bytes": 71887,
+        "sha256": "d8ae93f9bfaef314387eb4d6db1a0c07c9c7371cf5dfbc379f2d4f527d0c1dc9"
+      },
+      {
+        "path": "app/domain-projection/pom.xml",
+        "bytes": 805,
+        "sha256": "5314cc19593cc512d1b396be11987d9ab2b7f5e5e7af2ce459a4ae8531237cca"
+      },
+      {
+        "path": "app/domain-projection/src/main/java/com/kartaguez/pocoma/domain/projection/v3/SubobjectContent.java",
+        "bytes": 3338,
+        "sha256": "22d020a251593c1fcc48a6cf7bd8f100b010ff9cefadb78bd90d275478e46ae3"
+      },
+      {
+        "path": "app/domain-projection/src/main/java/com/kartaguez/pocoma/domain/projection/v3/SubobjectKey.java",
+        "bytes": 1376,
+        "sha256": "6706f51e030fcc35d03628a881bb357f2171be441fadb4e77241f10a8c0c4188"
+      },
+      {
+        "path": "app/domain-projection/src/main/java/com/kartaguez/pocoma/domain/projection/v3/SubobjectKind.java",
+        "bytes": 448,
+        "sha256": "475e86eb341cd600ede2b9346c476fbde12aaa5a968a3549697bf0391182c0ff"
+      },
+      {
+        "path": "app/domain-projection/src/main/java/com/kartaguez/pocoma/domain/projection/v3/SubobjectVersion.java",
+        "bytes": 588,
+        "sha256": "33f3d631ac0d455aea3160f83bebaa3f628cae515423ba66b410e8f6134c0c49"
+      },
+      {
+        "path": "app/domain-projection/src/test/java/com/kartaguez/pocoma/domain/projection/v3/SubobjectVersionTest.java",
+        "bytes": 7299,
+        "sha256": "0f40a6cd7ea69887e3185b3bc5f84de47228f797c4db635b5b4428314de5bbd8"
+      },
+      {
+        "path": "app/infra-persistence-read-jdbc/pom.xml",
+        "bytes": 2505,
+        "sha256": "bfb137c1a7e7354d8e92ab75326b08877649b7989c03445d8d792c06e7a49d79"
+      },
+      {
+        "path": "app/infra-persistence-read-jdbc/src/main/java/com/kartaguez/pocoma/infra/persistence/read/jdbc/v3/JdbcSubobjectVersionStore.java",
+        "bytes": 6456,
+        "sha256": "1d49ed62145e908728208e23ba8eb9f617a689e1471b91028e1d50c29f6a18cd"
+      },
+      {
+        "path": "app/infra-persistence-read-jdbc/src/main/java/com/kartaguez/pocoma/infra/persistence/read/jdbc/v3/SubobjectJson.java",
+        "bytes": 8695,
+        "sha256": "19a01c130e260eefef7c6d3d5f1850f9913982d79b33cdbc16a3ea6bd937c443"
+      },
+      {
+        "path": "app/infra-persistence-read-jdbc/src/main/resources/db/v3-read-business/migration/V2__subobject_version.sql",
+        "bytes": 5342,
+        "sha256": "43f85ccb97e2895cf769f6f091330c09c23496d982266dba9702473f4ca0811a"
+      },
+      {
+        "path": "app/infra-persistence-read-jdbc/src/test/java/com/kartaguez/pocoma/infra/persistence/read/jdbc/v3/SubobjectJsonTest.java",
+        "bytes": 5880,
+        "sha256": "a25cfcb5d0d878d0c622575bb9e42d22879fec972878c596e913ce3fd23d18d8"
+      },
+      {
+        "path": "app/infra-tx-spring/src/main/java/com/kartaguez/pocoma/infra/tx/spring/v3/SpringAttemptTransactions.java",
+        "bytes": 20331,
+        "sha256": "9e8c864d628d2b2bb944bf2c57765f5e1ae504b66bf709c8211fe04685a38f84"
+      },
+      {
+        "path": "app/infra-tx-spring/src/test/java/com/kartaguez/pocoma/infra/tx/spring/v3/AttemptTransactionsPostgresTest.java",
+        "bytes": 33609,
+        "sha256": "d69f13a87f47791a82026872b0e4d4113e2dd0d8e362f60c19e71ad85094f63c"
+      },
+      {
+        "path": "app/port-projection/pom.xml",
+        "bytes": 907,
+        "sha256": "6e27947a565a1699cb390892d283df04b79ca10be345d492c736a1e03a3190cc"
+      },
+      {
+        "path": "app/port-projection/src/main/java/com/kartaguez/pocoma/port/projection/v3/CorruptSubobjectException.java",
+        "bytes": 352,
+        "sha256": "0b2125df89c243b42c4aa32431b621c088032a05984edf11d7e160708163738a"
+      },
+      {
+        "path": "app/port-projection/src/main/java/com/kartaguez/pocoma/port/projection/v3/SubobjectConflictException.java",
+        "bytes": 356,
+        "sha256": "6e334cd74c94679c43829b3f8b2c5a8b22dc7c7dfc9cd31416bb5c8e803d1ae0"
+      },
+      {
+        "path": "app/port-projection/src/main/java/com/kartaguez/pocoma/port/projection/v3/SubobjectVersionStore.java",
+        "bytes": 590,
+        "sha256": "759896bd2e74c5a1ac6b9ba0a56cfa435281ae274950d21a29c14fc1f2b548d9"
+      },
+      {
+        "path": "app/runtime-task-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/task/v3/CommitAcknowledgementProxy.java",
+        "bytes": 5333,
+        "sha256": "038b99cd17f3fd030d894e7878c4ba072e70d6a60431f7d2491bef9ff40375d7"
+      },
+      {
+        "path": "app/runtime-task-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/task/v3/SubobjectAtomicityPostgresTest.java",
+        "bytes": 25002,
+        "sha256": "abc8e101b1b2158c06e4e2545eaec34443ee14f5f5db4bad0db0da33b4182f13"
+      },
+      {
+        "path": "app/runtime-task-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/task/v3/SubobjectMigrationPostgresTest.java",
+        "bytes": 15713,
+        "sha256": "3efe36f2ad3987a79f0b9747dd611b52e9ee3d9724cf93d92fec127f98e333dd"
+      },
+      {
+        "path": "app/runtime-task-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/task/v3/SubobjectPostgresFixture.java",
+        "bytes": 20595,
+        "sha256": "87b49933112ba6aca96ad0bff8ed19ccd9ec5babebbb7c28856858f4e3f0bb7c"
+      },
+      {
+        "path": "app/runtime-task-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/task/v3/SubobjectStorePostgresTest.java",
+        "bytes": 13170,
+        "sha256": "9c2e805efeb9a668a9dce876487fc74adcb715d28fcb091e2fb1478f7a85746b"
+      }
+    ],
+    "count": 23
+  },
+  "l2_input_comparison": {
+    "reference_sha": "4028f2fa9f053e75dd60bb0ccefd091014a4fb9d",
+    "files": [
+      {
+        "path": "app/engine-consumption/src/main/java/com/kartaguez/pocoma/engine/consumption/v3/ConsumptionEngine.java",
+        "base_sha256": "64f45dc31c226860eb0387d366da7ba43f4586323d4b81423d0f33b60c4b5848",
+        "delivered_sha256": "64f45dc31c226860eb0387d366da7ba43f4586323d4b81423d0f33b60c4b5848",
+        "unchanged": true
+      },
+      {
+        "path": "app/engine-consumption/src/main/java/com/kartaguez/pocoma/engine/consumption/v3/ConsumptionParticipant.java",
+        "base_sha256": "b44e5c90f0f263b68cf8ddcfe5374d58fa654c498c069b21672bda0716f03ea3",
+        "delivered_sha256": "b44e5c90f0f263b68cf8ddcfe5374d58fa654c498c069b21672bda0716f03ea3",
+        "unchanged": true
+      },
+      {
+        "path": "app/engine-consumption/src/main/java/com/kartaguez/pocoma/engine/consumption/v3/SlotCompletion.java",
+        "base_sha256": "ea6116e1fd335b324d1b15bd90482d497d43ca1bba74471f414e3b8affbcc881",
+        "delivered_sha256": "ea6116e1fd335b324d1b15bd90482d497d43ca1bba74471f414e3b8affbcc881",
+        "unchanged": true
+      },
+      {
+        "path": "app/port-transaction/src/main/java/com/kartaguez/pocoma/port/transaction/v3/AttemptTransactions.java",
+        "base_sha256": "ef903b754c881b29a1523ba5540d3242d71c0b4a1fc7b53610ad1ebc1fe3f02a",
+        "delivered_sha256": "ef903b754c881b29a1523ba5540d3242d71c0b4a1fc7b53610ad1ebc1fe3f02a",
+        "unchanged": true
+      },
+      {
+        "path": "app/port-transaction/src/main/java/com/kartaguez/pocoma/port/transaction/v3/RecoveryReadContext.java",
+        "base_sha256": "dfe30aca23bb4021fa0b800861e24e952a2e69c513f5a64bd6b9e0b03433692b",
+        "delivered_sha256": "dfe30aca23bb4021fa0b800861e24e952a2e69c513f5a64bd6b9e0b03433692b",
+        "unchanged": true
+      },
+      {
+        "path": "app/infra-tx-spring/src/main/java/com/kartaguez/pocoma/infra/tx/spring/v3/SpringAttemptTransactions.java",
+        "base_sha256": "3ff26ac72df478387699a8a051e5b3683ce0be531fad0254318a46df4ad58a46",
+        "delivered_sha256": "9e8c864d628d2b2bb944bf2c57765f5e1ae504b66bf709c8211fe04685a38f84",
+        "unchanged": false
+      },
+      {
+        "path": "app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/consumption/JdbcConsumptionSlotStore.java",
+        "base_sha256": "168987dc0dbf9b34a68b1341c66ed2c9e1a785d8e11fb34e18d89fafd1d9ebf6",
+        "delivered_sha256": "168987dc0dbf9b34a68b1341c66ed2c9e1a785d8e11fb34e18d89fafd1d9ebf6",
+        "unchanged": true
+      },
+      {
+        "path": "app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/consumption/JdbcPartitionOwnershipStore.java",
+        "base_sha256": "6a864445cfbd57cd139aa04a05fd3cca01e8a12dd771308d4095ef61c32511fa",
+        "delivered_sha256": "6a864445cfbd57cd139aa04a05fd3cca01e8a12dd771308d4095ef61c32511fa",
+        "unchanged": true
+      },
+      {
+        "path": "app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/consumption/v3/dev/V3TechnicalReadParticipant.java",
+        "base_sha256": "7dc3fae795dc3cb49679d7cbfb7e45334df8021c4e640922805ece1e8272cc82",
+        "delivered_sha256": "7dc3fae795dc3cb49679d7cbfb7e45334df8021c4e640922805ece1e8272cc82",
+        "unchanged": true
+      },
+      {
+        "path": "app/infra-persistence-read-jdbc/src/main/resources/db/v3-consumption-read/migration/V1__consumption_foundation.sql",
+        "base_sha256": "3579a121b1360273477e18c7d0d5d5ef080124a389c2939cdb22dfb77cc74e19",
+        "delivered_sha256": "3579a121b1360273477e18c7d0d5d5ef080124a389c2939cdb22dfb77cc74e19",
+        "unchanged": true
+      },
+      {
+        "path": "scripts/v3/bootstrap-l2-routing.sql",
+        "base_sha256": "a1c20559057fc02ed947792a463f9e19a5698508e5c913874f620dbde9716d3f",
+        "delivered_sha256": "a1c20559057fc02ed947792a463f9e19a5698508e5c913874f620dbde9716d3f",
+        "unchanged": true
+      },
+      {
+        "path": "scripts/v3/grant-l2-lifecycle.sql",
+        "base_sha256": "48915676f8464b3397fa1d020c2b9f8d3b5cb4dbf630cb4176b6f1f1fdff2647",
+        "delivered_sha256": "48915676f8464b3397fa1d020c2b9f8d3b5cb4dbf630cb4176b6f1f1fdff2647",
+        "unchanged": true
+      },
+      {
+        "path": "scripts/v3/grant-l2-discovery.sql",
+        "base_sha256": "27e3207620bdaf018c4e8442031cd5c25c0a83a8797c1116d84e3234824cd2ff",
+        "delivered_sha256": "27e3207620bdaf018c4e8442031cd5c25c0a83a8797c1116d84e3234824cd2ff",
+        "unchanged": true
+      }
+    ],
+    "unchanged_count": 12,
+    "changed_reason": "SpringAttemptTransactions: indispensable late poisoning guard, actual L2/PG counterexample archived."
+  },
+  "physical_index": "docs/testing/evidence/L4-I1/Physical_Index.json",
+  "preserved_nonpass_evidence": [
+    "docs/testing/evidence/L4-I1/owner-defect-before-fix/result.json",
+    "docs/testing/evidence/L4-I1/architecture-preflight-refusal/result.json",
+    "docs/testing/evidence/L4-I1/projection-interrupted.tar.gz"
+  ],
+  "limits": [
+    "Independent code/evidence audit and final human I1 closure remain pending.",
+    "No I2 preparation/recovery extension, I3-I8 business materialization/activation, HTTP, runtime rationalization or L5/L6.",
+    "No global PRJ/READ/SEC/OPS/PERF or production certificate.",
+    "Historical L2/L3 reserves remain unchanged."
+  ],
+  "artifacts": [
+    {
+      "path": "docs/testing/evidence/L4-I1/Implementation_Files.json",
+      "bytes": 5554,
+      "sha256": "36425ddf8fe7775d0a05d871b4eb5e62f1b97be1a0cbb00974d5453b20c6d9c4"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/L2_Input_Comparison.json",
+      "bytes": 4567,
+      "sha256": "bc1d1c938bc9c0bf102143cd4afaf810a8e1fd9daf863cbb8c7169bebf37f984"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/Physical_Index.json",
+      "bytes": 30977,
+      "sha256": "5d1b09f2b654a4320fbbd95115e834656197cf868325e751857f400e82b6801b"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/README.md",
+      "bytes": 5024,
+      "sha256": "e05c3e278fa045d7214ffe8abf4a3c1d1e327b66812878ce57b4a89a26be9abc"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/Workspace_Equivalence.json",
+      "bytes": 457,
+      "sha256": "5fb942dcdea9398bf7d3bf72ee64e54e9ed75ea95dd4739c66c85470de306095"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/architecture/Archive_Members.json",
+      "bytes": 416875,
+      "sha256": "c1b477c15de9971c6122216be6044949289d59b023b431bd06c2da99b0738265"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/architecture/Integrity_Check.json",
+      "bytes": 502,
+      "sha256": "1fedb67bd5b9a2c7194a5354bfff8de7595bfac12e9bf902408d27d96d94907f"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/architecture/plan.json",
+      "bytes": 185655,
+      "sha256": "438fb429a1355214fdb9a0dfb119ff1236a38132b795a6e15c04f08a74cfc2bc"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/architecture/provenance.json",
+      "bytes": 247088,
+      "sha256": "19373a72c96801ad72d195672efa65465cf2df8f26bd0548107122953b23539f"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/architecture/raw.tar.gz",
+      "bytes": 36403484,
+      "sha256": "ba0b30d6c39d87cb7f560d6f39055d201728d048c1bbfb260c423eb7b94dbb5a"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/architecture/result.json",
+      "bytes": 860073,
+      "sha256": "9ac3798d74da14e4232c01d1a32aa4252c2cf6a7496983ff0e5b8bd2baa5f156"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/architecture-preflight-refusal/discovery.log.txt",
+      "bytes": 10730,
+      "sha256": "626bf9d96915f9a4e518fdf46f36c67f05fdca7f0884928a8fbdae4d52d2327f"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/architecture-preflight-refusal/effective-model.tar.gz",
+      "bytes": 1189206,
+      "sha256": "3ac9852c691d673fc6ab05a4f7e6616464905883e3faaa7a56cfb09d2cbaf76b"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/architecture-preflight-refusal/result.json",
+      "bytes": 670,
+      "sha256": "9063b3e4a3301176584d9b92e4c12820066de7def8ecf24f95a43cf467635320"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/architecture-stale-bytecode-failure/Archive_Members.json",
+      "bytes": 321920,
+      "sha256": "cbdf5f95566f19fc959b703b07ec0268f9ab51e1a24df7adb34d8a6ba33b835b"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/architecture-stale-bytecode-failure/Integrity_Check.json",
+      "bytes": 671,
+      "sha256": "03eab1232a2714f40490288361be73e5117469c78c6eeb6fba605f4150a7813b"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/architecture-stale-bytecode-failure/plan.json",
+      "bytes": 185507,
+      "sha256": "08c56334164845c73671adf3ae0c198cbceeb2d1f073111a1ba843d756a4653e"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/architecture-stale-bytecode-failure/provenance.json",
+      "bytes": 247252,
+      "sha256": "4c7d3afd702030700abe9ac6df3fd5d144fac6c3abbc6ddf95039276fb1688b5"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/architecture-stale-bytecode-failure/raw.tar.gz",
+      "bytes": 35391757,
+      "sha256": "c0373a7459f98a9c959b33736b059977768cdc22daee40c0b6f8f038d158e09b"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/architecture-stale-bytecode-failure/result.json",
+      "bytes": 732228,
+      "sha256": "a7f8306b42d957c35ec1e75424b20d1911c8634725bf2f4e632c67bd96685113"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/development-h2-probe/LateProbe.java.txt",
+      "bytes": 1624,
+      "sha256": "524cd0498ef10a8a864924f01279bc0dc5f83893c5a6267085c51207fd0518ae"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/development-h2-probe/output.txt",
+      "bytes": 170,
+      "sha256": "e5abadc5ab61f9b25515f5635fc9329e9291cc1bac306a5f44e27abdcfbba97e"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/development-logs.tar.gz",
+      "bytes": 70608,
+      "sha256": "7ffe8ef4d39261ff0a5a4c42cf7d45ee4e22856f6ed8c413d4844f058ba1c079"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/development-projection-before-owner-fix/Archive_Members.json",
+      "bytes": 336203,
+      "sha256": "2c1d37c335a10024d7a12112a61f450475300b25f53e5679671cb24593bc579d"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/development-projection-before-owner-fix/Integrity_Check.json",
+      "bytes": 457,
+      "sha256": "156c0610d34555da89b926470cf5f800ff2b4b4a856d80370d2f0fe3789a839d"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/development-projection-before-owner-fix/plan.json",
+      "bytes": 129358,
+      "sha256": "f16d8198bfcc56110262257445695f01e7fca9736b30230b441c096f05929811"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/development-projection-before-owner-fix/provenance.json",
+      "bytes": 246703,
+      "sha256": "01cd4ab879105bb9158fc03b5e2ef75defe401d953dd14cf8089eae63664b28f"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/development-projection-before-owner-fix/raw.tar.gz",
+      "bytes": 35103390,
+      "sha256": "9400256d28c30731167946d1dae8c4df32a05088b95cd7aa37b4f70fca3a25f3"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/development-projection-before-owner-fix/result.json",
+      "bytes": 638028,
+      "sha256": "6cb073a3e6d26d077f32b2a1aff9b9c42bc7c35231eb75487c17f9fe515869dd"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/development-targeted-before-hardening/Archive_Members.json",
+      "bytes": 20052,
+      "sha256": "70e7ea98b1ea89063f83de730ce8ed2da252c6c80f6246cbc536f4c0be888c88"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/development-targeted-before-hardening/plan.json",
+      "bytes": 9483,
+      "sha256": "969f5108b96e47f7110b27afa042716b421527e80cfeca3fc3386b1e2c76ad14"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/development-targeted-before-hardening/provenance.json",
+      "bytes": 246293,
+      "sha256": "984cf0448182a3fdda43ee5b139ed0e430fdf2f7d1b1188be8a7544d67337891"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/development-targeted-before-hardening/raw.tar.gz",
+      "bytes": 1058191,
+      "sha256": "a8aa3e0178315498175c3ac846c837cf38da237bfd3e9e6bda2f2c6fe20a61cc"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/development-targeted-before-hardening/result.json",
+      "bytes": 49328,
+      "sha256": "2774b7cb121f4dd0961c3e022c97034e62a4e362df9bd387678293aa0a387076"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/development-targeted-before-owner-fix/Archive_Members.json",
+      "bytes": 20377,
+      "sha256": "dca255b374e38de35811f554dfee1ca46d1f9b2b542688a2d507fe7fccc474a3"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/development-targeted-before-owner-fix/Integrity_Check.json",
+      "bytes": 449,
+      "sha256": "751360247415719c13eb47b9bee33af39d9aa1d5f7e99ca4afd4ceb5dbc495eb"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/development-targeted-before-owner-fix/plan.json",
+      "bytes": 9495,
+      "sha256": "e74ccb80d1cb9dd9bf6c7ff124c58710a921992ff7177c2b2d67ed3ec93bd838"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/development-targeted-before-owner-fix/provenance.json",
+      "bytes": 246370,
+      "sha256": "7cf505dd71b6941fd2c29509d03e8ad73e73be40f82e2d2fd0bf5744f89800a3"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/development-targeted-before-owner-fix/raw.tar.gz",
+      "bytes": 1058936,
+      "sha256": "e2093d713091bd0865f6c8963c78e9c835afa25747895de6fccf9c80c8472da8"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/development-targeted-before-owner-fix/result.json",
+      "bytes": 49628,
+      "sha256": "165e2fcf357441a33968763cf4e9ef9e86080ac7cabf3b9e9f0536172f19cfe0"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/foundation/Archive_Members.json",
+      "bytes": 3232,
+      "sha256": "bde22375d2584bf9aa892b663a68e25be9307d8329f24655c14ec834b5e5bd76"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/foundation/Integrity_Check.json",
+      "bytes": 449,
+      "sha256": "d855cb9a4f5e113877b2316162ac574a2927d691fab5955d8436c4d75df67c1a"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/foundation/plan.json",
+      "bytes": 51035,
+      "sha256": "0c7fc0f2c5f9127d187c7bc650ff0b6cfc042fa52b72fca64c3b170aa087986e"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/foundation/provenance.json",
+      "bytes": 246364,
+      "sha256": "f558f66dba5d193b178ef5e6373de9bf24fca5ba99fbcb18fe3b74b650a53e27"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/foundation/raw.tar.gz",
+      "bytes": 103009,
+      "sha256": "5cdf2230e44c250737545fb7c2cbadc82bfefa48e7e102e1ab25befd1d443e2e"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/foundation/result.json",
+      "bytes": 20433,
+      "sha256": "0aa17352cefbfd679fa10a53b4cf01fdd22ce6d037f11896432321b3a59f18e1"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/operator/capture-isolated.py.txt",
+      "bytes": 3025,
+      "sha256": "8841251e8d958f2e83d59e5b455bce5c8e479338b9afd6ce3f28ccb7840768a8"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/operator/capture-primary.py.txt",
+      "bytes": 2859,
+      "sha256": "ffee9666d723b8f5f38a58423efc169f1041fd3e966a85895120ba102bad3568"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/operator/capture.py.txt",
+      "bytes": 2859,
+      "sha256": "ffee9666d723b8f5f38a58423efc169f1041fd3e966a85895120ba102bad3568"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/operator/manifest.py.txt",
+      "bytes": 4193,
+      "sha256": "3fdae5e80b631ec8ec3bd2a6ad80557f215b6bd434b004fcfadddb081a6370a9"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/operator/retain.py.txt",
+      "bytes": 2865,
+      "sha256": "4df95ea5274e0d2510a6d352c5d21a6ece5863d099d2fd7ccb933c10429c7e6c"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/owner-defect-before-fix/Archive_Members.json",
+      "bytes": 1202,
+      "sha256": "ae58d9f9dfd6087f4e8db0d9bb4316a8344754806577d9c3fd957f0c1fb8f2fc"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/owner-defect-before-fix/Integrity_Check.json",
+      "bytes": 445,
+      "sha256": "731909352bdf9d86a500aa67b9b687f980490c91ecbe5a44c3c21982336c0b7a"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/owner-defect-before-fix/plan.json",
+      "bytes": 7337,
+      "sha256": "e3c6f351131e51f54490334fee5f261554c4e0cf0d4ef645a8f999d9584863de"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/owner-defect-before-fix/provenance.json",
+      "bytes": 246370,
+      "sha256": "3a704f2585bba0c77aa006d560c62971162a519ec2985c69332e841fb7f8bd71"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/owner-defect-before-fix/raw.tar.gz",
+      "bytes": 1007783,
+      "sha256": "42303398f22870d9801232fbae5269f2ccc263d82cc2805176c7d5263ad069db"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/owner-defect-before-fix/result.json",
+      "bytes": 25969,
+      "sha256": "a86bb1c07626943a2c41f61153089bf03e2ec57d16c42949db51d3412fcaa2b2"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/physical/ack-AFTER_COMMIT-unavailable-false-i1_e89f4173d6a04ab89c2cad5e0673cc4b.txt",
+      "bytes": 4551,
+      "sha256": "322639172207f8aa47a400134bb3c162f2123101e9451b6df9e9b5ca2b556448"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/physical/ack-AFTER_COMMIT-unavailable-true-i1_11250d9ea72a4ab49228ef849e4ef3a4.txt",
+      "bytes": 4560,
+      "sha256": "0834d545cd7db6a36ae2f2551515ea578b308f54e8fad62c98ee2d9fcb39281a"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/physical/ack-BEFORE_COMMIT-unavailable-false-i1_169f1afa168d4e9e97d8b3f883276365.txt",
+      "bytes": 2680,
+      "sha256": "c0a1959bb4d64c0cf24336f55ed4fdf09ef272ee46167332baee84425e5eb75b"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/physical/ack-BEFORE_COMMIT-unavailable-true-i1_61d1c121c9714803a175a49f65f95793.txt",
+      "bytes": 2678,
+      "sha256": "5dc58504a171397dc20cebdf0a56c5f17804ff065c829a78e55f59d2e1f24c33"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/physical/afterReadinessBeforeDelete-i1_0124e3b340d24434be00c58de497b380.txt",
+      "bytes": 2516,
+      "sha256": "6612d5a4682b0c4dccf990d48d06a4b8d678dafa5b67760141c88eacd4374fd6"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/physical/allFieldsMatter-i1_a34c6e3a24dc4ff5a9dd5470d8027811.txt",
+      "bytes": 1600,
+      "sha256": "d49efd53717733b1c39d656accb995f16ab69193ca5ffdf671b1c79f9976628b"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/physical/atomicRace-false-i1_3126547ca03543bc834cb13c9dc53fec.txt",
+      "bytes": 3322,
+      "sha256": "f553b2317a4a1e992e10459d72e69ffe7ce9f7179cbb979f52e0e576a53014ef"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/physical/atomicRace-true-i1_63219b1f6dce42cb9ee2e840bff08f39.txt",
+      "bytes": 3345,
+      "sha256": "08da474681c02638707f4268f77437f73e15ae814bb698f65f9eca56e21cf5b0"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/physical/batchAllOrNothing-i1_5f522259b0534ebea76e14aeece25958.txt",
+      "bytes": 1692,
+      "sha256": "7208a9a7609769c480d7f9390485911d249af04f119e278db0f7ef4208ccc449"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/physical/caught-divergence-i1_2419d9e2235948ccbfa56d3dba52b412.txt",
+      "bytes": 2241,
+      "sha256": "251279bebef3c6cca0af51af19a2e2cec7a6eb69bc3f5f34ea727ad52e58cb69"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/physical/caught-duplicate-i1_7bcb6686660d403384f7c354251aea48.txt",
+      "bytes": 2209,
+      "sha256": "ff63305df1af376957597799741498c84cac1af26bf2a0fe0e645f3895b4a382"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/physical/caught-null-i1_f64233f416cd430ea88288cc35952fa3.txt",
+      "bytes": 2205,
+      "sha256": "1d2d91156a1ff9e2191520bda4221d383f32a8a7f1b6501269f685cb91f24157"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/physical/caught-sql-i1_4269b678d14142bfb2aafb48d3c1981f.txt",
+      "bytes": 2230,
+      "sha256": "48e613d903fde5028236840c037afa5749636ac6a66cfd0614472de1be12f03e"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/physical/corruptPersistedContent-i1_bb96017b1d99443e96ec6795fe619401.txt",
+      "bytes": 1600,
+      "sha256": "245fc9175c0e902ef9eb3e74ce6d84adbfced4b437de4684bed01f0f642c5a87"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/physical/counterOracle-independent-false-i1_5c71622e1625485b8c802953f0fb4e05.txt",
+      "bytes": 2376,
+      "sha256": "9f2260dafac16508be0c5acda3253c3a9b4ff3d4727dfaee213f5325ad308519"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/physical/counterOracle-independent-true-i1_b0cc4bdccccf47d2965a6702557e33eb.txt",
+      "bytes": 2215,
+      "sha256": "4bd4ebd56999080ed90cad1b4814e5ab50ccc20816647159253a2193068016fb"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/physical/deferredCommitRejection-i1_0b83689a801e4a15bf5f4a0539ef6cc7.txt",
+      "bytes": 2535,
+      "sha256": "b59051f175185a3540c2aac0895b24b38ffdd58a916afdcd081ddf2353084136"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/physical/divergentInsert-i1_022a6062c4fb43829c7e39270ac0c9c2.txt",
+      "bytes": 1600,
+      "sha256": "3a748f50bb7697b0af51bc2ffdf9e5069128ad3acd98f17473c9570e81e9c82c"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/physical/effectsAndSlotSameUnit-i1_7560a08ca03f48e4b9d23cb75fe80483.txt",
+      "bytes": 4294,
+      "sha256": "bf7045b655e2622229b35d5fc7470795c846e88132f35d6844562d9024ec1286"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/physical/expiredCompletion-i1_e0a9220c9163497795dc1815f726ae33.txt",
+      "bytes": 2021,
+      "sha256": "e14d8f00f3baf01ec51cc028ab41682f8a7b72b578b13d259372fe767c24f813"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/physical/freshMigration-i1_7c92acd3d27642f687095eb9fb55ba8e.txt",
+      "bytes": 7759,
+      "sha256": "a84ac681b33ac59c0248b7c3548e95fb42eada16ad2c01743ece6760d9668553"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/physical/identicalInsert-i1_30b6c81c355d43798be3b602fbf19030.txt",
+      "bytes": 1600,
+      "sha256": "2bff1cf67063b67148ca664185fa9a770a60dac48265007a5bc109d6b7de16db"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/physical/lateCallback-completion-false-caught-false-i1_b433c4839f864c8885c8de2d6119fee0.txt",
+      "bytes": 2542,
+      "sha256": "5d99ed793047e984a95c4be69b09c10eb0646945fcce8d32ba476a218972ce3a"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/physical/lateCallback-completion-false-caught-true-i1_8b066c3b7c11480c8d1632f0a8c0e3b0.txt",
+      "bytes": 2541,
+      "sha256": "9c6f3527462b597469a523da9920946ac03b2cee0b58eeaf9d05c3789cb6e525"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/physical/lateCallback-completion-true-caught-false-i1_8609a4271e53415eab0fbd1b3ff4b534.txt",
+      "bytes": 2542,
+      "sha256": "7291b12549bcefaafbe34bd9202f29553431258ccb1281a526cee04868a77750"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/physical/lateCallback-completion-true-caught-true-i1_9c67ed2234c2437cb7820f14f4388db1.txt",
+      "bytes": 2541,
+      "sha256": "2034f9ce610d850487d1fce145610dc007c0148a2fceb0c1dba3abc34c6ef12b"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/physical/noV1Replay-i1_89d61936e84a453d8aee4fa366d45a4b.txt",
+      "bytes": 10200,
+      "sha256": "b67d1fddd0eee0b92382c1fdaa0b676e49ebe310c114087eb73a707e0477f3e1"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/physical/ownerAndContext-i1_fbc65667f67c4c5d8e70b0057beca046.txt",
+      "bytes": 1600,
+      "sha256": "12441d3621c5ed67b033976c0777de918962e324443d72e316a213c2ede1364e"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/physical/physicalImmutability-i1_4df7ed4df5104c4b9b5a984c38532277.txt",
+      "bytes": 8123,
+      "sha256": "eda7005b1fd46794829bfa1dfb2b02045a3092e6622090942990dc023b527edf"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/physical/populatedL2Extension-i1_b21660d7ee634376ba1711296f8c94f5.txt",
+      "bytes": 44252,
+      "sha256": "cf20b59a6405fde6ea053c26d84e4b01d29ce208222bc584aaf57490dd30a395"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/physical/postgresUuidOrder-i1_03422cb118dd4dd9a4148bd12ad4f5b5.txt",
+      "bytes": 1764,
+      "sha256": "aadb3d366e74a6326c901c60d97235a4b87c0424a967c87489b028cb19439e7d"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/physical/publication-doubleComplete-i1_ce97b73afe374def9f9a5adda819cea9.txt",
+      "bytes": 2154,
+      "sha256": "9200ca4e0720d00e33227ca8c26fed7418bf884e6fd3eb37d7d2b17bd6d1b643"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/physical/publication-early-i1_784e92ae9a644a9ebd3c35154b212384.txt",
+      "bytes": 2154,
+      "sha256": "836f7c10026a2f93b807eeb541f76de3f7c5435f156ebc7205657ab3dcc3b7fc"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/physical/publication-foreignThread-i1_1c6d2cfd02b14cff8bbf84b31a200330.txt",
+      "bytes": 2226,
+      "sha256": "ef916cc3cd20ca7db57fe644df83e6455e6df50b6c3907d736ed01b73e8dd864"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/physical/publication-lateWriter-i1_de3613375d2e47d795f4e716e1d4bf1a.txt",
+      "bytes": 2200,
+      "sha256": "98487d48932b6166f0760519ebb61accfb531a8e60f21786b519267fe6397b8a"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/physical/publication-missing-i1_4321825440cc4ce698000e9e36fbfb36.txt",
+      "bytes": 2185,
+      "sha256": "b687272afbde48de041873a1475f646f4c49408705a212d4978f716a12bdd68f"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/physical/publication-missingComplete-i1_bab43a7ee7d44e62861293133f2af754.txt",
+      "bytes": 2154,
+      "sha256": "f94e84d2c12b1e944cc2dd19307b99fcf60448f9b92c9db83ff11378b05cadbb"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/physical/race-false-false-false-i1_d294d109964f4d1a8215eb4ae4ddb085.txt",
+      "bytes": 2615,
+      "sha256": "dd1ca0fbd44c5f554a6b09f144df98aad478962cbd452e4e8037d6bc6cfb66a8"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/physical/race-false-false-true-i1_3bf92c9322844bbf9bd41534420604f1.txt",
+      "bytes": 262993,
+      "sha256": "c270b998eb7cb779c173541c76aaa173b841ee6773a73a3c23225d00d8afbc4d"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/physical/race-true-false-false-i1_731038705cfb4a1094aac967d78ba35b.txt",
+      "bytes": 2614,
+      "sha256": "6e4d468afece9c3cb79a03a4e41bd0519693adddaeb026662b2e45e9060db68a"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/physical/race-true-false-false-i1_e0ee7584f88d47a1a7e520c5719f69a9.txt",
+      "bytes": 2613,
+      "sha256": "a3f1c4aa76f506c482e94e8b1a83d7760200cebafd737e685a9b0b6e2e8f11f3"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/physical/race-true-true-false-i1_cefafce0a6044407b5f2c7ebc1a44896.txt",
+      "bytes": 2612,
+      "sha256": "8207e92e2bdbcc63e4d6c14312506cd8aa05289ee7d7f8ddc4b7f40b7301f002"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/physical/readiness-false-i1_55e02b6daa5a47b2bc1d693551826ffc.txt",
+      "bytes": 2290,
+      "sha256": "f368217820a496c8641d423f4d7704c6a8d7035a640aa9e598c5e57ba50dab0b"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/physical/readiness-true-i1_ab8668514c614cc7a38183a8ca457088.txt",
+      "bytes": 2289,
+      "sha256": "2adff371cb6ea0fcf143c0bd7cdcdf4481164d3b7b933f0e3c49004fd7748645"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/physical/rollback-AFTER_CLOSE-i1_993bc005cad04848842b112d16d7d573.txt",
+      "bytes": 2495,
+      "sha256": "3f7b97614d431400cd398f1f4b812a7e9b3cbe29a9b0ab4034557bc1ff707626"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/physical/rollback-AFTER_DELETE-i1_d7b46e331fe24160ae68cbfad71099eb.txt",
+      "bytes": 2497,
+      "sha256": "251f95a5bda6bb9a83c5710374eb0f94272be3138c6de037766e08a422050b9c"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/physical/rollback-AFTER_INSERT-i1_b4a00ea0cd5b45919a4e0840c5feb386.txt",
+      "bytes": 2442,
+      "sha256": "b6ee9fb5a545548b43f703fb4c4e88c6d9efc06ca845904466f610c1db453beb"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/physical/rollback-BEFORE_DELETE-i1_31d2b3bfe3124aa789040f4bf76838f6.txt",
+      "bytes": 2444,
+      "sha256": "c62e63960e0bb633f16f9e204c89c4d792ed6287b5625080620e0ff8191c21f0"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/physical/rollback-BEFORE_INSERT-i1_f9341319a7c74fbaa91d6654137c99e8.txt",
+      "bytes": 2444,
+      "sha256": "499ff0cf6f68baae9ed78162b55d58315b15a3a990c8ee404fd77bbae5acc7b7"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/physical/rollback-READINESS-i1_be8dba82dd9742998a7f0f45bdf1f68e.txt",
+      "bytes": 2491,
+      "sha256": "23c13b138aa6ae7b55edd57f7f482718e3c517367ccb81d015bc30b7018c27df"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/physical/rollbackBeforeCommit-i1_eda9ab96969c4a82aebf5ccedc5f693a.txt",
+      "bytes": 2474,
+      "sha256": "df3b19afcf10cf04de52694cfe2002a0f744eea0c11e1b7012cb94fe8a705ec8"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/physical/rollbackFirstChunk-i1_6db693f7949a43a6b9b0eddcfacf579e.txt",
+      "bytes": 2445,
+      "sha256": "1e1ba675ea56585a58efb82201c3bcd3afc919759c41281c6a449e324727295a"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/physical/sqlShapeConstraints-i1_35c3263e5f8f48b9b4ce6034d0f1b897.txt",
+      "bytes": 4301,
+      "sha256": "bc7eb9d17aa8c56ac07087658ebddc1871f603cdcec62d9629f11b316ef045c1"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/physical/unsafeAuxiliaryDefiner-false-i1_b94dac7af9524802829524b76cc098d3.txt",
+      "bytes": 1659,
+      "sha256": "1197beb9bd0c7039afbbc4ae1b1d5e1c2b2641cafd50295930b691cf67d90432"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/physical/unsafeAuxiliaryDefiner-true-i1_a28b8d70620a4d5f99dd26a39f1d6f03.txt",
+      "bytes": 1699,
+      "sha256": "4cf0aeb2659c47c94e041ceb3071e8f1fc0fa3fd82e8b7764026284f699a4d08"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/physical/unsafeMembership-i1_28eaae990d204ca088c469803e596a95.txt",
+      "bytes": 1600,
+      "sha256": "6ffface367fe602d6ff4bd62a955ad431d1d7e2b2bc61a17f6f6d995f67b0222"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/physical/wrongTarget-expectedAdmin-i1_49ce56ebbffb47f88b2fea66cdebcb9a.txt",
+      "bytes": 9560,
+      "sha256": "5ede20cf6b481d93f8dae4435632cc7db3145ccf5dac7f3638093d34edc61469"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/physical/wrongTarget-expectedDatabase-i1_3d49e952dec44102aa15f917d506b6a0.txt",
+      "bytes": 9559,
+      "sha256": "8d01adfd6ec1d5529d3e6b1f0bcf517bdaa94a0c09a2278bcedd6500325ff0b6"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/physical/wrongTarget-expectedRuntime-i1_81f7f0d0b9a44246b57fe7ab59665a32.txt",
+      "bytes": 9560,
+      "sha256": "a4279dc67a7bb85c4f3d269b3953233a5d5fa98afa811e979d38a7cf79aaa8de"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/physical/wrongTarget-expectedSchema-i1_257cedafd6374e2dafc88d887efd4c32.txt",
+      "bytes": 9560,
+      "sha256": "21f757f36dbc21c88a6353f3b9b51303573e54c14a299e13568621338f47da85"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/projection-command/Archive_Members.json",
+      "bytes": 389025,
+      "sha256": "b67ed64d1ed521b956f09e20fa76e61acaf941d9eafe8ae0c324f27e65340a2c"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/projection-command/Integrity_Check.json",
+      "bytes": 457,
+      "sha256": "18a3ad82bbf5b197ccf17ee302d122af424e16fdeccc23db17304268d2ebec69"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/projection-command/plan.json",
+      "bytes": 157906,
+      "sha256": "3e265efaab44254f383f446e6796d9292e5291eb5aa95fd60da1c6827d4dfdbd"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/projection-command/provenance.json",
+      "bytes": 247148,
+      "sha256": "0fecfad995b13ebdc5d278526b4010527868fce7b04ea06a1e819f5f77029a2a"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/projection-command/raw.tar.gz",
+      "bytes": 35840561,
+      "sha256": "bbd931fd08c7c6ba34b69c49b06d2daece9ebdc28e08f747f5f1df32180cac3c"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/projection-command/result.json",
+      "bytes": 759643,
+      "sha256": "e5bcd4d24269d2b221ecbf4b6c92992c28464fcb0a0d0c13caa10a9f6ef32146"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/projection-interrupted.tar.gz",
+      "bytes": 1795985,
+      "sha256": "92c93966aed124fa400c3fd38d538c1368bff27b3af4bb64ef9ffa0fd9ab06c0"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/targeted/Archive_Members.json",
+      "bytes": 21709,
+      "sha256": "68a996c2d0ed3227657c04f2fd09bb71ae3bc3c0c86aca3d420271b173644211"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/targeted/Integrity_Check.json",
+      "bytes": 449,
+      "sha256": "11b8cdf3adeebb7eedea9f81339b872204021ff3162513b19d3f329425522662"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/targeted/plan.json",
+      "bytes": 9547,
+      "sha256": "d336a1b6fc32c2fd4a44267ff5f28d533568d38839ee6ec54cc7e36cd3a6a279"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/targeted/provenance.json",
+      "bytes": 246586,
+      "sha256": "e970119b91ad134c0042e5747a3d388cf000c29866c462183191c1ddeddc3793"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/targeted/raw.tar.gz",
+      "bytes": 1064890,
+      "sha256": "ac5f503091147223af99305ea03acfb14cf07ad7ff5ab565de1e28671cc29b22"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/targeted/result.json",
+      "bytes": 51026,
+      "sha256": "788390529ae416d48e3d64378246518b09a270c64bacf24b64630e138545719e"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/web-bytecode-diagnostic/Inputs.json",
+      "bytes": 819,
+      "sha256": "76e4be4fea354646bebcd845e002c7e8defe849f6d0e0a1f39f8692b8aa8807c"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/web-bytecode-diagnostic/PotBindingConvergencePostgresTest.class.bin",
+      "bytes": 3044,
+      "sha256": "e6a6c3c3242b8f39ebf54d2bc3b71757b4b8888f90c2ebfcbca095c1ae733558"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/web-bytecode-diagnostic/PotBindingConvergencePostgresTest.javap.txt",
+      "bytes": 3151,
+      "sha256": "58ed3046f2ad71aa0ec0ce5c2b055b4777b0a21db29c3e244bb7fec3b339a319"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/web-bytecode-diagnostic/WriteSideClosurePostgresTest.class.bin",
+      "bytes": 4788,
+      "sha256": "3e21ced92a35298915621c4d61b70b5125fae92fca639efd7e16854556803b45"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I1/web-bytecode-diagnostic/WriteSideClosurePostgresTest.javap.txt",
+      "bytes": 5822,
+      "sha256": "2b83342cf23f20953d2c1093c1a475878664081ebcc62578bd211a1dd898d997"
+    },
+    {
+      "path": "docs/v3/L4_I1_Execution_Report.md",
+      "bytes": 25302,
+      "sha256": "81a59ff44e7dc2fda3f8d59bc3b5ad7f97724352c80389b3f385104a4bba628e"
+    },
+    {
+      "path": "docs/v3/L4_I1_Implementation_Plan.md",
+      "bytes": 41812,
+      "sha256": "d480732f1c80f2ce600e0ad5904ac3f13f81f4cff47bbe55f52bacf3688fada8"
+    },
+    {
+      "path": "docs/v3/L4_Read_Inventory_and_Implementation_Plan.md",
+      "bytes": 116666,
+      "sha256": "c7c945c16123c258fd4095fd592531b335073e433b71242adec20b057812d26f"
+    },
+    {
+      "path": "docs/v3/V3_Implementation_Master_Plan.md",
+      "bytes": 62398,
+      "sha256": "2813d441b809fcd4765fb3bc6a713f339c613457ce3602e6b10dc73aae5d09e3"
+    }
+  ]
+}

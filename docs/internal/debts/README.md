@@ -1,0 +1,28 @@
+# Registre des dettes techniques
+
+Une dette décrit un écart connu, parfois volontairement accepté. Elle n'implique pas nécessairement un défaut runtime actuel. Ce registre n'est ni une source **CURRENT** du comportement du système, ni automatiquement une architecture **TARGET**. Une dette devient un Step actif uniquement lorsqu'un chantier d'exécution est explicitement ouvert. Les Steps terminés restent des preuves **HISTORICAL-COMPLETED** ; les documents remplacés restent **SUPERSEDED**.
+
+Statuts : **OPEN** (à traiter ultérieurement), **IN_PROGRESS** (chantier explicitement ouvert), **RESOLVED** (résolution vérifiée). La criticité est conservée lorsqu'elle provient d'un audit ; **UNRATED** signifie qu'aucune criticité n'a été établie.
+
+| Identifiant | Dette | Criticité | Statut | Origine | Résumé | Liens |
+|---|---|---|---|---|---|---|
+| DEBT-WA6-01 | [Guard global d'ordre des locks Binding](BINDING_LOCK_ORDER_GUARD/Debt.md) | LOW | RESOLVED | Résolution déjà intégrée par `2eef3ab9` | Ownership du compositeur Binding vérifié au périmètre borné du dossier ; aucune garantie universelle de deadlock. | [Résolution existante](BINDING_LOCK_ORDER_GUARD/Resolution_Guard_2026-10-16.md), [dette historique](../steps/completed/WRITE_ADMISSION/Step_debt.md#debt-wa6-01--global-binding-lock-order-guard-is-not-semantically-exhaustive) |
+| DEBT-WA6-02 | [Guards SQL ownership / append-only](SQL_APPEND_ONLY_GUARDS/Debt.md) | LOW | OPEN | Audit WA.6 clos | Les scans syntaxiques protègent des régressions connues sans prouver tous les futurs chemins SQL. | [Dette historique](../steps/completed/WRITE_ADMISSION/Step_debt.md#debt-wa6-02--sql-ownership--append-only-guards-are-syntactic-tripwires) |
+| DEBT-MOD-01 | [Taxonomie et familles de modules](MODULE_TAXONOMY/Debt.md) | UNRATED | RESOLVED | Re-audit final | CURRENT et TARGET convergent ; les cinq findings post-WP6 sont résolus et revérifiés. | [Re-audit PASS](../steps/completed/ARCHITECTURE/Modularity_Final_Reaudit.md) |
+| DEBT-TEST-01 | [Flakiness du test PostgreSQL de takeover](TAKEOVER_TEST_FLAKINESS/Debt.md) | UNRATED | RESOLVED | Vérification repository quality | Dette de qualité/couverture résolue : horloge contrôlée, preuve directe du CAS, rollback et courses PostgreSQL déterministes validés ; aucun défaut runtime identifié. Historical incident diagnosis: INCONCLUSIVE. | [Audit](TAKEOVER_TEST_FLAKINESS/Audit_2026-10-15.md), [correction](TAKEOVER_TEST_FLAKINESS/Implementation_2026-10-15.md), [validation](TAKEOVER_TEST_FLAKINESS/Validation_2026-10-15.md), [concurrence](TAKEOVER_TEST_FLAKINESS/Concurrent_Takeover_2026-10-15.md), [clôture](TAKEOVER_TEST_FLAKINESS/Closure_2026-10-15.md) |
+
+## Décisions ouvertes de modularité
+
+`TBD-COMMAND-CONTRACT`, `TBD-E2U` et `TBD-LKV` sont **RESOLVED**. Les deux premiers le sont par le [checkpoint post-WP4 vérifié](../steps/completed/ARCHITECTURE/Modularity_Post_WP4_Checkpoint_Execution_Report.md). LKV est matérialisé par WP6 comme spécialisation C2 de la famille des convergent current-state indexes, avec engine, supra et worker indépendants du pipeline ProjectionTask.
+
+## D17 et protocole Consumption (2026-10-16)
+
+Le [bilan D17](BINDING_LOCK_ORDER_GUARD/Resolution_D17_2026-10-16.md) consigne sa correction et les preuves PostgreSQL WP0–WP6. D17 Command/Consumption et DEBT-WA6-01 sont distincts : le défaut est corrigé dans les entrelacements caractérisés ; le guard structurel Binding était **OPEN/LOW** à cette étape historique et a depuis été **RESOLVED** par la [résolution existante](BINDING_LOCK_ORDER_GUARD/Resolution_Guard_2026-10-16.md), intégrée par `2eef3ab9`. Aucun constat historique ni statut des autres dettes n'est effacé.
+
+## Suivi R03 et études transactionnelles (2026-10-18)
+
+**R03 — CORRIGÉ ET CLÔTURÉ** pour les writers applicatifs examinés : contexte Expense relu à une unique version logique V. [Audit, sections J/K](../architecture/Transactional_Authorities_Fencing_Locks_Audit_2026-10-18.md#j-résolution--contextes-expense-cohérents-à-v-2026-10-18), [rapport et limites d'intégration](../testing/evidence/Expense_Context_Integration_Report_2026-10-18.md). La preuve rouge antérieure reste historique ; les écritures SQL arbitraires/rétroactives ne sont pas couvertes par une garantie universelle.
+
+L'[index transactionnel](../architecture/transactional-protocol-studies.md) identifie la dernière étude consolidée comme **TARGET non implémenté** : politique d'obsolescence en conception et EventPublication proposé. Ce suivi ne rouvre ni ne clôture d'autre dette. Les statuts historiques cités dans les audits ne remplacent pas les résolutions existantes des dossiers de dette.
+
+Alignement de l’index uniquement : le statut DEBT-WA6-01 reprend la résolution déjà acquise dans sa fiche et dans `2eef3ab9` ; aucune nouvelle clôture ni réévaluation de dette n’est effectuée ici.

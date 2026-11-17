@@ -1,0 +1,16 @@
+{
+  "state": "NOT_READY",
+  "exit": 1,
+  "control": "KEYCLOAK_ADMIN_AUTH_FAILED",
+  "instance": "keycloak-validation",
+  "evidence": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/keycloak-validation/runs/1794673836-411f83ce",
+  "environment": "PRESERVED",
+  "diagnostic": {
+    "component": "keycloak",
+    "control": "KEYCLOAK_ADMIN_AUTH_FAILED",
+    "check": "master console Code + PKCE S256",
+    "probableCause": "Expected local admin credentials did not complete the console browser flow.",
+    "recommendedAction": "Inspect keycloak-auth.json and private containers.log; for an old installation, preserve its data and use a new instance or an explicitly confirmed reset. Realm import and bootstrap admin do not update an existing database.",
+    "evidence": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/keycloak-validation/runs/1794673836-411f83ce/keycloak-auth.json"
+  }
+}

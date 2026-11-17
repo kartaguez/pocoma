@@ -1,0 +1,41 @@
+{
+  "status": "LOSSLESS",
+  "files": {
+    "development/demonstration.log": {
+      "stored_path": "development/demonstration.log.gz",
+      "uncompressed_sha256": "6f7c262f0b74b6c2d38e2c77f1d26892977ce43bad2598def018a2ec49126bda"
+    },
+    "development/worker.log": {
+      "stored_path": "development/worker.log.gz",
+      "uncompressed_sha256": "728c68ed994552739e1d30adcd6d7b46bf1267e469a5054b10b2d464a559a361"
+    },
+    "diagnostics/F01-pre-fix.log": {
+      "stored_path": "diagnostics/F01-pre-fix.log.gz",
+      "uncompressed_sha256": "c0d2ae47110ca7e85f139f089c29e0b8e35de0c98a487798dda394a3e6818bb3"
+    },
+    "diagnostics/F02-local-counterexample.log": {
+      "stored_path": "diagnostics/F02-local-counterexample.log.gz",
+      "uncompressed_sha256": "d479cf185d2749ae2dc75a9ae65dd13401d0adec6982877b1b176c6db91ccc6f"
+    },
+    "diagnostics/F03-pre-fix.log": {
+      "stored_path": "diagnostics/F03-pre-fix.log.gz",
+      "uncompressed_sha256": "3845e26d7e29445e20e4abd86e51417cb94cda17fece61305918d9bc5b44f745"
+    },
+    "diagnostics/F04-initial-no-wakeup.log": {
+      "stored_path": "diagnostics/F04-initial-no-wakeup.log.gz",
+      "uncompressed_sha256": "84a5b9b80d3205ff4ca4e609a9ac446b72ce069d68e3679202456456c767fc49"
+    },
+    "diagnostics/F04-pre-fix-repeated-stop.log": {
+      "stored_path": "diagnostics/F04-pre-fix-repeated-stop.log.gz",
+      "uncompressed_sha256": "0e84d0ee2a1f4081a79f3831f867ec3bb76c463e942eebe2e217cbe2454b7561"
+    },
+    "diagnostics/F02-negative-tests.patch": {
+      "stored_path": "diagnostics/F02-negative-tests.patch.gz",
+      "uncompressed_sha256": "0a2157c264e5a91f597846fdbbb74e9ed51c788dbc4de674382ae7f0fc0ae9e7"
+    },
+    "diagnostics/F05-negative-tests.patch": {
+      "stored_path": "diagnostics/F05-negative-tests.patch.gz",
+      "uncompressed_sha256": "c0ce5fd87658e15a65d983dbcdf5600c9a6ccc7bd7fd2172dadb9413333d2e48"
+    }
+  }
+}

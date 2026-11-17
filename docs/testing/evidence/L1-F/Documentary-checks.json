@@ -1,0 +1,21 @@
+{
+  "documents": [
+    "docs/testing/evidence/L1-F/README.md",
+    "docs/v3/L1_B_Persistence_Contract.md",
+    "docs/v3/L1_C_Transaction_Contract.md",
+    "docs/v3/L1_F_Closure_Report.md",
+    "docs/v3/L1_F_Contradictory_Inventory.md",
+    "docs/v3/SPEC-01_Pot_Domain.md",
+    "docs/v3/SPEC-03_Events_Requests_Consumables.md",
+    "docs/v3/SPEC-04_Read_Projections.md",
+    "docs/v3/SPEC-05_Consumption_Discovery.md",
+    "docs/v3/SPEC-06_Supra_Contracts.md",
+    "docs/v3/SPEC-09_Performance.md",
+    "docs/v3/SPEC-10_Test_Certification.md",
+    "docs/v3/V3_Canon_and_Roadmap.md",
+    "docs/v3/V3_Implementation_Master_Plan.md"
+  ],
+  "relative_links_checked": 185,
+  "problems": [],
+  "verdict": "PASS"
+}

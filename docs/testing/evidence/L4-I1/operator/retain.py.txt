@@ -1,0 +1,37 @@
+from pathlib import Path
+import hashlib,json,shutil,tarfile,xml.etree.ElementTree as ET,collections
+root=Path('/Users/julien.guezennec/Dev/projects/pocoma/docs/testing/evidence/L4-I1')
+sha=lambda data:hashlib.sha256(data).hexdigest()
+def retain(source,name):
+ source=Path(source);dest=root/name;dest.mkdir(exist_ok=True)
+ for f in ['raw.tar.gz','plan.json','provenance.json','result.json']:shutil.copy2(source/f,dest/f)
+ result=json.loads((dest/'result.json').read_text());plan=json.loads((dest/'plan.json').read_text())
+ assert sha((dest/'raw.tar.gz').read_bytes())==result['raw_sha256']
+ members={};seen=collections.Counter();counts=dict(tests=0,failures=0,errors=0,skipped=0)
+ with tarfile.open(dest/'raw.tar.gz') as tar:
+  for m in tar.getmembers():
+   assert m.isfile() and not m.issym() and not m.islnk(),m.name
+   data=tar.extractfile(m).read();digest=sha(data)
+   assert result['artifacts'][m.name]==digest,m.name
+   members[m.name]={'bytes':len(data),'sha256':digest}
+   if m.name.startswith('reports/') and Path(m.name).name.startswith('TEST-') and m.name.endswith('.xml'):
+    suite=ET.fromstring(data);props={p.get('name'):p.get('value') for p in suite.findall('properties/property')}
+    assert props['pocoma.verification.id']==result['invocation_id']
+    assert props['pocoma.verification.module']==Path(m.name).parts[1]
+    actual=dict(tests=0,failures=0,errors=0,skipped=0)
+    for case in suite.findall('testcase'):
+     identity=(case.get('classname'),case.get('name'));seen[identity]+=1;actual['tests']+=1
+     for tag,label in [('failure','failures'),('error','errors'),('skipped','skipped')]:actual[label]+=case.find(tag) is not None
+    assert all(int(suite.get(k,'0'))==v for k,v in actual.items()),m.name
+    for key,value in actual.items():counts[key]+=value
+ expected={(c,m) for c,methods in plan['expected'].items() for m in methods}
+ unexpected=set(seen)-expected
+ if result['verdict']=='PASS': assert not unexpected
+ if result['verdict']=='PASS': assert set(seen)==expected and all(v==1 for v in seen.values()) and counts==dict(tests=len(expected),failures=0,errors=0,skipped=0)
+ assert counts==result['counts'],(counts,result['counts'])
+ (dest/'Archive_Members.json').write_text(json.dumps(members,indent=2)+'\n')
+ integrity={'raw_sha256':result['raw_sha256'],'raw_members':len(members),'xml_test_identities':len(seen),'expected_identities':len(expected),'unexpected_startup_error_identities':[list(v) for v in sorted(unexpected)],'counts':counts,'source_gate_verdict':result['verdict'],'archive_and_provenance_integrity':'PASS','scope':'Byte restoration, hashes, counters, identity/module/producer attribution; no new application replay.'}
+ (dest/'Integrity_Check.json').write_text(json.dumps(integrity,indent=2)+'\n');return integrity
+if __name__=='__main__':
+ import sys
+ print(json.dumps(retain(sys.argv[1],sys.argv[2]),indent=2))

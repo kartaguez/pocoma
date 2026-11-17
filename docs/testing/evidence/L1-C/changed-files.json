@@ -1,0 +1,27 @@
+{
+  "reference": "56d658f9fd5313db2744fa11ff36699f4376aacb",
+  "tested": "2825f7b4c90e6b0c4b064e1166de6dd9a93f2bcf",
+  "files": [
+    "A\tapp/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/v3/V3PotExecutionArchitectureTest.java",
+    "A\tapp/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/command/v3/V3PotCommandComposition.java",
+    "A\tapp/engine-write-pot/src/main/java/com/kartaguez/pocoma/engine/write/pot/port/execution/v3/PotActorAuthority.java",
+    "A\tapp/engine-write-pot/src/main/java/com/kartaguez/pocoma/engine/write/pot/port/execution/v3/PotCommand.java",
+    "A\tapp/engine-write-pot/src/main/java/com/kartaguez/pocoma/engine/write/pot/port/execution/v3/PotCommandStore.java",
+    "A\tapp/engine-write-pot/src/main/java/com/kartaguez/pocoma/engine/write/pot/port/execution/v3/PotCommandTransactions.java",
+    "A\tapp/engine-write-pot/src/main/java/com/kartaguez/pocoma/engine/write/pot/v3/ExecutePotCommand.java",
+    "A\tapp/engine-write-pot/src/test/java/com/kartaguez/pocoma/engine/write/pot/v3/ExecutePotCommandTest.java",
+    "A\tapp/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/JdbcPotCommandStore.java",
+    "M\tapp/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/JdbcPotRevisionAdapter.java",
+    "A\tapp/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/PotCommandJdbcTransactions.java",
+    "A\tapp/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/PotCommandJson.java",
+    "A\tapp/infra-persistence-primary-jpa/src/main/resources/db/v3-pot-execution/migration/V2__command_execution.sql",
+    "A\tapp/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/CommandExecutionPostgresTest.java",
+    "A\tapp/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/CommitAcknowledgementProxy.java",
+    "A\tapp/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3commandfixture/CommandProbe.java",
+    "A\tapp/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/V3PotCommandCompositionPostgresTest.java",
+    "A\tdocs/v3/L1_C_Transaction_Contract.md",
+    "M\tdocs/v3/L1_Design_and_Verification_Plan.md",
+    "M\tdocs/v3/L1_Proof_Manifest.json",
+    "M\tscripts/testing/verify-v3-l1.py"
+  ]
+}

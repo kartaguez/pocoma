@@ -1,0 +1,1166 @@
+[
+  {
+    "command": [
+      "./pocoma-local",
+      "upgrade-grafana",
+      "--instance",
+      "demo"
+    ],
+    "phase": "demo-upgrade",
+    "exit": 0,
+    "expected": 0,
+    "seconds": 60.59729174999666,
+    "result": {
+      "state": "READY",
+      "exit": 0,
+      "business": "AVAILABLE",
+      "canary": "AVAILABLE",
+      "qualificationTools": "AVAILABLE",
+      "fullyQualifiable": false,
+      "checks": {
+        "JVM-http-write": "PASS",
+        "JVM-http-read": "PASS",
+        "JVM-command-worker": "PASS",
+        "JVM-results-worker": "PASS",
+        "JVM-business-read-worker": "PASS",
+        "DB-CURRENT": "PASS",
+        "IDP-DISCOVERY": "PASS",
+        "KEYCLOAK-OIDC-DISCOVERY": "PASS",
+        "KEYCLOAK-ADMIN-AUTH": "PASS",
+        "KEYCLOAK-ADMIN-ENABLED": "PASS",
+        "KEYCLOAK-THIRD-ENABLED": "PASS",
+        "KEYCLOAK-THIRD-PKCE": "PASS",
+        "KEYCLOAK-GUEST-ENABLED": "PASS",
+        "KEYCLOAK-GUEST-PKCE": "PASS",
+        "KEYCLOAK-BRUNO-ENABLED": "PASS",
+        "KEYCLOAK-BRUNO-PKCE": "PASS",
+        "GRAFANA-HTTP": "PASS",
+        "GRAFANA-DATASOURCE": "PASS",
+        "GRAFANA-DASHBOARD": "PASS"
+      },
+      "canaryProof": {
+        "potId": "781047aa-eaf1-51e7-8a03-d512e1389f7e",
+        "version": 9,
+        "runId": "1794693630-0a1ccafb",
+        "completedAt": 1794693690.943956
+      },
+      "observedAt": 1794693691.363229,
+      "instance": "demo",
+      "project": "pocoma-lb-demo-33dd8c1d",
+      "sha": "c7df9da4d3e3d7b824dcfc50bd474c46371d310b",
+      "dirty": true,
+      "urls": {
+        "write": "http://127.0.0.1:54610",
+        "read": "http://127.0.0.1:54611"
+      },
+      "issuer": "http://localhost:54612/realms/pocoma",
+      "evidence": "./.pocoma-local/instances/demo/runs/1794693630-0a1ccafb",
+      "keycloakAdmin": {
+        "url": "http://localhost:54612/admin/",
+        "realm": "master",
+        "username": "admin"
+      },
+      "demoUsers": {
+        "realm": "pocoma",
+        "owner": "third",
+        "guest": "guest",
+        "bruno": "bruno"
+      },
+      "credentialsConvention": "L7-LB local only: password pocoma for admin/third/guest/bruno; never production or L8.",
+      "grafana": {
+        "url": "http://127.0.0.1:61347/",
+        "username": "admin",
+        "dashboard": "Pocoma runtime",
+        "dashboardUrl": "http://127.0.0.1:61347/d/pocoma-runtime"
+      },
+      "keycloakAuthEvidence": "./.pocoma-local/instances/demo/runs/1794693630-0a1ccafb/keycloak-auth.json"
+    }
+  },
+  {
+    "command": [
+      "./pocoma-local",
+      "status",
+      "--instance",
+      "demo"
+    ],
+    "phase": "demo-status",
+    "exit": 0,
+    "expected": 0,
+    "seconds": 1.9437545000037062,
+    "result": {
+      "state": "READY",
+      "exit": 0,
+      "business": "AVAILABLE",
+      "canary": "AVAILABLE",
+      "qualificationTools": "AVAILABLE",
+      "fullyQualifiable": false,
+      "checks": {
+        "JVM-http-write": "PASS",
+        "JVM-http-read": "PASS",
+        "JVM-command-worker": "PASS",
+        "JVM-results-worker": "PASS",
+        "JVM-business-read-worker": "PASS",
+        "DB-CURRENT": "PASS",
+        "IDP-DISCOVERY": "PASS",
+        "KEYCLOAK-OIDC-DISCOVERY": "PASS",
+        "KEYCLOAK-ADMIN-AUTH": "PASS",
+        "KEYCLOAK-ADMIN-ENABLED": "PASS",
+        "KEYCLOAK-THIRD-ENABLED": "PASS",
+        "KEYCLOAK-THIRD-PKCE": "PASS",
+        "KEYCLOAK-GUEST-ENABLED": "PASS",
+        "KEYCLOAK-GUEST-PKCE": "PASS",
+        "KEYCLOAK-BRUNO-ENABLED": "PASS",
+        "KEYCLOAK-BRUNO-PKCE": "PASS",
+        "IDP-PKCE-SESSION": "PASS",
+        "GRAFANA-HTTP": "PASS",
+        "GRAFANA-DATASOURCE": "PASS",
+        "GRAFANA-DASHBOARD": "PASS"
+      },
+      "canaryProof": {
+        "potId": "781047aa-eaf1-51e7-8a03-d512e1389f7e",
+        "version": 9,
+        "runId": "1794693630-0a1ccafb",
+        "completedAt": 1794693690.943956
+      },
+      "observedAt": 1794693694.212887,
+      "instance": "demo",
+      "project": "pocoma-lb-demo-33dd8c1d",
+      "sha": "c7df9da4d3e3d7b824dcfc50bd474c46371d310b",
+      "dirty": true,
+      "urls": {
+        "write": "http://127.0.0.1:54610",
+        "read": "http://127.0.0.1:54611"
+      },
+      "issuer": "http://localhost:54612/realms/pocoma",
+      "evidence": "./.pocoma-local/instances/demo/runs/1794693692-ca45321d",
+      "keycloakAdmin": {
+        "url": "http://localhost:54612/admin/",
+        "realm": "master",
+        "username": "admin"
+      },
+      "demoUsers": {
+        "realm": "pocoma",
+        "owner": "third",
+        "guest": "guest",
+        "bruno": "bruno"
+      },
+      "credentialsConvention": "L7-LB local only: password pocoma for admin/third/guest/bruno; never production or L8.",
+      "grafana": {
+        "url": "http://127.0.0.1:61347/",
+        "username": "admin",
+        "dashboard": "Pocoma runtime",
+        "dashboardUrl": "http://127.0.0.1:61347/d/pocoma-runtime"
+      },
+      "keycloakAuthEvidence": "./.pocoma-local/instances/demo/runs/1794693692-ca45321d/keycloak-auth.json"
+    }
+  },
+  {
+    "command": [
+      "./pocoma-local",
+      "bruno",
+      "--instance",
+      "demo"
+    ],
+    "phase": "demo-bruno",
+    "exit": 0,
+    "expected": 0,
+    "seconds": 8.480124041001545,
+    "result": {
+      "state": "BRUNO_PASS",
+      "exit": 0,
+      "instance": "demo",
+      "project": "pocoma-lb-demo-33dd8c1d",
+      "sha": "8b1675d225647793a5626576b413324702b9adf5",
+      "dirty": true,
+      "urls": {
+        "write": "http://127.0.0.1:54610",
+        "read": "http://127.0.0.1:54611"
+      },
+      "issuer": "http://localhost:54612/realms/pocoma",
+      "evidence": "./.pocoma-local/instances/demo/runs/1794693694-bd876d28"
+    }
+  },
+  {
+    "command": [
+      "./pocoma-local",
+      "status",
+      "--instance",
+      "demo"
+    ],
+    "phase": "demo-after-traffic",
+    "exit": 0,
+    "expected": 0,
+    "seconds": 2.1263153750041965,
+    "result": {
+      "state": "READY",
+      "exit": 0,
+      "business": "AVAILABLE",
+      "canary": "AVAILABLE",
+      "qualificationTools": "AVAILABLE",
+      "fullyQualifiable": false,
+      "checks": {
+        "JVM-http-write": "PASS",
+        "JVM-http-read": "PASS",
+        "JVM-command-worker": "PASS",
+        "JVM-results-worker": "PASS",
+        "JVM-business-read-worker": "PASS",
+        "DB-CURRENT": "PASS",
+        "IDP-DISCOVERY": "PASS",
+        "KEYCLOAK-OIDC-DISCOVERY": "PASS",
+        "KEYCLOAK-ADMIN-AUTH": "PASS",
+        "KEYCLOAK-ADMIN-ENABLED": "PASS",
+        "KEYCLOAK-THIRD-ENABLED": "PASS",
+        "KEYCLOAK-THIRD-PKCE": "PASS",
+        "KEYCLOAK-GUEST-ENABLED": "PASS",
+        "KEYCLOAK-GUEST-PKCE": "PASS",
+        "KEYCLOAK-BRUNO-ENABLED": "PASS",
+        "KEYCLOAK-BRUNO-PKCE": "PASS",
+        "IDP-PKCE-SESSION": "PASS",
+        "GRAFANA-HTTP": "PASS",
+        "GRAFANA-DATASOURCE": "PASS",
+        "GRAFANA-DASHBOARD": "PASS"
+      },
+      "canaryProof": {
+        "potId": "781047aa-eaf1-51e7-8a03-d512e1389f7e",
+        "version": 9,
+        "runId": "1794693630-0a1ccafb",
+        "completedAt": 1794693690.943956
+      },
+      "observedAt": 1794693711.949194,
+      "instance": "demo",
+      "project": "pocoma-lb-demo-33dd8c1d",
+      "sha": "8b1675d225647793a5626576b413324702b9adf5",
+      "dirty": true,
+      "urls": {
+        "write": "http://127.0.0.1:54610",
+        "read": "http://127.0.0.1:54611"
+      },
+      "issuer": "http://localhost:54612/realms/pocoma",
+      "evidence": "./.pocoma-local/instances/demo/runs/1794693710-16b378bc",
+      "keycloakAdmin": {
+        "url": "http://localhost:54612/admin/",
+        "realm": "master",
+        "username": "admin"
+      },
+      "demoUsers": {
+        "realm": "pocoma",
+        "owner": "third",
+        "guest": "guest",
+        "bruno": "bruno"
+      },
+      "credentialsConvention": "L7-LB local only: password pocoma for admin/third/guest/bruno; never production or L8.",
+      "grafana": {
+        "url": "http://127.0.0.1:61347/",
+        "username": "admin",
+        "dashboard": "Pocoma runtime",
+        "dashboardUrl": "http://127.0.0.1:61347/d/pocoma-runtime"
+      },
+      "keycloakAuthEvidence": "./.pocoma-local/instances/demo/runs/1794693710-16b378bc/keycloak-auth.json"
+    }
+  },
+  {
+    "command": [
+      "./pocoma-local",
+      "status",
+      "--instance",
+      "demo"
+    ],
+    "phase": "grafana-stopped",
+    "exit": 1,
+    "expected": 1,
+    "seconds": 1.5804878330018255,
+    "result": {
+      "state": "NOT_READY",
+      "exit": 1,
+      "business": "AVAILABLE",
+      "canary": "AVAILABLE",
+      "qualificationTools": "AVAILABLE",
+      "fullyQualifiable": false,
+      "checks": {
+        "JVM-http-write": "PASS",
+        "JVM-http-read": "PASS",
+        "JVM-command-worker": "PASS",
+        "JVM-results-worker": "PASS",
+        "JVM-business-read-worker": "PASS",
+        "DB-CURRENT": "PASS",
+        "IDP-DISCOVERY": "PASS",
+        "KEYCLOAK-OIDC-DISCOVERY": "PASS",
+        "KEYCLOAK-ADMIN-AUTH": "PASS",
+        "KEYCLOAK-ADMIN-ENABLED": "PASS",
+        "KEYCLOAK-THIRD-ENABLED": "PASS",
+        "KEYCLOAK-THIRD-PKCE": "PASS",
+        "KEYCLOAK-GUEST-ENABLED": "PASS",
+        "KEYCLOAK-GUEST-PKCE": "PASS",
+        "KEYCLOAK-BRUNO-ENABLED": "PASS",
+        "KEYCLOAK-BRUNO-PKCE": "PASS",
+        "IDP-PKCE-SESSION": "PASS",
+        "GRAFANA-HTTP": "FAIL",
+        "GRAFANA-DATASOURCE": "FAIL",
+        "GRAFANA-DASHBOARD": "FAIL"
+      },
+      "canaryProof": {
+        "potId": "781047aa-eaf1-51e7-8a03-d512e1389f7e",
+        "version": 9,
+        "runId": "1794693630-0a1ccafb",
+        "completedAt": 1794693690.943956
+      },
+      "observedAt": 1794693713.6678138,
+      "grafanaDiagnostics": {
+        "GRAFANA-HTTP": {
+          "code": "GRAFANA_START_TIMEOUT",
+          "errorClass": "URLError"
+        },
+        "GRAFANA-DATASOURCE": {
+          "code": "GRAFANA_DATASOURCE_UNAVAILABLE",
+          "errorClass": "URLError"
+        },
+        "GRAFANA-DASHBOARD": {
+          "code": "GRAFANA_DASHBOARD_NOT_PROVISIONED",
+          "errorClass": "URLError"
+        }
+      },
+      "instance": "demo",
+      "project": "pocoma-lb-demo-33dd8c1d",
+      "sha": "8b1675d225647793a5626576b413324702b9adf5",
+      "dirty": true,
+      "urls": {
+        "write": "http://127.0.0.1:54610",
+        "read": "http://127.0.0.1:54611"
+      },
+      "issuer": "http://localhost:54612/realms/pocoma",
+      "evidence": "./.pocoma-local/instances/demo/runs/1794693712-e16c7c72",
+      "keycloakAdmin": {
+        "url": "http://localhost:54612/admin/",
+        "realm": "master",
+        "username": "admin"
+      },
+      "demoUsers": {
+        "realm": "pocoma",
+        "owner": "third",
+        "guest": "guest",
+        "bruno": "bruno"
+      },
+      "credentialsConvention": "L7-LB local only: password pocoma for admin/third/guest/bruno; never production or L8.",
+      "grafana": {
+        "url": "http://127.0.0.1:61347/",
+        "username": "admin",
+        "dashboard": "Pocoma runtime",
+        "dashboardUrl": "http://127.0.0.1:61347/d/pocoma-runtime"
+      },
+      "keycloakAuthEvidence": "./.pocoma-local/instances/demo/runs/1794693712-e16c7c72/keycloak-auth.json"
+    }
+  },
+  {
+    "command": [
+      "./pocoma-local",
+      "status",
+      "--instance",
+      "demo"
+    ],
+    "phase": "datasource-stopped",
+    "exit": 1,
+    "expected": 1,
+    "seconds": 1.5727857079982641,
+    "result": {
+      "state": "NOT_READY",
+      "exit": 1,
+      "business": "AVAILABLE",
+      "canary": "AVAILABLE",
+      "qualificationTools": "DEGRADED",
+      "fullyQualifiable": false,
+      "checks": {
+        "JVM-http-write": "PASS",
+        "JVM-http-read": "PASS",
+        "JVM-command-worker": "PASS",
+        "JVM-results-worker": "PASS",
+        "JVM-business-read-worker": "PASS",
+        "DB-CURRENT": "PASS",
+        "IDP-DISCOVERY": "PASS",
+        "KEYCLOAK-OIDC-DISCOVERY": "PASS",
+        "KEYCLOAK-ADMIN-AUTH": "PASS",
+        "KEYCLOAK-ADMIN-ENABLED": "PASS",
+        "KEYCLOAK-THIRD-ENABLED": "PASS",
+        "KEYCLOAK-THIRD-PKCE": "PASS",
+        "KEYCLOAK-GUEST-ENABLED": "PASS",
+        "KEYCLOAK-GUEST-PKCE": "PASS",
+        "KEYCLOAK-BRUNO-ENABLED": "PASS",
+        "KEYCLOAK-BRUNO-PKCE": "PASS",
+        "IDP-PKCE-SESSION": "PASS",
+        "GRAFANA-HTTP": "PASS",
+        "GRAFANA-DATASOURCE": "FAIL",
+        "GRAFANA-DASHBOARD": "PASS"
+      },
+      "canaryProof": {
+        "potId": "781047aa-eaf1-51e7-8a03-d512e1389f7e",
+        "version": 9,
+        "runId": "1794693630-0a1ccafb",
+        "completedAt": 1794693690.943956
+      },
+      "observedAt": 1794693718.1017878,
+      "grafanaDiagnostics": {
+        "GRAFANA-DATASOURCE": {
+          "code": "GRAFANA_DATASOURCE_UNAVAILABLE",
+          "errorClass": "HTTPError"
+        }
+      },
+      "instance": "demo",
+      "project": "pocoma-lb-demo-33dd8c1d",
+      "sha": "8b1675d225647793a5626576b413324702b9adf5",
+      "dirty": true,
+      "urls": {
+        "write": "http://127.0.0.1:54610",
+        "read": "http://127.0.0.1:54611"
+      },
+      "issuer": "http://localhost:54612/realms/pocoma",
+      "evidence": "./.pocoma-local/instances/demo/runs/1794693716-7277dc3f",
+      "keycloakAdmin": {
+        "url": "http://localhost:54612/admin/",
+        "realm": "master",
+        "username": "admin"
+      },
+      "demoUsers": {
+        "realm": "pocoma",
+        "owner": "third",
+        "guest": "guest",
+        "bruno": "bruno"
+      },
+      "credentialsConvention": "L7-LB local only: password pocoma for admin/third/guest/bruno; never production or L8.",
+      "grafana": {
+        "url": "http://127.0.0.1:61347/",
+        "username": "admin",
+        "dashboard": "Pocoma runtime",
+        "dashboardUrl": "http://127.0.0.1:61347/d/pocoma-runtime"
+      },
+      "keycloakAuthEvidence": "./.pocoma-local/instances/demo/runs/1794693716-7277dc3f/keycloak-auth.json"
+    }
+  },
+  {
+    "command": [
+      "./pocoma-local",
+      "start",
+      "--instance",
+      "demo"
+    ],
+    "phase": "demo-restored",
+    "exit": 0,
+    "expected": 0,
+    "seconds": 8.273651124996832,
+    "result": {
+      "state": "READY",
+      "exit": 0,
+      "business": "AVAILABLE",
+      "canary": "AVAILABLE",
+      "qualificationTools": "AVAILABLE",
+      "fullyQualifiable": false,
+      "checks": {
+        "JVM-http-write": "PASS",
+        "JVM-http-read": "PASS",
+        "JVM-command-worker": "PASS",
+        "JVM-results-worker": "PASS",
+        "JVM-business-read-worker": "PASS",
+        "DB-CURRENT": "PASS",
+        "IDP-DISCOVERY": "PASS",
+        "KEYCLOAK-OIDC-DISCOVERY": "PASS",
+        "KEYCLOAK-ADMIN-AUTH": "PASS",
+        "KEYCLOAK-ADMIN-ENABLED": "PASS",
+        "KEYCLOAK-THIRD-ENABLED": "PASS",
+        "KEYCLOAK-THIRD-PKCE": "PASS",
+        "KEYCLOAK-GUEST-ENABLED": "PASS",
+        "KEYCLOAK-GUEST-PKCE": "PASS",
+        "KEYCLOAK-BRUNO-ENABLED": "PASS",
+        "KEYCLOAK-BRUNO-PKCE": "PASS",
+        "GRAFANA-HTTP": "PASS",
+        "GRAFANA-DATASOURCE": "PASS",
+        "GRAFANA-DASHBOARD": "PASS"
+      },
+      "canaryProof": {
+        "potId": "781047aa-eaf1-51e7-8a03-d512e1389f7e",
+        "version": 10,
+        "runId": "1794693718-cd1f2886",
+        "completedAt": 1794693725.751282
+      },
+      "observedAt": 1794693726.5893881,
+      "instance": "demo",
+      "project": "pocoma-lb-demo-33dd8c1d",
+      "sha": "8b1675d225647793a5626576b413324702b9adf5",
+      "dirty": true,
+      "urls": {
+        "write": "http://127.0.0.1:54610",
+        "read": "http://127.0.0.1:54611"
+      },
+      "issuer": "http://localhost:54612/realms/pocoma",
+      "evidence": "./.pocoma-local/instances/demo/runs/1794693718-cd1f2886",
+      "keycloakAdmin": {
+        "url": "http://localhost:54612/admin/",
+        "realm": "master",
+        "username": "admin"
+      },
+      "demoUsers": {
+        "realm": "pocoma",
+        "owner": "third",
+        "guest": "guest",
+        "bruno": "bruno"
+      },
+      "credentialsConvention": "L7-LB local only: password pocoma for admin/third/guest/bruno; never production or L8.",
+      "grafana": {
+        "url": "http://127.0.0.1:61347/",
+        "username": "admin",
+        "dashboard": "Pocoma runtime",
+        "dashboardUrl": "http://127.0.0.1:61347/d/pocoma-runtime"
+      },
+      "keycloakAuthEvidence": "./.pocoma-local/instances/demo/runs/1794693718-cd1f2886/keycloak-auth.json"
+    }
+  },
+  {
+    "command": [
+      "./pocoma-local",
+      "stop",
+      "--instance",
+      "demo"
+    ],
+    "phase": "demo-stop",
+    "exit": 0,
+    "expected": 0,
+    "seconds": 2.6349838329988415,
+    "result": {
+      "state": "STOPPED",
+      "exit": 0,
+      "volumes": "PRESERVED",
+      "runtimeExitCodes": {
+        "business-read-worker": 143,
+        "command-worker": 143,
+        "http-read": 143,
+        "http-write": 143,
+        "results-worker": 143
+      },
+      "forcedKill": [],
+      "slotsBeforeStop": {
+        "pocoma_write": "0",
+        "pocoma_read": "0"
+      },
+      "instance": "demo",
+      "project": "pocoma-lb-demo-33dd8c1d",
+      "sha": "8b1675d225647793a5626576b413324702b9adf5",
+      "dirty": true,
+      "urls": {
+        "write": "http://127.0.0.1:54610",
+        "read": "http://127.0.0.1:54611"
+      },
+      "issuer": "http://localhost:54612/realms/pocoma",
+      "evidence": "./.pocoma-local/instances/demo/runs/1794693726-5b7418d5"
+    }
+  },
+  {
+    "command": [
+      "./pocoma-local",
+      "start",
+      "--instance",
+      "demo"
+    ],
+    "phase": "demo-restart",
+    "exit": 0,
+    "expected": 0,
+    "seconds": 246.73750687499705,
+    "result": {
+      "state": "READY",
+      "exit": 0,
+      "business": "AVAILABLE",
+      "canary": "AVAILABLE",
+      "qualificationTools": "AVAILABLE",
+      "fullyQualifiable": false,
+      "checks": {
+        "JVM-http-write": "PASS",
+        "JVM-http-read": "PASS",
+        "JVM-command-worker": "PASS",
+        "JVM-results-worker": "PASS",
+        "JVM-business-read-worker": "PASS",
+        "DB-CURRENT": "PASS",
+        "IDP-DISCOVERY": "PASS",
+        "KEYCLOAK-OIDC-DISCOVERY": "PASS",
+        "KEYCLOAK-ADMIN-AUTH": "PASS",
+        "KEYCLOAK-ADMIN-ENABLED": "PASS",
+        "KEYCLOAK-THIRD-ENABLED": "PASS",
+        "KEYCLOAK-THIRD-PKCE": "PASS",
+        "KEYCLOAK-GUEST-ENABLED": "PASS",
+        "KEYCLOAK-GUEST-PKCE": "PASS",
+        "KEYCLOAK-BRUNO-ENABLED": "PASS",
+        "KEYCLOAK-BRUNO-PKCE": "PASS",
+        "GRAFANA-HTTP": "PASS",
+        "GRAFANA-DATASOURCE": "PASS",
+        "GRAFANA-DASHBOARD": "PASS"
+      },
+      "canaryProof": {
+        "potId": "781047aa-eaf1-51e7-8a03-d512e1389f7e",
+        "version": 11,
+        "runId": "1794693729-2b5d9f78",
+        "completedAt": 1794693975.614837
+      },
+      "observedAt": 1794693975.956568,
+      "instance": "demo",
+      "project": "pocoma-lb-demo-33dd8c1d",
+      "sha": "8b1675d225647793a5626576b413324702b9adf5",
+      "dirty": true,
+      "urls": {
+        "write": "http://127.0.0.1:54610",
+        "read": "http://127.0.0.1:54611"
+      },
+      "issuer": "http://localhost:54612/realms/pocoma",
+      "evidence": "./.pocoma-local/instances/demo/runs/1794693729-2b5d9f78",
+      "keycloakAdmin": {
+        "url": "http://localhost:54612/admin/",
+        "realm": "master",
+        "username": "admin"
+      },
+      "demoUsers": {
+        "realm": "pocoma",
+        "owner": "third",
+        "guest": "guest",
+        "bruno": "bruno"
+      },
+      "credentialsConvention": "L7-LB local only: password pocoma for admin/third/guest/bruno; never production or L8.",
+      "grafana": {
+        "url": "http://127.0.0.1:61347/",
+        "username": "admin",
+        "dashboard": "Pocoma runtime",
+        "dashboardUrl": "http://127.0.0.1:61347/d/pocoma-runtime"
+      },
+      "keycloakAuthEvidence": "./.pocoma-local/instances/demo/runs/1794693729-2b5d9f78/keycloak-auth.json"
+    }
+  },
+  {
+    "command": [
+      "./pocoma-local",
+      "status",
+      "--instance",
+      "demo"
+    ],
+    "phase": "demo-restart-status",
+    "exit": 0,
+    "expected": 0,
+    "seconds": 1.9655600839978433,
+    "result": {
+      "state": "READY",
+      "exit": 0,
+      "business": "AVAILABLE",
+      "canary": "AVAILABLE",
+      "qualificationTools": "AVAILABLE",
+      "fullyQualifiable": false,
+      "checks": {
+        "JVM-http-write": "PASS",
+        "JVM-http-read": "PASS",
+        "JVM-command-worker": "PASS",
+        "JVM-results-worker": "PASS",
+        "JVM-business-read-worker": "PASS",
+        "DB-CURRENT": "PASS",
+        "IDP-DISCOVERY": "PASS",
+        "KEYCLOAK-OIDC-DISCOVERY": "PASS",
+        "KEYCLOAK-ADMIN-AUTH": "PASS",
+        "KEYCLOAK-ADMIN-ENABLED": "PASS",
+        "KEYCLOAK-THIRD-ENABLED": "PASS",
+        "KEYCLOAK-THIRD-PKCE": "PASS",
+        "KEYCLOAK-GUEST-ENABLED": "PASS",
+        "KEYCLOAK-GUEST-PKCE": "PASS",
+        "KEYCLOAK-BRUNO-ENABLED": "PASS",
+        "KEYCLOAK-BRUNO-PKCE": "PASS",
+        "IDP-PKCE-SESSION": "PASS",
+        "GRAFANA-HTTP": "PASS",
+        "GRAFANA-DATASOURCE": "PASS",
+        "GRAFANA-DASHBOARD": "PASS"
+      },
+      "canaryProof": {
+        "potId": "781047aa-eaf1-51e7-8a03-d512e1389f7e",
+        "version": 11,
+        "runId": "1794693729-2b5d9f78",
+        "completedAt": 1794693975.614837
+      },
+      "observedAt": 1794693977.928938,
+      "instance": "demo",
+      "project": "pocoma-lb-demo-33dd8c1d",
+      "sha": "8b1675d225647793a5626576b413324702b9adf5",
+      "dirty": true,
+      "urls": {
+        "write": "http://127.0.0.1:54610",
+        "read": "http://127.0.0.1:54611"
+      },
+      "issuer": "http://localhost:54612/realms/pocoma",
+      "evidence": "./.pocoma-local/instances/demo/runs/1794693976-670f04db",
+      "keycloakAdmin": {
+        "url": "http://localhost:54612/admin/",
+        "realm": "master",
+        "username": "admin"
+      },
+      "demoUsers": {
+        "realm": "pocoma",
+        "owner": "third",
+        "guest": "guest",
+        "bruno": "bruno"
+      },
+      "credentialsConvention": "L7-LB local only: password pocoma for admin/third/guest/bruno; never production or L8.",
+      "grafana": {
+        "url": "http://127.0.0.1:61347/",
+        "username": "admin",
+        "dashboard": "Pocoma runtime",
+        "dashboardUrl": "http://127.0.0.1:61347/d/pocoma-runtime"
+      },
+      "keycloakAuthEvidence": "./.pocoma-local/instances/demo/runs/1794693976-670f04db/keycloak-auth.json"
+    }
+  },
+  {
+    "command": [
+      "./pocoma-local",
+      "stop",
+      "--instance",
+      "demo"
+    ],
+    "phase": "demo-stop-for-fixture",
+    "exit": 0,
+    "expected": 0,
+    "seconds": 2.5327016250012093,
+    "result": {
+      "state": "STOPPED",
+      "exit": 0,
+      "volumes": "PRESERVED",
+      "runtimeExitCodes": {
+        "business-read-worker": 143,
+        "command-worker": 143,
+        "http-read": 143,
+        "http-write": 143,
+        "results-worker": 143
+      },
+      "forcedKill": [],
+      "slotsBeforeStop": {
+        "pocoma_write": "0",
+        "pocoma_read": "0"
+      },
+      "instance": "demo",
+      "project": "pocoma-lb-demo-33dd8c1d",
+      "sha": "8b1675d225647793a5626576b413324702b9adf5",
+      "dirty": true,
+      "urls": {
+        "write": "http://127.0.0.1:54610",
+        "read": "http://127.0.0.1:54611"
+      },
+      "issuer": "http://localhost:54612/realms/pocoma",
+      "evidence": "./.pocoma-local/instances/demo/runs/1794693978-3f8ab2e7"
+    }
+  },
+  {
+    "command": [
+      "./pocoma-local",
+      "start",
+      "--instance",
+      "grafana-final-validation"
+    ],
+    "phase": "fixture-fresh",
+    "exit": 0,
+    "expected": 0,
+    "seconds": 38.949680500001705,
+    "result": {
+      "state": "READY",
+      "exit": 0,
+      "business": "AVAILABLE",
+      "canary": "AVAILABLE",
+      "qualificationTools": "AVAILABLE",
+      "fullyQualifiable": false,
+      "checks": {
+        "JVM-http-write": "PASS",
+        "JVM-http-read": "PASS",
+        "JVM-command-worker": "PASS",
+        "JVM-results-worker": "PASS",
+        "JVM-business-read-worker": "PASS",
+        "DB-CURRENT": "PASS",
+        "IDP-DISCOVERY": "PASS",
+        "KEYCLOAK-OIDC-DISCOVERY": "PASS",
+        "KEYCLOAK-ADMIN-AUTH": "PASS",
+        "KEYCLOAK-ADMIN-ENABLED": "PASS",
+        "KEYCLOAK-THIRD-ENABLED": "PASS",
+        "KEYCLOAK-THIRD-PKCE": "PASS",
+        "KEYCLOAK-GUEST-ENABLED": "PASS",
+        "KEYCLOAK-GUEST-PKCE": "PASS",
+        "KEYCLOAK-BRUNO-ENABLED": "PASS",
+        "KEYCLOAK-BRUNO-PKCE": "PASS",
+        "GRAFANA-HTTP": "PASS",
+        "GRAFANA-DATASOURCE": "PASS",
+        "GRAFANA-DASHBOARD": "PASS"
+      },
+      "canaryProof": {
+        "potId": "1c48d222-65ca-5157-89b5-886b163ea4b5",
+        "version": 2,
+        "runId": "1794693981-deeb2c4c",
+        "completedAt": 1794694019.9760551
+      },
+      "observedAt": 1794694020.399633,
+      "instance": "grafana-final-validation",
+      "project": "pocoma-lb-grafana-final-validation-8cb0087f",
+      "sha": "8b1675d225647793a5626576b413324702b9adf5",
+      "dirty": true,
+      "urls": {
+        "write": "http://127.0.0.1:65013",
+        "read": "http://127.0.0.1:65014"
+      },
+      "issuer": "http://localhost:65015/realms/pocoma",
+      "evidence": "./.pocoma-local/instances/grafana-final-validation/runs/1794693981-deeb2c4c",
+      "keycloakAdmin": {
+        "url": "http://localhost:65015/admin/",
+        "realm": "master",
+        "username": "admin"
+      },
+      "demoUsers": {
+        "realm": "pocoma",
+        "owner": "third",
+        "guest": "guest",
+        "bruno": "bruno"
+      },
+      "credentialsConvention": "L7-LB local only: password pocoma for admin/third/guest/bruno; never production or L8.",
+      "grafana": {
+        "url": "http://127.0.0.1:65022/",
+        "username": "admin",
+        "dashboard": "Pocoma runtime",
+        "dashboardUrl": "http://127.0.0.1:65022/d/pocoma-runtime"
+      },
+      "keycloakAuthEvidence": "./.pocoma-local/instances/grafana-final-validation/runs/1794693981-deeb2c4c/keycloak-auth.json"
+    }
+  },
+  {
+    "command": [
+      "./pocoma-local",
+      "status",
+      "--instance",
+      "grafana-final-validation"
+    ],
+    "phase": "fixture-status",
+    "exit": 0,
+    "expected": 0,
+    "seconds": 2.342771666997578,
+    "result": {
+      "state": "READY",
+      "exit": 0,
+      "business": "AVAILABLE",
+      "canary": "AVAILABLE",
+      "qualificationTools": "AVAILABLE",
+      "fullyQualifiable": false,
+      "checks": {
+        "JVM-http-write": "PASS",
+        "JVM-http-read": "PASS",
+        "JVM-command-worker": "PASS",
+        "JVM-results-worker": "PASS",
+        "JVM-business-read-worker": "PASS",
+        "DB-CURRENT": "PASS",
+        "IDP-DISCOVERY": "PASS",
+        "KEYCLOAK-OIDC-DISCOVERY": "PASS",
+        "KEYCLOAK-ADMIN-AUTH": "PASS",
+        "KEYCLOAK-ADMIN-ENABLED": "PASS",
+        "KEYCLOAK-THIRD-ENABLED": "PASS",
+        "KEYCLOAK-THIRD-PKCE": "PASS",
+        "KEYCLOAK-GUEST-ENABLED": "PASS",
+        "KEYCLOAK-GUEST-PKCE": "PASS",
+        "KEYCLOAK-BRUNO-ENABLED": "PASS",
+        "KEYCLOAK-BRUNO-PKCE": "PASS",
+        "IDP-PKCE-SESSION": "PASS",
+        "GRAFANA-HTTP": "PASS",
+        "GRAFANA-DATASOURCE": "PASS",
+        "GRAFANA-DASHBOARD": "PASS"
+      },
+      "canaryProof": {
+        "potId": "1c48d222-65ca-5157-89b5-886b163ea4b5",
+        "version": 2,
+        "runId": "1794693981-deeb2c4c",
+        "completedAt": 1794694019.9760551
+      },
+      "observedAt": 1794694022.733102,
+      "instance": "grafana-final-validation",
+      "project": "pocoma-lb-grafana-final-validation-8cb0087f",
+      "sha": "8b1675d225647793a5626576b413324702b9adf5",
+      "dirty": true,
+      "urls": {
+        "write": "http://127.0.0.1:65013",
+        "read": "http://127.0.0.1:65014"
+      },
+      "issuer": "http://localhost:65015/realms/pocoma",
+      "evidence": "./.pocoma-local/instances/grafana-final-validation/runs/1794694020-feebec7d",
+      "keycloakAdmin": {
+        "url": "http://localhost:65015/admin/",
+        "realm": "master",
+        "username": "admin"
+      },
+      "demoUsers": {
+        "realm": "pocoma",
+        "owner": "third",
+        "guest": "guest",
+        "bruno": "bruno"
+      },
+      "credentialsConvention": "L7-LB local only: password pocoma for admin/third/guest/bruno; never production or L8.",
+      "grafana": {
+        "url": "http://127.0.0.1:65022/",
+        "username": "admin",
+        "dashboard": "Pocoma runtime",
+        "dashboardUrl": "http://127.0.0.1:65022/d/pocoma-runtime"
+      },
+      "keycloakAuthEvidence": "./.pocoma-local/instances/grafana-final-validation/runs/1794694020-feebec7d/keycloak-auth.json"
+    }
+  },
+  {
+    "command": [
+      "./pocoma-local",
+      "bruno",
+      "--instance",
+      "grafana-final-validation"
+    ],
+    "phase": "fixture-bruno",
+    "exit": 0,
+    "expected": 0,
+    "seconds": 8.05017020899686,
+    "result": {
+      "state": "BRUNO_PASS",
+      "exit": 0,
+      "instance": "grafana-final-validation",
+      "project": "pocoma-lb-grafana-final-validation-8cb0087f",
+      "sha": "8b1675d225647793a5626576b413324702b9adf5",
+      "dirty": true,
+      "urls": {
+        "write": "http://127.0.0.1:65013",
+        "read": "http://127.0.0.1:65014"
+      },
+      "issuer": "http://localhost:65015/realms/pocoma",
+      "evidence": "./.pocoma-local/instances/grafana-final-validation/runs/1794694022-34c02fd6"
+    }
+  },
+  {
+    "command": [
+      "./pocoma-local",
+      "reset",
+      "--instance",
+      "grafana-final-validation",
+      "--confirm",
+      "RESET:grafana-final-validation"
+    ],
+    "phase": "fixture-reset",
+    "exit": 0,
+    "expected": 0,
+    "seconds": 42.68060920800053,
+    "result": {
+      "state": "READY",
+      "exit": 0,
+      "business": "AVAILABLE",
+      "canary": "AVAILABLE",
+      "qualificationTools": "AVAILABLE",
+      "fullyQualifiable": false,
+      "checks": {
+        "JVM-http-write": "PASS",
+        "JVM-http-read": "PASS",
+        "JVM-command-worker": "PASS",
+        "JVM-results-worker": "PASS",
+        "JVM-business-read-worker": "PASS",
+        "DB-CURRENT": "PASS",
+        "IDP-DISCOVERY": "PASS",
+        "KEYCLOAK-OIDC-DISCOVERY": "PASS",
+        "KEYCLOAK-ADMIN-AUTH": "PASS",
+        "KEYCLOAK-ADMIN-ENABLED": "PASS",
+        "KEYCLOAK-THIRD-ENABLED": "PASS",
+        "KEYCLOAK-THIRD-PKCE": "PASS",
+        "KEYCLOAK-GUEST-ENABLED": "PASS",
+        "KEYCLOAK-GUEST-PKCE": "PASS",
+        "KEYCLOAK-BRUNO-ENABLED": "PASS",
+        "KEYCLOAK-BRUNO-PKCE": "PASS",
+        "GRAFANA-HTTP": "PASS",
+        "GRAFANA-DATASOURCE": "PASS",
+        "GRAFANA-DASHBOARD": "PASS"
+      },
+      "canaryProof": {
+        "potId": "58be2354-5050-521c-9772-cfba9d924aea",
+        "version": 2,
+        "runId": "1794694030-39630f07",
+        "completedAt": 1794694073.124545
+      },
+      "observedAt": 1794694073.472822,
+      "removedOwnedVolumes": [
+        "pocoma-lb-grafana-final-validation-8cb0087f-data"
+      ],
+      "preservedUnownedVolumes": [
+        "10bfd9105989084339d557895de21f9f082e3bf6e7757501d21ea09a945d7828"
+      ],
+      "instance": "grafana-final-validation",
+      "project": "pocoma-lb-grafana-final-validation-1d1e5665",
+      "sha": "8b1675d225647793a5626576b413324702b9adf5",
+      "dirty": true,
+      "urls": {
+        "write": "http://127.0.0.1:49242",
+        "read": "http://127.0.0.1:49243"
+      },
+      "issuer": "http://localhost:49244/realms/pocoma",
+      "evidence": "./.pocoma-local/instances/grafana-final-validation/runs/1794694030-39630f07"
+    }
+  },
+  {
+    "command": [
+      "./pocoma-local",
+      "status",
+      "--instance",
+      "grafana-final-validation"
+    ],
+    "phase": "fixture-reset-status",
+    "exit": 0,
+    "expected": 0,
+    "seconds": 2.133594250000897,
+    "result": {
+      "state": "READY",
+      "exit": 0,
+      "business": "AVAILABLE",
+      "canary": "AVAILABLE",
+      "qualificationTools": "AVAILABLE",
+      "fullyQualifiable": false,
+      "checks": {
+        "JVM-http-write": "PASS",
+        "JVM-http-read": "PASS",
+        "JVM-command-worker": "PASS",
+        "JVM-results-worker": "PASS",
+        "JVM-business-read-worker": "PASS",
+        "DB-CURRENT": "PASS",
+        "IDP-DISCOVERY": "PASS",
+        "KEYCLOAK-OIDC-DISCOVERY": "PASS",
+        "KEYCLOAK-ADMIN-AUTH": "PASS",
+        "KEYCLOAK-ADMIN-ENABLED": "PASS",
+        "KEYCLOAK-THIRD-ENABLED": "PASS",
+        "KEYCLOAK-THIRD-PKCE": "PASS",
+        "KEYCLOAK-GUEST-ENABLED": "PASS",
+        "KEYCLOAK-GUEST-PKCE": "PASS",
+        "KEYCLOAK-BRUNO-ENABLED": "PASS",
+        "KEYCLOAK-BRUNO-PKCE": "PASS",
+        "IDP-PKCE-SESSION": "PASS",
+        "GRAFANA-HTTP": "PASS",
+        "GRAFANA-DATASOURCE": "PASS",
+        "GRAFANA-DASHBOARD": "PASS"
+      },
+      "canaryProof": {
+        "potId": "58be2354-5050-521c-9772-cfba9d924aea",
+        "version": 2,
+        "runId": "1794694030-39630f07",
+        "completedAt": 1794694073.124545
+      },
+      "observedAt": 1794694075.605168,
+      "instance": "grafana-final-validation",
+      "project": "pocoma-lb-grafana-final-validation-1d1e5665",
+      "sha": "8b1675d225647793a5626576b413324702b9adf5",
+      "dirty": true,
+      "urls": {
+        "write": "http://127.0.0.1:49242",
+        "read": "http://127.0.0.1:49243"
+      },
+      "issuer": "http://localhost:49244/realms/pocoma",
+      "evidence": "./.pocoma-local/instances/grafana-final-validation/runs/1794694073-824bd706",
+      "keycloakAdmin": {
+        "url": "http://localhost:49244/admin/",
+        "realm": "master",
+        "username": "admin"
+      },
+      "demoUsers": {
+        "realm": "pocoma",
+        "owner": "third",
+        "guest": "guest",
+        "bruno": "bruno"
+      },
+      "credentialsConvention": "L7-LB local only: password pocoma for admin/third/guest/bruno; never production or L8.",
+      "grafana": {
+        "url": "http://127.0.0.1:49251/",
+        "username": "admin",
+        "dashboard": "Pocoma runtime",
+        "dashboardUrl": "http://127.0.0.1:49251/d/pocoma-runtime"
+      },
+      "keycloakAuthEvidence": "./.pocoma-local/instances/grafana-final-validation/runs/1794694073-824bd706/keycloak-auth.json"
+    }
+  },
+  {
+    "command": [
+      "./pocoma-local",
+      "destroy",
+      "--instance",
+      "grafana-final-validation",
+      "--confirm",
+      "DESTROY:grafana-final-validation",
+      "--dry-run"
+    ],
+    "phase": "fixture-destroy-plan",
+    "exit": 0,
+    "expected": 0,
+    "seconds": 0.7211604999974952,
+    "result": {
+      "state": "DESTROY_PLAN",
+      "exit": 0,
+      "instance": "grafana-final-validation",
+      "owner": "1d1e5665-0fb3-45f8-b9a9-fdd5df59b2a7",
+      "project": "pocoma-lb-grafana-final-validation-1d1e5665",
+      "volume": "pocoma-lb-grafana-final-validation-1d1e5665-data",
+      "network": "pocoma-lb-grafana-final-validation-1d1e5665_default",
+      "services": [
+        "http-write",
+        "http-read",
+        "command-worker",
+        "results-worker",
+        "business-read-worker",
+        "postgres",
+        "keycloak",
+        "prometheus",
+        "grafana"
+      ],
+      "persistentDataLost": [
+        "PostgreSQL WRITE/READ and Keycloak database in owned volume",
+        "Generated credentials, configuration, demo and canary checkpoints"
+      ],
+      "retained": "./.pocoma-local/instances/grafana-final-validation/runs",
+      "preservedUnownedVolumes": [
+        "de0ee984ff470f74a70408b01968c319068bf2a067bf3fa5cca786487c0872d5"
+      ],
+      "operations": [
+        "Verify manifest/UUID/resource ownership",
+        "Gracefully stop this instance",
+        "Compose down without --volumes; preserve unowned attached volumes",
+        "Remove only the named data volume after checking its owner/project labels",
+        "Remove generated instance files; retain lock and diagnostic runs"
+      ],
+      "command": "./pocoma-local destroy --instance grafana-final-validation --confirm DESTROY:grafana-final-validation",
+      "sha": "8b1675d225647793a5626576b413324702b9adf5",
+      "dirty": true,
+      "urls": {
+        "write": "http://127.0.0.1:49242",
+        "read": "http://127.0.0.1:49243"
+      },
+      "issuer": "http://localhost:49244/realms/pocoma",
+      "evidence": "./.pocoma-local/instances/grafana-final-validation/runs/1794694075-8fd626c7"
+    }
+  },
+  {
+    "command": [
+      "./pocoma-local",
+      "destroy",
+      "--instance",
+      "grafana-final-validation",
+      "--confirm",
+      "DESTROY:grafana-final-validation"
+    ],
+    "phase": "fixture-destroy",
+    "exit": 0,
+    "expected": 0,
+    "seconds": 4.202039499999955,
+    "result": {
+      "state": "DESTROYED",
+      "exit": 0,
+      "project": "pocoma-lb-grafana-final-validation-1d1e5665",
+      "diagnostics": "PRESERVED",
+      "removedOwnedVolumes": [
+        "pocoma-lb-grafana-final-validation-1d1e5665-data"
+      ],
+      "preservedUnownedVolumes": [
+        "de0ee984ff470f74a70408b01968c319068bf2a067bf3fa5cca786487c0872d5"
+      ],
+      "instance": "grafana-final-validation",
+      "sha": "8b1675d225647793a5626576b413324702b9adf5",
+      "dirty": true,
+      "urls": {
+        "write": "http://127.0.0.1:49242",
+        "read": "http://127.0.0.1:49243"
+      },
+      "issuer": "http://localhost:49244/realms/pocoma",
+      "evidence": "./.pocoma-local/instances/grafana-final-validation/runs/1794694076-76c85cc8"
+    }
+  }
+]

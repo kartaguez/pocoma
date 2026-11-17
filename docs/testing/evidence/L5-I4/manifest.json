@@ -1,0 +1,203 @@
+{
+  "increment": "L5/I4",
+  "title": "Invitation and voluntary departure",
+  "status": "L5/I4 — POST-AUDIT DOCUMENTATION FINALIZED — READY FOR HUMAN CLOSURE REVIEW",
+  "git": {
+    "baselineSha": "ca21034f7873ed5c16f296665ae2aaf63d4090d7",
+    "implementationIntroductionSha": "7a284405093c0c7593f8ca4f9ba70b5e605e1df3",
+    "auditedSha": "d722e9d5858c9e4eba5aa1883cf72988b463d780",
+    "postAuditTargetedCorrectionsSha": "2b1271d0ca3db6c6e9dfddd74f2b877cf4631dd2",
+    "postAuditReportSha": "a087dd8b3f07e2c6116533f98b597f78080da5eb"
+  },
+  "environment": {
+    "os": "macOS Darwin (Apple Silicon aarch64)",
+    "java": "OpenJDK 21.0.9 (Eclipse Temurin 21-tem)",
+    "maven": "Apache Maven 3.9.x (wrapper ./mvnw)",
+    "postgresql": "PostgreSQL 17.11 (Testcontainers docker)",
+    "bruno": "@usebruno/cli 4.3.0"
+  },
+  "evidenceFiles": [
+    {
+      "file": "surefire-reports/TEST-com.kartaguez.pocoma.V3AdmissionFlowPostgresTest.xml",
+      "sha256": "72e606323f28e230623493a778c8692477727f8b16df41c49780750a09c609d6",
+      "testClass": "com.kartaguez.pocoma.V3AdmissionFlowPostgresTest",
+      "methods": [
+        "voluntaryDeparturePreservesHistoryAndIdentity"
+      ],
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "timeSeconds": 19.187,
+      "executedAt": "2026-11-05T13:40:00+01:00",
+      "sourceSha": "7a284405093c0c7593f8ca4f9ba70b5e605e1df3",
+      "testRunSha": "TEST_RUN_SHA — NOT ESTABLISHED",
+      "status": "PASS historique réutilisé — preuve archivée"
+    },
+    {
+      "file": "surefire-reports/com.kartaguez.pocoma.V3AdmissionFlowPostgresTest.txt",
+      "sha256": "c30bbe3a4e14293623e02f65b12870baa9a9a83016b1d818bf522be6e312ecbf"
+    },
+    {
+      "file": "surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.v3.InvitationAttachmentTest.xml",
+      "sha256": "d1ca85a4a5a131230b1eea9843e2922481ef065e8f9a23a1191a41f6866b67b1",
+      "testClass": "com.kartaguez.pocoma.domain.pot.v3.InvitationAttachmentTest",
+      "methods": [
+        "occupiedDeletedAbsentAndAlreadyAttachedRemainRejected",
+        "mixedOrMissingDurableFactsAreTechnicalAnomalies",
+        "outsiderAndUnattachedCreatorAttachOnlyThemselvesWithOneDetailsRevision"
+      ],
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "timeSeconds": 0.039,
+      "executedAt": "2026-11-05T13:57:00+01:00",
+      "sourceSha": "7a284405093c0c7593f8ca4f9ba70b5e605e1df3",
+      "testRunSha": "TEST_RUN_SHA — NOT ESTABLISHED",
+      "status": "PASS historique réutilisé — preuve archivée"
+    },
+    {
+      "file": "surefire-reports/com.kartaguez.pocoma.domain.pot.v3.InvitationAttachmentTest.txt",
+      "sha256": "264c53a408d5f48fa66c1a826c247058a1f4b5bd514c9b9086e8ff171e2b3ded"
+    },
+    {
+      "file": "surefire-reports/TEST-com.kartaguez.pocoma.V3InvitationReadPostgresTest.xml",
+      "sha256": "8777e4687f9ea64d28f29d2442eefaaef6e37808d864477737d513946d7ae29e",
+      "testClass": "com.kartaguez.pocoma.V3InvitationReadPostgresTest",
+      "methods": [
+        "reconstructOnFreshReadWithoutProducer",
+        "authenticatedEncryptionAndOldKeyRestoration",
+        "monotoneDuplicateAndDivergence"
+      ],
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "timeSeconds": 28.327,
+      "executedAt": "2026-11-05T14:07:00+01:00",
+      "sourceSha": "7a284405093c0c7593f8ca4f9ba70b5e605e1df3",
+      "testRunSha": "TEST_RUN_SHA — NOT ESTABLISHED",
+      "status": "PASS historique réutilisé — preuve archivée"
+    },
+    {
+      "file": "surefire-reports/com.kartaguez.pocoma.V3InvitationReadPostgresTest.txt",
+      "sha256": "7cf42ca65a3229761d60015c5b98242d11f918b08f0faa952ca28934883d029c"
+    },
+    {
+      "file": "surefire-reports/TEST-com.kartaguez.pocoma.V3InvitationTopologyPostgresTest.xml",
+      "sha256": "cbad0f5bd869ad13508d81b0a991a9814159f970cd48a51717ad2a8ee5fd7e74",
+      "testClass": "com.kartaguez.pocoma.V3InvitationTopologyPostgresTest",
+      "methods": [
+        "targetThreeFourPartitionsConnectionsRenewalAndRestart",
+        "invitationPrivilegePreflightsRejectColumnEscalation"
+      ],
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "timeSeconds": 207.42,
+      "executedAt": "2026-11-05T14:12:00+01:00",
+      "sourceSha": "7a284405093c0c7593f8ca4f9ba70b5e605e1df3",
+      "testRunSha": "TEST_RUN_SHA — NOT ESTABLISHED",
+      "status": "PASS historique réutilisé — preuve archivée"
+    },
+    {
+      "file": "surefire-reports/com.kartaguez.pocoma.V3InvitationTopologyPostgresTest.txt",
+      "sha256": "5211bd41bb791389e5631281e944653f7e47e1ec7bf0843c0a9f68f5a3654bcd"
+    },
+    {
+      "file": "surefire-reports/TEST-com.kartaguez.pocoma.V3InvitationStandaloneWebPostgresTest.xml",
+      "sha256": "5b518514bcf9a1d06057de94adf99e941dd5b2bdbd7afcea785964fbd3bd0c3e",
+      "testClass": "com.kartaguez.pocoma.V3InvitationStandaloneWebPostgresTest",
+      "methods": [
+        "restrictedPlacesWithoutWriteOrDecryption",
+        "exactEuiBindingIndependenceAndMissingKey"
+      ],
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "timeSeconds": 7.116,
+      "executedAt": "2026-11-05T14:31:26+01:00",
+      "sourceSha": "2b1271d0ca3db6c6e9dfddd74f2b877cf4631dd2",
+      "testRunSha": "2b1271d0ca3db6c6e9dfddd74f2b877cf4631dd2",
+      "status": "PASS observé et attribué — preuve archivée"
+    },
+    {
+      "file": "surefire-reports/com.kartaguez.pocoma.V3InvitationStandaloneWebPostgresTest.txt",
+      "sha256": "539a745c7b9956c48f643e09756400031d3bdf0a0b26dfeb160c0d9cdbb6a273"
+    },
+    {
+      "file": "surefire-reports/TEST-com.kartaguez.pocoma.V3InvitationWritePostgresTest.xml",
+      "sha256": "c83c06fc2d0eae4e3fa7e920df51634ca50884625b10a10c49d3d40e384f1f24",
+      "testClass": "com.kartaguez.pocoma.V3InvitationWritePostgresTest",
+      "methods": [
+        "expirationAfterPublicationCounterWait"
+      ],
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "timeSeconds": 17.834,
+      "executedAt": "2026-11-05T14:31:30+01:00",
+      "sourceSha": "2b1271d0ca3db6c6e9dfddd74f2b877cf4631dd2",
+      "testRunSha": "2b1271d0ca3db6c6e9dfddd74f2b877cf4631dd2",
+      "status": "PASS observé et attribué — preuve archivée (méthodes 1–5 de la classe écrasées lors du run ciblé : EVIDENCE NOT AVAILABLE FOR INDEPENDENT INSPECTION)"
+    },
+    {
+      "file": "surefire-reports/com.kartaguez.pocoma.V3InvitationWritePostgresTest.txt",
+      "sha256": "8d7f181c5aff3d867fd6ddae45a25dee7be1f64a078e4630d12562c6d3bf5d90"
+    },
+    {
+      "file": "surefire-reports/TEST-com.kartaguez.pocoma.V3InvitationHttpTest.xml",
+      "sha256": "6c3cc78ea9a6d1328529c9aa93f003b10e57401e38f1111b91b2b6ed51a65710",
+      "testClass": "com.kartaguez.pocoma.V3InvitationHttpTest",
+      "methods": [
+        "confidentialLinkAndRestrictedPlaces",
+        "finalNonCreatorDeparturePreservesOtherPotAndHistoricalReads",
+        "concurrentUnlinkAndAttachmentSerializeAtIdentity",
+        "unlinkCannotPreserveStaleInvitationAuthority",
+        "brunoB4StandaloneCorpus"
+      ],
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "timeSeconds": 67.68,
+      "executedAt": "2026-11-05T14:33:00+01:00",
+      "sourceSha": "2b1271d0ca3db6c6e9dfddd74f2b877cf4631dd2",
+      "testRunSha": "2b1271d0ca3db6c6e9dfddd74f2b877cf4631dd2",
+      "status": "PASS observé et attribué — preuve archivée"
+    },
+    {
+      "file": "surefire-reports/com.kartaguez.pocoma.V3InvitationHttpTest.txt",
+      "sha256": "951a411f6cf43ca291f028315db299fc510cecb3d98d7b9719c67c053b8a5dfa"
+    },
+    {
+      "file": "bruno-b4/bruno.log",
+      "sha256": "746ce398afc8358f748117355b25ba3c418c24f3d5d257b4e70ab61c4c486654",
+      "scenarioCount": 4,
+      "scenarios": ["B401", "B402", "B403", "B404"],
+      "tests": 4,
+      "failures": 0,
+      "durationMs": 11738,
+      "executedAt": "2026-11-05T14:32:00+01:00",
+      "sourceSha": "2b1271d0ca3db6c6e9dfddd74f2b877cf4631dd2",
+      "testRunSha": "2b1271d0ca3db6c6e9dfddd74f2b877cf4631dd2",
+      "status": "PASS observé et attribué — preuve archivée"
+    },
+    {
+      "file": "bruno-b4/bruno.json",
+      "sha256": "19d5a20983e4e68c9fedb961a084599aca94640e79cc6f27593482af41969753"
+    },
+    {
+      "file": "bruno-b4/receipt.json",
+      "sha256": "1ea2cbfcd1be20da528ff7887f727dcd236e8837368704878ec1a936a1a99a73"
+    },
+    {
+      "file": "bruno-b4/requests.jsonl",
+      "sha256": "c8115ecbfd23991f5f9cad064b7cffd0b4d55631f2858af213ddd905ef8619dc"
+    }
+  ]
+}

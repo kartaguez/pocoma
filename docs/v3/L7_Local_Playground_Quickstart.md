@@ -1,0 +1,251 @@
+> Navigation produit : pour le guide développeur structuré et la référence CLI à jour, voir [Démarrage rapide](../getting-started/quickstart.md) et [Référence des commandes](../reference/commands.md).
+> Reprise I3 : pour Bruno GUI et CLI, suivre le [guide courant](L7_Local_Playground_Bruno.md). PG01 est remplacé par les requêtes par domaine et les trois parcours visibles J01/J02/J03.
+
+# Pocoma V3 — playground local
+
+Mandat Jalon 1 : I1a/I2/I3. La [qualification](L7_Local_Playground_Qualification_Report.md)
+porte le verdict de livraison ; READY est un état d'exécution daté, distinct de
+l'acceptation humaine et de V3_REFERENCE_BASELINE_ACCEPTED.
+
+## Démarrer depuis Git
+
+Prérequis hôte : macOS ARM64, Docker Desktop démarré (VM ≥6 Gio, testé à 8 Gio),
+Java 21 (JDK 21 pour construire), Python ≥3.11, Node 24/npm, Git, réseau pour
+Maven Central, npm et les registres d'images. Le contrat des versions supportées
+est centralisé dans `scripts/local/toolchain.json`. Python est contrôlé avant
+l'import du runtime ; `start` contrôle ses outils, configurations et ressources
+avant de créer l'état de l'instance ou d'installer les dépendances Bruno
+verrouillées. npm ≥7 est nécessaire à leur préparation (lock v3 ; npm12 qualifié),
+pas si la CLI locale 4.3.0 est déjà valide. Maven système n'est pas requis.
+Prévoir ≥4 Gio libres
+si des images doivent être téléchargées ; avec images déjà présentes, le contrôle
+initial exige ≥2 Gio pour build/données, et une reprise avec build en cache
+≥256 Mio pour diagnostics. Les observations sont dans `resources.json`.
+Prévoir davantage pour un clone complet et les caches de dépendances. Un clone
+complet contient plusieurs Go d’archives historiques de preuves ; prévoir une
+marge disque suffisante. Sur un poste contraint, le checkout Git sparse
+`app scripts docker docs/v3` suffit à la distribution (les archives historiques
+restent dans Git et ne sont ni altérées ni nécessaires au démarrage).
+
+Java/JDK et Node ne sont pas exigés pour `--help`, `status`, `stop`, `gui`,
+`login`, `destroy` ou le dry-run de reset. `bruno` demande Node et la CLI, pas
+Java. Un build déjà en cache ne demande pas `javac` ; un build nécessaire
+contrôle aussi le JDK sélectionné par `JAVA_HOME` (ou le PATH). Docker CLI,
+daemon accessible et plugin `docker compose` sont contrôlés pour les commandes
+qui les utilisent ; les capacités Compose de la distribution sont validées sans
+création de service avant un démarrage. Les versions Engine/Compose ne reçoivent
+pas un minimum arbitraire dérivé du seul poste qualifié.
+Voir [refus de prérequis et configurations invalides](L7_LB_Prerequisites_Hardening_and_Requalification_Report.md#diagnostics-et-configurations).
+
+```sh
+git clone https://github.com/kartaguez/pocoma.git
+cd pocoma
+git switch feat/l7-lb-local-playground
+./pocoma-local start
+```
+
+La commande construit les quatre JAR Java 21 nécessaires aux **cinq JVM réelles**,
+récupère les images natives, crée PG/Keycloak, initialise WRITE/READ puis le jeu
+public et le canari. Pas de JAR Pocoma préinstallé nécessaire. Le Maven Wrapper
+est verrouillé en 3.9.14 ; les quatre modules sont assemblés avec `-am package
+-DskipTests`. Ce build n'est pas une preuve de test Maven.
+
+La sortie JSON fournit **write**, **read**, **issuer**, **keycloakAdmin**,
+**demoUsers**, **grafana**, le projet et le dossier
+de diagnostic. Les ports loopback sont attribués automatiquement puis conservés.
+Aucun port PG n'est publié. Chaque instance utilise son réseau, son cluster PG
+(WRITE/READ et stockage Keycloak), son volume, son realm et ses secrets. Aucun
+nom/volume du Compose historique n'est réutilisé. Images versionnées : PG
+17.6-alpine, Keycloak 26.7.0, JRE Temurin 21.0.8_9, Prometheus 3.5.0,
+Grafana OSS 12.3.2 (ARM64/AMD64) ; leurs
+digests natifs effectifs sont dans le manifeste privé et la preuve expurgée.
+
+Les cinq JVM ont chacune un heap max de 384 Mio et une limite de 640 Mio ; PG
+1024 Mio, Keycloak 896 Mio, Prometheus 256 Mio, Grafana 384 Mio / 0,5 CPU,
+soit 5760 Mio de limites de
+conteneurs. Les instances de playground s'exécutent successivement sur 16 Go :
+un autre playground actif est refusé, jamais arrêté implicitement. Les autres
+projets Docker ne sont pas modifiés.
+
+## Cycle de vie et diagnostics
+
+```sh
+./pocoma-local status
+./pocoma-local gui
+./pocoma-local bruno
+./pocoma-local stop
+./pocoma-local start
+./pocoma-local reset --instance demo --confirm RESET:demo --dry-run
+./pocoma-local reset --instance demo --confirm RESET:demo
+```
+
+`--instance alice` fonctionne sur toutes les commandes. Reset exige **toujours**
+l'instance explicite et `RESET:<instance>` ; il affiche son projet/volume en
+mode dry-run. Reset supprime uniquement le volume contrôlé par UUID/labels de
+cette instance, puis rebâtit ses données et sa nouvelle identité d'instance.
+Les diagnostics précédents restent conservés. Stop attend l'arrêt gracieux des
+JVM (45 s par service) puis des dépendances ; volumes et baux sont conservés.
+Le code d'arrêt Docker est conservé dans les reçus/logs privés ; aucun slot
+n'est purgé et aucun bail n'est raccourci. Une reprise après arrêt forcé peut
+attendre les baux existants (TTL SQL nominal réduit à `30 s` via `lease-duration-ms=30000`, anciennement `240 s`). `start` photographie les identifiants,
+dates de création et dates de démarrage réels des cinq conteneurs runtime,
+avant puis après Compose. Il distingue création, recréation, redémarrage et
+conservation. Un worker peut être RUNNING sans avoir acquis ses partitions :
+les baux de son prédécesseur restent protégés jusqu’à leur échéance.
+
+Après la readiness technique, `start` attend une couverture effective de toutes
+les partitions : 8 baux utilisables pour command-worker, 8 pour results-worker,
+20 pour business-read-worker. Les métriques sont lues directement sur chaque
+worker et corroborées par les 36 propriétés SQL non expirées du catalogue L7-LB.
+Une couverture partielle ne suffit pas. Le budget d'observation de récupération de `pocoma-local` reste borné à `270 s`
+(historiquement dimensionné sur `240 s` de bail + `30 s` de marge technique ; malgré la réduction du TTL SQL à `30 s`, le délai effectif inclut scrutation et `claim-duration-ms=60000`), avec observations bornées ;
+il n’impose aucune pause fixe. Le premier démarrage et une reprise conservant
+la couverture complète passent dès la première observation. Les observations,
+générations, transitions et durées sont conservées dans `worker-recovery.json`.
+Le canari commence ensuite ; son polling métier conserve son budget de 30 s.
+Voir le [contrat détaillé de reprise et diagnostic](L7_Local_Playground_Recovery_and_Evidence.md).
+
+Le verrou d'instance refuse les opérations concurrentes ; un second verrou
+sérialise start/reset entre instances, un verrou de build protège Maven. Les
+verrous POSIX se libèrent à la fin du processus, y compris après crash. Ne pas
+exécuter Maven manuellement en parallèle avec un start. Aucune commande globale
+`prune` ni suppression implicite à l'échec. Symlink, absence de manifeste,
+propriété incohérente et ressource étrangère sont refusés avant mutation.
+
+État privé : `.pocoma-local/instances/<id>/manifest.json`, `secrets.json`,
+configurations, `demo.json`, `canary.json`, `runs/<run-id>/`. Racine et dossiers
+privés 0700, secrets 0600 ; les seules montures lues par les UID des conteneurs
+sont 0644 **sous ces dossiers privés**. Ne pas publier cet arbre. Les secrets
+techniques dans `secrets.json` ne doivent pas être copiés dans Git, tickets
+ou commandes. Les comptes de démonstration suivent la convention ci-dessous.
+
+Les secrets sont créés seulement lors de l'initialisation explicite d'une instance
+vierge. Toute instance avec manifeste mais sans `secrets.json`, même encore
+`NEW`, est refusée avec `PRE-SECRETS-MISSING`, sans régénération. JSON invalide,
+clés manquantes ou incohérence entre secrets et fichiers générés provoquent un
+refus avant écriture. Restaurer les fichiers d'origine depuis une sauvegarde,
+conserver les volumes et inspecter la cible ; aucune récupération automatique.
+Un répertoire partiel sans manifeste n'est pas adopté. Les confirmations de
+reset/destroy restent explicites ; l'arrêt de sécurité n'exige pas les secrets.
+
+Après échec, garder le JSON et le dossier `evidence`. Les logs conteneurs
+expurgés sont privés ; pas de copie automatique de bodies HTTP ni de bearer.
+Le bootstrap est transactionnel **par base**, marque chaque base seulement
+après SQL et grants complets ; une interruption entre WRITE et READ reprend
+la base manquante. Aucun baseline TRUSTED ni migration historique V2 n'est
+supposé. Un changement d’entrées productives/SQL fait refuser le start existant.
+Une évolution du seul tooling local est adoptée par `start` uniquement après
+preuve d’équivalence des entrées productives au SHA du build, des hashes JAR,
+du Compose et des configurations générées. `tooling-refresh.json` conserve
+cette preuve ; aucun reset ni nouveau build n’est implicite. Pour une instance sans Grafana, une mise à niveau explicite
+non destructive est disponible :
+
+```sh
+./pocoma-local stop --instance demo
+./pocoma-local upgrade-grafana --instance demo
+./pocoma-local status --instance demo
+```
+
+Elle vérifie la propriété Docker, la révision du build, les sources applicatives,
+SQL/authentification, les JAR, les images et l'équivalence des services et fichiers
+générés existants. Elle ajoute uniquement Grafana à la topologie, conserve les
+ports, données et secrets, puis exécute le démarrage normal et un nouveau canari.
+Le reçu privé `grafana-upgrade.json` relie les empreintes avant/après. Une dérive
+applicative ou une provenance insuffisante reste bloquante ; conserver l'instance,
+inspecter le diagnostic et utiliser une instance distincte pour le nouveau code.
+Les autres changements d'entrées restent refusés par `PRE-INPUT-DRIFT`.
+Aucun reset implicite. Voir [observabilité et mise à niveau](L7_Local_Playground_Observability.md).
+
+## Readiness et codes
+
+| Code | État / sens |
+|---|---|
+| 0 | READY : métier/authentification disponibles, canari actuel et outils d'observabilité disponibles ; ou action stop/Bruno/login réussie |
+| 1 | NOT_READY, STOPPED au status, canari périmé/non prouvé, échec métier ou transport |
+| 2 | Usage/prérequis/cible/propriété/drift refusés |
+| 3 | Conflit de verrou |
+| 4 | DEGRADED : métier et canari disponibles, observabilité indisponible ; ce n'est pas une indisponibilité métier |
+| 130 | Interruption contrôlée ; diagnostics et état conservés |
+
+Le JSON sépare `business`, `canary`, `qualificationTools`. `fullyQualifiable`
+reste false pour ce jalon : les campagnes de qualification globale/I4–I6 ne
+sont pas livrées. Les outils d'observabilité demandent cinq scrapes UP, des
+métriques JVM et Pocoma présentes. Une réponse Actuator seule ne suffit pas :
+PG, empreintes de catalogue, rôles actifs, maintenance, issuer et session PKCE
+sont contrôlés ; le canari exige une nouvelle version et son contenu/balance.
+
+Grafana est obligatoire : `GRAFANA-HTTP` (santé et authentification admin),
+`GRAFANA-DATASOURCE` (Prometheus interne, santé et métriques des cinq JVM),
+`GRAFANA-DASHBOARD` (les deux dashboards provisionnés et les requêtes PromQL)
+doivent passer. Leur échec donne **NOT_READY / 1**, même si `business=AVAILABLE`.
+Une panne Prometheus fait donc aussi échouer la datasource Grafana ; le code4
+reste le contrat des autres dégradations d'outillage sans échec d'un contrôle
+obligatoire. Preuves : `runs/<id>/grafana.json`.
+
+## Ouvrir Grafana
+
+Lire `grafana.url` dans `start` ou `status`, se connecter avec **admin / pocoma**,
+puis ouvrir **Dashboards → Pocoma**. `grafana.dashboardUrl` ouvre directement
+**Pocoma runtime**. Le second dashboard est **Pocoma V3 - Architecture &
+Observability Overview**. Aucun import ni réglage de datasource n'est nécessaire.
+Les accès sont locaux uniquement ; les modifications UI Grafana sont éphémères.
+Voir [lecture des panels, métriques absentes et diagnostics](L7_Local_Playground_Observability.md).
+
+`status` ne soumet aucune commande métier : il relit les dépendances, ouvre
+une session PKCE, contrôle le canari et sa fraîcheur **300 s max**. Après cette
+borne, il renvoie NOT_READY/canari STALE_OR_UNPROVEN ; relancer start pour une
+nouvelle preuve. Start réutilise **un seul Pot canari**, avance son libellé et
+sa version avec une clé unique par invocation. Une preuve ancienne ne ferme
+pas la nouvelle invocation.
+
+## Jeu de démonstration v1
+
+### Connexions Keycloak locales
+
+| Realm | Compte | Mot de passe | Usage |
+| --- | --- | --- | --- |
+| master | admin | pocoma | Console `http://localhost:<port issuer>/admin/` |
+| pocoma | third | pocoma | Owner Bruno |
+| pocoma | guest | pocoma | Guest Bruno |
+| pocoma | bruno | pocoma | Seed et compatibilité des scénarios |
+
+Convention **L7-LB local uniquement**, impropre à Internet/production et jamais
+implicite pour L8. `passwords.keycloak` est le compte PostgreSQL de Keycloak,
+pas le mot de passe admin. Les secrets techniques restent générés aléatoirement.
+La sortie `start`/`gui` indique l’URL admin, le realm et les usernames.
+Keycloak qualifie l’admin de bootstrap de temporaire (bannière normale) ; il
+persiste dans cette installation jetable jusqu’à reset/destroy.
+Les anciens volumes ne sont pas mis à jour par import/variables bootstrap :
+conserver leurs données et utiliser une nouvelle instance, ou confirmer un reset.
+Voir [diagnostic et cycle de nettoyage](L7_Local_Playground_Keycloak_Diagnostics.md).
+
+Avant READY, `keycloak-auth.json` prouve la connexion console Code+S256 de
+`admin` dans master, inspecte les comptes activés/sans action initiale via
+l’API admin, puis authentifie **third, guest et bruno** par le même client
+public et la même callback Code+PKCE que Bruno. Pour chaque compte, absence
+de PKCE et méthode plain sont refusées ; le sujet est comparé à l’ID réel du
+compte. `status` refait ces contrôles sans écrire de donnée métier.
+
+Seed entièrement public, checkpointé et rejouable après interruption :
+
+- `bruno` propriétaire et `guest` invité, identités Keycloak réelles distinctes ;
+- Pot « Pocoma playground », deux parts de poids 1, dépense 10/3 ; soldes
+  attendus +5/3 au payeur et −5/3 à l'invité, version 4 après acceptation ;
+- Pot « Deleted demo history » supprimé à V2, histoire V1 consultable ;
+- Pot canari séparé, balances vides exactes ; nouvelles versions à chaque start ;
+- `third` disponible pour Bruno : sa Registration initiale est réelle ; chaque
+  exécution Bruno crée son Pot de parcours et le supprime en conservant l'histoire.
+
+Après seed complet, start ne réapplique pas la demo et n'écrase aucune mutation
+utilisateur ; `demo.json` décrit l'état **initial attendu**, pas une certification
+de l'état courant modifié par le développeur. Reset seul restaure ce jeu.
+Aucune suite B1 injectant READ n'est créditée comme preuve de ce parcours.
+
+Guides : [Bruno GUI/CLI](L7_Local_Playground_Bruno.md),
+[contrat consommateur BFF](L7_Local_Playground_Public_API.md).
+`verify`/`bench`, performance exhaustive, réconciliation I1b et certification
+restent des travaux I4–I6 ; la façade ne les annonce pas comme disponibles.
+
+Correctif GUI4.2.1 : `./pocoma-local gui` prépare un environnement de seules URLs.
+Les connexions Owner/Guest se font dans Auth > Get Access Token de Bruno ;
+aucune copie manuelle de JWT. Voir le [rapport du correctif](L7_Local_Playground_GUI_Auth_Fix_Report.md).

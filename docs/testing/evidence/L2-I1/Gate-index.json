@@ -1,0 +1,217 @@
+{
+  "scope": "Pocoma V3 L2 I1 only; no global L2 certification",
+  "initial_remote_sha": "2b4d46cf08509c95fc490afa1d66ae38f41957b6",
+  "tested_code_sha": "6835b5c15cc40d09c22e0b0a4f3b6538ac49992d",
+  "production_source_sha": "12eaa5ae983c23a4b07c0299ce59c4d7933bfb5d",
+  "G0": "crossed by explicit human decision accepting existing L1-F2 evidence with documented limits; no new audit required",
+  "I1": "implemented / local bounded PASS",
+  "future_gates": {
+    "G1": "FUTURE",
+    "G2": "FUTURE",
+    "G3": "FUTURE"
+  },
+  "verification": {
+    "primary_slice": "COMMAND",
+    "secondary_canonical_slices": [],
+    "additional_module_proofs": [
+      "infra-persistence-read-jdbc",
+      "runtime-monolith"
+    ],
+    "unexpected_slice_crossings": [],
+    "architecture_gate": "REQUIRED / RUN",
+    "full_reactor": "NOT REQUIRED / NOT RUN; bounded I1, major L2 closure and main integration remain future",
+    "database": "CURRENT fresh V3; unchanged L1/historical tests also run transitively"
+  },
+  "local_methods": 33,
+  "all_required_local_methods": "PASS",
+  "L1_manifest_methods": {
+    "L1_Proof_Manifest.json": {
+      "declared": 91,
+      "passed": 91
+    },
+    "L1_F_Proof_Manifest.json": {
+      "declared": 17,
+      "passed": 17
+    },
+    "L1_F2_Proof_Manifest.json": {
+      "declared": 24,
+      "passed": 24
+    }
+  },
+  "gates": {
+    "COMMAND": {
+      "command": "./mvnw -pl runtime-command-consumption-worker -am test",
+      "summary": "COMMAND-summary.json",
+      "tested_sha": "12eaa5ae983c23a4b07c0299ce59c4d7933bfb5d",
+      "totals": {
+        "tests": 1293,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1
+      },
+      "archive": {
+        "file": "COMMAND.tar.gz",
+        "bytes": 614569,
+        "sha256": "112a54e7214b71086bf11639a28c8dc734d2c2eb9f43c6cf70f5ce419f8b5a84"
+      }
+    },
+    "READ": {
+      "command": "./mvnw -pl infra-persistence-read-jdbc -am test",
+      "summary": "READ-summary.json",
+      "tested_sha": "12eaa5ae983c23a4b07c0299ce59c4d7933bfb5d",
+      "totals": {
+        "tests": 354,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "archive": {
+        "file": "READ.tar.gz",
+        "bytes": 57607,
+        "sha256": "4189765db725b1f679d7676d5c7cee00e861024ad608eec41ffc19f3b01b1857"
+      }
+    },
+    "MONOLITH": {
+      "command": "./mvnw -pl runtime-monolith -am test",
+      "summary": "MONOLITH-summary.json",
+      "tested_sha": "12eaa5ae983c23a4b07c0299ce59c4d7933bfb5d",
+      "totals": {
+        "tests": 1067,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "archive": {
+        "file": "MONOLITH.tar.gz",
+        "bytes": 454278,
+        "sha256": "483f1e8addc094c8335ebf6f0c546a8216ef34a28134bf11daa7b2d115c955be"
+      }
+    },
+    "ARCHITECTURE": {
+      "command": "./mvnw -pl architecture-tests -am test",
+      "summary": "ARCHITECTURE-summary.json",
+      "tested_sha": "6835b5c15cc40d09c22e0b0a4f3b6538ac49992d",
+      "totals": {
+        "tests": 1551,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1
+      },
+      "archive": {
+        "file": "ARCHITECTURE.tar.gz",
+        "bytes": 904461,
+        "sha256": "cdff7c7d84dc71a9659558495f96e324405a2f834b268add9507b9bbcb0dddaf"
+      }
+    }
+  },
+  "limitations": [
+    "No Engine, acquisition, claims, renewal, retries, Discovery or loops in I1",
+    "No production or existing user database deployment; ephemeral new isolated test databases only",
+    "One historical optional V2 exploratory measurement is skipped in applicable canonical gates; no mandatory I1 skip",
+    "Performance samples and indexes do not establish general O(1) or SLOs",
+    "No global L1-F2 or V3 certification; historical proof limitations remain accepted for G0"
+  ],
+  "publication": {
+    "branch": "feat/v3-architecture",
+    "force_push": false,
+    "final_documentary_commit": "reported in final delivery; code tree must equal tested_code_sha"
+  },
+  "files": {
+    "ARCHITECTURE-summary.json": {
+      "bytes": 506862,
+      "sha256": "520a57e9e686c20c7994feed4499370b676edd280c6963a5cc03a424e0fa1bdc"
+    },
+    "ARCHITECTURE.tar.gz": {
+      "bytes": 904461,
+      "sha256": "cdff7c7d84dc71a9659558495f96e324405a2f834b268add9507b9bbcb0dddaf"
+    },
+    "COMMAND-summary.json": {
+      "bytes": 421338,
+      "sha256": "eb25c4f194dd36479b6a575439f91c26d7d4aa33d37def93d38e55a684c45fef"
+    },
+    "COMMAND.tar.gz": {
+      "bytes": 614569,
+      "sha256": "112a54e7214b71086bf11639a28c8dc734d2c2eb9f43c6cf70f5ce419f8b5a84"
+    },
+    "I1-methods.json": {
+      "bytes": 14836,
+      "sha256": "da011f5d008b6095fb0bab38b393066e8655613bd5b0bfbf723d8ddefa1e5992"
+    },
+    "L1-regression.json": {
+      "bytes": 69944,
+      "sha256": "f5647458c78b7b5e5867a7d94f7dfc667d730f13808b58fec59193041aad8642"
+    },
+    "MONOLITH-summary.json": {
+      "bytes": 348377,
+      "sha256": "364f993818fadc8e5611836a5ea8bd296ccf86a65bed230dff42b4910eeed23d"
+    },
+    "MONOLITH.tar.gz": {
+      "bytes": 454278,
+      "sha256": "483f1e8addc094c8335ebf6f0c546a8216ef34a28134bf11daa7b2d115c955be"
+    },
+    "READ-summary.json": {
+      "bytes": 109811,
+      "sha256": "ad8e74dec20ed8b10cedf7594166f30c1d9e7aded5689ce7a2267c086e192dad"
+    },
+    "READ.tar.gz": {
+      "bytes": 57607,
+      "sha256": "4189765db725b1f679d7676d5c7cee00e861024ad608eec41ffc19f3b01b1857"
+    },
+    "architecture-gate-runner.py": {
+      "bytes": 1370,
+      "sha256": "9bb2bbe9306ffca88b0b9d42916885a9e887f547d81b7767c1610503bcf4c00c"
+    },
+    "architecture-inventory-inputs.json": {
+      "bytes": 1679,
+      "sha256": "bf787bbf4178e0c1c9333f27169902f7195c448d5d5e11118ea8341126de443c"
+    },
+    "close-proof.py": {
+      "bytes": 8713,
+      "sha256": "0778ce67f36d7dbaa2f8bb97087290927dbd730d11869de80fccafc3fd28b66b"
+    },
+    "collection.py": {
+      "bytes": 3260,
+      "sha256": "66277bef1419c688214b494acc3d4d96e263cab17043487d302d0586e324236b"
+    },
+    "diagnostics.json": {
+      "bytes": 2985,
+      "sha256": "ad6b2c5a399c12bdcb91fcd6599390413b93a1b1c3e1c29c1625d8e407525f44"
+    },
+    "diagnostics.tar.gz": {
+      "bytes": 686092,
+      "sha256": "3c60e31e73abb339d278bb23b4092128cfad3b9c6005f3d3e5088e6c35f0de7e"
+    },
+    "documentary-checks.txt": {
+      "bytes": 4561,
+      "sha256": "5a5122755d6690ec40af30d6c3369110545bb8396ec451972e741be9d819dd9e"
+    },
+    "environment-and-inputs.json": {
+      "bytes": 221148,
+      "sha256": "15760e3e72fa47f5be6cca30453fcf14b4dba6d2865ce019b60f464e0455f056"
+    },
+    "gate-runner.py": {
+      "bytes": 1396,
+      "sha256": "caf3921db04c8404ca044620714301df7866f99f3423361216dec42580cdae52"
+    },
+    "gate-timings.json": {
+      "bytes": 1187,
+      "sha256": "6b4646212ef9fae7450e985848ee3d4f77b79431703f952cda834c57ee7beedf"
+    },
+    "independent-oracle.txt": {
+      "bytes": 4010,
+      "sha256": "58ab847be2073eaaea3e11f6743a70be02c05b2d1cd20093356caec77d8b1cf2"
+    },
+    "postgres-live-environment.json": {
+      "bytes": 2059,
+      "sha256": "d486f2d334ea72b807d8daff65af45fa788128934b0af665f63cec80db16e46d"
+    },
+    "postgres-snapshot.py": {
+      "bytes": 1945,
+      "sha256": "fb3c4cf18114b636c1f60f75889fd5d2837f309a48f52186c61a8e03193edaf2"
+    },
+    "routing-vectors.csv": {
+      "bytes": 2852,
+      "sha256": "db2b4e50ce5c6b15624c035ebe8d70fa48241ae2e6e28b9d8d1754d19f2ab891"
+    }
+  }
+}

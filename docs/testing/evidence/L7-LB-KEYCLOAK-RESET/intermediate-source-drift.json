@@ -1,0 +1,7 @@
+{
+  "verdict": "REJECTED_INPUT_DRIFT",
+  "oldInputs": "fc1b22d4c8d5000ed189448aaa78bfc845706c0a090496dda50b0bc538231c10",
+  "finalInputs": "999c85a83150de0611375397a9bab97760f04b44490b824a34f6a509ad33fc58",
+  "evidence": "completion-commands.json",
+  "reason": "Final runtime guards and collection README changed during intermediate cycle. Physical PASS receipts are retained but not credited as final-source qualification."
+}

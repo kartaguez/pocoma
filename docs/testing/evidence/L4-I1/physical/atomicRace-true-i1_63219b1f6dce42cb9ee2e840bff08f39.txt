@@ -1,0 +1,85 @@
+script=bootstrap-l2-routing.sql rc=0 BEGIN
+LOCK TABLE
+ set_config 
+------------
+ i1_read
+(1 row)
+
+             set_config              
+-------------------------------------
+ i1_63219b1f6dce42cb9ee2e840bff08f39
+(1 row)
+
+              set_config               
+---------------------------------------
+ i1_63219b1f6dce42cb9ee2e840bff08f39_a
+(1 row)
+
+ set_config 
+------------
+ READ
+(1 row)
+
+DO
+INSERT 0 7
+INSERT 0 28
+DO
+COMMIT
+
+script=grant-l2-lifecycle.sql rc=0 BEGIN
+ set_config 
+------------
+ fixture
+(1 row)
+
+ set_config 
+------------
+ 
+(1 row)
+
+DO
+ set_config 
+------------
+ i1_read
+(1 row)
+
+             set_config              
+-------------------------------------
+ i1_63219b1f6dce42cb9ee2e840bff08f39
+(1 row)
+
+              set_config               
+---------------------------------------
+ i1_63219b1f6dce42cb9ee2e840bff08f39_a
+(1 row)
+
+              set_config               
+---------------------------------------
+ i1_63219b1f6dce42cb9ee2e840bff08f39_w
+(1 row)
+
+              set_config               
+---------------------------------------
+ i1_63219b1f6dce42cb9ee2e840bff08f39_r
+(1 row)
+
+DO
+GRANT
+GRANT
+GRANT
+GRANT
+GRANT
+GRANT
+DO
+DO
+COMMIT
+
+environment={version=PostgreSQL 17.11 on aarch64-unknown-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit, db=i1_read, schema=i1_63219b1f6dce42cb9ee2e840bff08f39, current_user=i1_63219b1f6dce42cb9ee2e840bff08f39_a, clock_timestamp=2026-11-02 08:38:15.243737} image=postgres@sha256:18cfe3ef5e6815560c98237d6216d1e5119702fb0f3894c8785dd58b8bbe5d73 runtime=i1_63219b1f6dce42cb9ee2e840bff08f39_w admin=i1_63219b1f6dce42cb9ee2e840bff08f39_a
+acquired=ClaimedSlot[consumptionId=ConsumptionId[value=3dec1c8b-6e3e-57e1-82aa-aa0b5f297a4a], consumableId=d2acbc9c-7fff-4e73-9f11-2f0e6c2145d9, claimToken=15298266-d041-469b-9522-578e50ddc6aa] partition=1
+acquired=ClaimedSlot[consumptionId=ConsumptionId[value=3dec1c8b-6e3e-57e1-82aa-aa0b5f297a4a], consumableId=751dbc60-4a40-4894-85a1-e86c86c8c80d, claimToken=3d56c9c1-4d25-4ba6-bdfa-c7c7eca6ffbd] partition=1
+owner-before-insert d2acbc9c-7fff-4e73-9f11-2f0e6c2145d9 {pid=437, xid=937, db=i1_read, schema=i1_63219b1f6dce42cb9ee2e840bff08f39, isolation=read committed}
+owner-before-insert 751dbc60-4a40-4894-85a1-e86c86c8c80d {pid=439, xid=938, db=i1_read, schema=i1_63219b1f6dce42cb9ee2e840bff08f39, isolation=read committed}
+second slot {pid=439, xid=938, db=i1_read, schema=i1_63219b1f6dce42cb9ee2e840bff08f39, isolation=read committed}
+blocked PostgreSQL backend=439 [{wait_event_type=Lock, wait_event=transactionid}]
+readiness d2acbc9c-7fff-4e73-9f11-2f0e6c2145d9 slots=1
+race result=Attempt[status=ROLLED_BACK, resolution=ROLLED_BACK, observation=null, cause=com.kartaguez.pocoma.port.projection.v3.SubobjectConflictException: Divergent immutable subobject: SubobjectKey[potId=be388b3a-d42a-4ffe-b55d-bac06ac7ba09, kind=POT_HEADER, objectId=be388b3a-d42a-4ffe-b55d-bac06ac7ba09, localVersion=1], failureKind=NON_COUNTABLE, cession=null, cessionResolution=null] witnesses=[{op=DELETE, key=d2acbc9c-7fff-4e73-9f11-2f0e6c2145d9, pid=437, xid=937, db=i1_read, authority=i1_63219b1f6dce42cb9ee2e840bff08f39, isolation=read committed}, {op=INSERT, key=be388b3a-d42a-4ffe-b55d-bac06ac7ba09/POT_HEADER/be388b3a-d42a-4ffe-b55d-bac06ac7ba09/1, pid=437, xid=937, db=i1_read, authority=i1_63219b1f6dce42cb9ee2e840bff08f39, isolation=read committed}]

@@ -1,0 +1,144 @@
+4C V-C final executed evidence. PostgreSQL 17.11; Java 21.
+Start HEAD: 1771514a51c74452e019a2a259b40d0303cf2cde
+Canonical: {"tests": 1091, "failures": 0, "errors": 0, "skipped": 1} / 52 SUCCESS modules
+
+targeted_final /private/tmp/pocoma-4c-targeted-final.log
+SHA256 11a23d6c65048bbb2409cde9df60b88e7973198243ebd2bfc40d40c06f5b0a93
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.572 s -- in com.kartaguez.pocoma.infra.persistence.primary.jpa.migration.PrimaryMigrationsPostgresTest
+STEP4C UPGRADE V29->V30 preserved=[{event_id=106045ee-8313-441d-a67a-0666315267d3}, {event_id=1207cf90-bdd8-4658-a980-af57db6f6e4c}, {event_id=53fa7028-e229-41f2-8f44-32ce125acb4c}, {event_id=ec0f6e4d-b645-4ab7-82aa-fa242a7ee6fd}] CURRENT SQL twice; PREPARED, E=0, positions=0
+STEP4C INSTALLED_SCHEMA [{proname=check_business_event_positions_complete, proconfig={"search_path=pg_catalog, step4c_isolated, pg_temp"}}, {proname=reserve_event_positions, proconfig={"search_path=pg_catalog, step4c_isolated, pg_temp"}}, {proname=check_command_terminal_event_positions_complete, proconfig={"search_path=pg_catalog, step4c_isolated, pg_temp"}}, {proname=check_binding_fact_positions_complete, proconfig={"search_path=pg_catalog, step4c_isolated, pg_temp"}}, {proname=check_user_created_fact_positions_complete, proconfig={"search_path=pg_catalog, step4c_isolated, pg_temp"}}]
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 4.691 s -- in com.kartaguez.pocoma.runtime.command.consumption.eventprotocol.EventSequencingUpgradePostgresTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.018 s -- in com.kartaguez.pocoma.runtime.command.consumption.eventprotocol.PrimaryEventProtocolStructureTest
+STEP4C CONSUMPTION [{ord=4, object=external_identity_binding_facts, family=null, pid=61, xid=937}, {ord=5, object=business_event_outbox, family=null, pid=61, xid=937}, {ord=6, object=consumption_slots, family=null, pid=61, xid=937}, {ord=7, object=consumption_claims, family=null, pid=61, xid=937}, {ord=8, object=event_sequence_authorities, family=BUSINESS_EVENT, pid=61, xid=937}, {ord=9, object=business_event_positions, family=null, pid=61, xid=937}, {ord=10, object=event_sequence_authorities, family=BINDING_FACT, pid=61, xid=937}, {ord=11, object=binding_fact_positions, family=null, pid=61, xid=937}]
+STEP4C CONTENTION [{pid=62, query=select reserve_event_positions($1,$2), wait_event_type=Lock, wait_event=transactionid, blockers={61}}]
+STEP4C PHYSICAL_ORDER [{ord=1, object=user_created_facts, family=null, pid=63, xid=1057}, {ord=2, object=external_identity_binding_facts, family=null, pid=63, xid=1057}, {ord=3, object=command_terminal_events, family=null, pid=63, xid=1057}, {ord=4, object=user_created_facts, family=null, pid=63, xid=1057}, {ord=5, object=external_identity_binding_facts, family=null, pid=63, xid=1057}, {ord=6, object=command_terminal_events, family=null, pid=63, xid=1057}, {ord=7, object=user_created_facts, family=null, pid=63, xid=1057}, {ord=8, object=external_identity_binding_facts, family=null, pid=63, xid=1057}, {ord=9, object=command_terminal_events, family=null, pid=63, xid=1057}, {ord=10, object=business_event_outbox, family=null, pid=63, xid=1057}, {ord=11, object=business_event_outbox, family=null, pid=63, xid=1057}, {ord=12, object=business_event_outbox, family=null, pid=63, xid=1057}, {ord=13, object=event_sequence_authorities, family=BUSINESS_EVENT, pid=63, xid=1057}, {ord=14, object=business_event_positions, family=null, pid=63, xid=1057}, {ord=15, object=business_event_positions, family=null, pid=63, xid=1057}, {ord=16, object=business_event_positions, family=null, pid=63, xid=1057}, {ord=17, object=event_sequence_authorities, family=COMMAND_TERMINAL_EVENT, pid=63, xid=1057}, {ord=18, object=command_terminal_event_positions, family=null, pid=63, xid=1057}, {ord=19, object=command_terminal_event_positions, family=null, pid=63, xid=1057}, {ord=20, object=command_terminal_event_positions, family=null, pid=63, xid=1057}, {ord=21, object=event_sequence_authorities, family=BINDING_FACT, pid=63, xid=1057}, {ord=22, object=binding_fact_positions, family=null, pid=63, xid=1057}, {ord=23, object=binding_fact_positions, family=null, pid=63, xid=1057}, {ord=24, object=binding_fact_positions, family=null, pid=63, xid=1057}, {ord=25, object=event_sequence_authorities, family=USER_CREATED_FACT, pid=63, xid=1057}, {ord=26, object=user_created_fact_positions, family=null, pid=63, xid=1057}, {ord=27, object=user_created_fact_positions, family=null, pid=63, xid=1057}, {ord=28, object=user_created_fact_positions, family=null, pid=63, xid=1057}]
+STEP4C DEFERRED_BUSINESS_LOCKS unchanged=[{relation=business_event_outbox, mode=RowExclusiveLock}, {relation=business_event_outbox, mode=RowShareLock}, {relation=command_outcomes, mode=RowExclusiveLock}, {relation=command_outcomes, mode=RowShareLock}, {relation=command_terminal_events, mode=RowExclusiveLock}, {relation=command_terminal_events, mode=RowShareLock}, {relation=external_identity_binding_facts, mode=RowExclusiveLock}, {relation=external_identity_binding_facts, mode=RowShareLock}, {relation=external_identity_binding_occurrences, mode=RowExclusiveLock}, {relation=external_identity_binding_occurrences, mode=RowShareLock}, {relation=external_identity_binding_streams, mode=RowExclusiveLock}, {relation=external_identity_binding_streams, mode=RowShareLock}, {relation=recorded_commands, mode=RowExclusiveLock}, {relation=recorded_commands, mode=RowShareLock}, {relation=registration_requests, mode=RowExclusiveLock}, {relation=registration_requests, mode=RowShareLock}, {relation=user_created_facts, mode=RowExclusiveLock}, {relation=user_created_facts, mode=RowShareLock}, {relation=users, mode=RowExclusiveLock}, {relation=users, mode=RowShareLock}]
+STEP4C LOCKS_BEFORE_COMMIT [{relation=binding_fact_positions, mode=RowExclusiveLock}, {relation=business_event_outbox, mode=RowExclusiveLock}, {relation=business_event_outbox, mode=RowShareLock}, {relation=business_event_outbox_pkey, mode=RowShareLock}, {relation=business_event_positions, mode=RowExclusiveLock}, {relation=command_outcomes, mode=RowExclusiveLock}, {relation=command_outcomes, mode=RowShareLock}, {relation=command_outcomes_pkey, mode=RowShareLock}, {relation=command_terminal_event_positions, mode=RowExclusiveLock}, {relation=command_terminal_events, mode=RowExclusiveLock}, {relation=command_terminal_events, mode=RowShareLock}, {relation=command_terminal_events_pkey, mode=RowShareLock}, {relation=event_sequence_authorities, mode=RowExclusiveLock}, {relation=event_sequence_authorities_pkey, mode=RowExclusiveLock}, {relation=event_sequencing_protocol, mode=AccessShareLock}, {relation=event_sequencing_protocol_pkey, mode=AccessShareLock}, {relation=external_identity_binding_facts, mode=RowExclusiveLock}, {relation=external_identity_binding_facts, mode=RowShareLock}, {relation=external_identity_binding_facts_pkey, mode=RowShareLock}, {relation=external_identity_binding_occ_binding_id_issuer_subject_use_key, mode=RowShareLock}, {relation=external_identity_binding_occ_issuer_subject_attached_revis_key, mode=RowShareLock}, {relation=external_identity_binding_occurrences, mode=RowExclusiveLock}, {relation=external_identity_binding_occurrences, mode=RowShareLock}, {relation=external_identity_binding_occurrences_pkey, mode=RowShareLock}, {relation=external_identity_binding_streams, mode=RowExclusiveLock}, {relation=external_identity_binding_streams, mode=RowShareLock}, {relation=external_identity_binding_streams_pkey, mode=RowShareLock}, {relation=idx_business_event_outbox_claimable, mode=RowShareLock}, {relation=idx_business_event_outbox_pot_version, mode=RowShareLock}, {relation=idx_command_terminal_events_discovery, mode=RowShareLock}, {relation=idx_external_identity_binding_facts_discovery, mode=RowShareLock}, {relation=idx_recorded_commands_discovery, mode=RowShareLock}, {relation=idx_registration_requests_discovery, mode=RowShareLock}, {relation=proof_4c.trace, mode=RowExclusiveLock}, {relation=proof_4c.trace_ord_seq, mode=RowExclusiveLock}, {relation=recorded_commands, mode=RowExclusiveLock}, {relation=recorded_commands, mode=RowShareLock}, {relation=recorded_commands_pkey, mode=RowShareLock}, {relation=registration_requests, mode=RowExclusiveLock}, {relation=registration_requests, mode=RowShareLock}, {relation=registration_requests_pkey, mode=RowShareLock}, {relation=uk_command_terminal_events_command, mode=RowShareLock}, {relation=uk_external_identity_binding_facts_revision, mode=RowShareLock}, {relation=user_created_fact_positions, mode=RowExclusiveLock}, {relation=user_created_facts, mode=RowExclusiveLock}, {relation=user_created_facts, mode=RowShareLock}, {relation=user_created_facts_pkey, mode=RowShareLock}, {relation=user_created_facts_request_id_key, mode=RowShareLock}, {relation=user_created_facts_user_id_key, mode=RowShareLock}, {relation=users, mode=RowExclusiveLock}, {relation=users, mode=RowShareLock}, {relation=users_pkey, mode=RowShareLock}]
+STEP4C INDEX business_event_positions Index Only Scan using business_event_positions_event_id_key on business_event_positions  (cost=0.28..8.30 rows=1 width=4) (actual time=0.033..0.034 rows=1 loops=1)
+  Index Cond: (event_id = '0c709922-40d5-4aab-b205-00795cc96ae2'::uuid)
+  Heap Fetches: 1
+  Buffers: shared hit=3
+Planning Time: 0.044 ms
+Execution Time: 0.049 ms
+STEP4C INDEX business_event_positions Index Only Scan using business_event_positions_event_id_key on business_event_positions  (cost=0.28..8.30 rows=1 width=4) (actual time=0.010..0.010 rows=0 loops=1)
+  Index Cond: (event_id = '449a32c7-ea16-4ed6-b042-a483f0c144f3'::uuid)
+  Heap Fetches: 0
+  Buffers: shared hit=2
+Planning Time: 0.026 ms
+Execution Time: 0.021 ms
+STEP4C INDEX command_terminal_event_positions Index Only Scan using command_terminal_event_positions_event_id_key on command_terminal_event_positions  (cost=0.28..8.30 rows=1 width=4) (actual time=0.010..0.010 rows=1 loops=1)
+  Index Cond: (event_id = '8432893a-e3f4-4ccb-97cb-712755657ffc'::uuid)
+  Heap Fetches: 1
+  Buffers: shared hit=3
+Planning Time: 0.019 ms
+Execution Time: 0.015 ms
+STEP4C INDEX command_terminal_event_positions Index Only Scan using command_terminal_event_positions_event_id_key on command_terminal_event_positions  (cost=0.28..8.30 rows=1 width=4) (actual time=0.007..0.007 rows=0 loops=1)
+  Index Cond: (event_id = '3bd5fc35-8c29-4818-bfa2-4ca93a814df2'::uuid)
+  Heap Fetches: 0
+  Buffers: shared hit=2
+Planning Time: 0.011 ms
+Execution Time: 0.011 ms
+STEP4C INDEX binding_fact_positions Index Only Scan using binding_fact_positions_event_id_key on binding_fact_positions  (cost=0.28..8.30 rows=1 width=4) (actual time=0.009..0.009 rows=1 loops=1)
+  Index Cond: (event_id = 'b0f2d6be-364d-446c-ae7f-9332173e0632'::uuid)
+  Heap Fetches: 1
+  Buffers: shared hit=3
+Planning Time: 0.017 ms
+Execution Time: 0.014 ms
+STEP4C INDEX binding_fact_positions Index Only Scan using binding_fact_positions_event_id_key on binding_fact_positions  (cost=0.28..8.30 rows=1 width=4) (actual time=0.007..0.007 rows=0 loops=1)
+  Index Cond: (event_id = '11799899-46f1-4606-a50d-7635467b6559'::uuid)
+  Heap Fetches: 0
+  Buffers: shared hit=2
+Planning Time: 0.014 ms
+Execution Time: 0.012 ms
+STEP4C INDEX user_created_fact_positions Index Only Scan using user_created_fact_positions_event_id_key on user_created_fact_positions  (cost=0.28..8.30 rows=1 width=4) (actual time=0.009..0.009 rows=1 loops=1)
+  Index Cond: (event_id = '91b17504-f521-4b25-9fe8-b8d30d279bb0'::uuid)
+  Heap Fetches: 1
+  Buffers: shared hit=3
+Planning Time: 0.018 ms
+Execution Time: 0.015 ms
+STEP4C INDEX user_created_fact_positions Index Only Scan using user_created_fact_positions_event_id_key on user_created_fact_positions  (cost=0.28..8.30 rows=1 width=4) (actual time=0.011..0.011 rows=0 loops=1)
+  Index Cond: (event_id = '40bed2ae-914d-4cd6-a7f1-bedfd36c8f2e'::uuid)
+  Heap Fetches: 0
+  Buffers: shared hit=2
+Planning Time: 0.008 ms
+Execution Time: 0.016 ms
+2026-10-20T12:23:26.008+02:00  WARN 50332 --- [pocoma-command-consumption-worker] [           main] org.hibernate.orm.jdbc.error             : HHH000247: ErrorCode: 0, SQLState: 23505
+[INFO] Tests run: 34, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 11.52 s -- in com.kartaguez.pocoma.runtime.command.consumption.eventprotocol.EventSequencingPostgresTest
+[INFO] BUILD SUCCESS
+[INFO] Total time:  25.413 s
+
+canonical_final /private/tmp/pocoma-4c-canonical-final.log
+SHA256 523fcb1d5fb9d6a79906f0e5b3153e9a45de7a8c91de5586b4b5bf490370e11b
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.143 s -- in com.kartaguez.pocoma.infra.persistence.primary.jpa.migration.PrimaryMigrationsPostgresTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 5.340 s -- in com.kartaguez.pocoma.runtime.binding.BindingRuntimePostgresTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.516 s -- in com.kartaguez.pocoma.runtime.command.consumption.eventprotocol.PrimaryEventProtocolDormancyPostgresTest
+STEP4C UPGRADE V29->V30 preserved=[{event_id=38922e96-18e6-4bb2-b9b3-bf4e5187fc1b}, {event_id=803cf649-49be-4e3b-9174-29ab2b92c1f1}, {event_id=8c97abf8-3d74-4f86-983f-23ef9fd9d314}, {event_id=b7b14bb7-402b-4ffd-8412-f26478df451b}] CURRENT SQL twice; PREPARED, E=0, positions=0
+STEP4C INSTALLED_SCHEMA [{proname=check_business_event_positions_complete, proconfig={"search_path=pg_catalog, step4c_isolated, pg_temp"}}, {proname=reserve_event_positions, proconfig={"search_path=pg_catalog, step4c_isolated, pg_temp"}}, {proname=check_command_terminal_event_positions_complete, proconfig={"search_path=pg_catalog, step4c_isolated, pg_temp"}}, {proname=check_binding_fact_positions_complete, proconfig={"search_path=pg_catalog, step4c_isolated, pg_temp"}}, {proname=check_user_created_fact_positions_complete, proconfig={"search_path=pg_catalog, step4c_isolated, pg_temp"}}]
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.683 s -- in com.kartaguez.pocoma.runtime.command.consumption.eventprotocol.EventSequencingUpgradePostgresTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.008 s -- in com.kartaguez.pocoma.runtime.command.consumption.eventprotocol.PrimaryEventProtocolStructureTest
+STEP4C CONSUMPTION [{ord=4, object=external_identity_binding_facts, family=null, pid=61, xid=937}, {ord=5, object=business_event_outbox, family=null, pid=61, xid=937}, {ord=6, object=consumption_slots, family=null, pid=61, xid=937}, {ord=7, object=consumption_claims, family=null, pid=61, xid=937}, {ord=8, object=event_sequence_authorities, family=BUSINESS_EVENT, pid=61, xid=937}, {ord=9, object=business_event_positions, family=null, pid=61, xid=937}, {ord=10, object=event_sequence_authorities, family=BINDING_FACT, pid=61, xid=937}, {ord=11, object=binding_fact_positions, family=null, pid=61, xid=937}]
+STEP4C CONTENTION [{pid=62, query=select reserve_event_positions($1,$2), wait_event_type=Lock, wait_event=transactionid, blockers={61}}]
+STEP4C PHYSICAL_ORDER [{ord=1, object=user_created_facts, family=null, pid=63, xid=1057}, {ord=2, object=external_identity_binding_facts, family=null, pid=63, xid=1057}, {ord=3, object=command_terminal_events, family=null, pid=63, xid=1057}, {ord=4, object=user_created_facts, family=null, pid=63, xid=1057}, {ord=5, object=external_identity_binding_facts, family=null, pid=63, xid=1057}, {ord=6, object=command_terminal_events, family=null, pid=63, xid=1057}, {ord=7, object=user_created_facts, family=null, pid=63, xid=1057}, {ord=8, object=external_identity_binding_facts, family=null, pid=63, xid=1057}, {ord=9, object=command_terminal_events, family=null, pid=63, xid=1057}, {ord=10, object=business_event_outbox, family=null, pid=63, xid=1057}, {ord=11, object=business_event_outbox, family=null, pid=63, xid=1057}, {ord=12, object=business_event_outbox, family=null, pid=63, xid=1057}, {ord=13, object=event_sequence_authorities, family=BUSINESS_EVENT, pid=63, xid=1057}, {ord=14, object=business_event_positions, family=null, pid=63, xid=1057}, {ord=15, object=business_event_positions, family=null, pid=63, xid=1057}, {ord=16, object=business_event_positions, family=null, pid=63, xid=1057}, {ord=17, object=event_sequence_authorities, family=COMMAND_TERMINAL_EVENT, pid=63, xid=1057}, {ord=18, object=command_terminal_event_positions, family=null, pid=63, xid=1057}, {ord=19, object=command_terminal_event_positions, family=null, pid=63, xid=1057}, {ord=20, object=command_terminal_event_positions, family=null, pid=63, xid=1057}, {ord=21, object=event_sequence_authorities, family=BINDING_FACT, pid=63, xid=1057}, {ord=22, object=binding_fact_positions, family=null, pid=63, xid=1057}, {ord=23, object=binding_fact_positions, family=null, pid=63, xid=1057}, {ord=24, object=binding_fact_positions, family=null, pid=63, xid=1057}, {ord=25, object=event_sequence_authorities, family=USER_CREATED_FACT, pid=63, xid=1057}, {ord=26, object=user_created_fact_positions, family=null, pid=63, xid=1057}, {ord=27, object=user_created_fact_positions, family=null, pid=63, xid=1057}, {ord=28, object=user_created_fact_positions, family=null, pid=63, xid=1057}]
+STEP4C DEFERRED_BUSINESS_LOCKS unchanged=[{relation=business_event_outbox, mode=RowExclusiveLock}, {relation=business_event_outbox, mode=RowShareLock}, {relation=command_outcomes, mode=RowExclusiveLock}, {relation=command_outcomes, mode=RowShareLock}, {relation=command_terminal_events, mode=RowExclusiveLock}, {relation=command_terminal_events, mode=RowShareLock}, {relation=external_identity_binding_facts, mode=RowExclusiveLock}, {relation=external_identity_binding_facts, mode=RowShareLock}, {relation=external_identity_binding_occurrences, mode=RowExclusiveLock}, {relation=external_identity_binding_occurrences, mode=RowShareLock}, {relation=external_identity_binding_streams, mode=RowExclusiveLock}, {relation=external_identity_binding_streams, mode=RowShareLock}, {relation=recorded_commands, mode=RowExclusiveLock}, {relation=recorded_commands, mode=RowShareLock}, {relation=registration_requests, mode=RowExclusiveLock}, {relation=registration_requests, mode=RowShareLock}, {relation=user_created_facts, mode=RowExclusiveLock}, {relation=user_created_facts, mode=RowShareLock}, {relation=users, mode=RowExclusiveLock}, {relation=users, mode=RowShareLock}]
+STEP4C LOCKS_BEFORE_COMMIT [{relation=binding_fact_positions, mode=RowExclusiveLock}, {relation=business_event_outbox, mode=RowExclusiveLock}, {relation=business_event_outbox, mode=RowShareLock}, {relation=business_event_outbox_pkey, mode=RowShareLock}, {relation=business_event_positions, mode=RowExclusiveLock}, {relation=command_outcomes, mode=RowExclusiveLock}, {relation=command_outcomes, mode=RowShareLock}, {relation=command_outcomes_pkey, mode=RowShareLock}, {relation=command_terminal_event_positions, mode=RowExclusiveLock}, {relation=command_terminal_events, mode=RowExclusiveLock}, {relation=command_terminal_events, mode=RowShareLock}, {relation=command_terminal_events_pkey, mode=RowShareLock}, {relation=event_sequence_authorities, mode=RowExclusiveLock}, {relation=event_sequence_authorities_pkey, mode=RowExclusiveLock}, {relation=event_sequencing_protocol, mode=AccessShareLock}, {relation=event_sequencing_protocol_pkey, mode=AccessShareLock}, {relation=external_identity_binding_facts, mode=RowExclusiveLock}, {relation=external_identity_binding_facts, mode=RowShareLock}, {relation=external_identity_binding_facts_pkey, mode=RowShareLock}, {relation=external_identity_binding_occ_binding_id_issuer_subject_use_key, mode=RowShareLock}, {relation=external_identity_binding_occ_issuer_subject_attached_revis_key, mode=RowShareLock}, {relation=external_identity_binding_occurrences, mode=RowExclusiveLock}, {relation=external_identity_binding_occurrences, mode=RowShareLock}, {relation=external_identity_binding_occurrences_pkey, mode=RowShareLock}, {relation=external_identity_binding_streams, mode=RowExclusiveLock}, {relation=external_identity_binding_streams, mode=RowShareLock}, {relation=external_identity_binding_streams_pkey, mode=RowShareLock}, {relation=idx_business_event_outbox_claimable, mode=RowShareLock}, {relation=idx_business_event_outbox_pot_version, mode=RowShareLock}, {relation=idx_command_terminal_events_discovery, mode=RowShareLock}, {relation=idx_external_identity_binding_facts_discovery, mode=RowShareLock}, {relation=idx_recorded_commands_discovery, mode=RowShareLock}, {relation=idx_registration_requests_discovery, mode=RowShareLock}, {relation=proof_4c.trace, mode=RowExclusiveLock}, {relation=proof_4c.trace_ord_seq, mode=RowExclusiveLock}, {relation=recorded_commands, mode=RowExclusiveLock}, {relation=recorded_commands, mode=RowShareLock}, {relation=recorded_commands_pkey, mode=RowShareLock}, {relation=registration_requests, mode=RowExclusiveLock}, {relation=registration_requests, mode=RowShareLock}, {relation=registration_requests_pkey, mode=RowShareLock}, {relation=uk_command_terminal_events_command, mode=RowShareLock}, {relation=uk_external_identity_binding_facts_revision, mode=RowShareLock}, {relation=user_created_fact_positions, mode=RowExclusiveLock}, {relation=user_created_facts, mode=RowExclusiveLock}, {relation=user_created_facts, mode=RowShareLock}, {relation=user_created_facts_pkey, mode=RowShareLock}, {relation=user_created_facts_request_id_key, mode=RowShareLock}, {relation=user_created_facts_user_id_key, mode=RowShareLock}, {relation=users, mode=RowExclusiveLock}, {relation=users, mode=RowShareLock}, {relation=users_pkey, mode=RowShareLock}]
+STEP4C INDEX business_event_positions Index Only Scan using business_event_positions_event_id_key on business_event_positions  (cost=0.28..8.30 rows=1 width=4) (actual time=0.015..0.015 rows=1 loops=1)
+  Index Cond: (event_id = '2b6ce9cd-f808-423a-8b33-4d7806b53dd2'::uuid)
+  Heap Fetches: 1
+  Buffers: shared hit=3
+Planning Time: 0.026 ms
+Execution Time: 0.025 ms
+STEP4C INDEX business_event_positions Index Only Scan using business_event_positions_event_id_key on business_event_positions  (cost=0.28..8.30 rows=1 width=4) (actual time=0.007..0.007 rows=0 loops=1)
+  Index Cond: (event_id = 'ef35a0bb-81fd-4f49-90f5-69612e9f1fc1'::uuid)
+  Heap Fetches: 0
+  Buffers: shared hit=2
+Planning Time: 0.010 ms
+Execution Time: 0.013 ms
+STEP4C INDEX command_terminal_event_positions Index Only Scan using command_terminal_event_positions_event_id_key on command_terminal_event_positions  (cost=0.28..8.30 rows=1 width=4) (actual time=0.009..0.009 rows=1 loops=1)
+  Index Cond: (event_id = 'db9cf3a6-0ffa-434d-9e06-e1f0b495748d'::uuid)
+  Heap Fetches: 1
+  Buffers: shared hit=3
+Planning Time: 0.017 ms
+Execution Time: 0.016 ms
+STEP4C INDEX command_terminal_event_positions Index Only Scan using command_terminal_event_positions_event_id_key on command_terminal_event_positions  (cost=0.28..8.30 rows=1 width=4) (actual time=0.006..0.006 rows=0 loops=1)
+  Index Cond: (event_id = '774753cf-333f-49be-983d-6bd8ee3dd179'::uuid)
+  Heap Fetches: 0
+  Buffers: shared hit=2
+Planning Time: 0.007 ms
+Execution Time: 0.010 ms
+STEP4C INDEX binding_fact_positions Index Only Scan using binding_fact_positions_event_id_key on binding_fact_positions  (cost=0.28..8.30 rows=1 width=4) (actual time=0.010..0.010 rows=1 loops=1)
+  Index Cond: (event_id = '6f558359-7c38-418a-926d-ae6783a80645'::uuid)
+  Heap Fetches: 1
+  Buffers: shared hit=3
+Planning Time: 0.019 ms
+Execution Time: 0.020 ms
+STEP4C INDEX binding_fact_positions Index Only Scan using binding_fact_positions_event_id_key on binding_fact_positions  (cost=0.28..8.30 rows=1 width=4) (actual time=0.007..0.007 rows=0 loops=1)
+  Index Cond: (event_id = '70042726-cf48-4cf5-b333-cc1127ea92ed'::uuid)
+  Heap Fetches: 0
+  Buffers: shared hit=2
+Planning Time: 0.012 ms
+Execution Time: 0.011 ms
+STEP4C INDEX user_created_fact_positions Index Only Scan using user_created_fact_positions_event_id_key on user_created_fact_positions  (cost=0.28..8.30 rows=1 width=4) (actual time=0.009..0.009 rows=1 loops=1)
+  Index Cond: (event_id = '61d5c16e-a635-411d-8ca2-cafd98b713be'::uuid)
+  Heap Fetches: 1
+  Buffers: shared hit=3
+Planning Time: 0.016 ms
+Execution Time: 0.014 ms
+STEP4C INDEX user_created_fact_positions Index Only Scan using user_created_fact_positions_event_id_key on user_created_fact_positions  (cost=0.28..8.30 rows=1 width=4) (actual time=0.011..0.011 rows=0 loops=1)
+  Index Cond: (event_id = 'd4e39c83-bdd6-4690-866f-54d8f4332fa9'::uuid)
+  Heap Fetches: 0
+  Buffers: shared hit=2
+Planning Time: 0.009 ms
+Execution Time: 0.015 ms
+2026-10-20T12:25:58.385+02:00  WARN 52412 --- [pocoma-command-consumption-worker] [           main] org.hibernate.orm.jdbc.error             : HHH000247: ErrorCode: 0, SQLState: 23505
+[INFO] Tests run: 34, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 7.189 s -- in com.kartaguez.pocoma.runtime.command.consumption.eventprotocol.EventSequencingPostgresTest
+[INFO] BUILD SUCCESS
+[INFO] Total time:  02:15 min
+
+previous_runtime_final /private/tmp/pocoma-4c-previous-runtime-final.log
+SHA256 b1e6326e2c52eb8bd0646fca34d982ebb483bcd67af179456d8e86d7625ce91c
+STEP4C previous source 1771514a51c74452e019a2a259b40d0303cf2cde exported to /private/tmp/pocoma-4c-previous-runtime.36sHIq
+STEP4C PREVIOUS_RUNTIME startup + unchanged writer committed request=5ea7f666-eb38-4b0a-99d6-89d8994fdf73 PREPARED E=0 positions=0
+STEP4C PREVIOUS_RUNTIME startup + unchanged writer committed request=a948f789-6125-4646-8cff-53c64fcc88cc PREPARED E=0 positions=0
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 6.076 s -- in com.kartaguez.pocoma.runtime.command.consumption.eventprotocol.PreparedPreviousRuntimePostgresTest
+[INFO] BUILD SUCCESS
+[INFO] Total time:  13.218 s

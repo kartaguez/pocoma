@@ -1,0 +1,12 @@
+Compiled from "ExternalIdentityBindingFactJdbcRepository.java"
+public class com.kartaguez.pocoma.infra.persistence.primary.jpa.repository.identity.ExternalIdentityBindingFactJdbcRepository {
+  private static final java.lang.String APPEND;
+  private static final java.lang.String FIND;
+  private final org.springframework.jdbc.core.JdbcTemplate jdbc;
+  public com.kartaguez.pocoma.infra.persistence.primary.jpa.repository.identity.ExternalIdentityBindingFactJdbcRepository(org.springframework.jdbc.core.JdbcTemplate);
+  public <T> T accept(java.util.function.Supplier<T>);
+  public void append(com.kartaguez.pocoma.infra.persistence.primary.jpa.repository.identity.ExternalIdentityBindingFactRow);
+  public java.util.Optional<com.kartaguez.pocoma.infra.persistence.primary.jpa.repository.identity.ExternalIdentityBindingFactRow> findByEventId(java.util.UUID);
+  private static com.kartaguez.pocoma.infra.persistence.primary.jpa.repository.identity.ExternalIdentityBindingFactRow lambda$findByEventId$1(java.sql.ResultSet, int) throws java.sql.SQLException;
+  private java.lang.Object lambda$append$0(com.kartaguez.pocoma.infra.persistence.primary.jpa.repository.identity.ExternalIdentityBindingFactRow);
+}

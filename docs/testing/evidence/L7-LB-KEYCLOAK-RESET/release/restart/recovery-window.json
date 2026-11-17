@@ -1,0 +1,14 @@
+{
+  "stoppedWorkers": [
+    "command-worker",
+    "results-worker",
+    "business-read-worker"
+  ],
+  "remainingSeconds": {
+    "pocoma_read": 229.991738,
+    "pocoma_write": 232.283692
+  },
+  "action": "WAIT_CAPTURED_WINDOW_NO_LEASE_MUTATION",
+  "startedAt": 1794674659.460546,
+  "completedAt": 1794674891.748568
+}

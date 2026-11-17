@@ -1,0 +1,295 @@
+{
+  "observedAt": 1794676061.145943,
+  "instances": [
+    {
+      "instance": "demo",
+      "directory": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/demo",
+      "resources": [
+        {
+          "kind": "container",
+          "id": "e7bb7331feb0f7d9b893263d95cb01c27282a7b4ea81887f81d823340ee74dd0",
+          "name": "pocoma-lb-demo-33dd8c1d-business-read-worker-1",
+          "project": "pocoma-lb-demo-33dd8c1d",
+          "owner": "33dd8c1d-4dbd-4310-9011-50b0c6de18be",
+          "service": "business-read-worker",
+          "state": "running",
+          "volumes": []
+        },
+        {
+          "kind": "container",
+          "id": "8bb6b1b97f03f19b02e7a287318151275251d826f97194beaa60b20e368f9055",
+          "name": "pocoma-lb-demo-33dd8c1d-http-write-1",
+          "project": "pocoma-lb-demo-33dd8c1d",
+          "owner": "33dd8c1d-4dbd-4310-9011-50b0c6de18be",
+          "service": "http-write",
+          "state": "running",
+          "volumes": []
+        },
+        {
+          "kind": "container",
+          "id": "4101da3c49dff4f0090adbfe16408269234921a9ee6946069b157df71d7ccb0c",
+          "name": "pocoma-lb-demo-33dd8c1d-http-read-1",
+          "project": "pocoma-lb-demo-33dd8c1d",
+          "owner": "33dd8c1d-4dbd-4310-9011-50b0c6de18be",
+          "service": "http-read",
+          "state": "running",
+          "volumes": []
+        },
+        {
+          "kind": "container",
+          "id": "e91f13d8eeeea16c0cc479b18b995401ce0cbf204bcdfd22cb9c9d9da7e87fd2",
+          "name": "pocoma-lb-demo-33dd8c1d-command-worker-1",
+          "project": "pocoma-lb-demo-33dd8c1d",
+          "owner": "33dd8c1d-4dbd-4310-9011-50b0c6de18be",
+          "service": "command-worker",
+          "state": "running",
+          "volumes": []
+        },
+        {
+          "kind": "container",
+          "id": "7ba3a62976303c63f302e52e6fca42173b4fabe6bd72988dc8b0551eba29a7b2",
+          "name": "pocoma-lb-demo-33dd8c1d-results-worker-1",
+          "project": "pocoma-lb-demo-33dd8c1d",
+          "owner": "33dd8c1d-4dbd-4310-9011-50b0c6de18be",
+          "service": "results-worker",
+          "state": "running",
+          "volumes": []
+        },
+        {
+          "kind": "container",
+          "id": "5ec7b6f8f8a09cc67667ea3c236b0b526e5c30bc3413937e5101e564f25cd799",
+          "name": "pocoma-lb-demo-33dd8c1d-prometheus-1",
+          "project": "pocoma-lb-demo-33dd8c1d",
+          "owner": "33dd8c1d-4dbd-4310-9011-50b0c6de18be",
+          "service": "prometheus",
+          "state": "running",
+          "volumes": [
+            "c4b0f254fb8dd331655ec936159235309d41ac29818f08ed5c0608d98451761f"
+          ]
+        },
+        {
+          "kind": "container",
+          "id": "9982f1a5b01103d66dca792260369d108a340a4fc52626cab4588695682ee42b",
+          "name": "pocoma-lb-demo-33dd8c1d-keycloak-1",
+          "project": "pocoma-lb-demo-33dd8c1d",
+          "owner": "33dd8c1d-4dbd-4310-9011-50b0c6de18be",
+          "service": "keycloak",
+          "state": "running",
+          "volumes": []
+        },
+        {
+          "kind": "container",
+          "id": "4b5be4a0f2c14b10d46f36748479cc467c295c71bf544cae7eab37914234e630",
+          "name": "pocoma-lb-demo-33dd8c1d-postgres-1",
+          "project": "pocoma-lb-demo-33dd8c1d",
+          "owner": "33dd8c1d-4dbd-4310-9011-50b0c6de18be",
+          "service": "postgres",
+          "state": "running",
+          "volumes": [
+            "pocoma-lb-demo-33dd8c1d-data"
+          ]
+        },
+        {
+          "kind": "volume",
+          "id": "pocoma-lb-demo-33dd8c1d-data",
+          "name": "pocoma-lb-demo-33dd8c1d-data",
+          "project": "pocoma-lb-demo-33dd8c1d",
+          "owner": "33dd8c1d-4dbd-4310-9011-50b0c6de18be"
+        },
+        {
+          "kind": "network",
+          "id": "d944fc6475c00a38475cf28429082fd2be502fcd5d93b7a000632d3b8b105bfc",
+          "name": "pocoma-lb-demo-33dd8c1d_default",
+          "project": "pocoma-lb-demo-33dd8c1d",
+          "owner": "33dd8c1d-4dbd-4310-9011-50b0c6de18be"
+        }
+      ],
+      "owner": "33dd8c1d-4dbd-4310-9011-50b0c6de18be",
+      "project": "pocoma-lb-demo-33dd8c1d",
+      "manifestState": "RUNNING",
+      "plan": {
+        "state": "DESTROY_PLAN",
+        "exit": 0,
+        "instance": "demo",
+        "owner": "33dd8c1d-4dbd-4310-9011-50b0c6de18be",
+        "project": "pocoma-lb-demo-33dd8c1d",
+        "volume": "pocoma-lb-demo-33dd8c1d-data",
+        "network": "pocoma-lb-demo-33dd8c1d_default",
+        "services": [
+          "http-write",
+          "http-read",
+          "command-worker",
+          "results-worker",
+          "business-read-worker",
+          "postgres",
+          "keycloak",
+          "prometheus"
+        ],
+        "persistentDataLost": [
+          "PostgreSQL WRITE/READ and Keycloak database in owned volume",
+          "Generated credentials, configuration, demo and canary checkpoints"
+        ],
+        "retained": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/demo/runs",
+        "preservedUnownedVolumes": [
+          "c4b0f254fb8dd331655ec936159235309d41ac29818f08ed5c0608d98451761f"
+        ],
+        "operations": [
+          "Verify manifest/UUID/resource ownership",
+          "Gracefully stop this instance",
+          "Compose down without --volumes; preserve unowned attached volumes",
+          "Remove only the named data volume after checking its owner/project labels",
+          "Remove generated instance files; retain lock and diagnostic runs"
+        ],
+        "command": "./pocoma-local destroy --instance demo --confirm DESTROY:demo"
+      },
+      "privateFilesBytes": 170179326
+    },
+    {
+      "instance": "gui-test",
+      "directory": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/gui-test",
+      "resources": [],
+      "manifestState": "NO_MANIFEST",
+      "plan": "RETAIN: no ownership authority",
+      "privateFilesBytes": 266753
+    },
+    {
+      "instance": "i3-bruno",
+      "directory": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/i3-bruno",
+      "resources": [],
+      "manifestState": "NO_MANIFEST",
+      "plan": "RETAIN: no ownership authority",
+      "privateFilesBytes": 155990
+    },
+    {
+      "instance": "i3-final",
+      "directory": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/i3-final",
+      "resources": [],
+      "manifestState": "NO_MANIFEST",
+      "plan": "RETAIN: no ownership authority",
+      "privateFilesBytes": 458800
+    },
+    {
+      "instance": "i3-workshop",
+      "directory": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/i3-workshop",
+      "resources": [],
+      "manifestState": "NO_MANIFEST",
+      "plan": "RETAIN: no ownership authority",
+      "privateFilesBytes": 384077
+    },
+    {
+      "instance": "j1-a-0bab6b8c",
+      "directory": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/j1-a-0bab6b8c",
+      "resources": [],
+      "manifestState": "NO_MANIFEST",
+      "plan": "RETAIN: no ownership authority",
+      "privateFilesBytes": 134944
+    },
+    {
+      "instance": "j1-a-2ad2a840",
+      "directory": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/j1-a-2ad2a840",
+      "resources": [],
+      "manifestState": "NO_MANIFEST",
+      "plan": "RETAIN: no ownership authority",
+      "privateFilesBytes": 289390
+    },
+    {
+      "instance": "j1-a-cbaf923f",
+      "directory": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/j1-a-cbaf923f",
+      "resources": [],
+      "manifestState": "NO_MANIFEST",
+      "plan": "RETAIN: no ownership authority",
+      "privateFilesBytes": 203406
+    },
+    {
+      "instance": "j1-bootstrap-2ad2a840",
+      "directory": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/j1-bootstrap-2ad2a840",
+      "resources": [],
+      "manifestState": "NO_MANIFEST",
+      "plan": "RETAIN: no ownership authority",
+      "privateFilesBytes": 3094
+    },
+    {
+      "instance": "keycloak-release-validation",
+      "directory": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/keycloak-release-validation",
+      "resources": [],
+      "manifestState": "NO_MANIFEST",
+      "plan": "RETAIN: no ownership authority",
+      "privateFilesBytes": 357688
+    },
+    {
+      "instance": "keycloak-validation",
+      "directory": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/keycloak-validation",
+      "resources": [],
+      "manifestState": "NO_MANIFEST",
+      "plan": "RETAIN: no ownership authority",
+      "privateFilesBytes": 112685
+    },
+    {
+      "instance": "keycloak-validation-final",
+      "directory": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/keycloak-validation-final",
+      "resources": [],
+      "manifestState": "NO_MANIFEST",
+      "plan": "RETAIN: no ownership authority",
+      "privateFilesBytes": 348223
+    },
+    {
+      "instance": "lb-one",
+      "directory": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/lb-one",
+      "resources": [],
+      "manifestState": "NO_MANIFEST",
+      "plan": "RETAIN: no ownership authority",
+      "privateFilesBytes": 273817
+    }
+  ],
+  "potentialOrphans": [],
+  "unownedAttachedVolumes": [
+    {
+      "kind": "volume",
+      "id": "c4b0f254fb8dd331655ec936159235309d41ac29818f08ed5c0608d98451761f",
+      "name": "c4b0f254fb8dd331655ec936159235309d41ac29818f08ed5c0608d98451761f",
+      "project": null,
+      "owner": null,
+      "attachedTo": [
+        {
+          "container": "5ec7b6f8f8a09cc67667ea3c236b0b526e5c30bc3413937e5101e564f25cd799",
+          "service": "prometheus",
+          "owner": "33dd8c1d-4dbd-4310-9011-50b0c6de18be",
+          "project": "pocoma-lb-demo-33dd8c1d",
+          "destination": "/prometheus"
+        }
+      ],
+      "action": "PRESERVE: attached to playground but without matching owner/project labels"
+    }
+  ],
+  "unrelatedResources": [
+    {
+      "kind": "network",
+      "id": "8a57e579114544781c3a0f9ef23ca0d61fa14551beac894813c354b8002378e9",
+      "name": "bridge",
+      "project": null,
+      "owner": null
+    },
+    {
+      "kind": "network",
+      "id": "c9783d07eaba974fb784631b10a36a9f593c300c1a787c7e3512f62cd714a317",
+      "name": "host",
+      "project": null,
+      "owner": null
+    },
+    {
+      "kind": "network",
+      "id": "769dcddd0739e10ca9bf141fcc2d3d395e76bfecc0e08f7f8822de2006f135ff",
+      "name": "none",
+      "project": null,
+      "owner": null
+    }
+  ],
+  "composeProjects": [
+    {
+      "Name": "pocoma-lb-demo-33dd8c1d",
+      "Status": "running(8)",
+      "ConfigFiles": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/demo/compose.json"
+    }
+  ],
+  "policy": "Dry-run only. No resource or persistent data is deleted. Explicit human confirmation required."
+}

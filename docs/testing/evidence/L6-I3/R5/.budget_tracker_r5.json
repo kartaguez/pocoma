@@ -1,0 +1,63 @@
+{
+  "globalBudgetSeconds": 1800,
+  "cumulativeSeconds": 772.06,
+  "remainingSeconds": 1027.94,
+  "runs": [
+    {
+      "runId": "run-r5-m1-smoke-1794126978",
+      "scenario": "m1-smoke",
+      "durationSeconds": 21.99,
+      "timestamp": "2026-11-08T08:36:40Z",
+      "success": true
+    },
+    {
+      "runId": "prep-fixtures-1794127212",
+      "scenario": "fixtures-prep",
+      "durationSeconds": 155.24,
+      "timestamp": "2026-11-08T08:40:12Z",
+      "success": true
+    },
+    {
+      "runId": "run-r5-m1-smoke-1794127212",
+      "scenario": "m1-smoke",
+      "durationSeconds": 21.88,
+      "timestamp": "2026-11-08T08:40:34Z",
+      "success": true
+    },
+    {
+      "runId": "run-r5-m2-nominal-5-1794127237",
+      "scenario": "m2-nominal-5",
+      "durationSeconds": 105.91,
+      "timestamp": "2026-11-08T08:42:23Z",
+      "success": true
+    },
+    {
+      "runId": "run-r5-m3-ramp-10-1794127347",
+      "scenario": "m3-ramp-10",
+      "durationSeconds": 106.93,
+      "timestamp": "2026-11-08T08:44:14Z",
+      "success": true
+    },
+    {
+      "runId": "run-r5-m4-ramp-20-1794127457",
+      "scenario": "m4-ramp-20",
+      "durationSeconds": 106.03,
+      "timestamp": "2026-11-08T08:46:03Z",
+      "success": true
+    },
+    {
+      "runId": "run-r5-m5-ramp-50-1794127567",
+      "scenario": "m5-ramp-50",
+      "durationSeconds": 186.57,
+      "timestamp": "2026-11-08T08:49:14Z",
+      "success": false
+    },
+    {
+      "runId": "run-r5-m1-smoke-1794127960",
+      "scenario": "m1-smoke",
+      "durationSeconds": 67.51,
+      "timestamp": "2026-11-08T08:53:48Z",
+      "success": true
+    }
+  ]
+}

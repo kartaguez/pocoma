@@ -1,0 +1,31 @@
+{
+  "gate": "architecture",
+  "sha": "e67011af0b41077d7a67b23f73eed7ec6a450918",
+  "command": [
+    "./mvnw",
+    "-pl",
+    "architecture-tests",
+    "-am",
+    "test"
+  ],
+  "cwd": "app/",
+  "started_epoch": 1793114283.19815,
+  "elapsed_seconds": 545.365,
+  "exit_code": 1,
+  "tests": 1761,
+  "failures_or_errors": 1,
+  "skips": [
+    {
+      "class": "com.kartaguez.pocoma.runtime.command.consumption.sequencing.TerminalSequencingPostgresTest",
+      "method": "zExploratoryContentionSeparateFromCorrectness",
+      "state": "SKIP"
+    }
+  ],
+  "required_methods": 265,
+  "problems": [],
+  "verdict": "FAIL",
+  "log_sha256": "84ccfbe78f5025d008a5025a7b158df060a41770860497050d50feddcbf1511c",
+  "archive": "architecture-e67011af-failed.tar.gz",
+  "archive_sha256": "10ef6d67a8d821596691bd2d56c9728fa94167c9ef57dc541f78064d3dc4af2f",
+  "diagnosis": "Historical exact-value port whitelist missed two pure I3 values; one real architecture finding corrected, no production/owner/Maven changes."
+}

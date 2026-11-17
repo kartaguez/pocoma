@@ -1,0 +1,1144 @@
+{
+  "repository": "kartaguez/pocoma",
+  "branch": "feat/v3-architecture",
+  "initial_sha": "b8df79a2c5067bffa92b52e3a08a65e929ce716b",
+  "audited_implementation": "6d40ed17496709ce75175c4651dbaaaedc78343e",
+  "verdict": "CLOSED WITH RESERVATIONS",
+  "scope": [
+    "FOUNDATION canonical",
+    "COMMAND/Identity FAST/CHANGE",
+    "Identity monolith integration",
+    "verification tooling"
+  ],
+  "source_sha256": {
+    "app/pom.xml": "83ac12e0c958e0afbee8c111abaf435d4f6b115eb0a6843baa228d2b77b95f60",
+    "scripts/testing/verify.py": "b32ad535f68cbc4846591451379e4c2dfb78fc9164691ae821acc3371ca2eed9",
+    "scripts/testing/test_verification.py": "8f3074c50eb377f482123c9ac6d4d2520cd8612c8b4fea832342da83aa93a132",
+    "scripts/testing/test_verification_cli.py": "f12a989a7f421a4ec43a4ab27883422a6e02c6fd3d3ccee79654acf876905cb8",
+    "scripts/testing/verification-campaigns.json": "66153bde490f59b3242bb31ff7366033dd04f1c37fc9dc66cdbe93719a274086"
+  },
+  "campaigns": [
+    {
+      "name": "foundation",
+      "command": [
+        "/Library/Frameworks/Python.framework/Versions/3.14/bin/python3",
+        "-B",
+        "scripts/testing/verify.py",
+        "CHANGE",
+        "FOUNDATION",
+        "--output",
+        "/private/tmp/pocoma-provenance-resolution/foundation"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 13.231640041994979,
+      "verdict": "PASS",
+      "counts": {
+        "tests": 28,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "seconds": 11.195798,
+      "discovery_seconds": 1.1521642089937814
+    },
+    {
+      "name": "fast",
+      "command": [
+        "/Library/Frameworks/Python.framework/Versions/3.14/bin/python3",
+        "-B",
+        "scripts/testing/verify.py",
+        "FAST",
+        "identity",
+        "--output",
+        "/private/tmp/pocoma-provenance-resolution/fast"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 4.4319204590065056,
+      "verdict": "PASS",
+      "counts": {
+        "tests": 65,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "seconds": 2.29286,
+      "discovery_seconds": 1.3092551670051762
+    },
+    {
+      "name": "change",
+      "command": [
+        "/Library/Frameworks/Python.framework/Versions/3.14/bin/python3",
+        "-B",
+        "scripts/testing/verify.py",
+        "CHANGE",
+        "identity",
+        "--output",
+        "/private/tmp/pocoma-provenance-resolution/change"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 125.33636258300248,
+      "verdict": "PASS",
+      "counts": {
+        "tests": 127,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "seconds": 122.197578,
+      "discovery_seconds": 1.9132624999983818
+    },
+    {
+      "name": "integration",
+      "command": [
+        "/Library/Frameworks/Python.framework/Versions/3.14/bin/python3",
+        "-B",
+        "scripts/testing/verify.py",
+        "INTEGRATION",
+        "identity",
+        "--output",
+        "/private/tmp/pocoma-provenance-resolution/integration"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 217.74836024999968,
+      "verdict": "PASS",
+      "counts": {
+        "tests": 162,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "seconds": 214.545,
+      "discovery_seconds": 1.926986708996992
+    }
+  ],
+  "independent_checks": {
+    "foundation": {
+      "tests": 28,
+      "reports": 6,
+      "hashes_verified": 15,
+      "maven_log_tests": 28,
+      "invocation_id": "31853251a59042458cf1cde8d41c55bd",
+      "compiler_source_inputs": 0
+    },
+    "fast": {
+      "tests": 65,
+      "reports": 9,
+      "hashes_verified": 21,
+      "maven_log_tests": 65,
+      "invocation_id": "b7f61268b2284acc9fb338c2ae683b8e",
+      "compiler_source_inputs": 0
+    },
+    "change": {
+      "tests": 127,
+      "reports": 18,
+      "hashes_verified": 126,
+      "maven_log_tests": 127,
+      "invocation_id": "94cfb94b7e6e4d64b871d3152766bb1d",
+      "compiler_source_inputs": 0
+    },
+    "integration": {
+      "tests": 162,
+      "reports": 26,
+      "hashes_verified": 154,
+      "maven_log_tests": 162,
+      "invocation_id": "cdd7f086ea8f4960bf29b91eff496eaf",
+      "compiler_source_inputs": 0
+    },
+    "coverage": {
+      "fast_subset_change_subset_integration": true,
+      "change_minus_fast": 62,
+      "integration_minus_change": 35,
+      "historical_identity_sets_unchanged": true
+    }
+  },
+  "cli_tests": {
+    "methods": 10,
+    "seconds": 83.819,
+    "verdict": "PASS",
+    "records": [
+      {
+        "name": "nominal-28",
+        "mode": "nominal",
+        "exit_code": 0,
+        "verdict": "PASS",
+        "counts": {
+          "tests": 28,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "issues": []
+      },
+      {
+        "name": "T10-absent",
+        "mode": "absent",
+        "exit_code": 1,
+        "verdict": "INCONCLUSIVE",
+        "counts": {
+          "tests": 0,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "issues": [
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunnerTest#runsActionInTransaction, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunnerTest#runsAfterCommitActionAfterTransactionCommits, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunnerTest#doesNotRunAfterCommitActionWhenTransactionRollsBack, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunnerTest#runsAfterCommitActionImmediatelyWhenNoTransactionIsActive, found 0",
+          "Absent or skipped tests: coverage incomplete"
+        ]
+      },
+      {
+        "name": "T10-truncate",
+        "mode": "truncate",
+        "exit_code": 1,
+        "verdict": "INCONCLUSIVE",
+        "counts": {
+          "tests": 0,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "issues": [
+          "Invalid report reports/pocoma-infra-tx-spring/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunnerTest.xml: unclosed token: line 1, column 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunnerTest#runsActionInTransaction, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunnerTest#runsAfterCommitActionAfterTransactionCommits, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunnerTest#doesNotRunAfterCommitActionWhenTransactionRollsBack, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunnerTest#runsAfterCommitActionImmediatelyWhenNoTransactionIsActive, found 0",
+          "Absent or skipped tests: coverage incomplete"
+        ]
+      },
+      {
+        "name": "T10-duplicate",
+        "mode": "duplicate",
+        "exit_code": 1,
+        "verdict": "INCONCLUSIVE",
+        "counts": {
+          "tests": 4,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "issues": [
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunnerTest#runsActionInTransaction, found 2",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunnerTest#doesNotRunAfterCommitActionWhenTransactionRollsBack, found 0",
+          "Duplicate method execution"
+        ]
+      },
+      {
+        "name": "T10-unexpected",
+        "mode": "unexpected",
+        "exit_code": 1,
+        "verdict": "INCONCLUSIVE",
+        "counts": {
+          "tests": 4,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "issues": [
+          "Unexpected execution: com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunnerTest#unexecutedMethod",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunnerTest#runsActionInTransaction, found 0"
+        ]
+      },
+      {
+        "name": "T10-wrong-module",
+        "mode": "wrong-module",
+        "exit_code": 1,
+        "verdict": "INCONCLUSIVE",
+        "counts": {
+          "tests": 0,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "issues": [
+          "Invalid report reports/pocoma-infra-tx-spring/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunnerTest.xml: Provenance mismatch: pocoma.verification.module; historical or unattributed report",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunnerTest#runsActionInTransaction, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunnerTest#runsAfterCommitActionAfterTransactionCommits, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunnerTest#doesNotRunAfterCommitActionWhenTransactionRollsBack, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunnerTest#runsAfterCommitActionImmediatelyWhenNoTransactionIsActive, found 0",
+          "Absent or skipped tests: coverage incomplete"
+        ]
+      },
+      {
+        "name": "T10-wrong-id",
+        "mode": "wrong-id",
+        "exit_code": 1,
+        "verdict": "INCONCLUSIVE",
+        "counts": {
+          "tests": 0,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "issues": [
+          "Invalid report reports/pocoma-infra-tx-spring/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunnerTest.xml: Provenance mismatch: pocoma.verification.id; historical or unattributed report",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunnerTest#runsActionInTransaction, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunnerTest#runsAfterCommitActionAfterTransactionCommits, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunnerTest#doesNotRunAfterCommitActionWhenTransactionRollsBack, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunnerTest#runsAfterCommitActionImmediatelyWhenNoTransactionIsActive, found 0",
+          "Absent or skipped tests: coverage incomplete"
+        ]
+      },
+      {
+        "name": "T10-missing-id",
+        "mode": "missing-id",
+        "exit_code": 1,
+        "verdict": "INCONCLUSIVE",
+        "counts": {
+          "tests": 0,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "issues": [
+          "Invalid report reports/pocoma-infra-tx-spring/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunnerTest.xml: Provenance mismatch: pocoma.verification.id; historical or unattributed report",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunnerTest#runsActionInTransaction, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunnerTest#runsAfterCommitActionAfterTransactionCommits, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunnerTest#doesNotRunAfterCommitActionWhenTransactionRollsBack, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunnerTest#runsAfterCommitActionImmediatelyWhenNoTransactionIsActive, found 0",
+          "Absent or skipped tests: coverage incomplete"
+        ]
+      },
+      {
+        "name": "T10-symlink",
+        "mode": "symlink",
+        "exit_code": 2,
+        "verdict": "INCONCLUSIVE",
+        "counts": {
+          "tests": 0,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "issues": [
+          "Provenance: symbolic link in producer output: /private/tmp/pocoma-provenance-resolution/cli-tests-publication/T10-symlink/reports/pocoma-infra-tx-spring/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunnerTest.xml"
+        ]
+      },
+      {
+        "name": "T1-exact-external-base",
+        "mode": "nominal",
+        "exit_code": 2,
+        "verdict": "PREFLIGHT REFUSAL",
+        "counts": null,
+        "issues": null
+      },
+      {
+        "name": "T1-replay-target",
+        "mode": "replay-target",
+        "exit_code": 1,
+        "verdict": "INCONCLUSIVE",
+        "counts": {
+          "tests": 4,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "issues": [
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest#jpaJdbcSamePidXidAndClosedContextCannotDirtyWriteAtCommit, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest#guardedLateCallbackRefusedBeforeSqlAndRollback, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest#caughtApplicationJdbcJpaFailuresPoisonBothWriteOrders, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest#autonomousRevisionCaughtFailurePoisonsJpaAndJdbcCallers, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest#requiresNewJpaAndJdbcCannotCommitEffectOrDelete, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest#nestedAmbientWrongSourceAndWrongEmfRefused, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest#sameOwnerReadAuthorityAtomicAndContextCannotCrossAuthorityOrLifetime, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest#commitServerRejectionRollbackAndMaskedCommitRemainDistinct, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest#originalCallbackCauseSurvivesRollbackFailureAndConfirmedCommitWinsCleanup, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.V3FoundationCompositionTest#existingConfigurationInjectsTheActualManagerWithoutApplicationBootstrap, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.V3FoundationCompositionTest#ambiguousManagersAreRefusedInsteadOfSilentlyChoosingAnAuthority, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.V3FoundationCompositionTest#explicitRealmCompositionUsesIndependentPhysicalTransactions, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.V3HistoricalIntervalPostgresTest#resolvesSemiOpenBoundariesAndOpenEndInAnyOrder, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.V3HistoricalIntervalPostgresTest#closesAndOpensAtomicallyAndRollbackPreservesHistory, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.V3HistoricalIntervalPostgresTest#rejectsInvalidIntervalsAndDuplicateOpenVersions, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.V3HistoricalIntervalPostgresTest#reportsGapsAndOverlapsInsteadOfFallingBackToCurrent, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.V3SchemaIsolationPostgresTest#installsOnlyTheExplicitFoundationFixtureOnRealPostgres, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.V3SchemaIsolationPostgresTest#restartValidatesWithoutReexecutingAndKeepsIndependentHistories, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.V3TransactionFoundationPostgresTest#jpaAndJdbcSharePhysicalTransactionAndBecomeVisibleOnlyAfterCommit, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.V3TransactionFoundationPostgresTest#rollbackInBothWriteOrdersLeavesNoJpaOrJdbcEffect, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.V3TransactionFoundationPostgresTest#caughtRequiredParticipantFailureStillRollsBackTheOwner, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.V3TransactionFoundationPostgresTest#deferredConstraintFailureAtCommitRestoresAllEffects, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.V3TransactionFoundationPostgresTest#observerFailureAfterCommitDoesNotMeanRollback, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.V3TransactionFoundationPostgresTest#contendingConnectionsWaitForPhysicalRollbackBeforeCommitting, found 0"
+        ]
+      },
+      {
+        "name": "T1-replay-isolated",
+        "mode": "replay-isolated",
+        "exit_code": 1,
+        "verdict": "INCONCLUSIVE",
+        "counts": {
+          "tests": 4,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "issues": [
+          "Invalid report reports/pocoma-infra-tx-spring/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest.xml: Provenance mismatch: pocoma.verification.id; historical or unattributed report",
+          "Invalid report reports/pocoma-infra-tx-spring/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.v3.V3FoundationCompositionTest.xml: Provenance mismatch: pocoma.verification.id; historical or unattributed report",
+          "Invalid report reports/pocoma-infra-tx-spring/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.v3.V3HistoricalIntervalPostgresTest.xml: Provenance mismatch: pocoma.verification.id; historical or unattributed report",
+          "Invalid report reports/pocoma-infra-tx-spring/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.v3.V3SchemaIsolationPostgresTest.xml: Provenance mismatch: pocoma.verification.id; historical or unattributed report",
+          "Invalid report reports/pocoma-infra-tx-spring/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.v3.V3TransactionFoundationPostgresTest.xml: Provenance mismatch: pocoma.verification.id; historical or unattributed report",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest#jpaJdbcSamePidXidAndClosedContextCannotDirtyWriteAtCommit, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest#guardedLateCallbackRefusedBeforeSqlAndRollback, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest#caughtApplicationJdbcJpaFailuresPoisonBothWriteOrders, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest#autonomousRevisionCaughtFailurePoisonsJpaAndJdbcCallers, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest#requiresNewJpaAndJdbcCannotCommitEffectOrDelete, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest#nestedAmbientWrongSourceAndWrongEmfRefused, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest#sameOwnerReadAuthorityAtomicAndContextCannotCrossAuthorityOrLifetime, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest#commitServerRejectionRollbackAndMaskedCommitRemainDistinct, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest#originalCallbackCauseSurvivesRollbackFailureAndConfirmedCommitWinsCleanup, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.V3FoundationCompositionTest#existingConfigurationInjectsTheActualManagerWithoutApplicationBootstrap, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.V3FoundationCompositionTest#ambiguousManagersAreRefusedInsteadOfSilentlyChoosingAnAuthority, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.V3FoundationCompositionTest#explicitRealmCompositionUsesIndependentPhysicalTransactions, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.V3HistoricalIntervalPostgresTest#resolvesSemiOpenBoundariesAndOpenEndInAnyOrder, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.V3HistoricalIntervalPostgresTest#closesAndOpensAtomicallyAndRollbackPreservesHistory, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.V3HistoricalIntervalPostgresTest#rejectsInvalidIntervalsAndDuplicateOpenVersions, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.V3HistoricalIntervalPostgresTest#reportsGapsAndOverlapsInsteadOfFallingBackToCurrent, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.V3SchemaIsolationPostgresTest#installsOnlyTheExplicitFoundationFixtureOnRealPostgres, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.V3SchemaIsolationPostgresTest#restartValidatesWithoutReexecutingAndKeepsIndependentHistories, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.V3TransactionFoundationPostgresTest#jpaAndJdbcSharePhysicalTransactionAndBecomeVisibleOnlyAfterCommit, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.V3TransactionFoundationPostgresTest#rollbackInBothWriteOrdersLeavesNoJpaOrJdbcEffect, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.V3TransactionFoundationPostgresTest#caughtRequiredParticipantFailureStillRollsBackTheOwner, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.V3TransactionFoundationPostgresTest#deferredConstraintFailureAtCommitRestoresAllEffects, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.V3TransactionFoundationPostgresTest#observerFailureAfterCommitDoesNotMeanRollback, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.V3TransactionFoundationPostgresTest#contendingConnectionsWaitForPhysicalRollbackBeforeCommitting, found 0"
+        ]
+      },
+      {
+        "name": "T3-historical",
+        "mode": "nominal",
+        "exit_code": 0,
+        "verdict": "PASS",
+        "counts": {
+          "tests": 4,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "issues": []
+      },
+      {
+        "name": "T4-missing",
+        "mode": "missing",
+        "exit_code": 1,
+        "verdict": "INCONCLUSIVE",
+        "counts": {
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "issues": [
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunnerTest#runsActionInTransaction, found 0"
+        ]
+      },
+      {
+        "name": "T5-interrupted",
+        "mode": "interrupt",
+        "exit_code": 2,
+        "verdict": "FAIL",
+        "counts": {
+          "tests": 0,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "issues": [
+          "Interrupted by signal 15; Maven execution not completed"
+        ]
+      },
+      {
+        "name": "T5-maven-failure",
+        "mode": "maven-failure",
+        "exit_code": 1,
+        "verdict": "FAIL",
+        "counts": {
+          "tests": 4,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "issues": [
+          "Maven execution failed or interrupted (exit 1); no PASS"
+        ]
+      },
+      {
+        "name": "T6-first-fast",
+        "mode": "nominal",
+        "exit_code": 0,
+        "verdict": "PASS",
+        "counts": {
+          "tests": 4,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "issues": []
+      },
+      {
+        "name": "T6-second-canonical",
+        "mode": "replay-previous",
+        "exit_code": 1,
+        "verdict": "INCONCLUSIVE",
+        "counts": {
+          "tests": 0,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "issues": [
+          "Invalid report reports/pocoma-infra-tx-spring/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunnerTest.xml: Provenance mismatch: pocoma.verification.id; historical or unattributed report",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunnerTest#runsActionInTransaction, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunnerTest#runsAfterCommitActionAfterTransactionCommits, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunnerTest#doesNotRunAfterCommitActionWhenTransactionRollsBack, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunnerTest#runsAfterCommitActionImmediatelyWhenNoTransactionIsActive, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest#jpaJdbcSamePidXidAndClosedContextCannotDirtyWriteAtCommit, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest#guardedLateCallbackRefusedBeforeSqlAndRollback, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest#caughtApplicationJdbcJpaFailuresPoisonBothWriteOrders, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest#autonomousRevisionCaughtFailurePoisonsJpaAndJdbcCallers, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest#requiresNewJpaAndJdbcCannotCommitEffectOrDelete, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest#nestedAmbientWrongSourceAndWrongEmfRefused, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest#sameOwnerReadAuthorityAtomicAndContextCannotCrossAuthorityOrLifetime, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest#commitServerRejectionRollbackAndMaskedCommitRemainDistinct, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest#originalCallbackCauseSurvivesRollbackFailureAndConfirmedCommitWinsCleanup, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.V3FoundationCompositionTest#existingConfigurationInjectsTheActualManagerWithoutApplicationBootstrap, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.V3FoundationCompositionTest#ambiguousManagersAreRefusedInsteadOfSilentlyChoosingAnAuthority, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.V3FoundationCompositionTest#explicitRealmCompositionUsesIndependentPhysicalTransactions, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.V3HistoricalIntervalPostgresTest#resolvesSemiOpenBoundariesAndOpenEndInAnyOrder, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.V3HistoricalIntervalPostgresTest#closesAndOpensAtomicallyAndRollbackPreservesHistory, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.V3HistoricalIntervalPostgresTest#rejectsInvalidIntervalsAndDuplicateOpenVersions, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.V3HistoricalIntervalPostgresTest#reportsGapsAndOverlapsInsteadOfFallingBackToCurrent, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.V3SchemaIsolationPostgresTest#installsOnlyTheExplicitFoundationFixtureOnRealPostgres, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.V3SchemaIsolationPostgresTest#restartValidatesWithoutReexecutingAndKeepsIndependentHistories, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.V3TransactionFoundationPostgresTest#jpaAndJdbcSharePhysicalTransactionAndBecomeVisibleOnlyAfterCommit, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.V3TransactionFoundationPostgresTest#rollbackInBothWriteOrdersLeavesNoJpaOrJdbcEffect, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.V3TransactionFoundationPostgresTest#caughtRequiredParticipantFailureStillRollsBackTheOwner, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.V3TransactionFoundationPostgresTest#deferredConstraintFailureAtCommitRestoresAllEffects, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.V3TransactionFoundationPostgresTest#observerFailureAfterCommitDoesNotMeanRollback, found 0",
+          "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.V3TransactionFoundationPostgresTest#contendingConnectionsWaitForPhysicalRollbackBeforeCommitting, found 0",
+          "Absent or skipped tests: coverage incomplete"
+        ]
+      },
+      {
+        "name": "T7-contender",
+        "mode": "nominal",
+        "exit_code": 2,
+        "verdict": "PREFLIGHT REFUSAL",
+        "counts": null,
+        "issues": null
+      },
+      {
+        "name": "T7-owner",
+        "mode": "hold",
+        "exit_code": 2,
+        "verdict": "FAIL",
+        "counts": {
+          "tests": 0,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "issues": [
+          "Interrupted by signal 15; Maven execution not completed"
+        ]
+      },
+      {
+        "name": "T8-java-options",
+        "mode": "nominal",
+        "exit_code": 2,
+        "verdict": "PREFLIGHT REFUSAL",
+        "counts": null,
+        "issues": null
+      },
+      {
+        "name": "T9-filtered-forks",
+        "mode": "forks",
+        "exit_code": 0,
+        "verdict": "PASS",
+        "counts": {
+          "tests": 28,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "issues": []
+      },
+      {
+        "name": "T9-producer-override",
+        "mode": "nominal",
+        "exit_code": 2,
+        "verdict": "INCONCLUSIVE",
+        "counts": {
+          "tests": 0,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "issues": [
+          "Unproven producer/discovery configuration: port-transaction: unreviewed effective Surefire configuration: reportsDirectory; port-transaction: unreviewed effective Surefire configuration: reportsDirectory; port-transaction: producer provenance configuration missing or overridden; port-transaction: producer provenance configuration missing or overridden; infra-tx-spring: unreviewed effective Surefire configuration: reportsDirectory; infra-tx-spring: unreviewed effective Surefire configuration: reportsDirectory; infra-tx-spring: producer provenance configuration missing or overridden; infra-tx-spring: producer provenance configuration missing or overridden"
+        ]
+      }
+    ]
+  },
+  "unit_tests": {
+    "methods": 30,
+    "seconds": 0.726,
+    "verdict": "PASS"
+  },
+  "performance": {
+    "maven_seconds": {
+      "before": [
+        2.055322,
+        2.051386,
+        2.098713
+      ],
+      "after": [
+        2.101437,
+        2.093429,
+        2.113409
+      ],
+      "median_delta": 0.04611500000000035
+    },
+    "discovery_seconds": {
+      "before": [
+        1.1703505000041332,
+        1.1613299999953597,
+        1.1650033750047442
+      ],
+      "after": [
+        1.207831833002274,
+        1.1928947910055285,
+        1.174113250002847
+      ],
+      "median_delta": 0.027891416000784375
+    },
+    "wall_seconds": {
+      "before": [
+        3.8870559579954715,
+        3.882480000000214,
+        3.9349817500042263
+      ],
+      "after": [
+        3.9811393749987474,
+        3.9588016659981804,
+        3.9606964170016
+      ],
+      "median_delta": 0.07364045900612837
+    }
+  },
+  "incremental": [
+    {
+      "name": "mutated",
+      "command": [
+        "python3",
+        "-B",
+        "scripts/testing/verify.py",
+        "FAST",
+        "identity",
+        "--output",
+        "/private/tmp/pocoma-provenance-resolution/incremental-mutated"
+      ],
+      "source_sha256": "1598665cff7b01273633764bc1f3556b48b76d758271af4f13a689ba236fb47f",
+      "class_sha256": "660a21f85a76141211efd2d6626bfa233d714b48bb1156d63b1f2bb4bd5d111d",
+      "class_has_probe": true,
+      "compiled_sources": 44,
+      "maven_seconds": 2.689102
+    },
+    {
+      "name": "restored",
+      "command": [
+        "python3",
+        "-B",
+        "scripts/testing/verify.py",
+        "FAST",
+        "identity",
+        "--output",
+        "/private/tmp/pocoma-provenance-resolution/incremental-restored"
+      ],
+      "source_sha256": "1e3746b2c9f9ff4ff56e8c120b861cdccf83dd68fe3e0cba7324d069bf7c210e",
+      "class_sha256": "70234e492ebcf09d422d6b4c7d888e2ddea02acff9a86491f8e75b083c3cc653",
+      "class_has_probe": false,
+      "compiled_sources": 44,
+      "maven_seconds": 2.713619
+    },
+    {
+      "name": "warm",
+      "command": [
+        "python3",
+        "-B",
+        "scripts/testing/verify.py",
+        "FAST",
+        "identity",
+        "--output",
+        "/private/tmp/pocoma-provenance-resolution/incremental-warm"
+      ],
+      "source_sha256": "1e3746b2c9f9ff4ff56e8c120b861cdccf83dd68fe3e0cba7324d069bf7c210e",
+      "class_sha256": "70234e492ebcf09d422d6b4c7d888e2ddea02acff9a86491f8e75b083c3cc653",
+      "class_has_probe": false,
+      "compiled_sources": 0,
+      "maven_seconds": 2.128847
+    }
+  ],
+  "failsafe_probe": {
+    "command": [
+      "./mvnw",
+      "--batch-mode",
+      "--no-transfer-progress",
+      "-pl",
+      "engine-consume-registration,domain-pot",
+      "-am",
+      "-Dpocoma.verification.id=86c47f9a85b54f30af8ec9b57e52ad9b",
+      "-Dpocoma.verification.reports=/private/tmp/pocoma-provenance-resolution/failsafe-probe/reports",
+      "-Dit.test=com.kartaguez.pocoma.domain.pot.aggregate.ShareholderIdentityCollisionTest,com.kartaguez.pocoma.domain.pot.v3.InvitationAttachmentTest,com.kartaguez.pocoma.domain.pot.v3.PotAuthorizationTest,com.kartaguez.pocoma.domain.pot.v3.PotTransitionsTest,com.kartaguez.pocoma.domain.useridentity.UserIdentityModelTest,com.kartaguez.pocoma.domain.useridentity.v3.IdentityTransitionsTest,com.kartaguez.pocoma.domain.useridentity.v3.IdentityValueContractsTest,com.kartaguez.pocoma.engine.consume.registration.v3.ExecuteIdentityRequestTest,com.kartaguez.pocoma.engine.consume.registration.v3.IdentityRequestContractTest",
+      "-Dfailsafe.failIfNoSpecifiedTests=false",
+      "test-compile",
+      "failsafe:integration-test",
+      "failsafe:verify"
+    ],
+    "exit_code": 0,
+    "seconds": 2.423693084005208,
+    "invocation_id": "86c47f9a85b54f30af8ec9b57e52ad9b",
+    "reports": 9,
+    "tests": 65,
+    "modules": [
+      "pocoma-domain-pot",
+      "pocoma-domain-user-identity",
+      "pocoma-engine-consume-registration"
+    ],
+    "identities": [
+      [
+        "com.kartaguez.pocoma.domain.pot.aggregate.ShareholderIdentityCollisionTest",
+        "generatedCollisionCannotReplaceExistingOrEarlierAddedShareholder"
+      ],
+      [
+        "com.kartaguez.pocoma.domain.pot.v3.InvitationAttachmentTest",
+        "mixedOrMissingDurableFactsAreTechnicalAnomalies"
+      ],
+      [
+        "com.kartaguez.pocoma.domain.pot.v3.InvitationAttachmentTest",
+        "occupiedDeletedAbsentAndAlreadyAttachedRemainRejected"
+      ],
+      [
+        "com.kartaguez.pocoma.domain.pot.v3.InvitationAttachmentTest",
+        "outsiderAndUnattachedCreatorAttachOnlyThemselvesWithOneDetailsRevision"
+      ],
+      [
+        "com.kartaguez.pocoma.domain.pot.v3.PotAuthorizationTest",
+        "d07EveryMutationRoleAndPotLifecycleCell"
+      ],
+      [
+        "com.kartaguez.pocoma.domain.pot.v3.PotAuthorizationTest",
+        "d08AttachmentDetachmentAndGeneralMultipleAttachment"
+      ],
+      [
+        "com.kartaguez.pocoma.domain.pot.v3.PotAuthorizationTest",
+        "d09InvitationEligibilityAndDeletedTargets"
+      ],
+      [
+        "com.kartaguez.pocoma.domain.pot.v3.PotTransitionsTest",
+        "l1a01ImmutableEnvelopesAndCollections"
+      ],
+      [
+        "com.kartaguez.pocoma.domain.pot.v3.PotTransitionsTest",
+        "l1a02CreationVersionsAndStableIdentities"
+      ],
+      [
+        "com.kartaguez.pocoma.domain.pot.v3.PotTransitionsTest",
+        "l1a03ChangedContainsExactlyEffectiveRevisions"
+      ],
+      [
+        "com.kartaguez.pocoma.domain.pot.v3.PotTransitionsTest",
+        "l1a04ObsolescencePrecedesEqualityIncludingReturnToOldValue"
+      ],
+      [
+        "com.kartaguez.pocoma.domain.pot.v3.PotTransitionsTest",
+        "l1a05AtomicWeightBatchesAndPermutations"
+      ],
+      [
+        "com.kartaguez.pocoma.domain.pot.v3.PotTransitionsTest",
+        "l1a06PotDetailsRightsLifecycleAndObservation"
+      ],
+      [
+        "com.kartaguez.pocoma.domain.pot.v3.PotTransitionsTest",
+        "l1a07DetailsAndWeightsAreIndependent"
+      ],
+      [
+        "com.kartaguez.pocoma.domain.pot.v3.PotTransitionsTest",
+        "l1a08FinancialsReferenceAndEqualityVariants"
+      ],
+      [
+        "com.kartaguez.pocoma.domain.pot.v3.PotTransitionsTest",
+        "l1a09DeletionDependenciesAndHeaderOnlyChanges"
+      ],
+      [
+        "com.kartaguez.pocoma.domain.pot.v3.PotTransitionsTest",
+        "l1a10ShareholderDeletionRequiresCreatorAndExhaustiveAbsence"
+      ],
+      [
+        "com.kartaguez.pocoma.domain.pot.v3.PotTransitionsTest",
+        "l1a11ExactRationalsAndIntrinsicFinancialInvariants"
+      ],
+      [
+        "com.kartaguez.pocoma.domain.pot.v3.PotTransitionsTest",
+        "l1a12MixedFactsAreTechnicalAnomalies"
+      ],
+      [
+        "com.kartaguez.pocoma.domain.pot.v3.PotTransitionsTest",
+        "l1a13DeterministicReevaluationPreservesInitialObservation"
+      ],
+      [
+        "com.kartaguez.pocoma.domain.pot.v3.PotTransitionsTest",
+        "l1a14HistoricalCompositionsAndOrdinaryAttachment"
+      ],
+      [
+        "com.kartaguez.pocoma.domain.useridentity.UserIdentityModelTest",
+        "attachedFactRequiresACompletePositiveRevisionShape"
+      ],
+      [
+        "com.kartaguez.pocoma.domain.useridentity.UserIdentityModelTest",
+        "bindingIdIsAnOpaqueUuidValueWithoutOrdering"
+      ],
+      [
+        "com.kartaguez.pocoma.domain.useridentity.UserIdentityModelTest",
+        "bindingRevisionHasLocalNonNegativeValueSemantics"
+      ],
+      [
+        "com.kartaguez.pocoma.domain.useridentity.UserIdentityModelTest",
+        "detachedFactRequiresACompletePositiveRevisionShapeWithUserId"
+      ],
+      [
+        "com.kartaguez.pocoma.domain.useridentity.UserIdentityModelTest",
+        "externalIdentityPreservesExactIssuerAndSubjectEquality"
+      ],
+      [
+        "com.kartaguez.pocoma.domain.useridentity.UserIdentityModelTest",
+        "userContainsOnlyItsCanonicalIdentity"
+      ],
+      [
+        "com.kartaguez.pocoma.domain.useridentity.v3.IdentityTransitionsTest",
+        "absentFreeOrStaleInitiatorCannotLinkOrUnlink"
+      ],
+      [
+        "com.kartaguez.pocoma.domain.useridentity.v3.IdentityTransitionsTest",
+        "crossedUnlinksLoseInitiatorAuthorityAfterFirstSuccess"
+      ],
+      [
+        "com.kartaguez.pocoma.domain.useridentity.v3.IdentityTransitionsTest",
+        "inconsistentSnapshotsIdsAndKnownUsedCandidateTokenAreFaults"
+      ],
+      [
+        "com.kartaguez.pocoma.domain.useridentity.v3.IdentityTransitionsTest",
+        "linkAbsentTargetDeducesUserFromInitiatorWithoutCreatingUser"
+      ],
+      [
+        "com.kartaguez.pocoma.domain.useridentity.v3.IdentityTransitionsTest",
+        "linkFreeTargetRetainsIdAndExactSuccessor"
+      ],
+      [
+        "com.kartaguez.pocoma.domain.useridentity.v3.IdentityTransitionsTest",
+        "linkRejectsAlreadyBoundTargetEvenToSameUser(boolean)[1]"
+      ],
+      [
+        "com.kartaguez.pocoma.domain.useridentity.v3.IdentityTransitionsTest",
+        "linkRejectsAlreadyBoundTargetEvenToSameUser(boolean)[2]"
+      ],
+      [
+        "com.kartaguez.pocoma.domain.useridentity.v3.IdentityTransitionsTest",
+        "localHistoryOneThroughFivePreservesOldStatesAndRenewsTokensEvenForSameUser"
+      ],
+      [
+        "com.kartaguez.pocoma.domain.useridentity.v3.IdentityTransitionsTest",
+        "registrationOfAbsentIdentityCreatesUserAndDirectlyBoundVersionOne"
+      ],
+      [
+        "com.kartaguez.pocoma.domain.useridentity.v3.IdentityTransitionsTest",
+        "registrationOfFreeIdentityKeepsIdAndCreatesExactSuccessorAndNewUser"
+      ],
+      [
+        "com.kartaguez.pocoma.domain.useridentity.v3.IdentityTransitionsTest",
+        "registrationRejectsBoundIdentityWithoutAUserOrStateChange"
+      ],
+      [
+        "com.kartaguez.pocoma.domain.useridentity.v3.IdentityTransitionsTest",
+        "requiredCandidatesAndSnapshotsCannotBeNull"
+      ],
+      [
+        "com.kartaguez.pocoma.domain.useridentity.v3.IdentityTransitionsTest",
+        "selfAndLastUnlinkOnlyChangeEuiAndNeverDeleteUser"
+      ],
+      [
+        "com.kartaguez.pocoma.domain.useridentity.v3.IdentityTransitionsTest",
+        "selfLinkIsStrictlyRejected"
+      ],
+      [
+        "com.kartaguez.pocoma.domain.useridentity.v3.IdentityTransitionsTest",
+        "unlinkOtherIdentityOfSameUserDoesNotRequireItsToken"
+      ],
+      [
+        "com.kartaguez.pocoma.domain.useridentity.v3.IdentityTransitionsTest",
+        "unlinkRejectsAbsentFreeAndAnotherUsersTarget"
+      ],
+      [
+        "com.kartaguez.pocoma.domain.useridentity.v3.IdentityTransitionsTest",
+        "versionOverflowIsAFaultAndNeverWrapsToZeroOrNegative"
+      ],
+      [
+        "com.kartaguez.pocoma.domain.useridentity.v3.IdentityValueContractsTest",
+        "allPermutationsOfCanonicalVectorGroupsSortAndDeduplicateExactKeys"
+      ],
+      [
+        "com.kartaguez.pocoma.domain.useridentity.v3.IdentityValueContractsTest",
+        "changedIsNonemptyAndCanOnlyCreateTheUserOfItsNewBoundState"
+      ],
+      [
+        "com.kartaguez.pocoma.domain.useridentity.v3.IdentityValueContractsTest",
+        "externalKeysPreserveOpaqueTextWithoutCaseUrlOrUnicodeNormalization"
+      ],
+      [
+        "com.kartaguez.pocoma.domain.useridentity.v3.IdentityValueContractsTest",
+        "idsAndTokensHaveExactOpaqueValueSemanticsWithoutGenerationOrOrdering"
+      ],
+      [
+        "com.kartaguez.pocoma.domain.useridentity.v3.IdentityValueContractsTest",
+        "independentUtf8VectorsOrderIssuerThenSubjectWithPrefixesAndUnsignedBytes"
+      ],
+      [
+        "com.kartaguez.pocoma.domain.useridentity.v3.IdentityValueContractsTest",
+        "nulAndIsolatedSurrogatesAreRejectedInEitherFieldAndEitherOperand"
+      ],
+      [
+        "com.kartaguez.pocoma.domain.useridentity.v3.IdentityValueContractsTest",
+        "statesRequirePositiveVersionAndUserTokenTogether"
+      ],
+      [
+        "com.kartaguez.pocoma.domain.useridentity.v3.IdentityValueContractsTest",
+        "tokensNeverAppearInDefaultDiagnosticRepresentations"
+      ],
+      [
+        "com.kartaguez.pocoma.engine.consume.registration.v3.ExecuteIdentityRequestTest",
+        "l3_participant_order"
+      ],
+      [
+        "com.kartaguez.pocoma.engine.consume.registration.v3.ExecuteIdentityRequestTest",
+        "l3_rejection_terminal"
+      ],
+      [
+        "com.kartaguez.pocoma.engine.consume.registration.v3.ExecuteIdentityRequestTest",
+        "l3_technical_not_rejected"
+      ],
+      [
+        "com.kartaguez.pocoma.engine.consume.registration.v3.IdentityRequestContractTest",
+        "clientIntentionCannotChooseUserAndResultCannotDiscloseTokenOrUser"
+      ],
+      [
+        "com.kartaguez.pocoma.engine.consume.registration.v3.IdentityRequestContractTest",
+        "exactIntentionEqualityIncludesOperationTokenTargetAndAdmission"
+      ],
+      [
+        "com.kartaguez.pocoma.engine.consume.registration.v3.IdentityRequestContractTest",
+        "externalUnicodeRemainsExactAndUnstorableKeysFailBeforeAnyAdapter"
+      ],
+      [
+        "com.kartaguez.pocoma.engine.consume.registration.v3.IdentityRequestContractTest",
+        "immutableAdmissionCapturesProvenanceAndMustMatchBothIdentities"
+      ],
+      [
+        "com.kartaguez.pocoma.engine.consume.registration.v3.IdentityRequestContractTest",
+        "linkAndUnlinkRequireInitiatorTokenAndAnExactTargetIncludingSelf"
+      ],
+      [
+        "com.kartaguez.pocoma.engine.consume.registration.v3.IdentityRequestContractTest",
+        "missingIntentionAndProvenanceAreInvalid"
+      ],
+      [
+        "com.kartaguez.pocoma.engine.consume.registration.v3.IdentityRequestContractTest",
+        "observationRequiresEngineReadSnapshotAndReturnsExistingRecoveryVocabulary"
+      ],
+      [
+        "com.kartaguez.pocoma.engine.consume.registration.v3.IdentityRequestContractTest",
+        "publicResultExposesOnlyChangedTargetAndVersionOrClosedRejection"
+      ],
+      [
+        "com.kartaguez.pocoma.engine.consume.registration.v3.IdentityRequestContractTest",
+        "registrationTargetsOnlyItsAuthenticatedRequesterAndOmitsToken"
+      ],
+      [
+        "com.kartaguez.pocoma.engine.consume.registration.v3.IdentityRequestContractTest",
+        "storedRequestDistinguishesPendingAndTerminalAndRequiresExactResultPresence"
+      ]
+    ],
+    "matches_expected": true
+  },
+  "before_counterexample": {
+    "c4-cli-implicit-base-filter": {
+      "command": [
+        "python3",
+        "-B",
+        "scripts/testing/verify.py",
+        "CHANGE",
+        "FOUNDATION",
+        "--output",
+        "/private/tmp/pocoma-provenance-resolution/counter-audit/evidence/c4-cli-implicit-base-filter"
+      ],
+      "environment": {
+        "MAVEN_BASEDIR": "/private/tmp/pocoma-provenance-resolution/counter-audit/external-maven-base"
+      },
+      "external_jvm_config": "-Dtest=SpringTransactionRunnerTest -Dsurefire.failIfNoSpecifiedTests=false\n",
+      "process_exit_code": 1,
+      "maven_exit_code": 0,
+      "real_executed_tests": 4,
+      "required_tests": 28,
+      "collector_verdict": "INCONCLUSIVE",
+      "collector_counts": {
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "issues": [
+        "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest#jpaJdbcSamePidXidAndClosedContextCannotDirtyWriteAtCommit, found 0",
+        "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest#guardedLateCallbackRefusedBeforeSqlAndRollback, found 0",
+        "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest#caughtApplicationJdbcJpaFailuresPoisonBothWriteOrders, found 0",
+        "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest#autonomousRevisionCaughtFailurePoisonsJpaAndJdbcCallers, found 0",
+        "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest#requiresNewJpaAndJdbcCannotCommitEffectOrDelete, found 0",
+        "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest#nestedAmbientWrongSourceAndWrongEmfRefused, found 0",
+        "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest#sameOwnerReadAuthorityAtomicAndContextCannotCrossAuthorityOrLifetime, found 0",
+        "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest#commitServerRejectionRollbackAndMaskedCommitRemainDistinct, found 0",
+        "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest#originalCallbackCauseSurvivesRollbackFailureAndConfirmedCommitWinsCleanup, found 0",
+        "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.V3FoundationCompositionTest#existingConfigurationInjectsTheActualManagerWithoutApplicationBootstrap, found 0",
+        "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.V3FoundationCompositionTest#ambiguousManagersAreRefusedInsteadOfSilentlyChoosingAnAuthority, found 0",
+        "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.V3FoundationCompositionTest#explicitRealmCompositionUsesIndependentPhysicalTransactions, found 0",
+        "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.V3HistoricalIntervalPostgresTest#resolvesSemiOpenBoundariesAndOpenEndInAnyOrder, found 0",
+        "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.V3HistoricalIntervalPostgresTest#closesAndOpensAtomicallyAndRollbackPreservesHistory, found 0",
+        "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.V3HistoricalIntervalPostgresTest#rejectsInvalidIntervalsAndDuplicateOpenVersions, found 0",
+        "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.V3HistoricalIntervalPostgresTest#reportsGapsAndOverlapsInsteadOfFallingBackToCurrent, found 0",
+        "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.V3SchemaIsolationPostgresTest#installsOnlyTheExplicitFoundationFixtureOnRealPostgres, found 0",
+        "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.V3SchemaIsolationPostgresTest#restartValidatesWithoutReexecutingAndKeepsIndependentHistories, found 0",
+        "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.V3TransactionFoundationPostgresTest#jpaAndJdbcSharePhysicalTransactionAndBecomeVisibleOnlyAfterCommit, found 0",
+        "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.V3TransactionFoundationPostgresTest#rollbackInBothWriteOrdersLeavesNoJpaOrJdbcEffect, found 0",
+        "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.V3TransactionFoundationPostgresTest#caughtRequiredParticipantFailureStillRollsBackTheOwner, found 0",
+        "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.V3TransactionFoundationPostgresTest#deferredConstraintFailureAtCommitRestoresAllEffects, found 0",
+        "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.V3TransactionFoundationPostgresTest#observerFailureAfterCommitDoesNotMeanRollback, found 0",
+        "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.V3TransactionFoundationPostgresTest#contendingConnectionsWaitForPhysicalRollbackBeforeCommitting, found 0"
+      ],
+      "transfers": []
+    },
+    "c4-cli-replay": {
+      "command": [
+        "python3",
+        "-B",
+        "scripts/testing/verify.py",
+        "CHANGE",
+        "FOUNDATION",
+        "--output",
+        "/private/tmp/pocoma-provenance-resolution/counter-audit/evidence/c4-cli-replay"
+      ],
+      "environment": {
+        "MAVEN_BASEDIR": "/private/tmp/pocoma-provenance-resolution/counter-audit/external-maven-base"
+      },
+      "external_jvm_config": "-Dtest=SpringTransactionRunnerTest -Dsurefire.failIfNoSpecifiedTests=false\n",
+      "process_exit_code": 0,
+      "maven_exit_code": 0,
+      "real_executed_tests": 4,
+      "required_tests": 28,
+      "collector_verdict": "PASS",
+      "collector_counts": {
+        "tests": 28,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "issues": [],
+      "transfers": [
+        {
+          "destination": "app/infra-tx-spring/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest.xml",
+          "sha256": "3d5df963b06b35a76d32835ff89663e1a33a5eb76531854bac8e4d9ea3313b68",
+          "matches_nominal_xml": true,
+          "source_mtime_ns": 1000000000,
+          "destination_mtime_ns": 1793440285776162277,
+          "case_count": 9
+        },
+        {
+          "destination": "app/infra-tx-spring/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.v3.V3FoundationCompositionTest.xml",
+          "sha256": "f8663f455e2dd488f2880a6f7b20e3b83bdedd96fb4743eeb55454ab66830141",
+          "matches_nominal_xml": true,
+          "source_mtime_ns": 1000000000,
+          "destination_mtime_ns": 1793440285777230155,
+          "case_count": 3
+        },
+        {
+          "destination": "app/infra-tx-spring/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.v3.V3HistoricalIntervalPostgresTest.xml",
+          "sha256": "a0006ca61a948496d90125072bb63e14a888f7befd7376dea472dcdc7f9d5d08",
+          "matches_nominal_xml": true,
+          "source_mtime_ns": 1000000000,
+          "destination_mtime_ns": 1793440285777870407,
+          "case_count": 4
+        },
+        {
+          "destination": "app/infra-tx-spring/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.v3.V3SchemaIsolationPostgresTest.xml",
+          "sha256": "1d538592c04681696e25f40cf1d211eab706725d561c8f907a5d1d52fa925447",
+          "matches_nominal_xml": true,
+          "source_mtime_ns": 1000000000,
+          "destination_mtime_ns": 1793440285778491117,
+          "case_count": 2
+        },
+        {
+          "destination": "app/infra-tx-spring/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.v3.V3TransactionFoundationPostgresTest.xml",
+          "sha256": "098eb9ef5640688884eaae525008ac4e3e14ed317da575421f927c8c144372ae",
+          "matches_nominal_xml": true,
+          "source_mtime_ns": 1000000000,
+          "destination_mtime_ns": 1793440285779060577,
+          "case_count": 6
+        }
+      ]
+    }
+  },
+  "delivery_checks": {
+    "foundation": {
+      "selector_matches_final": true,
+      "pom_matches_final": true
+    },
+    "fast": {
+      "selector_matches_final": true,
+      "pom_matches_final": true
+    },
+    "change": {
+      "selector_matches_final": true,
+      "pom_matches_final": true
+    },
+    "integration": {
+      "selector_matches_final": true,
+      "pom_matches_final": true
+    },
+    "docs/v3/SPEC-10_Test_Certification.md": "UNCHANGED",
+    "scripts/testing/verification-campaigns.json": "UNCHANGED",
+    "docs/v3/Verification_AUD_VERIFY_001_Independent_Counter_Audit.md": "UNCHANGED",
+    "initial_sha": "b8df79a2c5067bffa92b52e3a08a65e929ce716b",
+    "current_head": "b8df79a2c5067bffa92b52e3a08a65e929ce716b",
+    "branch": "feat/v3-architecture",
+    "remote_before": "b8df79a2c5067bffa92b52e3a08a65e929ce716b\trefs/heads/feat/v3-architecture",
+    "unexpected_slice_crossings": "NONE",
+    "global_architecture_gate": "NOT REQUIRED / NOT RUN",
+    "full_reactor": "NOT REQUIRED / NOT RUN",
+    "production_impact": "NONE",
+    "diff_check_exit_code": 0
+  },
+  "raw_archive_sha256": "070f976974e671f33249017fd3800ebc7239327783e102ec9e6437ae15965b24",
+  "archive_members": 2224,
+  "I5": "CLOSED BY HUMAN ACCEPTANCE WITH AVAILABILITY RESERVE; unchanged, not rerun",
+  "SPEC_10": "NOT RUN; no certification",
+  "reservations": [
+    "Cooperative trusted producer; no cryptographic authentication against same-rights forgery",
+    "Current reviewed JUnit forms only; Failsafe CLI lifecycle not supported and explicitly refused",
+    "Single macOS environment, warm dependencies; performance observations are not statistical guarantees"
+  ],
+  "offline_restoration": {
+    "archive_sha256": "070f976974e671f33249017fd3800ebc7239327783e102ec9e6437ae15965b24",
+    "destination": "/private/tmp/pocoma-provenance-resolution-review",
+    "command": "python3 -B /private/tmp/pocoma-provenance-resolution-review/resolution/independent-checks.py",
+    "exit_code": 0,
+    "independent_results_identical": true,
+    "original_checkout_required": false
+  }
+}

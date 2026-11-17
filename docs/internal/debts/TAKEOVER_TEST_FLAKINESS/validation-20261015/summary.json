@@ -1,0 +1,35 @@
+{
+  "baseline": {
+    "launches": 100,
+    "test_executions": 100,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "methods": {
+      "takeoverFencesStaleWorkerAndConvergesToOneResult": 100
+    }
+  },
+  "corrected": {
+    "launches": 100,
+    "test_executions": 200,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "methods": {
+      "takeoverFencesStaleWorkerAndConvergesToOneResult": 100,
+      "staleClaimReachesFenceAndRollsBackBeforeWinnerFinalizes": 100
+    }
+  },
+  "initial_selected_suites": {
+    "com.kartaguez.pocoma.architecture.ccr.CommandResultConsumptionChainPostgresTest": 7,
+    "com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.consumption.JpaConsumptionLifecycleAdapterPostgresTest": 12,
+    "com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.command.JdbcCommandResultStorePostgresTest": 2
+  },
+  "total_passed_test_executions": 321,
+  "missing_local_snapshots_after_campaign": {
+    "runtime-command-result-consumption-worker": [],
+    "runtime-registration-consumption-worker": [],
+    "runtime-registration-result-consumption-worker": [],
+    "runtime-binding-consumption-worker": []
+  }
+}

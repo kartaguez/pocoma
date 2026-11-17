@@ -1,0 +1,1838 @@
+[INFO] Scanning for projects...
+[WARNING] 
+[WARNING] Some problems were encountered while building the effective model for com.kartaguez.pocoma:pocoma-architecture-tests:jar:0.0.1-SNAPSHOT
+[WARNING] 'dependencies.dependency.(groupId:artifactId:type:classifier)' must be unique: com.kartaguez.pocoma:pocoma-runtime-task-consumption-worker:jar -> duplicate declaration of version ${project.version} @ line 117, column 15
+[WARNING] 
+[WARNING] It is highly recommended to fix these problems because they threaten the stability of your build.
+[WARNING] 
+[WARNING] For this reason, future Maven versions might no longer support building such malformed projects.
+[WARNING] 
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Build Order:
+[INFO] 
+[INFO] pocoma                                                             [pom]
+[INFO] pocoma-domain-authorization                                        [jar]
+[INFO] pocoma-domain-event                                                [jar]
+[INFO] pocoma-domain-user-identity                                        [jar]
+[INFO] pocoma-domain-pot                                                  [jar]
+[INFO] pocoma-domain-projection                                           [jar]
+[INFO] pocoma-domain-consumption                                          [jar]
+[INFO] pocoma-port-transaction                                            [jar]
+[INFO] pocoma-engine-consumption                                          [jar]
+[INFO] pocoma-port-projection                                             [jar]
+[INFO] pocoma-engine-read-current-binding                                 [jar]
+[INFO] pocoma-engine-materialize-current-binding                          [jar]
+[INFO] pocoma-engine-materialize-latest-known-version                     [jar]
+[INFO] pocoma-infra-persistence-projection-jdbc                           [jar]
+[INFO] pocoma-infra-persistence-read-jdbc                                 [jar]
+[INFO] 
+[INFO] --------------------< com.kartaguez.pocoma:pocoma >---------------------
+[INFO] Building pocoma 0.0.1-SNAPSHOT                                    [1/15]
+[INFO]   from pom.xml
+[INFO] --------------------------------[ pom ]---------------------------------
+[INFO] 
+[INFO] ----------< com.kartaguez.pocoma:pocoma-domain-authorization >----------
+[INFO] Building pocoma-domain-authorization 0.0.1-SNAPSHOT               [2/15]
+[INFO]   from domain-authorization/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ pocoma-domain-authorization ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-v3-postaud/app/domain-authorization/src/main/resources
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-v3-postaud/app/domain-authorization/src/main/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ pocoma-domain-authorization ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ pocoma-domain-authorization ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-v3-postaud/app/domain-authorization/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ pocoma-domain-authorization ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- surefire:3.5.5:test (default-test) @ pocoma-domain-authorization ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.kartaguez.pocoma.domain.authorization.CapabilitySetsTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.022 s -- in com.kartaguez.pocoma.domain.authorization.CapabilitySetsTest
+[INFO] Running com.kartaguez.pocoma.domain.authorization.PermissionTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.004 s -- in com.kartaguez.pocoma.domain.authorization.PermissionTest
+[INFO] Running com.kartaguez.pocoma.domain.authorization.ExternalAuthorityPermissionTranslatorTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.002 s -- in com.kartaguez.pocoma.domain.authorization.ExternalAuthorityPermissionTranslatorTest
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 9, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] 
+[INFO] --------------< com.kartaguez.pocoma:pocoma-domain-event >--------------
+[INFO] Building pocoma-domain-event 0.0.1-SNAPSHOT                       [3/15]
+[INFO]   from domain-event/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ pocoma-domain-event ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-v3-postaud/app/domain-event/src/main/resources
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-v3-postaud/app/domain-event/src/main/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ pocoma-domain-event ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ pocoma-domain-event ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-v3-postaud/app/domain-event/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ pocoma-domain-event ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- surefire:3.5.5:test (default-test) @ pocoma-domain-event ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.kartaguez.pocoma.domain.event.EventTypeTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.019 s -- in com.kartaguez.pocoma.domain.event.EventTypeTest
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] 
+[INFO] ----------< com.kartaguez.pocoma:pocoma-domain-user-identity >----------
+[INFO] Building pocoma-domain-user-identity 0.0.1-SNAPSHOT               [4/15]
+[INFO]   from domain-user-identity/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ pocoma-domain-user-identity ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-v3-postaud/app/domain-user-identity/src/main/resources
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-v3-postaud/app/domain-user-identity/src/main/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ pocoma-domain-user-identity ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ pocoma-domain-user-identity ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-v3-postaud/app/domain-user-identity/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ pocoma-domain-user-identity ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- surefire:3.5.5:test (default-test) @ pocoma-domain-user-identity ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.kartaguez.pocoma.domain.useridentity.UserIdentityModelTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.032 s -- in com.kartaguez.pocoma.domain.useridentity.UserIdentityModelTest
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] 
+[INFO] ---------------< com.kartaguez.pocoma:pocoma-domain-pot >---------------
+[INFO] Building pocoma-domain-pot 0.0.1-SNAPSHOT                         [5/15]
+[INFO]   from domain-pot/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ pocoma-domain-pot ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-v3-postaud/app/domain-pot/src/main/resources
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-v3-postaud/app/domain-pot/src/main/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ pocoma-domain-pot ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ pocoma-domain-pot ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-v3-postaud/app/domain-pot/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ pocoma-domain-pot ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- surefire:3.5.5:test (default-test) @ pocoma-domain-pot ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.kartaguez.pocoma.domain.pot.draft.ExpenseShareDraftTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.031 s -- in com.kartaguez.pocoma.domain.pot.draft.ExpenseShareDraftTest
+[INFO] Running com.kartaguez.pocoma.domain.pot.association.ExpenseShareTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.003 s -- in com.kartaguez.pocoma.domain.pot.association.ExpenseShareTest
+[INFO] Running com.kartaguez.pocoma.domain.pot.entity.ShareholderTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.005 s -- in com.kartaguez.pocoma.domain.pot.entity.ShareholderTest
+[INFO] Running com.kartaguez.pocoma.domain.pot.aggregate.PotHeaderTest
+[INFO] Tests run: 11, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.007 s -- in com.kartaguez.pocoma.domain.pot.aggregate.PotHeaderTest
+[INFO] Running com.kartaguez.pocoma.domain.pot.aggregate.ExpenseHeaderTest
+[INFO] Tests run: 16, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.010 s -- in com.kartaguez.pocoma.domain.pot.aggregate.ExpenseHeaderTest
+[INFO] Running com.kartaguez.pocoma.domain.pot.aggregate.PotShareholdersTest
+[INFO] Tests run: 22, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.010 s -- in com.kartaguez.pocoma.domain.pot.aggregate.PotShareholdersTest
+[INFO] Running com.kartaguez.pocoma.domain.pot.aggregate.ExpenseSharesTest
+[INFO] Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.006 s -- in com.kartaguez.pocoma.domain.pot.aggregate.ExpenseSharesTest
+[INFO] Running com.kartaguez.pocoma.domain.pot.aggregate.ShareholderIdentityCollisionTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s -- in com.kartaguez.pocoma.domain.pot.aggregate.ShareholderIdentityCollisionTest
+[INFO] Running com.kartaguez.pocoma.domain.pot.value.FractionTest
+[INFO] Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.003 s -- in com.kartaguez.pocoma.domain.pot.value.FractionTest
+[INFO] Running com.kartaguez.pocoma.domain.pot.value.AmountTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.002 s -- in com.kartaguez.pocoma.domain.pot.value.AmountTest
+[INFO] Running com.kartaguez.pocoma.domain.pot.value.NameTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s -- in com.kartaguez.pocoma.domain.pot.value.NameTest
+[INFO] Running com.kartaguez.pocoma.domain.pot.value.LabelTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s -- in com.kartaguez.pocoma.domain.pot.value.LabelTest
+[INFO] Running com.kartaguez.pocoma.domain.pot.value.id.PotIdTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s -- in com.kartaguez.pocoma.domain.pot.value.id.PotIdTest
+[INFO] Running com.kartaguez.pocoma.domain.pot.value.id.ShareholderIdTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s -- in com.kartaguez.pocoma.domain.pot.value.id.ShareholderIdTest
+[INFO] Running com.kartaguez.pocoma.domain.pot.value.id.EntityIdTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s -- in com.kartaguez.pocoma.domain.pot.value.id.EntityIdTest
+[INFO] Running com.kartaguez.pocoma.domain.pot.value.id.ExpenseIdTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s -- in com.kartaguez.pocoma.domain.pot.value.id.ExpenseIdTest
+[INFO] Running com.kartaguez.pocoma.domain.pot.value.WeightTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.002 s -- in com.kartaguez.pocoma.domain.pot.value.WeightTest
+[INFO] Running com.kartaguez.pocoma.domain.pot.value.UserIdTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s -- in com.kartaguez.pocoma.domain.pot.value.UserIdTest
+[INFO] Running com.kartaguez.pocoma.domain.pot.created.PotCreatedTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.002 s -- in com.kartaguez.pocoma.domain.pot.created.PotCreatedTest
+[INFO] Running com.kartaguez.pocoma.domain.pot.created.ExpenseCreatedTest
+[INFO] Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.004 s -- in com.kartaguez.pocoma.domain.pot.created.ExpenseCreatedTest
+[INFO] Running com.kartaguez.pocoma.domain.pot.version.PotGlobalVersionTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s -- in com.kartaguez.pocoma.domain.pot.version.PotGlobalVersionTest
+[INFO] Running com.kartaguez.pocoma.domain.pot.v3.PotBalanceCalculatorTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.738 s -- in com.kartaguez.pocoma.domain.pot.v3.PotBalanceCalculatorTest
+[INFO] Running com.kartaguez.pocoma.domain.pot.v3.PotAuthorizationTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.011 s -- in com.kartaguez.pocoma.domain.pot.v3.PotAuthorizationTest
+[INFO] Running com.kartaguez.pocoma.domain.pot.v3.InvitationAttachmentTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s -- in com.kartaguez.pocoma.domain.pot.v3.InvitationAttachmentTest
+[INFO] Running com.kartaguez.pocoma.domain.pot.v3.PotTransitionsTest
+[INFO] Tests run: 14, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.006 s -- in com.kartaguez.pocoma.domain.pot.v3.PotTransitionsTest
+[INFO] Running com.kartaguez.pocoma.domain.pot.authorization.PotActionRequirementsTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.002 s -- in com.kartaguez.pocoma.domain.pot.authorization.PotActionRequirementsTest
+[INFO] Running com.kartaguez.pocoma.domain.pot.authorization.TokenCapabilityPolicyTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s -- in com.kartaguez.pocoma.domain.pot.authorization.TokenCapabilityPolicyTest
+[INFO] Running com.kartaguez.pocoma.domain.pot.authorization.PotAuthorizationFactResolverTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.002 s -- in com.kartaguez.pocoma.domain.pot.authorization.PotAuthorizationFactResolverTest
+[INFO] Running com.kartaguez.pocoma.domain.pot.authorization.AuthorizationKernelTest
+[INFO] Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.003 s -- in com.kartaguez.pocoma.domain.pot.authorization.AuthorizationKernelTest
+[INFO] Running com.kartaguez.pocoma.domain.pot.authorization.PotBusinessAuthorizationPolicyTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s -- in com.kartaguez.pocoma.domain.pot.authorization.PotBusinessAuthorizationPolicyTest
+[INFO] Running com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationExceptionTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s -- in com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationExceptionTest
+[INFO] Running com.kartaguez.pocoma.domain.pot.event.PotDeletedEventTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s -- in com.kartaguez.pocoma.domain.pot.event.PotDeletedEventTest
+[INFO] Running com.kartaguez.pocoma.domain.pot.event.PotCreatedEventTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s -- in com.kartaguez.pocoma.domain.pot.event.PotCreatedEventTest
+[INFO] Running com.kartaguez.pocoma.domain.pot.event.RecordedEventTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.002 s -- in com.kartaguez.pocoma.domain.pot.event.RecordedEventTest
+[INFO] Running com.kartaguez.pocoma.domain.pot.event.BusinessEventContractTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.006 s -- in com.kartaguez.pocoma.domain.pot.event.BusinessEventContractTest
+[INFO] Running com.kartaguez.pocoma.domain.pot.event.PotShareholdersAddedEventTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s -- in com.kartaguez.pocoma.domain.pot.event.PotShareholdersAddedEventTest
+[INFO] Running com.kartaguez.pocoma.domain.pot.event.PotDetailsUpdatedEventTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s -- in com.kartaguez.pocoma.domain.pot.event.PotDetailsUpdatedEventTest
+[INFO] Running com.kartaguez.pocoma.domain.pot.factory.ExpenseFactoryTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s -- in com.kartaguez.pocoma.domain.pot.factory.ExpenseFactoryTest
+[INFO] Running com.kartaguez.pocoma.domain.pot.factory.PotFactoryTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s -- in com.kartaguez.pocoma.domain.pot.factory.PotFactoryTest
+[INFO] Running com.kartaguez.pocoma.domain.pot.policy.CreatePotAuthorizationPolicyTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s -- in com.kartaguez.pocoma.domain.pot.policy.CreatePotAuthorizationPolicyTest
+[INFO] Running com.kartaguez.pocoma.domain.projection.balance.PotBalancesCalculatorTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.004 s -- in com.kartaguez.pocoma.domain.projection.balance.PotBalancesCalculatorTest
+[INFO] Running com.kartaguez.pocoma.domain.projection.balance.BalanceTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s -- in com.kartaguez.pocoma.domain.projection.balance.BalanceTest
+[INFO] Running com.kartaguez.pocoma.domain.projection.balance.PotBalancesTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.002 s -- in com.kartaguez.pocoma.domain.projection.balance.PotBalancesTest
+[INFO] Running com.kartaguez.pocoma.domain.projection.balance.BalanceMapOperationsTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s -- in com.kartaguez.pocoma.domain.projection.balance.BalanceMapOperationsTest
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 222, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] 
+[INFO] -----------< com.kartaguez.pocoma:pocoma-domain-projection >------------
+[INFO] Building pocoma-domain-projection 0.0.1-SNAPSHOT                  [6/15]
+[INFO]   from domain-projection/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ pocoma-domain-projection ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-v3-postaud/app/domain-projection/src/main/resources
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-v3-postaud/app/domain-projection/src/main/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ pocoma-domain-projection ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ pocoma-domain-projection ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-v3-postaud/app/domain-projection/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ pocoma-domain-projection ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- surefire:3.5.5:test (default-test) @ pocoma-domain-projection ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.kartaguez.pocoma.domain.projection.ProjectionValidatorTest
+[INFO] Tests run: 11, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.030 s -- in com.kartaguez.pocoma.domain.projection.ProjectionValidatorTest
+[INFO] Running com.kartaguez.pocoma.domain.projection.JsonAndDefinitionTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.005 s -- in com.kartaguez.pocoma.domain.projection.JsonAndDefinitionTest
+[INFO] Running com.kartaguez.pocoma.domain.projection.ProjectionValueObjectsTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.021 s -- in com.kartaguez.pocoma.domain.projection.ProjectionValueObjectsTest
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 20, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] 
+[INFO] -----------< com.kartaguez.pocoma:pocoma-domain-consumption >-----------
+[INFO] Building pocoma-domain-consumption 0.0.1-SNAPSHOT                 [7/15]
+[INFO]   from domain-consumption/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ pocoma-domain-consumption ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-v3-postaud/app/domain-consumption/src/main/resources
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-v3-postaud/app/domain-consumption/src/main/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ pocoma-domain-consumption ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ pocoma-domain-consumption ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-v3-postaud/app/domain-consumption/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ pocoma-domain-consumption ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- surefire:3.5.5:test (default-test) @ pocoma-domain-consumption ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.kartaguez.pocoma.domain.consumption.segmentation.PartitionHashTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.021 s -- in com.kartaguez.pocoma.domain.consumption.segmentation.PartitionHashTest
+[INFO] Running com.kartaguez.pocoma.domain.consumption.segmentation.WorkerSegmentTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.004 s -- in com.kartaguez.pocoma.domain.consumption.segmentation.WorkerSegmentTest
+[INFO] Running com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailureTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.005 s -- in com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailureTest
+[INFO] Running com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailureCodeTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s -- in com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailureCodeTest
+[INFO] Running com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalReasonTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.002 s -- in com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalReasonTest
+[INFO] Running com.kartaguez.pocoma.domain.consumption.key.ConsumptionKeyTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.003 s -- in com.kartaguez.pocoma.domain.consumption.key.ConsumptionKeyTest
+[INFO] Running com.kartaguez.pocoma.domain.consumption.provenance.ConsumptionProvenanceTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.002 s -- in com.kartaguez.pocoma.domain.consumption.provenance.ConsumptionProvenanceTest
+[INFO] Running com.kartaguez.pocoma.domain.consumption.v3.RoutingV1Test
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.017 s -- in com.kartaguez.pocoma.domain.consumption.v3.RoutingV1Test
+[INFO] Running com.kartaguez.pocoma.domain.consumption.claim.ClaimTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.004 s -- in com.kartaguez.pocoma.domain.consumption.claim.ClaimTest
+[INFO] Running com.kartaguez.pocoma.domain.consumption.claim.ClaimLeaseTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s -- in com.kartaguez.pocoma.domain.consumption.claim.ClaimLeaseTest
+[INFO] Running com.kartaguez.pocoma.domain.consumption.claim.WorkerIdTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s -- in com.kartaguez.pocoma.domain.consumption.claim.WorkerIdTest
+[INFO] Running com.kartaguez.pocoma.domain.consumption.claim.ConsumptionSlotTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.004 s -- in com.kartaguez.pocoma.domain.consumption.claim.ConsumptionSlotTest
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 32, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] 
+[INFO] ------------< com.kartaguez.pocoma:pocoma-port-transaction >------------
+[INFO] Building pocoma-port-transaction 0.0.1-SNAPSHOT                   [8/15]
+[INFO]   from port-transaction/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ pocoma-port-transaction ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-v3-postaud/app/port-transaction/src/main/resources
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-v3-postaud/app/port-transaction/src/main/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ pocoma-port-transaction ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ pocoma-port-transaction ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-v3-postaud/app/port-transaction/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ pocoma-port-transaction ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- surefire:3.5.5:test (default-test) @ pocoma-port-transaction ---
+[INFO] No tests to run.
+[INFO] 
+[INFO] -----------< com.kartaguez.pocoma:pocoma-engine-consumption >-----------
+[INFO] Building pocoma-engine-consumption 0.0.1-SNAPSHOT                 [9/15]
+[INFO]   from engine-consumption/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ pocoma-engine-consumption ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-v3-postaud/app/engine-consumption/src/main/resources
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-v3-postaud/app/engine-consumption/src/main/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ pocoma-engine-consumption ---
+[INFO] Recompiling the module because of changed source code.
+[INFO] Compiling 53 source files with javac [debug parameters release 21] to target/classes
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ pocoma-engine-consumption ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-v3-postaud/app/engine-consumption/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ pocoma-engine-consumption ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 8 source files with javac [debug parameters release 21] to target/test-classes
+[INFO] /private/tmp/pocoma-v3-postaud/app/engine-consumption/src/test/java/com/kartaguez/pocoma/engine/consumption/v3/ConsumptionFailureClassificationTest.java: /private/tmp/pocoma-v3-postaud/app/engine-consumption/src/test/java/com/kartaguez/pocoma/engine/consumption/v3/ConsumptionFailureClassificationTest.java uses unchecked or unsafe operations.
+[INFO] /private/tmp/pocoma-v3-postaud/app/engine-consumption/src/test/java/com/kartaguez/pocoma/engine/consumption/v3/ConsumptionFailureClassificationTest.java: Recompile with -Xlint:unchecked for details.
+[INFO] 
+[INFO] --- surefire:3.5.5:test (default-test) @ pocoma-engine-consumption ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.kartaguez.pocoma.engine.consumption.v3.WorkerCapacityTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.025 s -- in com.kartaguez.pocoma.engine.consumption.v3.WorkerCapacityTest
+[INFO] Running com.kartaguez.pocoma.engine.consumption.v3.ConsumptionFailureClassificationTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.013 s -- in com.kartaguez.pocoma.engine.consumption.v3.ConsumptionFailureClassificationTest
+[INFO] Running com.kartaguez.pocoma.engine.consumption.v3.DiscoveryEngineTest
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.023 s -- in com.kartaguez.pocoma.engine.consumption.v3.DiscoveryEngineTest
+[INFO] Running com.kartaguez.pocoma.engine.service.transaction.consumption.TransactionalConsumptionUseCaseTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s -- in com.kartaguez.pocoma.engine.service.transaction.consumption.TransactionalConsumptionUseCaseTest
+[INFO] Running com.kartaguez.pocoma.engine.service.consumption.AcquireConsumptionPreconditionTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.006 s -- in com.kartaguez.pocoma.engine.service.consumption.AcquireConsumptionPreconditionTest
+[INFO] Running com.kartaguez.pocoma.engine.service.consumption.ExecuteConsumptionServiceTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.006 s -- in com.kartaguez.pocoma.engine.service.consumption.ExecuteConsumptionServiceTest
+[INFO] Running com.kartaguez.pocoma.engine.service.consumption.DefaultConsumptionFailurePolicyTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s -- in com.kartaguez.pocoma.engine.service.consumption.DefaultConsumptionFailurePolicyTest
+[INFO] Running com.kartaguez.pocoma.engine.service.consumption.FinalizeConsumptionServiceTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.003 s -- in com.kartaguez.pocoma.engine.service.consumption.FinalizeConsumptionServiceTest
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 29, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] 
+[INFO] ------------< com.kartaguez.pocoma:pocoma-port-projection >-------------
+[INFO] Building pocoma-port-projection 0.0.1-SNAPSHOT                   [10/15]
+[INFO]   from port-projection/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ pocoma-port-projection ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-v3-postaud/app/port-projection/src/main/resources
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-v3-postaud/app/port-projection/src/main/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ pocoma-port-projection ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ pocoma-port-projection ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-v3-postaud/app/port-projection/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ pocoma-port-projection ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- surefire:3.5.5:test (default-test) @ pocoma-port-projection ---
+[INFO] No tests to run.
+[INFO] 
+[INFO] ------< com.kartaguez.pocoma:pocoma-engine-read-current-binding >-------
+[INFO] Building pocoma-engine-read-current-binding 0.0.1-SNAPSHOT       [11/15]
+[INFO]   from engine-read-current-binding/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ pocoma-engine-read-current-binding ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-v3-postaud/app/engine-read-current-binding/src/main/resources
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-v3-postaud/app/engine-read-current-binding/src/main/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ pocoma-engine-read-current-binding ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ pocoma-engine-read-current-binding ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-v3-postaud/app/engine-read-current-binding/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ pocoma-engine-read-current-binding ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- surefire:3.5.5:test (default-test) @ pocoma-engine-read-current-binding ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.kartaguez.pocoma.engine.read.currentbinding.GetCurrentBindingServiceTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.039 s -- in com.kartaguez.pocoma.engine.read.currentbinding.GetCurrentBindingServiceTest
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] 
+[INFO] ---< com.kartaguez.pocoma:pocoma-engine-materialize-current-binding >---
+[INFO] Building pocoma-engine-materialize-current-binding 0.0.1-SNAPSHOT [12/15]
+[INFO]   from engine-materialize-current-binding/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ pocoma-engine-materialize-current-binding ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-v3-postaud/app/engine-materialize-current-binding/src/main/resources
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-v3-postaud/app/engine-materialize-current-binding/src/main/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ pocoma-engine-materialize-current-binding ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 6 source files with javac [debug parameters release 21] to target/classes
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ pocoma-engine-materialize-current-binding ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-v3-postaud/app/engine-materialize-current-binding/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ pocoma-engine-materialize-current-binding ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- surefire:3.5.5:test (default-test) @ pocoma-engine-materialize-current-binding ---
+[INFO] No tests to run.
+[INFO] 
+[INFO] --< com.kartaguez.pocoma:pocoma-engine-materialize-latest-known-version >--
+[INFO] Building pocoma-engine-materialize-latest-known-version 0.0.1-SNAPSHOT [13/15]
+[INFO]   from engine-materialize-latest-known-version/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ pocoma-engine-materialize-latest-known-version ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-v3-postaud/app/engine-materialize-latest-known-version/src/main/resources
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-v3-postaud/app/engine-materialize-latest-known-version/src/main/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ pocoma-engine-materialize-latest-known-version ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ pocoma-engine-materialize-latest-known-version ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-v3-postaud/app/engine-materialize-latest-known-version/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ pocoma-engine-materialize-latest-known-version ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- surefire:3.5.5:test (default-test) @ pocoma-engine-materialize-latest-known-version ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.kartaguez.pocoma.engine.materialize.latestknownversion.AdvanceLatestKnownVersionServiceTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.035 s -- in com.kartaguez.pocoma.engine.materialize.latestknownversion.AdvanceLatestKnownVersionServiceTest
+[INFO] Running com.kartaguez.pocoma.engine.materialize.latestknownversion.LatestKnownVersionTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.003 s -- in com.kartaguez.pocoma.engine.materialize.latestknownversion.LatestKnownVersionTest
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] 
+[INFO] ---< com.kartaguez.pocoma:pocoma-infra-persistence-projection-jdbc >----
+[INFO] Building pocoma-infra-persistence-projection-jdbc 0.0.1-SNAPSHOT [14/15]
+[INFO]   from infra-persistence-projection-jdbc/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ pocoma-infra-persistence-projection-jdbc ---
+[INFO] Copying 0 resource from src/main/resources to target/classes
+[INFO] Copying 1 resource from src/main/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ pocoma-infra-persistence-projection-jdbc ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ pocoma-infra-persistence-projection-jdbc ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-v3-postaud/app/infra-persistence-projection-jdbc/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ pocoma-infra-persistence-projection-jdbc ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- surefire:3.5.5:test (default-test) @ pocoma-infra-persistence-projection-jdbc ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.kartaguez.pocoma.infra.persistence.projection.jdbc.JsonValueCodecTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.082 s -- in com.kartaguez.pocoma.infra.persistence.projection.jdbc.JsonValueCodecTest
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] 
+[INFO] ------< com.kartaguez.pocoma:pocoma-infra-persistence-read-jdbc >-------
+[INFO] Building pocoma-infra-persistence-read-jdbc 0.0.1-SNAPSHOT       [15/15]
+[INFO]   from infra-persistence-read-jdbc/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ pocoma-infra-persistence-read-jdbc ---
+[INFO] Copying 0 resource from src/main/resources to target/classes
+[INFO] Copying 16 resources from src/main/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ pocoma-infra-persistence-read-jdbc ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 7 source files with javac [debug parameters release 21] to target/classes
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ pocoma-infra-persistence-read-jdbc ---
+[INFO] Copying 1 resource from src/test/resources to target/test-classes
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ pocoma-infra-persistence-read-jdbc ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 9 source files with javac [debug parameters release 21] to target/test-classes
+[INFO] 
+[INFO] --- surefire:3.5.5:test (default-test) @ pocoma-infra-persistence-read-jdbc ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.kartaguez.pocoma.infra.persistence.read.jdbc.JdbcProjectionStoreAdapterPostgresTest
+14:54:40.907 [main] INFO org.testcontainers.images.PullPolicy -- Image pull policy will be performed by: DefaultPullPolicy()
+14:54:40.909 [main] INFO org.testcontainers.utility.ImageNameSubstitutor -- Image name substitution will be performed by: DefaultImageNameSubstitutor (composite of 'ConfigurationFileImageNameSubstitutor' and 'PrefixingImageNameSubstitutor')
+14:54:40.925 [main] INFO org.testcontainers.DockerClientFactory -- Testcontainers version: 2.0.4
+14:54:41.030 [main] INFO org.testcontainers.dockerclient.DockerClientProviderStrategy -- Loaded org.testcontainers.dockerclient.UnixSocketClientProviderStrategy from ~/.testcontainers.properties, will try it first
+14:54:41.210 [main] INFO org.testcontainers.dockerclient.DockerClientProviderStrategy -- Found Docker environment with local Unix socket (unix:///var/run/docker.sock)
+14:54:41.210 [main] INFO org.testcontainers.DockerClientFactory -- Docker host IP address is localhost
+14:54:41.221 [main] INFO org.testcontainers.DockerClientFactory -- Connected to docker: 
+  Server Version: 29.8.2
+  API Version: 1.56
+  Operating System: Docker Desktop
+  Total Memory: 7934 MB
+  Labels: 
+    com.docker.desktop.address=unix:///Users/julien.guezennec/Library/Containers/com.docker.docker/Data/docker-cli.sock
+14:54:41.302 [main] INFO tc.testcontainers/ryuk:0.14.0 -- Creating container for image: testcontainers/ryuk:0.14.0
+14:54:41.359 [main] INFO org.testcontainers.utility.RegistryAuthLocator -- Credential helper/store (docker-credential-desktop) does not have credentials for https://index.docker.io/v1/
+14:54:41.407 [main] INFO tc.testcontainers/ryuk:0.14.0 -- Container testcontainers/ryuk:0.14.0 is starting: 98f73f76b81106fbda2aaac42e112f673a4db64b7752011747a6b8b535382804
+14:54:41.550 [main] INFO tc.testcontainers/ryuk:0.14.0 -- Container testcontainers/ryuk:0.14.0 started in PT0.247855S
+14:54:41.553 [main] INFO org.testcontainers.utility.RyukResourceReaper -- Ryuk started - will monitor and terminate Testcontainers containers on JVM exit
+14:54:41.553 [main] INFO org.testcontainers.DockerClientFactory -- Checking the system...
+14:54:41.553 [main] INFO org.testcontainers.DockerClientFactory -- ✔︎ Docker server version should be at least 1.6.0
+14:54:41.553 [main] INFO tc.postgres:17-alpine -- Creating container for image: postgres:17-alpine
+14:54:41.582 [main] INFO tc.postgres:17-alpine -- Container postgres:17-alpine is starting: a1195ef22c5527e8e7a21119290158c01f54f9e6a3ffd7574e5b3c412972210e
+14:54:42.287 [main] INFO tc.postgres:17-alpine -- Container postgres:17-alpine started in PT0.734032S
+14:54:42.288 [main] INFO tc.postgres:17-alpine -- Container is started (JDBC URL: jdbc:postgresql://localhost:62313/pocoma?loggerLevel=OFF)
+14:54:42.526 [main] INFO org.flywaydb.core.FlywayExecutor -- Database: jdbc:postgresql://localhost:62313/pocoma?loggerLevel=OFF (PostgreSQL 17.11)
+14:54:42.550 [main] INFO org.flywaydb.core.internal.database.base.Schema -- Creating schema "pocoma_read" ...
+14:54:42.555 [main] INFO org.flywaydb.core.internal.schemahistory.JdbcTableSchemaHistory -- Creating Schema History table "pocoma_read"."flyway_schema_history" ...
+14:54:42.592 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Current version of schema "pocoma_read": null
+14:54:42.595 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "1 - initialize read store"
+14:54:42.597 [main] INFO org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor -- +----------+
+| ?column? |
++----------+
+| 1        |
++----------+
+
+14:54:42.605 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "2 - generic projection foundation"
+14:54:42.628 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "3 - remove projection coverage"
+14:54:42.637 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "4 - add source version watermarks"
+14:54:42.645 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "5 - canonical pot projection"
+14:54:42.656 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "6 - pot version metadata and user index"
+14:54:42.664 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "7 - canonical projection store"
+14:54:42.672 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "8 - drop legacy read projection structures"
+14:54:42.689 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "9 - current external identity binding"
+14:54:42.694 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "10 - current binding expand"
+14:54:42.699 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "11 - current binding canonical detached"
+14:54:42.704 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "12 - current binding fact provenance"
+14:54:42.708 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "13 - verify terminal binding facts"
+14:54:42.712 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "14 - gate command result exact identity"
+14:54:42.718 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Successfully applied 14 migrations to schema "pocoma_read", now at version v14 (execution time 00:00.062s)
+14:54:42.775 [main] INFO org.flywaydb.core.FlywayExecutor -- Database: jdbc:postgresql://localhost:62313/pocoma?loggerLevel=OFF (PostgreSQL 17.11)
+14:54:42.782 [main] INFO org.flywaydb.core.internal.database.base.Schema -- Creating schema "pocoma_read" ...
+14:54:42.783 [main] INFO org.flywaydb.core.internal.schemahistory.JdbcTableSchemaHistory -- Creating Schema History table "pocoma_read"."flyway_schema_history" ...
+14:54:42.796 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Current version of schema "pocoma_read": null
+14:54:42.797 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "1 - initialize read store"
+14:54:42.797 [main] INFO org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor -- +----------+
+| ?column? |
++----------+
+| 1        |
++----------+
+
+14:54:42.801 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "2 - generic projection foundation"
+14:54:42.812 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "3 - remove projection coverage"
+14:54:42.819 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "4 - add source version watermarks"
+14:54:42.824 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "5 - canonical pot projection"
+14:54:42.833 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "6 - pot version metadata and user index"
+14:54:42.840 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "7 - canonical projection store"
+14:54:42.848 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "8 - drop legacy read projection structures"
+14:54:42.863 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "9 - current external identity binding"
+14:54:42.868 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "10 - current binding expand"
+14:54:42.871 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "11 - current binding canonical detached"
+14:54:42.875 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "12 - current binding fact provenance"
+14:54:42.879 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "13 - verify terminal binding facts"
+14:54:42.883 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "14 - gate command result exact identity"
+14:54:42.886 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Successfully applied 14 migrations to schema "pocoma_read", now at version v14 (execution time 00:00.047s)
+14:54:42.928 [main] INFO org.flywaydb.core.FlywayExecutor -- Database: jdbc:postgresql://localhost:62313/pocoma?loggerLevel=OFF (PostgreSQL 17.11)
+14:54:42.934 [main] INFO org.flywaydb.core.internal.database.base.Schema -- Creating schema "pocoma_read" ...
+14:54:42.935 [main] INFO org.flywaydb.core.internal.schemahistory.JdbcTableSchemaHistory -- Creating Schema History table "pocoma_read"."flyway_schema_history" ...
+14:54:42.946 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Current version of schema "pocoma_read": null
+14:54:42.947 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "1 - initialize read store"
+14:54:42.948 [main] INFO org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor -- +----------+
+| ?column? |
++----------+
+| 1        |
++----------+
+
+14:54:42.951 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "2 - generic projection foundation"
+14:54:42.962 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "3 - remove projection coverage"
+14:54:42.969 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "4 - add source version watermarks"
+14:54:42.973 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "5 - canonical pot projection"
+14:54:42.982 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "6 - pot version metadata and user index"
+14:54:42.989 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "7 - canonical projection store"
+14:54:42.996 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "8 - drop legacy read projection structures"
+14:54:43.011 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "9 - current external identity binding"
+14:54:43.016 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "10 - current binding expand"
+14:54:43.019 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "11 - current binding canonical detached"
+14:54:43.023 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "12 - current binding fact provenance"
+14:54:43.027 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "13 - verify terminal binding facts"
+14:54:43.030 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "14 - gate command result exact identity"
+14:54:43.034 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Successfully applied 14 migrations to schema "pocoma_read", now at version v14 (execution time 00:00.046s)
+WP4_ROOT_WAIT [{pid=75, xid=826, wait_event=ClientRead, query=insert into pocoma_read.projection_artifact
+    (projection_root_id, artifact_type, artifact_key, payload)
+values ($1, $2, $3, cast($4 as jsonb))
+}, {pid=76, xid=null, wait_event=transactionid, query=insert into pocoma_read.projection_root
+    (projection_type, target_object_type, target_object_id, target_version)
+values ($1, $2, $3, $4)
+on conflict (projection_type, target_object_type, target_object_id, target_version)
+do nothing
+returning id
+}]
+WP4_ROOT rollbackHolder=false roots=1 artifacts=1 SQLSTATE none
+14:54:43.103 [main] INFO org.flywaydb.core.FlywayExecutor -- Database: jdbc:postgresql://localhost:62313/pocoma?loggerLevel=OFF (PostgreSQL 17.11)
+14:54:43.109 [main] INFO org.flywaydb.core.internal.database.base.Schema -- Creating schema "pocoma_read" ...
+14:54:43.110 [main] INFO org.flywaydb.core.internal.schemahistory.JdbcTableSchemaHistory -- Creating Schema History table "pocoma_read"."flyway_schema_history" ...
+14:54:43.120 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Current version of schema "pocoma_read": null
+14:54:43.121 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "1 - initialize read store"
+14:54:43.122 [main] INFO org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor -- +----------+
+| ?column? |
++----------+
+| 1        |
++----------+
+
+14:54:43.125 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "2 - generic projection foundation"
+14:54:43.136 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "3 - remove projection coverage"
+14:54:43.143 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "4 - add source version watermarks"
+14:54:43.147 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "5 - canonical pot projection"
+14:54:43.156 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "6 - pot version metadata and user index"
+14:54:43.163 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "7 - canonical projection store"
+14:54:43.170 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "8 - drop legacy read projection structures"
+14:54:43.185 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "9 - current external identity binding"
+14:54:43.190 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "10 - current binding expand"
+14:54:43.193 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "11 - current binding canonical detached"
+14:54:43.196 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "12 - current binding fact provenance"
+14:54:43.200 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "13 - verify terminal binding facts"
+14:54:43.203 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "14 - gate command result exact identity"
+14:54:43.206 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Successfully applied 14 migrations to schema "pocoma_read", now at version v14 (execution time 00:00.044s)
+14:54:43.241 [main] INFO org.flywaydb.core.FlywayExecutor -- Database: jdbc:postgresql://localhost:62313/pocoma?loggerLevel=OFF (PostgreSQL 17.11)
+14:54:43.246 [main] INFO org.flywaydb.core.internal.database.base.Schema -- Creating schema "pocoma_read" ...
+14:54:43.247 [main] INFO org.flywaydb.core.internal.schemahistory.JdbcTableSchemaHistory -- Creating Schema History table "pocoma_read"."flyway_schema_history" ...
+14:54:43.258 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Current version of schema "pocoma_read": null
+14:54:43.259 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "1 - initialize read store"
+14:54:43.259 [main] INFO org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor -- +----------+
+| ?column? |
++----------+
+| 1        |
++----------+
+
+14:54:43.262 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "2 - generic projection foundation"
+14:54:43.273 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "3 - remove projection coverage"
+14:54:43.280 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "4 - add source version watermarks"
+14:54:43.283 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "5 - canonical pot projection"
+14:54:43.292 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "6 - pot version metadata and user index"
+14:54:43.298 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "7 - canonical projection store"
+14:54:43.305 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "8 - drop legacy read projection structures"
+14:54:43.320 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "9 - current external identity binding"
+14:54:43.324 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "10 - current binding expand"
+14:54:43.327 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "11 - current binding canonical detached"
+14:54:43.331 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "12 - current binding fact provenance"
+14:54:43.334 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "13 - verify terminal binding facts"
+14:54:43.337 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "14 - gate command result exact identity"
+14:54:43.340 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Successfully applied 14 migrations to schema "pocoma_read", now at version v14 (execution time 00:00.043s)
+14:54:43.386 [main] INFO org.flywaydb.core.FlywayExecutor -- Database: jdbc:postgresql://localhost:62313/pocoma?loggerLevel=OFF (PostgreSQL 17.11)
+14:54:43.391 [main] INFO org.flywaydb.core.internal.database.base.Schema -- Creating schema "pocoma_read" ...
+14:54:43.392 [main] INFO org.flywaydb.core.internal.schemahistory.JdbcTableSchemaHistory -- Creating Schema History table "pocoma_read"."flyway_schema_history" ...
+14:54:43.403 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Current version of schema "pocoma_read": null
+14:54:43.403 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "1 - initialize read store"
+14:54:43.404 [main] INFO org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor -- +----------+
+| ?column? |
++----------+
+| 1        |
++----------+
+
+14:54:43.407 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "2 - generic projection foundation"
+14:54:43.417 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "3 - remove projection coverage"
+14:54:43.424 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "4 - add source version watermarks"
+14:54:43.428 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "5 - canonical pot projection"
+14:54:43.436 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "6 - pot version metadata and user index"
+14:54:43.442 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "7 - canonical projection store"
+14:54:43.450 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "8 - drop legacy read projection structures"
+14:54:43.464 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "9 - current external identity binding"
+14:54:43.468 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "10 - current binding expand"
+14:54:43.471 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "11 - current binding canonical detached"
+14:54:43.475 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "12 - current binding fact provenance"
+14:54:43.479 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "13 - verify terminal binding facts"
+14:54:43.482 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "14 - gate command result exact identity"
+14:54:43.484 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Successfully applied 14 migrations to schema "pocoma_read", now at version v14 (execution time 00:00.043s)
+14:54:43.530 [main] INFO org.flywaydb.core.FlywayExecutor -- Database: jdbc:postgresql://localhost:62313/pocoma?loggerLevel=OFF (PostgreSQL 17.11)
+14:54:43.535 [main] INFO org.flywaydb.core.internal.database.base.Schema -- Creating schema "pocoma_read" ...
+14:54:43.536 [main] INFO org.flywaydb.core.internal.schemahistory.JdbcTableSchemaHistory -- Creating Schema History table "pocoma_read"."flyway_schema_history" ...
+14:54:43.547 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Current version of schema "pocoma_read": null
+14:54:43.548 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "1 - initialize read store"
+14:54:43.548 [main] INFO org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor -- +----------+
+| ?column? |
++----------+
+| 1        |
++----------+
+
+14:54:43.551 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "2 - generic projection foundation"
+14:54:43.562 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "3 - remove projection coverage"
+14:54:43.568 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "4 - add source version watermarks"
+14:54:43.572 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "5 - canonical pot projection"
+14:54:43.581 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "6 - pot version metadata and user index"
+14:54:43.587 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "7 - canonical projection store"
+14:54:43.594 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "8 - drop legacy read projection structures"
+14:54:43.608 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "9 - current external identity binding"
+14:54:43.612 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "10 - current binding expand"
+14:54:43.615 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "11 - current binding canonical detached"
+14:54:43.619 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "12 - current binding fact provenance"
+14:54:43.622 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "13 - verify terminal binding facts"
+14:54:43.626 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "14 - gate command result exact identity"
+14:54:43.629 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Successfully applied 14 migrations to schema "pocoma_read", now at version v14 (execution time 00:00.043s)
+14:54:43.661 [main] INFO org.flywaydb.core.FlywayExecutor -- Database: jdbc:postgresql://localhost:62313/pocoma?loggerLevel=OFF (PostgreSQL 17.11)
+14:54:43.666 [main] INFO org.flywaydb.core.internal.database.base.Schema -- Creating schema "pocoma_read" ...
+14:54:43.667 [main] INFO org.flywaydb.core.internal.schemahistory.JdbcTableSchemaHistory -- Creating Schema History table "pocoma_read"."flyway_schema_history" ...
+14:54:43.677 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Current version of schema "pocoma_read": null
+14:54:43.678 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "1 - initialize read store"
+14:54:43.679 [main] INFO org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor -- +----------+
+| ?column? |
++----------+
+| 1        |
++----------+
+
+14:54:43.684 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "2 - generic projection foundation"
+14:54:43.694 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "3 - remove projection coverage"
+14:54:43.701 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "4 - add source version watermarks"
+14:54:43.705 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "5 - canonical pot projection"
+14:54:43.713 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "6 - pot version metadata and user index"
+14:54:43.719 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "7 - canonical projection store"
+14:54:43.727 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "8 - drop legacy read projection structures"
+14:54:43.741 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "9 - current external identity binding"
+14:54:43.745 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "10 - current binding expand"
+14:54:43.748 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "11 - current binding canonical detached"
+14:54:43.752 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "12 - current binding fact provenance"
+14:54:43.756 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "13 - verify terminal binding facts"
+14:54:43.759 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "14 - gate command result exact identity"
+14:54:43.762 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Successfully applied 14 migrations to schema "pocoma_read", now at version v14 (execution time 00:00.044s)
+14:54:43.794 [main] INFO org.flywaydb.core.FlywayExecutor -- Database: jdbc:postgresql://localhost:62313/pocoma?loggerLevel=OFF (PostgreSQL 17.11)
+14:54:43.798 [main] INFO org.flywaydb.core.internal.database.base.Schema -- Creating schema "pocoma_read" ...
+14:54:43.799 [main] INFO org.flywaydb.core.internal.schemahistory.JdbcTableSchemaHistory -- Creating Schema History table "pocoma_read"."flyway_schema_history" ...
+14:54:43.809 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Current version of schema "pocoma_read": null
+14:54:43.810 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "1 - initialize read store"
+14:54:43.811 [main] INFO org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor -- +----------+
+| ?column? |
++----------+
+| 1        |
++----------+
+
+14:54:43.814 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "2 - generic projection foundation"
+14:54:43.824 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "3 - remove projection coverage"
+14:54:43.831 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "4 - add source version watermarks"
+14:54:43.834 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "5 - canonical pot projection"
+14:54:43.843 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "6 - pot version metadata and user index"
+14:54:43.848 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "7 - canonical projection store"
+14:54:43.855 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "8 - drop legacy read projection structures"
+14:54:43.870 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "9 - current external identity binding"
+14:54:43.874 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "10 - current binding expand"
+14:54:43.877 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "11 - current binding canonical detached"
+14:54:43.881 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "12 - current binding fact provenance"
+14:54:43.884 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "13 - verify terminal binding facts"
+14:54:43.887 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "14 - gate command result exact identity"
+14:54:43.890 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Successfully applied 14 migrations to schema "pocoma_read", now at version v14 (execution time 00:00.041s)
+14:54:43.923 [main] INFO org.flywaydb.core.FlywayExecutor -- Database: jdbc:postgresql://localhost:62313/pocoma?loggerLevel=OFF (PostgreSQL 17.11)
+14:54:43.928 [main] INFO org.flywaydb.core.internal.database.base.Schema -- Creating schema "pocoma_read" ...
+14:54:43.929 [main] INFO org.flywaydb.core.internal.schemahistory.JdbcTableSchemaHistory -- Creating Schema History table "pocoma_read"."flyway_schema_history" ...
+14:54:43.940 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Current version of schema "pocoma_read": null
+14:54:43.941 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "1 - initialize read store"
+14:54:43.941 [main] INFO org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor -- +----------+
+| ?column? |
++----------+
+| 1        |
++----------+
+
+14:54:43.944 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "2 - generic projection foundation"
+14:54:43.954 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "3 - remove projection coverage"
+14:54:43.961 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "4 - add source version watermarks"
+14:54:43.965 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "5 - canonical pot projection"
+14:54:43.973 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "6 - pot version metadata and user index"
+14:54:43.979 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "7 - canonical projection store"
+14:54:43.986 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "8 - drop legacy read projection structures"
+14:54:43.999 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "9 - current external identity binding"
+14:54:44.003 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "10 - current binding expand"
+14:54:44.006 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "11 - current binding canonical detached"
+14:54:44.010 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "12 - current binding fact provenance"
+14:54:44.013 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "13 - verify terminal binding facts"
+14:54:44.016 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "14 - gate command result exact identity"
+14:54:44.019 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Successfully applied 14 migrations to schema "pocoma_read", now at version v14 (execution time 00:00.040s)
+14:54:44.052 [main] INFO org.flywaydb.core.FlywayExecutor -- Database: jdbc:postgresql://localhost:62313/pocoma?loggerLevel=OFF (PostgreSQL 17.11)
+14:54:44.057 [main] INFO org.flywaydb.core.internal.database.base.Schema -- Creating schema "pocoma_read" ...
+14:54:44.058 [main] INFO org.flywaydb.core.internal.schemahistory.JdbcTableSchemaHistory -- Creating Schema History table "pocoma_read"."flyway_schema_history" ...
+14:54:44.069 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Current version of schema "pocoma_read": null
+14:54:44.069 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "1 - initialize read store"
+14:54:44.070 [main] INFO org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor -- +----------+
+| ?column? |
++----------+
+| 1        |
++----------+
+
+14:54:44.073 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "2 - generic projection foundation"
+14:54:44.083 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "3 - remove projection coverage"
+14:54:44.090 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "4 - add source version watermarks"
+14:54:44.093 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "5 - canonical pot projection"
+14:54:44.102 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "6 - pot version metadata and user index"
+14:54:44.108 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "7 - canonical projection store"
+14:54:44.115 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "8 - drop legacy read projection structures"
+14:54:44.129 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "9 - current external identity binding"
+14:54:44.133 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "10 - current binding expand"
+14:54:44.136 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "11 - current binding canonical detached"
+14:54:44.139 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "12 - current binding fact provenance"
+14:54:44.143 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "13 - verify terminal binding facts"
+14:54:44.146 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "14 - gate command result exact identity"
+14:54:44.149 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Successfully applied 14 migrations to schema "pocoma_read", now at version v14 (execution time 00:00.042s)
+14:54:44.190 [main] INFO org.flywaydb.core.FlywayExecutor -- Database: jdbc:postgresql://localhost:62313/pocoma?loggerLevel=OFF (PostgreSQL 17.11)
+14:54:44.195 [main] INFO org.flywaydb.core.internal.database.base.Schema -- Creating schema "pocoma_read" ...
+14:54:44.196 [main] INFO org.flywaydb.core.internal.schemahistory.JdbcTableSchemaHistory -- Creating Schema History table "pocoma_read"."flyway_schema_history" ...
+14:54:44.206 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Current version of schema "pocoma_read": null
+14:54:44.207 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "1 - initialize read store"
+14:54:44.208 [main] INFO org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor -- +----------+
+| ?column? |
++----------+
+| 1        |
++----------+
+
+14:54:44.210 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "2 - generic projection foundation"
+14:54:44.221 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "3 - remove projection coverage"
+14:54:44.227 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "4 - add source version watermarks"
+14:54:44.231 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "5 - canonical pot projection"
+14:54:44.239 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "6 - pot version metadata and user index"
+14:54:44.245 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "7 - canonical projection store"
+14:54:44.252 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "8 - drop legacy read projection structures"
+14:54:44.266 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "9 - current external identity binding"
+14:54:44.270 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "10 - current binding expand"
+14:54:44.273 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "11 - current binding canonical detached"
+14:54:44.276 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "12 - current binding fact provenance"
+14:54:44.280 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "13 - verify terminal binding facts"
+14:54:44.283 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "14 - gate command result exact identity"
+14:54:44.286 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Successfully applied 14 migrations to schema "pocoma_read", now at version v14 (execution time 00:00.042s)
+14:54:44.317 [main] INFO org.flywaydb.core.FlywayExecutor -- Database: jdbc:postgresql://localhost:62313/pocoma?loggerLevel=OFF (PostgreSQL 17.11)
+14:54:44.322 [main] INFO org.flywaydb.core.internal.database.base.Schema -- Creating schema "pocoma_read" ...
+14:54:44.323 [main] INFO org.flywaydb.core.internal.schemahistory.JdbcTableSchemaHistory -- Creating Schema History table "pocoma_read"."flyway_schema_history" ...
+14:54:44.333 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Current version of schema "pocoma_read": null
+14:54:44.334 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "1 - initialize read store"
+14:54:44.334 [main] INFO org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor -- +----------+
+| ?column? |
++----------+
+| 1        |
++----------+
+
+14:54:44.337 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "2 - generic projection foundation"
+14:54:44.347 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "3 - remove projection coverage"
+14:54:44.354 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "4 - add source version watermarks"
+14:54:44.357 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "5 - canonical pot projection"
+14:54:44.365 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "6 - pot version metadata and user index"
+14:54:44.371 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "7 - canonical projection store"
+14:54:44.379 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "8 - drop legacy read projection structures"
+14:54:44.395 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "9 - current external identity binding"
+14:54:44.400 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "10 - current binding expand"
+14:54:44.402 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "11 - current binding canonical detached"
+14:54:44.406 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "12 - current binding fact provenance"
+14:54:44.409 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "13 - verify terminal binding facts"
+14:54:44.412 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "14 - gate command result exact identity"
+14:54:44.414 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Successfully applied 14 migrations to schema "pocoma_read", now at version v14 (execution time 00:00.043s)
+14:54:44.453 [main] INFO org.flywaydb.core.FlywayExecutor -- Database: jdbc:postgresql://localhost:62313/pocoma?loggerLevel=OFF (PostgreSQL 17.11)
+14:54:44.458 [main] INFO org.flywaydb.core.internal.database.base.Schema -- Creating schema "pocoma_read" ...
+14:54:44.459 [main] INFO org.flywaydb.core.internal.schemahistory.JdbcTableSchemaHistory -- Creating Schema History table "pocoma_read"."flyway_schema_history" ...
+14:54:44.470 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Current version of schema "pocoma_read": null
+14:54:44.471 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "1 - initialize read store"
+14:54:44.471 [main] INFO org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor -- +----------+
+| ?column? |
++----------+
+| 1        |
++----------+
+
+14:54:44.474 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "2 - generic projection foundation"
+14:54:44.484 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "3 - remove projection coverage"
+14:54:44.491 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "4 - add source version watermarks"
+14:54:44.494 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "5 - canonical pot projection"
+14:54:44.503 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "6 - pot version metadata and user index"
+14:54:44.509 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "7 - canonical projection store"
+14:54:44.516 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "8 - drop legacy read projection structures"
+14:54:44.531 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "9 - current external identity binding"
+14:54:44.535 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "10 - current binding expand"
+14:54:44.537 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "11 - current binding canonical detached"
+14:54:44.541 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "12 - current binding fact provenance"
+14:54:44.544 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "13 - verify terminal binding facts"
+14:54:44.547 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "14 - gate command result exact identity"
+14:54:44.549 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Successfully applied 14 migrations to schema "pocoma_read", now at version v14 (execution time 00:00.042s)
+14:54:44.623 [main] INFO org.flywaydb.core.FlywayExecutor -- Database: jdbc:postgresql://localhost:62313/pocoma?loggerLevel=OFF (PostgreSQL 17.11)
+14:54:44.627 [main] INFO org.flywaydb.core.internal.database.base.Schema -- Creating schema "pocoma_read" ...
+14:54:44.628 [main] INFO org.flywaydb.core.internal.schemahistory.JdbcTableSchemaHistory -- Creating Schema History table "pocoma_read"."flyway_schema_history" ...
+14:54:44.639 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Current version of schema "pocoma_read": null
+14:54:44.640 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "1 - initialize read store"
+14:54:44.641 [main] INFO org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor -- +----------+
+| ?column? |
++----------+
+| 1        |
++----------+
+
+14:54:44.644 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "2 - generic projection foundation"
+14:54:44.654 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "3 - remove projection coverage"
+14:54:44.661 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "4 - add source version watermarks"
+14:54:44.665 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "5 - canonical pot projection"
+14:54:44.675 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "6 - pot version metadata and user index"
+14:54:44.681 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "7 - canonical projection store"
+14:54:44.688 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "8 - drop legacy read projection structures"
+14:54:44.703 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "9 - current external identity binding"
+14:54:44.707 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "10 - current binding expand"
+14:54:44.712 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "11 - current binding canonical detached"
+14:54:44.716 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "12 - current binding fact provenance"
+14:54:44.719 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "13 - verify terminal binding facts"
+14:54:44.721 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "14 - gate command result exact identity"
+14:54:44.724 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Successfully applied 14 migrations to schema "pocoma_read", now at version v14 (execution time 00:00.044s)
+WP4_ROOT_WAIT [{pid=169, xid=1177, wait_event=ClientRead, query=insert into pocoma_read.projection_artifact
+    (projection_root_id, artifact_type, artifact_key, payload)
+values ($1, $2, $3, cast($4 as jsonb))
+}, {pid=170, xid=null, wait_event=transactionid, query=insert into pocoma_read.projection_root
+    (projection_type, target_object_type, target_object_id, target_version)
+values ($1, $2, $3, $4)
+on conflict (projection_type, target_object_type, target_object_id, target_version)
+do nothing
+returning id
+}]
+WP4_ROOT rollbackHolder=true roots=1 artifacts=1 SQLSTATE none
+14:54:44.781 [main] INFO org.flywaydb.core.FlywayExecutor -- Database: jdbc:postgresql://localhost:62313/pocoma?loggerLevel=OFF (PostgreSQL 17.11)
+14:54:44.785 [main] INFO org.flywaydb.core.internal.database.base.Schema -- Creating schema "pocoma_read" ...
+14:54:44.786 [main] INFO org.flywaydb.core.internal.schemahistory.JdbcTableSchemaHistory -- Creating Schema History table "pocoma_read"."flyway_schema_history" ...
+14:54:44.796 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Current version of schema "pocoma_read": null
+14:54:44.797 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "1 - initialize read store"
+14:54:44.798 [main] INFO org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor -- +----------+
+| ?column? |
++----------+
+| 1        |
++----------+
+
+14:54:44.800 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "2 - generic projection foundation"
+14:54:44.810 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "3 - remove projection coverage"
+14:54:44.817 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "4 - add source version watermarks"
+14:54:44.821 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "5 - canonical pot projection"
+14:54:44.829 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "6 - pot version metadata and user index"
+14:54:44.834 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "7 - canonical projection store"
+14:54:44.841 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "8 - drop legacy read projection structures"
+14:54:44.856 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "9 - current external identity binding"
+14:54:44.860 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "10 - current binding expand"
+14:54:44.862 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "11 - current binding canonical detached"
+14:54:44.866 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "12 - current binding fact provenance"
+14:54:44.869 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "13 - verify terminal binding facts"
+14:54:44.872 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "14 - gate command result exact identity"
+14:54:44.875 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Successfully applied 14 migrations to schema "pocoma_read", now at version v14 (execution time 00:00.041s)
+14:54:44.919 [main] INFO org.flywaydb.core.FlywayExecutor -- Database: jdbc:postgresql://localhost:62313/pocoma?loggerLevel=OFF (PostgreSQL 17.11)
+14:54:44.924 [main] INFO org.flywaydb.core.internal.database.base.Schema -- Creating schema "pocoma_read" ...
+14:54:44.925 [main] INFO org.flywaydb.core.internal.schemahistory.JdbcTableSchemaHistory -- Creating Schema History table "pocoma_read"."flyway_schema_history" ...
+14:54:44.935 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Current version of schema "pocoma_read": null
+14:54:44.936 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "1 - initialize read store"
+14:54:44.936 [main] INFO org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor -- +----------+
+| ?column? |
++----------+
+| 1        |
++----------+
+
+14:54:44.939 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "2 - generic projection foundation"
+14:54:44.949 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "3 - remove projection coverage"
+14:54:44.957 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "4 - add source version watermarks"
+14:54:44.961 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "5 - canonical pot projection"
+14:54:44.969 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "6 - pot version metadata and user index"
+14:54:44.975 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "7 - canonical projection store"
+14:54:44.982 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "8 - drop legacy read projection structures"
+14:54:44.995 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "9 - current external identity binding"
+14:54:44.999 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "10 - current binding expand"
+14:54:45.002 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "11 - current binding canonical detached"
+14:54:45.005 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "12 - current binding fact provenance"
+14:54:45.008 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "13 - verify terminal binding facts"
+14:54:45.011 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "14 - gate command result exact identity"
+14:54:45.013 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Successfully applied 14 migrations to schema "pocoma_read", now at version v14 (execution time 00:00.042s)
+14:54:45.067 [main] INFO org.flywaydb.core.FlywayExecutor -- Database: jdbc:postgresql://localhost:62313/pocoma?loggerLevel=OFF (PostgreSQL 17.11)
+14:54:45.072 [main] INFO org.flywaydb.core.internal.database.base.Schema -- Creating schema "pocoma_read" ...
+14:54:45.073 [main] INFO org.flywaydb.core.internal.schemahistory.JdbcTableSchemaHistory -- Creating Schema History table "pocoma_read"."flyway_schema_history" ...
+14:54:45.083 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Current version of schema "pocoma_read": null
+14:54:45.084 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "1 - initialize read store"
+14:54:45.084 [main] INFO org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor -- +----------+
+| ?column? |
++----------+
+| 1        |
++----------+
+
+14:54:45.087 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "2 - generic projection foundation"
+14:54:45.097 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "3 - remove projection coverage"
+14:54:45.104 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "4 - add source version watermarks"
+14:54:45.107 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "5 - canonical pot projection"
+14:54:45.115 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "6 - pot version metadata and user index"
+14:54:45.121 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "7 - canonical projection store"
+14:54:45.127 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "8 - drop legacy read projection structures"
+14:54:45.141 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "9 - current external identity binding"
+14:54:45.145 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "10 - current binding expand"
+14:54:45.148 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "11 - current binding canonical detached"
+14:54:45.151 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "12 - current binding fact provenance"
+14:54:45.154 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "13 - verify terminal binding facts"
+14:54:45.157 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "14 - gate command result exact identity"
+14:54:45.159 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Successfully applied 14 migrations to schema "pocoma_read", now at version v14 (execution time 00:00.039s)
+[INFO] Tests run: 18, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 4.434 s -- in com.kartaguez.pocoma.infra.persistence.read.jdbc.JdbcProjectionStoreAdapterPostgresTest
+[INFO] Running com.kartaguez.pocoma.infra.persistence.read.jdbc.CurrentBindingPersistencePostgresTest
+14:54:45.307 [main] INFO tc.postgres:17-alpine -- Creating container for image: postgres:17-alpine
+14:54:45.363 [main] INFO tc.postgres:17-alpine -- Container postgres:17-alpine is starting: 4d00c0db79b8cc72838f42d1f2fe35f328c3642c336d807f0740110442f42e55
+14:54:46.058 [main] INFO tc.postgres:17-alpine -- Container postgres:17-alpine started in PT0.750835S
+14:54:46.058 [main] INFO tc.postgres:17-alpine -- Container is started (JDBC URL: jdbc:postgresql://localhost:62460/pocoma?loggerLevel=OFF)
+14:54:46.092 [main] INFO org.flywaydb.core.FlywayExecutor -- Database: jdbc:postgresql://localhost:62460/pocoma?loggerLevel=OFF (PostgreSQL 17.11)
+14:54:46.102 [main] INFO org.flywaydb.core.internal.database.base.Schema -- Creating schema "pocoma_read" ...
+14:54:46.104 [main] INFO org.flywaydb.core.internal.schemahistory.JdbcTableSchemaHistory -- Creating Schema History table "pocoma_read"."flyway_schema_history" ...
+14:54:46.123 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Current version of schema "pocoma_read": null
+14:54:46.124 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "1 - initialize read store"
+14:54:46.125 [main] INFO org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor -- +----------+
+| ?column? |
++----------+
+| 1        |
++----------+
+
+14:54:46.128 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "2 - generic projection foundation"
+14:54:46.142 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "3 - remove projection coverage"
+14:54:46.149 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "4 - add source version watermarks"
+14:54:46.153 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "5 - canonical pot projection"
+14:54:46.162 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "6 - pot version metadata and user index"
+14:54:46.168 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "7 - canonical projection store"
+14:54:46.175 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "8 - drop legacy read projection structures"
+14:54:46.189 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "9 - current external identity binding"
+14:54:46.193 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "10 - current binding expand"
+14:54:46.196 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "11 - current binding canonical detached"
+14:54:46.200 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "12 - current binding fact provenance"
+14:54:46.203 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "13 - verify terminal binding facts"
+14:54:46.205 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "14 - gate command result exact identity"
+14:54:46.208 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Successfully applied 14 migrations to schema "pocoma_read", now at version v14 (execution time 00:00.047s)
+14:54:46.226 [main] INFO org.flywaydb.core.FlywayExecutor -- Database: jdbc:postgresql://localhost:62460/pocoma?loggerLevel=OFF (PostgreSQL 17.11)
+14:54:46.231 [main] INFO org.flywaydb.core.internal.database.base.Schema -- Creating schema "pocoma_read" ...
+14:54:46.232 [main] INFO org.flywaydb.core.internal.schemahistory.JdbcTableSchemaHistory -- Creating Schema History table "pocoma_read"."flyway_schema_history" ...
+14:54:46.242 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Current version of schema "pocoma_read": null
+14:54:46.243 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "1 - initialize read store"
+14:54:46.244 [main] INFO org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor -- +----------+
+| ?column? |
++----------+
+| 1        |
++----------+
+
+14:54:46.246 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "2 - generic projection foundation"
+14:54:46.256 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "3 - remove projection coverage"
+14:54:46.262 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "4 - add source version watermarks"
+14:54:46.266 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "5 - canonical pot projection"
+14:54:46.274 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "6 - pot version metadata and user index"
+14:54:46.280 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "7 - canonical projection store"
+14:54:46.286 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "8 - drop legacy read projection structures"
+14:54:46.301 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "9 - current external identity binding"
+14:54:46.304 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Successfully applied 9 migrations to schema "pocoma_read", now at version v9 (execution time 00:00.037s)
+14:54:46.324 [main] INFO org.flywaydb.core.FlywayExecutor -- Database: jdbc:postgresql://localhost:62460/pocoma?loggerLevel=OFF (PostgreSQL 17.11)
+14:54:46.330 [main] INFO org.flywaydb.core.internal.command.DbValidate -- Successfully validated 15 migrations (execution time 00:00.003s)
+14:54:46.336 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Current version of schema "pocoma_read": 9
+14:54:46.337 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "10 - current binding expand"
+14:54:46.341 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "11 - current binding canonical detached"
+14:54:46.346 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "12 - current binding fact provenance"
+14:54:46.350 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "13 - verify terminal binding facts"
+14:54:46.354 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "14 - gate command result exact identity"
+14:54:46.356 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Successfully applied 5 migrations to schema "pocoma_read", now at version v14 (execution time 00:00.007s)
+14:54:46.387 [main] INFO org.flywaydb.core.FlywayExecutor -- Database: jdbc:postgresql://localhost:62460/pocoma?loggerLevel=OFF (PostgreSQL 17.11)
+14:54:46.392 [main] INFO org.flywaydb.core.internal.database.base.Schema -- Creating schema "pocoma_read" ...
+14:54:46.393 [main] INFO org.flywaydb.core.internal.schemahistory.JdbcTableSchemaHistory -- Creating Schema History table "pocoma_read"."flyway_schema_history" ...
+14:54:46.403 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Current version of schema "pocoma_read": null
+14:54:46.404 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "1 - initialize read store"
+14:54:46.405 [main] INFO org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor -- +----------+
+| ?column? |
++----------+
+| 1        |
++----------+
+
+14:54:46.407 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "2 - generic projection foundation"
+14:54:46.417 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "3 - remove projection coverage"
+14:54:46.424 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "4 - add source version watermarks"
+14:54:46.427 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "5 - canonical pot projection"
+14:54:46.435 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "6 - pot version metadata and user index"
+14:54:46.441 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "7 - canonical projection store"
+14:54:46.447 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "8 - drop legacy read projection structures"
+14:54:46.461 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "9 - current external identity binding"
+14:54:46.465 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "10 - current binding expand"
+14:54:46.467 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "11 - current binding canonical detached"
+14:54:46.471 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "12 - current binding fact provenance"
+14:54:46.474 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "13 - verify terminal binding facts"
+14:54:46.477 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "14 - gate command result exact identity"
+14:54:46.480 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Successfully applied 14 migrations to schema "pocoma_read", now at version v14 (execution time 00:00.039s)
+14:54:46.536 [main] INFO org.flywaydb.core.FlywayExecutor -- Database: jdbc:postgresql://localhost:62460/pocoma?loggerLevel=OFF (PostgreSQL 17.11)
+14:54:46.540 [main] INFO org.flywaydb.core.internal.database.base.Schema -- Creating schema "pocoma_read" ...
+14:54:46.542 [main] INFO org.flywaydb.core.internal.schemahistory.JdbcTableSchemaHistory -- Creating Schema History table "pocoma_read"."flyway_schema_history" ...
+14:54:46.551 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Current version of schema "pocoma_read": null
+14:54:46.552 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "1 - initialize read store"
+14:54:46.553 [main] INFO org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor -- +----------+
+| ?column? |
++----------+
+| 1        |
++----------+
+
+14:54:46.555 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "2 - generic projection foundation"
+14:54:46.565 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "3 - remove projection coverage"
+14:54:46.572 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "4 - add source version watermarks"
+14:54:46.575 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "5 - canonical pot projection"
+14:54:46.583 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "6 - pot version metadata and user index"
+14:54:46.591 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "7 - canonical projection store"
+14:54:46.599 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "8 - drop legacy read projection structures"
+14:54:46.613 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "9 - current external identity binding"
+14:54:46.617 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "10 - current binding expand"
+14:54:46.619 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "11 - current binding canonical detached"
+14:54:46.623 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "12 - current binding fact provenance"
+14:54:46.626 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "13 - verify terminal binding facts"
+14:54:46.629 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "14 - gate command result exact identity"
+14:54:46.632 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Successfully applied 14 migrations to schema "pocoma_read", now at version v14 (execution time 00:00.042s)
+14:54:46.674 [main] INFO org.flywaydb.core.FlywayExecutor -- Database: jdbc:postgresql://localhost:62460/pocoma?loggerLevel=OFF (PostgreSQL 17.11)
+14:54:46.679 [main] INFO org.flywaydb.core.internal.database.base.Schema -- Creating schema "pocoma_read" ...
+14:54:46.680 [main] INFO org.flywaydb.core.internal.schemahistory.JdbcTableSchemaHistory -- Creating Schema History table "pocoma_read"."flyway_schema_history" ...
+14:54:46.690 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Current version of schema "pocoma_read": null
+14:54:46.690 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "1 - initialize read store"
+14:54:46.691 [main] INFO org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor -- +----------+
+| ?column? |
++----------+
+| 1        |
++----------+
+
+14:54:46.693 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "2 - generic projection foundation"
+14:54:46.703 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "3 - remove projection coverage"
+14:54:46.709 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "4 - add source version watermarks"
+14:54:46.713 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "5 - canonical pot projection"
+14:54:46.721 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "6 - pot version metadata and user index"
+14:54:46.727 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "7 - canonical projection store"
+14:54:46.733 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "8 - drop legacy read projection structures"
+14:54:46.748 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "9 - current external identity binding"
+14:54:46.751 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "10 - current binding expand"
+14:54:46.754 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "11 - current binding canonical detached"
+14:54:46.757 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "12 - current binding fact provenance"
+14:54:46.759 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "13 - verify terminal binding facts"
+14:54:46.762 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "14 - gate command result exact identity"
+14:54:46.764 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Successfully applied 14 migrations to schema "pocoma_read", now at version v14 (execution time 00:00.040s)
+14:54:46.822 [main] INFO org.flywaydb.core.FlywayExecutor -- Database: jdbc:postgresql://localhost:62460/pocoma?loggerLevel=OFF (PostgreSQL 17.11)
+14:54:46.828 [main] INFO org.flywaydb.core.internal.database.base.Schema -- Creating schema "pocoma_read" ...
+14:54:46.830 [main] INFO org.flywaydb.core.internal.schemahistory.JdbcTableSchemaHistory -- Creating Schema History table "pocoma_read"."flyway_schema_history" ...
+14:54:46.842 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Current version of schema "pocoma_read": null
+14:54:46.843 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "1 - initialize read store"
+14:54:46.843 [main] INFO org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor -- +----------+
+| ?column? |
++----------+
+| 1        |
++----------+
+
+14:54:46.847 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "2 - generic projection foundation"
+14:54:46.858 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "3 - remove projection coverage"
+14:54:46.865 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "4 - add source version watermarks"
+14:54:46.868 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "5 - canonical pot projection"
+14:54:46.877 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "6 - pot version metadata and user index"
+14:54:46.883 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "7 - canonical projection store"
+14:54:46.890 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "8 - drop legacy read projection structures"
+14:54:46.904 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "9 - current external identity binding"
+14:54:46.908 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "10 - current binding expand"
+14:54:46.911 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "11 - current binding canonical detached"
+14:54:46.914 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "12 - current binding fact provenance"
+14:54:46.917 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "13 - verify terminal binding facts"
+14:54:46.920 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "14 - gate command result exact identity"
+14:54:46.922 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Successfully applied 14 migrations to schema "pocoma_read", now at version v14 (execution time 00:00.044s)
+14:54:46.941 [main] INFO org.flywaydb.core.FlywayExecutor -- Database: jdbc:postgresql://localhost:62460/pocoma?loggerLevel=OFF (PostgreSQL 17.11)
+14:54:46.945 [main] INFO org.flywaydb.core.internal.database.base.Schema -- Creating schema "pocoma_read" ...
+14:54:46.947 [main] INFO org.flywaydb.core.internal.schemahistory.JdbcTableSchemaHistory -- Creating Schema History table "pocoma_read"."flyway_schema_history" ...
+14:54:46.957 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Current version of schema "pocoma_read": null
+14:54:46.958 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "1 - initialize read store"
+14:54:46.958 [main] INFO org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor -- +----------+
+| ?column? |
++----------+
+| 1        |
++----------+
+
+14:54:46.961 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "2 - generic projection foundation"
+14:54:46.970 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "3 - remove projection coverage"
+14:54:46.977 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "4 - add source version watermarks"
+14:54:46.980 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "5 - canonical pot projection"
+14:54:46.988 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "6 - pot version metadata and user index"
+14:54:46.994 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "7 - canonical projection store"
+14:54:47.000 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "8 - drop legacy read projection structures"
+14:54:47.014 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "9 - current external identity binding"
+14:54:47.017 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Successfully applied 9 migrations to schema "pocoma_read", now at version v9 (execution time 00:00.036s)
+14:54:47.029 [main] INFO org.flywaydb.core.FlywayExecutor -- Database: jdbc:postgresql://localhost:62460/pocoma?loggerLevel=OFF (PostgreSQL 17.11)
+14:54:47.035 [main] INFO org.flywaydb.core.internal.command.DbValidate -- Successfully validated 15 migrations (execution time 00:00.002s)
+14:54:47.041 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Current version of schema "pocoma_read": 9
+14:54:47.041 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "10 - current binding expand"
+14:54:47.045 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "11 - current binding canonical detached"
+14:54:47.049 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Successfully applied 2 migrations to schema "pocoma_read", now at version v11 (execution time 00:00.002s)
+14:54:47.072 [main] INFO org.flywaydb.core.FlywayExecutor -- Database: jdbc:postgresql://localhost:62460/pocoma?loggerLevel=OFF (PostgreSQL 17.11)
+14:54:47.076 [main] INFO org.flywaydb.core.internal.database.base.Schema -- Creating schema "pocoma_read" ...
+14:54:47.077 [main] INFO org.flywaydb.core.internal.schemahistory.JdbcTableSchemaHistory -- Creating Schema History table "pocoma_read"."flyway_schema_history" ...
+14:54:47.087 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Current version of schema "pocoma_read": null
+14:54:47.088 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "1 - initialize read store"
+14:54:47.088 [main] INFO org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor -- +----------+
+| ?column? |
++----------+
+| 1        |
++----------+
+
+14:54:47.091 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "2 - generic projection foundation"
+14:54:47.101 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "3 - remove projection coverage"
+14:54:47.107 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "4 - add source version watermarks"
+14:54:47.110 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "5 - canonical pot projection"
+14:54:47.118 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "6 - pot version metadata and user index"
+14:54:47.124 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "7 - canonical projection store"
+14:54:47.130 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "8 - drop legacy read projection structures"
+14:54:47.144 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "9 - current external identity binding"
+14:54:47.148 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "10 - current binding expand"
+14:54:47.152 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "11 - current binding canonical detached"
+14:54:47.155 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "12 - current binding fact provenance"
+14:54:47.158 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "13 - verify terminal binding facts"
+14:54:47.161 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "14 - gate command result exact identity"
+14:54:47.164 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Successfully applied 14 migrations to schema "pocoma_read", now at version v14 (execution time 00:00.039s)
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.015 s -- in com.kartaguez.pocoma.infra.persistence.read.jdbc.CurrentBindingPersistencePostgresTest
+[INFO] Running com.kartaguez.pocoma.infra.persistence.read.jdbc.LatestKnownVersionPersistencePostgresTest
+14:54:47.324 [main] INFO tc.postgres:17-alpine -- Creating container for image: postgres:17-alpine
+14:54:47.371 [main] INFO tc.postgres:17-alpine -- Container postgres:17-alpine is starting: 44d364bbe1de75db050e8466293c81870861d683575fa56420937d66ca759225
+14:54:48.063 [main] INFO tc.postgres:17-alpine -- Container postgres:17-alpine started in PT0.739058S
+14:54:48.063 [main] INFO tc.postgres:17-alpine -- Container is started (JDBC URL: jdbc:postgresql://localhost:62526/pocoma?loggerLevel=OFF)
+14:54:48.094 [main] INFO org.flywaydb.core.FlywayExecutor -- Database: jdbc:postgresql://localhost:62526/pocoma?loggerLevel=OFF (PostgreSQL 17.11)
+14:54:48.104 [main] INFO org.flywaydb.core.internal.database.base.Schema -- Creating schema "pocoma_read" ...
+14:54:48.106 [main] INFO org.flywaydb.core.internal.schemahistory.JdbcTableSchemaHistory -- Creating Schema History table "pocoma_read"."flyway_schema_history" ...
+14:54:48.123 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Current version of schema "pocoma_read": null
+14:54:48.125 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "1 - initialize read store"
+14:54:48.125 [main] INFO org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor -- +----------+
+| ?column? |
++----------+
+| 1        |
++----------+
+
+14:54:48.130 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "2 - generic projection foundation"
+14:54:48.143 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "3 - remove projection coverage"
+14:54:48.151 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "4 - add source version watermarks"
+14:54:48.155 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "5 - canonical pot projection"
+14:54:48.164 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "6 - pot version metadata and user index"
+14:54:48.170 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "7 - canonical projection store"
+14:54:48.177 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "8 - drop legacy read projection structures"
+14:54:48.191 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "9 - current external identity binding"
+14:54:48.195 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "10 - current binding expand"
+14:54:48.198 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "11 - current binding canonical detached"
+14:54:48.201 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "12 - current binding fact provenance"
+14:54:48.205 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "13 - verify terminal binding facts"
+14:54:48.208 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "14 - gate command result exact identity"
+14:54:48.210 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Successfully applied 14 migrations to schema "pocoma_read", now at version v14 (execution time 00:00.046s)
+14:54:48.239 [main] INFO org.flywaydb.core.FlywayExecutor -- Database: jdbc:postgresql://localhost:62526/pocoma?loggerLevel=OFF (PostgreSQL 17.11)
+14:54:48.244 [main] INFO org.flywaydb.core.internal.database.base.Schema -- Creating schema "pocoma_read" ...
+14:54:48.245 [main] INFO org.flywaydb.core.internal.schemahistory.JdbcTableSchemaHistory -- Creating Schema History table "pocoma_read"."flyway_schema_history" ...
+14:54:48.255 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Current version of schema "pocoma_read": null
+14:54:48.256 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "1 - initialize read store"
+14:54:48.256 [main] INFO org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor -- +----------+
+| ?column? |
++----------+
+| 1        |
++----------+
+
+14:54:48.259 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "2 - generic projection foundation"
+14:54:48.269 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "3 - remove projection coverage"
+14:54:48.275 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "4 - add source version watermarks"
+14:54:48.278 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "5 - canonical pot projection"
+14:54:48.286 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "6 - pot version metadata and user index"
+14:54:48.292 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "7 - canonical projection store"
+14:54:48.298 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "8 - drop legacy read projection structures"
+14:54:48.312 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "9 - current external identity binding"
+14:54:48.316 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "10 - current binding expand"
+14:54:48.319 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "11 - current binding canonical detached"
+14:54:48.322 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "12 - current binding fact provenance"
+14:54:48.325 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "13 - verify terminal binding facts"
+14:54:48.328 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "14 - gate command result exact identity"
+14:54:48.331 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Successfully applied 14 migrations to schema "pocoma_read", now at version v14 (execution time 00:00.039s)
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.151 s -- in com.kartaguez.pocoma.infra.persistence.read.jdbc.LatestKnownVersionPersistencePostgresTest
+[INFO] Running com.kartaguez.pocoma.infra.persistence.read.jdbc.CurrentBindingTerminalCutoverMigrationPostgresTest
+14:54:48.476 [main] INFO tc.postgres:17-alpine -- Creating container for image: postgres:17-alpine
+14:54:48.531 [main] INFO tc.postgres:17-alpine -- Container postgres:17-alpine is starting: 89cfd07110d869ab6708ff739d62dd515137aafdaef49616e95f9428db3073b4
+14:54:49.220 [main] INFO tc.postgres:17-alpine -- Container postgres:17-alpine started in PT0.744165S
+14:54:49.220 [main] INFO tc.postgres:17-alpine -- Container is started (JDBC URL: jdbc:postgresql://localhost:62545/pocoma?loggerLevel=OFF)
+14:54:49.258 [main] INFO org.flywaydb.core.FlywayExecutor -- Database: jdbc:postgresql://localhost:62545/pocoma?loggerLevel=OFF (PostgreSQL 17.11)
+14:54:49.267 [main] INFO org.flywaydb.core.internal.database.base.Schema -- Creating schema "pocoma_read" ...
+14:54:49.269 [main] INFO org.flywaydb.core.internal.schemahistory.JdbcTableSchemaHistory -- Creating Schema History table "pocoma_read"."flyway_schema_history" ...
+14:54:49.284 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Current version of schema "pocoma_read": null
+14:54:49.285 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "1 - initialize read store"
+14:54:49.285 [main] INFO org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor -- +----------+
+| ?column? |
++----------+
+| 1        |
++----------+
+
+14:54:49.289 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "2 - generic projection foundation"
+14:54:49.301 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "3 - remove projection coverage"
+14:54:49.308 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "4 - add source version watermarks"
+14:54:49.311 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "5 - canonical pot projection"
+14:54:49.320 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "6 - pot version metadata and user index"
+14:54:49.325 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "7 - canonical projection store"
+14:54:49.333 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "8 - drop legacy read projection structures"
+14:54:49.347 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "9 - current external identity binding"
+14:54:49.354 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "10 - current binding expand"
+14:54:49.356 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "11 - current binding canonical detached"
+14:54:49.359 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "12 - current binding fact provenance"
+14:54:49.362 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Successfully applied 12 migrations to schema "pocoma_read", now at version v12 (execution time 00:00.045s)
+14:54:49.382 [main] INFO org.flywaydb.core.FlywayExecutor -- Database: jdbc:postgresql://localhost:62545/pocoma?loggerLevel=OFF (PostgreSQL 17.11)
+14:54:49.388 [main] INFO org.flywaydb.core.internal.command.DbValidate -- Successfully validated 15 migrations (execution time 00:00.002s)
+14:54:49.394 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Current version of schema "pocoma_read": 12
+14:54:49.395 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "13 - verify terminal binding facts"
+14:54:49.402 [main] ERROR org.flywaydb.core.internal.command.DbMigrate -- Migration of schema "pocoma_read" to version "13 - verify terminal binding facts" failed! Changes successfully rolled back.
+14:54:49.430 [main] INFO org.flywaydb.core.FlywayExecutor -- Database: jdbc:postgresql://localhost:62545/pocoma?loggerLevel=OFF (PostgreSQL 17.11)
+14:54:49.435 [main] INFO org.flywaydb.core.internal.database.base.Schema -- Creating schema "pocoma_read" ...
+14:54:49.436 [main] INFO org.flywaydb.core.internal.schemahistory.JdbcTableSchemaHistory -- Creating Schema History table "pocoma_read"."flyway_schema_history" ...
+14:54:49.445 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Current version of schema "pocoma_read": null
+14:54:49.446 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "1 - initialize read store"
+14:54:49.446 [main] INFO org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor -- +----------+
+| ?column? |
++----------+
+| 1        |
++----------+
+
+14:54:49.449 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "2 - generic projection foundation"
+14:54:49.459 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "3 - remove projection coverage"
+14:54:49.465 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "4 - add source version watermarks"
+14:54:49.469 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "5 - canonical pot projection"
+14:54:49.476 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "6 - pot version metadata and user index"
+14:54:49.482 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "7 - canonical projection store"
+14:54:49.489 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "8 - drop legacy read projection structures"
+14:54:49.502 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "9 - current external identity binding"
+14:54:49.506 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "10 - current binding expand"
+14:54:49.509 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "11 - current binding canonical detached"
+14:54:49.512 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "12 - current binding fact provenance"
+14:54:49.515 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Successfully applied 12 migrations to schema "pocoma_read", now at version v12 (execution time 00:00.038s)
+14:54:49.537 [main] INFO org.flywaydb.core.FlywayExecutor -- Database: jdbc:postgresql://localhost:62545/pocoma?loggerLevel=OFF (PostgreSQL 17.11)
+14:54:49.543 [main] INFO org.flywaydb.core.internal.command.DbValidate -- Successfully validated 15 migrations (execution time 00:00.002s)
+14:54:49.549 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Current version of schema "pocoma_read": 12
+14:54:49.550 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "13 - verify terminal binding facts"
+14:54:49.552 [main] ERROR org.flywaydb.core.internal.command.DbMigrate -- Migration of schema "pocoma_read" to version "13 - verify terminal binding facts" failed! Changes successfully rolled back.
+14:54:49.581 [main] INFO org.flywaydb.core.FlywayExecutor -- Database: jdbc:postgresql://localhost:62545/pocoma?loggerLevel=OFF (PostgreSQL 17.11)
+14:54:49.585 [main] INFO org.flywaydb.core.internal.database.base.Schema -- Creating schema "pocoma_read" ...
+14:54:49.586 [main] INFO org.flywaydb.core.internal.schemahistory.JdbcTableSchemaHistory -- Creating Schema History table "pocoma_read"."flyway_schema_history" ...
+14:54:49.596 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Current version of schema "pocoma_read": null
+14:54:49.597 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "1 - initialize read store"
+14:54:49.598 [main] INFO org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor -- +----------+
+| ?column? |
++----------+
+| 1        |
++----------+
+
+14:54:49.600 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "2 - generic projection foundation"
+14:54:49.611 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "3 - remove projection coverage"
+14:54:49.617 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "4 - add source version watermarks"
+14:54:49.621 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "5 - canonical pot projection"
+14:54:49.629 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "6 - pot version metadata and user index"
+14:54:49.635 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "7 - canonical projection store"
+14:54:49.642 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "8 - drop legacy read projection structures"
+14:54:49.655 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "9 - current external identity binding"
+14:54:49.659 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "10 - current binding expand"
+14:54:49.662 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "11 - current binding canonical detached"
+14:54:49.665 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "12 - current binding fact provenance"
+14:54:49.668 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Successfully applied 12 migrations to schema "pocoma_read", now at version v12 (execution time 00:00.040s)
+14:54:49.695 [main] INFO org.flywaydb.core.FlywayExecutor -- Database: jdbc:postgresql://localhost:62545/pocoma?loggerLevel=OFF (PostgreSQL 17.11)
+14:54:49.701 [main] INFO org.flywaydb.core.internal.command.DbValidate -- Successfully validated 15 migrations (execution time 00:00.002s)
+14:54:49.707 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Current version of schema "pocoma_read": 12
+14:54:49.707 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "13 - verify terminal binding facts"
+14:54:49.711 [main] ERROR org.flywaydb.core.internal.command.DbMigrate -- Migration of schema "pocoma_read" to version "13 - verify terminal binding facts" failed! Changes successfully rolled back.
+14:54:49.738 [main] INFO org.flywaydb.core.FlywayExecutor -- Database: jdbc:postgresql://localhost:62545/pocoma?loggerLevel=OFF (PostgreSQL 17.11)
+14:54:49.743 [main] INFO org.flywaydb.core.internal.database.base.Schema -- Creating schema "pocoma_read" ...
+14:54:49.744 [main] INFO org.flywaydb.core.internal.schemahistory.JdbcTableSchemaHistory -- Creating Schema History table "pocoma_read"."flyway_schema_history" ...
+14:54:49.753 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Current version of schema "pocoma_read": null
+14:54:49.754 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "1 - initialize read store"
+14:54:49.754 [main] INFO org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor -- +----------+
+| ?column? |
++----------+
+| 1        |
++----------+
+
+14:54:49.757 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "2 - generic projection foundation"
+14:54:49.767 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "3 - remove projection coverage"
+14:54:49.773 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "4 - add source version watermarks"
+14:54:49.776 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "5 - canonical pot projection"
+14:54:49.784 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "6 - pot version metadata and user index"
+14:54:49.790 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "7 - canonical projection store"
+14:54:49.797 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "8 - drop legacy read projection structures"
+14:54:49.811 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "9 - current external identity binding"
+14:54:49.814 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "10 - current binding expand"
+14:54:49.817 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "11 - current binding canonical detached"
+14:54:49.821 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "12 - current binding fact provenance"
+14:54:49.823 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Successfully applied 12 migrations to schema "pocoma_read", now at version v12 (execution time 00:00.038s)
+14:54:49.845 [main] INFO org.flywaydb.core.FlywayExecutor -- Database: jdbc:postgresql://localhost:62545/pocoma?loggerLevel=OFF (PostgreSQL 17.11)
+14:54:49.851 [main] INFO org.flywaydb.core.internal.command.DbValidate -- Successfully validated 15 migrations (execution time 00:00.002s)
+14:54:49.856 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Current version of schema "pocoma_read": 12
+14:54:49.857 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "13 - verify terminal binding facts"
+14:54:49.859 [main] ERROR org.flywaydb.core.internal.command.DbMigrate -- Migration of schema "pocoma_read" to version "13 - verify terminal binding facts" failed! Changes successfully rolled back.
+14:54:49.886 [main] INFO org.flywaydb.core.FlywayExecutor -- Database: jdbc:postgresql://localhost:62545/pocoma?loggerLevel=OFF (PostgreSQL 17.11)
+14:54:49.891 [main] INFO org.flywaydb.core.internal.database.base.Schema -- Creating schema "pocoma_read" ...
+14:54:49.892 [main] INFO org.flywaydb.core.internal.schemahistory.JdbcTableSchemaHistory -- Creating Schema History table "pocoma_read"."flyway_schema_history" ...
+14:54:49.901 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Current version of schema "pocoma_read": null
+14:54:49.902 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "1 - initialize read store"
+14:54:49.902 [main] INFO org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor -- +----------+
+| ?column? |
++----------+
+| 1        |
++----------+
+
+14:54:49.905 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "2 - generic projection foundation"
+14:54:49.915 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "3 - remove projection coverage"
+14:54:49.921 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "4 - add source version watermarks"
+14:54:49.924 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "5 - canonical pot projection"
+14:54:49.933 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "6 - pot version metadata and user index"
+14:54:49.938 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "7 - canonical projection store"
+14:54:49.945 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "8 - drop legacy read projection structures"
+14:54:49.959 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "9 - current external identity binding"
+14:54:49.963 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "10 - current binding expand"
+14:54:49.966 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "11 - current binding canonical detached"
+14:54:49.969 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "12 - current binding fact provenance"
+14:54:49.971 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Successfully applied 12 migrations to schema "pocoma_read", now at version v12 (execution time 00:00.038s)
+14:54:50.010 [main] INFO org.flywaydb.core.FlywayExecutor -- Database: jdbc:postgresql://localhost:62545/pocoma?loggerLevel=OFF (PostgreSQL 17.11)
+14:54:50.016 [main] INFO org.flywaydb.core.internal.command.DbValidate -- Successfully validated 15 migrations (execution time 00:00.002s)
+14:54:50.021 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Current version of schema "pocoma_read": 12
+14:54:50.022 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "13 - verify terminal binding facts"
+14:54:50.027 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "14 - gate command result exact identity"
+14:54:50.030 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Successfully applied 2 migrations to schema "pocoma_read", now at version v14 (execution time 00:00.003s)
+14:54:50.065 [main] INFO org.flywaydb.core.FlywayExecutor -- Database: jdbc:postgresql://localhost:62545/pocoma?loggerLevel=OFF (PostgreSQL 17.11)
+14:54:50.069 [main] INFO org.flywaydb.core.internal.database.base.Schema -- Creating schema "pocoma_read" ...
+14:54:50.070 [main] INFO org.flywaydb.core.internal.schemahistory.JdbcTableSchemaHistory -- Creating Schema History table "pocoma_read"."flyway_schema_history" ...
+14:54:50.080 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Current version of schema "pocoma_read": null
+14:54:50.081 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "1 - initialize read store"
+14:54:50.081 [main] INFO org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor -- +----------+
+| ?column? |
++----------+
+| 1        |
++----------+
+
+14:54:50.084 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "2 - generic projection foundation"
+14:54:50.094 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "3 - remove projection coverage"
+14:54:50.100 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "4 - add source version watermarks"
+14:54:50.103 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "5 - canonical pot projection"
+14:54:50.111 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "6 - pot version metadata and user index"
+14:54:50.117 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "7 - canonical projection store"
+14:54:50.123 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "8 - drop legacy read projection structures"
+14:54:50.137 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "9 - current external identity binding"
+14:54:50.141 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "10 - current binding expand"
+14:54:50.144 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "11 - current binding canonical detached"
+14:54:50.147 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "12 - current binding fact provenance"
+14:54:50.150 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Successfully applied 12 migrations to schema "pocoma_read", now at version v12 (execution time 00:00.039s)
+14:54:50.170 [main] INFO org.flywaydb.core.FlywayExecutor -- Database: jdbc:postgresql://localhost:62545/pocoma?loggerLevel=OFF (PostgreSQL 17.11)
+14:54:50.176 [main] INFO org.flywaydb.core.internal.command.DbValidate -- Successfully validated 15 migrations (execution time 00:00.002s)
+14:54:50.181 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Current version of schema "pocoma_read": 12
+14:54:50.182 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "13 - verify terminal binding facts"
+14:54:50.185 [main] ERROR org.flywaydb.core.internal.command.DbMigrate -- Migration of schema "pocoma_read" to version "13 - verify terminal binding facts" failed! Changes successfully rolled back.
+14:54:50.199 [main] INFO org.flywaydb.core.FlywayExecutor -- Database: jdbc:postgresql://localhost:62545/pocoma?loggerLevel=OFF (PostgreSQL 17.11)
+14:54:50.205 [main] INFO org.flywaydb.core.internal.command.DbValidate -- Successfully validated 15 migrations (execution time 00:00.002s)
+14:54:50.210 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Current version of schema "pocoma_read": 12
+14:54:50.211 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "13 - verify terminal binding facts"
+14:54:50.214 [main] ERROR org.flywaydb.core.internal.command.DbMigrate -- Migration of schema "pocoma_read" to version "13 - verify terminal binding facts" failed! Changes successfully rolled back.
+14:54:50.229 [main] INFO org.flywaydb.core.FlywayExecutor -- Database: jdbc:postgresql://localhost:62545/pocoma?loggerLevel=OFF (PostgreSQL 17.11)
+14:54:50.238 [main] INFO org.flywaydb.core.internal.command.DbValidate -- Successfully validated 15 migrations (execution time 00:00.005s)
+14:54:50.243 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Current version of schema "pocoma_read": 12
+14:54:50.244 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "13 - verify terminal binding facts"
+14:54:50.247 [main] ERROR org.flywaydb.core.internal.command.DbMigrate -- Migration of schema "pocoma_read" to version "13 - verify terminal binding facts" failed! Changes successfully rolled back.
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.898 s -- in com.kartaguez.pocoma.infra.persistence.read.jdbc.CurrentBindingTerminalCutoverMigrationPostgresTest
+[INFO] Running com.kartaguez.pocoma.infra.persistence.read.jdbc.ReadStorePersistencePostgresTest
+14:54:50.375 [main] INFO tc.postgres:17-alpine -- Creating container for image: postgres:17-alpine
+14:54:50.423 [main] INFO tc.postgres:17-alpine -- Container postgres:17-alpine is starting: 084fcc3957d973e5832355d8281ee373a45f03d9427d5c97442ff4830af8546b
+14:54:51.127 [main] INFO tc.postgres:17-alpine -- Container postgres:17-alpine started in PT0.752049S
+14:54:51.127 [main] INFO tc.postgres:17-alpine -- Container is started (JDBC URL: jdbc:postgresql://localhost:62634/pocoma?loggerLevel=OFF)
+14:54:51.314 [main] INFO com.zaxxer.hikari.HikariDataSource -- HikariPool-1 - Starting...
+14:54:51.325 [main] INFO com.zaxxer.hikari.pool.HikariPool -- HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@667dd150
+14:54:51.325 [main] INFO com.zaxxer.hikari.HikariDataSource -- HikariPool-1 - Start completed.
+14:54:51.330 [main] INFO org.flywaydb.core.FlywayExecutor -- Database: jdbc:postgresql://localhost:62634/pocoma?loggerLevel=OFF (PostgreSQL 17.11)
+14:54:51.338 [main] INFO org.flywaydb.core.internal.database.base.Schema -- Creating schema "pocoma_read" ...
+14:54:51.341 [main] INFO org.flywaydb.core.internal.schemahistory.JdbcTableSchemaHistory -- Creating Schema History table "pocoma_read"."flyway_schema_history" ...
+14:54:51.360 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Current version of schema "pocoma_read": null
+14:54:51.361 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "1 - initialize read store"
+14:54:51.361 [main] INFO org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor -- +----------+
+| ?column? |
++----------+
+| 1        |
++----------+
+
+14:54:51.365 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "2 - generic projection foundation"
+14:54:51.375 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "3 - remove projection coverage"
+14:54:51.383 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "4 - add source version watermarks"
+14:54:51.386 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "5 - canonical pot projection"
+14:54:51.396 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "6 - pot version metadata and user index"
+14:54:51.402 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "7 - canonical projection store"
+14:54:51.410 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "8 - drop legacy read projection structures"
+14:54:51.424 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "9 - current external identity binding"
+14:54:51.428 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "10 - current binding expand"
+14:54:51.431 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "11 - current binding canonical detached"
+14:54:51.435 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "12 - current binding fact provenance"
+14:54:51.438 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "13 - verify terminal binding facts"
+14:54:51.441 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "14 - gate command result exact identity"
+14:54:51.444 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Successfully applied 14 migrations to schema "pocoma_read", now at version v14 (execution time 00:00.047s)
+14:54:51.457 [main] INFO com.zaxxer.hikari.HikariDataSource -- HikariPool-1 - Shutdown initiated...
+14:54:51.460 [main] INFO com.zaxxer.hikari.HikariDataSource -- HikariPool-1 - Shutdown completed.
+14:54:51.499 [main] INFO com.zaxxer.hikari.HikariDataSource -- HikariPool-2 - Starting...
+14:54:51.503 [main] INFO com.zaxxer.hikari.pool.HikariPool -- HikariPool-2 - Added connection org.postgresql.jdbc.PgConnection@3d3b4e09
+14:54:51.503 [main] INFO com.zaxxer.hikari.HikariDataSource -- HikariPool-2 - Start completed.
+14:54:51.503 [main] INFO org.flywaydb.core.FlywayExecutor -- Database: jdbc:postgresql://localhost:62634/pocoma?loggerLevel=OFF (PostgreSQL 17.11)
+14:54:51.509 [main] INFO org.flywaydb.core.internal.command.DbValidate -- Successfully validated 15 migrations (execution time 00:00.002s)
+14:54:51.515 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Current version of schema "pocoma_read": 14
+14:54:51.516 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Schema "pocoma_read" is up to date. No migration necessary.
+14:54:51.518 [main] INFO com.zaxxer.hikari.HikariDataSource -- HikariPool-2 - Shutdown initiated...
+14:54:51.544 [main] INFO com.zaxxer.hikari.HikariDataSource -- HikariPool-2 - Shutdown completed.
+14:54:51.589 [main] INFO com.zaxxer.hikari.HikariDataSource -- HikariPool-3 - Starting...
+14:54:51.595 [main] INFO com.zaxxer.hikari.pool.HikariPool -- HikariPool-3 - Added connection org.postgresql.jdbc.PgConnection@1f6d7e7c
+14:54:51.595 [main] INFO com.zaxxer.hikari.HikariDataSource -- HikariPool-3 - Start completed.
+14:54:51.596 [main] INFO org.flywaydb.core.FlywayExecutor -- Database: jdbc:postgresql://localhost:62634/pocoma?loggerLevel=OFF (PostgreSQL 17.11)
+14:54:51.602 [main] INFO org.flywaydb.core.internal.database.base.Schema -- Creating schema "pocoma_read" ...
+14:54:51.604 [main] INFO org.flywaydb.core.internal.schemahistory.JdbcTableSchemaHistory -- Creating Schema History table "pocoma_read"."flyway_schema_history" ...
+14:54:51.620 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Current version of schema "pocoma_read": null
+14:54:51.622 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "1 - initialize read store"
+14:54:51.622 [main] INFO org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor -- +----------+
+| ?column? |
++----------+
+| 1        |
++----------+
+
+14:54:51.627 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "2 - generic projection foundation"
+14:54:51.643 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "3 - remove projection coverage"
+14:54:51.650 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "4 - add source version watermarks"
+14:54:51.654 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "5 - canonical pot projection"
+14:54:51.662 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "6 - pot version metadata and user index"
+14:54:51.668 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "7 - canonical projection store"
+14:54:51.675 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "8 - drop legacy read projection structures"
+14:54:51.689 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "9 - current external identity binding"
+14:54:51.693 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "10 - current binding expand"
+14:54:51.696 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "11 - current binding canonical detached"
+14:54:51.700 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "12 - current binding fact provenance"
+14:54:51.703 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "13 - verify terminal binding facts"
+14:54:51.705 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "14 - gate command result exact identity"
+14:54:51.708 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Successfully applied 14 migrations to schema "pocoma_read", now at version v14 (execution time 00:00.050s)
+14:54:51.711 [main] INFO com.zaxxer.hikari.HikariDataSource -- HikariPool-3 - Shutdown initiated...
+14:54:51.729 [main] INFO com.zaxxer.hikari.HikariDataSource -- HikariPool-3 - Shutdown completed.
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.473 s -- in com.kartaguez.pocoma.infra.persistence.read.jdbc.ReadStorePersistencePostgresTest
+[INFO] Running com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.consumption.ReadDiscoveryPrivilegesPostgresTest
+14:54:51.887 [main] INFO tc.postgres@sha256:18cfe3... -- Creating container for image: postgres@sha256:18cfe3ef5e6815560c98237d6216d1e5119702fb0f3894c8785dd58b8bbe5d73
+14:54:51.916 [main] INFO tc.postgres@sha256:18cfe3... -- Container postgres@sha256:18cfe3ef5e6815560c98237d6216d1e5119702fb0f3894c8785dd58b8bbe5d73 is starting: ebae68267ea1190ce8c481c17d490fdf8ceaed59b401140e77e9663ae5db279f
+14:54:52.605 [main] INFO tc.postgres@sha256:18cfe3... -- Container postgres@sha256:18cfe3ef5e6815560c98237d6216d1e5119702fb0f3894c8785dd58b8bbe5d73 started in PT0.718479S
+14:54:52.605 [main] INFO tc.postgres@sha256:18cfe3... -- Container is started (JDBC URL: jdbc:postgresql://localhost:62655/test?loggerLevel=OFF)
+14:54:52.650 [main] INFO org.flywaydb.core.FlywayExecutor -- Database: jdbc:postgresql://localhost:62655/test?loggerLevel=OFF&currentSchema=i4r_868828afe40e414db3804f7348c3a343 (PostgreSQL 17.11)
+14:54:52.658 [main] INFO org.flywaydb.core.internal.database.base.Schema -- Creating schema "i4r_868828afe40e414db3804f7348c3a343" ...
+14:54:52.660 [main] INFO org.flywaydb.core.internal.schemahistory.JdbcTableSchemaHistory -- Creating Schema History table "i4r_868828afe40e414db3804f7348c3a343"."flyway_schema_history" ...
+14:54:52.679 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Current version of schema "i4r_868828afe40e414db3804f7348c3a343": null
+14:54:52.684 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "i4r_868828afe40e414db3804f7348c3a343" to version "1 - consumption foundation"
+14:54:52.702 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Successfully applied 1 migration to schema "i4r_868828afe40e414db3804f7348c3a343", now at version v1 (execution time 00:00.016s)
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.577 s -- in com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.consumption.ReadDiscoveryPrivilegesPostgresTest
+[INFO] Running com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.consumption.ReadConsumptionFoundationPostgresTest
+14:54:53.427 [main] INFO tc.postgres:17-alpine -- Creating container for image: postgres:17-alpine
+14:54:53.486 [main] INFO tc.postgres:17-alpine -- Container postgres:17-alpine is starting: db11dbdd677bbaa6991e974fc07ca15a3a5ecb5c1ba3fd2dbb1ed1523af25660
+14:54:54.185 [main] INFO tc.postgres:17-alpine -- Container postgres:17-alpine started in PT0.757442S
+14:54:54.185 [main] INFO tc.postgres:17-alpine -- Container is started (JDBC URL: jdbc:postgresql://localhost:62694/test?loggerLevel=OFF)
+14:54:54.220 [main] INFO org.flywaydb.core.FlywayExecutor -- Database: jdbc:postgresql://localhost:62694/test?loggerLevel=OFF&currentSchema=l2r_86512aa7a37c4b4cbdcb5b208db1af73 (PostgreSQL 17.11)
+14:54:54.227 [main] INFO org.flywaydb.core.internal.database.base.Schema -- Creating schema "l2r_86512aa7a37c4b4cbdcb5b208db1af73" ...
+14:54:54.229 [main] INFO org.flywaydb.core.internal.schemahistory.JdbcTableSchemaHistory -- Creating Schema History table "l2r_86512aa7a37c4b4cbdcb5b208db1af73"."flyway_schema_history" ...
+14:54:54.243 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Current version of schema "l2r_86512aa7a37c4b4cbdcb5b208db1af73": null
+14:54:54.245 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "l2r_86512aa7a37c4b4cbdcb5b208db1af73" to version "1 - consumption foundation"
+14:54:54.262 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Successfully applied 1 migration to schema "l2r_86512aa7a37c4b4cbdcb5b208db1af73", now at version v1 (execution time 00:00.014s)
+14:54:54.310 [main] INFO org.flywaydb.core.FlywayExecutor -- Database: jdbc:postgresql://localhost:62694/test?loggerLevel=OFF&currentSchema=l2r_a25254dedc8b44b9a74970ab0b1507b9 (PostgreSQL 17.11)
+14:54:54.313 [main] INFO org.flywaydb.core.internal.database.base.Schema -- Creating schema "l2r_a25254dedc8b44b9a74970ab0b1507b9" ...
+14:54:54.314 [main] INFO org.flywaydb.core.internal.schemahistory.JdbcTableSchemaHistory -- Creating Schema History table "l2r_a25254dedc8b44b9a74970ab0b1507b9"."flyway_schema_history" ...
+14:54:54.323 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Current version of schema "l2r_a25254dedc8b44b9a74970ab0b1507b9": null
+14:54:54.324 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "l2r_a25254dedc8b44b9a74970ab0b1507b9" to version "1 - consumption foundation"
+14:54:54.339 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Successfully applied 1 migration to schema "l2r_a25254dedc8b44b9a74970ab0b1507b9", now at version v1 (execution time 00:00.012s)
+14:54:54.394 [main] INFO org.flywaydb.core.FlywayExecutor -- Database: jdbc:postgresql://localhost:62694/test?loggerLevel=OFF&currentSchema=l2r_fce1b96dc212428fa35ce291c46ced00 (PostgreSQL 17.11)
+14:54:54.397 [main] INFO org.flywaydb.core.internal.database.base.Schema -- Creating schema "l2r_fce1b96dc212428fa35ce291c46ced00" ...
+14:54:54.398 [main] INFO org.flywaydb.core.internal.schemahistory.JdbcTableSchemaHistory -- Creating Schema History table "l2r_fce1b96dc212428fa35ce291c46ced00"."flyway_schema_history" ...
+14:54:54.408 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Current version of schema "l2r_fce1b96dc212428fa35ce291c46ced00": null
+14:54:54.409 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "l2r_fce1b96dc212428fa35ce291c46ced00" to version "1 - consumption foundation"
+14:54:54.423 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Successfully applied 1 migration to schema "l2r_fce1b96dc212428fa35ce291c46ced00", now at version v1 (execution time 00:00.012s)
+14:54:54.442 [main] INFO org.flywaydb.core.FlywayExecutor -- Database: jdbc:postgresql://localhost:62694/test?loggerLevel=OFF&currentSchema=l2r_27f20092c41e40f0bb92fe561a6d49c5 (PostgreSQL 17.11)
+14:54:54.445 [main] INFO org.flywaydb.core.internal.database.base.Schema -- Creating schema "l2r_27f20092c41e40f0bb92fe561a6d49c5" ...
+14:54:54.446 [main] INFO org.flywaydb.core.internal.schemahistory.JdbcTableSchemaHistory -- Creating Schema History table "l2r_27f20092c41e40f0bb92fe561a6d49c5"."flyway_schema_history" ...
+14:54:54.455 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Current version of schema "l2r_27f20092c41e40f0bb92fe561a6d49c5": null
+14:54:54.456 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "l2r_27f20092c41e40f0bb92fe561a6d49c5" to version "1 - consumption foundation"
+14:54:54.471 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Successfully applied 1 migration to schema "l2r_27f20092c41e40f0bb92fe561a6d49c5", now at version v1 (execution time 00:00.012s)
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.208 s -- in com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.consumption.ReadConsumptionFoundationPostgresTest
+[INFO] Running com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.consumption.ReadConsumptionLifecyclePrivilegesPostgresTest
+14:54:54.636 [main] INFO tc.postgres@sha256:18cfe3... -- Creating container for image: postgres@sha256:18cfe3ef5e6815560c98237d6216d1e5119702fb0f3894c8785dd58b8bbe5d73
+14:54:54.682 [main] INFO tc.postgres@sha256:18cfe3... -- Container postgres@sha256:18cfe3ef5e6815560c98237d6216d1e5119702fb0f3894c8785dd58b8bbe5d73 is starting: bc619a47d9c0e1207875af76d7b5db05155ceede6cae0d4bd53cffe15a361493
+14:54:55.349 [main] INFO tc.postgres@sha256:18cfe3... -- Container postgres@sha256:18cfe3ef5e6815560c98237d6216d1e5119702fb0f3894c8785dd58b8bbe5d73 started in PT0.712525S
+14:54:55.349 [main] INFO tc.postgres@sha256:18cfe3... -- Container is started (JDBC URL: jdbc:postgresql://localhost:62736/test?loggerLevel=OFF)
+14:54:55.379 [main] INFO org.flywaydb.core.FlywayExecutor -- Database: jdbc:postgresql://localhost:62736/test?loggerLevel=OFF&currentSchema=i3r_584f8631636d4b6d8eb3a01809cc20b7 (PostgreSQL 17.11)
+14:54:55.385 [main] INFO org.flywaydb.core.internal.database.base.Schema -- Creating schema "i3r_584f8631636d4b6d8eb3a01809cc20b7" ...
+14:54:55.386 [main] INFO org.flywaydb.core.internal.schemahistory.JdbcTableSchemaHistory -- Creating Schema History table "i3r_584f8631636d4b6d8eb3a01809cc20b7"."flyway_schema_history" ...
+14:54:55.397 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Current version of schema "i3r_584f8631636d4b6d8eb3a01809cc20b7": null
+14:54:55.398 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "i3r_584f8631636d4b6d8eb3a01809cc20b7" to version "1 - consumption foundation"
+14:54:55.413 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Successfully applied 1 migration to schema "i3r_584f8631636d4b6d8eb3a01809cc20b7", now at version v1 (execution time 00:00.012s)
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.063 s -- in com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.consumption.ReadConsumptionLifecyclePrivilegesPostgresTest
+[INFO] Running com.kartaguez.pocoma.infra.persistence.read.jdbc.CommandResultExactIdentityCutoverMigrationPostgresTest
+14:54:55.701 [main] INFO tc.postgres:17-alpine -- Creating container for image: postgres:17-alpine
+14:54:55.745 [main] INFO tc.postgres:17-alpine -- Container postgres:17-alpine is starting: a30816eee337897516a19cc267d8213922f666a1136962fdafc84a2f5b9f0508
+14:54:56.434 [main] INFO tc.postgres:17-alpine -- Container postgres:17-alpine started in PT0.733248S
+14:54:56.434 [main] INFO tc.postgres:17-alpine -- Container is started (JDBC URL: jdbc:postgresql://localhost:62775/pocoma?loggerLevel=OFF)
+14:54:56.460 [main] INFO org.flywaydb.core.FlywayExecutor -- Database: jdbc:postgresql://localhost:62775/pocoma?loggerLevel=OFF (PostgreSQL 17.11)
+14:54:56.470 [main] INFO org.flywaydb.core.internal.database.base.Schema -- Creating schema "pocoma_read" ...
+14:54:56.472 [main] INFO org.flywaydb.core.internal.schemahistory.JdbcTableSchemaHistory -- Creating Schema History table "pocoma_read"."flyway_schema_history" ...
+14:54:56.490 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Current version of schema "pocoma_read": null
+14:54:56.491 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "1 - initialize read store"
+14:54:56.492 [main] INFO org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor -- +----------+
+| ?column? |
++----------+
+| 1        |
++----------+
+
+14:54:56.497 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "2 - generic projection foundation"
+14:54:56.511 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "3 - remove projection coverage"
+14:54:56.519 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "4 - add source version watermarks"
+14:54:56.524 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "5 - canonical pot projection"
+14:54:56.533 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "6 - pot version metadata and user index"
+14:54:56.540 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "7 - canonical projection store"
+14:54:56.547 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "8 - drop legacy read projection structures"
+14:54:56.562 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "9 - current external identity binding"
+14:54:56.566 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "10 - current binding expand"
+14:54:56.569 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "11 - current binding canonical detached"
+14:54:56.573 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "12 - current binding fact provenance"
+14:54:56.577 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "13 - verify terminal binding facts"
+14:54:56.579 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Successfully applied 13 migrations to schema "pocoma_read", now at version v13 (execution time 00:00.048s)
+14:54:56.589 [main] INFO org.flywaydb.core.FlywayExecutor -- Database: jdbc:postgresql://localhost:62775/pocoma?loggerLevel=OFF (PostgreSQL 17.11)
+14:54:56.595 [main] INFO org.flywaydb.core.internal.command.DbValidate -- Successfully validated 15 migrations (execution time 00:00.002s)
+14:54:56.601 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Current version of schema "pocoma_read": 13
+14:54:56.602 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "14 - gate command result exact identity"
+14:54:56.605 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Successfully applied 1 migration to schema "pocoma_read", now at version v14 (execution time 00:00.001s)
+14:54:56.621 [main] INFO org.flywaydb.core.FlywayExecutor -- Database: jdbc:postgresql://localhost:62775/pocoma?loggerLevel=OFF (PostgreSQL 17.11)
+14:54:56.626 [main] INFO org.flywaydb.core.internal.database.base.Schema -- Creating schema "pocoma_read" ...
+14:54:56.627 [main] INFO org.flywaydb.core.internal.schemahistory.JdbcTableSchemaHistory -- Creating Schema History table "pocoma_read"."flyway_schema_history" ...
+14:54:56.636 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Current version of schema "pocoma_read": null
+14:54:56.637 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "1 - initialize read store"
+14:54:56.638 [main] INFO org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor -- +----------+
+| ?column? |
++----------+
+| 1        |
++----------+
+
+14:54:56.640 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "2 - generic projection foundation"
+14:54:56.650 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "3 - remove projection coverage"
+14:54:56.656 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "4 - add source version watermarks"
+14:54:56.660 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "5 - canonical pot projection"
+14:54:56.668 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "6 - pot version metadata and user index"
+14:54:56.673 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "7 - canonical projection store"
+14:54:56.680 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "8 - drop legacy read projection structures"
+14:54:56.694 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "9 - current external identity binding"
+14:54:56.698 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "10 - current binding expand"
+14:54:56.701 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "11 - current binding canonical detached"
+14:54:56.704 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "12 - current binding fact provenance"
+14:54:56.707 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "13 - verify terminal binding facts"
+14:54:56.709 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Successfully applied 13 migrations to schema "pocoma_read", now at version v13 (execution time 00:00.038s)
+14:54:56.730 [main] INFO org.flywaydb.core.FlywayExecutor -- Database: jdbc:postgresql://localhost:62775/pocoma?loggerLevel=OFF (PostgreSQL 17.11)
+14:54:56.736 [main] INFO org.flywaydb.core.internal.command.DbValidate -- Successfully validated 15 migrations (execution time 00:00.002s)
+14:54:56.741 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Current version of schema "pocoma_read": 13
+14:54:56.742 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "14 - gate command result exact identity"
+14:54:56.745 [main] ERROR org.flywaydb.core.internal.command.DbMigrate -- Migration of schema "pocoma_read" to version "14 - gate command result exact identity" failed! Changes successfully rolled back.
+14:54:56.768 [main] INFO org.flywaydb.core.FlywayExecutor -- Database: jdbc:postgresql://localhost:62775/pocoma?loggerLevel=OFF (PostgreSQL 17.11)
+14:54:56.772 [main] INFO org.flywaydb.core.internal.database.base.Schema -- Creating schema "pocoma_read" ...
+14:54:56.773 [main] INFO org.flywaydb.core.internal.schemahistory.JdbcTableSchemaHistory -- Creating Schema History table "pocoma_read"."flyway_schema_history" ...
+14:54:56.783 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Current version of schema "pocoma_read": null
+14:54:56.784 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "1 - initialize read store"
+14:54:56.784 [main] INFO org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor -- +----------+
+| ?column? |
++----------+
+| 1        |
++----------+
+
+14:54:56.787 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "2 - generic projection foundation"
+14:54:56.797 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "3 - remove projection coverage"
+14:54:56.803 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "4 - add source version watermarks"
+14:54:56.806 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "5 - canonical pot projection"
+14:54:56.814 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "6 - pot version metadata and user index"
+14:54:56.820 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "7 - canonical projection store"
+14:54:56.828 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "8 - drop legacy read projection structures"
+14:54:56.844 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "9 - current external identity binding"
+14:54:56.848 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "10 - current binding expand"
+14:54:56.851 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "11 - current binding canonical detached"
+14:54:56.855 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "12 - current binding fact provenance"
+14:54:56.858 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "13 - verify terminal binding facts"
+14:54:56.860 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Successfully applied 13 migrations to schema "pocoma_read", now at version v13 (execution time 00:00.043s)
+14:54:56.876 [main] INFO org.flywaydb.core.FlywayExecutor -- Database: jdbc:postgresql://localhost:62775/pocoma?loggerLevel=OFF (PostgreSQL 17.11)
+14:54:56.881 [main] INFO org.flywaydb.core.internal.command.DbValidate -- Successfully validated 15 migrations (execution time 00:00.002s)
+14:54:56.887 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Current version of schema "pocoma_read": 13
+14:54:56.888 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "14 - gate command result exact identity"
+14:54:56.890 [main] ERROR org.flywaydb.core.internal.command.DbMigrate -- Migration of schema "pocoma_read" to version "14 - gate command result exact identity" failed! Changes successfully rolled back.
+14:54:56.916 [main] INFO org.flywaydb.core.FlywayExecutor -- Database: jdbc:postgresql://localhost:62775/pocoma?loggerLevel=OFF (PostgreSQL 17.11)
+14:54:56.920 [main] INFO org.flywaydb.core.internal.database.base.Schema -- Creating schema "pocoma_read" ...
+14:54:56.921 [main] INFO org.flywaydb.core.internal.schemahistory.JdbcTableSchemaHistory -- Creating Schema History table "pocoma_read"."flyway_schema_history" ...
+14:54:56.931 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Current version of schema "pocoma_read": null
+14:54:56.932 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "1 - initialize read store"
+14:54:56.932 [main] INFO org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor -- +----------+
+| ?column? |
++----------+
+| 1        |
++----------+
+
+14:54:56.935 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "2 - generic projection foundation"
+14:54:56.946 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "3 - remove projection coverage"
+14:54:56.953 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "4 - add source version watermarks"
+14:54:56.956 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "5 - canonical pot projection"
+14:54:56.964 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "6 - pot version metadata and user index"
+14:54:56.970 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "7 - canonical projection store"
+14:54:56.977 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "8 - drop legacy read projection structures"
+14:54:56.992 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "9 - current external identity binding"
+14:54:56.995 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "10 - current binding expand"
+14:54:56.998 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "11 - current binding canonical detached"
+14:54:57.001 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "12 - current binding fact provenance"
+14:54:57.004 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "13 - verify terminal binding facts"
+14:54:57.007 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Successfully applied 13 migrations to schema "pocoma_read", now at version v13 (execution time 00:00.040s)
+14:54:57.021 [main] INFO org.flywaydb.core.FlywayExecutor -- Database: jdbc:postgresql://localhost:62775/pocoma?loggerLevel=OFF (PostgreSQL 17.11)
+14:54:57.027 [main] INFO org.flywaydb.core.internal.command.DbValidate -- Successfully validated 15 migrations (execution time 00:00.002s)
+14:54:57.032 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Current version of schema "pocoma_read": 13
+14:54:57.033 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "14 - gate command result exact identity"
+14:54:57.038 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Successfully applied 1 migration to schema "pocoma_read", now at version v14 (execution time 00:00.002s)
+14:54:57.057 [main] INFO org.flywaydb.core.FlywayExecutor -- Database: jdbc:postgresql://localhost:62775/pocoma?loggerLevel=OFF (PostgreSQL 17.11)
+14:54:57.061 [main] INFO org.flywaydb.core.internal.database.base.Schema -- Creating schema "pocoma_read" ...
+14:54:57.062 [main] INFO org.flywaydb.core.internal.schemahistory.JdbcTableSchemaHistory -- Creating Schema History table "pocoma_read"."flyway_schema_history" ...
+14:54:57.071 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Current version of schema "pocoma_read": null
+14:54:57.072 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "1 - initialize read store"
+14:54:57.072 [main] INFO org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor -- +----------+
+| ?column? |
++----------+
+| 1        |
++----------+
+
+14:54:57.075 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "2 - generic projection foundation"
+14:54:57.085 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "3 - remove projection coverage"
+14:54:57.092 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "4 - add source version watermarks"
+14:54:57.095 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "5 - canonical pot projection"
+14:54:57.103 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "6 - pot version metadata and user index"
+14:54:57.109 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "7 - canonical projection store"
+14:54:57.115 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "8 - drop legacy read projection structures"
+14:54:57.129 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "9 - current external identity binding"
+14:54:57.133 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "10 - current binding expand"
+14:54:57.135 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "11 - current binding canonical detached"
+14:54:57.139 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "12 - current binding fact provenance"
+14:54:57.142 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "13 - verify terminal binding facts"
+14:54:57.144 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Successfully applied 13 migrations to schema "pocoma_read", now at version v13 (execution time 00:00.039s)
+14:54:57.159 [main] INFO org.flywaydb.core.FlywayExecutor -- Database: jdbc:postgresql://localhost:62775/pocoma?loggerLevel=OFF (PostgreSQL 17.11)
+14:54:57.165 [main] INFO org.flywaydb.core.internal.command.DbValidate -- Successfully validated 15 migrations (execution time 00:00.002s)
+14:54:57.170 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Current version of schema "pocoma_read": 13
+14:54:57.171 [main] INFO org.flywaydb.core.internal.command.DbMigrate -- Migrating schema "pocoma_read" to version "14 - gate command result exact identity"
+14:54:57.174 [main] ERROR org.flywaydb.core.internal.command.DbMigrate -- Migration of schema "pocoma_read" to version "14 - gate command result exact identity" failed! Changes successfully rolled back.
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.595 s -- in com.kartaguez.pocoma.infra.persistence.read.jdbc.CommandResultExactIdentityCutoverMigrationPostgresTest
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 45, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Summary for pocoma 0.0.1-SNAPSHOT:
+[INFO] 
+[INFO] pocoma ............................................. SUCCESS [  0.014 s]
+[INFO] pocoma-domain-authorization ........................ SUCCESS [  0.558 s]
+[INFO] pocoma-domain-event ................................ SUCCESS [  0.272 s]
+[INFO] pocoma-domain-user-identity ........................ SUCCESS [  0.285 s]
+[INFO] pocoma-domain-pot .................................. SUCCESS [  1.233 s]
+[INFO] pocoma-domain-projection ........................... SUCCESS [  0.323 s]
+[INFO] pocoma-domain-consumption .......................... SUCCESS [  0.324 s]
+[INFO] pocoma-port-transaction ............................ SUCCESS [  0.004 s]
+[INFO] pocoma-engine-consumption .......................... SUCCESS [  0.977 s]
+[INFO] pocoma-port-projection ............................. SUCCESS [  0.008 s]
+[INFO] pocoma-engine-read-current-binding ................. SUCCESS [  0.292 s]
+[INFO] pocoma-engine-materialize-current-binding .......... SUCCESS [  0.031 s]
+[INFO] pocoma-engine-materialize-latest-known-version ..... SUCCESS [  0.280 s]
+[INFO] pocoma-infra-persistence-projection-jdbc ........... SUCCESS [  0.382 s]
+[INFO] pocoma-infra-persistence-read-jdbc ................. SUCCESS [ 17.073 s]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  22.304 s
+[INFO] Finished at: 2026-10-28T14:54:57+01:00
+[INFO] ------------------------------------------------------------------------

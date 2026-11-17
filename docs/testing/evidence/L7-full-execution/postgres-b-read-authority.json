@@ -1,0 +1,8 @@
+{
+  "database": "pocoma_read",
+  "querySelectBinding": true,
+  "queryCannotMutate": true,
+  "statusSelectState": true,
+  "statusCannotReadBusiness": true,
+  "statusCannotMutate": true
+}

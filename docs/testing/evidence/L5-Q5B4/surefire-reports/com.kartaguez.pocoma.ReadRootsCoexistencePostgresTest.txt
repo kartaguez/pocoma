@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.kartaguez.pocoma.ReadRootsCoexistencePostgresTest
+-------------------------------------------------------------------------------
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 266.7 s -- in com.kartaguez.pocoma.ReadRootsCoexistencePostgresTest

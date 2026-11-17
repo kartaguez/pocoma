@@ -1,0 +1,35 @@
+{
+  "baseline_production_sha": "b3df3f3e619eeed6fc551177c778b412daa4fa4b",
+  "before_tested_sha": "3544898353076d6839bd6f78122d52a5932a64b8",
+  "before_working_tree": "",
+  "baseline_to_before_production_diff": "",
+  "harness_source_sha256": "97720e462f51693872fde4488e2605a19e74cc30d6331ce1649784c9d4b68928",
+  "same_harness_source": true,
+  "class_hashes": {
+    "WriteRevisionPerformancePostgresTest$Meter$Call.class": {
+      "before": "dd5ab6e14dc388db565a49844bfee15b7cc4c0ad57b6dc307f7dbf54aba45f25",
+      "after": "dd5ab6e14dc388db565a49844bfee15b7cc4c0ad57b6dc307f7dbf54aba45f25",
+      "identical": true
+    },
+    "WriteRevisionPerformancePostgresTest$Meter.class": {
+      "before": "b3817ab3710fb6b698e71da38bcfe10965e285303a46982dd60787694f473b2c",
+      "after": "b3817ab3710fb6b698e71da38bcfe10965e285303a46982dd60787694f473b2c",
+      "identical": true
+    },
+    "WriteRevisionPerformancePostgresTest$Query.class": {
+      "before": "d3bde3ddbd8440880b4aa4e44ed6623245996ac24567bae64e2f50436280e4d3",
+      "after": "d3bde3ddbd8440880b4aa4e44ed6623245996ac24567bae64e2f50436280e4d3",
+      "identical": true
+    },
+    "WriteRevisionPerformancePostgresTest$Timing.class": {
+      "before": "2ddcbb79dcfd604e33b76d9ad2a130464a5eea12bed249514c056623c3b91e06",
+      "after": "2ddcbb79dcfd604e33b76d9ad2a130464a5eea12bed249514c056623c3b91e06",
+      "identical": true
+    },
+    "WriteRevisionPerformancePostgresTest.class": {
+      "before": "5bf04bd2cc5c2a5608535e06585e5c6e35cfd21235f085428bd5787696cea628",
+      "after": "5bf04bd2cc5c2a5608535e06585e5c6e35cfd21235f085428bd5787696cea628",
+      "identical": true
+    }
+  }
+}

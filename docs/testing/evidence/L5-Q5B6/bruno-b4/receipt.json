@@ -1,0 +1,7 @@
+{
+  "primaryRequests" : 4,
+  "helperRequests" : 217,
+  "authentication" : "three locally signed JWT sessions, real Resource Server and JWK HTTP boundary",
+  "externalIdpCertified" : false,
+  "scenarios" : [ "B401", "B402", "B403", "B404" ]
+}

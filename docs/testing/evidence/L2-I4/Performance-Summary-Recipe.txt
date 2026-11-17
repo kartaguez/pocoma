@@ -1,0 +1,49 @@
+from pathlib import Path
+import tarfile,re,json,sys,statistics,hashlib
+base=Path('docs/testing/evidence/L2-I4');gate=sys.argv[1];archive=base/f'final-{gate}.tar.gz'
+def stats(values):
+ values=sorted(values)
+ return {'n':len(values),'median':statistics.median(values),'p95':values[max(0,(95*len(values)+99)//100-1)],'max':values[-1]}
+configs={}
+with tarfile.open(archive,'r|gz') as t:
+ for m in t:
+  if not m.isfile() or '/v3-i4-evidence/i4_p' not in m.name or not m.name.endswith('.txt'):continue
+  locks=[];dispatch=None
+  for raw in t.extractfile(m):
+   line=raw.decode()
+   match=re.search(r'LOCK duration physical=COMMITTED key=(\S+) .*lowerNs=(\d+) upperNs=(\d+)',line)
+   if match:locks.append({'kind':'partition' if match[1]=='partition' else 'source','lower_ns':int(match[2]),'upper_ns':int(match[3])})
+   match=re.search(r'COST actual harness single-platform-thread dispatchNs=(\d+)',line)
+   if match:dispatch=int(match[1])
+   prefix=re.match(r'P0([123]) (?:sample=(-?\d+) population=(\d+) W=(\d+) B=(\d+) cap=(\d+)|sample=(-?\d+) N=(\d+) B=(\d+)|COUNT N=(\d+) Q=(\d+) sample=(-?\d+)) ns=(\d+)',line)
+   if not prefix:continue
+   parts=prefix.groups()
+   if parts[0]=='1':sample=int(parts[1]);params={'N':int(parts[2]),'W':int(parts[3]),'B':int(parts[4]),'cap':int(parts[5])}
+   elif parts[0]=='2':sample=int(parts[6]);params={'N':int(parts[7]),'B':int(parts[8])}
+   else:sample=int(parts[11]);params={'N':int(parts[9]),'Q':int(parts[10])}
+   key=m.name+' '+json.dumps(params,sort_keys=True)
+   row=configs.setdefault(key,{'trace':m.name,'params':params,'warmups':5,'warmup_indices':[],'measured':[]})
+   if sample<0:row['warmup_indices'].append(sample)
+   if sample>=0:
+    row['measured'].append({'sample':sample,'ns':int(parts[12]),'locks':locks,'dispatch_ns':dispatch})
+   locks=[];dispatch=None
+for key,row in configs.items():
+ assert sorted(s['sample'] for s in row['measured'])==list(range(10)),key
+ if '/i4_p02-' in key or '/i4_p03-' in key:
+  assert sorted(row['warmup_indices'])==list(range(-5,0)),key
+  row['warmups_evidence']='five individually traced warmup calls (-5..-1)'
+ else:row['warmups_evidence']='fixed loop -5..9 and fresh durable namespaces; P01 timing trace keeps only measured 0..9'
+ del row['warmup_indices']
+ row['elapsed_ns']=stats([s['ns'] for s in row['measured']])
+ for kind in ['partition','source']:
+  values=[l['upper_ns'] for s in row['measured'] for l in s['locks'] if l['kind']==kind]
+  if values:row[kind+'_hold_upper_ns']=stats(values)
+ values=[s['dispatch_ns'] for s in row['measured'] if s['dispatch_ns'] is not None]
+ if values:row['harness_dispatch_ns']=stats(values)
+ row['measured_samples']=10
+ del row['measured']
+counts={method:sum('/'+method+'-' in k for k in configs) for method in ['i4_p01','i4_p02','i4_p03']}
+assert counts=={'i4_p01':918,'i4_p02':18,'i4_p03':18},counts
+p=base/'Performance-Summary.json';result=json.loads(p.read_text()) if p.exists() else {'code_sha':'0b08d3bf0bfce1334260cfd5249b13c3040a67bb','meaning':'Measured samples only (0..9), per comparable configuration; warmups excluded from quantiles. P01 warmups=5 executed by fixed loop on fresh namespaces, not all individually timed in trace. Controlled B18/concurrency traces are separate physical outcomes, not statistical SLO samples. Lock values are conservative physical acquisition/release upper bounds including instrumentation. No production latency guarantee.','gates':{}}
+result['gates'][gate]={'counts':counts,'source_archive':archive.name,'archive_sha256':hashlib.sha256(archive.read_bytes()).hexdigest(),'configurations':list(configs.values())}
+p.write_text(json.dumps(result,indent=2)+'\n');print(gate,counts,'all configurations have exactly 10 measured samples')

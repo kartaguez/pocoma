@@ -1,0 +1,802 @@
+{
+  "verdict": "PASS",
+  "bruno": "4.2.1",
+  "electron": "37.6.1",
+  "asarSha256": "fe9b4c89660ac3f1291707746f76b9b5850edda368a5e0250055687ab02ec767",
+  "requestFiles": 171,
+  "checks": [
+    {
+      "name": "Cold collection does not require a bearer before native OAuth",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Owner request does not require guest login",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Cold request gives actionable owner login",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Guest missing gives actionable guest login",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Reject expired",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Reject wrongIssuer",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Reject wrongAudience",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Reject wrongClient",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Reject missingSubject",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Reject missingOpenid",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Reject futureIssued",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Two caches with the same subject are refused",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Malformed token never appears in error",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Sessions are read without copying tokens into runtime variables",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Legacy bearerOwner cannot bypass native login",
+      "verdict": "PASS"
+    },
+    {
+      "name": "CLI and GUI session sources never mix",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Remote URLs refused",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Changing instance clears sensitive scenario variables",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 00 - Getting Started/00 Login Owner.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 00 - Getting Started/01 Login Guest.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 00 - Getting Started/E00 Environment Check.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 01 - Identity and Registration/I01 Register Owner.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 01 - Identity and Registration/I02 Owner Identity Result.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 01 - Identity and Registration/I03 Owner Binding.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 01 - Identity and Registration/I04 Register Guest.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 01 - Identity and Registration/I05 Guest Identity Result.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 01 - Identity and Registration/I06 Guest Binding.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 01 - Identity and Registration/I07 Unlink Guest Self.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 02 - Pots/P01 Create Pot.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 02 - Pots/P02 Update Pot Details.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 02 - Pots/P03 Delete Pot.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 02 - Pots/P04 Read Current Pot.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 03 - Shareholders/S01 Add Owner and Free Guest.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 03 - Shareholders/S02 Rename Shareholder KEEP.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 03 - Shareholders/S03 Update Shareholder Weights.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 03 - Shareholders/S04 Delete Guest Shareholder.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 03 - Shareholders/S05 Guest Voluntary Departure DETACH.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 03 - Shareholders/S06 Attach Own Free Shareholder SELF.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 04 - Expenses/X01 Create Expense.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 04 - Expenses/X02 Update Expense Details.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 04 - Expenses/X03 Update Expense Financials.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 04 - Expenses/X04 Delete Expense.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 05 - Results/R01 Command Result.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 05 - Results/R02 Historical Guest Result.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 06 - Balances and Navigation/B01 Exact Balances.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 06 - Balances and Navigation/B02 My Pots First Page.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 06 - Balances and Navigation/B03 My Pots Next Page.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 07 - History/H01 Read Exact Pot History.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 07 - History/H02 Query Referenced Expenses.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 08 - Invitations/V01 Create Invitation.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 08 - Invitations/V02 Retrieve Private Invitation.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 08 - Invitations/V03 Guest Available Shareholders.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 08 - Invitations/V04 Guest Accept Invitation.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 09 - Access Control and Errors/A01 No Bearer.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 09 - Access Control and Errors/A02 Invalid Cursor.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 09 - Access Control and Errors/A03 Unknown Identity Field.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 09 - Access Control and Errors/A04 Replay Same Intention.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 09 - Access Control and Errors/A05 Conflicting Idempotency Key.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 09 - Access Control and Errors/A06 Guest Hidden Current Pot.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 09 - Access Control and Errors/A07 Guest Hidden Invitation.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 09 - Access Control and Errors/A08 Guest Hidden Owner Result.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 09 - Access Control and Errors/A09 Guest Delete Forbidden.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 09 - Access Control and Errors/A10 Expired Invitation Rejected.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 09 - Access Control and Errors/A11 Empty Expense Batch.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 09 - Access Control and Errors/A12 Deleted Current Pot.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 09 - Access Control and Errors/A13 Deleted Terminal Version.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 09 - Access Control and Errors/A14 Stale Guest Binding.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 80 - Technical/T01 Stage Handoff Diagnostics.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 80 - Technical/T02 READ Health.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 80 - Technical/T03 READ Prometheus.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 80 - Technical/T04 Stage Handoff Alias.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J01 Complete Ledger and Invitation/01 E00 Environment Check.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J01 Complete Ledger and Invitation/02 I01 Register Owner.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J01 Complete Ledger and Invitation/03 I02 Owner Identity Result.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J01 Complete Ledger and Invitation/04 I03 Owner Binding.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J01 Complete Ledger and Invitation/05 I04 Register Guest.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J01 Complete Ledger and Invitation/06 I05 Guest Identity Result.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J01 Complete Ledger and Invitation/07 I06 Guest Binding.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J01 Complete Ledger and Invitation/08 P01 Create Pot.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J01 Complete Ledger and Invitation/09 R01 Command Result.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J01 Complete Ledger and Invitation/10 P04 Read Current Pot.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J01 Complete Ledger and Invitation/11 B02 My Pots First Page.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J01 Complete Ledger and Invitation/12 S01 Add Owner and Free Guest.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J01 Complete Ledger and Invitation/13 R01 Command Result.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J01 Complete Ledger and Invitation/14 P04 Read Current Pot.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J01 Complete Ledger and Invitation/15 A06 Guest Hidden Current Pot.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J01 Complete Ledger and Invitation/16 V01 Create Invitation.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J01 Complete Ledger and Invitation/17 R01 Command Result.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J01 Complete Ledger and Invitation/18 V02 Retrieve Private Invitation.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J01 Complete Ledger and Invitation/19 A07 Guest Hidden Invitation.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J01 Complete Ledger and Invitation/20 V03 Guest Available Shareholders.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J01 Complete Ledger and Invitation/21 V04 Guest Accept Invitation.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J01 Complete Ledger and Invitation/22 R01 Command Result.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J01 Complete Ledger and Invitation/23 P04 Read Current Pot.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J01 Complete Ledger and Invitation/24 X01 Create Expense.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J01 Complete Ledger and Invitation/25 R01 Command Result.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J01 Complete Ledger and Invitation/26 P04 Read Current Pot.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J01 Complete Ledger and Invitation/27 B01 Exact Balances.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J01 Complete Ledger and Invitation/28 H02 Query Referenced Expenses.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J01 Complete Ledger and Invitation/29 X02 Update Expense Details.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J01 Complete Ledger and Invitation/30 R01 Command Result.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J01 Complete Ledger and Invitation/31 P04 Read Current Pot.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J01 Complete Ledger and Invitation/32 H02 Query Referenced Expenses.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J01 Complete Ledger and Invitation/33 X03 Update Expense Financials.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J01 Complete Ledger and Invitation/34 R01 Command Result.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J01 Complete Ledger and Invitation/35 P04 Read Current Pot.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J01 Complete Ledger and Invitation/36 B01 Exact Balances.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J01 Complete Ledger and Invitation/37 H01 Read Exact Pot History.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J01 Complete Ledger and Invitation/38 H02 Query Referenced Expenses.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J01 Complete Ledger and Invitation/39 S02 Rename Shareholder KEEP.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J01 Complete Ledger and Invitation/40 R01 Command Result.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J01 Complete Ledger and Invitation/41 P04 Read Current Pot.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J01 Complete Ledger and Invitation/42 S03 Update Shareholder Weights.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J01 Complete Ledger and Invitation/43 R01 Command Result.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J01 Complete Ledger and Invitation/44 P04 Read Current Pot.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J01 Complete Ledger and Invitation/45 S06 Attach Own Free Shareholder SELF.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J01 Complete Ledger and Invitation/46 R01 Command Result.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J01 Complete Ledger and Invitation/47 X04 Delete Expense.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J01 Complete Ledger and Invitation/48 R01 Command Result.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J01 Complete Ledger and Invitation/49 P04 Read Current Pot.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J01 Complete Ledger and Invitation/50 B01 Exact Balances.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J01 Complete Ledger and Invitation/51 S05 Guest Voluntary Departure DETACH.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J01 Complete Ledger and Invitation/52 R01 Command Result.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J01 Complete Ledger and Invitation/53 P04 Read Current Pot.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J01 Complete Ledger and Invitation/54 A06 Guest Hidden Current Pot.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J01 Complete Ledger and Invitation/55 H01 Read Exact Pot History.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J01 Complete Ledger and Invitation/56 S04 Delete Guest Shareholder.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J01 Complete Ledger and Invitation/57 R01 Command Result.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J01 Complete Ledger and Invitation/58 P04 Read Current Pot.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J01 Complete Ledger and Invitation/59 P02 Update Pot Details.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J01 Complete Ledger and Invitation/60 R01 Command Result.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J01 Complete Ledger and Invitation/61 P04 Read Current Pot.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J01 Complete Ledger and Invitation/62 P03 Delete Pot.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J01 Complete Ledger and Invitation/63 R01 Command Result.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J01 Complete Ledger and Invitation/64 A12 Deleted Current Pot.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J01 Complete Ledger and Invitation/65 A13 Deleted Terminal Version.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J01 Complete Ledger and Invitation/66 H01 Read Exact Pot History.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/01 E00 Environment Check.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/02 I01 Register Owner.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/03 I02 Owner Identity Result.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/04 I03 Owner Binding.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/05 I04 Register Guest.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/06 I05 Guest Identity Result.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/07 I06 Guest Binding.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/08 P01 Create Pot.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/09 R01 Command Result.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/10 A04 Replay Same Intention.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/11 A05 Conflicting Idempotency Key.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/12 P04 Read Current Pot.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/13 B02 My Pots First Page.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/14 B03 My Pots Next Page.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/15 S01 Add Owner and Free Guest.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/16 R01 Command Result.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/17 P04 Read Current Pot.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/18 A01 No Bearer.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/19 A02 Invalid Cursor.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/20 A03 Unknown Identity Field.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/21 A06 Guest Hidden Current Pot.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/22 A08 Guest Hidden Owner Result.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/23 A09 Guest Delete Forbidden.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/24 R01 Command Result.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/25 A10 Expired Invitation Rejected.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/26 R01 Command Result.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/27 A11 Empty Expense Batch.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/28 P03 Delete Pot.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/29 R01 Command Result.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/30 A12 Deleted Current Pot.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/31 A13 Deleted Terminal Version.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/01 E00 Environment Check.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/02 I01 Register Owner.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/03 I02 Owner Identity Result.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/04 I03 Owner Binding.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/05 I04 Register Guest.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/06 I05 Guest Identity Result.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/07 I06 Guest Binding.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/08 P01 Create Pot.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/09 R01 Command Result.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/10 P04 Read Current Pot.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/11 P03 Delete Pot.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/12 R01 Command Result.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/13 I07 Unlink Guest Self.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/14 I05 Guest Identity Result.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/15 I06 Guest Binding.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/16 I04 Register Guest.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/17 I05 Guest Identity Result.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/18 I06 Guest Binding.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/19 A14 Stale Guest Binding.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/20 R01 Command Result.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser 90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/21 R02 Historical Guest Result.bru",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Actual 4.2.1 VM : explicit Registration pre-request, OAuth header only",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Actual 4.2.1 VM : cold native cache gives login instructions",
+      "verdict": "PASS"
+    },
+    {
+      "name": "No hidden Registration to repair missing binding",
+      "verdict": "PASS"
+    },
+    {
+      "name": "All delivered journeys: installed 4.2.1 request VM, real HTTP and native test VM",
+      "verdict": "PASS"
+    }
+  ],
+  "protocol": {
+    "requests": 118,
+    "namedTests": 236,
+    "assertions": 730,
+    "journeys": [
+      "J01",
+      "J02",
+      "J03"
+    ],
+    "transport": "Installed Bruno4.2.1 Bru.sendRequest",
+    "sessions": "Real Code+PKCE sessions read through native OAuth-cache API; no rendered login claim"
+  },
+  "limitation": "Parser and installed script VM only. No browser login, rendered responses, GUI runner or human acceptance implied.",
+  "testedSha": "587b729a7522adbb2afd2390ffb7c033c0199aa7",
+  "dirty": false,
+  "inputs": "2a78e9a1bdf883976498694cf6f6aef4efa61861a6d7d423b8e997bc227a66b0",
+  "command": [
+    "/Applications/Bruno.app/Contents/MacOS/Bruno",
+    "/Users/julien.guezennec/Dev/projects/pocoma/scripts/local/test_bruno_gui.js"
+  ],
+  "oidc": "Real Keycloak: Authorization Code S256, missing/plain refused; private sessions passed in process environment only."
+}

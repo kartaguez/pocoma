@@ -1,0 +1,16 @@
+administrative bootstrap-l2-routing.sql WRITE rc=0
+administrative grant-l2-lifecycle.sql WRITE rc=0
+administrative grant-l2-discovery.sql WRITE rc=0
+administrative bootstrap-l2-worker-dev.sql WRITE rc=0
+administrative grant-l2-worker-dev.sql WRITE rc=0
+administrative bootstrap-l2-routing.sql READ rc=0
+administrative grant-l2-lifecycle.sql READ rc=0
+administrative grant-l2-discovery.sql READ rc=0
+administrative bootstrap-l2-worker-dev.sql READ rc=0
+administrative grant-l2-worker-dev.sql READ rc=0
+initial expected: nine business contracts plus two technical READ probes; no slots/K/effects; fresh i5_58889f1282b2435183256859ef6e196d
+SKIP LOCKED omitted live lease authority=WRITE blockerPID=171 renewPID=148 locks=[{locktype=relation, mode=RowShareLock, granted=true}, {locktype=relation, mode=RowExclusiveLock, granted=true}, {locktype=relation, mode=RowShareLock, granted=true}, {locktype=relation, mode=RowExclusiveLock, granted=true}, {locktype=relation, mode=AccessShareLock, granted=true}, {locktype=relation, mode=AccessShareLock, granted=true}, {locktype=virtualxid, mode=ExclusiveLock, granted=true}, {locktype=relation, mode=RowShareLock, granted=true}, {locktype=relation, mode=RowShareLock, granted=true}, {locktype=virtualxid, mode=ExclusiveLock, granted=true}, {locktype=transactionid, mode=ExclusiveLock, granted=true}, {locktype=transactionid, mode=ExclusiveLock, granted=true}] blocking={}
+physical {current_database=test, current_schema=i5_58889f1282b2435183256859ef6e196d, clock_timestamp=2026-10-29 12:16:11.292786, pg_backend_pid=585, pg_current_xact_id=922}
+counts {slots=0, checkpoints=0, owned=4}
+physical {current_database=i5_read, current_schema=i5_58889f1282b2435183256859ef6e196d, clock_timestamp=2026-10-29 12:16:11.304266, pg_backend_pid=587, pg_current_xact_id=923}
+counts {slots=0, checkpoints=0, owned=8}

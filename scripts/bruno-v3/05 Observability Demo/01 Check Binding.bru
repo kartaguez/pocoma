@@ -1,0 +1,29 @@
+meta {
+  name: 01 Check Binding
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/v3/me/binding
+  body: none
+  auth: none
+}
+
+headers {
+  Connection: close
+  Authorization: Bearer {{bearerToken}}
+}
+
+settings {
+  timeout: 5000
+}
+
+tests {
+  expect([200, 404]).to.include(res.status);
+  if (res.status === 200) {
+    expect(res.body).to.have.property('bindingToken');
+    expect(res.body.active).to.be.true;
+    bru.setVar('bindingToken', res.body.bindingToken);
+  }
+}

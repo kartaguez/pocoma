@@ -1,0 +1,31 @@
+{
+  "verdict": "PASS",
+  "testedSha": "69f327f6707635cea8a74f329f7d2d9c3ce5d3d6",
+  "checks": [
+    "two independent instances",
+    "fresh checkout with no targets/local state",
+    "real PKCE S256 and missing/plain refusal",
+    "five JVMs",
+    "Bruno nonempty JUnit and exact inventory",
+    "new canary on restart",
+    "no demo duplication",
+    "critical worker NOT_READY exit1",
+    "observability DEGRADED exit4",
+    "concurrent instance refusal",
+    "explicit reset and dry-run",
+    "foreign volume byte hashes unchanged",
+    "transactional bootstrap rollback and resume",
+    "existing external containers retained"
+  ],
+  "firstVolumeHashBefore": "200860e952c13341b4660659bfb046c44a8e2bed0ec3c84aa407d1b0597b4b1e",
+  "firstVolumeHashAfter": "200860e952c13341b4660659bfb046c44a8e2bed0ec3c84aa407d1b0597b4b1e",
+  "first": "j1-a-2ad2a840",
+  "second": "j1-b-2ad2a840",
+  "bootstrapFixture": "j1-bootstrap-2ad2a840",
+  "resources": "STOPPED_AND_RETAINED",
+  "limits": [
+    "Second checkout shares Docker image/Maven dependency caches; application JARs built anew.",
+    "Interactive GUI login documented, not human-executed in this automated qualification.",
+    "No I1b/I4/I5/I6 or global certification."
+  ]
+}

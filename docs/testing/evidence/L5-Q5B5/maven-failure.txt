@@ -1,0 +1,138 @@
+[ERROR] Failures:
+[ERROR]   V3InvitationTopologyPostgresTest.targetThreeFourPartitionsConnectionsRenewalAndRestart:90 expected: <PT3M> but was: <PT4M>
+[ERROR] Errors:
+[ERROR]   ReadWorkerResourcesPostgresTest.allParticipantsFitPoolsAndRenewalEnvelope:952 » NullPointer Cannot invoke "java.sql.Connection.setAutoCommit(boolean)" because "connection" is null
+[INFO]
+[ERROR] Tests run: 42, Failures: 1, Errors: 1, Skipped: 0
+[INFO]
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Summary for pocoma 0.0.1-SNAPSHOT:
+[INFO]
+[INFO] pocoma ............................................. SUCCESS [  0.010 s]
+[INFO] pocoma-domain-authorization ........................ SUCCESS [  0.528 s]
+[INFO] pocoma-domain-event ................................ SUCCESS [  0.271 s]
+[INFO] pocoma-domain-user-identity ........................ SUCCESS [  0.409 s]
+[INFO] pocoma-contracts-authentication .................... SUCCESS [  0.008 s]
+[INFO] pocoma-domain-pot .................................. SUCCESS [  1.258 s]
+[INFO] pocoma-domain-projection ........................... SUCCESS [  0.340 s]
+[INFO] pocoma-domain-consumption .......................... SUCCESS [  0.357 s]
+[INFO] pocoma-port-transaction ............................ SUCCESS [  0.005 s]
+[INFO] pocoma-port-binding-authority ...................... SUCCESS [  0.008 s]
+[INFO] pocoma-engine-consumption .......................... SUCCESS [  0.413 s]
+[INFO] pocoma-contracts-command ........................... SUCCESS [  0.006 s]
+[INFO] pocoma-engine-write-pot ............................ SUCCESS [  0.537 s]
+[INFO] pocoma-engine-consume-command ...................... SUCCESS [  0.611 s]
+[INFO] pocoma-orchestrator-consumption .................... SUCCESS [  0.306 s]
+[INFO] pocoma-supra-consume-command ....................... SUCCESS [  0.353 s]
+[INFO] pocoma-engine-read-command-result .................. SUCCESS [  0.007 s]
+[INFO] pocoma-engine-materialize-command-result ........... SUCCESS [  0.326 s]
+[INFO] pocoma-supra-consume-command-result ................ SUCCESS [  0.015 s]
+[INFO] pocoma-contracts-registration ...................... SUCCESS [  0.005 s]
+[INFO] pocoma-engine-admit-registration ................... SUCCESS [  0.344 s]
+[INFO] pocoma-engine-consume-registration ................. SUCCESS [  0.335 s]
+[INFO] pocoma-supra-consume-registration .................. SUCCESS [  0.010 s]
+[INFO] pocoma-engine-read-registration-result ............. SUCCESS [  0.005 s]
+[INFO] pocoma-engine-materialize-registration-result ...... SUCCESS [  0.310 s]
+[INFO] pocoma-supra-consume-registration-result ........... SUCCESS [  0.010 s]
+[INFO] pocoma-port-projection ............................. SUCCESS [  0.008 s]
+[INFO] pocoma-engine-produce-projection-task .............. SUCCESS [  0.304 s]
+[INFO] pocoma-engine-read-projection ...................... SUCCESS [  0.283 s]
+[INFO] pocoma-projector-pot ............................... SUCCESS [  0.291 s]
+[INFO] pocoma-engine-consume-projection-task .............. SUCCESS [  0.362 s]
+[INFO] pocoma-supra-consume-projection-task ............... SUCCESS [  0.011 s]
+[INFO] pocoma-engine-read-current-binding ................. SUCCESS [  0.293 s]
+[INFO] pocoma-engine-read-pot ............................. SUCCESS [  0.352 s]
+[INFO] pocoma-engine-materialize-current-binding .......... SUCCESS [  0.008 s]
+[INFO] pocoma-engine-materialize-latest-known-version ..... SUCCESS [  0.299 s]
+[INFO] pocoma-infra-tx-spring ............................. SUCCESS [ 11.083 s]
+[INFO] pocoma-infra-persistence-projection-jdbc ........... SUCCESS [  0.395 s]
+[INFO] pocoma-infra-persistence-read-jdbc ................. SUCCESS [ 24.414 s]
+[INFO] pocoma-contracts-observability ..................... SUCCESS [  0.315 s]
+[INFO] pocoma-engine-admit-command ........................ SUCCESS [  0.375 s]
+[INFO] pocoma-supra-consume-lkv ........................... SUCCESS [  0.311 s]
+[INFO] pocoma-infra-persistence-primary-jpa ............... SUCCESS [16:27 min]
+[INFO] pocoma-infra-projection-validation-networknt ....... SUCCESS [  0.449 s]
+[INFO] pocoma-orchestrator-poll-consumption ............... SUCCESS [  0.735 s]
+[INFO] pocoma-supra-consume-event ......................... SUCCESS [  0.309 s]
+[INFO] pocoma-supra-consume-binding ....................... SUCCESS [  0.009 s]
+[INFO] pocoma-supra-http-write ............................ SUCCESS [  2.093 s]
+[INFO] pocoma-supra-http-read ............................. SUCCESS [  0.848 s]
+[INFO] pocoma-composition-runtime-spring .................. SUCCESS [  0.076 s]
+
+======================================================================
+
+[INFO] Reactor Summary for pocoma 0.0.1-SNAPSHOT:
+[INFO]
+[INFO] pocoma ............................................. SUCCESS [  0.010 s]
+[INFO] pocoma-domain-authorization ........................ SUCCESS [  0.528 s]
+[INFO] pocoma-domain-event ................................ SUCCESS [  0.271 s]
+[INFO] pocoma-domain-user-identity ........................ SUCCESS [  0.409 s]
+[INFO] pocoma-contracts-authentication .................... SUCCESS [  0.008 s]
+[INFO] pocoma-domain-pot .................................. SUCCESS [  1.258 s]
+[INFO] pocoma-domain-projection ........................... SUCCESS [  0.340 s]
+[INFO] pocoma-domain-consumption .......................... SUCCESS [  0.357 s]
+[INFO] pocoma-port-transaction ............................ SUCCESS [  0.005 s]
+[INFO] pocoma-port-binding-authority ...................... SUCCESS [  0.008 s]
+[INFO] pocoma-engine-consumption .......................... SUCCESS [  0.413 s]
+[INFO] pocoma-contracts-command ........................... SUCCESS [  0.006 s]
+[INFO] pocoma-engine-write-pot ............................ SUCCESS [  0.537 s]
+[INFO] pocoma-engine-consume-command ...................... SUCCESS [  0.611 s]
+[INFO] pocoma-orchestrator-consumption .................... SUCCESS [  0.306 s]
+[INFO] pocoma-supra-consume-command ....................... SUCCESS [  0.353 s]
+[INFO] pocoma-engine-read-command-result .................. SUCCESS [  0.007 s]
+[INFO] pocoma-engine-materialize-command-result ........... SUCCESS [  0.326 s]
+[INFO] pocoma-supra-consume-command-result ................ SUCCESS [  0.015 s]
+[INFO] pocoma-contracts-registration ...................... SUCCESS [  0.005 s]
+[INFO] pocoma-engine-admit-registration ................... SUCCESS [  0.344 s]
+[INFO] pocoma-engine-consume-registration ................. SUCCESS [  0.335 s]
+[INFO] pocoma-supra-consume-registration .................. SUCCESS [  0.010 s]
+[INFO] pocoma-engine-read-registration-result ............. SUCCESS [  0.005 s]
+[INFO] pocoma-engine-materialize-registration-result ...... SUCCESS [  0.310 s]
+[INFO] pocoma-supra-consume-registration-result ........... SUCCESS [  0.010 s]
+[INFO] pocoma-port-projection ............................. SUCCESS [  0.008 s]
+[INFO] pocoma-engine-produce-projection-task .............. SUCCESS [  0.304 s]
+[INFO] pocoma-engine-read-projection ...................... SUCCESS [  0.283 s]
+[INFO] pocoma-projector-pot ............................... SUCCESS [  0.291 s]
+[INFO] pocoma-engine-consume-projection-task .............. SUCCESS [  0.362 s]
+[INFO] pocoma-supra-consume-projection-task ............... SUCCESS [  0.011 s]
+[INFO] pocoma-engine-read-current-binding ................. SUCCESS [  0.293 s]
+[INFO] pocoma-engine-read-pot ............................. SUCCESS [  0.352 s]
+[INFO] pocoma-engine-materialize-current-binding .......... SUCCESS [  0.008 s]
+[INFO] pocoma-engine-materialize-latest-known-version ..... SUCCESS [  0.299 s]
+[INFO] pocoma-infra-tx-spring ............................. SUCCESS [ 11.083 s]
+[INFO] pocoma-infra-persistence-projection-jdbc ........... SUCCESS [  0.395 s]
+[INFO] pocoma-infra-persistence-read-jdbc ................. SUCCESS [ 24.414 s]
+[INFO] pocoma-contracts-observability ..................... SUCCESS [  0.315 s]
+[INFO] pocoma-engine-admit-command ........................ SUCCESS [  0.375 s]
+[INFO] pocoma-supra-consume-lkv ........................... SUCCESS [  0.311 s]
+[INFO] pocoma-infra-persistence-primary-jpa ............... SUCCESS [16:27 min]
+[INFO] pocoma-infra-projection-validation-networknt ....... SUCCESS [  0.449 s]
+[INFO] pocoma-orchestrator-poll-consumption ............... SUCCESS [  0.735 s]
+[INFO] pocoma-supra-consume-event ......................... SUCCESS [  0.309 s]
+[INFO] pocoma-supra-consume-binding ....................... SUCCESS [  0.009 s]
+[INFO] pocoma-supra-http-write ............................ SUCCESS [  2.093 s]
+[INFO] pocoma-supra-http-read ............................. SUCCESS [  0.848 s]
+[INFO] pocoma-composition-runtime-spring .................. SUCCESS [  0.076 s]
+[INFO] pocoma-runtime-task-consumption-worker ............. SUCCESS [04:08 min]
+[INFO] pocoma-runtime-monolith ............................ FAILURE [19:58 min]
+[INFO] pocoma-runtime-web-api ............................. SKIPPED
+[INFO] pocoma-runtime-event-consumption-worker ............ SKIPPED
+[INFO] pocoma-runtime-command-result-consumption-worker ... SKIPPED
+[INFO] pocoma-runtime-registration-result-consumption-worker SKIPPED
+[INFO] pocoma-runtime-registration-consumption-worker ..... SKIPPED
+[INFO] pocoma-runtime-latest-known-version-consumption-worker SKIPPED
+[INFO] pocoma-runtime-binding-consumption-worker .......... SKIPPED
+[INFO] pocoma-runtime-command-consumption-worker .......... SKIPPED
+[INFO] pocoma-architecture-tests .......................... SKIPPED
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  41:25 min
+[INFO] Finished at: 2026-11-05T21:48:26+01:00
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-surefire-plugin:3.5.5:test (default-test) on project pocoma-runtime-monolith: There are test failures.
+[ERROR]
+[ERROR] See /private/tmp/pocoma-q5b5-evidence-20261105/maven-full/reports/pocoma-runtime-monolith/surefire-reports for the individual test results.
+[ERROR] See dump files (if any exist) [date].dump, [date]-jvmRun[N].dump and [date].dumpstream.
+[ERROR] -> [Help 1]
+[ERROR]

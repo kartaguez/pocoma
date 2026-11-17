@@ -1,0 +1,20 @@
+{
+  "diagnostics": {
+    "GRAFANA-DATASOURCE": {
+      "code": "GRAFANA_DATASOURCE_UNAVAILABLE",
+      "errorClass": "HTTPError"
+    }
+  },
+  "panels": [],
+  "version": "12.3.2",
+  "adminAuthenticated": true,
+  "dashboards": {
+    "pocoma-runtime": "Pocoma runtime",
+    "pocoma-v3-overview": "Pocoma V3 - Architecture & Observability Overview"
+  },
+  "checks": {
+    "GRAFANA-HTTP": "PASS",
+    "GRAFANA-DATASOURCE": "FAIL",
+    "GRAFANA-DASHBOARD": "PASS"
+  }
+}

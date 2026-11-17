@@ -1,0 +1,66 @@
+{
+  "source_log": "COMMAND/maven.log",
+  "scope": "Only live Testcontainers IDs observed in the final COMMAND log; no unrelated containers inspected",
+  "instances": [
+    {
+      "Id": "570483263a625ce424488e2b6f03f96f2528cdd62239d7bca1158d07a60647d8",
+      "Image": "sha256:18cfe3ef5e6815560c98237d6216d1e5119702fb0f3894c8785dd58b8bbe5d73",
+      "host_ports": {
+        "5432/tcp": [
+          {
+            "HostIp": "0.0.0.0",
+            "HostPort": "59500"
+          },
+          {
+            "HostIp": "::",
+            "HostPort": "59500"
+          }
+        ]
+      },
+      "image": "postgres:17-alpine",
+      "postgres": {
+        "system_identifier": "7701040175243280418",
+        "version": "PostgreSQL 17.11 on aarch64-unknown-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit",
+        "database": "test",
+        "user": "test",
+        "server_address": null,
+        "server_port": null,
+        "max_connections": "100",
+        "shared_buffers": "128MB",
+        "transaction_isolation": "read committed",
+        "encoding": "UTF8",
+        "timezone": "UTC"
+      }
+    },
+    {
+      "Id": "52a841835ad3233943e07aacd006f98b04d2a5776a969f5a84870aa892762ce3",
+      "Image": "sha256:18cfe3ef5e6815560c98237d6216d1e5119702fb0f3894c8785dd58b8bbe5d73",
+      "host_ports": {
+        "5432/tcp": [
+          {
+            "HostIp": "0.0.0.0",
+            "HostPort": "64065"
+          },
+          {
+            "HostIp": "::",
+            "HostPort": "64065"
+          }
+        ]
+      },
+      "image": "postgres:17-alpine",
+      "postgres": {
+        "system_identifier": "7701040689937952803",
+        "version": "PostgreSQL 17.11 on aarch64-unknown-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit",
+        "database": "pocoma",
+        "user": "pocoma",
+        "server_address": null,
+        "server_port": null,
+        "max_connections": "100",
+        "shared_buffers": "128MB",
+        "transaction_isolation": "read committed",
+        "encoding": "UTF8",
+        "timezone": "UTC"
+      }
+    }
+  ]
+}

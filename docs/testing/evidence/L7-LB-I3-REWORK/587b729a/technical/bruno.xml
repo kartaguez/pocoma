@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<testsuites>
+  <testsuite name="T01 Stage Handoff Diagnostics" file="80 - Technical/T01 Stage Handoff Diagnostics.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:41:51.300" hostname="MacBook-Air-de-Julien.local" time="0.063">
+    <testcase name="T01 transport and privacy" status="pass" classname="80 - Technical/T01 Stage Handoff Diagnostics" time="0.032"/>
+    <testcase name="T01 contract and variables" status="pass" classname="80 - Technical/T01 Stage Handoff Diagnostics" time="0.032"/>
+  </testsuite>
+  <testsuite name="T02 READ Health" file="80 - Technical/T02 READ Health.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:41:51.300" hostname="MacBook-Air-de-Julien.local" time="0.011">
+    <testcase name="T02 transport and privacy" status="pass" classname="80 - Technical/T02 READ Health" time="0.005"/>
+    <testcase name="T02 contract and variables" status="pass" classname="80 - Technical/T02 READ Health" time="0.005"/>
+  </testsuite>
+  <testsuite name="T03 READ Prometheus" file="80 - Technical/T03 READ Prometheus.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:41:51.300" hostname="MacBook-Air-de-Julien.local" time="0.021">
+    <testcase name="T03 transport and privacy" status="pass" classname="80 - Technical/T03 READ Prometheus" time="0.010"/>
+    <testcase name="T03 contract and variables" status="pass" classname="80 - Technical/T03 READ Prometheus" time="0.010"/>
+  </testsuite>
+  <testsuite name="T04 Stage Handoff Alias" file="80 - Technical/T04 Stage Handoff Alias.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:41:51.300" hostname="MacBook-Air-de-Julien.local" time="0.008">
+    <testcase name="T04 transport and privacy" status="pass" classname="80 - Technical/T04 Stage Handoff Alias" time="0.004"/>
+    <testcase name="T04 contract and variables" status="pass" classname="80 - Technical/T04 Stage Handoff Alias" time="0.004"/>
+  </testsuite>
+</testsuites>

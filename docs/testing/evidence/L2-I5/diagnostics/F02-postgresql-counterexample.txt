@@ -1,0 +1,18 @@
+administrative bootstrap-l2-routing.sql WRITE rc=0
+administrative grant-l2-lifecycle.sql WRITE rc=0
+administrative grant-l2-discovery.sql WRITE rc=0
+administrative bootstrap-l2-worker-dev.sql WRITE rc=0
+administrative grant-l2-worker-dev.sql WRITE rc=0
+administrative bootstrap-l2-routing.sql READ rc=0
+administrative grant-l2-lifecycle.sql READ rc=0
+administrative grant-l2-discovery.sql READ rc=0
+administrative bootstrap-l2-worker-dev.sql READ rc=0
+administrative grant-l2-worker-dev.sql READ rc=0
+initial expected: nine business contracts plus two technical READ probes; no slots/K/effects; fresh i5_645cc4f0736c47f7a22b5e4199b875c3
+real lease SQL wait WRITE [{pid=151, backend_xid=null, xact_start=2026-10-29 08:57:44.2605, state=active, wait_event=PgSleep}]
+real lease SQL wait READ [{pid=167, backend_xid=null, xact_start=2026-10-29 08:57:44.25957, state=active, wait_event=PgSleep}]
+final lease snapshots WRITE={98f7268d-d340-581c-b83d-010926223e14/1=2026-10-29T08:00:27.960892Z, 98f7268d-d340-581c-b83d-010926223e14/2=2026-10-29T08:00:19.380964Z, 98f7268d-d340-581c-b83d-010926223e14/3=2026-10-29T08:00:20.899487Z, 98f7268d-d340-581c-b83d-010926223e14/0=2026-10-29T08:00:26.443159Z} READ={a5000000-0000-4000-8000-000000000002/0=2026-10-29T08:00:21.016802Z, a5000000-0000-4000-8000-000000000001/1=2026-10-29T08:00:22.536855Z, a5000000-0000-4000-8000-000000000001/0=2026-10-29T08:00:19.501942Z, a5000000-0000-4000-8000-000000000002/2=2026-10-29T08:00:27.085444Z, a5000000-0000-4000-8000-000000000001/3=2026-10-29T08:00:28.603909Z, a5000000-0000-4000-8000-000000000002/1=2026-10-29T08:00:24.055088Z, a5000000-0000-4000-8000-000000000001/2=2026-10-29T08:00:25.570774Z, a5000000-0000-4000-8000-000000000002/3=2026-10-29T07:59:04.385421Z}
+physical {current_database=test, current_schema=i5_645cc4f0736c47f7a22b5e4199b875c3, clock_timestamp=2026-10-29 08:58:59.340188, pg_backend_pid=9508, pg_current_xact_id=1788}
+counts {slots=0, checkpoints=0, owned=4}
+physical {current_database=i5_read, current_schema=i5_645cc4f0736c47f7a22b5e4199b875c3, clock_timestamp=2026-10-29 08:58:59.355319, pg_backend_pid=9510, pg_current_xact_id=1789}
+counts {slots=0, checkpoints=0, owned=8}

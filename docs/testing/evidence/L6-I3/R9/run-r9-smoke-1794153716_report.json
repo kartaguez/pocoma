@@ -1,0 +1,253 @@
+{
+  "runId": "run-r9-smoke-1794153716",
+  "scenario": "smoke",
+  "timestamp": "2026-11-08T16:02:03Z",
+  "k6ClientMetrics": {
+    "available": true,
+    "admissionsOffered": 3,
+    "admissionsAttempted": 3,
+    "admissionsAccepted": 3,
+    "firstAttemptSuccess": 3,
+    "retriedSuccess": 0,
+    "capacityRejected": 0,
+    "firstAttemptSuccessRate": 100.0,
+    "finalSuccessRate": 100.0,
+    "admissionRetriesTotal": 0,
+    "avgRetriesPerCommand": 0.0,
+    "commandsApplied": 3,
+    "terminalResults": 3,
+    "commandsRejected": 0,
+    "admissionErrors": 0,
+    "oracleFailures": 0,
+    "censoredTimeouts": 0,
+    "droppedIterations": 0,
+    "writeCapacity503": 0,
+    "readCapacity503": 2,
+    "readMaintenance503": 0,
+    "probeRequests": 68,
+    "readQueriesTotal": 0,
+    "readQueries200": 0,
+    "readQueriesErrors": 0,
+    "latencies": {
+      "admissionFirstTry": {
+        "count": 3,
+        "p50": 3.69,
+        "p90": 5.33,
+        "p95": 5.54,
+        "p99": 5.7,
+        "avg": 4.13,
+        "min": 2.97,
+        "max": 5.74
+      },
+      "admissionWithRetries": {
+        "count": 3,
+        "p50": 4,
+        "p90": 5.6,
+        "p95": 5.8,
+        "p99": 5.96,
+        "avg": 4.33,
+        "min": 3,
+        "max": 6
+      },
+      "commandResult": {
+        "count": 3,
+        "p50": 512,
+        "p90": 532.8,
+        "p95": 535.4,
+        "p99": 537.48,
+        "avg": 520.67,
+        "min": 512,
+        "max": 538
+      },
+      "balanceAvailable": {
+        "count": 3,
+        "p50": 570,
+        "p90": 574.8,
+        "p95": 575.4,
+        "p99": 575.88,
+        "avg": 562,
+        "min": 540,
+        "max": 576
+      },
+      "potReadAvailable": {
+        "count": 3,
+        "p50": 574,
+        "p90": 578.8,
+        "p95": 579.4,
+        "p99": 579.88,
+        "avg": 565.67,
+        "min": 543,
+        "max": 580
+      },
+      "readPropagationLag": {
+        "count": 3,
+        "p50": 62,
+        "p90": 66.8,
+        "p95": 67.4,
+        "p99": 67.88,
+        "avg": 45,
+        "min": 5,
+        "max": 68
+      },
+      "e2eTotal": {
+        "count": 3,
+        "p50": 577,
+        "p90": 583.4,
+        "p95": 584.2,
+        "p99": 584.84,
+        "avg": 570.33,
+        "min": 549,
+        "max": 585
+      },
+      "retriesPerCommand": {
+        "count": 3,
+        "p50": 0,
+        "p90": 0,
+        "p95": 0,
+        "p99": 0,
+        "avg": 0,
+        "min": 0,
+        "max": 0
+      },
+      "readQueryHttp": {
+        "count": 0,
+        "p50": null,
+        "p90": null,
+        "p95": null,
+        "p99": null,
+        "avg": null,
+        "min": null,
+        "max": null
+      }
+    }
+  },
+  "decoupledMetrics": null,
+  "engineTelemetry": {
+    "stages": {
+      "admissionHttp": {
+        "count": 10,
+        "avg": 6.23,
+        "p50": 3.15,
+        "p95": 25.17,
+        "p99": 27.4,
+        "max": 26.21
+      },
+      "writeWait": {
+        "count": 334,
+        "avg": 22.0,
+        "p50": 20.31,
+        "p95": 27.42,
+        "p99": 38.51,
+        "max": 68.25
+      },
+      "writePrepare": {
+        "count": 10,
+        "avg": 3.57,
+        "p50": 1.96,
+        "p95": 10.59,
+        "p99": 11.07,
+        "max": 10.78
+      },
+      "writeFinalize": {
+        "count": 10,
+        "avg": 13.91,
+        "p50": 10.59,
+        "p95": 30.76,
+        "p99": 33.0,
+        "max": 27.99
+      },
+      "writeTotalAttempt": {
+        "count": 10,
+        "avg": 17.76,
+        "p50": 12.58,
+        "p95": 41.94,
+        "p99": 44.18,
+        "max": 41.44
+      },
+      "readDiscovery": {
+        "count": 241,
+        "avg": 1.6,
+        "p50": 1.36,
+        "p95": 2.97,
+        "p99": 5.17,
+        "max": 10.51
+      },
+      "readProjectionPrepare": {
+        "count": 10,
+        "avg": 6.28,
+        "p50": 4.6,
+        "p95": 19.57,
+        "p99": 21.81,
+        "max": 20.63
+      },
+      "readProjectionFinalize": {
+        "count": 10,
+        "avg": 10.03,
+        "p50": 4.19,
+        "p95": 53.13,
+        "p99": 55.36,
+        "max": 52.0
+      },
+      "readProjectionTotalAttempt": {
+        "count": 10,
+        "avg": 16.36,
+        "p50": 9.09,
+        "p95": 78.29,
+        "p99": 87.24,
+        "max": 73.11
+      },
+      "readHttp": {
+        "count": 235,
+        "avg": 1.14,
+        "p50": 0.72,
+        "p95": 2.13,
+        "p99": 7.9,
+        "max": 19.05
+      },
+      "readQuery": {
+        "count": 235,
+        "avg": 0.5,
+        "p50": 0.53,
+        "p95": 1.07,
+        "p99": 2.21,
+        "max": 4.6
+      }
+    },
+    "admissionRequestsTotal": 4.0,
+    "attemptOutcomesCommitted": 19.0,
+    "attemptOutcomesRetried": null,
+    "discoveryReferencesTotal": 194.0,
+    "claimOperationsTotal": 19.0,
+    "physicalPendingCommand": 0.0,
+    "physicalPendingPotVersion": 0.0,
+    "physicalPendingTotal": 0.0,
+    "readQuotaPermitsAvailable": 2.0,
+    "readQuotaRejectionsTotal": 0.0,
+    "admissionCapacityAvailable": 1.0,
+    "workerCyclesTotal": 3851.0
+  },
+  "systemTelemetry": {
+    "jvmHeapUsedBytes": 79427496.0,
+    "jvmHeapMaxBytes": 2080374784.0,
+    "jvmNonHeapUsedBytes": 134634672.0,
+    "jvmGcPauseCount": 6.0,
+    "jvmGcPauseSumSeconds": 0.016,
+    "processCpuUsage": 0.10526315789473684,
+    "systemCpuUsage": 0.17337111767690544,
+    "jvmLiveThreads": 56.0,
+    "hikariActiveConnections": 1.0,
+    "hikariIdleConnections": 48.0,
+    "hikariPendingThreads": 0.0
+  },
+  "postgresTelemetry": {
+    "activeSessions": 1,
+    "totalSessions": 57,
+    "lockWaits": 0,
+    "walBytes": 2028368697,
+    "writeSlotsAvailable": 0,
+    "writeSlotsQuarantined": 200,
+    "slotsPending": 0,
+    "slotsQuarantined": 0,
+    "readMaintenanceState": "READY"
+  }
+}

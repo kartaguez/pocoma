@@ -1,0 +1,17 @@
+{
+  "pid": 91498,
+  "process_group": 91498,
+  "command": [
+    "./mvnw",
+    "--batch-mode",
+    "--no-transfer-progress",
+    "-pl",
+    "engine-consume-projection-task",
+    "-am",
+    "-Dtest=com.kartaguez.pocoma.engine.consume.projectiontask.v3.PotVisibilityRulesTest#visibleSetRules",
+    "-Dsurefire.failIfNoSpecifiedTests=false",
+    "-Dpocoma.verification.id=e3e0a2da27b74cae946fb9a4581447fa",
+    "-Dpocoma.verification.reports=/private/tmp/pocoma-i3-i7-fast3-01/reports",
+    "test"
+  ]
+}

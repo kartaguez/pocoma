@@ -1,0 +1,43 @@
+{
+  "potId": "2ae80d2f-c086-43f6-80d7-c5d5358c73ad",
+  "steps": [
+    {
+      "operation": "CreatePot",
+      "observedVersion": 0,
+      "admissionStatus": 202,
+      "terminalMs": 1830.4,
+      "resultingPotVersion": 1,
+      "balanceSqlUpperBoundMs": 1880.4
+    },
+    {
+      "operation": "AddShareholders",
+      "observedVersion": 1,
+      "admissionStatus": 202,
+      "terminalMs": 395.9,
+      "resultingPotVersion": 2,
+      "balanceSqlUpperBoundMs": 441.9
+    },
+    {
+      "operation": "CreateExpense",
+      "observedVersion": 2,
+      "admissionStatus": 202,
+      "terminalMs": 1046.4,
+      "resultingPotVersion": 3,
+      "balanceSqlUpperBoundMs": 1098.1
+    },
+    {
+      "operation": "DeletePot",
+      "observedVersion": 3,
+      "admissionStatus": 202,
+      "terminalMs": 1053.1,
+      "resultingPotVersion": 4,
+      "deleteInternalUpperBoundMs": 1096.5,
+      "httpStatusAfterDelete": 404,
+      "balanceAtTerminalPresent": false,
+      "balanceAtPreviousPresent": true
+    }
+  ],
+  "failures": [],
+  "ok": true,
+  "bias": "SQL probe via docker exec; upper bounds only, not SLO samples"
+}

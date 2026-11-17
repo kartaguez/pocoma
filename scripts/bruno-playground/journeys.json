@@ -1,0 +1,409 @@
+[
+  {
+    "id": "J01",
+    "name": "Complete Ledger and Invitation",
+    "description": "Inscription, Pot, invitation et acces Guest, toutes les mutations Expense/Shareholder, soldes exacts, depart, suppression et histoire.",
+    "steps": [
+      {
+        "request": "E00"
+      },
+      {
+        "request": "I01"
+      },
+      {
+        "request": "I02"
+      },
+      {
+        "request": "I03"
+      },
+      {
+        "request": "I04"
+      },
+      {
+        "request": "I05"
+      },
+      {
+        "request": "I06"
+      },
+      {
+        "request": "P01"
+      },
+      {
+        "request": "R01"
+      },
+      {
+        "request": "P04"
+      },
+      {
+        "request": "B02"
+      },
+      {
+        "request": "S01"
+      },
+      {
+        "request": "R01"
+      },
+      {
+        "request": "P04",
+        "checks": "work.check(bru, expect, res.body.shareholders.length === 2, 'Deux actionnaires');"
+      },
+      {
+        "request": "A06"
+      },
+      {
+        "request": "V01"
+      },
+      {
+        "request": "R01"
+      },
+      {
+        "request": "V02"
+      },
+      {
+        "request": "A07"
+      },
+      {
+        "request": "V03"
+      },
+      {
+        "request": "V04"
+      },
+      {
+        "request": "R01"
+      },
+      {
+        "request": "P04",
+        "options": {
+          "role": "guest"
+        }
+      },
+      {
+        "request": "X01"
+      },
+      {
+        "request": "R01"
+      },
+      {
+        "request": "P04",
+        "checks": "work.exact(bru, expect, res.body.balances, 5, -5, 3);\n    bru.setVar('historyVersion', res.body.potVersion);"
+      },
+      {
+        "request": "B01",
+        "checks": "work.exact(bru, expect, res.body.balances, 5, -5, 3);"
+      },
+      {
+        "request": "H02",
+        "checks": "work.check(bru, expect, res.body.expenses[0].amount.n === '10' && res.body.expenses[0].amount.d === '3', 'Depense initiale 10/3');"
+      },
+      {
+        "request": "X02"
+      },
+      {
+        "request": "R01"
+      },
+      {
+        "request": "P04"
+      },
+      {
+        "request": "H02",
+        "checks": "work.check(bru, expect, res.body.expenses[0].label === 'Transport corrige', 'Details Expense modifies');"
+      },
+      {
+        "request": "X03"
+      },
+      {
+        "request": "R01"
+      },
+      {
+        "request": "P04",
+        "checks": "work.exact(bru, expect, res.body.balances, 10, -10, 3);"
+      },
+      {
+        "request": "B01",
+        "checks": "work.exact(bru, expect, res.body.balances, 10, -10, 3);"
+      },
+      {
+        "request": "H01",
+        "checks": "work.exact(bru, expect, res.body.balances, 5, -5, 3);"
+      },
+      {
+        "request": "H02",
+        "checks": "work.check(bru, expect, res.body.expenses[0].amount.n === '10', 'Histoire Expense immuable');"
+      },
+      {
+        "request": "S02"
+      },
+      {
+        "request": "R01"
+      },
+      {
+        "request": "P04",
+        "checks": "work.check(bru, expect, res.body.shareholders.some(s => s.name === 'Owner renomme'), 'Nom actionnaire modifie');"
+      },
+      {
+        "request": "S03"
+      },
+      {
+        "request": "R01"
+      },
+      {
+        "request": "P04",
+        "checks": "work.check(bru, expect, res.body.shareholders.find(s => s.id === bru.getVar('shareholderOwnerId')).defaultWeight.n === '2', 'Poids actionnaire modifie');"
+      },
+      {
+        "request": "S06"
+      },
+      {
+        "request": "R01"
+      },
+      {
+        "request": "X04"
+      },
+      {
+        "request": "R01"
+      },
+      {
+        "request": "P04"
+      },
+      {
+        "request": "B01"
+      },
+      {
+        "request": "S05"
+      },
+      {
+        "request": "R01"
+      },
+      {
+        "request": "P04",
+        "checks": "work.check(bru, expect, res.body.shareholders.find(s => s.id === bru.getVar('shareholderGuestId')).isFree, 'Depart volontaire : place libre');"
+      },
+      {
+        "request": "A06"
+      },
+      {
+        "request": "H01",
+        "options": {
+          "role": "guest"
+        },
+        "checks": "work.exact(bru, expect, res.body.balances, 5, -5, 3);"
+      },
+      {
+        "request": "S04"
+      },
+      {
+        "request": "R01"
+      },
+      {
+        "request": "P04",
+        "checks": "work.check(bru, expect, res.body.shareholders.find(s => s.id === bru.getVar('shareholderGuestId')).deleted, 'Actionnaire supprime');"
+      },
+      {
+        "request": "P02"
+      },
+      {
+        "request": "R01"
+      },
+      {
+        "request": "P04",
+        "checks": "work.check(bru, expect, res.body.label === 'Voyage Bruno modifie', 'Pot renomme');\n    bru.setVar('historyVersion', res.body.potVersion);"
+      },
+      {
+        "request": "P03"
+      },
+      {
+        "request": "R01"
+      },
+      {
+        "request": "A12"
+      },
+      {
+        "request": "A13"
+      },
+      {
+        "request": "H01"
+      }
+    ]
+  },
+  {
+    "id": "J02",
+    "name": "Errors Privacy and Idempotency",
+    "description": "401, 400, 404 masque, 409, replay stable, refus metier FORBIDDEN et invitation expiree ; nettoyage du Pot.",
+    "steps": [
+      {
+        "request": "E00"
+      },
+      {
+        "request": "I01"
+      },
+      {
+        "request": "I02"
+      },
+      {
+        "request": "I03"
+      },
+      {
+        "request": "I04"
+      },
+      {
+        "request": "I05"
+      },
+      {
+        "request": "I06"
+      },
+      {
+        "request": "P01"
+      },
+      {
+        "request": "R01"
+      },
+      {
+        "request": "A04"
+      },
+      {
+        "request": "A05"
+      },
+      {
+        "request": "P04"
+      },
+      {
+        "request": "B02",
+        "setup": "bru.setVar('pageLimit', 1);"
+      },
+      {
+        "request": "B03",
+        "checks": "bru.setVar('pageLimit', 20);"
+      },
+      {
+        "request": "S01"
+      },
+      {
+        "request": "R01"
+      },
+      {
+        "request": "P04"
+      },
+      {
+        "request": "A01"
+      },
+      {
+        "request": "A02"
+      },
+      {
+        "request": "A03"
+      },
+      {
+        "request": "A06"
+      },
+      {
+        "request": "A08"
+      },
+      {
+        "request": "A09"
+      },
+      {
+        "request": "R01"
+      },
+      {
+        "request": "A10"
+      },
+      {
+        "request": "R01"
+      },
+      {
+        "request": "A11"
+      },
+      {
+        "request": "P03"
+      },
+      {
+        "request": "R01"
+      },
+      {
+        "request": "A12"
+      },
+      {
+        "request": "A13"
+      }
+    ]
+  },
+  {
+    "id": "J03",
+    "name": "Unlink Re-register and Historical Ownership",
+    "description": "Desaffiliation propre, occurrence inactive, nouvelle inscription, ancien binding refuse et ancien resultat toujours prive au meme requester.",
+    "steps": [
+      {
+        "request": "E00"
+      },
+      {
+        "request": "I01"
+      },
+      {
+        "request": "I02"
+      },
+      {
+        "request": "I03"
+      },
+      {
+        "request": "I04"
+      },
+      {
+        "request": "I05"
+      },
+      {
+        "request": "I06"
+      },
+      {
+        "request": "P01",
+        "options": {
+          "role": "guest"
+        }
+      },
+      {
+        "request": "R01"
+      },
+      {
+        "request": "P04",
+        "options": {
+          "role": "guest"
+        }
+      },
+      {
+        "request": "P03",
+        "options": {
+          "role": "guest"
+        }
+      },
+      {
+        "request": "R01"
+      },
+      {
+        "request": "I07"
+      },
+      {
+        "request": "I05"
+      },
+      {
+        "request": "I06"
+      },
+      {
+        "request": "I04"
+      },
+      {
+        "request": "I05"
+      },
+      {
+        "request": "I06"
+      },
+      {
+        "request": "A14"
+      },
+      {
+        "request": "R01"
+      },
+      {
+        "request": "R02"
+      }
+    ]
+  }
+]

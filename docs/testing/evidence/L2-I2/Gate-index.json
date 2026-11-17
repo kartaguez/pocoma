@@ -1,0 +1,324 @@
+{
+  "code_sha": "4f2264ae6e11e7e6e1511577064bca5e31ad1336",
+  "global_l2": "INCONCLUSIVE / G1-G3 not engaged",
+  "runs": [
+    {
+      "gate": "architecture",
+      "run": "architecture-delivery",
+      "sha": "4f2264ae6e11e7e6e1511577064bca5e31ad1336",
+      "accepted_delivery_proof": true,
+      "verdict": "PASS",
+      "tests": 1707,
+      "failures_or_errors": 0,
+      "skips": [
+        {
+          "class": "com.kartaguez.pocoma.runtime.command.consumption.sequencing.TerminalSequencingPostgresTest",
+          "method": "zExploratoryContentionSeparateFromCorrectness",
+          "state": "SKIP"
+        }
+      ],
+      "required_methods": 211,
+      "command": [
+        "./mvnw",
+        "-pl",
+        "architecture-tests",
+        "-am",
+        "test"
+      ],
+      "reactor_projects": 61,
+      "elapsed_seconds": 484.831,
+      "archive": "architecture-delivery.tar.gz",
+      "sha256": "1df0939cf87f1649ea1e3c82022b8e47874d45408679eba2f06e24ac5010d051",
+      "bytes": 1377060
+    },
+    {
+      "gate": "architecture",
+      "run": "architecture-final",
+      "sha": "b9c00625477f2c31a885a652cc2424d8ff429f3b",
+      "accepted_delivery_proof": false,
+      "verdict": "FAIL",
+      "tests": 1705,
+      "failures_or_errors": 1,
+      "skips": [
+        {
+          "class": "com.kartaguez.pocoma.runtime.command.consumption.sequencing.TerminalSequencingPostgresTest",
+          "method": "zExploratoryContentionSeparateFromCorrectness",
+          "state": "SKIP"
+        }
+      ],
+      "required_methods": 202,
+      "command": [
+        "./mvnw",
+        "-pl",
+        "architecture-tests",
+        "-am",
+        "test"
+      ],
+      "reactor_projects": 61,
+      "elapsed_seconds": 483.635,
+      "archive": "architecture-final.tar.gz",
+      "sha256": "bd9491e9c05f2b67ed10d2060082bfd92f1b44035f5e7f719eab5756bac5e866",
+      "bytes": 1378229
+    },
+    {
+      "gate": "architecture",
+      "run": "architecture-final-2",
+      "sha": "4528b2b7754ce3eca91f50a2d40c742d1dd6a888",
+      "accepted_delivery_proof": false,
+      "verdict": "PASS",
+      "tests": 1706,
+      "failures_or_errors": 0,
+      "skips": [
+        {
+          "class": "com.kartaguez.pocoma.runtime.command.consumption.sequencing.TerminalSequencingPostgresTest",
+          "method": "zExploratoryContentionSeparateFromCorrectness",
+          "state": "SKIP"
+        }
+      ],
+      "required_methods": 210,
+      "command": [
+        "./mvnw",
+        "-pl",
+        "architecture-tests",
+        "-am",
+        "test"
+      ],
+      "reactor_projects": 61,
+      "elapsed_seconds": 481.895,
+      "archive": "architecture-final-2.tar.gz",
+      "sha256": "fc37f3fe22455103e7ca4bd494141277fd56fc5f63bae9eea493c683477ed9ee",
+      "bytes": 1376048
+    },
+    {
+      "gate": "command",
+      "run": "command-1",
+      "sha": "b2cb11393362b2a7082a5feff493a45f3afa6a14",
+      "accepted_delivery_proof": false,
+      "verdict": "FAIL",
+      "tests": 1301,
+      "failures_or_errors": 0,
+      "skips": [
+        {
+          "class": "com.kartaguez.pocoma.runtime.command.consumption.sequencing.TerminalSequencingPostgresTest",
+          "method": "zExploratoryContentionSeparateFromCorrectness",
+          "state": "SKIP"
+        }
+      ],
+      "required_methods": 195,
+      "command": [
+        "./mvnw",
+        "-pl",
+        "runtime-command-consumption-worker",
+        "-am",
+        "test"
+      ],
+      "reactor_projects": 51,
+      "elapsed_seconds": 264.644,
+      "archive": "command-1.tar.gz",
+      "sha256": "46820b095407ef377ac19ec2d3f0602213e0798507069190f07653a924fa0b8b",
+      "bytes": 727592
+    },
+    {
+      "gate": "command",
+      "run": "command-2",
+      "sha": "a51c57b31d2518e89fc7382d5c3da84ec3e19296",
+      "accepted_delivery_proof": false,
+      "verdict": "PASS",
+      "tests": 1443,
+      "failures_or_errors": 0,
+      "skips": [
+        {
+          "class": "com.kartaguez.pocoma.runtime.command.consumption.sequencing.TerminalSequencingPostgresTest",
+          "method": "zExploratoryContentionSeparateFromCorrectness",
+          "state": "SKIP"
+        }
+      ],
+      "required_methods": 195,
+      "command": [
+        "./mvnw",
+        "-pl",
+        "runtime-command-consumption-worker",
+        "-am",
+        "test"
+      ],
+      "reactor_projects": 51,
+      "elapsed_seconds": 375.362,
+      "archive": "command-2.tar.gz",
+      "sha256": "0d70f993398056ce144011299e85e2f2348b55b476cda9898f6e177b8a733719",
+      "bytes": 1066845
+    },
+    {
+      "gate": "command",
+      "run": "command-delivery",
+      "sha": "4f2264ae6e11e7e6e1511577064bca5e31ad1336",
+      "accepted_delivery_proof": true,
+      "verdict": "PASS",
+      "tests": 1444,
+      "failures_or_errors": 0,
+      "skips": [
+        {
+          "class": "com.kartaguez.pocoma.runtime.command.consumption.sequencing.TerminalSequencingPostgresTest",
+          "method": "zExploratoryContentionSeparateFromCorrectness",
+          "state": "SKIP"
+        }
+      ],
+      "required_methods": 196,
+      "command": [
+        "./mvnw",
+        "-pl",
+        "runtime-command-consumption-worker",
+        "-am",
+        "test"
+      ],
+      "reactor_projects": 51,
+      "elapsed_seconds": 378.358,
+      "archive": "command-delivery.tar.gz",
+      "sha256": "c57a65babea3633b1b012026e93ae3072cbaf5c40faa9f29307312989cf57bb1",
+      "bytes": 1065692
+    },
+    {
+      "gate": "command",
+      "run": "command-final",
+      "sha": "b9c00625477f2c31a885a652cc2424d8ff429f3b",
+      "accepted_delivery_proof": false,
+      "verdict": "PASS",
+      "tests": 1443,
+      "failures_or_errors": 0,
+      "skips": [
+        {
+          "class": "com.kartaguez.pocoma.runtime.command.consumption.sequencing.TerminalSequencingPostgresTest",
+          "method": "zExploratoryContentionSeparateFromCorrectness",
+          "state": "SKIP"
+        }
+      ],
+      "required_methods": 195,
+      "command": [
+        "./mvnw",
+        "-pl",
+        "runtime-command-consumption-worker",
+        "-am",
+        "test"
+      ],
+      "reactor_projects": 51,
+      "elapsed_seconds": 375.332,
+      "archive": "command-final.tar.gz",
+      "sha256": "63695f1e9448a89863a2b75c421f9c347eea49f30dfb3619704861e41a0d14ef",
+      "bytes": 1063372
+    },
+    {
+      "gate": "monolith",
+      "run": "monolith-delivery",
+      "sha": "4f2264ae6e11e7e6e1511577064bca5e31ad1336",
+      "accepted_delivery_proof": true,
+      "verdict": "PASS",
+      "tests": 1218,
+      "failures_or_errors": 0,
+      "skips": [],
+      "required_methods": 198,
+      "command": [
+        "./mvnw",
+        "-pl",
+        "runtime-monolith",
+        "-am",
+        "test"
+      ],
+      "reactor_projects": 51,
+      "elapsed_seconds": 284.805,
+      "archive": "monolith-delivery.tar.gz",
+      "sha256": "1a876d468f66b249776fac352aa9ada986de044fb15e50f1c0facc6de0088296",
+      "bytes": 902438
+    },
+    {
+      "gate": "monolith",
+      "run": "monolith-final",
+      "sha": "b9c00625477f2c31a885a652cc2424d8ff429f3b",
+      "accepted_delivery_proof": false,
+      "verdict": "PASS",
+      "tests": 1217,
+      "failures_or_errors": 0,
+      "skips": [],
+      "required_methods": 197,
+      "command": [
+        "./mvnw",
+        "-pl",
+        "runtime-monolith",
+        "-am",
+        "test"
+      ],
+      "reactor_projects": 51,
+      "elapsed_seconds": 285.478,
+      "archive": "monolith-final.tar.gz",
+      "sha256": "adf8678c944cf6bef1f78e080afa2361ed60299b30813357c902893bed4ed475",
+      "bytes": 901762
+    },
+    {
+      "gate": "transactions",
+      "run": "transactions-delivery",
+      "sha": "4f2264ae6e11e7e6e1511577064bca5e31ad1336",
+      "accepted_delivery_proof": true,
+      "verdict": "PASS",
+      "tests": 28,
+      "failures_or_errors": 0,
+      "skips": [],
+      "required_methods": 9,
+      "command": [
+        "./mvnw",
+        "-pl",
+        "infra-tx-spring",
+        "-am",
+        "test"
+      ],
+      "reactor_projects": 3,
+      "elapsed_seconds": 11.589,
+      "archive": "transactions-delivery.tar.gz",
+      "sha256": "6357bca5701562c84a2697fddf1032bba2749765906194c96e9fdd5e4c6ab06d",
+      "bytes": 41287
+    },
+    {
+      "gate": "transactions",
+      "run": "transactions-final",
+      "sha": "914ae4173009bbd58884353b7ad4487a96734387",
+      "accepted_delivery_proof": false,
+      "verdict": "PASS",
+      "tests": 27,
+      "failures_or_errors": 0,
+      "skips": [],
+      "required_methods": 8,
+      "command": [
+        "./mvnw",
+        "-pl",
+        "infra-tx-spring",
+        "-am",
+        "test"
+      ],
+      "reactor_projects": 3,
+      "elapsed_seconds": 11.126,
+      "archive": "transactions-final.tar.gz",
+      "sha256": "37e089555e78121f7e41a281355002023753d4b7db402073d7401ad3d43d2ed7",
+      "bytes": 40840
+    },
+    {
+      "gate": "transactions",
+      "run": "transactions-final-2",
+      "sha": "b9c00625477f2c31a885a652cc2424d8ff429f3b",
+      "accepted_delivery_proof": false,
+      "verdict": "PASS",
+      "tests": 28,
+      "failures_or_errors": 0,
+      "skips": [],
+      "required_methods": 8,
+      "command": [
+        "./mvnw",
+        "-pl",
+        "infra-tx-spring",
+        "-am",
+        "test"
+      ],
+      "reactor_projects": 3,
+      "elapsed_seconds": 11.336,
+      "archive": "transactions-final-2.tar.gz",
+      "sha256": "8ab8ee7f30a1299fc281d51b4812c810240579eea7831e4bcedd2f1197278899",
+      "bytes": 46580
+    }
+  ]
+}

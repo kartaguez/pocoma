@@ -1,0 +1,42 @@
+meta {
+  name: I06 Guest Binding
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{readUrl}}/api/v3/me/binding?minVersion={{identityGuestVersion}}
+  body: none
+  auth: none
+}
+
+headers {
+  Connection: close
+}
+
+settings {
+  timeout: 5000
+}
+
+script:pre-request {
+  const options = {"id":"I06","role":"guest","kind":"binding","wait":true,"status":200};
+  await require('./lib/workspace.js').prepare(bru, req, options);
+}
+
+tests {
+  const options = {"id":"I06","role":"guest","kind":"binding","wait":true,"status":200};
+  const work = require('./lib/workspace.js');
+  test('I06 transport and privacy', () => work.transport(bru, res, expect, options));
+  test('I06 contract and variables', () => {
+    work.verify(bru, req, res, expect, options);
+    work.record(bru, req, res, options);
+  });
+}
+
+docs {
+  Occurrence propre active, euiVersion >= targetVersion. Capture bindingGuest en memoire. Apres Unlink : occurrence inactive attendue via le parcours J03.
+  Identite : guest. Prerequis : URLs de l environnement ; session native si role authentifie.
+  Chaque Send appelle la methode et le corps visibles. Les GET asynchrones attendent
+  le meme endpoint au plus 30 s avant l appel affiche ; aucun POST cache.
+  Modifier le JSON librement ; une nouvelle intention recoit une nouvelle cle.
+}

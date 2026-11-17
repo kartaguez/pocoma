@@ -1,0 +1,176 @@
+[
+  {
+    "iterationIndex": 0,
+    "results": [
+      {
+        "test": {
+          "filename": "04 Invitations/B401 JourneyAndVoluntaryDeparture.bru"
+        },
+        "request": {
+          "method": "GET",
+          "url": "http://127.0.0.1:54743/api/v3/me/binding",
+          "headers": {}
+        },
+        "response": {
+          "status": 200,
+          "statusText": "",
+          "headers": {},
+          "url": "http://127.0.0.1/api/v3/me/binding",
+          "responseTime": 15,
+          "duration": 15,
+          "size": 91
+        },
+        "error": null,
+        "status": "pass",
+        "assertionResults": [],
+        "testResults": [
+          {
+            "status": "fail",
+            "description": "Test Script Error",
+            "error": "expected +0 to equal 2",
+            "isScriptError": true
+          }
+        ],
+        "preRequestTestResults": [],
+        "postResponseTestResults": [],
+        "shouldStopRunnerExecution": false,
+        "runDuration": 1.231308417,
+        "name": "B401 JourneyAndVoluntaryDeparture",
+        "suitename": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/04 Invitations/B401 JourneyAndVoluntaryDeparture",
+        "path": "04 Invitations/B401 JourneyAndVoluntaryDeparture",
+        "iterationIndex": 0
+      },
+      {
+        "test": {
+          "filename": "04 Invitations/B402 ConfidentialityAndMasking.bru"
+        },
+        "request": {
+          "method": "GET",
+          "url": "http://127.0.0.1:54743/api/v3/me/binding",
+          "headers": {}
+        },
+        "response": {
+          "status": 200,
+          "statusText": "",
+          "headers": {},
+          "url": "http://127.0.0.1/api/v3/me/binding",
+          "responseTime": 6,
+          "duration": 6,
+          "size": 91
+        },
+        "error": null,
+        "status": "pass",
+        "assertionResults": [],
+        "testResults": [
+          {
+            "description": "B402 ConfidentialityAndMasking",
+            "status": "pass",
+            "uid": "yTe10R0VUTexojj-_5K2U"
+          }
+        ],
+        "preRequestTestResults": [],
+        "postResponseTestResults": [],
+        "shouldStopRunnerExecution": false,
+        "runDuration": 0.601846542,
+        "name": "B402 ConfidentialityAndMasking",
+        "suitename": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/04 Invitations/B402 ConfidentialityAndMasking",
+        "path": "04 Invitations/B402 ConfidentialityAndMasking",
+        "iterationIndex": 0
+      },
+      {
+        "test": {
+          "filename": "04 Invitations/B403 ReusableInvitation.bru"
+        },
+        "request": {
+          "method": "GET",
+          "url": "http://127.0.0.1:54743/api/v3/me/binding",
+          "headers": {}
+        },
+        "response": {
+          "status": 200,
+          "statusText": "",
+          "headers": {},
+          "url": "http://127.0.0.1/api/v3/me/binding",
+          "responseTime": 7,
+          "duration": 7,
+          "size": 91
+        },
+        "error": null,
+        "status": "pass",
+        "assertionResults": [],
+        "testResults": [
+          {
+            "description": "B403 ReusableInvitation",
+            "status": "pass",
+            "uid": "j0BBLj9qqJMi7IsHJ3Nni"
+          }
+        ],
+        "preRequestTestResults": [],
+        "postResponseTestResults": [],
+        "shouldStopRunnerExecution": false,
+        "runDuration": 1.2199030419999999,
+        "name": "B403 ReusableInvitation",
+        "suitename": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/04 Invitations/B403 ReusableInvitation",
+        "path": "04 Invitations/B403 ReusableInvitation",
+        "iterationIndex": 0
+      },
+      {
+        "test": {
+          "filename": "04 Invitations/B404 ExpiredCreation.bru"
+        },
+        "request": {
+          "method": "GET",
+          "url": "http://127.0.0.1:54743/api/v3/me/binding",
+          "headers": {}
+        },
+        "response": {
+          "status": 200,
+          "statusText": "",
+          "headers": {},
+          "url": "http://127.0.0.1/api/v3/me/binding",
+          "responseTime": 7,
+          "duration": 7,
+          "size": 91
+        },
+        "error": null,
+        "status": "pass",
+        "assertionResults": [],
+        "testResults": [
+          {
+            "description": "B404 ExpiredCreation",
+            "status": "pass",
+            "uid": "WcEmQAVOO_W3tbUbIIN-u"
+          }
+        ],
+        "preRequestTestResults": [],
+        "postResponseTestResults": [],
+        "shouldStopRunnerExecution": false,
+        "runDuration": 0.659354583,
+        "name": "B404 ExpiredCreation",
+        "suitename": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/04 Invitations/B404 ExpiredCreation",
+        "path": "04 Invitations/B404 ExpiredCreation",
+        "iterationIndex": 0
+      }
+    ],
+    "summary": {
+      "totalRequests": 4,
+      "passedRequests": 3,
+      "failedRequests": 1,
+      "errorRequests": 0,
+      "skippedRequests": 0,
+      "skippedByBail": 0,
+      "totalAssertions": 0,
+      "passedAssertions": 0,
+      "failedAssertions": 0,
+      "totalTests": 3,
+      "passedTests": 3,
+      "failedTests": 0,
+      "totalPreRequestTests": 0,
+      "passedPreRequestTests": 0,
+      "failedPreRequestTests": 0,
+      "totalPostResponseTests": 0,
+      "passedPostResponseTests": 0,
+      "failedPostResponseTests": 0
+    }
+  }
+]

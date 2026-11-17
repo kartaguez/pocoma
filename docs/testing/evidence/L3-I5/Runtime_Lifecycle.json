@@ -1,0 +1,38 @@
+{
+  "1": {
+    "private_log_sha256": "00c59dff81572ee6706659d5e4e8fa282a161a1ca7fe0eaaadf64f2a666fceb2",
+    "selected_records": [
+      {
+        "line": 54,
+        "text": "2026-11-01T09:50:28.730+01:00  INFO 55300 --- [pocoma-command-consumption-worker] [           main] ocomaCommandConsumptionWorkerApplication : Started PocomaCommandConsumptionWorkerApplication in 4.095 seconds (process running for 4.375)",
+        "line_sha256": "995900e607d4ba321c8dcbb7e7c7ec53c14e5f0c3a0269385d83976f7eccaf67"
+      },
+      {
+        "line": 64,
+        "text": "2026-11-01T09:50:42.064+01:00  INFO 55300 --- [pocoma-command-consumption-worker] [3-maintenance-0] p.r.c.v.V3ConsumptionWorkerConfiguration : I5_WORKER_STOPPED pid=55300",
+        "line_sha256": "8b446ad7893403bce1b5acfe9e08ceb094b563212dacaa1afa2bbca6ba048581"
+      }
+    ],
+    "stop_helper_stdout": "I5_DEV_STOPPED clean Worker callback observed after physical drain\n",
+    "stop_helper_stderr_empty": true,
+    "worker_log_confidentiality": "PRIVATE_ONLY; selected nonsecret lines exported"
+  },
+  "2": {
+    "private_log_sha256": "cbfaf19915bbac8e52b1279b60ddb866d3ca9e9bb081aa94556234c7de3d924c",
+    "selected_records": [
+      {
+        "line": 54,
+        "text": "2026-11-01T09:50:46.784+01:00  INFO 55455 --- [pocoma-command-consumption-worker] [           main] ocomaCommandConsumptionWorkerApplication : Started PocomaCommandConsumptionWorkerApplication in 4.111 seconds (process running for 4.393)",
+        "line_sha256": "a8bef8946568f693ecfce8890e234bd2727e9114dd9f2221fde55c75b1edd300"
+      },
+      {
+        "line": 64,
+        "text": "2026-11-01T09:50:50.950+01:00  INFO 55455 --- [pocoma-command-consumption-worker] [3-maintenance-0] p.r.c.v.V3ConsumptionWorkerConfiguration : I5_WORKER_STOPPED pid=55455",
+        "line_sha256": "eea94ee94be78258a8fed035b15163c12311821bdb83074d365c8ccc6a66b156"
+      }
+    ],
+    "stop_helper_stdout": "I5_DEV_STOPPED clean Worker callback observed after physical drain\n",
+    "stop_helper_stderr_empty": true,
+    "worker_log_confidentiality": "PRIVATE_ONLY; selected nonsecret lines exported"
+  }
+}

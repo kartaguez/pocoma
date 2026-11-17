@@ -1,0 +1,6 @@
+{
+  "fullClone": "FAILED: checkout ran out of host disk; only our incomplete temporary clone removed; fresh sparse Git checkout used instead",
+  "earlyQualification": "FAILED before instance creation because the first clone had not finished",
+  "freshUnitBeforeCorrection": "ERROR in mock setup when CLI node_modules absent; runtime.run is now mocked; 15 controls pass in fresh checkout",
+  "callbackBrowserSimulationBeforeCorrection": "INCONCLUSIVE: HTTP cookie jar omitted Keycloak secure cookies; real callback timed out. Corrected browser simulation forwards cookies as the existing Code+PKCE fixture does; auth.py unchanged; subsequent real callback protocol PASS."
+}

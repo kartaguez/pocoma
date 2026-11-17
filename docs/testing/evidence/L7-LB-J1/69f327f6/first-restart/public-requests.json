@@ -1,0 +1,52 @@
+[
+  {
+    "method": "GET",
+    "path": "/me/binding",
+    "status": 200
+  },
+  {
+    "method": "POST",
+    "path": "/commands",
+    "status": 202
+  },
+  {
+    "method": "GET",
+    "path": "/commands/35105658-6914-4b88-926c-12b121efdc2e/result",
+    "status": 200
+  },
+  {
+    "method": "GET",
+    "path": "/pots/78bb8f17-4c8e-50aa-97a5-369cad88e69f?minVersion=1",
+    "status": 200
+  },
+  {
+    "method": "POST",
+    "path": "/commands",
+    "status": 202
+  },
+  {
+    "method": "GET",
+    "path": "/commands/9117cbb4-36c7-499f-bd2d-f78a2939d418/result",
+    "status": 404
+  },
+  {
+    "method": "GET",
+    "path": "/commands/9117cbb4-36c7-499f-bd2d-f78a2939d418/result",
+    "status": 200
+  },
+  {
+    "method": "GET",
+    "path": "/pots/78bb8f17-4c8e-50aa-97a5-369cad88e69f?minVersion=3",
+    "status": 200
+  },
+  {
+    "method": "GET",
+    "path": "/pots/78bb8f17-4c8e-50aa-97a5-369cad88e69f/versions/3/balance",
+    "status": 200
+  },
+  {
+    "method": "GET",
+    "path": "/me/binding",
+    "status": 401
+  }
+]

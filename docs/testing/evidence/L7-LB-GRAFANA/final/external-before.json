@@ -1,0 +1,51 @@
+{
+  "containers": {
+    "a9bd2e6a16b0": {
+      "name": "/pocoma-lb-recovery-validation-01fd7547-prometheus-1",
+      "state": "exited",
+      "image": "sha256:63805ebb8d2b3920190daf1cb14a60871b16fd38bed42b857a3182bc621f4996"
+    },
+    "65b7373bd3c0": {
+      "name": "/pocoma-lb-recovery-validation-01fd7547-business-read-worker-1",
+      "state": "exited",
+      "image": "sha256:66bb900643426ad01996d25bada7d56751913f9cec3b827fcb715d2ec9a0fbfc"
+    },
+    "ef0cf286fc36": {
+      "name": "/pocoma-lb-recovery-validation-01fd7547-command-worker-1",
+      "state": "exited",
+      "image": "sha256:66bb900643426ad01996d25bada7d56751913f9cec3b827fcb715d2ec9a0fbfc"
+    },
+    "5d3c5ca33b2c": {
+      "name": "/pocoma-lb-recovery-validation-01fd7547-http-read-1",
+      "state": "exited",
+      "image": "sha256:66bb900643426ad01996d25bada7d56751913f9cec3b827fcb715d2ec9a0fbfc"
+    },
+    "5ccbc879bc9d": {
+      "name": "/pocoma-lb-recovery-validation-01fd7547-http-write-1",
+      "state": "exited",
+      "image": "sha256:66bb900643426ad01996d25bada7d56751913f9cec3b827fcb715d2ec9a0fbfc"
+    },
+    "55b8aae4af37": {
+      "name": "/pocoma-lb-recovery-validation-01fd7547-results-worker-1",
+      "state": "exited",
+      "image": "sha256:66bb900643426ad01996d25bada7d56751913f9cec3b827fcb715d2ec9a0fbfc"
+    },
+    "93951280bed6": {
+      "name": "/pocoma-lb-recovery-validation-01fd7547-keycloak-1",
+      "state": "exited",
+      "image": "sha256:0f198be292568439d700cdbfb893e69a6009bb43a94a06a945b1d3d506c76b13"
+    },
+    "972ff6754a67": {
+      "name": "/pocoma-lb-recovery-validation-01fd7547-postgres-1",
+      "state": "exited",
+      "image": "sha256:ef257d85f76e48da1c64832459b59fcaba1a4dac97bf5d7450c77753542eee94"
+    }
+  },
+  "volumes": {
+    "5a8a2a41fd70711f282e322e9543955e21d70856471de44a11565282b746896e": "befe0b67c43ed89b4834602b0f053abb143125ec0a4f098552a44947422aa373",
+    "986b8724dec62868f295cc1161a0cb9cd3744d66cfddac82bcf2756550e05280": "d83ec841b2cb09f6348158373aa407630767179da7df2f499c30e4394ab4c0fa",
+    "c4b0f254fb8dd331655ec936159235309d41ac29818f08ed5c0608d98451761f": "25e11973f9ca53318fd7f48bbfc8c3586f7081a47949215bf43bd2bc10281995",
+    "dc65897105cbde2aeba8a6c488b85d03b7deb4b1d82cc9fbde013c3c8c3f727c": "4b7897c5c12705a50ff538b53353638c53d333bfc1246a0a8a9cca04ff9a6650",
+    "pocoma-lb-recovery-validation-01fd7547-data": "b91975b1492e19b2ce17ee8244b129b4968db076ba59f9aeb8d24911456f3e1d"
+  }
+}

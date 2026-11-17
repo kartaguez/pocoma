@@ -1,0 +1,8 @@
+{
+  "canonical_and_historical_run_archives": 12,
+  "artifact_checksums_verified": 5600,
+  "maven_logs_verified": 12,
+  "supplemental_source_and_log_hashes": "all match",
+  "verdict": "PASS",
+  "standalone_raw_members_verified": 14
+}

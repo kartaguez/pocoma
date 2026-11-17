@@ -1,0 +1,25 @@
+{
+  "verdict": "FAIL",
+  "counts": {
+    "tests": 0,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "issues": [
+    "Interrupted by keyboard; Maven execution not completed"
+  ],
+  "command": [
+    "./mvnw",
+    "--batch-mode",
+    "--no-transfer-progress",
+    "-pl",
+    "runtime-task-consumption-worker,runtime-command-consumption-worker",
+    "-am",
+    "-Dpocoma.verification.id=8c43030268d24f8398cfb7f078510806",
+    "-Dpocoma.verification.reports=/private/tmp/l4-i2-canonical-reviewed/reports",
+    "test"
+  ],
+  "invocation_id": "8c43030268d24f8398cfb7f078510806",
+  "exit_code": null
+}

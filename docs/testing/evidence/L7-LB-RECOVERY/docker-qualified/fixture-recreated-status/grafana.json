@@ -1,0 +1,292 @@
+{
+  "diagnostics": {},
+  "panels": [
+    {
+      "dashboard": "pocoma-runtime",
+      "panel": "Runtime availability",
+      "refId": "A",
+      "expression": "up{job=~\"http-write|http-read|command-worker|results-worker|business-read-worker\"}",
+      "state": "PRESENT",
+      "series": 5
+    },
+    {
+      "dashboard": "pocoma-runtime",
+      "panel": "HTTP requests",
+      "refId": "A",
+      "expression": "sum(rate(http_server_requests_seconds_count{job=~\"http-write|http-read|command-worker|results-worker|business-read-worker\"}[1m])) by (job)",
+      "state": "PRESENT",
+      "series": 2
+    },
+    {
+      "dashboard": "pocoma-runtime",
+      "panel": "JVM memory used",
+      "refId": "A",
+      "expression": "sum(jvm_memory_used_bytes{job=~\"http-write|http-read|command-worker|results-worker|business-read-worker\"}) by (job, area)",
+      "state": "PRESENT",
+      "series": 10
+    },
+    {
+      "dashboard": "pocoma-runtime",
+      "panel": "Process CPU",
+      "refId": "A",
+      "expression": "process_cpu_usage{job=~\"http-write|http-read|command-worker|results-worker|business-read-worker\"}",
+      "state": "PRESENT",
+      "series": 5
+    },
+    {
+      "dashboard": "pocoma-v3-overview",
+      "panel": "Admission HTTP Throughput (req/s)",
+      "refId": "A",
+      "expression": "sum(rate(pocoma_v3_admission_requests_total[1m])) by (endpoint, status)",
+      "state": "PRESENT",
+      "series": 2
+    },
+    {
+      "dashboard": "pocoma-v3-overview",
+      "panel": "Admission HTTP Latency p95 (s)",
+      "refId": "A",
+      "expression": "histogram_quantile(0.95, sum(rate(pocoma_v3_admission_http_duration_seconds_bucket[1m])) by (le, endpoint))",
+      "state": "PRESENT",
+      "series": 2
+    },
+    {
+      "dashboard": "pocoma-v3-overview",
+      "panel": "Admission Capacity Available",
+      "refId": "A",
+      "expression": "pocoma_v3_admission_capacity_available",
+      "state": "PRESENT",
+      "series": 1
+    },
+    {
+      "dashboard": "pocoma-v3-overview",
+      "panel": "READ HTTP Throughput (req/s)",
+      "refId": "A",
+      "expression": "sum(rate(pocoma_v3_read_http_duration_seconds_count[1m])) by (endpoint, status)",
+      "state": "PRESENT",
+      "series": 12
+    },
+    {
+      "dashboard": "pocoma-v3-overview",
+      "panel": "READ HTTP Latency p95 (s)",
+      "refId": "A",
+      "expression": "histogram_quantile(0.95, sum(rate(pocoma_v3_read_http_duration_seconds_bucket[1m])) by (le, endpoint))",
+      "state": "PRESENT",
+      "series": 7
+    },
+    {
+      "dashboard": "pocoma-v3-overview",
+      "panel": "Command Execution Throughput (attempts/s)",
+      "refId": "A",
+      "expression": "sum(rate(pocoma_v3_attempt_outcomes_total{consumption=\"Command\"}[1m])) by (outcome)",
+      "state": "ZERO",
+      "series": 1
+    },
+    {
+      "dashboard": "pocoma-v3-overview",
+      "panel": "Command Execution & Prepare Duration p95 (s)",
+      "refId": "A",
+      "expression": "histogram_quantile(0.95, sum(rate(pocoma_v3_attempt_duration_seconds_bucket{consumption=\"Command\"}[1m])) by (le))",
+      "state": "NONFINITE",
+      "series": 1
+    },
+    {
+      "dashboard": "pocoma-v3-overview",
+      "panel": "Command Execution & Prepare Duration p95 (s)",
+      "refId": "B",
+      "expression": "histogram_quantile(0.95, sum(rate(pocoma_v3_attempt_phase_duration_seconds_bucket{consumption=\"Command\",phase=\"prepare\"}[1m])) by (le))",
+      "state": "NONFINITE",
+      "series": 1
+    },
+    {
+      "dashboard": "pocoma-v3-overview",
+      "panel": "Discovery References Rate (/s)",
+      "refId": "A",
+      "expression": "sum(rate(pocoma_v3_discovery_references_total[1m])) by (consumption, kind)",
+      "state": "PRESENT",
+      "series": 11
+    },
+    {
+      "dashboard": "pocoma-v3-overview",
+      "panel": "Claim Operations Rate (/s)",
+      "refId": "A",
+      "expression": "sum(rate(pocoma_v3_claim_operations_total[1m])) by (consumption, operation)",
+      "state": "ZERO",
+      "series": 5
+    },
+    {
+      "dashboard": "pocoma-v3-overview",
+      "panel": "Claim Capacity Used",
+      "refId": "A",
+      "expression": "pocoma_v3_capacity_used{scope=\"worker\"}",
+      "state": "ZERO",
+      "series": 3
+    },
+    {
+      "dashboard": "pocoma-v3-overview",
+      "panel": "Projection Throughput (tasks/s)",
+      "refId": "A",
+      "expression": "sum(rate(pocoma_v3_attempt_outcomes_total{consumption=~\"PotVersion|PotBalance|PotVisibility|CurrentBinding|CommandResult|IdentityRequestResult\"}[1m])) by (consumption, outcome)",
+      "state": "ZERO",
+      "series": 4
+    },
+    {
+      "dashboard": "pocoma-v3-overview",
+      "panel": "PotBalance Prepare Duration p95 - FIND-L4-03 (s)",
+      "refId": "A",
+      "expression": "histogram_quantile(0.95, sum(rate(pocoma_v3_attempt_phase_duration_seconds_bucket{consumption=\"PotBalance\",phase=\"prepare\"}[1m])) by (le))",
+      "state": "NONFINITE",
+      "series": 1
+    },
+    {
+      "dashboard": "pocoma-v3-overview",
+      "panel": "READ Quota (Q=2) Permits & Rejections",
+      "refId": "A",
+      "expression": "pocoma_v3_read_quota_permits{scope=\"sql\"}",
+      "state": "PRESENT",
+      "series": 1
+    },
+    {
+      "dashboard": "pocoma-v3-overview",
+      "panel": "READ Quota (Q=2) Permits & Rejections",
+      "refId": "B",
+      "expression": "sum(rate(pocoma_v3_read_quota_rejections_total{scope=\"sql\"}[1m]))",
+      "state": "ZERO",
+      "series": 1
+    },
+    {
+      "dashboard": "pocoma-v3-overview",
+      "panel": "READ SQL Facade Query Duration p95 (s)",
+      "refId": "A",
+      "expression": "histogram_quantile(0.95, sum(rate(pocoma_v3_read_query_duration_seconds_bucket[1m])) by (le, operation))",
+      "state": "PRESENT",
+      "series": 7
+    },
+    {
+      "dashboard": "pocoma-v3-overview",
+      "panel": "HikariCP Pool Connections (Active & Pending)",
+      "refId": "A",
+      "expression": "hikaricp_connections_active",
+      "state": "PRESENT",
+      "series": 11
+    },
+    {
+      "dashboard": "pocoma-v3-overview",
+      "panel": "HikariCP Pool Connections (Active & Pending)",
+      "refId": "B",
+      "expression": "hikaricp_connections_pending",
+      "state": "ZERO",
+      "series": 11
+    },
+    {
+      "dashboard": "pocoma-v3-overview",
+      "panel": "HikariCP Connection Acquire Mean Duration (s)",
+      "refId": "A",
+      "expression": "rate(hikaricp_connections_acquire_seconds_sum[1m]) / rate(hikaricp_connections_acquire_seconds_count[1m])",
+      "state": "PRESENT",
+      "series": 11
+    },
+    {
+      "dashboard": "pocoma-v3-overview",
+      "panel": "Consumption Leases & Renewals Inflight",
+      "refId": "A",
+      "expression": "sum(pocoma_v3_lease_local) by (authority)",
+      "state": "PRESENT",
+      "series": 2
+    },
+    {
+      "dashboard": "pocoma-v3-overview",
+      "panel": "Consumption Leases & Renewals Inflight",
+      "refId": "B",
+      "expression": "sum(pocoma_v3_renewal_inflight) by (authority, kind)",
+      "state": "ZERO",
+      "series": 4
+    },
+    {
+      "dashboard": "pocoma-v3-overview",
+      "panel": "JVM CPU & Heap Memory Utilization (%)",
+      "refId": "A",
+      "expression": "process_cpu_usage * 100",
+      "state": "PRESENT",
+      "series": 5
+    },
+    {
+      "dashboard": "pocoma-v3-overview",
+      "panel": "JVM CPU & Heap Memory Utilization (%)",
+      "refId": "B",
+      "expression": "(jvm_memory_used_bytes{area=\"heap\"} / jvm_memory_max_bytes{area=\"heap\"}) * 100",
+      "state": "PRESENT",
+      "series": 15
+    },
+    {
+      "dashboard": "pocoma-v3-overview",
+      "panel": "READ Maintenance State",
+      "refId": "A",
+      "expression": "pocoma_v3_read_rebuild_state",
+      "state": "ZERO",
+      "series": 1
+    },
+    {
+      "dashboard": "pocoma-v3-overview",
+      "panel": "READ Rebuild Checkpoints (/28)",
+      "refId": "A",
+      "expression": "pocoma_v3_read_rebuild_checkpoints_satisfied",
+      "state": "PRESENT",
+      "series": 1
+    },
+    {
+      "dashboard": "pocoma-v3-overview",
+      "panel": "READ Residual Slots <= B",
+      "refId": "A",
+      "expression": "pocoma_v3_read_rebuild_slots_remaining",
+      "state": "ZERO",
+      "series": 1
+    },
+    {
+      "dashboard": "pocoma-v3-overview",
+      "panel": "READ Rebuild Active Duration (s)",
+      "refId": "A",
+      "expression": "pocoma_v3_read_rebuild_duration_seconds",
+      "state": "ZERO",
+      "series": 1
+    }
+  ],
+  "version": "12.3.2",
+  "adminAuthenticated": true,
+  "datasource": {
+    "uid": "Prometheus",
+    "url": "http://prometheus:9090",
+    "health": "OK",
+    "metrics": {
+      "up": [
+        "business-read-worker",
+        "command-worker",
+        "http-read",
+        "http-write",
+        "results-worker"
+      ],
+      "jvm_memory_used_bytes": [
+        "business-read-worker",
+        "command-worker",
+        "http-read",
+        "http-write",
+        "results-worker"
+      ],
+      "process_cpu_usage": [
+        "business-read-worker",
+        "command-worker",
+        "http-read",
+        "http-write",
+        "results-worker"
+      ]
+    }
+  },
+  "dashboards": {
+    "pocoma-runtime": "Pocoma runtime",
+    "pocoma-v3-overview": "Pocoma V3 - Architecture & Observability Overview"
+  },
+  "checks": {
+    "GRAFANA-HTTP": "PASS",
+    "GRAFANA-DATASOURCE": "PASS",
+    "GRAFANA-DASHBOARD": "PASS"
+  }
+}

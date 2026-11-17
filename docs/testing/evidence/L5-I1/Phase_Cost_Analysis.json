@@ -1,0 +1,2527 @@
+{
+  "scope": "Observed collector/Maven/Class timing windows; overlap is explicit, no invented exclusive phase durations",
+  "runs": [
+    {
+      "run": "pocoma-l5-i1-architecture-01",
+      "verdict": "INCONCLUSIVE",
+      "counts": {
+        "tests": 0,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "measured_phases": {
+        "phases": {
+          "input_inventory": {
+            "status": "FINISHED",
+            "seconds": 0.0659866250352934
+          },
+          "discovery": {
+            "status": "FINISHED",
+            "seconds": 2.3544263330404647
+          }
+        },
+        "campaign_seconds": 2.458498874970246,
+        "forecast": {
+          "seconds": null,
+          "basis": "UNKNOWN",
+          "uncertainty": "UNKNOWN"
+        },
+        "forecast_delta_seconds": null,
+        "forecast_exceeded": null,
+        "forecast_is_blocking": false
+      },
+      "reported_class_seconds_sum": 0,
+      "maven_minus_reported_classes_seconds": null,
+      "residual_is_not_exclusive_compilation_time": true,
+      "largest_reported_classes": []
+    },
+    {
+      "run": "pocoma-l5-i1-architecture-02",
+      "verdict": "FAIL",
+      "counts": {
+        "tests": 1046,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "measured_phases": {
+        "phases": {
+          "input_inventory": {
+            "status": "FINISHED",
+            "seconds": 0.15046354103833437
+          },
+          "discovery": {
+            "status": "FINISHED",
+            "seconds": 2.896188582992181
+          },
+          "maven": {
+            "status": "INTERRUPTED_OR_FAILED",
+            "seconds": 338.56232591700973
+          }
+        },
+        "campaign_seconds": 342.17874712502817,
+        "forecast": {
+          "seconds": null,
+          "basis": "UNKNOWN",
+          "uncertainty": "UNKNOWN"
+        },
+        "forecast_delta_seconds": null,
+        "forecast_exceeded": null,
+        "forecast_is_blocking": false
+      },
+      "reported_class_seconds_sum": 72.977,
+      "maven_minus_reported_classes_seconds": 265.58532591700975,
+      "residual_is_not_exclusive_compilation_time": true,
+      "largest_reported_classes": [
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotFinancePostgresTest",
+          "module": "pocoma-infra-persistence-primary-jpa",
+          "reported_seconds": 7.035,
+          "tests": 6,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest",
+          "module": "pocoma-infra-tx-spring",
+          "reported_seconds": 6.062,
+          "tests": 13,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.read.jdbc.JdbcProjectionStoreAdapterPostgresTest",
+          "module": "pocoma-infra-persistence-read-jdbc",
+          "reported_seconds": 4.509,
+          "tests": 18,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.registration.RegistrationAuthorityPostgresTest",
+          "module": "pocoma-infra-persistence-primary-jpa",
+          "reported_seconds": 3.289,
+          "tests": 8,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotHistoryCardinalityPostgresTest",
+          "module": "pocoma-infra-persistence-primary-jpa",
+          "reported_seconds": 2.654,
+          "tests": 3,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.command.CommandConsumptionPostgresTest",
+          "module": "pocoma-infra-persistence-primary-jpa",
+          "reported_seconds": 2.281,
+          "tests": 36,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.context.CommandObsolescencePostgresTest",
+          "module": "pocoma-infra-persistence-primary-jpa",
+          "reported_seconds": 2.196,
+          "tests": 10,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.read.jdbc.CurrentBindingPersistencePostgresTest",
+          "module": "pocoma-infra-persistence-read-jdbc",
+          "reported_seconds": 1.949,
+          "tests": 6,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.read.jdbc.CurrentBindingTerminalCutoverMigrationPostgresTest",
+          "module": "pocoma-infra-persistence-read-jdbc",
+          "reported_seconds": 1.871,
+          "tests": 6,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.context.UpdateExpenseSharesConcurrencyPostgresTest",
+          "module": "pocoma-infra-persistence-primary-jpa",
+          "reported_seconds": 1.793,
+          "tests": 15,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.consumption.TransactionalConsumptionExecutionPostgresTest",
+          "module": "pocoma-infra-persistence-primary-jpa",
+          "reported_seconds": 1.793,
+          "tests": 26,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.consumption.ReadDiscoveryPrivilegesPostgresTest",
+          "module": "pocoma-infra-persistence-read-jdbc",
+          "reported_seconds": 1.783,
+          "tests": 2,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        }
+      ]
+    },
+    {
+      "run": "pocoma-l5-i1-architecture-03",
+      "verdict": "FAIL",
+      "counts": {
+        "tests": 1612,
+        "failures": 1,
+        "errors": 14,
+        "skipped": 0
+      },
+      "measured_phases": {
+        "phases": {
+          "input_inventory": {
+            "status": "FINISHED",
+            "seconds": 0.12186287500662729
+          },
+          "discovery": {
+            "status": "FINISHED",
+            "seconds": 2.541466208989732
+          },
+          "maven": {
+            "status": "FINISHED",
+            "seconds": 1198.7622866249876
+          },
+          "collection": {
+            "status": "FINISHED",
+            "seconds": 4.729574416996911
+          }
+        },
+        "campaign_seconds": 1206.622395665967,
+        "forecast": {
+          "seconds": null,
+          "basis": "UNKNOWN",
+          "uncertainty": "UNKNOWN"
+        },
+        "forecast_delta_seconds": null,
+        "forecast_exceeded": null,
+        "forecast_is_blocking": false
+      },
+      "reported_class_seconds_sum": 1155.457,
+      "maven_minus_reported_classes_seconds": 43.3052866249875,
+      "residual_is_not_exclusive_compilation_time": true,
+      "largest_reported_classes": [
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.DiscoveryPostgresTest",
+          "module": "pocoma-infra-persistence-primary-jpa",
+          "reported_seconds": 511.795,
+          "tests": 49,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.L2ManifestProof",
+          "module": "pocoma-infra-persistence-primary-jpa",
+          "reported_seconds": 114.536,
+          "tests": 142,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest",
+          "module": "pocoma-runtime-task-consumption-worker",
+          "reported_seconds": 77.219,
+          "tests": 14,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.SlotNavigationPostgresTest",
+          "module": "pocoma-infra-persistence-primary-jpa",
+          "reported_seconds": 58.069,
+          "tests": 8,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+          "module": "pocoma-infra-persistence-primary-jpa",
+          "reported_seconds": 57.792,
+          "tests": 45,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.runtime.task.v3.InterAuthorityRecoveryPostgresTest",
+          "module": "pocoma-runtime-task-consumption-worker",
+          "reported_seconds": 36.44,
+          "tests": 10,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.runtime.task.v3.V3ReadQuotaPostgresTest",
+          "module": "pocoma-runtime-task-consumption-worker",
+          "reported_seconds": 25.948,
+          "tests": 10,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.CommandExecutionPostgresTest",
+          "module": "pocoma-infra-persistence-primary-jpa",
+          "reported_seconds": 23.222,
+          "tests": 31,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.runtime.task.v3.ReadFacadesPostgresTest",
+          "module": "pocoma-runtime-task-consumption-worker",
+          "reported_seconds": 19.966,
+          "tests": 5,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.runtime.task.v3.ReadRuntimeAssemblyPostgresTest",
+          "module": "pocoma-runtime-task-consumption-worker",
+          "reported_seconds": 18.392,
+          "tests": 2,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.runtime.task.v3.InterAuthorityPreparationPostgresTest",
+          "module": "pocoma-runtime-task-consumption-worker",
+          "reported_seconds": 15.545,
+          "tests": 15,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityRequestExecutionPostgresTest",
+          "module": "pocoma-infra-persistence-primary-jpa",
+          "reported_seconds": 13.079,
+          "tests": 13,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        }
+      ]
+    },
+    {
+      "run": "pocoma-l5-i1-architecture-04",
+      "verdict": "FAIL",
+      "counts": {
+        "tests": 1657,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 0
+      },
+      "measured_phases": {
+        "phases": {
+          "input_inventory": {
+            "status": "FINISHED",
+            "seconds": 0.11753925000084564
+          },
+          "discovery": {
+            "status": "FINISHED",
+            "seconds": 2.4147903329576366
+          },
+          "maven": {
+            "status": "FINISHED",
+            "seconds": 1247.377885875001
+          },
+          "collection": {
+            "status": "FINISHED",
+            "seconds": 4.762231458036695
+          }
+        },
+        "campaign_seconds": 1255.0815342909773,
+        "forecast": {
+          "seconds": null,
+          "basis": "UNKNOWN",
+          "uncertainty": "UNKNOWN"
+        },
+        "forecast_delta_seconds": null,
+        "forecast_exceeded": null,
+        "forecast_is_blocking": false
+      },
+      "reported_class_seconds_sum": 1202.954,
+      "maven_minus_reported_classes_seconds": 44.42388587500113,
+      "residual_is_not_exclusive_compilation_time": true,
+      "largest_reported_classes": [
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.DiscoveryPostgresTest",
+          "module": "pocoma-infra-persistence-primary-jpa",
+          "reported_seconds": 521.544,
+          "tests": 49,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.L2ManifestProof",
+          "module": "pocoma-infra-persistence-primary-jpa",
+          "reported_seconds": 112.205,
+          "tests": 142,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest",
+          "module": "pocoma-runtime-task-consumption-worker",
+          "reported_seconds": 77.211,
+          "tests": 14,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.SlotNavigationPostgresTest",
+          "module": "pocoma-infra-persistence-primary-jpa",
+          "reported_seconds": 57.96,
+          "tests": 8,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+          "module": "pocoma-infra-persistence-primary-jpa",
+          "reported_seconds": 57.738,
+          "tests": 45,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.runtime.task.v3.InterAuthorityRecoveryPostgresTest",
+          "module": "pocoma-runtime-task-consumption-worker",
+          "reported_seconds": 36.343,
+          "tests": 10,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.runtime.task.v3.V3ReadQuotaPostgresTest",
+          "module": "pocoma-runtime-task-consumption-worker",
+          "reported_seconds": 26.828,
+          "tests": 10,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.V3ReadHttpContractTest",
+          "module": "pocoma-runtime-web-api",
+          "reported_seconds": 26.539,
+          "tests": 24,
+          "failure": 2,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.CommandExecutionPostgresTest",
+          "module": "pocoma-infra-persistence-primary-jpa",
+          "reported_seconds": 23.22,
+          "tests": 31,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.runtime.task.v3.ReadFacadesPostgresTest",
+          "module": "pocoma-runtime-task-consumption-worker",
+          "reported_seconds": 20.173,
+          "tests": 5,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.runtime.task.v3.ReadRuntimeAssemblyPostgresTest",
+          "module": "pocoma-runtime-task-consumption-worker",
+          "reported_seconds": 17.617,
+          "tests": 2,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.runtime.task.v3.InterAuthorityPreparationPostgresTest",
+          "module": "pocoma-runtime-task-consumption-worker",
+          "reported_seconds": 15.52,
+          "tests": 15,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        }
+      ]
+    },
+    {
+      "run": "pocoma-l5-i1-architecture-05",
+      "verdict": "FAIL",
+      "counts": {
+        "tests": 1528,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "measured_phases": {
+        "phases": {
+          "input_inventory": {
+            "status": "FINISHED",
+            "seconds": 0.1196102499961853
+          },
+          "discovery": {
+            "status": "FINISHED",
+            "seconds": 2.4238714590319432
+          },
+          "maven": {
+            "status": "INTERRUPTED_OR_FAILED",
+            "seconds": 1073.8501644580392
+          }
+        },
+        "campaign_seconds": 1076.9993975000107,
+        "forecast": {
+          "seconds": null,
+          "basis": "UNKNOWN",
+          "uncertainty": "UNKNOWN"
+        },
+        "forecast_delta_seconds": null,
+        "forecast_exceeded": null,
+        "forecast_is_blocking": false
+      },
+      "reported_class_seconds_sum": 1029.219,
+      "maven_minus_reported_classes_seconds": 44.631164458039166,
+      "residual_is_not_exclusive_compilation_time": true,
+      "largest_reported_classes": [
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.DiscoveryPostgresTest",
+          "module": "pocoma-infra-persistence-primary-jpa",
+          "reported_seconds": 549.966,
+          "tests": 49,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.L2ManifestProof",
+          "module": "pocoma-infra-persistence-primary-jpa",
+          "reported_seconds": 117.9,
+          "tests": 142,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+          "module": "pocoma-infra-persistence-primary-jpa",
+          "reported_seconds": 60.057,
+          "tests": 45,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.SlotNavigationPostgresTest",
+          "module": "pocoma-infra-persistence-primary-jpa",
+          "reported_seconds": 59.025,
+          "tests": 8,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.CommandExecutionPostgresTest",
+          "module": "pocoma-infra-persistence-primary-jpa",
+          "reported_seconds": 24.641,
+          "tests": 31,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.runtime.task.v3.ReadRuntimeAssemblyPostgresTest",
+          "module": "pocoma-runtime-task-consumption-worker",
+          "reported_seconds": 20.377,
+          "tests": 2,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityRequestExecutionPostgresTest",
+          "module": "pocoma-infra-persistence-primary-jpa",
+          "reported_seconds": 14.29,
+          "tests": 13,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotFinancePostgresTest",
+          "module": "pocoma-infra-persistence-primary-jpa",
+          "reported_seconds": 9.161,
+          "tests": 6,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentitySchemaPostgresTest",
+          "module": "pocoma-infra-persistence-primary-jpa",
+          "reported_seconds": 9.029,
+          "tests": 11,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.WriteRevisionPerformancePostgresTest",
+          "module": "pocoma-infra-persistence-primary-jpa",
+          "reported_seconds": 8.257,
+          "tests": 1,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.runtime.task.consumption.ProjectionTaskWorkerProcessTest",
+          "module": "pocoma-runtime-task-consumption-worker",
+          "reported_seconds": 7.557,
+          "tests": 1,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityPublicationPostgresTest",
+          "module": "pocoma-infra-persistence-primary-jpa",
+          "reported_seconds": 6.683,
+          "tests": 8,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        }
+      ]
+    },
+    {
+      "run": "pocoma-l5-i1-architecture-06",
+      "verdict": "FAIL",
+      "counts": {
+        "tests": 1630,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "measured_phases": {
+        "phases": {
+          "input_inventory": {
+            "status": "FINISHED",
+            "seconds": 0.06913474999601021
+          },
+          "discovery": {
+            "status": "FINISHED",
+            "seconds": 2.3014119580038823
+          },
+          "maven": {
+            "status": "FINISHED",
+            "seconds": 1930.065342582995
+          },
+          "collection": {
+            "status": "FINISHED",
+            "seconds": 4.749420957989059
+          }
+        },
+        "campaign_seconds": 1937.6312769159558,
+        "forecast": {
+          "seconds": null,
+          "basis": "UNKNOWN",
+          "uncertainty": "UNKNOWN"
+        },
+        "forecast_delta_seconds": null,
+        "forecast_exceeded": null,
+        "forecast_is_blocking": false
+      },
+      "reported_class_seconds_sum": 1885.086,
+      "maven_minus_reported_classes_seconds": 44.97934258299506,
+      "residual_is_not_exclusive_compilation_time": true,
+      "largest_reported_classes": [
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.DiscoveryPostgresTest",
+          "module": "pocoma-infra-persistence-primary-jpa",
+          "reported_seconds": 520.312,
+          "tests": 49,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.ReadWorkerResourcesPostgresTest",
+          "module": "pocoma-runtime-monolith",
+          "reported_seconds": 422.026,
+          "tests": 2,
+          "failure": 1,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.ReadRootsCoexistencePostgresTest",
+          "module": "pocoma-runtime-monolith",
+          "reported_seconds": 204.586,
+          "tests": 1,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.L2ManifestProof",
+          "module": "pocoma-infra-persistence-primary-jpa",
+          "reported_seconds": 111.435,
+          "tests": 142,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest",
+          "module": "pocoma-runtime-task-consumption-worker",
+          "reported_seconds": 76.82,
+          "tests": 14,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.V3IdentityRequestMonolithPostgresTest",
+          "module": "pocoma-runtime-monolith",
+          "reported_seconds": 69.603,
+          "tests": 7,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+          "module": "pocoma-infra-persistence-primary-jpa",
+          "reported_seconds": 57.627,
+          "tests": 45,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.SlotNavigationPostgresTest",
+          "module": "pocoma-infra-persistence-primary-jpa",
+          "reported_seconds": 57.444,
+          "tests": 8,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.runtime.task.v3.InterAuthorityRecoveryPostgresTest",
+          "module": "pocoma-runtime-task-consumption-worker",
+          "reported_seconds": 38.236,
+          "tests": 10,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.runtime.task.v3.V3ReadQuotaPostgresTest",
+          "module": "pocoma-runtime-task-consumption-worker",
+          "reported_seconds": 25.51,
+          "tests": 10,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.CommandExecutionPostgresTest",
+          "module": "pocoma-infra-persistence-primary-jpa",
+          "reported_seconds": 23.396,
+          "tests": 31,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.runtime.task.v3.ReadFacadesPostgresTest",
+          "module": "pocoma-runtime-task-consumption-worker",
+          "reported_seconds": 19.806,
+          "tests": 5,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        }
+      ]
+    },
+    {
+      "run": "pocoma-l5-i1-architecture-07",
+      "verdict": "FAIL",
+      "counts": {
+        "tests": 2064,
+        "failures": 0,
+        "errors": 23,
+        "skipped": 0
+      },
+      "measured_phases": {
+        "phases": {
+          "input_inventory": {
+            "status": "FINISHED",
+            "seconds": 0.06657308299327269
+          },
+          "discovery": {
+            "status": "FINISHED",
+            "seconds": 2.3725856670062058
+          },
+          "maven": {
+            "status": "FINISHED",
+            "seconds": 3783.0735773339984
+          },
+          "collection": {
+            "status": "FINISHED",
+            "seconds": 6.132174291997217
+          }
+        },
+        "campaign_seconds": 3792.0693083329825,
+        "forecast": {
+          "seconds": null,
+          "basis": "UNKNOWN",
+          "uncertainty": "UNKNOWN"
+        },
+        "forecast_delta_seconds": null,
+        "forecast_exceeded": null,
+        "forecast_is_blocking": false
+      },
+      "reported_class_seconds_sum": 3731.404,
+      "maven_minus_reported_classes_seconds": 51.669577333998404,
+      "residual_is_not_exclusive_compilation_time": true,
+      "largest_reported_classes": [
+        {
+          "class": "com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest",
+          "module": "pocoma-runtime-command-consumption-worker",
+          "reported_seconds": 1168.312,
+          "tests": 21,
+          "failure": 0,
+          "error": 1,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.DiscoveryPostgresTest",
+          "module": "pocoma-infra-persistence-primary-jpa",
+          "reported_seconds": 507.692,
+          "tests": 49,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.ReadWorkerResourcesPostgresTest",
+          "module": "pocoma-runtime-monolith",
+          "reported_seconds": 468.297,
+          "tests": 2,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest",
+          "module": "pocoma-runtime-command-consumption-worker",
+          "reported_seconds": 344.049,
+          "tests": 13,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.ReadRootsCoexistencePostgresTest",
+          "module": "pocoma-runtime-monolith",
+          "reported_seconds": 205.208,
+          "tests": 1,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.L2ManifestProof",
+          "module": "pocoma-infra-persistence-primary-jpa",
+          "reported_seconds": 110.909,
+          "tests": 142,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest",
+          "module": "pocoma-runtime-task-consumption-worker",
+          "reported_seconds": 82.08,
+          "tests": 14,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.V3IdentityRequestMonolithPostgresTest",
+          "module": "pocoma-runtime-monolith",
+          "reported_seconds": 67.438,
+          "tests": 7,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.SlotNavigationPostgresTest",
+          "module": "pocoma-infra-persistence-primary-jpa",
+          "reported_seconds": 57.414,
+          "tests": 8,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+          "module": "pocoma-infra-persistence-primary-jpa",
+          "reported_seconds": 57.132,
+          "tests": 45,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.runtime.command.consumption.eventprotocol.EventSequencingAdministrationPostgresTest",
+          "module": "pocoma-runtime-command-consumption-worker",
+          "reported_seconds": 47.909,
+          "tests": 23,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.runtime.task.v3.InterAuthorityRecoveryPostgresTest",
+          "module": "pocoma-runtime-task-consumption-worker",
+          "reported_seconds": 36.244,
+          "tests": 10,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        }
+      ]
+    },
+    {
+      "run": "pocoma-l5-i1-architecture-08",
+      "verdict": "PASS",
+      "counts": {
+        "tests": 2231,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "measured_phases": {
+        "phases": {
+          "input_inventory": {
+            "status": "FINISHED",
+            "seconds": 0.06581250001909211
+          },
+          "discovery": {
+            "status": "FINISHED",
+            "seconds": 2.253387041972019
+          },
+          "maven": {
+            "status": "FINISHED",
+            "seconds": 4273.249066499993
+          },
+          "collection": {
+            "status": "FINISHED",
+            "seconds": 5.129924875043798
+          }
+        },
+        "campaign_seconds": 4281.1263409999665,
+        "forecast": {
+          "seconds": null,
+          "basis": "UNKNOWN",
+          "uncertainty": "UNKNOWN"
+        },
+        "forecast_delta_seconds": null,
+        "forecast_exceeded": null,
+        "forecast_is_blocking": false
+      },
+      "reported_class_seconds_sum": 5156.003,
+      "maven_minus_reported_classes_seconds": -882.7539335000065,
+      "residual_is_not_exclusive_compilation_time": true,
+      "largest_reported_classes": [
+        {
+          "class": "com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest",
+          "module": "pocoma-runtime-command-consumption-worker",
+          "reported_seconds": 1172.84,
+          "tests": 21,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+          "module": "pocoma-infra-persistence-primary-jpa",
+          "reported_seconds": 1001.316,
+          "tests": 45,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.DiscoveryPostgresTest",
+          "module": "pocoma-infra-persistence-primary-jpa",
+          "reported_seconds": 503.923,
+          "tests": 49,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.ReadWorkerResourcesPostgresTest",
+          "module": "pocoma-runtime-monolith",
+          "reported_seconds": 467.965,
+          "tests": 2,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest",
+          "module": "pocoma-runtime-command-consumption-worker",
+          "reported_seconds": 326.919,
+          "tests": 13,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.runtime.command.v3.V3IdentityPotCommandPostgresTest",
+          "module": "pocoma-runtime-command-consumption-worker",
+          "reported_seconds": 319.112,
+          "tests": 9,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.ReadRootsCoexistencePostgresTest",
+          "module": "pocoma-runtime-monolith",
+          "reported_seconds": 210.318,
+          "tests": 1,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.L2ManifestProof",
+          "module": "pocoma-infra-persistence-primary-jpa",
+          "reported_seconds": 111.69,
+          "tests": 142,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.runtime.command.v3.V3IdentityRequestCompositionPostgresTest",
+          "module": "pocoma-runtime-command-consumption-worker",
+          "reported_seconds": 104.429,
+          "tests": 10,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest",
+          "module": "pocoma-runtime-task-consumption-worker",
+          "reported_seconds": 87.625,
+          "tests": 14,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.V3IdentityRequestMonolithPostgresTest",
+          "module": "pocoma-runtime-monolith",
+          "reported_seconds": 81.429,
+          "tests": 7,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.SlotNavigationPostgresTest",
+          "module": "pocoma-infra-persistence-primary-jpa",
+          "reported_seconds": 57.464,
+          "tests": 8,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        }
+      ]
+    },
+    {
+      "run": "pocoma-l5-i1-architecture-feedback-01",
+      "verdict": "PASS",
+      "counts": {
+        "tests": 167,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "measured_phases": {
+        "phases": {
+          "input_inventory": {
+            "status": "FINISHED",
+            "seconds": 0.1312706249882467
+          },
+          "discovery": {
+            "status": "FINISHED",
+            "seconds": 2.221010875015054
+          },
+          "maven": {
+            "status": "FINISHED",
+            "seconds": 39.12601620797068
+          },
+          "collection": {
+            "status": "FINISHED",
+            "seconds": 0.6552799160126597
+          }
+        },
+        "campaign_seconds": 42.529453166993335,
+        "forecast": {
+          "seconds": 900,
+          "basis": "Actual architecture oracles not reached by previous failed native gate; bounded feedback only, canonical gate still due",
+          "uncertainty": "UNMEASURED"
+        },
+        "forecast_delta_seconds": -857.4705468330067,
+        "forecast_exceeded": false,
+        "forecast_is_blocking": false
+      },
+      "reported_class_seconds_sum": 34.487,
+      "maven_minus_reported_classes_seconds": 4.639016207970677,
+      "residual_is_not_exclusive_compilation_time": true,
+      "largest_reported_classes": [
+        {
+          "class": "com.kartaguez.pocoma.architecture.ccr.CommandCompletionE2EPostgresTest",
+          "module": "pocoma-architecture-tests",
+          "reported_seconds": 10.871,
+          "tests": 4,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.architecture.ept.DurableEventToProjectionPostgresTest",
+          "module": "pocoma-architecture-tests",
+          "reported_seconds": 4.173,
+          "tests": 1,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.architecture.Pcl8DatabaseDemolitionPostgresTest",
+          "module": "pocoma-architecture-tests",
+          "reported_seconds": 3.11,
+          "tests": 1,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.architecture.ccr.CommandResultTakeoverRacePostgresTest",
+          "module": "pocoma-architecture-tests",
+          "reported_seconds": 2.327,
+          "tests": 5,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.architecture.ccr.CommandResultConsumptionChainPostgresTest",
+          "module": "pocoma-architecture-tests",
+          "reported_seconds": 2.126,
+          "tests": 7,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.architecture.ept.HistoricalEventRouteEvolutionPostgresTest",
+          "module": "pocoma-architecture-tests",
+          "reported_seconds": 1.759,
+          "tests": 1,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.architecture.BindingLockOwnershipTest",
+          "module": "pocoma-architecture-tests",
+          "reported_seconds": 1.475,
+          "tests": 4,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.architecture.Wa67BindingArchitectureTest",
+          "module": "pocoma-architecture-tests",
+          "reported_seconds": 0.859,
+          "tests": 5,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.architecture.Pcl7ModuleDependencyCollapseTest",
+          "module": "pocoma-architecture-tests",
+          "reported_seconds": 0.703,
+          "tests": 4,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.architecture.HexagonalArchitectureTest",
+          "module": "pocoma-architecture-tests",
+          "reported_seconds": 0.691,
+          "tests": 55,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.architecture.Pcl6MonolithAbsenceTest",
+          "module": "pocoma-architecture-tests",
+          "reported_seconds": 0.69,
+          "tests": 7,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.architecture.Pcl4LegacyQueryReadAbsenceTest",
+          "module": "pocoma-architecture-tests",
+          "reported_seconds": 0.687,
+          "tests": 4,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        }
+      ]
+    },
+    {
+      "run": "pocoma-l5-i1-cold-01",
+      "verdict": "FAIL",
+      "counts": {
+        "tests": 10,
+        "failures": 6,
+        "errors": 2,
+        "skipped": 0
+      },
+      "measured_phases": {
+        "phases": {
+          "input_inventory": {
+            "status": "FINISHED",
+            "seconds": 0.0917908750125207
+          },
+          "discovery": {
+            "status": "FINISHED",
+            "seconds": 2.215710124990437
+          },
+          "maven": {
+            "status": "FINISHED",
+            "seconds": 15.769455708970781
+          },
+          "collection": {
+            "status": "FINISHED",
+            "seconds": 0.4863059589988552
+          }
+        },
+        "campaign_seconds": 18.935697125038132,
+        "forecast": {
+          "seconds": 900,
+          "basis": "Human-approved shared T1+B1 planning estimate; no temporal interruption",
+          "uncertainty": "UNMEASURED"
+        },
+        "forecast_delta_seconds": -881.0643028749619,
+        "forecast_exceeded": false,
+        "forecast_is_blocking": false
+      },
+      "reported_class_seconds_sum": 13.068,
+      "maven_minus_reported_classes_seconds": 2.701455708970782,
+      "residual_is_not_exclusive_compilation_time": true,
+      "largest_reported_classes": [
+        {
+          "class": "com.kartaguez.pocoma.runtime.task.v3.V3ReadQuotaPostgresTest",
+          "module": "pocoma-runtime-task-consumption-worker",
+          "reported_seconds": 13.068,
+          "tests": 10,
+          "failure": 6,
+          "error": 2,
+          "skip": 0
+        }
+      ]
+    },
+    {
+      "run": "pocoma-l5-i1-completion-01",
+      "verdict": "FAIL",
+      "counts": {
+        "tests": 2,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "measured_phases": {
+        "phases": {
+          "input_inventory": {
+            "status": "FINISHED",
+            "seconds": 0.16029133403208107
+          },
+          "discovery": {
+            "status": "FINISHED",
+            "seconds": 2.276201125001535
+          },
+          "maven": {
+            "status": "FINISHED",
+            "seconds": 11.276574250019621
+          },
+          "collection": {
+            "status": "FINISHED",
+            "seconds": 0.5217480839928612
+          }
+        },
+        "campaign_seconds": 14.720096667006146,
+        "forecast": {
+          "seconds": 900,
+          "basis": "Completion after isolated run: reuse eight successful unaffected Q methods; fresh H24/C6/Q08/Q10, then B1",
+          "uncertainty": "UNMEASURED"
+        },
+        "forecast_delta_seconds": -885.2799033329939,
+        "forecast_exceeded": false,
+        "forecast_is_blocking": false
+      },
+      "reported_class_seconds_sum": 7.045,
+      "maven_minus_reported_classes_seconds": 4.231574250019621,
+      "residual_is_not_exclusive_compilation_time": true,
+      "largest_reported_classes": [
+        {
+          "class": "com.kartaguez.pocoma.runtime.task.v3.V3ReadQuotaPostgresTest",
+          "module": "pocoma-runtime-task-consumption-worker",
+          "reported_seconds": 7.045,
+          "tests": 2,
+          "failure": 1,
+          "error": 0,
+          "skip": 0
+        }
+      ]
+    },
+    {
+      "run": "pocoma-l5-i1-completion-02",
+      "verdict": "FAIL",
+      "counts": {
+        "tests": 25,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 0
+      },
+      "measured_phases": {
+        "phases": {
+          "input_inventory": {
+            "status": "FINISHED",
+            "seconds": 0.1373107919935137
+          },
+          "discovery": {
+            "status": "FINISHED",
+            "seconds": 2.2948257499956526
+          },
+          "maven": {
+            "status": "FINISHED",
+            "seconds": 42.77708374999929
+          },
+          "collection": {
+            "status": "FINISHED",
+            "seconds": 0.5275691249989904
+          }
+        },
+        "campaign_seconds": 46.11003229196649,
+        "forecast": {
+          "seconds": 900,
+          "basis": "Reuse nine Q PASS from isolated-02; fresh Q10/H24/C6 after worker fixture corrections",
+          "uncertainty": "UNMEASURED"
+        },
+        "forecast_delta_seconds": -853.8899677080335,
+        "forecast_exceeded": false,
+        "forecast_is_blocking": false
+      },
+      "reported_class_seconds_sum": 37.419,
+      "maven_minus_reported_classes_seconds": 5.358083749999295,
+      "residual_is_not_exclusive_compilation_time": true,
+      "largest_reported_classes": [
+        {
+          "class": "com.kartaguez.pocoma.V3ReadHttpContractTest",
+          "module": "pocoma-runtime-web-api",
+          "reported_seconds": 29.389,
+          "tests": 24,
+          "failure": 2,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.runtime.task.v3.V3ReadQuotaPostgresTest",
+          "module": "pocoma-runtime-task-consumption-worker",
+          "reported_seconds": 8.03,
+          "tests": 1,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        }
+      ]
+    },
+    {
+      "run": "pocoma-l5-i1-completion-03",
+      "verdict": "FAIL",
+      "counts": {
+        "tests": 9,
+        "failures": 0,
+        "errors": 1,
+        "skipped": 0
+      },
+      "measured_phases": {
+        "phases": {
+          "input_inventory": {
+            "status": "FINISHED",
+            "seconds": 0.07296512497123331
+          },
+          "discovery": {
+            "status": "FINISHED",
+            "seconds": 2.2281443339888938
+          },
+          "maven": {
+            "status": "FINISHED",
+            "seconds": 26.310211499978323
+          },
+          "collection": {
+            "status": "FINISHED",
+            "seconds": 0.5306608749669977
+          }
+        },
+        "campaign_seconds": 29.541335040994454,
+        "forecast": {
+          "seconds": 900,
+          "basis": "Retain 22 H and nine Q PASS; fresh H01/H16 setup-SQL oracles, stronger Q10 shared-pool protocol, C01-C06 not yet executed",
+          "uncertainty": "UNMEASURED"
+        },
+        "forecast_delta_seconds": -870.4586649590055,
+        "forecast_exceeded": false,
+        "forecast_is_blocking": false
+      },
+      "reported_class_seconds_sum": 20.134,
+      "maven_minus_reported_classes_seconds": 6.176211499978322,
+      "residual_is_not_exclusive_compilation_time": true,
+      "largest_reported_classes": [
+        {
+          "class": "com.kartaguez.pocoma.V3HttpCompositionPostgresTest",
+          "module": "pocoma-runtime-monolith",
+          "reported_seconds": 7.936,
+          "tests": 6,
+          "failure": 0,
+          "error": 1,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.runtime.task.v3.V3ReadQuotaPostgresTest",
+          "module": "pocoma-runtime-task-consumption-worker",
+          "reported_seconds": 7.723,
+          "tests": 1,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.V3ReadHttpContractTest",
+          "module": "pocoma-runtime-web-api",
+          "reported_seconds": 4.475,
+          "tests": 2,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        }
+      ]
+    },
+    {
+      "run": "pocoma-l5-i1-completion-04",
+      "verdict": "FAIL",
+      "counts": {
+        "tests": 1,
+        "failures": 0,
+        "errors": 1,
+        "skipped": 0
+      },
+      "measured_phases": {
+        "phases": {
+          "input_inventory": {
+            "status": "FINISHED",
+            "seconds": 0.07210054097231477
+          },
+          "discovery": {
+            "status": "FINISHED",
+            "seconds": 2.631981624988839
+          },
+          "maven": {
+            "status": "FINISHED",
+            "seconds": 12.664705457980745
+          },
+          "collection": {
+            "status": "FINISHED",
+            "seconds": 0.5241528330370784
+          }
+        },
+        "campaign_seconds": 16.41371029196307,
+        "forecast": {
+          "seconds": 900,
+          "basis": "39 exact I1 methods already passed; only C02 new READ+HTTP profile pair invalidated, then first B1",
+          "uncertainty": "UNMEASURED"
+        },
+        "forecast_delta_seconds": -883.5862897080369,
+        "forecast_exceeded": false,
+        "forecast_is_blocking": false
+      },
+      "reported_class_seconds_sum": 7.5,
+      "maven_minus_reported_classes_seconds": 5.1647054579807445,
+      "residual_is_not_exclusive_compilation_time": true,
+      "largest_reported_classes": [
+        {
+          "class": "com.kartaguez.pocoma.V3HttpCompositionPostgresTest",
+          "module": "pocoma-runtime-monolith",
+          "reported_seconds": 7.5,
+          "tests": 1,
+          "failure": 0,
+          "error": 1,
+          "skip": 0
+        }
+      ]
+    },
+    {
+      "run": "pocoma-l5-i1-completion-05",
+      "verdict": "FAIL",
+      "counts": {
+        "tests": 3,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "measured_phases": {
+        "phases": {
+          "input_inventory": {
+            "status": "FINISHED",
+            "seconds": 0.15183537499979138
+          },
+          "discovery": {
+            "status": "FINISHED",
+            "seconds": 2.459148333000485
+          },
+          "maven": {
+            "status": "FINISHED",
+            "seconds": 19.83950758399442
+          },
+          "collection": {
+            "status": "FINISHED",
+            "seconds": 0.5252277090330608
+          }
+        },
+        "campaign_seconds": 23.46569762501167,
+        "forecast": {
+          "seconds": 900,
+          "basis": "C02 late bean allowlist plus completed JWT/framing/write-timeout variants; retain other 36 exact identities",
+          "uncertainty": "UNMEASURED"
+        },
+        "forecast_delta_seconds": -876.5343023749883,
+        "forecast_exceeded": false,
+        "forecast_is_blocking": false
+      },
+      "reported_class_seconds_sum": 14.271999999999998,
+      "maven_minus_reported_classes_seconds": 5.56750758399442,
+      "residual_is_not_exclusive_compilation_time": true,
+      "largest_reported_classes": [
+        {
+          "class": "com.kartaguez.pocoma.runtime.task.v3.V3ReadQuotaPostgresTest",
+          "module": "pocoma-runtime-task-consumption-worker",
+          "reported_seconds": 9.77,
+          "tests": 1,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.V3ReadHttpContractTest",
+          "module": "pocoma-runtime-web-api",
+          "reported_seconds": 4.502,
+          "tests": 2,
+          "failure": 1,
+          "error": 0,
+          "skip": 0
+        }
+      ]
+    },
+    {
+      "run": "pocoma-l5-i1-completion-06",
+      "verdict": "PASS",
+      "counts": {
+        "tests": 12,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "measured_phases": {
+        "phases": {
+          "input_inventory": {
+            "status": "FINISHED",
+            "seconds": 0.2173651249613613
+          },
+          "discovery": {
+            "status": "FINISHED",
+            "seconds": 2.3614800419891253
+          },
+          "maven": {
+            "status": "FINISHED",
+            "seconds": 37.17235141701531
+          },
+          "collection": {
+            "status": "FINISHED",
+            "seconds": 0.5784744170377962
+          }
+        },
+        "campaign_seconds": 40.73888254194753,
+        "forecast": {
+          "seconds": 900,
+          "basis": "Raw claim validation correction invalidates H01-H08; complete binding/rational/foreign-cursor variants H14/H15/H19 and C02 outstanding; all other proofs retained",
+          "uncertainty": "UNMEASURED"
+        },
+        "forecast_delta_seconds": -859.2611174580525,
+        "forecast_exceeded": false,
+        "forecast_is_blocking": false
+      },
+      "reported_class_seconds_sum": 31.15,
+      "maven_minus_reported_classes_seconds": 6.022351417015308,
+      "residual_is_not_exclusive_compilation_time": true,
+      "largest_reported_classes": [
+        {
+          "class": "com.kartaguez.pocoma.V3ReadHttpContractTest",
+          "module": "pocoma-runtime-web-api",
+          "reported_seconds": 22.99,
+          "tests": 11,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.V3HttpCompositionPostgresTest",
+          "module": "pocoma-runtime-monolith",
+          "reported_seconds": 8.16,
+          "tests": 1,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        }
+      ]
+    },
+    {
+      "run": "pocoma-l5-i1-completion-07",
+      "verdict": "PASS",
+      "counts": {
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "measured_phases": {
+        "phases": {
+          "input_inventory": {
+            "status": "FINISHED",
+            "seconds": 0.13436979101970792
+          },
+          "discovery": {
+            "status": "FINISHED",
+            "seconds": 2.418801874970086
+          },
+          "maven": {
+            "status": "FINISHED",
+            "seconds": 16.870054957980756
+          },
+          "collection": {
+            "status": "FINISHED",
+            "seconds": 0.5322973750298843
+          }
+        },
+        "campaign_seconds": 20.32220633298857,
+        "forecast": {
+          "seconds": 900,
+          "basis": "Recheck roots with production-owned legacy auto-configuration exclusions, then recursive B1; preserve other 38 exact methods",
+          "uncertainty": "UNMEASURED"
+        },
+        "forecast_delta_seconds": -879.6777936670114,
+        "forecast_exceeded": false,
+        "forecast_is_blocking": false
+      },
+      "reported_class_seconds_sum": 11.428,
+      "maven_minus_reported_classes_seconds": 5.442054957980755,
+      "residual_is_not_exclusive_compilation_time": true,
+      "largest_reported_classes": [
+        {
+          "class": "com.kartaguez.pocoma.V3HttpCompositionPostgresTest",
+          "module": "pocoma-runtime-monolith",
+          "reported_seconds": 11.428,
+          "tests": 2,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        }
+      ]
+    },
+    {
+      "run": "pocoma-l5-i1-composition-split-01",
+      "verdict": "PASS",
+      "counts": {
+        "tests": 31,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "measured_phases": {
+        "phases": {
+          "input_inventory": {
+            "status": "FINISHED",
+            "seconds": 0.12003162497421727
+          },
+          "discovery": {
+            "status": "FINISHED",
+            "seconds": 2.0337197500048205
+          },
+          "maven": {
+            "status": "FINISHED",
+            "seconds": 49.569073499995284
+          },
+          "collection": {
+            "status": "FINISHED",
+            "seconds": 0.6286431669723243
+          }
+        },
+        "campaign_seconds": 52.76685529202223,
+        "forecast": {
+          "seconds": 900,
+          "basis": "Remove forbidden Monolith to Web test dependency; six named C methods retained across their owning roots; verify actual roots without reflection or duplicated assembly",
+          "uncertainty": "UNMEASURED"
+        },
+        "forecast_delta_seconds": -847.2331447079778,
+        "forecast_exceeded": false,
+        "forecast_is_blocking": false
+      },
+      "reported_class_seconds_sum": 45.01,
+      "maven_minus_reported_classes_seconds": 4.559073499995286,
+      "residual_is_not_exclusive_compilation_time": true,
+      "largest_reported_classes": [
+        {
+          "class": "com.kartaguez.pocoma.V3ReadHttpContractTest",
+          "module": "pocoma-runtime-web-api",
+          "reported_seconds": 26.114,
+          "tests": 24,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.V3MonolithHttpCompositionPostgresTest",
+          "module": "pocoma-runtime-monolith",
+          "reported_seconds": 8.652,
+          "tests": 1,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.V3HttpCompositionPostgresTest",
+          "module": "pocoma-runtime-web-api",
+          "reported_seconds": 6.986,
+          "tests": 5,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.PocomaWebApiApplicationTest",
+          "module": "pocoma-runtime-web-api",
+          "reported_seconds": 3.258,
+          "tests": 1,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        }
+      ]
+    },
+    {
+      "run": "pocoma-l5-i1-correction-01",
+      "verdict": "FAIL",
+      "counts": {
+        "tests": 0,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "measured_phases": {
+        "phases": {
+          "input_inventory": {
+            "status": "FINISHED",
+            "seconds": 0.08381891599856317
+          },
+          "discovery": {
+            "status": "FINISHED",
+            "seconds": 2.2177000420051627
+          },
+          "maven": {
+            "status": "INTERRUPTED_OR_FAILED",
+            "seconds": 118.20370495796669
+          }
+        },
+        "campaign_seconds": 120.87489716697019,
+        "forecast": {
+          "seconds": 900,
+          "basis": "Human-approved shared T1+B1 planning estimate; no temporal interruption",
+          "uncertainty": "UNMEASURED"
+        },
+        "forecast_delta_seconds": -779.1251028330298,
+        "forecast_exceeded": false,
+        "forecast_is_blocking": false
+      },
+      "reported_class_seconds_sum": 0,
+      "maven_minus_reported_classes_seconds": 118.20370495796669,
+      "residual_is_not_exclusive_compilation_time": true,
+      "largest_reported_classes": []
+    },
+    {
+      "run": "pocoma-l5-i1-final-delta",
+      "verdict": "PASS",
+      "counts": {
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "measured_phases": {
+        "phases": {
+          "input_inventory": {
+            "status": "FINISHED",
+            "seconds": 0.14640054100891575
+          },
+          "discovery": {
+            "status": "FINISHED",
+            "seconds": 2.180905165965669
+          },
+          "maven": {
+            "status": "FINISHED",
+            "seconds": 19.101066791976336
+          },
+          "collection": {
+            "status": "FINISHED",
+            "seconds": 0.5377278340165503
+          }
+        },
+        "campaign_seconds": 22.340225707972422,
+        "forecast": {
+          "seconds": 900,
+          "basis": "Frozen input capture correction and final physical cost collection; recheck only Q01/Q08/Q09/H16, then only expense B15-B20",
+          "uncertainty": "UNMEASURED"
+        },
+        "forecast_delta_seconds": -877.6597742920276,
+        "forecast_exceeded": false,
+        "forecast_is_blocking": false
+      },
+      "reported_class_seconds_sum": 12.989,
+      "maven_minus_reported_classes_seconds": 6.112066791976336,
+      "residual_is_not_exclusive_compilation_time": true,
+      "largest_reported_classes": [
+        {
+          "class": "com.kartaguez.pocoma.runtime.task.v3.V3ReadQuotaPostgresTest",
+          "module": "pocoma-runtime-task-consumption-worker",
+          "reported_seconds": 9.189,
+          "tests": 3,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.V3ReadHttpContractTest",
+          "module": "pocoma-runtime-web-api",
+          "reported_seconds": 3.8,
+          "tests": 1,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        }
+      ]
+    },
+    {
+      "run": "pocoma-l5-i1-formal-01",
+      "verdict": "FAIL",
+      "counts": {
+        "tests": 10,
+        "failures": 0,
+        "errors": 10,
+        "skipped": 0
+      },
+      "measured_phases": {
+        "phases": {
+          "input_inventory": {
+            "status": "FINISHED",
+            "seconds": 0.13929970801109448
+          },
+          "discovery": {
+            "status": "FINISHED",
+            "seconds": 2.722354917030316
+          },
+          "maven": {
+            "status": "FINISHED",
+            "seconds": 10.509700458031148
+          },
+          "collection": {
+            "status": "FINISHED",
+            "seconds": 0.5424613750074059
+          }
+        },
+        "campaign_seconds": 14.283529082953464,
+        "forecast": {
+          "seconds": 900,
+          "basis": "Human-approved shared T1+B1 planning estimate; no temporal interruption",
+          "uncertainty": "UNMEASURED"
+        },
+        "forecast_delta_seconds": -885.7164709170465,
+        "forecast_exceeded": false,
+        "forecast_is_blocking": false
+      },
+      "reported_class_seconds_sum": 7.634,
+      "maven_minus_reported_classes_seconds": 2.8757004580311474,
+      "residual_is_not_exclusive_compilation_time": true,
+      "largest_reported_classes": [
+        {
+          "class": "com.kartaguez.pocoma.runtime.task.v3.V3ReadQuotaPostgresTest",
+          "module": "pocoma-runtime-task-consumption-worker",
+          "reported_seconds": 7.634,
+          "tests": 10,
+          "failure": 0,
+          "error": 10,
+          "skip": 0
+        }
+      ]
+    },
+    {
+      "run": "pocoma-l5-i1-http-boundary-01",
+      "verdict": "PASS",
+      "counts": {
+        "tests": 41,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "measured_phases": {
+        "phases": {
+          "input_inventory": {
+            "status": "FINISHED",
+            "seconds": 0.13692233298206702
+          },
+          "discovery": {
+            "status": "FINISHED",
+            "seconds": 2.152865208045114
+          },
+          "maven": {
+            "status": "FINISHED",
+            "seconds": 138.4801603339729
+          },
+          "collection": {
+            "status": "FINISHED",
+            "seconds": 0.6361664159921929
+          }
+        },
+        "campaign_seconds": 141.80605962499976,
+        "forecast": {
+          "seconds": 900,
+          "basis": "Isolate local deadlines to HTTP mode; retain all 40 I1 methods and recheck the one invalidated legacy non-HTTP consultation/renewal method, then fresh full B1",
+          "uncertainty": "UNMEASURED"
+        },
+        "forecast_delta_seconds": -758.1939403750002,
+        "forecast_exceeded": false,
+        "forecast_is_blocking": false
+      },
+      "reported_class_seconds_sum": 131.392,
+      "maven_minus_reported_classes_seconds": 7.088160333972894,
+      "residual_is_not_exclusive_compilation_time": true,
+      "largest_reported_classes": [
+        {
+          "class": "com.kartaguez.pocoma.ReadWorkerResourcesPostgresTest",
+          "module": "pocoma-runtime-monolith",
+          "reported_seconds": 63.882,
+          "tests": 1,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.V3ReadHttpContractTest",
+          "module": "pocoma-runtime-web-api",
+          "reported_seconds": 26.315,
+          "tests": 24,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.runtime.task.v3.V3ReadQuotaPostgresTest",
+          "module": "pocoma-runtime-task-consumption-worker",
+          "reported_seconds": 24.029,
+          "tests": 10,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.V3MonolithHttpCompositionPostgresTest",
+          "module": "pocoma-runtime-monolith",
+          "reported_seconds": 10.141,
+          "tests": 1,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.V3HttpCompositionPostgresTest",
+          "module": "pocoma-runtime-web-api",
+          "reported_seconds": 7.025,
+          "tests": 5,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        }
+      ]
+    },
+    {
+      "run": "pocoma-l5-i1-isolated-01",
+      "verdict": "FAIL",
+      "counts": {
+        "tests": 10,
+        "failures": 0,
+        "errors": 1,
+        "skipped": 0
+      },
+      "measured_phases": {
+        "phases": {
+          "input_inventory": {
+            "status": "FINISHED",
+            "seconds": 0.11005758302053437
+          },
+          "discovery": {
+            "status": "FINISHED",
+            "seconds": 1.9292533340048976
+          },
+          "maven": {
+            "status": "FINISHED",
+            "seconds": 22.38673974998528
+          },
+          "collection": {
+            "status": "FINISHED",
+            "seconds": 0.5682340420316905
+          }
+        },
+        "campaign_seconds": 25.729835207981523,
+        "forecast": {
+          "seconds": 900,
+          "basis": "Human-approved shared T1+B1 planning estimate; no temporal interruption",
+          "uncertainty": "UNMEASURED"
+        },
+        "forecast_delta_seconds": -874.2701647920185,
+        "forecast_exceeded": false,
+        "forecast_is_blocking": false
+      },
+      "reported_class_seconds_sum": 13.938,
+      "maven_minus_reported_classes_seconds": 8.44873974998528,
+      "residual_is_not_exclusive_compilation_time": true,
+      "largest_reported_classes": [
+        {
+          "class": "com.kartaguez.pocoma.runtime.task.v3.V3ReadQuotaPostgresTest",
+          "module": "pocoma-runtime-task-consumption-worker",
+          "reported_seconds": 13.938,
+          "tests": 10,
+          "failure": 0,
+          "error": 1,
+          "skip": 0
+        }
+      ]
+    },
+    {
+      "run": "pocoma-l5-i1-isolated-02",
+      "verdict": "FAIL",
+      "counts": {
+        "tests": 10,
+        "failures": 0,
+        "errors": 1,
+        "skipped": 0
+      },
+      "measured_phases": {
+        "phases": {
+          "input_inventory": {
+            "status": "FINISHED",
+            "seconds": 0.13227054197341204
+          },
+          "discovery": {
+            "status": "FINISHED",
+            "seconds": 2.3028918330091983
+          },
+          "maven": {
+            "status": "FINISHED",
+            "seconds": 20.147238708043005
+          },
+          "collection": {
+            "status": "FINISHED",
+            "seconds": 0.5235670830006711
+          }
+        },
+        "campaign_seconds": 23.504694709030446,
+        "forecast": {
+          "seconds": 900,
+          "basis": "Human-approved shared T1+B1 planning estimate; no temporal interruption",
+          "uncertainty": "UNMEASURED"
+        },
+        "forecast_delta_seconds": -876.4953052909696,
+        "forecast_exceeded": false,
+        "forecast_is_blocking": false
+      },
+      "reported_class_seconds_sum": 16.049,
+      "maven_minus_reported_classes_seconds": 4.098238708043006,
+      "residual_is_not_exclusive_compilation_time": true,
+      "largest_reported_classes": [
+        {
+          "class": "com.kartaguez.pocoma.runtime.task.v3.V3ReadQuotaPostgresTest",
+          "module": "pocoma-runtime-task-consumption-worker",
+          "reported_seconds": 16.049,
+          "tests": 10,
+          "failure": 0,
+          "error": 1,
+          "skip": 0
+        }
+      ]
+    },
+    {
+      "run": "pocoma-l5-i1-optional-port-01",
+      "verdict": "PASS",
+      "counts": {
+        "tests": 63,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "measured_phases": {
+        "phases": {
+          "input_inventory": {
+            "status": "FINISHED",
+            "seconds": 0.12632020801538602
+          },
+          "discovery": {
+            "status": "FINISHED",
+            "seconds": 2.2566530409967527
+          },
+          "maven": {
+            "status": "FINISHED",
+            "seconds": 522.4052839160431
+          },
+          "collection": {
+            "status": "FINISHED",
+            "seconds": 0.7231982089579105
+          }
+        },
+        "campaign_seconds": 526.5330843749689,
+        "forecast": {
+          "seconds": 900,
+          "basis": "Keep optional READ port linkage in HTTP assembly: all40 I1 + 23 exact Command startup errors, then full B1. No unchanged replay or oracle relaxation.",
+          "uncertainty": "UNMEASURED"
+        },
+        "forecast_delta_seconds": -373.4669156250311,
+        "forecast_exceeded": false,
+        "forecast_is_blocking": false
+      },
+      "reported_class_seconds_sum": 512.273,
+      "maven_minus_reported_classes_seconds": 10.132283916043093,
+      "residual_is_not_exclusive_compilation_time": true,
+      "largest_reported_classes": [
+        {
+          "class": "com.kartaguez.pocoma.runtime.command.v3.V3IdentityPotCommandPostgresTest",
+          "module": "pocoma-runtime-command-consumption-worker",
+          "reported_seconds": 330.357,
+          "tests": 9,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.runtime.command.v3.V3IdentityRequestCompositionPostgresTest",
+          "module": "pocoma-runtime-command-consumption-worker",
+          "reported_seconds": 79.177,
+          "tests": 9,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.V3ReadHttpContractTest",
+          "module": "pocoma-runtime-web-api",
+          "reported_seconds": 27.307,
+          "tests": 24,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.runtime.task.v3.V3ReadQuotaPostgresTest",
+          "module": "pocoma-runtime-task-consumption-worker",
+          "reported_seconds": 23.955,
+          "tests": 10,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.V3MonolithHttpCompositionPostgresTest",
+          "module": "pocoma-runtime-monolith",
+          "reported_seconds": 11.956,
+          "tests": 1,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest",
+          "module": "pocoma-runtime-command-consumption-worker",
+          "reported_seconds": 10.675,
+          "tests": 1,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.runtime.command.v3.V3WorkerMetricsTest",
+          "module": "pocoma-runtime-command-consumption-worker",
+          "reported_seconds": 8.838,
+          "tests": 1,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.runtime.command.v3.V3WorkerCompositionPostgresTest",
+          "module": "pocoma-runtime-command-consumption-worker",
+          "reported_seconds": 7.65,
+          "tests": 2,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.V3HttpCompositionPostgresTest",
+          "module": "pocoma-runtime-web-api",
+          "reported_seconds": 6.901,
+          "tests": 5,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.runtime.command.v3.V3PotCommandCompositionPostgresTest",
+          "module": "pocoma-runtime-command-consumption-worker",
+          "reported_seconds": 5.457,
+          "tests": 1,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        }
+      ]
+    },
+    {
+      "run": "pocoma-l5-i1-pool-initialization-01",
+      "verdict": "PASS",
+      "counts": {
+        "tests": 24,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "measured_phases": {
+        "phases": {
+          "input_inventory": {
+            "status": "FINISHED",
+            "seconds": 0.13578837498789653
+          },
+          "discovery": {
+            "status": "FINISHED",
+            "seconds": 2.0819381669862196
+          },
+          "maven": {
+            "status": "FINISHED",
+            "seconds": 34.67353308398742
+          },
+          "collection": {
+            "status": "FINISHED",
+            "seconds": 0.5572059590485878
+          }
+        },
+        "campaign_seconds": 37.86534075002419,
+        "forecast": {
+          "seconds": 900,
+          "basis": "Deterministic initialization of both physical HTTP pool connections before unchanged strict zero-SQL assertions; all H methods share this fixture",
+          "uncertainty": "UNMEASURED"
+        },
+        "forecast_delta_seconds": -862.1346592499758,
+        "forecast_exceeded": false,
+        "forecast_is_blocking": false
+      },
+      "reported_class_seconds_sum": 31.095,
+      "maven_minus_reported_classes_seconds": 3.5785330839874234,
+      "residual_is_not_exclusive_compilation_time": true,
+      "largest_reported_classes": [
+        {
+          "class": "com.kartaguez.pocoma.V3ReadHttpContractTest",
+          "module": "pocoma-runtime-web-api",
+          "reported_seconds": 31.095,
+          "tests": 24,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        }
+      ]
+    },
+    {
+      "run": "pocoma-l5-i1-worker-isolation-01",
+      "verdict": "FAIL",
+      "counts": {
+        "tests": 25,
+        "failures": 0,
+        "errors": 10,
+        "skipped": 0
+      },
+      "measured_phases": {
+        "phases": {
+          "input_inventory": {
+            "status": "FINISHED",
+            "seconds": 0.11689512501470745
+          },
+          "discovery": {
+            "status": "FINISHED",
+            "seconds": 2.25058995798463
+          },
+          "maven": {
+            "status": "FINISHED",
+            "seconds": 22.21893833304057
+          },
+          "collection": {
+            "status": "FINISHED",
+            "seconds": 0.567602708004415
+          }
+        },
+        "campaign_seconds": 25.538350874965545,
+        "forecast": {
+          "seconds": 900,
+          "basis": "Worker default isolation correction: unchanged two historical classes and Q01-Q10; no unchanged retry",
+          "uncertainty": "UNMEASURED"
+        },
+        "forecast_delta_seconds": -874.4616491250345,
+        "forecast_exceeded": false,
+        "forecast_is_blocking": false
+      },
+      "reported_class_seconds_sum": 18.035,
+      "maven_minus_reported_classes_seconds": 4.183938333040569,
+      "residual_is_not_exclusive_compilation_time": true,
+      "largest_reported_classes": [
+        {
+          "class": "com.kartaguez.pocoma.runtime.task.consumption.ProjectionTaskWorkerProcessTest",
+          "module": "pocoma-runtime-task-consumption-worker",
+          "reported_seconds": 7.441,
+          "tests": 1,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.runtime.task.v3.V3ReadQuotaPostgresTest",
+          "module": "pocoma-runtime-task-consumption-worker",
+          "reported_seconds": 5.794,
+          "tests": 10,
+          "failure": 0,
+          "error": 10,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.runtime.task.consumption.CanonicalProjectionTaskRuntimePostgresTest",
+          "module": "pocoma-runtime-task-consumption-worker",
+          "reported_seconds": 4.8,
+          "tests": 14,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        }
+      ]
+    },
+    {
+      "run": "pocoma-l5-i1-worker-isolation-02",
+      "verdict": "PASS",
+      "counts": {
+        "tests": 25,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "measured_phases": {
+        "phases": {
+          "input_inventory": {
+            "status": "FINISHED",
+            "seconds": 0.07114779099356383
+          },
+          "discovery": {
+            "status": "FINISHED",
+            "seconds": 2.0176924580009654
+          },
+          "maven": {
+            "status": "FINISHED",
+            "seconds": 37.92839658400044
+          },
+          "collection": {
+            "status": "FINISHED",
+            "seconds": 0.5387199159595184
+          }
+        },
+        "campaign_seconds": 40.913916957972106,
+        "forecast": {
+          "seconds": 900,
+          "basis": "Worker default isolation correction: unchanged two historical classes and Q01-Q10; no unchanged retry",
+          "uncertainty": "UNMEASURED"
+        },
+        "forecast_delta_seconds": -859.0860830420279,
+        "forecast_exceeded": false,
+        "forecast_is_blocking": false
+      },
+      "reported_class_seconds_sum": 33.789,
+      "maven_minus_reported_classes_seconds": 4.139396584000437,
+      "residual_is_not_exclusive_compilation_time": true,
+      "largest_reported_classes": [
+        {
+          "class": "com.kartaguez.pocoma.runtime.task.v3.V3ReadQuotaPostgresTest",
+          "module": "pocoma-runtime-task-consumption-worker",
+          "reported_seconds": 21.646,
+          "tests": 10,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.runtime.task.consumption.ProjectionTaskWorkerProcessTest",
+          "module": "pocoma-runtime-task-consumption-worker",
+          "reported_seconds": 7.227,
+          "tests": 1,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        },
+        {
+          "class": "com.kartaguez.pocoma.runtime.task.consumption.CanonicalProjectionTaskRuntimePostgresTest",
+          "module": "pocoma-runtime-task-consumption-worker",
+          "reported_seconds": 4.916,
+          "tests": 14,
+          "failure": 0,
+          "error": 0,
+          "skip": 0
+        }
+      ]
+    }
+  ],
+  "development_compile_feedback": [
+    {
+      "log": "i1-compile.log",
+      "maven_reported_total_time": "3.059 s",
+      "build": "SUCCESS",
+      "qualification_contribution": "development compile/test-compile feedback only; not a new test PASS"
+    },
+    {
+      "log": "i1-final-compile.log",
+      "maven_reported_total_time": "1.561 s",
+      "build": "SUCCESS",
+      "qualification_contribution": "development compile/test-compile feedback only; not a new test PASS"
+    },
+    {
+      "log": "i1-testcompile-2.log",
+      "maven_reported_total_time": "3.888 s",
+      "build": "SUCCESS",
+      "qualification_contribution": "development compile/test-compile feedback only; not a new test PASS"
+    },
+    {
+      "log": "i1-testcompile-3.log",
+      "maven_reported_total_time": "1.891 s",
+      "build": "FAILURE",
+      "qualification_contribution": "development compile/test-compile feedback only; not a new test PASS"
+    },
+    {
+      "log": "i1-testcompile-4.log",
+      "maven_reported_total_time": "3.253 s",
+      "build": "SUCCESS",
+      "qualification_contribution": "development compile/test-compile feedback only; not a new test PASS"
+    },
+    {
+      "log": "i1-testcompile-final.log",
+      "maven_reported_total_time": "1.622 s",
+      "build": "SUCCESS",
+      "qualification_contribution": "development compile/test-compile feedback only; not a new test PASS"
+    },
+    {
+      "log": "i1-testcompile.log",
+      "maven_reported_total_time": "2.364 s",
+      "build": "FAILURE",
+      "qualification_contribution": "development compile/test-compile feedback only; not a new test PASS"
+    }
+  ],
+  "interpretation": {
+    "compilation": "Source input counts and Maven compile announcements retained. Exclusive compilation wall duration is not instrumented in mixed test runs; residual also contains plugin/JVM/report costs.",
+    "fixture_postgresql_junit": "Reported class durations include container/schema/context setup and PG operations. They are not additive to Maven wall time. SQL pg_stat_statements times are a different, server-only observation.",
+    "bruno": "Bruno_Observed_Counters.json separates fixture-before-CLI, Java CLI/validation window and Bruno-reported duration; windows overlap.",
+    "collection": "Per-run collector phase timings and separately timed publication archives retained. Earlier publication collection not retrospectively invented.",
+    "useful_simplifications": "C05 now rejects the forbidden runtime test edge during bounded feedback; initialize both pool connections before SQL oracles; child memory oracle preserves native gate JVM configuration. No new campaign or relaxed oracle proposed to save elapsed time.",
+    "clock_discrepancy": "Architecture08 Maven civil5213.848515s vs monotonic4273.249066s; cause unknown. Clock_Measurement_Analysis.json preserves both. JUnit class windows and monotonic residual are not an exclusive civil wall breakdown."
+  }
+}

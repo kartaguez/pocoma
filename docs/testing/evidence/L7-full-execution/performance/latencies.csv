@@ -1,0 +1,409 @@
+campaign,profile,offeredCmdPerSec,commandsPerSide,metric,quantile,A_n,B_n,A_ms,B_ms,B_minus_A_ms,B_minus_A_pct
+H1 initial,H1,1.0,30,Admission HTTP,p50,30,30,12.7,12.96,0.26,2.05
+H1 initial,H1,1.0,30,Admission HTTP,p95,30,30,28.36,26.26,-2.1,-7.4
+H1 initial,H1,1.0,30,Admission HTTP,p99,30,30,36.98,47.99,11.01,29.77
+H1 initial,H1,1.0,30,Admission → découverte,p50,30,30,18.0,24.5,6.5,36.11
+H1 initial,H1,1.0,30,Admission → découverte,p95,30,30,31.95,41.55,9.6,30.05
+H1 initial,H1,1.0,30,Admission → découverte,p99,30,30,42.39,49.1,6.71,15.83
+H1 initial,H1,1.0,30,Découverte → exécution,p50,30,30,6.44,7.32,0.88,13.66
+H1 initial,H1,1.0,30,Découverte → exécution,p95,30,30,10.54,16.03,5.49,52.09
+H1 initial,H1,1.0,30,Découverte → exécution,p99,30,30,15.1,23.93,8.83,58.48
+H1 initial,H1,1.0,30,Exécution Command,p50,30,30,20.47,18.94,-1.53,-7.47
+H1 initial,H1,1.0,30,Exécution Command,p95,30,30,60.71,95.91,35.2,57.98
+H1 initial,H1,1.0,30,Exécution Command,p99,30,30,91.02,103.7,12.68,13.93
+H1 initial,H1,1.0,30,Exécution → préparation résultat,p50,30,30,33.0,27.5,-5.5,-16.67
+H1 initial,H1,1.0,30,Exécution → préparation résultat,p95,30,30,81.0,55.55,-25.45,-31.42
+H1 initial,H1,1.0,30,Exécution → préparation résultat,p99,30,30,94.26,89.37,-4.89,-5.19
+H1 initial,H1,1.0,30,Admission → résultat READ,p50,30,30,86.0,84.0,-2.0,-2.33
+H1 initial,H1,1.0,30,Admission → résultat READ,p95,30,30,173.4,176.8,3.4,1.96
+H1 initial,H1,1.0,30,Admission → résultat READ,p99,30,30,211.33,184.71,-26.62,-12.6
+H1 initial,H1,1.0,30,Admission → projection C-03,p50,30,30,132.0,120.0,-12.0,-9.09
+H1 initial,H1,1.0,30,Admission → projection C-03,p95,30,30,231.05,227.0,-4.05,-1.75
+H1 initial,H1,1.0,30,Admission → projection C-03,p99,30,30,364.76,270.79,-93.97,-25.76
+H1 initial,H1,1.0,30,Requête client → lecture C-03,p50,30,30,181.03,155.05,-25.98,-14.35
+H1 initial,H1,1.0,30,Requête client → lecture C-03,p95,30,30,283.72,294.96,11.24,3.96
+H1 initial,H1,1.0,30,Requête client → lecture C-03,p99,30,30,429.55,331.32,-98.23,-22.87
+H1 initial,H1,10.0,60,Admission HTTP,p50,60,60,22.17,49.37,27.2,122.69
+H1 initial,H1,10.0,60,Admission HTTP,p95,60,60,53.03,420.02,366.99,692.04
+H1 initial,H1,10.0,60,Admission HTTP,p99,60,60,63.15,1231.57,1168.42,1850.23
+H1 initial,H1,10.0,60,Admission → découverte,p50,60,60,19.0,37.0,18.0,94.74
+H1 initial,H1,10.0,60,Admission → découverte,p95,60,60,63.1,112.25,49.15,77.89
+H1 initial,H1,10.0,60,Admission → découverte,p99,60,60,74.0,126.51,52.51,70.96
+H1 initial,H1,10.0,60,Découverte → exécution,p50,60,60,6.41,23.4,16.99,265.05
+H1 initial,H1,10.0,60,Découverte → exécution,p95,60,60,11.13,280.68,269.55,2421.83
+H1 initial,H1,10.0,60,Découverte → exécution,p99,60,60,34.08,444.53,410.45,1204.37
+H1 initial,H1,10.0,60,Exécution Command,p50,60,60,15.87,62.53,46.66,294.01
+H1 initial,H1,10.0,60,Exécution Command,p95,60,60,43.85,185.7,141.85,323.49
+H1 initial,H1,10.0,60,Exécution Command,p99,60,60,48.74,268.54,219.8,450.96
+H1 initial,H1,10.0,60,Exécution → préparation résultat,p50,60,60,32.0,95.0,63.0,196.88
+H1 initial,H1,10.0,60,Exécution → préparation résultat,p95,60,60,74.25,258.7,184.45,248.42
+H1 initial,H1,10.0,60,Exécution → préparation résultat,p99,60,60,107.35,299.1,191.75,178.62
+H1 initial,H1,10.0,60,Admission → résultat READ,p50,60,60,98.5,276.0,177.5,180.2
+H1 initial,H1,10.0,60,Admission → résultat READ,p95,60,60,144.05,577.35,433.3,300.8
+H1 initial,H1,10.0,60,Admission → résultat READ,p99,60,60,165.71,744.75,579.04,349.43
+H1 initial,H1,10.0,60,Admission → projection C-03,p50,60,60,213.0,797.5,584.5,274.41
+H1 initial,H1,10.0,60,Admission → projection C-03,p95,60,60,402.1,1478.95,1076.85,267.81
+H1 initial,H1,10.0,60,Admission → projection C-03,p99,60,60,525.27,1620.28,1095.01,208.47
+H1 initial,H1,10.0,60,Requête client → lecture C-03,p50,60,60,257.53,1270.53,1013.0,393.35
+H1 initial,H1,10.0,60,Requête client → lecture C-03,p95,60,60,460.79,2362.97,1902.18,412.81
+H1 initial,H1,10.0,60,Requête client → lecture C-03,p99,60,60,673.97,2604.39,1930.42,286.43
+H1 initial,H1,50.0,100,Admission HTTP,p50,100,100,13.84,37.57,23.73,171.46
+H1 initial,H1,50.0,100,Admission HTTP,p95,100,100,388.54,1435.54,1047.0,269.47
+H1 initial,H1,50.0,100,Admission HTTP,p99,100,100,576.44,1650.36,1073.92,186.3
+H1 initial,H1,50.0,100,Admission → découverte,p50,100,100,32.0,24.0,-8.0,-25.0
+H1 initial,H1,50.0,100,Admission → découverte,p95,100,100,100.1,89.2,-10.9,-10.89
+H1 initial,H1,50.0,100,Admission → découverte,p99,100,100,124.16,98.01,-26.15,-21.06
+H1 initial,H1,50.0,100,Découverte → exécution,p50,100,100,11.84,17.0,5.16,43.58
+H1 initial,H1,50.0,100,Découverte → exécution,p95,100,100,208.84,150.39,-58.45,-27.99
+H1 initial,H1,50.0,100,Découverte → exécution,p99,100,100,282.85,197.61,-85.24,-30.14
+H1 initial,H1,50.0,100,Exécution Command,p50,100,100,26.95,30.66,3.71,13.77
+H1 initial,H1,50.0,100,Exécution Command,p95,100,100,86.53,82.86,-3.67,-4.24
+H1 initial,H1,50.0,100,Exécution Command,p99,100,100,108.06,101.24,-6.82,-6.31
+H1 initial,H1,50.0,100,Exécution → préparation résultat,p50,100,100,82.0,64.0,-18.0,-21.95
+H1 initial,H1,50.0,100,Exécution → préparation résultat,p95,100,100,193.0,173.3,-19.7,-10.21
+H1 initial,H1,50.0,100,Exécution → préparation résultat,p99,100,100,265.24,208.25,-56.99,-21.49
+H1 initial,H1,50.0,100,Admission → résultat READ,p50,100,100,211.0,194.5,-16.5,-7.82
+H1 initial,H1,50.0,100,Admission → résultat READ,p95,100,100,453.3,375.3,-78.0,-17.21
+H1 initial,H1,50.0,100,Admission → résultat READ,p99,100,100,584.25,416.84,-167.41,-28.65
+H1 initial,H1,50.0,100,Admission → projection C-03,p50,100,100,511.0,552.0,41.0,8.02
+H1 initial,H1,50.0,100,Admission → projection C-03,p95,100,100,1154.35,1223.1,68.75,5.96
+H1 initial,H1,50.0,100,Admission → projection C-03,p99,100,100,1550.54,1684.25,133.71,8.62
+H1 initial,H1,50.0,100,Requête client → lecture C-03,p50,100,100,1085.26,1198.24,112.98,10.41
+H1 initial,H1,50.0,100,Requête client → lecture C-03,p95,100,100,3443.36,3536.63,93.27,2.71
+H1 initial,H1,50.0,100,Requête client → lecture C-03,p99,100,100,3918.55,6140.85,2222.3,56.71
+H1 repetition,H1,1.0,30,Admission HTTP,p50,30,30,12.83,7.57,-5.26,-41.0
+H1 repetition,H1,1.0,30,Admission HTTP,p95,30,30,226.69,16.45,-210.24,-92.74
+H1 repetition,H1,1.0,30,Admission HTTP,p99,30,30,961.85,24.88,-936.97,-97.41
+H1 repetition,H1,1.0,30,Admission → découverte,p50,30,30,19.0,21.5,2.5,13.16
+H1 repetition,H1,1.0,30,Admission → découverte,p95,30,30,140.3,83.25,-57.05,-40.66
+H1 repetition,H1,1.0,30,Admission → découverte,p99,30,30,190.36,112.26,-78.1,-41.03
+H1 repetition,H1,1.0,30,Découverte → exécution,p50,30,30,8.91,6.53,-2.38,-26.71
+H1 repetition,H1,1.0,30,Découverte → exécution,p95,30,30,91.0,10.65,-80.35,-88.3
+H1 repetition,H1,1.0,30,Découverte → exécution,p99,30,30,384.35,73.75,-310.6,-80.81
+H1 repetition,H1,1.0,30,Exécution Command,p50,30,30,20.11,18.25,-1.86,-9.25
+H1 repetition,H1,1.0,30,Exécution Command,p95,30,30,801.03,147.34,-653.69,-81.61
+H1 repetition,H1,1.0,30,Exécution Command,p99,30,30,1501.51,555.48,-946.03,-63.01
+H1 repetition,H1,1.0,30,Exécution → préparation résultat,p50,30,30,26.0,29.0,3.0,11.54
+H1 repetition,H1,1.0,30,Exécution → préparation résultat,p95,30,30,321.95,94.2,-227.75,-70.74
+H1 repetition,H1,1.0,30,Exécution → préparation résultat,p99,30,30,511.81,140.75,-371.06,-72.5
+H1 repetition,H1,1.0,30,Admission → résultat READ,p50,30,30,120.0,78.5,-41.5,-34.58
+H1 repetition,H1,1.0,30,Admission → résultat READ,p95,30,30,1712.45,330.8,-1381.65,-80.68
+H1 repetition,H1,1.0,30,Admission → résultat READ,p99,30,30,2217.55,919.99,-1297.56,-58.51
+H1 repetition,H1,1.0,30,Admission → projection C-03,p50,30,30,183.5,121.5,-62.0,-33.79
+H1 repetition,H1,1.0,30,Admission → projection C-03,p95,30,30,2350.2,623.35,-1726.85,-73.48
+H1 repetition,H1,1.0,30,Admission → projection C-03,p99,30,30,2723.32,1398.36,-1324.96,-48.65
+H1 repetition,H1,1.0,30,Requête client → lecture C-03,p50,30,30,215.79,147.84,-67.95,-31.49
+H1 repetition,H1,1.0,30,Requête client → lecture C-03,p95,30,30,2684.41,650.29,-2034.12,-75.78
+H1 repetition,H1,1.0,30,Requête client → lecture C-03,p99,30,30,3775.42,1440.63,-2334.79,-61.84
+H1 repetition,H1,10.0,60,Admission HTTP,p50,60,60,11.73,7.1,-4.63,-39.47
+H1 repetition,H1,10.0,60,Admission HTTP,p95,60,60,21.07,10.46,-10.61,-50.36
+H1 repetition,H1,10.0,60,Admission HTTP,p99,60,60,31.13,11.13,-20.0,-64.25
+H1 repetition,H1,10.0,60,Admission → découverte,p50,60,60,13.0,19.0,6.0,46.15
+H1 repetition,H1,10.0,60,Admission → découverte,p95,60,60,69.25,33.0,-36.25,-52.35
+H1 repetition,H1,10.0,60,Admission → découverte,p99,60,60,87.66,53.48,-34.18,-38.99
+H1 repetition,H1,10.0,60,Découverte → exécution,p50,60,60,6.07,5.32,-0.75,-12.36
+H1 repetition,H1,10.0,60,Découverte → exécution,p95,60,60,41.52,33.35,-8.17,-19.68
+H1 repetition,H1,10.0,60,Découverte → exécution,p99,60,60,56.42,64.55,8.13,14.41
+H1 repetition,H1,10.0,60,Exécution Command,p50,60,60,30.29,33.42,3.13,10.33
+H1 repetition,H1,10.0,60,Exécution Command,p95,60,60,60.4,73.19,12.79,21.18
+H1 repetition,H1,10.0,60,Exécution Command,p99,60,60,76.5,86.34,9.84,12.86
+H1 repetition,H1,10.0,60,Exécution → préparation résultat,p50,60,60,33.5,30.0,-3.5,-10.45
+H1 repetition,H1,10.0,60,Exécution → préparation résultat,p95,60,60,76.05,58.15,-17.9,-23.54
+H1 repetition,H1,10.0,60,Exécution → préparation résultat,p99,60,60,83.1,62.41,-20.69,-24.9
+H1 repetition,H1,10.0,60,Admission → résultat READ,p50,60,60,103.0,93.0,-10.0,-9.71
+H1 repetition,H1,10.0,60,Admission → résultat READ,p95,60,60,138.7,140.05,1.35,0.97
+H1 repetition,H1,10.0,60,Admission → résultat READ,p99,60,60,192.66,174.05,-18.61,-9.66
+H1 repetition,H1,10.0,60,Admission → projection C-03,p50,60,60,195.5,193.0,-2.5,-1.28
+H1 repetition,H1,10.0,60,Admission → projection C-03,p95,60,60,388.3,313.25,-75.05,-19.33
+H1 repetition,H1,10.0,60,Admission → projection C-03,p99,60,60,502.68,386.87,-115.81,-23.04
+H1 repetition,H1,10.0,60,Requête client → lecture C-03,p50,60,60,238.12,216.11,-22.01,-9.24
+H1 repetition,H1,10.0,60,Requête client → lecture C-03,p95,60,60,501.03,344.36,-156.67,-31.27
+H1 repetition,H1,10.0,60,Requête client → lecture C-03,p99,60,60,560.08,406.09,-153.99,-27.49
+H1 repetition,H1,50.0,100,Admission HTTP,p50,100,100,32.36,10.35,-22.01,-68.02
+H1 repetition,H1,50.0,100,Admission HTTP,p95,100,100,1128.41,89.06,-1039.35,-92.11
+H1 repetition,H1,50.0,100,Admission HTTP,p99,100,100,1336.46,147.84,-1188.62,-88.94
+H1 repetition,H1,50.0,100,Admission → découverte,p50,100,100,20.0,25.0,5.0,25.0
+H1 repetition,H1,50.0,100,Admission → découverte,p95,100,100,87.15,99.05,11.9,13.65
+H1 repetition,H1,50.0,100,Admission → découverte,p99,100,100,113.57,128.52,14.95,13.16
+H1 repetition,H1,50.0,100,Découverte → exécution,p50,100,100,12.94,46.36,33.42,258.27
+H1 repetition,H1,50.0,100,Découverte → exécution,p95,100,100,185.9,307.33,121.43,65.32
+H1 repetition,H1,50.0,100,Découverte → exécution,p99,100,100,394.05,583.48,189.43,48.07
+H1 repetition,H1,50.0,100,Exécution Command,p50,100,100,25.9,28.02,2.12,8.19
+H1 repetition,H1,50.0,100,Exécution Command,p95,100,100,87.11,79.06,-8.05,-9.24
+H1 repetition,H1,50.0,100,Exécution Command,p99,100,100,101.87,110.4,8.53,8.37
+H1 repetition,H1,50.0,100,Exécution → préparation résultat,p50,100,100,79.0,86.5,7.5,9.49
+H1 repetition,H1,50.0,100,Exécution → préparation résultat,p95,100,100,185.05,189.15,4.1,2.22
+H1 repetition,H1,50.0,100,Exécution → préparation résultat,p99,100,100,202.02,266.52,64.5,31.93
+H1 repetition,H1,50.0,100,Admission → résultat READ,p50,100,100,195.5,222.5,27.0,13.81
+H1 repetition,H1,50.0,100,Admission → résultat READ,p95,100,100,403.2,519.05,115.85,28.73
+H1 repetition,H1,50.0,100,Admission → résultat READ,p99,100,100,607.22,819.53,212.31,34.96
+H1 repetition,H1,50.0,100,Admission → projection C-03,p50,100,100,505.0,697.0,192.0,38.02
+H1 repetition,H1,50.0,100,Admission → projection C-03,p95,100,100,1018.5,1368.2,349.7,34.33
+H1 repetition,H1,50.0,100,Admission → projection C-03,p99,100,100,1341.51,1527.74,186.23,13.88
+H1 repetition,H1,50.0,100,Requête client → lecture C-03,p50,100,100,1069.9,1253.58,183.68,17.17
+H1 repetition,H1,50.0,100,Requête client → lecture C-03,p95,100,100,2932.44,2498.41,-434.03,-14.8
+H1 repetition,H1,50.0,100,Requête client → lecture C-03,p99,100,100,4320.13,2785.09,-1535.04,-35.53
+H1 120 s,H1,10.0,1200,Admission HTTP,p50,1200,1200,31.48,20.21,-11.27,-35.8
+H1 120 s,H1,10.0,1200,Admission HTTP,p95,1200,1200,163.03,33.66,-129.37,-79.35
+H1 120 s,H1,10.0,1200,Admission HTTP,p99,1200,1200,373.48,82.99,-290.49,-77.78
+H1 120 s,H1,10.0,1200,Admission → découverte,p50,1200,1200,42.0,20.5,-21.5,-51.19
+H1 120 s,H1,10.0,1200,Admission → découverte,p95,1200,1200,172.0,116.05,-55.95,-32.53
+H1 120 s,H1,10.0,1200,Admission → découverte,p99,1200,1200,325.06,235.07,-89.99,-27.68
+H1 120 s,H1,10.0,1200,Découverte → exécution,p50,1200,1200,24.42,6.95,-17.47,-71.54
+H1 120 s,H1,10.0,1200,Découverte → exécution,p95,1200,1200,430.52,174.66,-255.86,-59.43
+H1 120 s,H1,10.0,1200,Découverte → exécution,p99,1200,1200,3304.96,1898.24,-1406.72,-42.56
+H1 120 s,H1,10.0,1200,Exécution Command,p50,1200,1200,60.16,17.84,-42.32,-70.35
+H1 120 s,H1,10.0,1200,Exécution Command,p95,1200,1200,184.76,106.63,-78.13,-42.29
+H1 120 s,H1,10.0,1200,Exécution Command,p99,1200,1200,293.86,197.27,-96.59,-32.87
+H1 120 s,H1,10.0,1200,Exécution → préparation résultat,p50,1200,1200,101.0,61.0,-40.0,-39.6
+H1 120 s,H1,10.0,1200,Exécution → préparation résultat,p95,1200,1200,363.1,127.0,-236.1,-65.02
+H1 120 s,H1,10.0,1200,Exécution → préparation résultat,p99,1200,1200,622.05,204.11,-417.94,-67.19
+H1 120 s,H1,10.0,1200,Admission → résultat READ,p50,1200,1200,288.0,123.0,-165.0,-57.29
+H1 120 s,H1,10.0,1200,Admission → résultat READ,p95,1200,1200,941.1,485.75,-455.35,-48.38
+H1 120 s,H1,10.0,1200,Admission → résultat READ,p99,1200,1200,3830.45,2225.34,-1605.11,-41.9
+H1 120 s,H1,10.0,1200,Admission → projection C-03,p50,1200,1200,800.0,300.0,-500.0,-62.5
+H1 120 s,H1,10.0,1200,Admission → projection C-03,p95,1200,1200,3017.15,1567.9,-1449.25,-48.03
+H1 120 s,H1,10.0,1200,Admission → projection C-03,p99,1200,1200,7852.86,3511.22,-4341.64,-55.29
+H1 120 s,H1,10.0,1200,Requête client → lecture C-03,p50,1200,1200,1336.38,340.38,-996.0,-74.53
+H1 120 s,H1,10.0,1200,Requête client → lecture C-03,p95,1200,1200,5358.36,2326.1,-3032.26,-56.59
+H1 120 s,H1,10.0,1200,Requête client → lecture C-03,p99,1200,1200,9317.3,4109.92,-5207.38,-55.89
+H2–H5,H2,1.0,30,Admission HTTP,p50,30,30,8.83,8.9,0.07,0.79
+H2–H5,H2,1.0,30,Admission HTTP,p95,30,30,14.69,19.0,4.31,29.34
+H2–H5,H2,1.0,30,Admission HTTP,p99,30,30,14.93,26.22,11.29,75.62
+H2–H5,H2,1.0,30,Admission → découverte,p50,30,30,23.5,25.0,1.5,6.38
+H2–H5,H2,1.0,30,Admission → découverte,p95,30,30,47.2,71.95,24.75,52.44
+H2–H5,H2,1.0,30,Admission → découverte,p99,30,30,50.42,79.55,29.13,57.77
+H2–H5,H2,1.0,30,Découverte → exécution,p50,30,30,8.39,7.39,-1.0,-11.92
+H2–H5,H2,1.0,30,Découverte → exécution,p95,30,30,14.06,14.64,0.58,4.13
+H2–H5,H2,1.0,30,Découverte → exécution,p99,30,30,16.71,31.24,14.53,86.95
+H2–H5,H2,1.0,30,Exécution Command,p50,30,30,23.81,25.3,1.49,6.26
+H2–H5,H2,1.0,30,Exécution Command,p95,30,30,66.44,106.95,40.51,60.97
+H2–H5,H2,1.0,30,Exécution Command,p99,30,30,109.7,254.3,144.6,131.81
+H2–H5,H2,1.0,30,Exécution → préparation résultat,p50,30,30,38.5,38.0,-0.5,-1.3
+H2–H5,H2,1.0,30,Exécution → préparation résultat,p95,30,30,96.2,86.8,-9.4,-9.77
+H2–H5,H2,1.0,30,Exécution → préparation résultat,p99,30,30,204.5,103.0,-101.5,-49.63
+H2–H5,H2,1.0,30,Admission → résultat READ,p50,30,30,96.0,100.5,4.5,4.69
+H2–H5,H2,1.0,30,Admission → résultat READ,p95,30,30,222.25,270.2,47.95,21.57
+H2–H5,H2,1.0,30,Admission → résultat READ,p99,30,30,277.76,377.79,100.03,36.01
+H2–H5,H2,1.0,30,Admission → projection C-03,p50,30,30,161.5,178.0,16.5,10.22
+H2–H5,H2,1.0,30,Admission → projection C-03,p95,30,30,271.1,389.55,118.45,43.69
+H2–H5,H2,1.0,30,Admission → projection C-03,p99,30,30,332.12,555.2,223.08,67.17
+H2–H5,H2,1.0,30,Requête client → lecture C-03,p50,30,30,196.5,207.41,10.91,5.55
+H2–H5,H2,1.0,30,Requête client → lecture C-03,p95,30,30,308.9,408.89,99.99,32.37
+H2–H5,H2,1.0,30,Requête client → lecture C-03,p99,30,30,379.79,591.98,212.19,55.87
+H2–H5,H2,10.0,60,Admission HTTP,p50,60,60,24.93,8.33,-16.6,-66.59
+H2–H5,H2,10.0,60,Admission HTTP,p95,60,60,76.81,29.8,-47.01,-61.2
+H2–H5,H2,10.0,60,Admission HTTP,p99,60,60,102.89,48.95,-53.94,-52.42
+H2–H5,H2,10.0,60,Admission → découverte,p50,60,60,57.5,65.5,8.0,13.91
+H2–H5,H2,10.0,60,Admission → découverte,p95,60,60,170.1,169.1,-1.0,-0.59
+H2–H5,H2,10.0,60,Admission → découverte,p99,60,60,220.86,253.1,32.24,14.6
+H2–H5,H2,10.0,60,Découverte → exécution,p50,60,60,27.81,10.31,-17.5,-62.93
+H2–H5,H2,10.0,60,Découverte → exécution,p95,60,60,160.93,198.86,37.93,23.57
+H2–H5,H2,10.0,60,Découverte → exécution,p99,60,60,354.96,233.03,-121.93,-34.35
+H2–H5,H2,10.0,60,Exécution Command,p50,60,60,80.35,61.8,-18.55,-23.09
+H2–H5,H2,10.0,60,Exécution Command,p95,60,60,132.95,182.93,49.98,37.59
+H2–H5,H2,10.0,60,Exécution Command,p99,60,60,325.43,234.11,-91.32,-28.06
+H2–H5,H2,10.0,60,Exécution → préparation résultat,p50,60,60,133.5,40.5,-93.0,-69.66
+H2–H5,H2,10.0,60,Exécution → préparation résultat,p95,60,60,287.4,156.65,-130.75,-45.49
+H2–H5,H2,10.0,60,Exécution → préparation résultat,p99,60,60,318.35,210.89,-107.46,-33.76
+H2–H5,H2,10.0,60,Admission → résultat READ,p50,60,60,368.0,195.5,-172.5,-46.88
+H2–H5,H2,10.0,60,Admission → résultat READ,p95,60,60,640.75,564.35,-76.4,-11.92
+H2–H5,H2,10.0,60,Admission → résultat READ,p99,60,60,818.37,661.2,-157.17,-19.21
+H2–H5,H2,10.0,60,Admission → projection C-03,p50,60,60,924.0,470.5,-453.5,-49.08
+H2–H5,H2,10.0,60,Admission → projection C-03,p95,60,60,1910.9,1603.9,-307.0,-16.07
+H2–H5,H2,10.0,60,Admission → projection C-03,p99,60,60,2149.9,2095.15,-54.75,-2.55
+H2–H5,H2,10.0,60,Requête client → lecture C-03,p50,60,60,1385.03,492.28,-892.75,-64.46
+H2–H5,H2,10.0,60,Requête client → lecture C-03,p95,60,60,2504.85,2010.02,-494.83,-19.75
+H2–H5,H2,10.0,60,Requête client → lecture C-03,p99,60,60,2606.57,2312.58,-293.99,-11.28
+H2–H5,H3,1.0,30,Admission HTTP,p50,30,30,9.42,7.21,-2.21,-23.46
+H2–H5,H3,1.0,30,Admission HTTP,p95,30,30,27.78,17.55,-10.23,-36.83
+H2–H5,H3,1.0,30,Admission HTTP,p99,30,30,46.52,22.65,-23.87,-51.31
+H2–H5,H3,1.0,30,Admission → découverte,p50,30,30,19.0,25.0,6.0,31.58
+H2–H5,H3,1.0,30,Admission → découverte,p95,30,30,105.2,51.85,-53.35,-50.71
+H2–H5,H3,1.0,30,Admission → découverte,p99,30,30,107.71,102.57,-5.14,-4.77
+H2–H5,H3,1.0,30,Découverte → exécution,p50,30,30,10.17,8.41,-1.76,-17.31
+H2–H5,H3,1.0,30,Découverte → exécution,p95,30,30,88.48,52.26,-36.22,-40.94
+H2–H5,H3,1.0,30,Découverte → exécution,p99,30,30,100.43,159.84,59.41,59.16
+H2–H5,H3,1.0,30,Exécution Command,p50,30,30,65.41,51.16,-14.25,-21.79
+H2–H5,H3,1.0,30,Exécution Command,p95,30,30,106.29,156.44,50.15,47.18
+H2–H5,H3,1.0,30,Exécution Command,p99,30,30,684.8,626.5,-58.3,-8.51
+H2–H5,H3,1.0,30,Exécution → préparation résultat,p50,30,30,53.0,37.0,-16.0,-30.19
+H2–H5,H3,1.0,30,Exécution → préparation résultat,p95,30,30,149.95,151.95,2.0,1.33
+H2–H5,H3,1.0,30,Exécution → préparation résultat,p99,30,30,358.48,170.91,-187.57,-52.32
+H2–H5,H3,1.0,30,Admission → résultat READ,p50,30,30,163.0,124.0,-39.0,-23.93
+H2–H5,H3,1.0,30,Admission → résultat READ,p95,30,30,576.7,433.85,-142.85,-24.77
+H2–H5,H3,1.0,30,Admission → résultat READ,p99,30,30,1292.66,962.9,-329.76,-25.51
+H2–H5,H3,1.0,30,Admission → projection C-03,p50,30,30,223.5,182.0,-41.5,-18.57
+H2–H5,H3,1.0,30,Admission → projection C-03,p95,30,30,1265.4,640.8,-624.6,-49.36
+H2–H5,H3,1.0,30,Admission → projection C-03,p99,30,30,2123.77,1475.48,-648.29,-30.53
+H2–H5,H3,1.0,30,Requête client → lecture C-03,p50,30,30,247.75,207.68,-40.07,-16.17
+H2–H5,H3,1.0,30,Requête client → lecture C-03,p95,30,30,1286.29,671.29,-615.0,-47.81
+H2–H5,H3,1.0,30,Requête client → lecture C-03,p99,30,30,2165.54,1507.82,-657.72,-30.37
+H2–H5,H3,10.0,60,Admission HTTP,p50,60,60,7.55,7.14,-0.41,-5.43
+H2–H5,H3,10.0,60,Admission HTTP,p95,60,60,12.99,14.58,1.59,12.24
+H2–H5,H3,10.0,60,Admission HTTP,p99,60,60,30.21,19.75,-10.46,-34.62
+H2–H5,H3,10.0,60,Admission → découverte,p50,60,60,18.0,16.5,-1.5,-8.33
+H2–H5,H3,10.0,60,Admission → découverte,p95,60,60,71.2,75.35,4.15,5.83
+H2–H5,H3,10.0,60,Admission → découverte,p99,60,60,76.82,92.87,16.05,20.89
+H2–H5,H3,10.0,60,Découverte → exécution,p50,60,60,6.76,7.6,0.84,12.43
+H2–H5,H3,10.0,60,Découverte → exécution,p95,60,60,67.57,62.56,-5.01,-7.41
+H2–H5,H3,10.0,60,Découverte → exécution,p99,60,60,79.83,92.01,12.18,15.26
+H2–H5,H3,10.0,60,Exécution Command,p50,60,60,38.23,38.04,-0.19,-0.5
+H2–H5,H3,10.0,60,Exécution Command,p95,60,60,71.18,83.78,12.6,17.7
+H2–H5,H3,10.0,60,Exécution Command,p99,60,60,92.8,90.4,-2.4,-2.59
+H2–H5,H3,10.0,60,Exécution → préparation résultat,p50,60,60,39.5,39.0,-0.5,-1.27
+H2–H5,H3,10.0,60,Exécution → préparation résultat,p95,60,60,99.3,125.05,25.75,25.93
+H2–H5,H3,10.0,60,Exécution → préparation résultat,p99,60,60,136.56,147.0,10.44,7.64
+H2–H5,H3,10.0,60,Admission → résultat READ,p50,60,60,130.0,125.0,-5.0,-3.85
+H2–H5,H3,10.0,60,Admission → résultat READ,p95,60,60,199.25,213.15,13.9,6.98
+H2–H5,H3,10.0,60,Admission → résultat READ,p99,60,60,234.6,224.97,-9.63,-4.1
+H2–H5,H3,10.0,60,Admission → projection C-03,p50,60,60,328.0,275.0,-53.0,-16.16
+H2–H5,H3,10.0,60,Admission → projection C-03,p95,60,60,600.05,586.15,-13.9,-2.32
+H2–H5,H3,10.0,60,Admission → projection C-03,p99,60,60,765.41,851.67,86.26,11.27
+H2–H5,H3,10.0,60,Requête client → lecture C-03,p50,60,60,383.37,299.52,-83.85,-21.87
+H2–H5,H3,10.0,60,Requête client → lecture C-03,p95,60,60,627.71,608.72,-18.99,-3.03
+H2–H5,H3,10.0,60,Requête client → lecture C-03,p99,60,60,803.43,870.8,67.37,8.39
+H2–H5,H3,50.0,100,Admission HTTP,p50,100,100,22.17,19.55,-2.62,-11.82
+H2–H5,H3,50.0,100,Admission HTTP,p95,100,100,232.38,144.09,-88.29,-37.99
+H2–H5,H3,50.0,100,Admission HTTP,p99,100,100,607.51,262.51,-345.0,-56.79
+H2–H5,H3,50.0,100,Admission → découverte,p50,100,100,76.0,33.5,-42.5,-55.92
+H2–H5,H3,50.0,100,Admission → découverte,p95,100,100,164.0,107.3,-56.7,-34.57
+H2–H5,H3,50.0,100,Admission → découverte,p99,100,100,206.45,145.34,-61.11,-29.6
+H2–H5,H3,50.0,100,Découverte → exécution,p50,100,100,121.1,105.55,-15.55,-12.84
+H2–H5,H3,50.0,100,Découverte → exécution,p95,100,100,1164.92,594.58,-570.34,-48.96
+H2–H5,H3,50.0,100,Découverte → exécution,p99,100,100,1290.96,725.06,-565.9,-43.84
+H2–H5,H3,50.0,100,Exécution Command,p50,100,100,81.76,69.66,-12.1,-14.8
+H2–H5,H3,50.0,100,Exécution Command,p95,100,100,138.21,108.61,-29.6,-21.42
+H2–H5,H3,50.0,100,Exécution Command,p99,100,100,161.74,155.43,-6.31,-3.9
+H2–H5,H3,50.0,100,Exécution → préparation résultat,p50,100,100,124.5,110.0,-14.5,-11.65
+H2–H5,H3,50.0,100,Exécution → préparation résultat,p95,100,100,451.15,268.0,-183.15,-40.6
+H2–H5,H3,50.0,100,Exécution → préparation résultat,p99,100,100,493.39,366.34,-127.05,-25.75
+H2–H5,H3,50.0,100,Admission → résultat READ,p50,100,100,492.5,383.0,-109.5,-22.23
+H2–H5,H3,50.0,100,Admission → résultat READ,p95,100,100,1536.25,833.3,-702.95,-45.76
+H2–H5,H3,50.0,100,Admission → résultat READ,p99,100,100,1616.7,1083.92,-532.78,-32.95
+H2–H5,H3,50.0,100,Admission → projection C-03,p50,100,100,1232.0,989.5,-242.5,-19.68
+H2–H5,H3,50.0,100,Admission → projection C-03,p95,100,100,2092.05,2189.15,97.1,4.64
+H2–H5,H3,50.0,100,Admission → projection C-03,p99,100,100,2780.21,2384.31,-395.9,-14.24
+H2–H5,H3,50.0,100,Requête client → lecture C-03,p50,100,100,1575.65,1374.61,-201.04,-12.76
+H2–H5,H3,50.0,100,Requête client → lecture C-03,p95,100,100,2912.37,3139.45,227.08,7.8
+H2–H5,H3,50.0,100,Requête client → lecture C-03,p99,100,100,3495.48,3699.35,203.87,5.83
+H2–H5,H4,1.0,30,Admission HTTP,p50,30,30,16.59,7.16,-9.43,-56.84
+H2–H5,H4,1.0,30,Admission HTTP,p95,30,30,38.66,16.67,-21.99,-56.88
+H2–H5,H4,1.0,30,Admission HTTP,p99,30,30,59.26,23.09,-36.17,-61.04
+H2–H5,H4,1.0,30,Admission → découverte,p50,30,30,36.0,24.5,-11.5,-31.94
+H2–H5,H4,1.0,30,Admission → découverte,p95,30,30,91.25,90.05,-1.2,-1.32
+H2–H5,H4,1.0,30,Admission → découverte,p99,30,30,119.3,155.35,36.05,30.22
+H2–H5,H4,1.0,30,Découverte → exécution,p50,30,30,10.61,9.12,-1.49,-14.04
+H2–H5,H4,1.0,30,Découverte → exécution,p95,30,30,90.66,89.64,-1.02,-1.13
+H2–H5,H4,1.0,30,Découverte → exécution,p99,30,30,101.04,95.78,-5.26,-5.21
+H2–H5,H4,1.0,30,Exécution Command,p50,30,30,50.41,27.76,-22.65,-44.93
+H2–H5,H4,1.0,30,Exécution Command,p95,30,30,565.38,263.91,-301.47,-53.32
+H2–H5,H4,1.0,30,Exécution Command,p99,30,30,1317.28,1002.55,-314.73,-23.89
+H2–H5,H4,1.0,30,Exécution → préparation résultat,p50,30,30,65.0,36.0,-29.0,-44.62
+H2–H5,H4,1.0,30,Exécution → préparation résultat,p95,30,30,250.25,159.85,-90.4,-36.12
+H2–H5,H4,1.0,30,Exécution → préparation résultat,p99,30,30,259.84,194.01,-65.83,-25.33
+H2–H5,H4,1.0,30,Admission → résultat READ,p50,30,30,227.0,120.0,-107.0,-47.14
+H2–H5,H4,1.0,30,Admission → résultat READ,p95,30,30,1062.7,650.1,-412.6,-38.83
+H2–H5,H4,1.0,30,Admission → résultat READ,p99,30,30,2096.86,1441.39,-655.47,-31.26
+H2–H5,H4,1.0,30,Admission → projection C-03,p50,30,30,293.0,188.0,-105.0,-35.84
+H2–H5,H4,1.0,30,Admission → projection C-03,p95,30,30,2522.25,1166.25,-1356.0,-53.76
+H2–H5,H4,1.0,30,Admission → projection C-03,p99,30,30,3157.82,2227.61,-930.21,-29.46
+H2–H5,H4,1.0,30,Requête client → lecture C-03,p50,30,30,357.24,211.5,-145.74,-40.8
+H2–H5,H4,1.0,30,Requête client → lecture C-03,p95,30,30,2571.94,1193.32,-1378.62,-53.6
+H2–H5,H4,1.0,30,Requête client → lecture C-03,p99,30,30,3223.25,2262.86,-960.39,-29.8
+H2–H5,H4,10.0,60,Admission HTTP,p50,60,60,10.55,11.13,0.58,5.5
+H2–H5,H4,10.0,60,Admission HTTP,p95,60,60,23.56,64.64,41.08,174.36
+H2–H5,H4,10.0,60,Admission HTTP,p99,60,60,57.66,90.92,33.26,57.68
+H2–H5,H4,10.0,60,Admission → découverte,p50,60,60,51.0,56.5,5.5,10.78
+H2–H5,H4,10.0,60,Admission → découverte,p95,60,60,117.9,126.95,9.05,7.68
+H2–H5,H4,10.0,60,Admission → découverte,p99,60,60,146.05,193.66,47.61,32.6
+H2–H5,H4,10.0,60,Découverte → exécution,p50,60,60,10.4,15.69,5.29,50.87
+H2–H5,H4,10.0,60,Découverte → exécution,p95,60,60,103.67,124.29,20.62,19.89
+H2–H5,H4,10.0,60,Découverte → exécution,p99,60,60,146.67,233.48,86.81,59.19
+H2–H5,H4,10.0,60,Exécution Command,p50,60,60,47.94,68.84,20.9,43.6
+H2–H5,H4,10.0,60,Exécution Command,p95,60,60,111.6,141.78,30.18,27.04
+H2–H5,H4,10.0,60,Exécution Command,p99,60,60,181.29,178.19,-3.1,-1.71
+H2–H5,H4,10.0,60,Exécution → préparation résultat,p50,60,60,83.0,67.0,-16.0,-19.28
+H2–H5,H4,10.0,60,Exécution → préparation résultat,p95,60,60,159.1,186.35,27.25,17.13
+H2–H5,H4,10.0,60,Exécution → préparation résultat,p99,60,60,212.88,203.82,-9.06,-4.26
+H2–H5,H4,10.0,60,Admission → résultat READ,p50,60,60,236.5,243.5,7.0,2.96
+H2–H5,H4,10.0,60,Admission → résultat READ,p95,60,60,386.05,385.7,-0.35,-0.09
+H2–H5,H4,10.0,60,Admission → résultat READ,p99,60,60,414.58,530.41,115.83,27.94
+H2–H5,H4,10.0,60,Admission → projection C-03,p50,60,60,575.5,857.0,281.5,48.91
+H2–H5,H4,10.0,60,Admission → projection C-03,p95,60,60,1310.9,2176.2,865.3,66.01
+H2–H5,H4,10.0,60,Admission → projection C-03,p99,60,60,1826.66,2406.31,579.65,31.73
+H2–H5,H4,10.0,60,Requête client → lecture C-03,p50,60,60,609.49,936.37,326.88,53.63
+H2–H5,H4,10.0,60,Requête client → lecture C-03,p95,60,60,1707.03,2502.39,795.36,46.59
+H2–H5,H4,10.0,60,Requête client → lecture C-03,p99,60,60,1866.83,2973.06,1106.23,59.26
+H2–H5,H4,50.0,100,Admission HTTP,p50,100,100,33.59,13.09,-20.5,-61.03
+H2–H5,H4,50.0,100,Admission HTTP,p95,100,100,384.35,236.75,-147.6,-38.4
+H2–H5,H4,50.0,100,Admission HTTP,p99,100,100,786.24,601.95,-184.29,-23.44
+H2–H5,H4,50.0,100,Admission → découverte,p50,100,100,54.5,42.5,-12.0,-22.02
+H2–H5,H4,50.0,100,Admission → découverte,p95,100,100,153.25,99.15,-54.1,-35.3
+H2–H5,H4,50.0,100,Admission → découverte,p99,100,100,187.51,110.15,-77.36,-41.26
+H2–H5,H4,50.0,100,Découverte → exécution,p50,100,100,138.58,104.0,-34.58,-24.95
+H2–H5,H4,50.0,100,Découverte → exécution,p95,100,100,816.66,665.62,-151.04,-18.49
+H2–H5,H4,50.0,100,Découverte → exécution,p99,100,100,1103.07,972.89,-130.18,-11.8
+H2–H5,H4,50.0,100,Exécution Command,p50,100,100,83.97,64.69,-19.28,-22.96
+H2–H5,H4,50.0,100,Exécution Command,p95,100,100,151.43,96.91,-54.52,-36.0
+H2–H5,H4,50.0,100,Exécution Command,p99,100,100,180.89,145.43,-35.46,-19.6
+H2–H5,H4,50.0,100,Exécution → préparation résultat,p50,100,100,119.5,106.0,-13.5,-11.3
+H2–H5,H4,50.0,100,Exécution → préparation résultat,p95,100,100,309.25,294.6,-14.65,-4.74
+H2–H5,H4,50.0,100,Exécution → préparation résultat,p99,100,100,388.3,348.29,-40.01,-10.3
+H2–H5,H4,50.0,100,Admission → résultat READ,p50,100,100,465.5,346.0,-119.5,-25.67
+H2–H5,H4,50.0,100,Admission → résultat READ,p95,100,100,1175.8,1015.55,-160.25,-13.63
+H2–H5,H4,50.0,100,Admission → résultat READ,p99,100,100,1407.62,1365.4,-42.22,-3.0
+H2–H5,H4,50.0,100,Admission → projection C-03,p50,100,100,1227.5,998.0,-229.5,-18.7
+H2–H5,H4,50.0,100,Admission → projection C-03,p95,100,100,2178.95,2359.55,180.6,8.29
+H2–H5,H4,50.0,100,Admission → projection C-03,p99,100,100,2968.75,2899.13,-69.62,-2.35
+H2–H5,H4,50.0,100,Requête client → lecture C-03,p50,100,100,1620.2,1424.18,-196.02,-12.1
+H2–H5,H4,50.0,100,Requête client → lecture C-03,p95,100,100,2928.53,3369.71,441.18,15.06
+H2–H5,H4,50.0,100,Requête client → lecture C-03,p99,100,100,4010.2,3936.68,-73.52,-1.83
+H2–H5,H5,1.0,30,Admission HTTP,p50,30,30,13.64,8.13,-5.51,-40.4
+H2–H5,H5,1.0,30,Admission HTTP,p95,30,30,49.2,35.7,-13.5,-27.44
+H2–H5,H5,1.0,30,Admission HTTP,p99,30,30,67.53,53.6,-13.93,-20.63
+H2–H5,H5,1.0,30,Admission → découverte,p50,30,30,30.5,24.5,-6.0,-19.67
+H2–H5,H5,1.0,30,Admission → découverte,p95,30,30,248.25,125.85,-122.4,-49.31
+H2–H5,H5,1.0,30,Admission → découverte,p99,30,30,347.3,182.75,-164.55,-47.38
+H2–H5,H5,1.0,30,Découverte → exécution,p50,30,30,15.55,9.61,-5.94,-38.2
+H2–H5,H5,1.0,30,Découverte → exécution,p95,30,30,96.29,88.81,-7.48,-7.77
+H2–H5,H5,1.0,30,Découverte → exécution,p99,30,30,105.06,105.32,0.26,0.25
+H2–H5,H5,1.0,30,Exécution Command,p50,30,30,68.03,46.36,-21.67,-31.85
+H2–H5,H5,1.0,30,Exécution Command,p95,30,30,659.66,309.39,-350.27,-53.1
+H2–H5,H5,1.0,30,Exécution Command,p99,30,30,1540.5,976.24,-564.26,-36.63
+H2–H5,H5,1.0,30,Exécution → préparation résultat,p50,30,30,61.5,35.0,-26.5,-43.09
+H2–H5,H5,1.0,30,Exécution → préparation résultat,p95,30,30,315.45,96.7,-218.75,-69.35
+H2–H5,H5,1.0,30,Exécution → préparation résultat,p99,30,30,450.63,219.92,-230.71,-51.2
+H2–H5,H5,1.0,30,Admission → résultat READ,p50,30,30,191.5,122.0,-69.5,-36.29
+H2–H5,H5,1.0,30,Admission → résultat READ,p95,30,30,1460.6,712.0,-748.6,-51.25
+H2–H5,H5,1.0,30,Admission → résultat READ,p99,30,30,2452.89,1549.98,-902.91,-36.81
+H2–H5,H5,1.0,30,Admission → projection C-03,p50,30,30,265.5,189.5,-76.0,-28.63
+H2–H5,H5,1.0,30,Admission → projection C-03,p95,30,30,2895.55,1351.1,-1544.45,-53.34
+H2–H5,H5,1.0,30,Admission → projection C-03,p99,30,30,3787.44,2450.19,-1337.25,-35.31
+H2–H5,H5,1.0,30,Requête client → lecture C-03,p50,30,30,319.81,216.58,-103.23,-32.28
+H2–H5,H5,1.0,30,Requête client → lecture C-03,p95,30,30,2956.3,1379.44,-1576.86,-53.34
+H2–H5,H5,1.0,30,Requête client → lecture C-03,p99,30,30,3907.74,2497.96,-1409.78,-36.08
+H2–H5,H5,10.0,60,Admission HTTP,p50,60,60,12.01,7.27,-4.74,-39.47
+H2–H5,H5,10.0,60,Admission HTTP,p95,60,60,20.57,13.04,-7.53,-36.61
+H2–H5,H5,10.0,60,Admission HTTP,p99,60,60,24.78,16.39,-8.39,-33.86
+H2–H5,H5,10.0,60,Admission → découverte,p50,60,60,31.5,19.0,-12.5,-39.68
+H2–H5,H5,10.0,60,Admission → découverte,p95,60,60,101.55,111.05,9.5,9.35
+H2–H5,H5,10.0,60,Admission → découverte,p99,60,60,146.33,154.82,8.49,5.8
+H2–H5,H5,10.0,60,Découverte → exécution,p50,60,60,10.07,6.88,-3.19,-31.68
+H2–H5,H5,10.0,60,Découverte → exécution,p95,60,60,104.54,96.04,-8.5,-8.13
+H2–H5,H5,10.0,60,Découverte → exécution,p99,60,60,199.28,133.88,-65.4,-32.82
+H2–H5,H5,10.0,60,Exécution Command,p50,60,60,62.69,54.21,-8.48,-13.53
+H2–H5,H5,10.0,60,Exécution Command,p95,60,60,125.43,81.4,-44.03,-35.1
+H2–H5,H5,10.0,60,Exécution Command,p99,60,60,195.85,87.41,-108.44,-55.37
+H2–H5,H5,10.0,60,Exécution → préparation résultat,p50,60,60,74.5,40.5,-34.0,-45.64
+H2–H5,H5,10.0,60,Exécution → préparation résultat,p95,60,60,186.6,125.15,-61.45,-32.93
+H2–H5,H5,10.0,60,Exécution → préparation résultat,p99,60,60,249.21,159.16,-90.05,-36.13
+H2–H5,H5,10.0,60,Admission → résultat READ,p50,60,60,208.5,173.5,-35.0,-16.79
+H2–H5,H5,10.0,60,Admission → résultat READ,p95,60,60,384.85,265.1,-119.75,-31.12
+H2–H5,H5,10.0,60,Admission → résultat READ,p99,60,60,619.26,446.81,-172.45,-27.85
+H2–H5,H5,10.0,60,Admission → projection C-03,p50,60,60,458.0,387.5,-70.5,-15.39
+H2–H5,H5,10.0,60,Admission → projection C-03,p95,60,60,818.25,720.65,-97.6,-11.93
+H2–H5,H5,10.0,60,Admission → projection C-03,p99,60,60,1133.45,965.85,-167.6,-14.79
+H2–H5,H5,10.0,60,Requête client → lecture C-03,p50,60,60,533.27,405.88,-127.39,-23.89
+H2–H5,H5,10.0,60,Requête client → lecture C-03,p95,60,60,1411.37,743.37,-668.0,-47.33
+H2–H5,H5,10.0,60,Requête client → lecture C-03,p99,60,60,1764.2,1016.02,-748.18,-42.41

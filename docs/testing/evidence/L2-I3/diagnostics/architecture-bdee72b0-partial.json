@@ -1,0 +1,6 @@
+{
+  "sha": "bdee72b02d65547e898fa7e09f177c7c216a1515",
+  "status": "INTERRUPTED / NOT A PASS",
+  "reason": "Acquisition result did not expose examined prefix required for R10; corrected before final gates. Only this task runner and its descendants were terminated.",
+  "result_json_present": false
+}

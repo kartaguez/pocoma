@@ -1,0 +1,706 @@
+{
+  "testedSha": "85c68b80705bed7faa4d12c74bb3727c0775f2ca",
+  "invocationId": "b565ce2f8ecf41389db688e79ba810f4",
+  "scope": "Oracles Java ou PostgreSQL vérifiés sur les XML de l'invocation Architecture. La portée de la campagne est distincte des oracles retenus par ID.",
+  "reports": {
+    "PotVersionReadStorePostgresTest": {
+      "xml": "reports/pocoma-infra-postgres-read/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.read.v3.PotVersionReadStorePostgresTest.xml",
+      "sha256": "1f6400bffa480e89f971c89f92615646c35e2041b3d3bdedd6e7f7bd47e98fce",
+      "methods": {
+        "historyAndReplay": 0.571,
+        "concurrentPublishers": 0.158,
+        "migrationAndPrivileges": 0.152
+      }
+    },
+    "TerminalResultsReadStorePostgresTest": {
+      "xml": "reports/pocoma-infra-postgres-read/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.read.v3.TerminalResultsReadStorePostgresTest.xml",
+      "sha256": "bf332ecf5d8a0aa708e2a89b3a25def828c893eeea2955ba345811bbb6495408",
+      "methods": {
+        "concurrentImmutableResults": 0.28,
+        "mappingsAndOwnership": 0.405,
+        "migrationsAndPrivileges": 0.224
+      }
+    },
+    "PotFinancePostgresTest": {
+      "xml": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.v3.PotFinancePostgresTest.xml",
+      "sha256": "9ef151d2ca3cd5e7224ba43704bb8b291c5a68e0bf249426c7b92c982677ee3c",
+      "methods": {
+        "d13GroupedSelectiveFinanceReadsAndCorruptionFailClosed": 2.407,
+        "d11AttachmentsAllSpecificWeightsAndArbitraryRationals": 0.785,
+        "d14FinancialRollbackAtEveryPublicationBoundary": 2.972,
+        "d10HistoricalDefaultSpecificAndFinancialChangesThroughC": 1.954,
+        "d12FinancialWeightCollisionRecalculatesFromFreshFacts": 0.726,
+        "d15OneVersionComposesWeightAndFinancialPrimitives": 0.6
+      }
+    },
+    "CommandExecutionPostgresTest": {
+      "xml": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.v3.CommandExecutionPostgresTest.xml",
+      "sha256": "0a57aa0e9a345905adc60b6cce358402ae26de885f620716a94abfa28497cbd8",
+      "methods": {
+        "c06AttachmentRevocationNoopAndRejectionAllRevalidate": 0.992,
+        "c24PreparationFailureAndInconsistentUsageCannotCommitNegativeFacts": 0.794,
+        "c18CompositionRejectsMismatchedManagersAmbientAndPostSuffixWriters": 0.546,
+        "f05BusinessForeignKeyViolationStillFailsBeforePublicationAndRollsBack": 0.567,
+        "c08NoopObsoleteAfterConcurrentChangeAndMutationAgainstPotDeletion": 0.95,
+        "c23LostFailureCessionAcknowledgementNeverDoubleCounts": 1.202,
+        "c13RealLostCommitAcknowledgementAndRollbackBeforeCommitRecoverWithoutGuessing": 1.123,
+        "f05StaticBusinessConstraintSetExactlyMatchesCatalogAndLeavesPublicationDeferred": 0.448,
+        "c15ClaimProtectedThroughCommitAfterDeadlineAndTakeoverWaits": 0.513,
+        "f02InvalidBindingCompletesWhilePotIsLockedAndIdentityStillFenced": 0.51,
+        "c21NMinusOneFailuresThenSuccessAndExpiryConsumesNoBudget": 0.831,
+        "c07IdentityRevocationAndNegativeAuthorityFactsStayProtected": 0.783,
+        "c20IndependentNestedEffectsAreRejectedAndOuterUnitPoisoned": 0.539,
+        "c11DeferredCommitFailureRollsBackAndDoesNotBecomeBusinessRejection": 0.69,
+        "c03DistinctComponentsAndFinancialWeightCollisionRemainCompatible": 0.939,
+        "f02InvalidBindingHoldsIdentityUntilCommit": 0.531,
+        "c14ClaimExpiryAfterActualLockWaitAndOldTokenNeverFinalizes": 0.56,
+        "f03InvalidAdmissionConstructorsLeaveNoDurableCommandOrSlot": 0.296,
+        "c22NoopAndRejectionHoldIdentityAndPotUntilPhysicalResolution": 0.666,
+        "c16DenseSequencingWaitsForPhysicalCommitAndRollbackDoesNotConsumePosition": 1.344,
+        "c17JpaJdbcOnePhysicalUnitAndCaughtErrorsPoisonBothOrders": 0.694,
+        "f03DurableInvalidListsAreTechnicalAndValidImpossibleTargetsAreBusinessRejections": 0.784,
+        "c05ExpenseDeletionReleasesReferenceAndPreservesHistoricalFinancials": 0.673,
+        "c12RetryBudgetDelayQuarantineAndConditionalFailureAccounting": 0.789,
+        "c09SameRequestFinalizesOnceAndEquivalentRequestsOwnTheirResults": 0.709,
+        "c01DurableMutationsNoopRejectionAndExactHistory": 1.275,
+        "c10FaultsBeforeAfterEveryWriterRollbackWholeCommandUnit": 3.136,
+        "c04DeletionVersusExpenseCreationAndFinancialPayerParticipantBothOrders": 5.756,
+        "f04InvitationPrimitiveSerializesCompetingUsersAndSameUserTargets": 0.692,
+        "c02SameComponentCollisionReacquiresAndPreservesObservation": 0.665,
+        "c19DurableIntentionCodecExactRationalsIntegrityAndNegativeExistence": 0.81
+      }
+    },
+    "V3AdmissionPostgresTest": {
+      "xml": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.v3.V3AdmissionPostgresTest.xml",
+      "sha256": "6c8073f582c47860820d872c6b429ef15dbbd446c39a5b75d528ce7481be69dd",
+      "methods": {
+        "unknownCommitDoesNotCreateReplacement": 0.572,
+        "sequentialRequestPublicationAndTriggerInvariants": 0.594,
+        "differentIntentConflicts": 0.283,
+        "associationForeignKeysAndImmutability": 0.326,
+        "deferredPendingChecksStillRejectEffects": 0.486,
+        "invalidLeavesNoDurable": 0.358,
+        "narrowedFunctionsPreserveInheritedIntegrityPredicates": 0.274,
+        "restoreAndOldKeyCompatibility": 0.323,
+        "concurrentSameKeySameIntent": 0.364,
+        "sensitiveRequestReadsDeniedAndPendingAdmissionsCommit": 0.629,
+        "lostCommitAcknowledgement": 0.394,
+        "admissionNeverReadsBusinessTables": 0.385,
+        "rollbackAndOwnerBoundaries": 0.367,
+        "distinctKeysProgressIndependently": 0.384,
+        "admissionRoleAndIndirectPrivileges": 0.745,
+        "scopeIsolation": 0.39,
+        "unavailablePhysicalObserverFailsClosed": 0.401,
+        "firstAndReplay": 0.475,
+        "concurrentSameKeyDifferentIntent": 0.358,
+        "identityInsertFailureRollsBackAssociation": 0.363
+      }
+    },
+    "PotHistoryPostgresTest": {
+      "xml": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.v3.PotHistoryPostgresTest.xml",
+      "sha256": "8da96f352bcc62b20bf16b134069e417c05c891889ecdf3dda59f48a78d3d8da",
+      "methods": {
+        "b15CorruptReferencesAndMissingParticipantsAreNeverNegativeFacts": 0.217,
+        "b17DeferredIntegrityRejectsEmptyVersionAndIncompleteCreation": 0.114,
+        "b18CommittedVersionCannotReceiveAnotherProposalLater": 0.218,
+        "b06SelectiveReadsDistinguishAbsentAndNotLoadedAndHistoricalRights": 0.274,
+        "b01FreshSchemaRestartAndExactCatalog": 0.17,
+        "b11SnapshotRemainsCoherentWhileAnotherConnectionCommits": 0.175,
+        "b10DatabaseConstraintsRejectDuplicateOpenCrossPotAndMalformedRationals": 0.175,
+        "b02ReconstructsV1ThroughV9IndependentlyInRandomOrder": 0.46,
+        "b08ExactArbitraryRationalsRoundTripAndOptionalOverride": 0.26,
+        "f01MaintenanceAuditRetainsEveryGlobalChainCheck": 0.334,
+        "b05RollbackAndNoopPreserveMetadataAndIntervals": 0.202,
+        "b14SharesJpaPhysicalTransactionAndRollback": 0.282,
+        "b03HalfOpenIntervalsAndOnlyChangedComponents": 0.263,
+        "b12GroupedReadCountDoesNotGrowPerExpense": 0.553,
+        "b09RejectsGapsOverlapsMissingComponentsAndNoncanonicalRationals": 0.364,
+        "b13CallerTransactionAndIsolationAreMandatory": 0.109,
+        "b16LastCreationFailureRollsBackEveryComponentAndVersion": 0.167,
+        "f01PointQueriesUseIndexesAndBoundedBuffersAcrossHistoryDepth": 0.993,
+        "b07ReferenceSearchIsExhaustiveForPayerAndParticipantAndIgnoresDeletedExpenses": 0.795,
+        "b04ShareholderDeletionD01MRetainsAllOldStates": 0.274,
+        "b19PhysicalTransactionIdentityKeepsItsEpoch": 0.157
+      }
+    },
+    "IdentityConcurrencyPostgresTest": {
+      "xml": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.v3.identity.IdentityConcurrencyPostgresTest.xml",
+      "sha256": "3d3cfaab2ce4e7e6a95d73672366ebd3837f6828561ded0d16bd6f2e687ee12f",
+      "methods": {
+        "l3_link_vs_initiator_unlink": 0.813,
+        "l3_disjoint_progress": 0.535,
+        "l3_canonical_unicode": 1.187,
+        "l3_link_races": 1.005,
+        "l3_anchor_id_race": 0.508,
+        "l3_cross_unlinks": 0.459,
+        "l3_canonical_lock_paths": 0.359,
+        "l3_registration_race": 0.564
+      }
+    },
+    "IdentityRequestExecutionPostgresTest": {
+      "xml": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.v3.identity.IdentityRequestExecutionPostgresTest.xml",
+      "sha256": "59c32905f1b2f1ff6a24e7c5b96c041fc7a35fd00d29aa3850a3655d2d936dac",
+      "methods": {
+        "l3_unavailable_observation": 0.704,
+        "l3_atomic_registration": 0.75,
+        "l3_observation_corruption": 0.567,
+        "l3_final_lock_clock": 0.561,
+        "l3_rejection_terminal": 0.608,
+        "l3_fencing": 0.893,
+        "l3_unlink_with_historical_binding": 0.987,
+        "l3_unknown_commit": 0.862,
+        "l3_rollback_each_boundary": 5.207,
+        "l3_technical_not_rejected_and_redacted": 0.623,
+        "retiredLinkCannotBeAdmittedOrExecuted": 0.603,
+        "l3_completion_misuse": 1.166,
+        "l3_retry_quarantine": 0.832,
+        "l3_workers_concurrent_registration": 0.653
+      }
+    },
+    "V3ReadHttpContractTest": {
+      "xml": "reports/pocoma-runtime-web-read/surefire-reports/TEST-com.kartaguez.pocoma.V3ReadHttpContractTest.xml",
+      "sha256": "264e64b3dd2a654ad196bade44f036f147ba16df93a82929469f26a79bb476f7",
+      "methods": {
+        "navigationCursorAndBindingChange": 1.518,
+        "missingBearer": 0.381,
+        "lateSerializationFailure": 0.544,
+        "navigationMutationsAndPlans": 15.251,
+        "ownBindingAndResults": 0.45,
+        "wrongIssuer": 0.378,
+        "terminalResultsOwnership": 0.492,
+        "wrongAudience": 0.365,
+        "foreignRefsAndMissingSubversions": 0.342,
+        "exactDtoAndSecretLogs": 0.467,
+        "expiredJwt": 0.351,
+        "mediaAndUnknownFields": 0.375,
+        "forgedSignature": 0.416,
+        "outputByteBoundaries": 0.648,
+        "notYetValidJwt": 0.45,
+        "missingEui": 0.438,
+        "bindingTokenAndForeignEui": 0.384,
+        "batchCardinalityAndMalformedRefs": 0.411,
+        "minimumAndReadDependencies": 0.489,
+        "coherentSnapshotDuringAdvance": 0.534,
+        "inputByteBoundaries": 0.425,
+        "terminalResultsWithoutBinding": 0.42,
+        "historicalAccessAndDeletion": 0.421,
+        "completeManifestAndExactBatches": 1.241
+      }
+    },
+    "V3StageHandoffsHttpTest": {
+      "xml": "reports/pocoma-runtime-web-read/surefire-reports/TEST-com.kartaguez.pocoma.V3StageHandoffsHttpTest.xml",
+      "sha256": "a8ce30d85e3719fc942c323a7704484bc056fbe1511f8cfd04909372243caa68",
+      "methods": {
+        "bothRoutesRedactPopulatedRecordsAndRefuseReset": 2.572
+      }
+    },
+    "V3HttpCompositionPostgresTest": {
+      "xml": "reports/pocoma-runtime-web-read/surefire-reports/TEST-com.kartaguez.pocoma.V3HttpCompositionPostgresTest.xml",
+      "sha256": "88b7ebdaf5de2b6a5c0d2213ea52affc8a4fcaf0635ef621c63aa0f9d934357a",
+      "methods": {
+        "typedPortsAndDependencies": 0.063,
+        "legacyComponentsRejected": 0.381,
+        "readOnlyAuthorityAndNoWriteFallback": 0.6,
+        "brunoFixtureProvenance": 1.541,
+        "webRoot": 1.24
+      }
+    },
+    "PotTransitionsTest": {
+      "xml": "reports/pocoma-domain-pot/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.v3.PotTransitionsTest.xml",
+      "sha256": "c25738d8293a822b781138495867b45a71f7030b0b0d46d5a39ab509c4996e58",
+      "methods": {
+        "l1a04ObsolescencePrecedesEqualityIncludingReturnToOldValue": 0.001,
+        "l1a13DeterministicReevaluationPreservesInitialObservation": 0.002,
+        "l1a07DetailsAndWeightsAreIndependent": 0.0,
+        "l1a12MixedFactsAreTechnicalAnomalies": 0.0,
+        "l1a10ShareholderDeletionRequiresCreatorAndExhaustiveAbsence": 0.001,
+        "l1a01ImmutableEnvelopesAndCollections": 0.001,
+        "l1a14HistoricalCompositionsAndOrdinaryAttachment": 0.0,
+        "l1a03ChangedContainsExactlyEffectiveRevisions": 0.001,
+        "l1a08FinancialsReferenceAndEqualityVariants": 0.0,
+        "l1a11ExactRationalsAndIntrinsicFinancialInvariants": 0.001,
+        "l1a05AtomicWeightBatchesAndPermutations": 0.001,
+        "l1a02CreationVersionsAndStableIdentities": 0.001,
+        "l1a09DeletionDependenciesAndHeaderOnlyChanges": 0.001,
+        "l1a06PotDetailsRightsLifecycleAndObservation": 0.0
+      }
+    },
+    "InvitationAttachmentTest": {
+      "xml": "reports/pocoma-domain-pot/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.v3.InvitationAttachmentTest.xml",
+      "sha256": "7d24067db6a3622c800611ecb5e1bac8c274b7a28a772e5362c04c5ba3fac770",
+      "methods": {
+        "occupiedDeletedAbsentAndAlreadyAttachedRemainRejected": 0.0,
+        "mixedOrMissingDurableFactsAreTechnicalAnomalies": 0.0,
+        "outsiderAndUnattachedCreatorAttachOnlyThemselvesWithOneDetailsRevision": 0.001
+      }
+    },
+    "PotBalanceCalculatorTest": {
+      "xml": "reports/pocoma-domain-pot/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.v3.PotBalanceCalculatorTest.xml",
+      "sha256": "a776f8c9eb023eaac1d0e24ba671933dba46a792beb9fab4d6e1bd63b49c4242",
+      "methods": {
+        "d01PayerParticipantAndSeparatePayerExactZeros": 0.008,
+        "d06SeededSizesPermutationAndIndicativeCost": 0.817,
+        "d05ZeroAndInconsistentInputsNeverProducePartialBalances": 0.002,
+        "d04DeletionTerminalAndOutOfOrderAreIndependent": 0.001,
+        "d03MultipleExpensesAndRationalsBeyondMachineIntegers": 0.001,
+        "d02DefaultsOverridesAndIndependentHistoricalResults": 0.0
+      }
+    },
+    "V3AdmissionCanonicalizationTest": {
+      "xml": "reports/pocoma-compose-web-write-postgres/surefire-reports/TEST-com.kartaguez.pocoma.engine.admit.command.v3.V3AdmissionCanonicalizationTest.xml",
+      "sha256": "9bdc6b34ccc28dd1785cac05cc6ed3aafff084612a27c96eacf2a17e20ce91e7",
+      "methods": {
+        "canonicalFramingCannotAlias": 0.002,
+        "keyRotationAndMissingKeyFailClosed": 0.001,
+        "bindingAndAttachmentAreIntent": 0.001,
+        "currentAndHistoricalValidationStaySeparate": 0.0,
+        "orderedAndUnorderedCollections": 0.0,
+        "scopeSeparatesIdentityOperationAndClient": 0.0,
+        "equivalentObjectsAndExactRationals": 0.0,
+        "oldIntentAfterRuleChange": 0.0
+      }
+    },
+    "V3AdmissionTransportTest": {
+      "xml": "reports/pocoma-compose-web-write-postgres/surefire-reports/TEST-com.kartaguez.pocoma.supra.web.write.v3.V3AdmissionTransportTest.xml",
+      "sha256": "a9bab46b48ded79fecd35a65a5c70227ad76f753bb9fdace949b0537ba4e567a",
+      "methods": {
+        "unresolvedPhysicalTerminationRetainsCapacity": 0.335,
+        "observedPhysicalTerminationReleasesCapacity": 0.007
+      }
+    },
+    "V3InvitationHttpTest": {
+      "xml": "reports/pocoma-runtime-monolith/surefire-reports/TEST-com.kartaguez.pocoma.V3InvitationHttpTest.xml",
+      "sha256": "ab735611167b21c6c52643bebf4fa3babcb7f25b6ee701ee72835d7c64a10273",
+      "methods": {
+        "confidentialLinkAndRestrictedPlaces": 9.266,
+        "finalNonCreatorDeparturePreservesOtherPotAndHistoricalReads": 6.937,
+        "concurrentUnlinkAndAttachmentSerializeAtIdentity": 6.501,
+        "unlinkCannotPreserveStaleInvitationAuthority": 6.344,
+        "brunoB4StandaloneCorpus": 10.748
+      }
+    },
+    "V3InvitationReadPostgresTest": {
+      "xml": "reports/pocoma-runtime-monolith/surefire-reports/TEST-com.kartaguez.pocoma.V3InvitationReadPostgresTest.xml",
+      "sha256": "e99478d51c8c2c8c9c329c8674de484eaebe792b3e30961032e729e6522d4e16",
+      "methods": {
+        "reconstructOnFreshReadWithoutProducer": 10.677,
+        "authenticatedEncryptionAndOldKeyRestoration": 6.493,
+        "monotoneDuplicateAndDivergence": 6.304
+      }
+    },
+    "V3AdmissionFlowPostgresTest": {
+      "xml": "reports/pocoma-runtime-monolith/surefire-reports/TEST-com.kartaguez.pocoma.V3AdmissionFlowPostgresTest.xml",
+      "sha256": "cbc8e7db9b9cafc191764e0e20fe7ba124437505a3fdbc715d631aeb8e45bfa4",
+      "methods": {
+        "allElevenPotOperationsThroughWorker": 6.544,
+        "selfUsesWriteAndSurvivesBindingChange": 5.57,
+        "resultsAndReadProgressIndependently": 4.59,
+        "invalidBusinessIntentsAreAdmittedThenRejected": 4.818,
+        "brunoB2PublicProtocol": 12.239,
+        "voluntaryDeparturePreservesHistoryAndIdentity": 5.998,
+        "registrationAndUnlinkThroughWorker": 5.085
+      }
+    },
+    "V3InvitationTopologyPostgresTest": {
+      "xml": "reports/pocoma-runtime-monolith/surefire-reports/TEST-com.kartaguez.pocoma.V3InvitationTopologyPostgresTest.xml",
+      "sha256": "d8df109ddf136c69a2901ec8a91e13996cfdccd3a466f47dd7a00272f8673e52",
+      "methods": {
+        "targetThreeFourPartitionsConnectionsRenewalAndRestart": 197.25,
+        "invitationPrivilegePreflightsRejectColumnEscalation": 5.8
+      }
+    }
+  },
+  "obligations": {
+    "DOM-01": {
+      "oracles": {
+        "PotHistoryPostgresTest": {
+          "b02ReconstructsV1ThroughV9IndependentlyInRandomOrder": 0.46,
+          "b03HalfOpenIntervalsAndOnlyChangedComponents": 0.263
+        },
+        "PotVersionReadStorePostgresTest": {
+          "historyAndReplay": 0.571
+        }
+      },
+      "scope": "Reconstructions indépendantes à V, intervalles et sous-versions, puis rejeu READ."
+    },
+    "DOM-02": {
+      "oracles": {
+        "PotTransitionsTest": {
+          "l1a04ObsolescencePrecedesEqualityIncludingReturnToOldValue": 0.001,
+          "l1a05AtomicWeightBatchesAndPermutations": 0.001,
+          "l1a09DeletionDependenciesAndHeaderOnlyChanges": 0.001
+        }
+      },
+      "scope": "Le domaine exerce obsolescence avant égalité, batches atomiques et en-tête seul. Intégration physique des opérations sous un oracle distinct."
+    },
+    "DOM-03": {
+      "oracles": {
+        "PotBalanceCalculatorTest": {
+          "d02DefaultsOverridesAndIndependentHistoricalResults": 0.0,
+          "d03MultipleExpensesAndRationalsBeyondMachineIntegers": 0.001
+        },
+        "PotFinancePostgresTest": {
+          "d10HistoricalDefaultSpecificAndFinancialChangesThroughC": 1.954
+        }
+      },
+      "scope": "Calcul rationnel, poids par défaut et spécifiques, versions historiques dans PostgreSQL."
+    },
+    "ID-01": {
+      "oracles": {
+        "IdentityRequestExecutionPostgresTest": {
+          "l3_atomic_registration": 0.75,
+          "l3_unlink_with_historical_binding": 0.987,
+          "l3_rollback_each_boundary": 5.207
+        },
+        "IdentityConcurrencyPostgresTest": {
+          "l3_registration_race": 0.564,
+          "l3_cross_unlinks": 0.459
+        }
+      },
+      "scope": "Registration et Unlink réels, sérialisation PostgreSQL et historique à deux EUI. Link est retiré. Les états préexistants sont injectés sous fixture."
+    },
+    "READ-01": {
+      "oracles": {
+        "V3ReadHttpContractTest": {
+          "minimumAndReadDependencies": 0.489,
+          "historicalAccessAndDeletion": 0.421,
+          "completeManifestAndExactBatches": 1.241
+        },
+        "V3HttpCompositionPostgresTest": {
+          "readOnlyAuthorityAndNoWriteFallback": 0.6
+        }
+      },
+      "scope": "READ complet, minimum et dépendances après autorisation. PostgreSQL vérifie l'autorité READ et l'absence de fallback WRITE."
+    },
+    "SEC-01": {
+      "oracles": {
+        "V3ReadHttpContractTest": {
+          "bindingTokenAndForeignEui": 0.384,
+          "historicalAccessAndDeletion": 0.421,
+          "minimumAndReadDependencies": 0.489
+        }
+      },
+      "scope": "Absence et révocation de binding, EUI distinctes, historique malgré perte du droit courant, refus avant fraîcheur."
+    },
+    "SEC-02": {
+      "oracles": {
+        "V3ReadHttpContractTest": {
+          "terminalResultsWithoutBinding": 0.42,
+          "bindingTokenAndForeignEui": 0.384
+        }
+      },
+      "scope": "Vérifie les états READ matérialisés et la propriété du résultat. L'intervalle WRITE révoqué et READ encore actif reste à attribuer par un oracle de propagation."
+    },
+    "ADM-01": {
+      "oracles": {
+        "V3AdmissionPostgresTest": {
+          "admissionNeverReadsBusinessTables": 0.385,
+          "sensitiveRequestReadsDeniedAndPendingAdmissionsCommit": 0.629,
+          "admissionRoleAndIndirectPrivileges": 0.745
+        }
+      },
+      "scope": "Admission durable PostgreSQL sous le rôle dédié, refus des lectures métier. Bornes HTTP sous oracle transport."
+    },
+    "S-03": {
+      "oracles": {
+        "V3AdmissionPostgresTest": {
+          "concurrentSameKeySameIntent": 0.364,
+          "concurrentSameKeyDifferentIntent": 0.358,
+          "scopeIsolation": 0.39,
+          "lostCommitAcknowledgement": 0.394
+        },
+        "V3AdmissionCanonicalizationTest": {
+          "canonicalFramingCannotAlias": 0.002,
+          "keyRotationAndMissingKeyFailClosed": 0.001,
+          "bindingAndAttachmentAreIntent": 0.001,
+          "currentAndHistoricalValidationStaySeparate": 0.0,
+          "orderedAndUnorderedCollections": 0.0,
+          "scopeSeparatesIdentityOperationAndClient": 0.0,
+          "equivalentObjectsAndExactRationals": 0.0,
+          "oldIntentAfterRuleChange": 0.0
+        }
+      },
+      "scope": "Canonicalisation et courses sur même clé, conflit d'intention, portée EUI et perte d'accusé de commit. Complète la recette Bruno."
+    },
+    "SEC-JWT": {
+      "oracles": {
+        "V3ReadHttpContractTest": {
+          "missingBearer": 0.381,
+          "wrongIssuer": 0.378,
+          "wrongAudience": 0.365,
+          "forgedSignature": 0.416,
+          "expiredJwt": 0.351,
+          "notYetValidJwt": 0.45,
+          "missingEui": 0.438
+        }
+      },
+      "scope": "Contrôles négatifs Spring Security sur JWT signés dans la fixture. En plus, JWT Keycloak réels et mauvaise audience dans la recette."
+    },
+    "SEC-REQ": {
+      "oracles": {
+        "V3ReadHttpContractTest": {
+          "mediaAndUnknownFields": 0.375,
+          "batchCardinalityAndMalformedRefs": 0.411,
+          "inputByteBoundaries": 0.425
+        },
+        "V3AdmissionTransportTest": {
+          "unresolvedPhysicalTerminationRetainsCapacity": 0.335,
+          "observedPhysicalTerminationReleasesCapacity": 0.007
+        }
+      },
+      "scope": "Limites d'entrée, en-têtes, champs supplémentaires et taille des lots sur HTTP, plus invalidités d'idempotence dans la recette."
+    },
+    "SEC-ISOL": {
+      "oracles": {
+        "V3ReadHttpContractTest": {
+          "terminalResultsOwnership": 0.492,
+          "bindingTokenAndForeignEui": 0.384
+        },
+        "TerminalResultsReadStorePostgresTest": {
+          "mappingsAndOwnership": 0.405
+        }
+      },
+      "scope": "L'EUI partageant le User conserve ses propres droits Pot et reste isolée des résultats de l'autre EUI."
+    },
+    "SEC-PII": {
+      "oracles": {
+        "V3ReadHttpContractTest": {
+          "exactDtoAndSecretLogs": 0.467,
+          "terminalResultsOwnership": 0.492
+        },
+        "V3StageHandoffsHttpTest": {
+          "bothRoutesRedactPopulatedRecordsAndRefuseReset": 2.572
+        }
+      },
+      "scope": "DTO, erreurs, journaux et deux diagnostics sur pile peuplée. Recette vierge avec scan indépendant des secrets."
+    },
+    "A10-A": {
+      "oracles": {
+        "V3ReadHttpContractTest": {
+          "terminalResultsOwnership": 0.492
+        },
+        "TerminalResultsReadStorePostgresTest": {
+          "mappingsAndOwnership": 0.405
+        }
+      },
+      "scope": "Propriété de l'EUI sur les résultats positifs dans READ et via HTTP. Le chaînage WRITE–Consumption est attribué séparément."
+    },
+    "A10-B": {
+      "oracles": {
+        "V3AdmissionFlowPostgresTest": {
+          "invalidBusinessIntentsAreAdmittedThenRejected": 4.818
+        },
+        "V3ReadHttpContractTest": {
+          "terminalResultsWithoutBinding": 0.42
+        },
+        "TerminalResultsReadStorePostgresTest": {
+          "mappingsAndOwnership": 0.405
+        }
+      },
+      "scope": "INVALID_BINDING admis puis rejeté et relu par l'EUI avec JWT seul sur pile réelle."
+    },
+    "A10-D": {
+      "oracles": {
+        "V3ReadHttpContractTest": {
+          "terminalResultsOwnership": 0.492
+        },
+        "IdentityRequestExecutionPostgresTest": {
+          "l3_unlink_with_historical_binding": 0.987
+        }
+      },
+      "scope": "Unlink reste qualifié dans la fixture historique et le masquage des succès/rejets vaut pour les deux routes de résultat."
+    },
+    "A10-E": {
+      "oracles": {
+        "V3ReadHttpContractTest": {
+          "terminalResultsOwnership": 0.492
+        }
+      },
+      "scope": "Dans le fixture même User, l'EUI tierce ne voit aucun des quatre résultats Command et Identity."
+    },
+    "A10-F": {
+      "oracles": {
+        "V3ReadHttpContractTest": {
+          "terminalResultsWithoutBinding": 0.42
+        },
+        "TerminalResultsReadStorePostgresTest": {
+          "mappingsAndOwnership": 0.405
+        }
+      },
+      "scope": "Les résultats se relisent avec le seul JWT à binding révoqué puis renouvelé dans la fixture. La séquence publique complète reste partielle."
+    },
+    "A10-G": {
+      "oracles": {
+        "V3ReadHttpContractTest": {
+          "terminalResultsOwnership": 0.492
+        }
+      },
+      "scope": "Résultats Command et Identity réussis ou rejetés. Les codes et messages publics concordent avec ceux d'un UUID inconnu."
+    },
+    "A10-I": {
+      "oracles": {
+        "V3ReadHttpContractTest": {
+          "missingBearer": 0.381,
+          "minimumAndReadDependencies": 0.489
+        }
+      },
+      "scope": "AuthN absente et absence normale de projection donnent leurs codes distincts. Le cas d'indisponibilité physique du store des résultats reste à exercer."
+    },
+    "A10-J": {
+      "oracles": {
+        "TerminalResultsReadStorePostgresTest": {
+          "concurrentImmutableResults": 0.28,
+          "mappingsAndOwnership": 0.405
+        },
+        "V3HttpCompositionPostgresTest": {
+          "readOnlyAuthorityAndNoWriteFallback": 0.6
+        }
+      },
+      "scope": "Atomicité et concurrence du store, propriété EUI, et dépendances du Runtime READ. Le contenu minimal de l'événement relève de l'oracle WRITE."
+    },
+    "A11-A": {
+      "oracles": {
+        "PotTransitionsTest": {
+          "l1a09DeletionDependenciesAndHeaderOnlyChanges": 0.001
+        }
+      },
+      "scope": "Le domaine vérifie les dépendances et l'en-tête terminal. Rejeu et conservation des états actifs complètent la preuve."
+    },
+    "A11-F": {
+      "oracles": {
+        "V3ReadHttpContractTest": {
+          "historicalAccessAndDeletion": 0.421
+        }
+      },
+      "scope": "À version active historique, l'ancien détenteur lit le Pot, sa balance et ses dépenses malgré la perte de droit courant."
+    },
+    "A11-G": {
+      "oracles": {
+        "V3ReadHttpContractTest": {
+          "historicalAccessAndDeletion": 0.421
+        }
+      },
+      "scope": "Lecture du Pot courant supprimé et de la version terminale exacte sous binding actif, 404 en l'absence volontaire de balance terminale."
+    },
+    "A11-H": {
+      "oracles": {
+        "V3ReadHttpContractTest": {
+          "historicalAccessAndDeletion": 0.421,
+          "minimumAndReadDependencies": 0.489
+        }
+      },
+      "scope": "Absence, interdiction et suppression donnent 404 malgré un minimum de version futur."
+    },
+    "A11-I": {
+      "oracles": {
+        "V3ReadHttpContractTest": {
+          "minimumAndReadDependencies": 0.489
+        },
+        "V3HttpCompositionPostgresTest": {
+          "readOnlyAuthorityAndNoWriteFallback": 0.6
+        }
+      },
+      "scope": "Ordre des refus avant fraîcheur, absence de balance et de réponse partielle, pas de dépendance WRITE du Runtime."
+    },
+    "A11-J": {
+      "oracles": {
+        "V3AdmissionFlowPostgresTest": {
+          "resultsAndReadProgressIndependently": 4.59
+        },
+        "V3ReadHttpContractTest": {
+          "minimumAndReadDependencies": 0.489
+        }
+      },
+      "scope": "Sur PostgreSQL, le résultat de CreatePot est disponible alors que le participant Pot ne tourne pas et la lecture donne 404. La disponibilité normale est confirmée dans la recette complète."
+    },
+    "A11-K": {
+      "oracles": {
+        "V3ReadHttpContractTest": {
+          "historicalAccessAndDeletion": 0.421,
+          "bindingTokenAndForeignEui": 0.384
+        }
+      },
+      "scope": "Droit historique conservé et binding révoqué refusé dans des fixtures distinctes. La fenêtre physique complète reste partielle."
+    },
+    "A11-N": {
+      "oracles": {
+        "V3ReadHttpContractTest": {
+          "completeManifestAndExactBatches": 1.241,
+          "foreignRefsAndMissingSubversions": 0.342,
+          "historicalAccessAndDeletion": 0.421
+        }
+      },
+      "scope": "Références légitimes dans le manifeste, accès historique et refus des références étrangères ou absentes."
+    },
+    "INV-A": {
+      "oracles": {
+        "V3InvitationHttpTest": {
+          "confidentialLinkAndRestrictedPlaces": 9.266
+        },
+        "V3InvitationTopologyPostgresTest": {
+          "invitationPrivilegePreflightsRejectColumnEscalation": 5.8
+        }
+      },
+      "scope": "Récupération limitée au créateur et privilèges de lecture/écriture spécifiques. La totalité du vecteur transactionnel de création est distincte."
+    },
+    "INV-B": {
+      "oracles": {
+        "V3InvitationHttpTest": {
+          "unlinkCannotPreserveStaleInvitationAuthority": 6.344,
+          "brunoB4StandaloneCorpus": 10.748
+        }
+      },
+      "scope": "Refus du binding révoqué, résultat public séparé du secret et publication de l'Invitation. L'arrêt indépendant de chaque participant reste à rapprocher."
+    },
+    "INV-F": {
+      "oracles": {
+        "CommandExecutionPostgresTest": {
+          "f04InvitationPrimitiveSerializesCompetingUsersAndSameUserTargets": 0.692
+        },
+        "V3InvitationHttpTest": {
+          "concurrentUnlinkAndAttachmentSerializeAtIdentity": 6.501
+        }
+      },
+      "scope": "Vérification PostgreSQL des deux courses CAS sur primitive et d’une course réelle Unlink/Invitation. Le protocole HTTP de deux acceptations concurrentes reste distinct."
+    },
+    "INV-G": {
+      "oracles": {
+        "V3InvitationHttpTest": {
+          "unlinkCannotPreserveStaleInvitationAuthority": 6.344
+        }
+      },
+      "scope": "READ retardé permet de consulter les places, puis WRITE rejette le binding déjà révoqué. Une place réclamée entre les deux appels est une variante distincte."
+    },
+    "INV-H": {
+      "oracles": {
+        "V3InvitationReadPostgresTest": {
+          "monotoneDuplicateAndDivergence": 6.304,
+          "reconstructOnFreshReadWithoutProducer": 10.677
+        }
+      },
+      "scope": "Ordre divergent ou dupliqué contrôlé et comparaison exacte des valeurs de deux Invitations après rejeu à blanc."
+    },
+    "INV-J": {
+      "oracles": {
+        "InvitationAttachmentTest": {
+          "occupiedDeletedAbsentAndAlreadyAttachedRemainRejected": 0.0,
+          "mixedOrMissingDurableFactsAreTechnicalAnomalies": 0.0,
+          "outsiderAndUnattachedCreatorAttachOnlyThemselvesWithOneDetailsRevision": 0.001
+        },
+        "V3InvitationHttpTest": {
+          "confidentialLinkAndRestrictedPlaces": 9.266
+        }
+      },
+      "scope": "Règles de rattachement et nouvelle consultation refusée après une affiliation. Variantes multi-rattachement rapprochées séparément."
+    },
+    "FUNC-SMOKE": {
+      "oracles": {
+        "V3AdmissionFlowPostgresTest": {
+          "allElevenPotOperationsThroughWorker": 6.544,
+          "registrationAndUnlinkThroughWorker": 5.085
+        }
+      },
+      "scope": "Oracles applicatifs de bout en bout sur une séquence plus large et profils Monolith. La corrélation des cinq processus est dans le reçu de 38 résultats Bruno."
+    }
+  }
+}

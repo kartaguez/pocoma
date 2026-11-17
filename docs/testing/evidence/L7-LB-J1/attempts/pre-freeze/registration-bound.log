@@ -1,0 +1,32 @@
+PG01 Public Journey (200 ) - 17 ms
+Tests
+   ✕ PG01 Registration binding Pot invitation mutations balance delete history
+
+expected 'REJECTED' to equal 'COMPLETED'
+AssertionError: expected 'REJECTED' to equal 'COMPLETED'
+    at submit (/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-playground/lib/journey.js:36:31)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async binding (/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-playground/lib/journey.js:41:15)
+    at async exports.run (/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-playground/lib/journey.js:44:13)
+    at async /Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-playground/PG01 Public Journey.bru:6:3
+    at async /Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/node_modules/@usebruno/js/src/test.js:3:5
+    at async Promise.all (index 0)
+    at async waitForPendingTests (/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/node_modules/@usebruno/js/src/utils/results.js:49:7)
+    at async TestRuntime.runTests (/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/node_modules/@usebruno/js/src/runtime/test-runtime.js:127:7)
+    at async runSingleRequest (/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/node_modules/@usebruno/cli/src/runner/run-single-request.js:964:24)
+
+
+📊 Execution Summary
+┌───────────────┬──────────────┐
+│ Metric        │    Result    │
+├───────────────┼──────────────┤
+│ Status        │    ✗ FAIL    │
+├───────────────┼──────────────┤
+│ Requests      │ 1 (1 Failed) │
+├───────────────┼──────────────┤
+│ Tests         │     0/1      │
+├───────────────┼──────────────┤
+│ Assertions    │     0/0      │
+├───────────────┼──────────────┤
+│ Duration (ms) │     192      │
+└───────────────┴──────────────┘

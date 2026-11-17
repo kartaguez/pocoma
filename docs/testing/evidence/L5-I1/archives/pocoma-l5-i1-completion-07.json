@@ -1,0 +1,115 @@
+{
+  "source": "/private/tmp/pocoma-l5-i1-completion-07",
+  "archive": "archives/pocoma-l5-i1-completion-07.tar.gz",
+  "sha256": "898dfcd453ba22450dc8b2410e23951fe25a659bb5567adde8ae4391958fbf53",
+  "bytes": 2164145,
+  "files": {
+    "B1/bruno.json": {
+      "original_sha256": "1437d0a9218b15d83bd1e5a26c302e16ed7bcef3e9b7400ee84100e8bc5624ca",
+      "published_sha256": "1437d0a9218b15d83bd1e5a26c302e16ed7bcef3e9b7400ee84100e8bc5624ca",
+      "bytes": 42147
+    },
+    "B1/bruno.log": {
+      "original_sha256": "67135b740bc5327d255ca5be0ded65fdbaae6119f43aae4df55832e8411768e2",
+      "published_sha256": "67135b740bc5327d255ca5be0ded65fdbaae6119f43aae4df55832e8411768e2",
+      "bytes": 5380
+    },
+    "B1/receipt.json": {
+      "original_sha256": "f03a685723702ef8635406465bb6860c39c84a4750bff385ea3e6344c7c2cd54",
+      "published_sha256": "f03a685723702ef8635406465bb6860c39c84a4750bff385ea3e6344c7c2cd54",
+      "bytes": 633
+    },
+    "B1/requests.jsonl": {
+      "original_sha256": "8e7be6ef84b8a6646c49d9af523128028d32089f27c60ee1c0afcab61fb28b80",
+      "published_sha256": "8e7be6ef84b8a6646c49d9af523128028d32089f27c60ee1c0afcab61fb28b80",
+      "bytes": 1350
+    },
+    "B1.log": {
+      "original_sha256": "ba576fa39310e3b3224706cf1650a9537ca14b15d7910a259760af3960c0b6c8",
+      "published_sha256": "ba576fa39310e3b3224706cf1650a9537ca14b15d7910a259760af3960c0b6c8",
+      "bytes": 5446
+    },
+    "T1/discovery.log": {
+      "original_sha256": "02bffb273a657809b570a00178fce81db0e2ef170a16abdd7d70b93fe167d76a",
+      "published_sha256": "02bffb273a657809b570a00178fce81db0e2ef170a16abdd7d70b93fe167d76a",
+      "bytes": 9547
+    },
+    "T1/discovery.process.json": {
+      "original_sha256": "bd0f3f40e71ef0cef24440ab455f1601d24128a44b64bc43ba741154b0054d83",
+      "published_sha256": "bd0f3f40e71ef0cef24440ab455f1601d24128a44b64bc43ba741154b0054d83",
+      "bytes": 637
+    },
+    "T1/effective-pom.xml": {
+      "original_sha256": "e14ba4e320cbe6e9380b83b9d7743ee647b833a872a4b394f7de08ef2c9a7c68",
+      "published_sha256": "e14ba4e320cbe6e9380b83b9d7743ee647b833a872a4b394f7de08ef2c9a7c68",
+      "bytes": 20185178
+    },
+    "T1/maven.log": {
+      "original_sha256": "14712ad22e6ff90dc6ad2fc7d94bdffb99bbea0bf84e4ccc2d3cc13f37006267",
+      "published_sha256": "14712ad22e6ff90dc6ad2fc7d94bdffb99bbea0bf84e4ccc2d3cc13f37006267",
+      "bytes": 84516
+    },
+    "T1/maven.process.json": {
+      "original_sha256": "4555d366c924c56bbeda6374a97166ecef6cf05799bd8a65a937f481ebae388f",
+      "published_sha256": "4555d366c924c56bbeda6374a97166ecef6cf05799bd8a65a937f481ebae388f",
+      "bytes": 546
+    },
+    "T1/plan.json": {
+      "original_sha256": "00239f18c880bc4fa28333c66b0c06f9b014ce532552da0692a13f01a5cf2b4b",
+      "published_sha256": "00239f18c880bc4fa28333c66b0c06f9b014ce532552da0692a13f01a5cf2b4b",
+      "bytes": 54497
+    },
+    "T1/provenance.json": {
+      "original_sha256": "49f19b0d0d663c6fc778c6e7b3ce49b7d554afa27a40797182f29dc007e43429",
+      "published_sha256": "49f19b0d0d663c6fc778c6e7b3ce49b7d554afa27a40797182f29dc007e43429",
+      "bytes": 265310
+    },
+    "T1/raw.tar.gz": {
+      "original_sha256": "e50dd88516f275d56f2bb62a671f8852665248e7ab38a7641efbfc60c189f079",
+      "published_sha256": "e50dd88516f275d56f2bb62a671f8852665248e7ab38a7641efbfc60c189f079",
+      "bytes": 1046877
+    },
+    "T1/reports/pocoma-runtime-monolith/surefire-reports/TEST-com.kartaguez.pocoma.V3HttpCompositionPostgresTest.xml": {
+      "original_sha256": "6110a3b8853b8af125571460834cf1c8415e08cc84227e3e3831c244b74b5bca",
+      "published_sha256": "6110a3b8853b8af125571460834cf1c8415e08cc84227e3e3831c244b74b5bca",
+      "bytes": 59439
+    },
+    "T1/reports/pocoma-runtime-monolith/surefire-reports/com.kartaguez.pocoma.V3HttpCompositionPostgresTest.txt": {
+      "original_sha256": "12ce7948cf377e794154108768a77bf712ab8a4cdc040cb38a598dbc85e2a5ac",
+      "published_sha256": "12ce7948cf377e794154108768a77bf712ab8a4cdc040cb38a598dbc85e2a5ac",
+      "bytes": 350
+    },
+    "T1/result.json": {
+      "original_sha256": "3c0bf29115e908833cfc4875946a83b08954eaf0cec3610cf43c6c2e45a518d5",
+      "published_sha256": "3c0bf29115e908833cfc4875946a83b08954eaf0cec3610cf43c6c2e45a518d5",
+      "bytes": 24571
+    },
+    "T1/timings.json": {
+      "original_sha256": "89c9455fc4d23cfd3942c5bfddbda3b1b2b5608c95fa9cfc58c2a85d6df37085",
+      "published_sha256": "89c9455fc4d23cfd3942c5bfddbda3b1b2b5608c95fa9cfc58c2a85d6df37085",
+      "bytes": 750
+    },
+    "T1.log": {
+      "original_sha256": "90392ec94c1830baf8d5252eab3a4c6a3541c74b515e6db93f5222483734c201",
+      "published_sha256": "90392ec94c1830baf8d5252eab3a4c6a3541c74b515e6db93f5222483734c201",
+      "bytes": 574
+    },
+    "campaign.json": {
+      "original_sha256": "5be2979f8118805fafc5dd6dfc909606e9d4543868540b5950d2aa667af03b6a",
+      "published_sha256": "5be2979f8118805fafc5dd6dfc909606e9d4543868540b5950d2aa667af03b6a",
+      "bytes": 29927
+    },
+    "physical/C01-root.json": {
+      "original_sha256": "5211359c925c56f57b8da24835363a90db786b0ed8c9b92100a16105f0f7ffc1",
+      "published_sha256": "5211359c925c56f57b8da24835363a90db786b0ed8c9b92100a16105f0f7ffc1",
+      "bytes": 436
+    },
+    "physical/C02-monolith.json": {
+      "original_sha256": "b9f98e5ef711cf09a063ef785df7140f8a0476124953ba2fd8aa4a6207b6a8de",
+      "published_sha256": "b9f98e5ef711cf09a063ef785df7140f8a0476124953ba2fd8aa4a6207b6a8de",
+      "bytes": 178
+    }
+  },
+  "redactions": [],
+  "policy": "Only secret/canary values redacted. Outcomes, identities, counters, timings and original hashes retained. Original process artifacts remain at the private source path."
+}

@@ -1,0 +1,15 @@
+{
+  "raw_sha256": "bbd931fd08c7c6ba34b69c49b06d2daece9ebdc28e08f747f5f1df32180cac3c",
+  "raw_members": 1686,
+  "xml_test_identities": 1833,
+  "expected_identities": 1833,
+  "counts": {
+    "tests": 1833,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "source_gate_verdict": "PASS",
+  "archive_and_provenance_integrity": "PASS",
+  "scope": "Byte restoration, hashes, counters, identity/module/producer attribution; no new application replay."
+}

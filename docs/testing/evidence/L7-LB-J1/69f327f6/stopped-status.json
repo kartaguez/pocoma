@@ -1,0 +1,35 @@
+{
+  "state": "NOT_READY",
+  "exit": 1,
+  "business": "UNAVAILABLE",
+  "canary": "STALE_OR_UNPROVEN",
+  "qualificationTools": "DEGRADED",
+  "fullyQualifiable": false,
+  "checks": {
+    "JVM-http-write": "FAIL",
+    "JVM-http-read": "FAIL",
+    "JVM-command-worker": "FAIL",
+    "JVM-results-worker": "FAIL",
+    "JVM-business-read-worker": "FAIL",
+    "DB-CURRENT": "FAIL",
+    "IDP-DISCOVERY": "FAIL",
+    "IDP-PKCE-SESSION": "FAIL"
+  },
+  "canaryProof": {
+    "potId": "78bb8f17-4c8e-50aa-97a5-369cad88e69f",
+    "version": 4,
+    "runId": "1794608272-bb0aad90",
+    "completedAt": 1794608519.047214
+  },
+  "observedAt": 1794608830.8800929,
+  "instance": "j1-a-2ad2a840",
+  "project": "pocoma-lb-j1-a-2ad2a840-ba43381e",
+  "sha": "69f327f6707635cea8a74f329f7d2d9c3ce5d3d6",
+  "dirty": false,
+  "urls": {
+    "write": "http://127.0.0.1:56787",
+    "read": "http://127.0.0.1:56788"
+  },
+  "issuer": "http://localhost:56789/realms/pocoma",
+  "evidence": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/j1-a-2ad2a840/runs/1794608830-4cf003e6"
+}

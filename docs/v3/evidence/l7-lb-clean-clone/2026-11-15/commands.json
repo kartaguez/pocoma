@@ -1,0 +1,657 @@
+[
+  {
+    "phase": "demo-stop",
+    "cwd": "/Users/julien.guezennec/Dev/projects/pocoma",
+    "argv": [
+      "./pocoma-local",
+      "stop",
+      "--instance",
+      "demo"
+    ],
+    "startedAt": 1794740461.7310731,
+    "seconds": 2.9442298412323,
+    "exit": 0,
+    "result": {
+      "state": "STOPPED",
+      "exit": 0,
+      "volumes": "PRESERVED",
+      "runtimeExitCodes": {
+        "business-read-worker": 143,
+        "command-worker": 143,
+        "http-read": 143,
+        "http-write": 143,
+        "results-worker": 143
+      },
+      "forcedKill": [],
+      "slotsBeforeStop": {
+        "pocoma_write": "0",
+        "pocoma_read": "0"
+      },
+      "instance": "demo",
+      "project": "pocoma-lb-demo-33dd8c1d",
+      "sha": "60b12fc3cb81f42a89db0688b0406a4a986f6ffc",
+      "dirty": true,
+      "urls": {
+        "write": "http://127.0.0.1:54610",
+        "read": "http://127.0.0.1:54611"
+      },
+      "issuer": "http://localhost:54612/realms/pocoma",
+      "evidence": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/demo/runs/1794740461-2c11834b"
+    }
+  },
+  {
+    "phase": "clean-start",
+    "cwd": "/private/tmp/pocoma-l7-clean-clone-qualification/source",
+    "argv": [
+      "./pocoma-local",
+      "start",
+      "--instance",
+      "clean-clone"
+    ],
+    "startedAt": 1794740464.6761541,
+    "seconds": 63.06703066825867,
+    "exit": 0,
+    "result": {
+      "state": "READY",
+      "exit": 0,
+      "business": "AVAILABLE",
+      "canary": "AVAILABLE",
+      "qualificationTools": "AVAILABLE",
+      "fullyQualifiable": false,
+      "checks": {
+        "JVM-http-write": "PASS",
+        "JVM-http-read": "PASS",
+        "JVM-command-worker": "PASS",
+        "JVM-results-worker": "PASS",
+        "JVM-business-read-worker": "PASS",
+        "DB-CURRENT": "PASS",
+        "IDP-DISCOVERY": "PASS",
+        "KEYCLOAK-OIDC-DISCOVERY": "PASS",
+        "KEYCLOAK-ADMIN-AUTH": "PASS",
+        "KEYCLOAK-ADMIN-ENABLED": "PASS",
+        "KEYCLOAK-THIRD-ENABLED": "PASS",
+        "KEYCLOAK-THIRD-PKCE": "PASS",
+        "KEYCLOAK-GUEST-ENABLED": "PASS",
+        "KEYCLOAK-GUEST-PKCE": "PASS",
+        "KEYCLOAK-BRUNO-ENABLED": "PASS",
+        "KEYCLOAK-BRUNO-PKCE": "PASS",
+        "WORKER-PARTITIONS": "PASS",
+        "GRAFANA-HTTP": "PASS",
+        "GRAFANA-DATASOURCE": "PASS",
+        "GRAFANA-DASHBOARD": "PASS"
+      },
+      "canaryProof": {
+        "potId": "22ca00a9-6f10-51bb-83f7-f4777e725322",
+        "version": 2,
+        "runId": "1794740465-d1773951",
+        "completedAt": 1794740526.258584,
+        "generationId": "fd4e943dc5ef1dbd68847ff71bde9a60ced934aeeaf9bc7ea60ae186d8ed5052",
+        "generation": {
+          "http-write": {
+            "containerId": "b035029294652a7d12282ef74619c18d9713834940294cdb3f97e9880ccc496b",
+            "createdAt": "2026-11-15T11:01:51.123317971Z",
+            "startedAt": "2026-11-15T11:01:51.753606888Z",
+            "running": true
+          },
+          "http-read": {
+            "containerId": "f25db2f05400d73e3c44609fdf27cf861fceac9e54f36b0dd1a73f267aec371e",
+            "createdAt": "2026-11-15T11:01:51.124052138Z",
+            "startedAt": "2026-11-15T11:01:51.876459305Z",
+            "running": true
+          },
+          "command-worker": {
+            "containerId": "9ad798353a8ec476e3cdf12a4f35d18f2ffdade26ab3f91b1540ff369843a272",
+            "createdAt": "2026-11-15T11:01:51.121472596Z",
+            "startedAt": "2026-11-15T11:01:51.631866971Z",
+            "running": true
+          },
+          "results-worker": {
+            "containerId": "e922eec3651de375d68d40abcf148a53f45dd561810e3442698b292e758e0ef7",
+            "createdAt": "2026-11-15T11:01:51.121827471Z",
+            "startedAt": "2026-11-15T11:01:51.303586263Z",
+            "running": true
+          },
+          "business-read-worker": {
+            "containerId": "c35e97723a3465b35946bd601921a757508a9a1c57d7070f591e44d944ba55d5",
+            "createdAt": "2026-11-15T11:01:51.123673763Z",
+            "startedAt": "2026-11-15T11:01:51.411231096Z",
+            "running": true
+          }
+        }
+      },
+      "observedAt": 1794740527.625111,
+      "lastStart": {
+        "runId": "1794740465-d1773951",
+        "startedAt": 1794740465.148372,
+        "state": "SUCCEEDED",
+        "sha": "0a3246b9bc58bb813163caf22c6a2108c6f88db9",
+        "dirty": false,
+        "completedAt": 1794740527.625121,
+        "generationId": "fd4e943dc5ef1dbd68847ff71bde9a60ced934aeeaf9bc7ea60ae186d8ed5052"
+      },
+      "lastSuccessfulStart": {
+        "runId": "1794740465-d1773951",
+        "startedAt": 1794740465.148372,
+        "state": "SUCCEEDED",
+        "sha": "0a3246b9bc58bb813163caf22c6a2108c6f88db9",
+        "dirty": false,
+        "completedAt": 1794740527.625121,
+        "generationId": "fd4e943dc5ef1dbd68847ff71bde9a60ced934aeeaf9bc7ea60ae186d8ed5052"
+      },
+      "currentGeneration": {
+        "http-write": {
+          "containerId": "b035029294652a7d12282ef74619c18d9713834940294cdb3f97e9880ccc496b",
+          "createdAt": "2026-11-15T11:01:51.123317971Z",
+          "startedAt": "2026-11-15T11:01:51.753606888Z",
+          "running": true
+        },
+        "http-read": {
+          "containerId": "f25db2f05400d73e3c44609fdf27cf861fceac9e54f36b0dd1a73f267aec371e",
+          "createdAt": "2026-11-15T11:01:51.124052138Z",
+          "startedAt": "2026-11-15T11:01:51.876459305Z",
+          "running": true
+        },
+        "command-worker": {
+          "containerId": "9ad798353a8ec476e3cdf12a4f35d18f2ffdade26ab3f91b1540ff369843a272",
+          "createdAt": "2026-11-15T11:01:51.121472596Z",
+          "startedAt": "2026-11-15T11:01:51.631866971Z",
+          "running": true
+        },
+        "results-worker": {
+          "containerId": "e922eec3651de375d68d40abcf148a53f45dd561810e3442698b292e758e0ef7",
+          "createdAt": "2026-11-15T11:01:51.121827471Z",
+          "startedAt": "2026-11-15T11:01:51.303586263Z",
+          "running": true
+        },
+        "business-read-worker": {
+          "containerId": "c35e97723a3465b35946bd601921a757508a9a1c57d7070f591e44d944ba55d5",
+          "createdAt": "2026-11-15T11:01:51.123673763Z",
+          "startedAt": "2026-11-15T11:01:51.411231096Z",
+          "running": true
+        }
+      },
+      "generationQualified": true,
+      "technical": "AVAILABLE",
+      "businessEvidence": "PROVEN",
+      "proofFreshness": "FRESH",
+      "instance": "clean-clone",
+      "project": "pocoma-lb-clean-clone-fcc71fd2",
+      "sha": "0a3246b9bc58bb813163caf22c6a2108c6f88db9",
+      "dirty": false,
+      "urls": {
+        "write": "http://127.0.0.1:59247",
+        "read": "http://127.0.0.1:59248"
+      },
+      "issuer": "http://localhost:59249/realms/pocoma",
+      "evidence": "/private/tmp/pocoma-l7-clean-clone-qualification/source/.pocoma-local/instances/clean-clone/runs/1794740465-d1773951",
+      "keycloakAdmin": {
+        "url": "http://localhost:59249/admin/",
+        "realm": "master",
+        "username": "admin"
+      },
+      "demoUsers": {
+        "realm": "pocoma",
+        "owner": "third",
+        "guest": "guest",
+        "bruno": "bruno"
+      },
+      "credentialsConvention": "L7-LB local only: password pocoma for admin/third/guest/bruno; never production or L8.",
+      "grafana": {
+        "url": "http://127.0.0.1:59256/",
+        "username": "admin",
+        "dashboard": "Pocoma runtime",
+        "dashboardUrl": "http://127.0.0.1:59256/d/pocoma-runtime"
+      },
+      "keycloakAuthEvidence": "/private/tmp/pocoma-l7-clean-clone-qualification/source/.pocoma-local/instances/clean-clone/runs/1794740465-d1773951/keycloak-auth.json"
+    }
+  },
+  {
+    "phase": "clean-gui-config",
+    "cwd": "/private/tmp/pocoma-l7-clean-clone-qualification/source",
+    "argv": [
+      "./pocoma-local",
+      "gui",
+      "--instance",
+      "clean-clone"
+    ],
+    "startedAt": 1794740527.891596,
+    "seconds": 0.4995110034942627,
+    "exit": 0,
+    "result": {
+      "state": "GUI_CONFIGURED",
+      "exit": 0,
+      "environment": "/private/tmp/pocoma-l7-clean-clone-qualification/source/scripts/bruno-playground/environments/Instance-clean-clone.bru",
+      "keycloakAdmin": {
+        "url": "http://localhost:59249/admin/",
+        "realm": "master",
+        "username": "admin"
+      },
+      "demoUsers": {
+        "realm": "pocoma",
+        "owner": "third",
+        "guest": "guest",
+        "bruno": "bruno"
+      },
+      "credentialsConvention": "L7-LB local only: password pocoma for admin/third/guest/bruno; never production or L8.",
+      "next": "In Bruno select Instance-clean-clone; 00 - Getting Started / 00 Login Owner and 01 Login Guest > Auth > Get Access Token; Run Folder 90 - End-to-End Journeys / J01.",
+      "instance": "clean-clone",
+      "project": "pocoma-lb-clean-clone-fcc71fd2",
+      "sha": "0a3246b9bc58bb813163caf22c6a2108c6f88db9",
+      "dirty": false,
+      "urls": {
+        "write": "http://127.0.0.1:59247",
+        "read": "http://127.0.0.1:59248"
+      },
+      "issuer": "http://localhost:59249/realms/pocoma",
+      "evidence": "/private/tmp/pocoma-l7-clean-clone-qualification/source/.pocoma-local/instances/clean-clone/runs/1794740528-3e7eda61",
+      "grafana": {
+        "url": "http://127.0.0.1:59256/",
+        "username": "admin",
+        "dashboard": "Pocoma runtime",
+        "dashboardUrl": "http://127.0.0.1:59256/d/pocoma-runtime"
+      },
+      "keycloakAuthEvidence": null
+    }
+  },
+  {
+    "phase": "clean-bruno",
+    "cwd": "/private/tmp/pocoma-l7-clean-clone-qualification/source",
+    "argv": [
+      "./pocoma-local",
+      "bruno",
+      "--instance",
+      "clean-clone"
+    ],
+    "startedAt": 1794740528.391663,
+    "seconds": 9.127218008041382,
+    "exit": 0,
+    "result": {
+      "state": "BRUNO_PASS",
+      "exit": 0,
+      "instance": "clean-clone",
+      "project": "pocoma-lb-clean-clone-fcc71fd2",
+      "sha": "0a3246b9bc58bb813163caf22c6a2108c6f88db9",
+      "dirty": false,
+      "urls": {
+        "write": "http://127.0.0.1:59247",
+        "read": "http://127.0.0.1:59248"
+      },
+      "issuer": "http://localhost:59249/realms/pocoma",
+      "evidence": "/private/tmp/pocoma-l7-clean-clone-qualification/source/.pocoma-local/instances/clean-clone/runs/1794740528-bd23bbe0"
+    }
+  },
+  {
+    "phase": "clean-status",
+    "cwd": "/private/tmp/pocoma-l7-clean-clone-qualification/source",
+    "argv": [
+      "./pocoma-local",
+      "status",
+      "--instance",
+      "clean-clone"
+    ],
+    "startedAt": 1794740537.519997,
+    "seconds": 3.403926134109497,
+    "exit": 0,
+    "result": {
+      "state": "READY",
+      "exit": 0,
+      "business": "AVAILABLE",
+      "canary": "AVAILABLE",
+      "qualificationTools": "AVAILABLE",
+      "fullyQualifiable": false,
+      "checks": {
+        "JVM-http-write": "PASS",
+        "JVM-http-read": "PASS",
+        "JVM-command-worker": "PASS",
+        "JVM-results-worker": "PASS",
+        "JVM-business-read-worker": "PASS",
+        "DB-CURRENT": "PASS",
+        "IDP-DISCOVERY": "PASS",
+        "KEYCLOAK-OIDC-DISCOVERY": "PASS",
+        "KEYCLOAK-ADMIN-AUTH": "PASS",
+        "KEYCLOAK-ADMIN-ENABLED": "PASS",
+        "KEYCLOAK-THIRD-ENABLED": "PASS",
+        "KEYCLOAK-THIRD-PKCE": "PASS",
+        "KEYCLOAK-GUEST-ENABLED": "PASS",
+        "KEYCLOAK-GUEST-PKCE": "PASS",
+        "KEYCLOAK-BRUNO-ENABLED": "PASS",
+        "KEYCLOAK-BRUNO-PKCE": "PASS",
+        "IDP-PKCE-SESSION": "PASS",
+        "GRAFANA-HTTP": "PASS",
+        "GRAFANA-DATASOURCE": "PASS",
+        "GRAFANA-DASHBOARD": "PASS"
+      },
+      "canaryProof": {
+        "potId": "22ca00a9-6f10-51bb-83f7-f4777e725322",
+        "version": 2,
+        "runId": "1794740465-d1773951",
+        "completedAt": 1794740526.258584,
+        "generationId": "fd4e943dc5ef1dbd68847ff71bde9a60ced934aeeaf9bc7ea60ae186d8ed5052",
+        "generation": {
+          "http-write": {
+            "containerId": "b035029294652a7d12282ef74619c18d9713834940294cdb3f97e9880ccc496b",
+            "createdAt": "2026-11-15T11:01:51.123317971Z",
+            "startedAt": "2026-11-15T11:01:51.753606888Z",
+            "running": true
+          },
+          "http-read": {
+            "containerId": "f25db2f05400d73e3c44609fdf27cf861fceac9e54f36b0dd1a73f267aec371e",
+            "createdAt": "2026-11-15T11:01:51.124052138Z",
+            "startedAt": "2026-11-15T11:01:51.876459305Z",
+            "running": true
+          },
+          "command-worker": {
+            "containerId": "9ad798353a8ec476e3cdf12a4f35d18f2ffdade26ab3f91b1540ff369843a272",
+            "createdAt": "2026-11-15T11:01:51.121472596Z",
+            "startedAt": "2026-11-15T11:01:51.631866971Z",
+            "running": true
+          },
+          "results-worker": {
+            "containerId": "e922eec3651de375d68d40abcf148a53f45dd561810e3442698b292e758e0ef7",
+            "createdAt": "2026-11-15T11:01:51.121827471Z",
+            "startedAt": "2026-11-15T11:01:51.303586263Z",
+            "running": true
+          },
+          "business-read-worker": {
+            "containerId": "c35e97723a3465b35946bd601921a757508a9a1c57d7070f591e44d944ba55d5",
+            "createdAt": "2026-11-15T11:01:51.123673763Z",
+            "startedAt": "2026-11-15T11:01:51.411231096Z",
+            "running": true
+          }
+        },
+        "generationQualified": true
+      },
+      "observedAt": 1794740540.8334332,
+      "technical": "AVAILABLE",
+      "businessEvidence": "PROVEN",
+      "lastStart": {
+        "runId": "1794740465-d1773951",
+        "startedAt": 1794740465.148372,
+        "state": "SUCCEEDED",
+        "sha": "0a3246b9bc58bb813163caf22c6a2108c6f88db9",
+        "dirty": false,
+        "completedAt": 1794740527.625121,
+        "generationId": "fd4e943dc5ef1dbd68847ff71bde9a60ced934aeeaf9bc7ea60ae186d8ed5052"
+      },
+      "lastSuccessfulStart": {
+        "runId": "1794740465-d1773951",
+        "startedAt": 1794740465.148372,
+        "state": "SUCCEEDED",
+        "sha": "0a3246b9bc58bb813163caf22c6a2108c6f88db9",
+        "dirty": false,
+        "completedAt": 1794740527.625121,
+        "generationId": "fd4e943dc5ef1dbd68847ff71bde9a60ced934aeeaf9bc7ea60ae186d8ed5052"
+      },
+      "currentGeneration": {
+        "http-write": {
+          "containerId": "b035029294652a7d12282ef74619c18d9713834940294cdb3f97e9880ccc496b",
+          "createdAt": "2026-11-15T11:01:51.123317971Z",
+          "startedAt": "2026-11-15T11:01:51.753606888Z",
+          "running": true
+        },
+        "http-read": {
+          "containerId": "f25db2f05400d73e3c44609fdf27cf861fceac9e54f36b0dd1a73f267aec371e",
+          "createdAt": "2026-11-15T11:01:51.124052138Z",
+          "startedAt": "2026-11-15T11:01:51.876459305Z",
+          "running": true
+        },
+        "command-worker": {
+          "containerId": "9ad798353a8ec476e3cdf12a4f35d18f2ffdade26ab3f91b1540ff369843a272",
+          "createdAt": "2026-11-15T11:01:51.121472596Z",
+          "startedAt": "2026-11-15T11:01:51.631866971Z",
+          "running": true
+        },
+        "results-worker": {
+          "containerId": "e922eec3651de375d68d40abcf148a53f45dd561810e3442698b292e758e0ef7",
+          "createdAt": "2026-11-15T11:01:51.121827471Z",
+          "startedAt": "2026-11-15T11:01:51.303586263Z",
+          "running": true
+        },
+        "business-read-worker": {
+          "containerId": "c35e97723a3465b35946bd601921a757508a9a1c57d7070f591e44d944ba55d5",
+          "createdAt": "2026-11-15T11:01:51.123673763Z",
+          "startedAt": "2026-11-15T11:01:51.411231096Z",
+          "running": true
+        }
+      },
+      "generationQualified": true,
+      "proofFreshness": "FRESH",
+      "proofAgeSeconds": 14.499582052230835,
+      "instance": "clean-clone",
+      "project": "pocoma-lb-clean-clone-fcc71fd2",
+      "sha": "0a3246b9bc58bb813163caf22c6a2108c6f88db9",
+      "dirty": false,
+      "urls": {
+        "write": "http://127.0.0.1:59247",
+        "read": "http://127.0.0.1:59248"
+      },
+      "issuer": "http://localhost:59249/realms/pocoma",
+      "evidence": "/private/tmp/pocoma-l7-clean-clone-qualification/source/.pocoma-local/instances/clean-clone/runs/1794740537-70c0b07b",
+      "keycloakAdmin": {
+        "url": "http://localhost:59249/admin/",
+        "realm": "master",
+        "username": "admin"
+      },
+      "demoUsers": {
+        "realm": "pocoma",
+        "owner": "third",
+        "guest": "guest",
+        "bruno": "bruno"
+      },
+      "credentialsConvention": "L7-LB local only: password pocoma for admin/third/guest/bruno; never production or L8.",
+      "grafana": {
+        "url": "http://127.0.0.1:59256/",
+        "username": "admin",
+        "dashboard": "Pocoma runtime",
+        "dashboardUrl": "http://127.0.0.1:59256/d/pocoma-runtime"
+      },
+      "keycloakAuthEvidence": "/private/tmp/pocoma-l7-clean-clone-qualification/source/.pocoma-local/instances/clean-clone/runs/1794740537-70c0b07b/keycloak-auth.json"
+    }
+  },
+  {
+    "phase": "clean-stop",
+    "cwd": "/private/tmp/pocoma-l7-clean-clone-qualification/source",
+    "argv": [
+      "./pocoma-local",
+      "stop",
+      "--instance",
+      "clean-clone"
+    ],
+    "startedAt": 1794740540.924795,
+    "seconds": 2.676021099090576,
+    "exit": 0,
+    "result": {
+      "state": "STOPPED",
+      "exit": 0,
+      "volumes": "PRESERVED",
+      "runtimeExitCodes": {
+        "business-read-worker": 143,
+        "command-worker": 143,
+        "http-read": 143,
+        "http-write": 143,
+        "results-worker": 143
+      },
+      "forcedKill": [],
+      "slotsBeforeStop": {
+        "pocoma_write": "0",
+        "pocoma_read": "0"
+      },
+      "instance": "clean-clone",
+      "project": "pocoma-lb-clean-clone-fcc71fd2",
+      "sha": "0a3246b9bc58bb813163caf22c6a2108c6f88db9",
+      "dirty": false,
+      "urls": {
+        "write": "http://127.0.0.1:59247",
+        "read": "http://127.0.0.1:59248"
+      },
+      "issuer": "http://localhost:59249/realms/pocoma",
+      "evidence": "/private/tmp/pocoma-l7-clean-clone-qualification/source/.pocoma-local/instances/clean-clone/runs/1794740541-e8eeb717"
+    }
+  },
+  {
+    "phase": "demo-restored",
+    "cwd": "/Users/julien.guezennec/Dev/projects/pocoma",
+    "argv": [
+      "./pocoma-local",
+      "start",
+      "--instance",
+      "demo"
+    ],
+    "startedAt": 1794740543.713156,
+    "seconds": 161.81744384765625,
+    "exit": 0,
+    "result": {
+      "state": "READY",
+      "exit": 0,
+      "business": "AVAILABLE",
+      "canary": "AVAILABLE",
+      "qualificationTools": "AVAILABLE",
+      "fullyQualifiable": false,
+      "checks": {
+        "JVM-http-write": "PASS",
+        "JVM-http-read": "PASS",
+        "JVM-command-worker": "PASS",
+        "JVM-results-worker": "PASS",
+        "JVM-business-read-worker": "PASS",
+        "DB-CURRENT": "PASS",
+        "IDP-DISCOVERY": "PASS",
+        "KEYCLOAK-OIDC-DISCOVERY": "PASS",
+        "KEYCLOAK-ADMIN-AUTH": "PASS",
+        "KEYCLOAK-ADMIN-ENABLED": "PASS",
+        "KEYCLOAK-THIRD-ENABLED": "PASS",
+        "KEYCLOAK-THIRD-PKCE": "PASS",
+        "KEYCLOAK-GUEST-ENABLED": "PASS",
+        "KEYCLOAK-GUEST-PKCE": "PASS",
+        "KEYCLOAK-BRUNO-ENABLED": "PASS",
+        "KEYCLOAK-BRUNO-PKCE": "PASS",
+        "WORKER-PARTITIONS": "PASS",
+        "GRAFANA-HTTP": "PASS",
+        "GRAFANA-DATASOURCE": "PASS",
+        "GRAFANA-DASHBOARD": "PASS"
+      },
+      "canaryProof": {
+        "potId": "781047aa-eaf1-51e7-8a03-d512e1389f7e",
+        "version": 18,
+        "runId": "1794740543-85587d0e",
+        "completedAt": 1794740704.119193,
+        "generationId": "b431c701a98ed027bdab47e301ac397dad440cf5172e6f2dd718be6d884c0aa8",
+        "generation": {
+          "http-write": {
+            "containerId": "19e17b3e2a76b16410bc5f06bea5b25818b3ef276ac76a73084a96e6be25ab2b",
+            "createdAt": "2026-11-14T17:15:35.410432175Z",
+            "startedAt": "2026-11-15T11:02:36.512031297Z",
+            "running": true
+          },
+          "http-read": {
+            "containerId": "ea86a191856938a3f2fc2a23036bf1a1cfbfde75d05f613d6e8d64fa2353960f",
+            "createdAt": "2026-11-14T17:15:35.410071592Z",
+            "startedAt": "2026-11-15T11:02:36.36723588Z",
+            "running": true
+          },
+          "command-worker": {
+            "containerId": "6c25ba8f69bae681c62a4a97616f16e0e49572006e0345ce146b151f12323ae7",
+            "createdAt": "2026-11-14T17:15:35.412248133Z",
+            "startedAt": "2026-11-15T11:02:36.14661188Z",
+            "running": true
+          },
+          "results-worker": {
+            "containerId": "f7a4b68bdd95399fcca9865edf9dd43d222c55c84182d2f1ccf28274fa805c5d",
+            "createdAt": "2026-11-14T17:15:35.41058505Z",
+            "startedAt": "2026-11-15T11:02:36.716866631Z",
+            "running": true
+          },
+          "business-read-worker": {
+            "containerId": "7f6af382162c503baa6f354c77adb792db7666142bd319a7f1ee823d2c2ab0aa",
+            "createdAt": "2026-11-14T17:15:35.410558633Z",
+            "startedAt": "2026-11-15T11:02:36.060989839Z",
+            "running": true
+          }
+        }
+      },
+      "observedAt": 1794740705.4448059,
+      "lastStart": {
+        "runId": "1794740543-85587d0e",
+        "startedAt": 1794740543.888053,
+        "state": "SUCCEEDED",
+        "sha": "60b12fc3cb81f42a89db0688b0406a4a986f6ffc",
+        "dirty": true,
+        "completedAt": 1794740705.444831,
+        "generationId": "b431c701a98ed027bdab47e301ac397dad440cf5172e6f2dd718be6d884c0aa8"
+      },
+      "lastSuccessfulStart": {
+        "runId": "1794740543-85587d0e",
+        "startedAt": 1794740543.888053,
+        "state": "SUCCEEDED",
+        "sha": "60b12fc3cb81f42a89db0688b0406a4a986f6ffc",
+        "dirty": true,
+        "completedAt": 1794740705.444831,
+        "generationId": "b431c701a98ed027bdab47e301ac397dad440cf5172e6f2dd718be6d884c0aa8"
+      },
+      "currentGeneration": {
+        "http-write": {
+          "containerId": "19e17b3e2a76b16410bc5f06bea5b25818b3ef276ac76a73084a96e6be25ab2b",
+          "createdAt": "2026-11-14T17:15:35.410432175Z",
+          "startedAt": "2026-11-15T11:02:36.512031297Z",
+          "running": true
+        },
+        "http-read": {
+          "containerId": "ea86a191856938a3f2fc2a23036bf1a1cfbfde75d05f613d6e8d64fa2353960f",
+          "createdAt": "2026-11-14T17:15:35.410071592Z",
+          "startedAt": "2026-11-15T11:02:36.36723588Z",
+          "running": true
+        },
+        "command-worker": {
+          "containerId": "6c25ba8f69bae681c62a4a97616f16e0e49572006e0345ce146b151f12323ae7",
+          "createdAt": "2026-11-14T17:15:35.412248133Z",
+          "startedAt": "2026-11-15T11:02:36.14661188Z",
+          "running": true
+        },
+        "results-worker": {
+          "containerId": "f7a4b68bdd95399fcca9865edf9dd43d222c55c84182d2f1ccf28274fa805c5d",
+          "createdAt": "2026-11-14T17:15:35.41058505Z",
+          "startedAt": "2026-11-15T11:02:36.716866631Z",
+          "running": true
+        },
+        "business-read-worker": {
+          "containerId": "7f6af382162c503baa6f354c77adb792db7666142bd319a7f1ee823d2c2ab0aa",
+          "createdAt": "2026-11-14T17:15:35.410558633Z",
+          "startedAt": "2026-11-15T11:02:36.060989839Z",
+          "running": true
+        }
+      },
+      "generationQualified": true,
+      "technical": "AVAILABLE",
+      "businessEvidence": "PROVEN",
+      "proofFreshness": "FRESH",
+      "instance": "demo",
+      "project": "pocoma-lb-demo-33dd8c1d",
+      "sha": "60b12fc3cb81f42a89db0688b0406a4a986f6ffc",
+      "dirty": true,
+      "urls": {
+        "write": "http://127.0.0.1:54610",
+        "read": "http://127.0.0.1:54611"
+      },
+      "issuer": "http://localhost:54612/realms/pocoma",
+      "evidence": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/demo/runs/1794740543-85587d0e",
+      "keycloakAdmin": {
+        "url": "http://localhost:54612/admin/",
+        "realm": "master",
+        "username": "admin"
+      },
+      "demoUsers": {
+        "realm": "pocoma",
+        "owner": "third",
+        "guest": "guest",
+        "bruno": "bruno"
+      },
+      "credentialsConvention": "L7-LB local only: password pocoma for admin/third/guest/bruno; never production or L8.",
+      "grafana": {
+        "url": "http://127.0.0.1:61347/",
+        "username": "admin",
+        "dashboard": "Pocoma runtime",
+        "dashboardUrl": "http://127.0.0.1:61347/d/pocoma-runtime"
+      },
+      "keycloakAuthEvidence": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/demo/runs/1794740543-85587d0e/keycloak-auth.json"
+    }
+  }
+]

@@ -1,0 +1,9 @@
+{
+  "status": "PASS",
+  "producer_invocation": "4a206b477ae54dea9b7535ff28a73fde",
+  "app_and_external_sql_inputs_compared": 599,
+  "live_registry_and_selector_identical": true,
+  "mismatches": [],
+  "deleted_marker_handling": "Missing candidate path must match collector DELETED marker.",
+  "scope": "Primary checkout bytes match the post-Docker-restore canonical-gate input provenance; no source mutation since producer started."
+}

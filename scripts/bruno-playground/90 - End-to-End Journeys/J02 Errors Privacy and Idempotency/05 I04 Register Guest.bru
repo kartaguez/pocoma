@@ -1,0 +1,51 @@
+meta {
+  name: J02-05-I04 Register Guest
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{writeUrl}}/api/v3/identity/requests
+  body: json
+  auth: none
+}
+
+headers {
+  Connection: close
+  Content-Type: application/json
+  Idempotency-Key: {{idempotencyKey}}
+}
+
+body:json {
+  {
+    "operation": "Registration"
+  }
+}
+
+settings {
+  timeout: 5000
+}
+
+script:pre-request {
+  const options = {"id":"J02-05-I04","role":"guest","operation":"Registration","kind":"identityAdmission"};
+  await require('./lib/workspace.js').prepare(bru, req, options);
+}
+
+tests {
+  const options = {"id":"J02-05-I04","role":"guest","operation":"Registration","kind":"identityAdmission"};
+  const work = require('./lib/workspace.js');
+  test('J02-05-I04 transport and privacy', () => work.transport(bru, res, expect, options));
+  test('J02-05-I04 contract and variables', () => {
+    work.verify(bru, req, res, expect, options);
+    work.record(bru, req, res, options);
+  });
+}
+
+docs {
+  Parcours J02 ; etape 5. Source : 01 - Identity and Registration/I04 Register Guest.bru.
+  202 + requestId. Le resultat est COMPLETED ou REJECTED / TARGET_ALREADY_BOUND si deja inscrit. Executer ensuite Result puis Binding de cette identite.
+  Identite : guest. Prerequis : URLs de l environnement ; session native si role authentifie.
+  Chaque Send appelle la methode et le corps visibles. Les GET asynchrones attendent
+  le meme endpoint au plus 30 s avant l appel affiche ; aucun POST cache.
+  Modifier le JSON librement ; une nouvelle intention recoit une nouvelle cle.
+}

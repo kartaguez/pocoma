@@ -1,0 +1,8 @@
+{
+  "initialSourceFingerprint": "01d8e3592b204ba5c6ec4c91b1a2ee138c1a0ba0883324b0094949d6efbf35d6",
+  "sources": {
+    "scripts/local/runtime.py": "e4ac07fed711da42597ae05fadf7e5e3f3a80bd8f444f02ffc36ba905fa530d5",
+    "scripts/local/grafana.py": "ad14fba00a2939acd7c6f765fbd093191b9556ea0785dc5918559f0f417f7a0c"
+  },
+  "observation": "Projection throughput has no series with Materialize-prefixed labels; other 30 panel expressions have real finite series after Bruno. Final selector correction and qualification to follow."
+}

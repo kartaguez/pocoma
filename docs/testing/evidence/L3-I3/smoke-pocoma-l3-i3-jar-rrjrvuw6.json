@@ -1,0 +1,37 @@
+{
+  "kind": "fresh exec-jar R-ID internal bench; no external consent or READ certification",
+  "jar_sha256": "e9374ead3d48879e0c71adaf2d8004e625c653b1e76d00341bdca9cce2aa982a",
+  "stages": [
+    {
+      "action": "prepare once",
+      "V3_WRITE": "V1-V6",
+      "READ": "technical V1",
+      "fixture": false
+    },
+    {
+      "action": "start",
+      "pid": 33530,
+      "index": 1
+    },
+    {
+      "action": "demo real Engine",
+      "requests": [
+        "df6740be-e24f-4b2f-ba92-d61f458055f0",
+        "22413025-b0f2-49aa-9d02-fef3e8d17bbe",
+        "2f5189f5-fcbb-4237-94aa-58762480803e",
+        "ba8074f4-3b3a-4ab8-b0e3-c97f13ea30dc",
+        "079c47b6-b57e-4718-9edf-c55e0db38abf",
+        "0b8d5f8c-7df0-4bac-a468-562229bf2eb5",
+        "02f9e27c-a5fb-4894-9ac8-b8c60ba105f3",
+        "b8b55524-add6-471e-a8a1-a54556248cc0"
+      ],
+      "operations": "2 Registration, Link, other Unlink, re-Link, self Unlink, last Unlink, rejection"
+    }
+  ],
+  "postgres": "PostgreSQL 17.11 on aarch64-unknown-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit",
+  "status": "FAIL",
+  "failure_category": "RuntimeError",
+  "failure_stage": "stage failed: ['python3', '-B'] rc=2",
+  "private_receipt_sha256": "87420938c73284a8cb96be4f691112a508fbeb56f288b32682e678dfa18f7041",
+  "archive_note": "No credentials/configuration/token files or raw operator logs archived."
+}

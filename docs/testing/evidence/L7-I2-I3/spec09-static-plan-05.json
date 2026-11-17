@@ -1,0 +1,228 @@
+{
+  "mode": "STATIC_PLAN_ONLY",
+  "manifestSha256": "8821ae3438621c9adf119efd68bbe89668270da101465f4721f63e2c48d49c55",
+  "repetitions": 3,
+  "campaigns": [
+    {
+      "id": "F01-A",
+      "configuration": "A",
+      "potCount": 10,
+      "dataset": "medium",
+      "rate": 1,
+      "warmupSeconds": 180,
+      "sampleSeconds": 1200,
+      "c03P95Ms": 500,
+      "exactBalanceP95Ms": 500,
+      "stimulus": "nominal",
+      "requiredEnvironment": [
+        "POCOMA_READ_URL",
+        "POCOMA_WRITE_URL",
+        "POCOMA_TOKEN",
+        "POCOMA_BINDING_TOKEN",
+        "PRE_SEEDED_POTS_FILE"
+      ],
+      "fixtureCommand": "python3 -B scripts/performance/v3-seed.py --profile medium --pots 10 --seed-id l7-spec09-medium-10 --materialize --output seed-receipt.json --fixture-output stimulus-fixtures.json",
+      "stimulusCommands": [
+        "env SCENARIO=nominal RATE=1 DURATION=1200s POTS=10 SHAREHOLDERS=20 SEED_EXPENSES=200 POLL_INTERVAL_MS=25 DECOUPLED=false MAX_ADMISSION_RETRIES=0 ISOLATE_POTS_BY_VU=true k6 run scripts/k6/v3-performance.js"
+      ]
+    },
+    {
+      "id": "F01-B",
+      "configuration": "A",
+      "potCount": 100,
+      "dataset": "medium",
+      "rate": 10,
+      "warmupSeconds": 300,
+      "sampleSeconds": 900,
+      "c03P95Ms": 1000,
+      "backlog": "stationary by Consumption",
+      "stimulus": "sustained",
+      "requiredEnvironment": [
+        "POCOMA_READ_URL",
+        "POCOMA_WRITE_URL",
+        "POCOMA_TOKEN",
+        "POCOMA_BINDING_TOKEN",
+        "PRE_SEEDED_POTS_FILE"
+      ],
+      "fixtureCommand": "python3 -B scripts/performance/v3-seed.py --profile medium --pots 100 --seed-id l7-spec09-medium-100 --materialize --output seed-receipt.json --fixture-output stimulus-fixtures.json",
+      "stimulusCommands": [
+        "env SCENARIO=sustained RATE=10 DURATION=900s POTS=100 SHAREHOLDERS=20 SEED_EXPENSES=200 POLL_INTERVAL_MS=25 DECOUPLED=false MAX_ADMISSION_RETRIES=0 ISOLATE_POTS_BY_VU=true k6 run scripts/k6/v3-performance.js"
+      ]
+    },
+    {
+      "id": "F01-C",
+      "configuration": "A",
+      "potCount": 250,
+      "dataset": "medium",
+      "rate": 50,
+      "warmupSeconds": 300,
+      "sampleSeconds": 180,
+      "nominalRecoverySeconds": 600,
+      "c03P95Ms": 3000,
+      "stimulus": "peak",
+      "requiredEnvironment": [
+        "POCOMA_READ_URL",
+        "POCOMA_WRITE_URL",
+        "POCOMA_TOKEN",
+        "POCOMA_BINDING_TOKEN",
+        "PRE_SEEDED_POTS_FILE"
+      ],
+      "fixtureCommand": "python3 -B scripts/performance/v3-seed.py --profile medium --pots 250 --seed-id l7-spec09-medium-250 --materialize --output seed-receipt.json --fixture-output stimulus-fixtures.json",
+      "stimulusCommands": [
+        "env SCENARIO=peak RATE=50 DURATION=180s POTS=250 SHAREHOLDERS=20 SEED_EXPENSES=200 POLL_INTERVAL_MS=25 DECOUPLED=false MAX_ADMISSION_RETRIES=0 ISOLATE_POTS_BY_VU=true k6 run scripts/k6/v3-performance.js"
+      ]
+    },
+    {
+      "id": "F01-D",
+      "configuration": "A",
+      "potCount": 10,
+      "dataset": "large",
+      "rate": 1,
+      "warmupSeconds": 180,
+      "sampleSeconds": 1200,
+      "c03P95Ms": 2000,
+      "stimulus": "nominal",
+      "remaining": "calibrate repeatable 200000-participation seed and cost probes",
+      "requiredEnvironment": [
+        "POCOMA_READ_URL",
+        "POCOMA_WRITE_URL",
+        "POCOMA_TOKEN",
+        "POCOMA_BINDING_TOKEN",
+        "PRE_SEEDED_POTS_FILE"
+      ],
+      "fixtureCommand": "python3 -B scripts/performance/v3-seed.py --profile large --pots 10 --seed-id l7-spec09-large-10 --materialize --output seed-receipt.json --fixture-output stimulus-fixtures.json",
+      "stimulusCommands": [
+        "env SCENARIO=nominal RATE=1 DURATION=1200s POTS=10 SHAREHOLDERS=100 SEED_EXPENSES=2000 POLL_INTERVAL_MS=25 DECOUPLED=false MAX_ADMISSION_RETRIES=0 ISOLATE_POTS_BY_VU=true k6 run scripts/k6/v3-performance.js"
+      ]
+    },
+    {
+      "id": "F01-E",
+      "configuration": "A",
+      "rate": 1,
+      "warmupSeconds": 180,
+      "sampleSeconds": 1200,
+      "usableBindingP95Ms": 500,
+      "stimulus": "Registration",
+      "remaining": "verify separate network and SQL services and calibrate sampling cost during L7.4",
+      "observer": "scripts/performance/run-l7-spec09-registration.py",
+      "finish": "HTTP 200 /api/v3/me/pots?limit=1 with new bindingToken for the same fresh EUI",
+      "subjectPlanCommand": "python3 -B scripts/performance/run-l7-spec09-registration.py --run-id \"$POCOMA_F01E_RUN_UUID\" --subjects \"$POCOMA_TEST_SUBJECTS\" --report \"$POCOMA_F01E_PLAN\"",
+      "stimulusCommand": "python3 -B scripts/performance/run-l7-spec09-registration.py --execute --isolated-target --run-id \"$POCOMA_F01E_RUN_UUID\" --subjects \"$POCOMA_TEST_SUBJECTS\" --tokens \"$POCOMA_TEST_TOKEN_FILE\" --write-url \"$POCOMA_WRITE_URL\" --read-url \"$POCOMA_READ_URL\" --write-service pocoma-spec09-write --read-service pocoma-spec09-read --report \"$POCOMA_F01E_RECEIPT\"",
+      "maxOfferLagMs": 50,
+      "observationDeadlineSeconds": 8
+    },
+    {
+      "id": "F01-F",
+      "configuration": "B",
+      "warmupSeconds": 180,
+      "sampleSeconds": 600,
+      "stimulus": "OIDC, Registration, Unlink",
+      "remaining": "import fixture on isolated Keycloak and calibrate OIDC and SQL observers on Configuration B",
+      "rate": 1,
+      "observer": "scripts/performance/run-l7-spec09-keycloak.py",
+      "prepareCommand": "python3 -B scripts/performance/run-l7-spec09-keycloak.py prepare --run-id \"$POCOMA_F01F_RUN_UUID\" --subjects \"$POCOMA_TEST_SUBJECTS\" --realm \"$POCOMA_B_REALM\" --realm-file \"$POCOMA_B_REALM_IMPORT\" --accounts \"$POCOMA_B_ACCOUNTS\" --report \"$POCOMA_F01F_PLAN\"",
+      "executeCommand": "python3 -B scripts/performance/run-l7-spec09-keycloak.py execute --isolated-target --run-id \"$POCOMA_F01F_RUN_UUID\" --issuer \"$POCOMA_B_ISSUER\" --accounts \"$POCOMA_B_ACCOUNTS\" --report \"$POCOMA_F01F_RECEIPT\" --write-url \"$POCOMA_WRITE_URL\" --read-url \"$POCOMA_READ_URL\" --write-service pocoma-spec09-write --read-service pocoma-spec09-read",
+      "matchedRegistrationTokenCommand": "python3 -B scripts/performance/run-l7-spec09-keycloak.py issue-tokens --isolated-target --run-id \"$POCOMA_F01F_RUN_UUID\" --issuer \"$POCOMA_B_ISSUER\" --accounts \"$POCOMA_B_ACCOUNTS\" --report \"$POCOMA_F01F_ISSUE_RECEIPT\" --tokens \"$POCOMA_TEST_TOKEN_FILE\""
+    },
+    {
+      "id": "F01-G",
+      "configuration": "A",
+      "dataset": "medium",
+      "backlog": 10000,
+      "recoveryRate": 1,
+      "convergenceSeconds": 300,
+      "observer": "scripts/performance/observe-l7-spec09-backlog.py",
+      "remaining": "materialize 10000 medium Pots, calibrate stock admission and observer cost on the isolated deployment, then execute during L7.4",
+      "producer": "scripts/performance/stock-l7-spec09-backlog.py",
+      "stockPlanCommand": "python3 -B scripts/performance/stock-l7-spec09-backlog.py --fixtures \"$POCOMA_F01G_FIXTURES\" --report \"$POCOMA_F01G_PLAN\" --concurrency 8",
+      "stockAdmissionCommand": "python3 -B scripts/performance/stock-l7-spec09-backlog.py --fixtures \"$POCOMA_F01G_FIXTURES\" --report \"$POCOMA_F01G_STOCK\" --concurrency 8 --execute-stock --isolated-and-workers-stopped --write-url \"$POCOMA_WRITE_URL\" --run-id \"$POCOMA_F01G_RUN_UUID\" --requests \"$POCOMA_INITIAL_REQUESTS\""
+    },
+    {
+      "id": "F01-H",
+      "configuration": "A",
+      "potCount": 1,
+      "dataset": "medium",
+      "warmupSeconds": 180,
+      "sampleSeconds": 600,
+      "stimulus": "contention",
+      "stimulusCommands": [
+        "env SCENARIO=contention RATE=1 DURATION=600s POTS=1 SHAREHOLDERS=20 SEED_EXPENSES=200 POLL_INTERVAL_MS=25 DECOUPLED=false MAX_ADMISSION_RETRIES=0 k6 run scripts/k6/v3-performance.js"
+      ]
+    },
+    {
+      "id": "F01-I",
+      "configuration": "A",
+      "stimulus": "globalLevels and historyDepth",
+      "remaining": "prepare and validate snapshots for all normative global volumes"
+    },
+    {
+      "id": "F01-J",
+      "configuration": "A",
+      "potCount": 1,
+      "dataset": "medium",
+      "idleSeconds": 600,
+      "stimulus": "idle",
+      "stimulusCommands": [
+        "env SCENARIO=idle RATE=1 DURATION=1s POTS=1 SHAREHOLDERS=20 SEED_EXPENSES=200 POLL_INTERVAL_MS=25 DECOUPLED=false MAX_ADMISSION_RETRIES=0 IDLE_SECONDS=600 k6 run scripts/k6/v3-performance.js"
+      ]
+    },
+    {
+      "id": "A11-L/M",
+      "configuration": "A",
+      "stimulus": "paired DeletePot with F01-A/B/C/D",
+      "remaining": "timestamp the internal deleted=true landmark and reconcile all active pre-delete versions"
+    },
+    {
+      "id": "ENDURANCE",
+      "configuration": "A",
+      "potCount": 100,
+      "dataset": "medium",
+      "rate": 10,
+      "sampleSeconds": 3600,
+      "stimulus": "sustained",
+      "requiredEnvironment": [
+        "POCOMA_READ_URL",
+        "POCOMA_WRITE_URL",
+        "POCOMA_TOKEN",
+        "POCOMA_BINDING_TOKEN",
+        "PRE_SEEDED_POTS_FILE"
+      ],
+      "fixtureCommand": "python3 -B scripts/performance/v3-seed.py --profile medium --pots 100 --seed-id l7-spec09-medium-100 --materialize --output seed-receipt.json --fixture-output stimulus-fixtures.json",
+      "stimulusCommands": [
+        "env SCENARIO=sustained RATE=10 DURATION=3600s POTS=100 SHAREHOLDERS=20 SEED_EXPENSES=200 POLL_INTERVAL_MS=25 DECOUPLED=false MAX_ADMISSION_RETRIES=0 ISOLATE_POTS_BY_VU=true k6 run scripts/k6/v3-performance.js"
+      ]
+    },
+    {
+      "id": "SATURATION",
+      "configuration": "A",
+      "potCount": 250,
+      "dataset": "medium",
+      "rates": [
+        1,
+        5,
+        10,
+        20,
+        35,
+        50
+      ],
+      "sampleSecondsPerRate": 900,
+      "stimulus": "ramp",
+      "requiredEnvironment": [
+        "POCOMA_READ_URL",
+        "POCOMA_WRITE_URL",
+        "POCOMA_TOKEN",
+        "POCOMA_BINDING_TOKEN",
+        "PRE_SEEDED_POTS_FILE"
+      ],
+      "fixtureCommand": "python3 -B scripts/performance/v3-seed.py --profile medium --pots 250 --seed-id l7-spec09-medium-250 --materialize --output seed-receipt.json --fixture-output stimulus-fixtures.json",
+      "stimulusCommands": [
+        "env SCENARIO=ramp RATE=1 DURATION=900s POTS=250 SHAREHOLDERS=20 SEED_EXPENSES=200 POLL_INTERVAL_MS=25 DECOUPLED=false MAX_ADMISSION_RETRIES=0 ISOLATE_POTS_BY_VU=true k6 run scripts/k6/v3-performance.js",
+        "env SCENARIO=ramp RATE=5 DURATION=900s POTS=250 SHAREHOLDERS=20 SEED_EXPENSES=200 POLL_INTERVAL_MS=25 DECOUPLED=false MAX_ADMISSION_RETRIES=0 ISOLATE_POTS_BY_VU=true k6 run scripts/k6/v3-performance.js",
+        "env SCENARIO=ramp RATE=10 DURATION=900s POTS=250 SHAREHOLDERS=20 SEED_EXPENSES=200 POLL_INTERVAL_MS=25 DECOUPLED=false MAX_ADMISSION_RETRIES=0 ISOLATE_POTS_BY_VU=true k6 run scripts/k6/v3-performance.js",
+        "env SCENARIO=ramp RATE=20 DURATION=900s POTS=250 SHAREHOLDERS=20 SEED_EXPENSES=200 POLL_INTERVAL_MS=25 DECOUPLED=false MAX_ADMISSION_RETRIES=0 ISOLATE_POTS_BY_VU=true k6 run scripts/k6/v3-performance.js",
+        "env SCENARIO=ramp RATE=35 DURATION=900s POTS=250 SHAREHOLDERS=20 SEED_EXPENSES=200 POLL_INTERVAL_MS=25 DECOUPLED=false MAX_ADMISSION_RETRIES=0 ISOLATE_POTS_BY_VU=true k6 run scripts/k6/v3-performance.js",
+        "env SCENARIO=ramp RATE=50 DURATION=900s POTS=250 SHAREHOLDERS=20 SEED_EXPENSES=200 POLL_INTERVAL_MS=25 DECOUPLED=false MAX_ADMISSION_RETRIES=0 ISOLATE_POTS_BY_VU=true k6 run scripts/k6/v3-performance.js"
+      ]
+    }
+  ]
+}

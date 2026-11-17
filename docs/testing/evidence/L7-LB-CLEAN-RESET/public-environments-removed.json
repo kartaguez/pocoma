@@ -1,0 +1,11 @@
+{
+  "removed": [
+    "scripts/bruno-playground/environments/Instance-demo.bru",
+    "scripts/bruno-playground/environments/Instance-gui-test.bru",
+    "scripts/bruno-playground/environments/Instance-i3-final.bru",
+    "scripts/bruno-playground/environments/Instance-i3-workshop.bru",
+    "scripts/bruno-playground/environments/Instance-keycloak-release-validation.bru",
+    "scripts/bruno-playground/environments/Instance-keycloak-validation-final.bru"
+  ],
+  "scope": "Only six public environments explicitly listed in approved plan; no OAuth cache export or modification."
+}

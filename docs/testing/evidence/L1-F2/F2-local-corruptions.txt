@@ -1,0 +1,2 @@
+schema=v3_pot_c2d773601b2f4aa3b38fe80425e63ef2
+8 injected variants rejected; full candidate and fixture rollback independently compared

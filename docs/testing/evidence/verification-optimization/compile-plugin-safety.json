@@ -1,0 +1,26 @@
+[
+  {
+    "plugin": "compiler",
+    "version": "3.14.1",
+    "goal": "compile",
+    "threadSafe": "true"
+  },
+  {
+    "plugin": "compiler",
+    "version": "3.14.1",
+    "goal": "testCompile",
+    "threadSafe": "true"
+  },
+  {
+    "plugin": "resources",
+    "version": "3.3.1",
+    "goal": "resources",
+    "threadSafe": "true"
+  },
+  {
+    "plugin": "resources",
+    "version": "3.3.1",
+    "goal": "testResources",
+    "threadSafe": "true"
+  }
+]

@@ -1,0 +1,47 @@
+{
+  "measurement_summary": {
+    "partition": {
+      "samples": 644,
+      "upper_bound_p50_ns": 5912000,
+      "upper_bound_p95_ns": 33838000,
+      "upper_bound_max_ns": 104950000,
+      "lower_bound_max_ns": 100255000,
+      "meaning": "PG clocks bracket actual acquisition and confirmed commit; includes observer/JDBC instrumentation overhead; no universal bound"
+    },
+    "source": {
+      "samples": 3028,
+      "upper_bound_p50_ns": 11430000,
+      "upper_bound_p95_ns": 31891000,
+      "upper_bound_max_ns": 102987000,
+      "lower_bound_max_ns": 98944000,
+      "meaning": "PG clocks bracket actual acquisition and confirmed commit; includes observer/JDBC instrumentation overhead; no universal bound"
+    }
+  },
+  "manifest_sha256": "af5079415617b870189fa87e828fe6e219ae456688f06873dff7cb7fb2c5c81b",
+  "gate": "command",
+  "sha": "0b08d3bf0bfce1334260cfd5249b13c3040a67bb",
+  "command": [
+    "./mvnw",
+    "-pl",
+    "runtime-command-consumption-worker",
+    "-am",
+    "test"
+  ],
+  "cwd": "app/",
+  "started_epoch": 1793194666.637197,
+  "elapsed_seconds": 961.179,
+  "exit_code": 0,
+  "tests": 1573,
+  "failures_or_errors": 0,
+  "skips": [
+    {
+      "class": "com.kartaguez.pocoma.runtime.command.consumption.sequencing.TerminalSequencingPostgresTest",
+      "method": "zExploratoryContentionSeparateFromCorrectness",
+      "state": "SKIP"
+    }
+  ],
+  "required_methods": 333,
+  "problems": [],
+  "verdict": "PASS",
+  "log_sha256": "946680d0cecd108aeb486bf25c6510ce2475e7906725228e9a11423cea55e1ab"
+}

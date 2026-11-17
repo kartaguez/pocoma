@@ -1,0 +1,31 @@
+{
+  "state": "DESTROY_PLAN",
+  "exit": 0,
+  "instance": "lb-one",
+  "owner": "83c444ca-e6cb-4288-bb4d-8419c156f746",
+  "project": "pocoma-lb-lb-one-83c444ca",
+  "volume": "pocoma-lb-lb-one-83c444ca-data",
+  "network": "pocoma-lb-lb-one-83c444ca_default",
+  "services": [
+    "http-write",
+    "http-read",
+    "command-worker",
+    "results-worker",
+    "business-read-worker",
+    "postgres",
+    "keycloak",
+    "prometheus"
+  ],
+  "persistentDataLost": [
+    "PostgreSQL WRITE/READ and Keycloak database in owned volume",
+    "Generated credentials, configuration, demo and canary checkpoints"
+  ],
+  "retained": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/lb-one/runs",
+  "operations": [
+    "Verify manifest/UUID/resource ownership",
+    "Gracefully stop this instance",
+    "Compose down --volumes for this project only",
+    "Remove generated instance files; retain lock and diagnostic runs"
+  ],
+  "command": "./pocoma-local destroy --instance lb-one --confirm DESTROY:lb-one"
+}

@@ -1,0 +1,1 @@
+{"status":"PASS","scope":"loopback issuer/JWKS fixture, no application calls or load","node":"v24.15.0","signedClaimsVerified":2,"privateTokenFileMode":"0600","tokenEndpointAbsent":true,"issuedTokensArchived":false}

@@ -1,0 +1,2 @@
+schema=v3_pot_508abeb79a4c4754801503658e2bef3e
+WRITE V7 succeeds without repair; exhaustive audit rejects old gap [3,4)

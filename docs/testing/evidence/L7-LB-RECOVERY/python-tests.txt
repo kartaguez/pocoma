@@ -1,0 +1,59 @@
+............................................................................../Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/tempfile.py:484: ResourceWarning: Implicitly cleaning up <HTTPError 404: 'missing'>
+  _warnings.warn(self.warn_message, ResourceWarning)
+..
+----------------------------------------------------------------------
+Ran 80 tests in 0.691s
+
+OK
+▶ Initializing PostgreSQL databases and roles for V3...
+  ✓ Databases, roles, and search paths verified.
+▶ Initializing schema v3_write in database pocoma_write...
+  ✓ Schema v3_write successfully provisioned and secured.
+▶ Initializing schema v3_read in database pocoma_read...
+  ✓ Schema v3_read and public maintenance authority successfully provisioned and secured.
+▶ Initializing PostgreSQL databases and roles for V3...
+  ✓ Databases, roles, and search paths verified.
+▶ Initializing schema v3_write in database pocoma_write...
+  ✓ Schema v3_write successfully provisioned and secured.
+▶ Initializing schema v3_read in database pocoma_read...
+  ✓ Schema v3_read and public maintenance authority successfully provisioned and secured.
+{
+  "state": "NOT_READY",
+  "exit": 2,
+  "control": "DESTROY-EXPLICIT-INSTANCE-AND-CONFIRMATION-REQUIRED",
+  "instance": "demo",
+  "evidence": null,
+  "environment": "PRESERVED"
+}
+{
+  "state": "NOT_READY",
+  "exit": 2,
+  "control": "DESTROY-EXPLICIT-INSTANCE-AND-CONFIRMATION-REQUIRED",
+  "instance": "demo",
+  "evidence": null,
+  "environment": "PRESERVED"
+}
+{
+  "state": "NOT_READY",
+  "exit": 2,
+  "control": "DESTROY-EXPLICIT-INSTANCE-AND-CONFIRMATION-REQUIRED",
+  "instance": "demo",
+  "evidence": null,
+  "environment": "PRESERVED"
+}
+{
+  "state": "NOT_READY",
+  "exit": 2,
+  "control": "PRE-MANIFEST-MISSING",
+  "instance": "orphan",
+  "evidence": null,
+  "environment": "PRESERVED"
+}
+{
+  "state": "NOT_READY",
+  "exit": 2,
+  "control": "RESET-EXPLICIT-INSTANCE-AND-CONFIRMATION-REQUIRED",
+  "instance": "demo",
+  "evidence": null,
+  "environment": "PRESERVED"
+}

@@ -1,0 +1,85 @@
+{
+  "reference_sha": "4028f2fa9f053e75dd60bb0ccefd091014a4fb9d",
+  "files": [
+    {
+      "path": "app/engine-consumption/src/main/java/com/kartaguez/pocoma/engine/consumption/v3/ConsumptionEngine.java",
+      "base_sha256": "64f45dc31c226860eb0387d366da7ba43f4586323d4b81423d0f33b60c4b5848",
+      "delivered_sha256": "64f45dc31c226860eb0387d366da7ba43f4586323d4b81423d0f33b60c4b5848",
+      "unchanged": true
+    },
+    {
+      "path": "app/engine-consumption/src/main/java/com/kartaguez/pocoma/engine/consumption/v3/ConsumptionParticipant.java",
+      "base_sha256": "b44e5c90f0f263b68cf8ddcfe5374d58fa654c498c069b21672bda0716f03ea3",
+      "delivered_sha256": "b44e5c90f0f263b68cf8ddcfe5374d58fa654c498c069b21672bda0716f03ea3",
+      "unchanged": true
+    },
+    {
+      "path": "app/engine-consumption/src/main/java/com/kartaguez/pocoma/engine/consumption/v3/SlotCompletion.java",
+      "base_sha256": "ea6116e1fd335b324d1b15bd90482d497d43ca1bba74471f414e3b8affbcc881",
+      "delivered_sha256": "ea6116e1fd335b324d1b15bd90482d497d43ca1bba74471f414e3b8affbcc881",
+      "unchanged": true
+    },
+    {
+      "path": "app/port-transaction/src/main/java/com/kartaguez/pocoma/port/transaction/v3/AttemptTransactions.java",
+      "base_sha256": "ef903b754c881b29a1523ba5540d3242d71c0b4a1fc7b53610ad1ebc1fe3f02a",
+      "delivered_sha256": "ef903b754c881b29a1523ba5540d3242d71c0b4a1fc7b53610ad1ebc1fe3f02a",
+      "unchanged": true
+    },
+    {
+      "path": "app/port-transaction/src/main/java/com/kartaguez/pocoma/port/transaction/v3/RecoveryReadContext.java",
+      "base_sha256": "dfe30aca23bb4021fa0b800861e24e952a2e69c513f5a64bd6b9e0b03433692b",
+      "delivered_sha256": "dfe30aca23bb4021fa0b800861e24e952a2e69c513f5a64bd6b9e0b03433692b",
+      "unchanged": true
+    },
+    {
+      "path": "app/infra-tx-spring/src/main/java/com/kartaguez/pocoma/infra/tx/spring/v3/SpringAttemptTransactions.java",
+      "base_sha256": "3ff26ac72df478387699a8a051e5b3683ce0be531fad0254318a46df4ad58a46",
+      "delivered_sha256": "9e8c864d628d2b2bb944bf2c57765f5e1ae504b66bf709c8211fe04685a38f84",
+      "unchanged": false
+    },
+    {
+      "path": "app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/consumption/JdbcConsumptionSlotStore.java",
+      "base_sha256": "168987dc0dbf9b34a68b1341c66ed2c9e1a785d8e11fb34e18d89fafd1d9ebf6",
+      "delivered_sha256": "168987dc0dbf9b34a68b1341c66ed2c9e1a785d8e11fb34e18d89fafd1d9ebf6",
+      "unchanged": true
+    },
+    {
+      "path": "app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/consumption/JdbcPartitionOwnershipStore.java",
+      "base_sha256": "6a864445cfbd57cd139aa04a05fd3cca01e8a12dd771308d4095ef61c32511fa",
+      "delivered_sha256": "6a864445cfbd57cd139aa04a05fd3cca01e8a12dd771308d4095ef61c32511fa",
+      "unchanged": true
+    },
+    {
+      "path": "app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/consumption/v3/dev/V3TechnicalReadParticipant.java",
+      "base_sha256": "7dc3fae795dc3cb49679d7cbfb7e45334df8021c4e640922805ece1e8272cc82",
+      "delivered_sha256": "7dc3fae795dc3cb49679d7cbfb7e45334df8021c4e640922805ece1e8272cc82",
+      "unchanged": true
+    },
+    {
+      "path": "app/infra-persistence-read-jdbc/src/main/resources/db/v3-consumption-read/migration/V1__consumption_foundation.sql",
+      "base_sha256": "3579a121b1360273477e18c7d0d5d5ef080124a389c2939cdb22dfb77cc74e19",
+      "delivered_sha256": "3579a121b1360273477e18c7d0d5d5ef080124a389c2939cdb22dfb77cc74e19",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/v3/bootstrap-l2-routing.sql",
+      "base_sha256": "a1c20559057fc02ed947792a463f9e19a5698508e5c913874f620dbde9716d3f",
+      "delivered_sha256": "a1c20559057fc02ed947792a463f9e19a5698508e5c913874f620dbde9716d3f",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/v3/grant-l2-lifecycle.sql",
+      "base_sha256": "48915676f8464b3397fa1d020c2b9f8d3b5cb4dbf630cb4176b6f1f1fdff2647",
+      "delivered_sha256": "48915676f8464b3397fa1d020c2b9f8d3b5cb4dbf630cb4176b6f1f1fdff2647",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/v3/grant-l2-discovery.sql",
+      "base_sha256": "27e3207620bdaf018c4e8442031cd5c25c0a83a8797c1116d84e3234824cd2ff",
+      "delivered_sha256": "27e3207620bdaf018c4e8442031cd5c25c0a83a8797c1116d84e3234824cd2ff",
+      "unchanged": true
+    }
+  ],
+  "unchanged_count": 12,
+  "changed_reason": "SpringAttemptTransactions: indispensable late poisoning guard, actual L2/PG counterexample archived."
+}

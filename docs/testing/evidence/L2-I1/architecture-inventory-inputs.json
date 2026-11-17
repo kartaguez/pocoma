@@ -1,0 +1,9 @@
+{
+  "test_sha": "6835b5c15cc40d09c22e0b0a4f3b6538ac49992d",
+  "previous_gates_sha": "12eaa5ae983c23a4b07c0299ce59c4d7933bfb5d",
+  "scope": "Only closed architecture-test package inventory changed. Production, migrations, scripts and other slice tests byte-identical. Prior gates remain applicable.",
+  "changed_files": {
+    "app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/HexagonalArchitectureTest.java": "7be3d682af1cd9d70976ace99fd301b2193dd2474bd1ffd0a2d56be3a54bfb2a"
+  },
+  "diff": "diff --git a/app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/HexagonalArchitectureTest.java b/app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/HexagonalArchitectureTest.java\nindex 33651738..c2fa88e1 100644\n--- a/app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/HexagonalArchitectureTest.java\n+++ b/app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/HexagonalArchitectureTest.java\n@@ -787,8 +787,9 @@ class HexagonalArchitectureTest {\n \t\t\t\tROOT_PACKAGE + \".domain.consumption.key\",\n \t\t\t\tROOT_PACKAGE + \".domain.consumption.lifecycle\",\n \t\t\t\tROOT_PACKAGE + \".domain.consumption.provenance\",\n-\t\t\t\tROOT_PACKAGE + \".domain.consumption.segmentation\"), packages,\n-\t\t\t\t\"domain-consumption contains generic claim, key, lifecycle, provenance and segmentation\");\n+\t\t\t\tROOT_PACKAGE + \".domain.consumption.segmentation\",\n+                        ROOT_PACKAGE + \".domain.consumption.v3\"), packages,\n+\t\t\t\t\"domain-consumption contains generic claim, key, lifecycle, provenance, segmentation and V3 routing values\");\n \t}\n \n \t@Test\n"
+}

@@ -1,0 +1,7 @@
+{
+  "result": "PASS",
+  "method": "Exact match scan against generated technical secrets of demo and clean-clone, plus manual allowlist review; no private state exported",
+  "filesScanned": 59,
+  "httpBodiesExported": false,
+  "tokensExported": false
+}

@@ -1,0 +1,65 @@
+{
+  "state": "READY",
+  "exit": 0,
+  "business": "AVAILABLE",
+  "canary": "AVAILABLE",
+  "qualificationTools": "AVAILABLE",
+  "fullyQualifiable": false,
+  "checks": {
+    "JVM-http-write": "PASS",
+    "JVM-http-read": "PASS",
+    "JVM-command-worker": "PASS",
+    "JVM-results-worker": "PASS",
+    "JVM-business-read-worker": "PASS",
+    "DB-CURRENT": "PASS",
+    "IDP-DISCOVERY": "PASS",
+    "KEYCLOAK-OIDC-DISCOVERY": "PASS",
+    "KEYCLOAK-ADMIN-AUTH": "PASS",
+    "KEYCLOAK-ADMIN-ENABLED": "PASS",
+    "KEYCLOAK-THIRD-ENABLED": "PASS",
+    "KEYCLOAK-THIRD-PKCE": "PASS",
+    "KEYCLOAK-GUEST-ENABLED": "PASS",
+    "KEYCLOAK-GUEST-PKCE": "PASS",
+    "KEYCLOAK-BRUNO-ENABLED": "PASS",
+    "KEYCLOAK-BRUNO-PKCE": "PASS",
+    "GRAFANA-HTTP": "PASS",
+    "GRAFANA-DATASOURCE": "PASS",
+    "GRAFANA-DASHBOARD": "PASS"
+  },
+  "canaryProof": {
+    "potId": "781047aa-eaf1-51e7-8a03-d512e1389f7e",
+    "version": 10,
+    "runId": "1794693718-cd1f2886",
+    "completedAt": 1794693725.751282
+  },
+  "observedAt": 1794693726.5893881,
+  "instance": "demo",
+  "project": "pocoma-lb-demo-33dd8c1d",
+  "sha": "8b1675d225647793a5626576b413324702b9adf5",
+  "dirty": true,
+  "urls": {
+    "write": "http://127.0.0.1:54610",
+    "read": "http://127.0.0.1:54611"
+  },
+  "issuer": "http://localhost:54612/realms/pocoma",
+  "evidence": "./.pocoma-local/instances/demo/runs/1794693718-cd1f2886",
+  "keycloakAdmin": {
+    "url": "http://localhost:54612/admin/",
+    "realm": "master",
+    "username": "admin"
+  },
+  "demoUsers": {
+    "realm": "pocoma",
+    "owner": "third",
+    "guest": "guest",
+    "bruno": "bruno"
+  },
+  "credentialsConvention": "L7-LB local only: password pocoma for admin/third/guest/bruno; never production or L8.",
+  "grafana": {
+    "url": "http://127.0.0.1:61347/",
+    "username": "admin",
+    "dashboard": "Pocoma runtime",
+    "dashboardUrl": "http://127.0.0.1:61347/d/pocoma-runtime"
+  },
+  "keycloakAuthEvidence": "./.pocoma-local/instances/demo/runs/1794693718-cd1f2886/keycloak-auth.json"
+}

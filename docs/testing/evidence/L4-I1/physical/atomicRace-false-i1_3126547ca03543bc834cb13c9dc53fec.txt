@@ -1,0 +1,86 @@
+script=bootstrap-l2-routing.sql rc=0 BEGIN
+LOCK TABLE
+ set_config 
+------------
+ i1_read
+(1 row)
+
+             set_config              
+-------------------------------------
+ i1_3126547ca03543bc834cb13c9dc53fec
+(1 row)
+
+              set_config               
+---------------------------------------
+ i1_3126547ca03543bc834cb13c9dc53fec_a
+(1 row)
+
+ set_config 
+------------
+ READ
+(1 row)
+
+DO
+INSERT 0 7
+INSERT 0 28
+DO
+COMMIT
+
+script=grant-l2-lifecycle.sql rc=0 BEGIN
+ set_config 
+------------
+ fixture
+(1 row)
+
+ set_config 
+------------
+ 
+(1 row)
+
+DO
+ set_config 
+------------
+ i1_read
+(1 row)
+
+             set_config              
+-------------------------------------
+ i1_3126547ca03543bc834cb13c9dc53fec
+(1 row)
+
+              set_config               
+---------------------------------------
+ i1_3126547ca03543bc834cb13c9dc53fec_a
+(1 row)
+
+              set_config               
+---------------------------------------
+ i1_3126547ca03543bc834cb13c9dc53fec_w
+(1 row)
+
+              set_config               
+---------------------------------------
+ i1_3126547ca03543bc834cb13c9dc53fec_r
+(1 row)
+
+DO
+GRANT
+GRANT
+GRANT
+GRANT
+GRANT
+GRANT
+DO
+DO
+COMMIT
+
+environment={version=PostgreSQL 17.11 on aarch64-unknown-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit, db=i1_read, schema=i1_3126547ca03543bc834cb13c9dc53fec, current_user=i1_3126547ca03543bc834cb13c9dc53fec_a, clock_timestamp=2026-11-02 08:38:14.94981} image=postgres@sha256:18cfe3ef5e6815560c98237d6216d1e5119702fb0f3894c8785dd58b8bbe5d73 runtime=i1_3126547ca03543bc834cb13c9dc53fec_w admin=i1_3126547ca03543bc834cb13c9dc53fec_a
+acquired=ClaimedSlot[consumptionId=ConsumptionId[value=3dec1c8b-6e3e-57e1-82aa-aa0b5f297a4a], consumableId=d3903a1a-4ab7-4aa7-a045-bed548809888, claimToken=1c5a6ce2-22b7-4265-96a1-81985101df8e] partition=3
+acquired=ClaimedSlot[consumptionId=ConsumptionId[value=3dec1c8b-6e3e-57e1-82aa-aa0b5f297a4a], consumableId=b4ef1711-c436-482b-9c57-eada0b571c64, claimToken=44c0194e-006b-4fa9-b6b5-88161fd18ad8] partition=2
+owner-before-insert d3903a1a-4ab7-4aa7-a045-bed548809888 {pid=387, xid=913, db=i1_read, schema=i1_3126547ca03543bc834cb13c9dc53fec, isolation=read committed}
+owner-before-insert b4ef1711-c436-482b-9c57-eada0b571c64 {pid=389, xid=914, db=i1_read, schema=i1_3126547ca03543bc834cb13c9dc53fec, isolation=read committed}
+second slot {pid=389, xid=914, db=i1_read, schema=i1_3126547ca03543bc834cb13c9dc53fec, isolation=read committed}
+blocked PostgreSQL backend=389 [{wait_event_type=Lock, wait_event=transactionid}]
+readiness d3903a1a-4ab7-4aa7-a045-bed548809888 slots=1
+readiness b4ef1711-c436-482b-9c57-eada0b571c64 slots=1
+race result=Attempt[status=COMMITTED, resolution=COMMITTED, observation=null, cause=null, failureKind=NON_COUNTABLE, cession=null, cessionResolution=null] witnesses=[{op=DELETE, key=b4ef1711-c436-482b-9c57-eada0b571c64, pid=389, xid=914, db=i1_read, authority=i1_3126547ca03543bc834cb13c9dc53fec, isolation=read committed}, {op=DELETE, key=d3903a1a-4ab7-4aa7-a045-bed548809888, pid=387, xid=913, db=i1_read, authority=i1_3126547ca03543bc834cb13c9dc53fec, isolation=read committed}, {op=INSERT, key=81c3a7e7-ae82-4990-8cc2-7693344ceee2/POT_HEADER/81c3a7e7-ae82-4990-8cc2-7693344ceee2/1, pid=387, xid=913, db=i1_read, authority=i1_3126547ca03543bc834cb13c9dc53fec, isolation=read committed}]

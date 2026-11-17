@@ -1,0 +1,901 @@
+{
+  "captured_at_utc": "2026-11-15T19:54:07.494427+00:00",
+  "phase": "S5-A",
+  "instance": "l7lb-s5",
+  "project": "pocoma-lb-l7lb-s5-b8d3620d",
+  "sha": "5009d03a20ea781f1aa789ebd089a2174d06cecd",
+  "a1_a2_clean_clone_and_prerequisites": {
+    "clone_path": "/private/tmp/pocoma-l7-lb-s5/source",
+    "branch": "feat/l7-lb-local-playground",
+    "sha": "5009d03a20ea781f1aa789ebd089a2174d06cecd",
+    "test_prerequisites_count": 40,
+    "test_prerequisites_passed": true
+  },
+  "a3_a4_bootstrap_and_ready": {
+    "manifest_summary": {
+      "instance": "l7lb-s5",
+      "owner": "b8d3620d-8f07-4ed7-8371-4630411dffa7",
+      "project": "pocoma-lb-l7lb-s5-b8d3620d",
+      "ports": {
+        "write": 55574,
+        "read": 55575,
+        "issuer": 55576,
+        "http-write": 55577,
+        "http-read": 55578,
+        "command-worker": 55579,
+        "results-worker": 55580,
+        "business-read-worker": 55581,
+        "metrics": 55582,
+        "grafana": 55583
+      },
+      "sha": "5009d03a20ea781f1aa789ebd089a2174d06cecd",
+      "state": "RUNNING",
+      "generationId": null
+    },
+    "initial_start_history": {
+      "lastStart": {
+        "runId": "1794772370-29ba68d3",
+        "startedAt": 1794772370.211755,
+        "state": "SUCCEEDED",
+        "sha": "5009d03a20ea781f1aa789ebd089a2174d06cecd",
+        "dirty": false,
+        "completedAt": 1794772394.149193,
+        "generationId": "50402785cb96abe9deaa37495fea0e0eb1f11288a4d0eda6bec0e46233046345"
+      },
+      "lastSuccessfulStart": {
+        "runId": "1794772370-29ba68d3",
+        "startedAt": 1794772370.211755,
+        "state": "SUCCEEDED",
+        "sha": "5009d03a20ea781f1aa789ebd089a2174d06cecd",
+        "dirty": false,
+        "completedAt": 1794772394.149193,
+        "generationId": "50402785cb96abe9deaa37495fea0e0eb1f11288a4d0eda6bec0e46233046345"
+      }
+    },
+    "secrets_mode": "0o600",
+    "file_inventory_hashes": {
+      "secrets.json": {
+        "mode": "0o600",
+        "size": 986,
+        "sha256": "fefcda341ee7ebb0eaa7cb52c9b509303a964719855cb0dc4fa83f36b422d4bd"
+      },
+      "pg-password": {
+        "mode": "0o644",
+        "size": 43,
+        "sha256": "cddd665bec83f7f07e5908cacf5e0e83ce7b432bab6b4f5daf24bafc6a27b7e5"
+      },
+      "compose.json": {
+        "mode": "0o600",
+        "size": 8699,
+        "sha256": "2706548ef32372d98015fffe06d958b6926b1d6ebba26561e6f5708e29542684"
+      },
+      "realm.json": {
+        "mode": "0o644",
+        "size": 4090,
+        "sha256": "6f72b29011beb3276d963fe8ed9587999a251aea47ff08afa14b0fe4607eb63b"
+      },
+      "pg-init.sql": {
+        "mode": "0o644",
+        "size": 130,
+        "sha256": "45c1e85fe7defd44ad845d2601277bac986eb1c608847e27b749e55279d25842"
+      },
+      "prometheus.yml": {
+        "mode": "0o600",
+        "size": 690,
+        "sha256": "ce4f1455585cca2d36024eca5a4fa3e60bf45979b0e0809e10f1bbfc50f86486"
+      },
+      "resources.json": {
+        "mode": "0o600",
+        "size": 139,
+        "sha256": "f9d3b55787ef32dc8f4a0f40c50358565bf2eaf3bce8b8889f175e443d82fde9"
+      },
+      "http-write.properties": {
+        "mode": "0o600",
+        "size": 1342,
+        "sha256": "5ef2a5b05b9918d10c8ef2c30f9bab139d741a7f91f1222a8d28efd1a292c567"
+      },
+      "http-read.properties": {
+        "mode": "0o600",
+        "size": 1463,
+        "sha256": "05516fabd330c7f197a49f2998b959178c41292ec2c61f706daebee7013017bd"
+      },
+      "command-worker.properties": {
+        "mode": "0o600",
+        "size": 2568,
+        "sha256": "05ec426b693b6ef8530b6a6cd3f4e267adc410384673012364b1af32f086636d"
+      },
+      "results-worker.properties": {
+        "mode": "0o600",
+        "size": 3055,
+        "sha256": "0884e3c5e8b96e462581e789b1bfd6b6a60690f570221d122240b9687e98e142"
+      },
+      "business-read-worker.properties": {
+        "mode": "0o600",
+        "size": 3280,
+        "sha256": "dfd4ff960ed1ea7a39382199f614e36db837966d95bc5b1f66bb7049f72bcea9"
+      },
+      "web-write.jar": {
+        "mode": "0o600",
+        "size": 35391619,
+        "sha256": "7ee178f5b16e50110e99175acecd8a54651a4de4e3c16c6fbda945bfb5dfa0ee"
+      },
+      "web-read.jar": {
+        "mode": "0o600",
+        "size": 35324163,
+        "sha256": "942de52584bb2fc50ba2666d28b2ce447d3fff280049b366e9c6f42954869f58"
+      },
+      "worker-process.jar": {
+        "mode": "0o600",
+        "size": 35517822,
+        "sha256": "83f17985f64898b9f0401981c3c55d9d503b1afabe682b51a81ea01739446272"
+      },
+      "worker-materialize.jar": {
+        "mode": "0o600",
+        "size": 30318945,
+        "sha256": "f30667f00c05531c8bff198c4efdeec22c40460131e0d95bec0bf90cf9c2ca23"
+      }
+    },
+    "containers": [
+      {
+        "service": "business-read-worker",
+        "name": "pocoma-lb-l7lb-s5-b8d3620d-business-read-worker-1",
+        "id": "338214d90394816010bc3e417c009e0efe51adc4ba987d4bb1848c37ad881fa8",
+        "image": "eclipse-temurin@sha256:66bb900643426ad01996d25bada7d56751913f9cec3b827fcb715d2ec9a0fbfc",
+        "status": "running",
+        "running": true,
+        "exit_code": 0,
+        "started_at": "2026-11-15T19:53:01.719148221Z",
+        "finished_at": "2026-11-15T19:52:45.878022213Z",
+        "restart_count": 0,
+        "oom_killed": false
+      },
+      {
+        "service": "command-worker",
+        "name": "pocoma-lb-l7lb-s5-b8d3620d-command-worker-1",
+        "id": "929ac57f66d25cc37875e47c313a3ac51baac8879ce6ec89952c511a08f8073d",
+        "image": "eclipse-temurin@sha256:66bb900643426ad01996d25bada7d56751913f9cec3b827fcb715d2ec9a0fbfc",
+        "status": "running",
+        "running": true,
+        "exit_code": 0,
+        "started_at": "2026-11-15T19:53:01.144884804Z",
+        "finished_at": "2026-11-15T19:52:45.882491755Z",
+        "restart_count": 0,
+        "oom_killed": false
+      },
+      {
+        "service": "grafana",
+        "name": "pocoma-lb-l7lb-s5-b8d3620d-grafana-1",
+        "id": "307280e2e8e2d9172eab1e6cdbc0742b72f0e7fbcb2e68505dc101103f01983a",
+        "image": "grafana/grafana@sha256:ba93c9d192e58b23e064c7f501d453426ccf4a85065bf25b705ab1e98602bfb1",
+        "status": "running",
+        "running": true,
+        "exit_code": 0,
+        "started_at": "2026-11-15T19:53:01.905908387Z",
+        "finished_at": "2026-11-15T19:52:46.497488588Z",
+        "restart_count": 0,
+        "oom_killed": false
+      },
+      {
+        "service": "http-read",
+        "name": "pocoma-lb-l7lb-s5-b8d3620d-http-read-1",
+        "id": "00f0340e007f69f7d50c5508ccdee4f435a459c851816578f8e0026d0eeb0de0",
+        "image": "eclipse-temurin@sha256:66bb900643426ad01996d25bada7d56751913f9cec3b827fcb715d2ec9a0fbfc",
+        "status": "running",
+        "running": true,
+        "exit_code": 0,
+        "started_at": "2026-11-15T19:53:01.538351762Z",
+        "finished_at": "2026-11-15T19:52:45.844364296Z",
+        "restart_count": 0,
+        "oom_killed": false
+      },
+      {
+        "service": "http-write",
+        "name": "pocoma-lb-l7lb-s5-b8d3620d-http-write-1",
+        "id": "335bde9cdef1f55edf53ec50fd97f18425ab8c41e4aa4e68c416e762f4b44813",
+        "image": "eclipse-temurin@sha256:66bb900643426ad01996d25bada7d56751913f9cec3b827fcb715d2ec9a0fbfc",
+        "status": "running",
+        "running": true,
+        "exit_code": 0,
+        "started_at": "2026-11-15T19:53:01.216703387Z",
+        "finished_at": "2026-11-15T19:52:45.857153671Z",
+        "restart_count": 0,
+        "oom_killed": false
+      },
+      {
+        "service": "keycloak",
+        "name": "pocoma-lb-l7lb-s5-b8d3620d-keycloak-1",
+        "id": "7f4278b7394263a838c4f908fd24fd88b1066c2db92943cffcc7efe40c6c9280",
+        "image": "quay.io/keycloak/keycloak@sha256:0f198be292568439d700cdbfb893e69a6009bb43a94a06a945b1d3d506c76b13",
+        "status": "running",
+        "running": true,
+        "exit_code": 0,
+        "started_at": "2026-11-15T19:52:55.231293718Z",
+        "finished_at": "2026-11-15T19:52:47.577935631Z",
+        "restart_count": 0,
+        "oom_killed": false
+      },
+      {
+        "service": "postgres",
+        "name": "pocoma-lb-l7lb-s5-b8d3620d-postgres-1",
+        "id": "42ca21bea203418c0a8525952466f1885c1942a7a2e630f74caab748aec5ca6d",
+        "image": "postgres@sha256:ef257d85f76e48da1c64832459b59fcaba1a4dac97bf5d7450c77753542eee94",
+        "status": "running",
+        "running": true,
+        "exit_code": 0,
+        "started_at": "2026-11-15T19:52:52.505401425Z",
+        "finished_at": "2026-11-15T19:52:46.503609422Z",
+        "restart_count": 0,
+        "oom_killed": false
+      },
+      {
+        "service": "prometheus",
+        "name": "pocoma-lb-l7lb-s5-b8d3620d-prometheus-1",
+        "id": "a86f7d1f5bed3ade67a1461e4406be1b0a2fb7acc5ff56295b7c87a5d6662af1",
+        "image": "prom/prometheus@sha256:63805ebb8d2b3920190daf1cb14a60871b16fd38bed42b857a3182bc621f4996",
+        "status": "running",
+        "running": true,
+        "exit_code": 0,
+        "started_at": "2026-11-15T19:53:01.316203595Z",
+        "finished_at": "2026-11-15T19:52:46.655656547Z",
+        "restart_count": 0,
+        "oom_killed": false
+      },
+      {
+        "service": "results-worker",
+        "name": "pocoma-lb-l7lb-s5-b8d3620d-results-worker-1",
+        "id": "bee8306377172b33ca8ae99468ed844cdde9f26b9eb0c0e52301bfc66a34c9ab",
+        "image": "eclipse-temurin@sha256:66bb900643426ad01996d25bada7d56751913f9cec3b827fcb715d2ec9a0fbfc",
+        "status": "running",
+        "running": true,
+        "exit_code": 0,
+        "started_at": "2026-11-15T19:53:01.423494262Z",
+        "finished_at": "2026-11-15T19:52:45.85203563Z",
+        "restart_count": 0,
+        "oom_killed": false
+      }
+    ],
+    "all_9_running": true,
+    "database_objects": {
+      "databases": [
+        "pocoma_read",
+        "pocoma_write"
+      ],
+      "v3_write": {
+        "tables": 37,
+        "functions": 38,
+        "user_triggers": 62,
+        "flyway_table_schema": "NONE",
+        "flyway_table_public": "NONE",
+        "bootstrap_fingerprint": "a5514fdf8415fefd064c7020dc40dc2cb253aa09a216b44716844319930fec8f"
+      },
+      "v3_read": {
+        "tables": 14,
+        "functions": 5,
+        "user_triggers": 16,
+        "flyway_table_schema": "NONE",
+        "flyway_table_public": "NONE",
+        "bootstrap_fingerprint": "a5514fdf8415fefd064c7020dc40dc2cb253aa09a216b44716844319930fec8f"
+      }
+    },
+    "runtime_health_and_leases": {
+      "readiness": {
+        "http-write": {
+          "code": 200,
+          "status": "UP"
+        },
+        "http-read": {
+          "code": 200,
+          "status": "UP"
+        },
+        "command-worker": {
+          "code": 200,
+          "status": "UP"
+        },
+        "results-worker": {
+          "code": 200,
+          "status": "UP"
+        },
+        "business-read-worker": {
+          "code": 200,
+          "status": "UP"
+        }
+      },
+      "leases_direct": {
+        "command-worker": {
+          "read": 0,
+          "write": 8
+        },
+        "results-worker": {
+          "read": 8,
+          "write": 0
+        },
+        "business-read-worker": {
+          "read": 20,
+          "write": 0
+        }
+      },
+      "prometheus_leases": [
+        {
+          "metric": {
+            "__name__": "pocoma_v3_lease_local",
+            "authority": "read",
+            "instance": "business-read-worker:18085",
+            "job": "business-read-worker"
+          },
+          "value": 20.0
+        },
+        {
+          "metric": {
+            "__name__": "pocoma_v3_lease_local",
+            "authority": "write",
+            "instance": "business-read-worker:18085",
+            "job": "business-read-worker"
+          },
+          "value": 0.0
+        },
+        {
+          "metric": {
+            "__name__": "pocoma_v3_lease_local",
+            "authority": "read",
+            "instance": "results-worker:18084",
+            "job": "results-worker"
+          },
+          "value": 8.0
+        },
+        {
+          "metric": {
+            "__name__": "pocoma_v3_lease_local",
+            "authority": "write",
+            "instance": "results-worker:18084",
+            "job": "results-worker"
+          },
+          "value": 0.0
+        },
+        {
+          "metric": {
+            "__name__": "pocoma_v3_lease_local",
+            "authority": "read",
+            "instance": "command-worker:18083",
+            "job": "command-worker"
+          },
+          "value": 0.0
+        },
+        {
+          "metric": {
+            "__name__": "pocoma_v3_lease_local",
+            "authority": "write",
+            "instance": "command-worker:18083",
+            "job": "command-worker"
+          },
+          "value": 8.0
+        }
+      ]
+    },
+    "pre_stop_sql_counts": {
+      "write": {
+        "commands_total": 34,
+        "commands_pending": 0,
+        "commands_terminal": 34,
+        "command_results": 34,
+        "completion_events": 34,
+        "pot_headers": 10,
+        "pot_events": 29,
+        "slots_available": 0,
+        "slots_quarantined": 0,
+        "active_leases": 8
+      },
+      "read": {
+        "read_command_result": 34,
+        "read_pot_version": 29,
+        "read_pot_balance": 25,
+        "read_pot_visibility_state": 6,
+        "read_current_pot": 6,
+        "results_slots_available": 0,
+        "business_read_slots_available": 0,
+        "slots_quarantined": 0,
+        "results_active_leases": 8,
+        "business_read_active_leases": 20
+      }
+    },
+    "pre_stop_canary": {
+      "potId": "af01f0b4-7459-512e-91d1-cf66edebdc81",
+      "version": 4,
+      "runId": "1794772370-29ba68d3"
+    }
+  },
+  "a5_functioning_and_bruno": {
+    "api_auth_check": {
+      "unauthenticated_me_binding_status": 401,
+      "authenticated_canary_pot_status": 404,
+      "canary_pot_version": null,
+      "canary_pot_label": null
+    },
+    "bruno_summary": {
+      "run_dir": "1794772067-3656cece",
+      "success": true,
+      "junitPass": true,
+      "namedTests": 236,
+      "assertions": 731,
+      "httpRequests": 221,
+      "journeys": [
+        "J01",
+        "J02",
+        "J03"
+      ],
+      "exit": 0,
+      "testedSha": "5009d03a20ea781f1aa789ebd089a2174d06cecd",
+      "dirty": false,
+      "xml_totals": {
+        "suites": 118,
+        "tests": 236,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    }
+  },
+  "a6_clean_stop_and_restart": {
+    "stop_cli": {
+      "exit": 0,
+      "duration_seconds": 4.023,
+      "result": {
+        "state": "STOPPED",
+        "exit": 0,
+        "volumes": "PRESERVED",
+        "runtimeExitCodes": {
+          "business-read-worker": 143,
+          "command-worker": 143,
+          "http-read": 143,
+          "http-write": 143,
+          "results-worker": 143
+        },
+        "forcedKill": [],
+        "slotsBeforeStop": {
+          "pocoma_write": "0",
+          "pocoma_read": "0"
+        },
+        "instance": "l7lb-s5",
+        "project": "pocoma-lb-l7lb-s5-b8d3620d",
+        "sha": "5009d03a20ea781f1aa789ebd089a2174d06cecd",
+        "dirty": false,
+        "urls": {
+          "write": "http://127.0.0.1:55574",
+          "read": "http://127.0.0.1:55575"
+        },
+        "issuer": "http://localhost:55576/realms/pocoma",
+        "evidence": "/private/tmp/pocoma-l7-lb-s5/source/.pocoma-local/instances/l7lb-s5/runs/1794772411-14fab53e"
+      },
+      "receipt": {
+        "run_dir": "1794772411-14fab53e",
+        "receipt": {
+          "state": "STOPPED",
+          "exit": 0,
+          "volumes": "PRESERVED",
+          "runtimeExitCodes": {
+            "business-read-worker": 143,
+            "command-worker": 143,
+            "http-read": 143,
+            "http-write": 143,
+            "results-worker": 143
+          },
+          "forcedKill": [],
+          "slotsBeforeStop": {
+            "pocoma_write": "0",
+            "pocoma_read": "0"
+          },
+          "instance": "l7lb-s5",
+          "project": "pocoma-lb-l7lb-s5-b8d3620d",
+          "sha": "5009d03a20ea781f1aa789ebd089a2174d06cecd",
+          "dirty": false,
+          "urls": {
+            "write": "http://127.0.0.1:55574",
+            "read": "http://127.0.0.1:55575"
+          },
+          "issuer": "http://localhost:55576/realms/pocoma",
+          "evidence": "/private/tmp/pocoma-l7-lb-s5/source/.pocoma-local/instances/l7lb-s5/runs/1794772411-14fab53e"
+        }
+      }
+    },
+    "while_stopped": {
+      "state": "STOPPED",
+      "containers_present": 9,
+      "containers_running": 0,
+      "containers_exit_codes": {
+        "business-read-worker": 143,
+        "command-worker": 143,
+        "grafana": 0,
+        "http-read": 143,
+        "http-write": 143,
+        "keycloak": 143,
+        "postgres": 0,
+        "prometheus": 0,
+        "results-worker": 143
+      },
+      "volume_preserved": true,
+      "immutable_files_preserved": {
+        "secrets.json": true,
+        "pg-password": true,
+        "compose.json": true,
+        "realm.json": true,
+        "pg-init.sql": true,
+        "prometheus.yml": true,
+        "http-write.properties": true,
+        "http-read.properties": true,
+        "command-worker.properties": true,
+        "results-worker.properties": true,
+        "business-read-worker.properties": true
+      }
+    },
+    "restart_cli": {
+      "exit": 0,
+      "duration_seconds": 28.473,
+      "state": "READY",
+      "checks": {
+        "JVM-http-write": "PASS",
+        "JVM-http-read": "PASS",
+        "JVM-command-worker": "PASS",
+        "JVM-results-worker": "PASS",
+        "JVM-business-read-worker": "PASS",
+        "DB-CURRENT": "PASS",
+        "IDP-DISCOVERY": "PASS",
+        "KEYCLOAK-OIDC-DISCOVERY": "PASS",
+        "KEYCLOAK-ADMIN-AUTH": "PASS",
+        "KEYCLOAK-ADMIN-ENABLED": "PASS",
+        "KEYCLOAK-THIRD-ENABLED": "PASS",
+        "KEYCLOAK-THIRD-PKCE": "PASS",
+        "KEYCLOAK-GUEST-ENABLED": "PASS",
+        "KEYCLOAK-GUEST-PKCE": "PASS",
+        "KEYCLOAK-BRUNO-ENABLED": "PASS",
+        "KEYCLOAK-BRUNO-PKCE": "PASS",
+        "WORKER-PARTITIONS": "PASS",
+        "GRAFANA-HTTP": "PASS",
+        "GRAFANA-DATASOURCE": "PASS",
+        "GRAFANA-DASHBOARD": "PASS"
+      },
+      "generationQualified": true,
+      "businessEvidence": "PROVEN",
+      "proofFreshness": "FRESH"
+    },
+    "post_restart": {
+      "manifest_summary": {
+        "instance": "l7lb-s5",
+        "owner": "b8d3620d-8f07-4ed7-8371-4630411dffa7",
+        "project": "pocoma-lb-l7lb-s5-b8d3620d",
+        "ports": {
+          "write": 55574,
+          "read": 55575,
+          "issuer": 55576,
+          "http-write": 55577,
+          "http-read": 55578,
+          "command-worker": 55579,
+          "results-worker": 55580,
+          "business-read-worker": 55581,
+          "metrics": 55582,
+          "grafana": 55583
+        },
+        "sha": "5009d03a20ea781f1aa789ebd089a2174d06cecd",
+        "state": "RUNNING",
+        "generationId": null
+      },
+      "start_history": {
+        "lastStart": {
+          "runId": "1794772416-c516cd19",
+          "startedAt": 1794772416.745656,
+          "state": "SUCCEEDED",
+          "sha": "5009d03a20ea781f1aa789ebd089a2174d06cecd",
+          "dirty": false,
+          "completedAt": 1794772442.915744,
+          "generationId": "190095afcc4a3fb7a33e2972dba733653784b0f6d117e0ece37cdc066e605808"
+        },
+        "lastSuccessfulStart": {
+          "runId": "1794772416-c516cd19",
+          "startedAt": 1794772416.745656,
+          "state": "SUCCEEDED",
+          "sha": "5009d03a20ea781f1aa789ebd089a2174d06cecd",
+          "dirty": false,
+          "completedAt": 1794772442.915744,
+          "generationId": "190095afcc4a3fb7a33e2972dba733653784b0f6d117e0ece37cdc066e605808"
+        }
+      },
+      "containers": [
+        {
+          "service": "business-read-worker",
+          "name": "pocoma-lb-l7lb-s5-b8d3620d-business-read-worker-1",
+          "id": "338214d90394816010bc3e417c009e0efe51adc4ba987d4bb1848c37ad881fa8",
+          "image": "eclipse-temurin@sha256:66bb900643426ad01996d25bada7d56751913f9cec3b827fcb715d2ec9a0fbfc",
+          "status": "running",
+          "running": true,
+          "exit_code": 0,
+          "started_at": "2026-11-15T19:53:48.296650923Z",
+          "finished_at": "2026-11-15T19:53:32.452150513Z",
+          "restart_count": 0,
+          "oom_killed": false
+        },
+        {
+          "service": "command-worker",
+          "name": "pocoma-lb-l7lb-s5-b8d3620d-command-worker-1",
+          "id": "929ac57f66d25cc37875e47c313a3ac51baac8879ce6ec89952c511a08f8073d",
+          "image": "eclipse-temurin@sha256:66bb900643426ad01996d25bada7d56751913f9cec3b827fcb715d2ec9a0fbfc",
+          "status": "running",
+          "running": true,
+          "exit_code": 0,
+          "started_at": "2026-11-15T19:53:48.055093756Z",
+          "finished_at": "2026-11-15T19:53:32.413267388Z",
+          "restart_count": 0,
+          "oom_killed": false
+        },
+        {
+          "service": "grafana",
+          "name": "pocoma-lb-l7lb-s5-b8d3620d-grafana-1",
+          "id": "307280e2e8e2d9172eab1e6cdbc0742b72f0e7fbcb2e68505dc101103f01983a",
+          "image": "grafana/grafana@sha256:ba93c9d192e58b23e064c7f501d453426ccf4a85065bf25b705ab1e98602bfb1",
+          "status": "running",
+          "running": true,
+          "exit_code": 0,
+          "started_at": "2026-11-15T19:53:48.470239048Z",
+          "finished_at": "2026-11-15T19:53:33.143796888Z",
+          "restart_count": 0,
+          "oom_killed": false
+        },
+        {
+          "service": "http-read",
+          "name": "pocoma-lb-l7lb-s5-b8d3620d-http-read-1",
+          "id": "00f0340e007f69f7d50c5508ccdee4f435a459c851816578f8e0026d0eeb0de0",
+          "image": "eclipse-temurin@sha256:66bb900643426ad01996d25bada7d56751913f9cec3b827fcb715d2ec9a0fbfc",
+          "status": "running",
+          "running": true,
+          "exit_code": 0,
+          "started_at": "2026-11-15T19:53:48.171117089Z",
+          "finished_at": "2026-11-15T19:53:32.416148554Z",
+          "restart_count": 0,
+          "oom_killed": false
+        },
+        {
+          "service": "http-write",
+          "name": "pocoma-lb-l7lb-s5-b8d3620d-http-write-1",
+          "id": "335bde9cdef1f55edf53ec50fd97f18425ab8c41e4aa4e68c416e762f4b44813",
+          "image": "eclipse-temurin@sha256:66bb900643426ad01996d25bada7d56751913f9cec3b827fcb715d2ec9a0fbfc",
+          "status": "running",
+          "running": true,
+          "exit_code": 0,
+          "started_at": "2026-11-15T19:53:47.846386964Z",
+          "finished_at": "2026-11-15T19:53:32.393171679Z",
+          "restart_count": 0,
+          "oom_killed": false
+        },
+        {
+          "service": "keycloak",
+          "name": "pocoma-lb-l7lb-s5-b8d3620d-keycloak-1",
+          "id": "7f4278b7394263a838c4f908fd24fd88b1066c2db92943cffcc7efe40c6c9280",
+          "image": "quay.io/keycloak/keycloak@sha256:0f198be292568439d700cdbfb893e69a6009bb43a94a06a945b1d3d506c76b13",
+          "status": "running",
+          "running": true,
+          "exit_code": 0,
+          "started_at": "2026-11-15T19:53:41.812015628Z",
+          "finished_at": "2026-11-15T19:53:34.20980543Z",
+          "restart_count": 0,
+          "oom_killed": false
+        },
+        {
+          "service": "postgres",
+          "name": "pocoma-lb-l7lb-s5-b8d3620d-postgres-1",
+          "id": "42ca21bea203418c0a8525952466f1885c1942a7a2e630f74caab748aec5ca6d",
+          "image": "postgres@sha256:ef257d85f76e48da1c64832459b59fcaba1a4dac97bf5d7450c77753542eee94",
+          "status": "running",
+          "running": true,
+          "exit_code": 0,
+          "started_at": "2026-11-15T19:53:39.087409418Z",
+          "finished_at": "2026-11-15T19:53:33.139857846Z",
+          "restart_count": 0,
+          "oom_killed": false
+        },
+        {
+          "service": "prometheus",
+          "name": "pocoma-lb-l7lb-s5-b8d3620d-prometheus-1",
+          "id": "a86f7d1f5bed3ade67a1461e4406be1b0a2fb7acc5ff56295b7c87a5d6662af1",
+          "image": "prom/prometheus@sha256:63805ebb8d2b3920190daf1cb14a60871b16fd38bed42b857a3182bc621f4996",
+          "status": "running",
+          "running": true,
+          "exit_code": 0,
+          "started_at": "2026-11-15T19:53:47.775660089Z",
+          "finished_at": "2026-11-15T19:53:33.275402138Z",
+          "restart_count": 0,
+          "oom_killed": false
+        },
+        {
+          "service": "results-worker",
+          "name": "pocoma-lb-l7lb-s5-b8d3620d-results-worker-1",
+          "id": "bee8306377172b33ca8ae99468ed844cdde9f26b9eb0c0e52301bfc66a34c9ab",
+          "image": "eclipse-temurin@sha256:66bb900643426ad01996d25bada7d56751913f9cec3b827fcb715d2ec9a0fbfc",
+          "status": "running",
+          "running": true,
+          "exit_code": 0,
+          "started_at": "2026-11-15T19:53:47.946432839Z",
+          "finished_at": "2026-11-15T19:53:32.411475804Z",
+          "restart_count": 0,
+          "oom_killed": false
+        }
+      ],
+      "all_9_running": true,
+      "immutable_files_preserved": {
+        "secrets.json": true,
+        "pg-password": true,
+        "compose.json": true,
+        "realm.json": true,
+        "pg-init.sql": true,
+        "prometheus.yml": true,
+        "http-write.properties": true,
+        "http-read.properties": true,
+        "command-worker.properties": true,
+        "results-worker.properties": true,
+        "business-read-worker.properties": true
+      },
+      "runtime_health_and_leases": {
+        "readiness": {
+          "http-write": {
+            "code": 200,
+            "status": "UP"
+          },
+          "http-read": {
+            "code": 200,
+            "status": "UP"
+          },
+          "command-worker": {
+            "code": 200,
+            "status": "UP"
+          },
+          "results-worker": {
+            "code": 200,
+            "status": "UP"
+          },
+          "business-read-worker": {
+            "code": 200,
+            "status": "UP"
+          }
+        },
+        "leases_direct": {
+          "command-worker": {
+            "read": 0,
+            "write": 8
+          },
+          "results-worker": {
+            "read": 8,
+            "write": 0
+          },
+          "business-read-worker": {
+            "read": 20,
+            "write": 0
+          }
+        },
+        "prometheus_leases": [
+          {
+            "metric": {
+              "__name__": "pocoma_v3_lease_local",
+              "authority": "read",
+              "instance": "business-read-worker:18085",
+              "job": "business-read-worker"
+            },
+            "value": 20.0
+          },
+          {
+            "metric": {
+              "__name__": "pocoma_v3_lease_local",
+              "authority": "write",
+              "instance": "business-read-worker:18085",
+              "job": "business-read-worker"
+            },
+            "value": 0.0
+          },
+          {
+            "metric": {
+              "__name__": "pocoma_v3_lease_local",
+              "authority": "read",
+              "instance": "results-worker:18084",
+              "job": "results-worker"
+            },
+            "value": 8.0
+          },
+          {
+            "metric": {
+              "__name__": "pocoma_v3_lease_local",
+              "authority": "write",
+              "instance": "results-worker:18084",
+              "job": "results-worker"
+            },
+            "value": 0.0
+          },
+          {
+            "metric": {
+              "__name__": "pocoma_v3_lease_local",
+              "authority": "read",
+              "instance": "command-worker:18083",
+              "job": "command-worker"
+            },
+            "value": 0.0
+          },
+          {
+            "metric": {
+              "__name__": "pocoma_v3_lease_local",
+              "authority": "write",
+              "instance": "command-worker:18083",
+              "job": "command-worker"
+            },
+            "value": 8.0
+          }
+        ]
+      },
+      "post_restart_sql_counts_before_manual_cmd": {
+        "write": {
+          "commands_total": 35,
+          "commands_pending": 0,
+          "commands_terminal": 35,
+          "command_results": 35,
+          "completion_events": 35,
+          "pot_headers": 10,
+          "pot_events": 30,
+          "slots_available": 0,
+          "slots_quarantined": 0,
+          "active_leases": 8
+        },
+        "read": {
+          "read_command_result": 35,
+          "read_pot_version": 30,
+          "read_pot_balance": 26,
+          "read_pot_visibility_state": 6,
+          "read_current_pot": 6,
+          "results_slots_available": 0,
+          "business_read_slots_available": 0,
+          "slots_quarantined": 0,
+          "results_active_leases": 8,
+          "business_read_active_leases": 20
+        }
+      },
+      "canary_incremented": {
+        "before_version": 4,
+        "after_version": 5,
+        "same_pot_id": true
+      },
+      "post_restart_e2e_command": {
+        "potId": "a6b2d105-70f4-4167-8493-33b036d589d4",
+        "requestId": "af23a829-a800-4025-a197-f79325ee6ffa",
+        "outcome": "COMPLETED",
+        "resultingPotVersion": 1,
+        "readPotVersion": 1,
+        "readPotLabel": "S5-A6 Restart Check",
+        "balanceStatus": 200,
+        "balancePotVersion": 1,
+        "duration_seconds": 0.139
+      },
+      "final_status": {
+        "exit": 0,
+        "state": "READY",
+        "checks": {
+          "JVM-http-write": "PASS",
+          "JVM-http-read": "PASS",
+          "JVM-command-worker": "PASS",
+          "JVM-results-worker": "PASS",
+          "JVM-business-read-worker": "PASS",
+          "DB-CURRENT": "PASS",
+          "IDP-DISCOVERY": "PASS",
+          "KEYCLOAK-OIDC-DISCOVERY": "PASS",
+          "KEYCLOAK-ADMIN-AUTH": "PASS",
+          "KEYCLOAK-ADMIN-ENABLED": "PASS",
+          "KEYCLOAK-THIRD-ENABLED": "PASS",
+          "KEYCLOAK-THIRD-PKCE": "PASS",
+          "KEYCLOAK-GUEST-ENABLED": "PASS",
+          "KEYCLOAK-GUEST-PKCE": "PASS",
+          "KEYCLOAK-BRUNO-ENABLED": "PASS",
+          "KEYCLOAK-BRUNO-PKCE": "PASS",
+          "IDP-PKCE-SESSION": "PASS",
+          "GRAFANA-HTTP": "PASS",
+          "GRAFANA-DATASOURCE": "PASS",
+          "GRAFANA-DASHBOARD": "PASS"
+        },
+        "generationQualified": true,
+        "businessEvidence": "PROVEN",
+        "proofFreshness": "FRESH"
+      }
+    }
+  },
+  "gate_a_verdict": "PASS"
+}

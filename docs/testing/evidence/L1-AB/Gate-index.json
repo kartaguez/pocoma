@@ -1,0 +1,202 @@
+[
+  {
+    "gate": "a-arch",
+    "revision": "23f18a0126bf4ccd668aa1ad9f5d229d90666544",
+    "command": [
+      "./mvnw",
+      "-pl",
+      "architecture-tests",
+      "-am",
+      "test"
+    ],
+    "exit_code": 0,
+    "counts": {
+      "tests": 1422,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    "verdict": "INCONCLUSIVE",
+    "directory": "a-arch-1792927315643647000",
+    "mandatory": {
+      "verdict": "PASS",
+      "methods": 19
+    },
+    "final": true
+  },
+  {
+    "gate": "a-consumers",
+    "revision": "23f18a0126bf4ccd668aa1ad9f5d229d90666544",
+    "command": [
+      "./mvnw",
+      "-pl",
+      "runtime-command-consumption-worker,runtime-task-consumption-worker",
+      "-am",
+      "test"
+    ],
+    "exit_code": 0,
+    "counts": {
+      "tests": 1190,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    "verdict": "INCONCLUSIVE",
+    "directory": "a-consumers-1792927068536741000",
+    "mandatory": {
+      "verdict": "PASS",
+      "methods": 14
+    },
+    "final": true
+  },
+  {
+    "gate": "a-domain",
+    "revision": "dbec5a8ea44fa6406f208ab10e8b0cbb9579abef",
+    "command": [
+      "./mvnw",
+      "-pl",
+      "domain-pot",
+      "-am",
+      "test"
+    ],
+    "exit_code": 0,
+    "counts": {
+      "tests": 220,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "verdict": "PASS",
+    "directory": "a-domain-1792927016295840000",
+    "mandatory": {
+      "verdict": "PASS",
+      "methods": 14
+    },
+    "final": false
+  },
+  {
+    "gate": "a-domain",
+    "revision": "23f18a0126bf4ccd668aa1ad9f5d229d90666544",
+    "command": [
+      "./mvnw",
+      "-pl",
+      "domain-pot",
+      "-am",
+      "test"
+    ],
+    "exit_code": 0,
+    "counts": {
+      "tests": 220,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "verdict": "PASS",
+    "directory": "a-domain-1792927055484795000",
+    "mandatory": {
+      "verdict": "PASS",
+      "methods": 14
+    },
+    "final": true
+  },
+  {
+    "gate": "b-arch",
+    "revision": "887c24f3f266304e46c281cc61ba170f35d4de9a",
+    "command": [
+      "./mvnw",
+      "-pl",
+      "architecture-tests",
+      "-am",
+      "test"
+    ],
+    "exit_code": 0,
+    "counts": {
+      "tests": 1441,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    "verdict": "INCONCLUSIVE",
+    "directory": "b-arch-1792929835947767000",
+    "mandatory": {
+      "verdict": "PASS",
+      "methods": 38
+    },
+    "final": true
+  },
+  {
+    "gate": "b-consumers",
+    "revision": "887c24f3f266304e46c281cc61ba170f35d4de9a",
+    "command": [
+      "./mvnw",
+      "-pl",
+      "runtime-command-consumption-worker,runtime-task-consumption-worker",
+      "-am",
+      "test"
+    ],
+    "exit_code": 0,
+    "counts": {
+      "tests": 1209,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    "verdict": "INCONCLUSIVE",
+    "directory": "b-consumers-1792929584286484000",
+    "mandatory": {
+      "verdict": "PASS",
+      "methods": 33
+    },
+    "final": true
+  },
+  {
+    "gate": "b-persistence",
+    "revision": "f72a9f30a43fedf733b258acd9357127a6c8af62",
+    "command": [
+      "./mvnw",
+      "-pl",
+      "infra-persistence-primary-jpa",
+      "-am",
+      "test"
+    ],
+    "exit_code": 0,
+    "counts": {
+      "tests": 855,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "verdict": "PASS",
+    "directory": "b-persistence-1792929220388245000",
+    "mandatory": {
+      "verdict": "PASS",
+      "methods": 32
+    },
+    "final": false
+  },
+  {
+    "gate": "b-persistence",
+    "revision": "887c24f3f266304e46c281cc61ba170f35d4de9a",
+    "command": [
+      "./mvnw",
+      "-pl",
+      "infra-persistence-primary-jpa",
+      "-am",
+      "test"
+    ],
+    "exit_code": 0,
+    "counts": {
+      "tests": 856,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "verdict": "PASS",
+    "directory": "b-persistence-1792929415609261000",
+    "mandatory": {
+      "verdict": "PASS",
+      "methods": 33
+    },
+    "final": true
+  }
+]

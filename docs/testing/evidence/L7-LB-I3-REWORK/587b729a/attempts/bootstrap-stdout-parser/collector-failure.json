@@ -1,0 +1,8 @@
+{
+  "verdict": "FAIL",
+  "testedSha": "ccd19625704853f145e1381fba39066e048335a7",
+  "dirty": false,
+  "inputs": "2a78e9a1bdf883976498694cf6f6aef4efa61861a6d7d423b8e997bc227a66b0",
+  "errorClass": "RuntimeError",
+  "limitation": "Inspect allowlisted command receipts; private instance diagnostics remain local."
+}

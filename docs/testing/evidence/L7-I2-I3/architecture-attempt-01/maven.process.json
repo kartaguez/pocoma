@@ -1,0 +1,15 @@
+{
+  "pid": 64715,
+  "process_group": 64715,
+  "command": [
+    "./mvnw",
+    "--batch-mode",
+    "--no-transfer-progress",
+    "-pl",
+    "runtime-web-write,runtime-web-read,runtime-worker-process,runtime-worker-materialize,infra-tx-spring,architecture-tests,runtime-monolith",
+    "-am",
+    "-Dpocoma.verification.id=b565ce2f8ecf41389db688e79ba810f4",
+    "-Dpocoma.verification.reports=/Users/julien.guezennec/Dev/projects/pocoma/certification-raw/l7-i2-i3-architecture/reports",
+    "test"
+  ]
+}

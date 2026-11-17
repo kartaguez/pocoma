@@ -1,0 +1,12 @@
+{
+  "pid": 97938,
+  "process_group": 97938,
+  "command": [
+    "./mvnw",
+    "--batch-mode",
+    "--no-transfer-progress",
+    "-Dpocoma.verification.id=91abf67771a34cb8932390bdc5c80451",
+    "-Dpocoma.verification.reports=/Users/julien.guezennec/Dev/projects/pocoma/docs/testing/evidence/L7-full-execution/baseline-certification-1100b4ca/reports",
+    "test"
+  ]
+}

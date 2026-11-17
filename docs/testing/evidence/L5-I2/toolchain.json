@@ -1,0 +1,14 @@
+{
+  "jdk": "Temurin 21+35-LTS",
+  "maven": "3.9.14",
+  "docker_server": "29.9.2",
+  "postgres_image": "postgres@sha256:18cfe3ef5e6815560c98237d6216d1e5119702fb0f3894c8785dd58b8bbe5d73",
+  "postgres_observed": "17.11",
+  "bruno_observed": "4.3.0",
+  "node_observed": "v24.15.0",
+  "npm_observed": "12.0.2",
+  "qualification_checkout": "/private/tmp/pocoma-l5-i2-qualification",
+  "source_checkout": "/Users/julien.guezennec/Dev/projects/pocoma",
+  "reason": "Exclusive Maven targets; VS Code JDT background compiler uses original checkout",
+  "authentication": "Local signed RS256 JWT/JWKS fixture; real provider NOT QUALIFIED"
+}

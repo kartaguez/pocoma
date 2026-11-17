@@ -1,0 +1,345 @@
+{
+  "verdict": "PASS",
+  "counts": {
+    "tests": 29,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "issues": [],
+  "executions": [
+    {
+      "classname": "com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunnerTest",
+      "method": "runsActionInTransaction",
+      "seconds": 0.003,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunnerTest",
+      "method": "doesNotRunAfterCommitActionWhenTransactionRollsBack",
+      "seconds": 0.001,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunnerTest",
+      "method": "runsAfterCommitActionImmediatelyWhenNoTransactionIsActive",
+      "seconds": 0.0,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunnerTest",
+      "method": "runsAfterCommitActionAfterTransactionCommits",
+      "seconds": 0.0,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest",
+      "method": "nestedAmbientWrongSourceAndWrongEmfRefused",
+      "seconds": 1.007,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest",
+      "method": "originalCallbackCauseSurvivesRollbackFailureAndConfirmedCommitWinsCleanup",
+      "seconds": 0.164,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest",
+      "method": "jpaJdbcSamePidXidAndClosedContextCannotDirtyWriteAtCommit",
+      "seconds": 0.182,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest",
+      "method": "commitServerRejectionRollbackAndMaskedCommitRemainDistinct",
+      "seconds": 0.151,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest",
+      "method": "requiresNewJpaAndJdbcCannotCommitEffectOrDelete",
+      "seconds": 0.207,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest",
+      "method": "sameOwnerReadAuthorityAtomicAndContextCannotCrossAuthorityOrLifetime",
+      "seconds": 0.165,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest",
+      "method": "autonomousRevisionCaughtFailurePoisonsJpaAndJdbcCallers",
+      "seconds": 0.149,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest",
+      "method": "guardedLateCallbackRefusedBeforeSqlAndRollback",
+      "seconds": 0.143,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest",
+      "method": "jdbcCaughtLateCallbackCannotCommitPrefix",
+      "seconds": 0.137,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest",
+      "method": "caughtApplicationJdbcJpaFailuresPoisonBothWriteOrders",
+      "seconds": 0.174,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.infra.tx.spring.v3.V3FoundationCompositionTest",
+      "method": "ambiguousManagersAreRefusedInsteadOfSilentlyChoosingAnAuthority",
+      "seconds": 0.234,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.infra.tx.spring.v3.V3FoundationCompositionTest",
+      "method": "explicitRealmCompositionUsesIndependentPhysicalTransactions",
+      "seconds": 0.134,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.infra.tx.spring.v3.V3FoundationCompositionTest",
+      "method": "existingConfigurationInjectsTheActualManagerWithoutApplicationBootstrap",
+      "seconds": 0.13,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.infra.tx.spring.v3.V3HistoricalIntervalPostgresTest",
+      "method": "resolvesSemiOpenBoundariesAndOpenEndInAnyOrder",
+      "seconds": 0.181,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.infra.tx.spring.v3.V3HistoricalIntervalPostgresTest",
+      "method": "closesAndOpensAtomicallyAndRollbackPreservesHistory",
+      "seconds": 0.136,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.infra.tx.spring.v3.V3HistoricalIntervalPostgresTest",
+      "method": "rejectsInvalidIntervalsAndDuplicateOpenVersions",
+      "seconds": 0.129,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.infra.tx.spring.v3.V3HistoricalIntervalPostgresTest",
+      "method": "reportsGapsAndOverlapsInsteadOfFallingBackToCurrent",
+      "seconds": 0.128,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.infra.tx.spring.v3.V3SchemaIsolationPostgresTest",
+      "method": "installsOnlyTheExplicitFoundationFixtureOnRealPostgres",
+      "seconds": 0.203,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.infra.tx.spring.v3.V3SchemaIsolationPostgresTest",
+      "method": "restartValidatesWithoutReexecutingAndKeepsIndependentHistories",
+      "seconds": 0.178,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.infra.tx.spring.v3.V3TransactionFoundationPostgresTest",
+      "method": "observerFailureAfterCommitDoesNotMeanRollback",
+      "seconds": 0.155,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.infra.tx.spring.v3.V3TransactionFoundationPostgresTest",
+      "method": "rollbackInBothWriteOrdersLeavesNoJpaOrJdbcEffect",
+      "seconds": 0.127,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.infra.tx.spring.v3.V3TransactionFoundationPostgresTest",
+      "method": "deferredConstraintFailureAtCommitRestoresAllEffects",
+      "seconds": 0.119,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.infra.tx.spring.v3.V3TransactionFoundationPostgresTest",
+      "method": "jpaAndJdbcSharePhysicalTransactionAndBecomeVisibleOnlyAfterCommit",
+      "seconds": 0.123,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.infra.tx.spring.v3.V3TransactionFoundationPostgresTest",
+      "method": "contendingConnectionsWaitForPhysicalRollbackBeforeCommitting",
+      "seconds": 0.237,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.infra.tx.spring.v3.V3TransactionFoundationPostgresTest",
+      "method": "caughtRequiredParticipantFailureStillRollsBackTheOwner",
+      "seconds": 0.126,
+      "outcome": "PASS"
+    }
+  ],
+  "compilation": {
+    "compiler_events": [],
+    "announced_recompiled_source_inputs": 0,
+    "source_inventory": [
+      {
+        "module": "port-transaction",
+        "present_main_java": 7,
+        "present_test_java": 0,
+        "included_main_root_java": 7,
+        "included_test_root_java": 0,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "infra-tx-spring",
+        "present_main_java": 3,
+        "present_test_java": 8,
+        "included_main_root_java": 3,
+        "included_test_root_java": 8,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      }
+    ],
+    "reused_source_count": null,
+    "semantics": "Compiler announcements include singular/plural and main/test invocations. Presence is separate. Generated inputs may overlap roots; do not sum inventories. Exact reused files and actual javac reads are not observable from these logs. Resource copies are not Java compilation."
+  },
+  "command": [
+    "./mvnw",
+    "--batch-mode",
+    "--no-transfer-progress",
+    "-pl",
+    "infra-tx-spring",
+    "-am",
+    "-Dtest=com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunnerTest,com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest,com.kartaguez.pocoma.infra.tx.spring.v3.V3FoundationCompositionTest,com.kartaguez.pocoma.infra.tx.spring.v3.V3HistoricalIntervalPostgresTest,com.kartaguez.pocoma.infra.tx.spring.v3.V3SchemaIsolationPostgresTest,com.kartaguez.pocoma.infra.tx.spring.v3.V3TransactionFoundationPostgresTest",
+    "-Dsurefire.failIfNoSpecifiedTests=false",
+    "-Dpocoma.verification.id=e3ea8ce8a578468f804eb93ca3301c58",
+    "-Dpocoma.verification.reports=/private/tmp/l4-i1-foundation-owner-fixed/reports",
+    "test"
+  ],
+  "level": "CHANGE",
+  "scope": "foundation",
+  "seconds": 11.362606,
+  "discovery_seconds": 1.167807374993572,
+  "expected_invocations": 29,
+  "started_ns": 1793605217554643000,
+  "exit_code": 0,
+  "artifacts": {
+    "maven.log": "231319c82ae6ab66cfd059092055ab2f98075d22cad452f2600301fd6ddc62d9",
+    "effective-pom.xml": "2cef9762d3cce485ebd0278f8ca1eed235bfea027a9a15732187e068d90de491",
+    "discovery.log": "255c0b1de139e2c281c21db4dcf022276ad0214e54e43306429e571779f3a507",
+    "reports/pocoma-infra-tx-spring/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunnerTest.xml": "41a0e8ebdc871645c802042355ddcc5ebc1a85bd1ea1a52ff0dc2f2463c08957",
+    "reports/pocoma-infra-tx-spring/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest.xml": "d1f9266131b4752673791aad3246da2a07fbec3caa3921e7768055c5785d2e9c",
+    "reports/pocoma-infra-tx-spring/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.v3.V3FoundationCompositionTest.xml": "81fa3fe455ab2043227155be4de2b1171410a6c3d42ffc1f28ae7592957944ca",
+    "reports/pocoma-infra-tx-spring/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.v3.V3HistoricalIntervalPostgresTest.xml": "6ada5f5dcd4d7141a68aa2a1c7912fb35d035395d4eeae097ebaa0a857de34cf",
+    "reports/pocoma-infra-tx-spring/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.v3.V3SchemaIsolationPostgresTest.xml": "cb484ce0d4c25df288fad8177fb6a8c8b3924a799d5573a1a37e2bc3b021e6f8",
+    "reports/pocoma-infra-tx-spring/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.v3.V3TransactionFoundationPostgresTest.xml": "46a9eb9b005a18f3c6e02b8bec2fd147ec46a409ff70b109ae27973c0bf52d38",
+    "reports/pocoma-infra-tx-spring/surefire-reports/com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunnerTest.txt": "760d3f8fbbab8996ce7a9af0ef55bf8a9942b6e9a46aa42be5a3c7e487fe758e",
+    "reports/pocoma-infra-tx-spring/surefire-reports/com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest.txt": "05089c18ba6e5d5b016a88a1960f1aee070b94edf998abd6189d2c20eda43974",
+    "reports/pocoma-infra-tx-spring/surefire-reports/com.kartaguez.pocoma.infra.tx.spring.v3.V3FoundationCompositionTest.txt": "a3b8377c54662e69af8d7a0d9d5ebbe024dc3fcf63dbc145bb4ab5d89b51083d",
+    "reports/pocoma-infra-tx-spring/surefire-reports/com.kartaguez.pocoma.infra.tx.spring.v3.V3HistoricalIntervalPostgresTest.txt": "807a40e8c84e82b10170a38bb1e4ed8f2fbc883e340e52b9cb61f2c44b4981f7",
+    "reports/pocoma-infra-tx-spring/surefire-reports/com.kartaguez.pocoma.infra.tx.spring.v3.V3SchemaIsolationPostgresTest.txt": "7d3e69cc82fa5740ab6fcdce41a7381f2ba42222e4369b9f1fb6235e3d7448f3",
+    "reports/pocoma-infra-tx-spring/surefire-reports/com.kartaguez.pocoma.infra.tx.spring.v3.V3TransactionFoundationPostgresTest.txt": "a7502f8cb60c11f247f249044b2b337a8b2a542926c4a041028fa9cf15a27559"
+  },
+  "invocation_id": "e3ea8ce8a578468f804eb93ca3301c58",
+  "reports_root": "/private/tmp/l4-i1-foundation-owner-fixed/reports",
+  "raw_sha256": "5cdf2230e44c250737545fb7c2cbadc82bfefa48e7e102e1ab25befd1d443e2e",
+  "previous_reports_not_counted": [
+    "app/architecture-tests/target/surefire-reports/TEST-com.kartaguez.pocoma.architecture.BindingLockOwnershipTest.xml",
+    "app/architecture-tests/target/surefire-reports/TEST-com.kartaguez.pocoma.architecture.DistributedComposeConfigurationTest.xml",
+    "app/architecture-tests/target/surefire-reports/TEST-com.kartaguez.pocoma.architecture.EventPublicationContractArchitectureTest.xml",
+    "app/architecture-tests/target/surefire-reports/TEST-com.kartaguez.pocoma.architecture.HexagonalArchitectureTest.xml",
+    "app/architecture-tests/target/surefire-reports/TEST-com.kartaguez.pocoma.architecture.Pcl3LegacyAbsenceTest.xml",
+    "app/architecture-tests/target/surefire-reports/TEST-com.kartaguez.pocoma.architecture.Pcl4LegacyQueryReadAbsenceTest.xml",
+    "app/architecture-tests/target/surefire-reports/TEST-com.kartaguez.pocoma.architecture.Pcl5PipelineLifecycleAbsenceTest.xml",
+    "app/architecture-tests/target/surefire-reports/TEST-com.kartaguez.pocoma.architecture.Pcl6MonolithAbsenceTest.xml",
+    "app/architecture-tests/target/surefire-reports/TEST-com.kartaguez.pocoma.architecture.Pcl7ModuleDependencyCollapseTest.xml",
+    "app/architecture-tests/target/surefire-reports/TEST-com.kartaguez.pocoma.architecture.Pcl8DatabaseDemolitionPostgresTest.xml",
+    "app/architecture-tests/target/surefire-reports/TEST-com.kartaguez.pocoma.architecture.Pcl8DatabaseDemolitionTest.xml",
+    "app/architecture-tests/target/surefire-reports/TEST-com.kartaguez.pocoma.architecture.PostWp4OwnershipArchitectureTest.xml",
+    "app/architecture-tests/target/surefire-reports/TEST-com.kartaguez.pocoma.architecture.RegistrationModuleBoundaryTest.xml",
+    "app/architecture-tests/target/surefire-reports/TEST-com.kartaguez.pocoma.architecture.Wa67BindingArchitectureTest.xml",
+    "app/architecture-tests/target/surefire-reports/TEST-com.kartaguez.pocoma.architecture.Wp2BoundaryTest.xml",
+    "app/architecture-tests/target/surefire-reports/TEST-com.kartaguez.pocoma.architecture.Wp3BoundaryTest.xml",
+    "app/architecture-tests/target/surefire-reports/TEST-com.kartaguez.pocoma.architecture.Wp4BoundaryTest.xml",
+    "app/architecture-tests/target/surefire-reports/TEST-com.kartaguez.pocoma.architecture.Wp5TargetTopologyTest.xml",
+    "app/architecture-tests/target/surefire-reports/TEST-com.kartaguez.pocoma.architecture.ccr.CommandCompletionE2EPostgresTest.xml",
+    "app/architecture-tests/target/surefire-reports/TEST-com.kartaguez.pocoma.architecture.ccr.CommandResultConsumptionChainPostgresTest.xml",
+    "app/architecture-tests/target/surefire-reports/TEST-com.kartaguez.pocoma.architecture.ccr.CommandResultTakeoverRacePostgresTest.xml",
+    "app/architecture-tests/target/surefire-reports/TEST-com.kartaguez.pocoma.architecture.ept.DurableEventToProjectionPostgresTest.xml",
+    "app/architecture-tests/target/surefire-reports/TEST-com.kartaguez.pocoma.architecture.ept.HistoricalEventRouteEvolutionPostgresTest.xml",
+    "app/architecture-tests/target/surefire-reports/TEST-com.kartaguez.pocoma.architecture.v3.V3ConsumptionEngineArchitectureTest.xml",
+    "app/architecture-tests/target/surefire-reports/TEST-com.kartaguez.pocoma.architecture.v3.V3ConsumptionFoundationArchitectureTest.xml",
+    "app/architecture-tests/target/surefire-reports/TEST-com.kartaguez.pocoma.architecture.v3.V3FoundationArchitectureTest.xml",
+    "app/architecture-tests/target/surefire-reports/TEST-com.kartaguez.pocoma.architecture.v3.V3IdentityAuthorityArchitectureTest.xml",
+    "app/architecture-tests/target/surefire-reports/TEST-com.kartaguez.pocoma.architecture.v3.V3PotExecutionArchitectureTest.xml",
+    "app/domain-projection/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.projection.v3.SubobjectVersionTest.xml",
+    "app/infra-persistence-read-jdbc/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.SubobjectJsonTest.xml",
+    "app/runtime-task-consumption-worker/target/surefire-reports/TEST-com.kartaguez.pocoma.runtime.task.v3.SubobjectAtomicityPostgresTest.xml",
+    "app/runtime-task-consumption-worker/target/surefire-reports/TEST-com.kartaguez.pocoma.runtime.task.v3.SubobjectMigrationPostgresTest.xml",
+    "app/runtime-task-consumption-worker/target/surefire-reports/TEST-com.kartaguez.pocoma.runtime.task.v3.SubobjectStorePostgresTest.xml"
+  ],
+  "not_selected": "All methods outside plan.expected for filtered feedback; NOT RUN, never PASS",
+  "quarantined_scenarios": {
+    "i5_r05": {
+      "class": "com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest",
+      "method": "i5_r05",
+      "anchor": "COMMAND",
+      "status": "QUALIFIED",
+      "active": false,
+      "reason": "Historical I1 failure; I2 PASS 52.451s. Temporal worker campaign, availability reserve remains open.",
+      "reference": "docs/v3/L3_I2_Execution_Report.md",
+      "decision": "Explicit nominative operational isolation authorized by verification optimization mandate; no normative waiver.",
+      "resolution": "Definitively qualified under Gemini counter-audit. Physical Discovery SKIP LOCKED contention validated on real PostgreSQL; false FAIL eliminated; availability/famine detection preserved; R1 reserve closed.",
+      "resolution_reference": "docs/v3/L2_I5_Counter_Audit_and_Definitive_Closure_Report.md",
+      "resolution_decision": "Quarantine lifted. Retained in registry as historical qualified scenario for diagnostic recipe access and CERTIFICATION coverage obligations."
+    },
+    "i5_r12": {
+      "class": "com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest",
+      "method": "i5_r12",
+      "anchor": "COMMAND",
+      "status": "QUALIFIED",
+      "active": false,
+      "reason": "I2 FAIL 95.825s: runtime condition deadline; Runtime.close:553 via I5TemporalV2Postgres.campaign:947. Physical root cause unresolved.",
+      "reference": "docs/v3/L3_I2_Execution_Report.md",
+      "decision": "Explicit nominative operational isolation authorized by verification optimization mandate; no normative waiver.",
+      "resolution": "Definitively qualified under Gemini counter-audit. Verified 2 active workers, 4 physical pools/worker, 8 retained business preparations, 4 concurrent contentions, B1/B32 x M_W1/M_W4, nominal drainage, zero timeouts in canonical gate; R2 reserve closed.",
+      "resolution_reference": "docs/v3/L2_I5_Counter_Audit_and_Definitive_Closure_Report.md",
+      "resolution_decision": "Quarantine lifted. Retained in registry as historical qualified scenario for diagnostic recipe access and CERTIFICATION coverage obligations."
+    }
+  },
+  "active_quarantined_scenarios": {},
+  "historical_quarantined_scenarios": {
+    "i5_r05": {
+      "class": "com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest",
+      "method": "i5_r05",
+      "anchor": "COMMAND",
+      "status": "QUALIFIED",
+      "active": false,
+      "reason": "Historical I1 failure; I2 PASS 52.451s. Temporal worker campaign, availability reserve remains open.",
+      "reference": "docs/v3/L3_I2_Execution_Report.md",
+      "decision": "Explicit nominative operational isolation authorized by verification optimization mandate; no normative waiver.",
+      "resolution": "Definitively qualified under Gemini counter-audit. Physical Discovery SKIP LOCKED contention validated on real PostgreSQL; false FAIL eliminated; availability/famine detection preserved; R1 reserve closed.",
+      "resolution_reference": "docs/v3/L2_I5_Counter_Audit_and_Definitive_Closure_Report.md",
+      "resolution_decision": "Quarantine lifted. Retained in registry as historical qualified scenario for diagnostic recipe access and CERTIFICATION coverage obligations."
+    },
+    "i5_r12": {
+      "class": "com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest",
+      "method": "i5_r12",
+      "anchor": "COMMAND",
+      "status": "QUALIFIED",
+      "active": false,
+      "reason": "I2 FAIL 95.825s: runtime condition deadline; Runtime.close:553 via I5TemporalV2Postgres.campaign:947. Physical root cause unresolved.",
+      "reference": "docs/v3/L3_I2_Execution_Report.md",
+      "decision": "Explicit nominative operational isolation authorized by verification optimization mandate; no normative waiver.",
+      "resolution": "Definitively qualified under Gemini counter-audit. Verified 2 active workers, 4 physical pools/worker, 8 retained business preparations, 4 concurrent contentions, B1/B32 x M_W1/M_W4, nominal drainage, zero timeouts in canonical gate; R2 reserve closed.",
+      "resolution_reference": "docs/v3/L2_I5_Counter_Audit_and_Definitive_Closure_Report.md",
+      "resolution_decision": "Quarantine lifted. Retained in registry as historical qualified scenario for diagnostic recipe access and CERTIFICATION coverage obligations."
+    }
+  }
+}

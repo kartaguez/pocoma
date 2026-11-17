@@ -1,0 +1,4 @@
+{"request":"T01","verdict":"PASS","role":"owner","assertions":4,"operation":null,"requests":[{"method":"GET","path":"/api/v3/diagnostics/stage-handoffs","status":200}]}
+{"request":"T02","verdict":"PASS","role":"none","assertions":3,"operation":null,"requests":[{"method":"GET","path":"/actuator/health","status":200}]}
+{"request":"T03","verdict":"PASS","role":"none","assertions":3,"operation":null,"requests":[{"method":"GET","path":"/actuator/prometheus","status":200}]}
+{"request":"T04","verdict":"PASS","role":"none","assertions":4,"operation":null,"requests":[{"method":"GET","path":"/actuator/stage-handoffs","status":200}]}

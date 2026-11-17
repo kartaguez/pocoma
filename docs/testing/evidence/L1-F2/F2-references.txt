@@ -1,0 +1,2 @@
+schema=v3_pot_c1ec12841327495b932c2aa1661f58be
+4 malformed touched identity/reference variants rejected atomically

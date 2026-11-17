@@ -1,0 +1,43 @@
+meta {
+  name: B03 My Pots Next Page
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{readUrl}}/api/v3/me/pots?limit={{pageLimit}}&cursor={{nextCursor}}
+  body: none
+  auth: none
+}
+
+headers {
+  Connection: close
+  X-Pocoma-Binding-Token: {{bindingActor}}
+}
+
+settings {
+  timeout: 5000
+}
+
+script:pre-request {
+  const options = {"id":"B03","role":"actor","kind":"navigation","binding":true,"status":200,"requires":["nextCursor"]};
+  await require('./lib/workspace.js').prepare(bru, req, options);
+}
+
+tests {
+  const options = {"id":"B03","role":"actor","kind":"navigation","binding":true,"status":200,"requires":["nextCursor"]};
+  const work = require('./lib/workspace.js');
+  test('B03 transport and privacy', () => work.transport(bru, res, expect, options));
+  test('B03 contract and variables', () => {
+    work.verify(bru, req, res, expect, options);
+    work.record(bru, req, res, options);
+  });
+}
+
+docs {
+  Page suivante apres B02 ; executable seulement si nextCursor non vide. Un jeu neuf peut ne comporter qu une page.
+  Identite : actor. Prerequis : nextCursor.
+  Chaque Send appelle la methode et le corps visibles. Les GET asynchrones attendent
+  le meme endpoint au plus 30 s avant l appel affiche ; aucun POST cache.
+  Modifier le JSON librement ; une nouvelle intention recoit une nouvelle cle.
+}

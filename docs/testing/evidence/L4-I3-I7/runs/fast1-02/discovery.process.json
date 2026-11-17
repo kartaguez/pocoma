@@ -1,0 +1,18 @@
+{
+  "pid": 86016,
+  "process_group": 86016,
+  "command": [
+    "./mvnw",
+    "--batch-mode",
+    "--no-transfer-progress",
+    "-pl",
+    "domain-projection,infra-persistence-read-jdbc",
+    "-am",
+    "-Dtest=com.kartaguez.pocoma.domain.projection.v3.PotVersionContractTest#compositionAndKeys,com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.PotVersionJsonTest#strictCanonicalCodec",
+    "-Dsurefire.failIfNoSpecifiedTests=false",
+    "-Dpocoma.verification.id=f2fedae92ea1402ea129a1a490e88602",
+    "-Dpocoma.verification.reports=/private/tmp/pocoma-i3-i7-fast1-02/reports",
+    "help:effective-pom",
+    "-Doutput=/private/tmp/pocoma-i3-i7-fast1-02/effective-pom.xml"
+  ]
+}

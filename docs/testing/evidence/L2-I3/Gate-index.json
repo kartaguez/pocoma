@@ -1,0 +1,94 @@
+[
+  {
+    "gate": "command",
+    "sha": "1d7cf51c13671c7c85a5c9c1281f526be2b2abfb",
+    "command": [
+      "./mvnw",
+      "-pl",
+      "runtime-command-consumption-worker",
+      "-am",
+      "test"
+    ],
+    "verdict": "PASS",
+    "tests": 1497,
+    "required_methods": 249,
+    "failures_or_errors": 0,
+    "skips": [
+      {
+        "class": "com.kartaguez.pocoma.runtime.command.consumption.sequencing.TerminalSequencingPostgresTest",
+        "method": "zExploratoryContentionSeparateFromCorrectness",
+        "state": "SKIP"
+      }
+    ],
+    "archive": "command-1d7cf51c.tar.gz",
+    "sha256": "b9ecfa271c625cb1f3a08d597e95b22b50d208fb0c6788d8a8e17496809d258b",
+    "result_sha256": "adb142e867a4cd17138274418514cad62780464f191c54a471880eac8092de27",
+    "artifacts": 736
+  },
+  {
+    "gate": "read",
+    "sha": "1d7cf51c13671c7c85a5c9c1281f526be2b2abfb",
+    "command": [
+      "./mvnw",
+      "-pl",
+      "infra-persistence-read-jdbc",
+      "-am",
+      "test"
+    ],
+    "verdict": "PASS",
+    "tests": 361,
+    "required_methods": 1,
+    "failures_or_errors": 0,
+    "skips": [],
+    "archive": "read-1d7cf51c.tar.gz",
+    "sha256": "804a38c89a45e0aa147f5fdd04a90b5cc6cae2a5d4a90d860af816ae17668c9c",
+    "result_sha256": "06abf6720579b8b600802e72edad17448c17e91f23011fd39a3803a0ca683d34",
+    "artifacts": 85
+  },
+  {
+    "gate": "monolith",
+    "sha": "1d7cf51c13671c7c85a5c9c1281f526be2b2abfb",
+    "command": [
+      "./mvnw",
+      "-pl",
+      "runtime-monolith",
+      "-am",
+      "test"
+    ],
+    "verdict": "PASS",
+    "tests": 1266,
+    "required_methods": 246,
+    "failures_or_errors": 0,
+    "skips": [],
+    "archive": "monolith-1d7cf51c.tar.gz",
+    "sha256": "0a6fd89fefe2eb219df85fa27e2e8f7e31764eeb47f988123140af755d44b2a7",
+    "result_sha256": "50a6e770cba8fa1e8eaaa58e188acfb5f51fad6f5f16f4cfb71d0d71a9ae492a",
+    "artifacts": 708
+  },
+  {
+    "gate": "architecture",
+    "sha": "1d7cf51c13671c7c85a5c9c1281f526be2b2abfb",
+    "command": [
+      "./mvnw",
+      "-pl",
+      "architecture-tests",
+      "-am",
+      "test"
+    ],
+    "verdict": "PASS",
+    "tests": 1761,
+    "required_methods": 270,
+    "failures_or_errors": 0,
+    "skips": [
+      {
+        "class": "com.kartaguez.pocoma.runtime.command.consumption.sequencing.TerminalSequencingPostgresTest",
+        "method": "zExploratoryContentionSeparateFromCorrectness",
+        "state": "SKIP"
+      }
+    ],
+    "archive": "architecture-1d7cf51c.tar.gz",
+    "sha256": "f17e7316d1d6f9261153da9476a8c88210677abe7b8a940f40f5221fb2623be1",
+    "result_sha256": "146c07869a3921744249ed4c65330609ff7971beac29bd159086396c0446f7d0",
+    "artifacts": 790
+  }
+]

@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<testsuites>
+  <testsuite name="PG01 Public journey from real OIDC sessions" file="PG01 Public Journey.bru" errors="0" failures="0" skipped="0" tests="1" timestamp="2026-11-13T22:17:42.541" hostname="MacBook-Air-de-Julien.local" time="1.457">
+    <testcase name="PG01 Registration binding Pot invitation mutations balance delete history" status="pass" classname="PG01 Public Journey" time="1.457"/>
+  </testsuite>
+</testsuites>

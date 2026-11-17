@@ -1,0 +1,28 @@
+{
+  "relative_to": "repository root",
+  "base_sha": "9780ac88bcea8d87081bce9c7589c8f323806934",
+  "paths": [
+    "app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/v3/V3ConsumptionEngineArchitectureTest.java",
+    "app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/JdbcPotHistoryAdapter.java",
+    "app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/PotHistoryRows.java",
+    "app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/PotHistoryCardinalityPostgresTest.java",
+    "app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/WriteRevisionPerformancePostgresTest.java",
+    "docs/testing/evidence/L1L2-corrections/Changed-files.json",
+    "docs/testing/evidence/L1L2-corrections/Delivery-checks.json",
+    "docs/testing/evidence/L1L2-corrections/I5-temporal-exclusions.txt",
+    "docs/testing/evidence/L1L2-corrections/Inputs.json",
+    "docs/testing/evidence/L1L2-corrections/approved-raw.tar.xz",
+    "docs/testing/evidence/L1L2-corrections/approved.json",
+    "docs/testing/evidence/L1L2-corrections/architecture-targeted-final.json",
+    "docs/testing/evidence/L1L2-corrections/architecture-targeted-final.tar.xz",
+    "docs/testing/evidence/L1L2-corrections/command-failed-raw.tar.xz",
+    "docs/testing/evidence/L1L2-corrections/command-failed.json",
+    "docs/testing/evidence/L1L2-corrections/diagnostics.json",
+    "docs/testing/evidence/L1L2-corrections/diagnostics.tar.xz",
+    "docs/testing/evidence/L1L2-corrections/interrupted-raw.tar.xz",
+    "docs/testing/evidence/L1L2-corrections/interrupted.json",
+    "docs/v3/L1L2_Targeted_Corrections_Report.md",
+    "docs/v3/V3_Canon_and_Roadmap.md",
+    "docs/v3/V3_Implementation_Master_Plan.md"
+  ]
+}

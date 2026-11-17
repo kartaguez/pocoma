@@ -1,0 +1,31 @@
+{
+  "state": "DESTROY_PLAN",
+  "exit": 0,
+  "instance": "i3-bruno",
+  "owner": "e72e2740-e18e-462e-8d38-952fc57d567e",
+  "project": "pocoma-lb-i3-bruno-e72e2740",
+  "volume": "pocoma-lb-i3-bruno-e72e2740-data",
+  "network": "pocoma-lb-i3-bruno-e72e2740_default",
+  "services": [
+    "http-write",
+    "http-read",
+    "command-worker",
+    "results-worker",
+    "business-read-worker",
+    "postgres",
+    "keycloak",
+    "prometheus"
+  ],
+  "persistentDataLost": [
+    "PostgreSQL WRITE/READ and Keycloak database in owned volume",
+    "Generated credentials, configuration, demo and canary checkpoints"
+  ],
+  "retained": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/i3-bruno/runs",
+  "operations": [
+    "Verify manifest/UUID/resource ownership",
+    "Gracefully stop this instance",
+    "Compose down --volumes for this project only",
+    "Remove generated instance files; retain lock and diagnostic runs"
+  ],
+  "command": "./pocoma-local destroy --instance i3-bruno --confirm DESTROY:i3-bruno"
+}

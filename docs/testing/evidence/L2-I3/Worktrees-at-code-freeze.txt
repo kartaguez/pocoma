@@ -1,0 +1,87 @@
+worktree /Users/julien.guezennec/Dev/projects/pocoma
+HEAD 90a3e9bc1a1fdd325d0c36e543824239cd85a431
+branch refs/heads/feat/runtime-monolith
+
+worktree /private/tmp/pocoma-v3-c01-c02
+HEAD 8764433da01fa010f01a56be01c8dc69a4ac8b3a
+detached
+
+worktree /private/tmp/pocoma-v3-cleanup
+HEAD ddca2827dac7cf13f8b07f620f0cd3b3cb392196
+detached
+
+worktree /private/tmp/pocoma-v3-i2-execution
+HEAD 03f0725c690bcbd9748d3ea59b62136e1a911e05
+detached
+
+worktree /private/tmp/pocoma-v3-i2-performance-before
+HEAD cd4dac2a5f4d34bd337cd3f494f5fd403f238a81
+detached
+
+worktree /private/tmp/pocoma-v3-i3-execution
+HEAD e9a6848f0ad98a6057942f92bf4e407eef172ea5
+detached
+
+worktree /private/tmp/pocoma-v3-i3-plan
+HEAD bb33b56dc86a8a1d31c577f983d7ea1a07bc8128
+detached
+
+worktree /private/tmp/pocoma-v3-l0
+HEAD 5cc5db870c9cde91fd86997b365a61705dc95cf3
+detached
+
+worktree /private/tmp/pocoma-v3-l1-ab
+HEAD 56d658f9fd5313db2744fa11ff36699f4376aacb
+detached
+
+worktree /private/tmp/pocoma-v3-l1-c
+HEAD 9dfe5a8d55d95bba29bb6a07e5c387c4ae8b0164
+detached
+
+worktree /private/tmp/pocoma-v3-l1-consolidation
+HEAD 8221692287420cd69feebd170df7c9ea6c279fdd
+detached
+
+worktree /private/tmp/pocoma-v3-l1-de
+HEAD 2fb9a536f3894e797923c0b49aeba1a9b5adfda2
+detached
+
+worktree /private/tmp/pocoma-v3-l1-f2
+HEAD 4127767f2f9337b495501d7cd5d933ae9782c8ec
+detached
+
+worktree /private/tmp/pocoma-v3-l1-f2-before
+HEAD 3544898353076d6839bd6f78122d52a5932a64b8
+detached
+
+worktree /private/tmp/pocoma-v3-l1-plan
+HEAD 9a349bbcd86d900b34e927cc29e16dd172ee7ab4
+detached
+
+worktree /private/tmp/pocoma-v3-l2-i1-amend
+HEAD 2b4d46cf08509c95fc490afa1d66ae38f41957b6
+detached
+
+worktree /private/tmp/pocoma-v3-l2-i1-execution
+HEAD a2e6814f6ebf8d2ee87d88d16ad2dfa4fe07f512
+detached
+
+worktree /private/tmp/pocoma-v3-n01
+HEAD df113c8fea3443fe83f428c5e5eef1767ee42d03
+detached
+
+worktree /private/tmp/pocoma-v3-postaud
+HEAD f528586c94ee7e1b0574e9ff9b108781b0e8090f
+branch refs/heads/feat/v3-architecture
+
+worktree /Users/julien.guezennec/.codex/worktrees/debt-wa6-integration/pocoma
+HEAD 2eef3ab9785c524c2fab86f586fc12580c8b1c2e
+detached
+
+worktree /Users/julien.guezennec/.codex/worktrees/v3-l2-documentation/pocoma
+HEAD f81cbd72590a5cb6bdaa083641f8b8ab59371a55
+detached
+
+worktree /Users/julien.guezennec/.codex/worktrees/v3-l2-i1-close-i2-plan/pocoma
+HEAD 1fd9ce7529e5da439f32f889f92cec39de2c79fa
+detached

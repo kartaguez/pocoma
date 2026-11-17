@@ -1,0 +1,95 @@
+{
+  "source": "/private/tmp/pocoma-l5-i1-completion-01",
+  "archive": "archives/pocoma-l5-i1-completion-01.tar.gz",
+  "sha256": "725112c71d30b38c50efce3e95184feaf44609d4d3d93b59a47e20419b857f25",
+  "bytes": 2167913,
+  "files": {
+    "T1/discovery.log": {
+      "original_sha256": "84bdece7a76d862e43f18f6a81c6ccf402602916f071d2696da47709068a29ba",
+      "published_sha256": "84bdece7a76d862e43f18f6a81c6ccf402602916f071d2696da47709068a29ba",
+      "bytes": 9547
+    },
+    "T1/discovery.process.json": {
+      "original_sha256": "84f5cbea2a944fbc5dbc4e4046261af78182e1fbb2f39efb25ecf8490b33bc4c",
+      "published_sha256": "84f5cbea2a944fbc5dbc4e4046261af78182e1fbb2f39efb25ecf8490b33bc4c",
+      "bytes": 1453
+    },
+    "T1/effective-pom.xml": {
+      "original_sha256": "b22a1fef6828ba9b47c16675c2a3b60bd4242a89ce229ba2a9d7c061324ab7db",
+      "published_sha256": "b22a1fef6828ba9b47c16675c2a3b60bd4242a89ce229ba2a9d7c061324ab7db",
+      "bytes": 20185178
+    },
+    "T1/maven.log": {
+      "original_sha256": "d784113c04412048aa36171324847dc71ed946e9f051a61c85152f97ff928fda",
+      "published_sha256": "d784113c04412048aa36171324847dc71ed946e9f051a61c85152f97ff928fda",
+      "bytes": 82671
+    },
+    "T1/maven.process.json": {
+      "original_sha256": "6fb8fe1738c609030d4bab75d05b167b1212278b3f8c8b406123c3144384ebef",
+      "published_sha256": "6fb8fe1738c609030d4bab75d05b167b1212278b3f8c8b406123c3144384ebef",
+      "bytes": 1362
+    },
+    "T1/plan.json": {
+      "original_sha256": "58e0cc844e95f45262139f483695877bb6948e9ab2bb0cfccbea13f2856e245f",
+      "published_sha256": "58e0cc844e95f45262139f483695877bb6948e9ab2bb0cfccbea13f2856e245f",
+      "bytes": 56533
+    },
+    "T1/provenance.json": {
+      "original_sha256": "926ea36f3386d55a69f2f718f577735c28fe341892c1d9bad2537583fed77e90",
+      "published_sha256": "926ea36f3386d55a69f2f718f577735c28fe341892c1d9bad2537583fed77e90",
+      "bytes": 265310
+    },
+    "T1/raw.tar.gz": {
+      "original_sha256": "58dac28171a599e4a21dd5ffa6ceb219b7ad6c956791ec9ef9f14c7abb9f1f3b",
+      "published_sha256": "58dac28171a599e4a21dd5ffa6ceb219b7ad6c956791ec9ef9f14c7abb9f1f3b",
+      "bytes": 1048096
+    },
+    "T1/reports/pocoma-runtime-task-consumption-worker/surefire-reports/TEST-com.kartaguez.pocoma.runtime.task.v3.V3ReadQuotaPostgresTest.xml": {
+      "original_sha256": "bd1c484fdddee8ff4b32433aca61abad79dc97592f5b1d2288488fd9b150b5e3",
+      "published_sha256": "bd1c484fdddee8ff4b32433aca61abad79dc97592f5b1d2288488fd9b150b5e3",
+      "bytes": 57837
+    },
+    "T1/reports/pocoma-runtime-task-consumption-worker/surefire-reports/com.kartaguez.pocoma.runtime.task.v3.V3ReadQuotaPostgresTest.txt": {
+      "original_sha256": "62d4db4ff82a16cdcf134f4151db661a361b379906d7d9453b2db46c6bf5086b",
+      "published_sha256": "62d4db4ff82a16cdcf134f4151db661a361b379906d7d9453b2db46c6bf5086b",
+      "bytes": 1549
+    },
+    "T1/result.json": {
+      "original_sha256": "163682aaca933d2dfccfd4a604eadbf40437a72593ebbb629748e54133c57ec6",
+      "published_sha256": "163682aaca933d2dfccfd4a604eadbf40437a72593ebbb629748e54133c57ec6",
+      "bytes": 27794
+    },
+    "T1/timings.json": {
+      "original_sha256": "6135c2858c7ba6c8c6adc228458e1ef38bc0869845a84ae67e6a8881aa6a8536",
+      "published_sha256": "6135c2858c7ba6c8c6adc228458e1ef38bc0869845a84ae67e6a8881aa6a8536",
+      "bytes": 732
+    },
+    "T1.log": {
+      "original_sha256": "c00c75e08edf915210a8a024d162013d07328bf585d2f1d92146ae35ab47764c",
+      "published_sha256": "c00c75e08edf915210a8a024d162013d07328bf585d2f1d92146ae35ab47764c",
+      "bytes": 4749
+    },
+    "campaign.json": {
+      "original_sha256": "52c21b782162fce89e516195dd27822aa188310953ffff768bf93dd857d8e9d0",
+      "published_sha256": "52c21b782162fce89e516195dd27822aa188310953ffff768bf93dd857d8e9d0",
+      "bytes": 6795
+    },
+    "physical/Q08-memory.json": {
+      "original_sha256": "eb490fa3198171b285c42298ce79166f0e57246624de7ebefb2c541bb884dc6a",
+      "published_sha256": "eb490fa3198171b285c42298ce79166f0e57246624de7ebefb2c541bb884dc6a",
+      "bytes": 614
+    },
+    "physical/Quota-i1_5e8b7f53d3f64fb3a92f73c61e8bff54.json": {
+      "original_sha256": "ef732675d414841e97ab521cfceb8ab35a1647df0e17b9d2269d19db03d91380",
+      "published_sha256": "ef732675d414841e97ab521cfceb8ab35a1647df0e17b9d2269d19db03d91380",
+      "bytes": 12692
+    },
+    "physical/Quota-i1_dbcbea360299483fa7c7ba45423a1e0e.json": {
+      "original_sha256": "552399ea3d5e1965c7dcdca305c7779ae34e57436037f4751ea65dfc623bca84",
+      "published_sha256": "552399ea3d5e1965c7dcdca305c7779ae34e57436037f4751ea65dfc623bca84",
+      "bytes": 312
+    }
+  },
+  "redactions": [],
+  "policy": "Only secret/canary values redacted. Outcomes, identities, counters, timings and original hashes retained. Original process artifacts remain at the private source path."
+}

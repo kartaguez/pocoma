@@ -1,0 +1,16 @@
+Name:      docker.io/grafana/grafana:12.3.2
+MediaType: application/vnd.docker.distribution.manifest.list.v2+json
+Digest:    sha256:ba93c9d192e58b23e064c7f501d453426ccf4a85065bf25b705ab1e98602bfb1
+
+Manifests:
+  Name:      docker.io/grafana/grafana:12.3.2@sha256:5c1eb28c96c2a8a103384183fb2c32f9cb499904b310b9ba8cdd6bdae435509a
+  MediaType: application/vnd.docker.distribution.manifest.v2+json
+  Platform:  linux/amd64
+
+  Name:      docker.io/grafana/grafana:12.3.2@sha256:2c712a689d82d67c60aca9770e91604ab0ebc005056c799ca5772d6d2ffe086d
+  MediaType: application/vnd.docker.distribution.manifest.v2+json
+  Platform:  linux/arm64
+
+  Name:      docker.io/grafana/grafana:12.3.2@sha256:5734da61b5b748ac36fc927fdcd6b2eaf757f5c836b02849f636bc57904871b8
+  MediaType: application/vnd.docker.distribution.manifest.v2+json
+  Platform:  linux/arm/v7

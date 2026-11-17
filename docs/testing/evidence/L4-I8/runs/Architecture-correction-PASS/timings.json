@@ -1,0 +1,29 @@
+{
+  "phases": {
+    "input_inventory": {
+      "status": "FINISHED",
+      "seconds": 0.067021458002273
+    },
+    "discovery": {
+      "status": "FINISHED",
+      "seconds": 2.50421537499642
+    },
+    "maven": {
+      "status": "FINISHED",
+      "seconds": 47.82762937498046
+    },
+    "collection": {
+      "status": "FINISHED",
+      "seconds": 0.6811993749579415
+    }
+  },
+  "campaign_seconds": 51.65516866702819,
+  "forecast": {
+    "seconds": 120,
+    "basis": "Complete Architecture module only, after test-only correction. No deadline; not a canonical gate without human dispensation.",
+    "uncertainty": "HIGH"
+  },
+  "forecast_delta_seconds": -68.34483133297181,
+  "forecast_exceeded": false,
+  "forecast_is_blocking": false
+}

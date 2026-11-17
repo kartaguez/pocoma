@@ -1,0 +1,303 @@
+{
+  "initial_sha": "02c7bfbf85936f1f1a633e9097bc2b49f878708e",
+  "tested_sha": "49ae298d879a41b29d1caf14e7597dffb947713a",
+  "files": [
+    {
+      "path": "app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/v3/V3IdentityAuthorityArchitectureTest.java",
+      "phases": [
+        "I2 implementation/evidence"
+      ]
+    },
+    {
+      "path": "app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/identity/JdbcIdentityAuthority.java",
+      "phases": [
+        "I2 implementation/evidence"
+      ]
+    },
+    {
+      "path": "app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/identity/SecureBindingTokenGenerator.java",
+      "phases": [
+        "I2 implementation/evidence"
+      ]
+    },
+    {
+      "path": "app/infra-persistence-primary-jpa/src/main/resources/db/v3-identity/migration/V6__identity_authority_and_requests.sql",
+      "phases": [
+        "I2 implementation/evidence"
+      ]
+    },
+    {
+      "path": "app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/identity/BindingTokenGeneratorTest.java",
+      "phases": [
+        "I2 implementation/evidence"
+      ]
+    },
+    {
+      "path": "app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/identity/IdentityAuthorityPostgresTest.java",
+      "phases": [
+        "I2 implementation/evidence"
+      ]
+    },
+    {
+      "path": "app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/identity/IdentityConcurrencyPostgresTest.java",
+      "phases": [
+        "I2 implementation/evidence"
+      ]
+    },
+    {
+      "path": "app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/identity/IdentitySchemaPostgresTest.java",
+      "phases": [
+        "I2 implementation/evidence"
+      ]
+    },
+    {
+      "path": "docs/README.md",
+      "phases": [
+        "I1 documentary closure",
+        "I2 implementation/evidence"
+      ]
+    },
+    {
+      "path": "docs/testing/evidence/L3-I1-resolution/Analysis.json",
+      "phases": [
+        "I1 documentary closure"
+      ]
+    },
+    {
+      "path": "docs/testing/evidence/L3-I1-resolution/Document-check.json",
+      "phases": [
+        "I1 documentary closure"
+      ]
+    },
+    {
+      "path": "docs/testing/evidence/L3-I1-resolution/analyze.py",
+      "phases": [
+        "I1 documentary closure"
+      ]
+    },
+    {
+      "path": "docs/testing/evidence/L3-I1-resolution/auxiliary-index.json",
+      "phases": [
+        "I1 documentary closure"
+      ]
+    },
+    {
+      "path": "docs/testing/evidence/L3-I1-resolution/auxiliary/TEST-com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest.xml.gz",
+      "phases": [
+        "I1 documentary closure"
+      ]
+    },
+    {
+      "path": "docs/testing/evidence/L3-I1-resolution/auxiliary/temporal-v2-W1-B1-MW4-final.txt.gz",
+      "phases": [
+        "I1 documentary closure"
+      ]
+    },
+    {
+      "path": "docs/testing/evidence/L3-I1-resolution/auxiliary/temporal-v3-W2-B32-MW4-final.txt.gz",
+      "phases": [
+        "I1 documentary closure"
+      ]
+    },
+    {
+      "path": "docs/testing/evidence/L3-I2/Coverage.json",
+      "phases": [
+        "I2 implementation/evidence"
+      ]
+    },
+    {
+      "path": "docs/testing/evidence/L3-I2/DDL.json",
+      "phases": [
+        "I2 implementation/evidence"
+      ]
+    },
+    {
+      "path": "docs/testing/evidence/L3-I2/Files.json",
+      "phases": [
+        "I2 implementation/evidence"
+      ]
+    },
+    {
+      "path": "docs/testing/evidence/L3-I2/Verification.json",
+      "phases": [
+        "I2 implementation/evidence"
+      ]
+    },
+    {
+      "path": "docs/testing/evidence/L3-I2/architecture-before-format.log.gz",
+      "phases": [
+        "I2 implementation/evidence"
+      ]
+    },
+    {
+      "path": "docs/testing/evidence/L3-I2/authority-initial.log.gz",
+      "phases": [
+        "I2 implementation/evidence"
+      ]
+    },
+    {
+      "path": "docs/testing/evidence/L3-I2/candidate-feedback.json",
+      "phases": [
+        "I2 implementation/evidence"
+      ]
+    },
+    {
+      "path": "docs/testing/evidence/L3-I2/candidate-feedback.tar.gz",
+      "phases": [
+        "I2 implementation/evidence"
+      ]
+    },
+    {
+      "path": "docs/testing/evidence/L3-I2/canonical-final.json",
+      "phases": [
+        "I2 implementation/evidence"
+      ]
+    },
+    {
+      "path": "docs/testing/evidence/L3-I2/canonical-final.tar.gz",
+      "phases": [
+        "I2 implementation/evidence"
+      ]
+    },
+    {
+      "path": "docs/testing/evidence/L3-I2/canonical-interrupted.json",
+      "phases": [
+        "I2 implementation/evidence"
+      ]
+    },
+    {
+      "path": "docs/testing/evidence/L3-I2/canonical-interrupted.tar.gz",
+      "phases": [
+        "I2 implementation/evidence"
+      ]
+    },
+    {
+      "path": "docs/testing/evidence/L3-I2/canonical-l2-traces.json",
+      "phases": [
+        "I2 implementation/evidence"
+      ]
+    },
+    {
+      "path": "docs/testing/evidence/L3-I2/canonical-l2-traces.tar.gz",
+      "phases": [
+        "I2 implementation/evidence"
+      ]
+    },
+    {
+      "path": "docs/testing/evidence/L3-I2/collect.py",
+      "phases": [
+        "I2 implementation/evidence"
+      ]
+    },
+    {
+      "path": "docs/testing/evidence/L3-I2/compile-initial.log.gz",
+      "phases": [
+        "I2 implementation/evidence"
+      ]
+    },
+    {
+      "path": "docs/testing/evidence/L3-I2/corrected-feedback.json",
+      "phases": [
+        "I2 implementation/evidence"
+      ]
+    },
+    {
+      "path": "docs/testing/evidence/L3-I2/corrected-feedback.tar.gz",
+      "phases": [
+        "I2 implementation/evidence"
+      ]
+    },
+    {
+      "path": "docs/testing/evidence/L3-I2/iterations.json",
+      "phases": [
+        "I2 implementation/evidence"
+      ]
+    },
+    {
+      "path": "docs/testing/evidence/L3-I2/local-before-format.log.gz",
+      "phases": [
+        "I2 implementation/evidence"
+      ]
+    },
+    {
+      "path": "docs/testing/evidence/L3-I2/local-iteration-1.log.gz",
+      "phases": [
+        "I2 implementation/evidence"
+      ]
+    },
+    {
+      "path": "docs/testing/evidence/L3-I2/local-iteration-2.log.gz",
+      "phases": [
+        "I2 implementation/evidence"
+      ]
+    },
+    {
+      "path": "docs/testing/evidence/L3-I2/suffix-correction-initial.json",
+      "phases": [
+        "I2 implementation/evidence"
+      ]
+    },
+    {
+      "path": "docs/testing/evidence/L3-I2/suffix-correction-initial.tar.gz",
+      "phases": [
+        "I2 implementation/evidence"
+      ]
+    },
+    {
+      "path": "docs/v3/L3_I1_Arbitration_and_I2_GO.md",
+      "phases": [
+        "I1 documentary closure"
+      ]
+    },
+    {
+      "path": "docs/v3/L3_I1_Execution_Report.md",
+      "phases": [
+        "I1 documentary closure"
+      ]
+    },
+    {
+      "path": "docs/v3/L3_I1_Verification_Resolution.md",
+      "phases": [
+        "I1 documentary closure"
+      ]
+    },
+    {
+      "path": "docs/v3/L3_I2_Execution_Report.md",
+      "phases": [
+        "I2 implementation/evidence"
+      ]
+    },
+    {
+      "path": "docs/v3/L3_Identity_Inventory_and_Implementation_Plan.md",
+      "phases": [
+        "I1 documentary closure",
+        "I2 implementation/evidence"
+      ]
+    },
+    {
+      "path": "docs/v3/V3_Canon_and_Roadmap.md",
+      "phases": [
+        "I1 documentary closure"
+      ]
+    },
+    {
+      "path": "docs/v3/V3_Implementation_Master_Plan.md",
+      "phases": [
+        "I1 documentary closure",
+        "I2 implementation/evidence"
+      ]
+    }
+  ],
+  "application_files": [
+    "app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/v3/V3IdentityAuthorityArchitectureTest.java",
+    "app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/identity/JdbcIdentityAuthority.java",
+    "app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/identity/SecureBindingTokenGenerator.java",
+    "app/infra-persistence-primary-jpa/src/main/resources/db/v3-identity/migration/V6__identity_authority_and_requests.sql",
+    "app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/identity/BindingTokenGeneratorTest.java",
+    "app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/identity/IdentityAuthorityPostgresTest.java",
+    "app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/identity/IdentityConcurrencyPostgresTest.java",
+    "app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/identity/IdentitySchemaPostgresTest.java"
+  ],
+  "published_migrations_modified": [],
+  "pom_changes": []
+}

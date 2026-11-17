@@ -1,0 +1,19 @@
+{
+  "verdict": "L7_LB_GRAFANA_READY",
+  "instance": "demo",
+  "inputs": "711336711899a0aa04074515ab11cc9bc11d79c910ba9975a47c61f4eab85e4a",
+  "testedSha": "4ff1784992c0074fd543cb48e809fc0fe48f3223",
+  "dirty": true,
+  "prerequisiteEvidence": "./docs/testing/evidence/L7-LB-GRAFANA/final",
+  "prerequisiteVerdict": "Lifecycle commands all match expected exits; raw inventory-oracle failure retained",
+  "completed": [
+    "external containers and external volume byte hashes unchanged",
+    "existing demo Prometheus TSDB identified by pre-existing owned container/mount; volume retained",
+    "fixture reset/destroy and all preceding checks retained at identical production input fingerprint",
+    "final start/status READY with fresh canary and Grafana controls"
+  ],
+  "resources": "DEMO_RUNNING; FIXTURES_DESTROYED; EXTERNAL_RESOURCES_PRESERVED",
+  "limitations": [
+    "No rendered UI acceptance, clean remote checkout certification or full Maven reactor."
+  ]
+}

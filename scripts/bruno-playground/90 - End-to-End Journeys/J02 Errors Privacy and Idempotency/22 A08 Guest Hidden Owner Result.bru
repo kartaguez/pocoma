@@ -1,0 +1,43 @@
+meta {
+  name: J02-22-A08 Guest Hidden Owner Result
+  type: http
+  seq: 22
+}
+
+get {
+  url: {{readUrl}}/api/v3/commands/{{ownerCommandRequestId}}/result
+  body: none
+  auth: none
+}
+
+headers {
+  Connection: close
+}
+
+settings {
+  timeout: 5000
+}
+
+script:pre-request {
+  const options = {"id":"J02-22-A08","role":"guest","kind":"error","status":404,"requires":["ownerCommandRequestId"]};
+  await require('./lib/workspace.js').prepare(bru, req, options);
+}
+
+tests {
+  const options = {"id":"J02-22-A08","role":"guest","kind":"error","status":404,"requires":["ownerCommandRequestId"]};
+  const work = require('./lib/workspace.js');
+  test('J02-22-A08 transport and privacy', () => work.transport(bru, res, expect, options));
+  test('J02-22-A08 contract and variables', () => {
+    work.verify(bru, req, res, expect, options);
+    work.record(bru, req, res, options);
+  });
+}
+
+docs {
+  Parcours J02 ; etape 22. Source : 09 - Access Control and Errors/A08 Guest Hidden Owner Result.bru.
+  Les resultats appartiennent a l identite historique du requester, pas aux membres du Pot.
+  Identite : guest. Prerequis : ownerCommandRequestId.
+  Chaque Send appelle la methode et le corps visibles. Les GET asynchrones attendent
+  le meme endpoint au plus 30 s avant l appel affiche ; aucun POST cache.
+  Modifier le JSON librement ; une nouvelle intention recoit une nouvelle cle.
+}

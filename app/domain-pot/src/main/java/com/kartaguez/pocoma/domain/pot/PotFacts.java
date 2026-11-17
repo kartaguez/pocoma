@@ -1,0 +1,14 @@
+package com.kartaguez.pocoma.domain.pot;
+
+import java.util.Objects;
+
+import com.kartaguez.pocoma.domain.pot.value.id.PotId;
+
+public record PotFacts(PotId potId, long workingVersion, Versioned<PotHeader> header, AuthorizationFacts authorization) {
+    public PotFacts {
+        Objects.requireNonNull(potId); Objects.requireNonNull(header); Objects.requireNonNull(authorization);
+        if (workingVersion < 1 || !potId.equals(header.value().potId()) || !potId.equals(authorization.potId())
+                || workingVersion != authorization.workingVersion() || header.activeFrom() > workingVersion)
+            throw new InconsistentPotFactsException("Mixed Pot facts");
+    }
+}

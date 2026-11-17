@@ -1,0 +1,1334 @@
+{
+  "schema": 1,
+  "lot": "L3",
+  "step": "I4",
+  "milestone": "R-ID-POT",
+  "initial_sha": "def1c11eda27bd5a846c9d7563b6a2c545652e9e",
+  "tested_code_sha": "145f42731a4e35488e9aaa56a7de3c3f453a9231",
+  "published_code_sha": "145f42731a4e35488e9aaa56a7de3c3f453a9231",
+  "publication": {
+    "branch": "feat/v3-architecture",
+    "delivery_commit_locator": "git log -1 --format=%H -- docs/v3/L3_I4_Proof_Manifest.json",
+    "remote_verification": "Delivery receipt reports final HEAD and direct origin SHA; publication does not imply independent acceptance"
+  },
+  "scope": {
+    "primary": "COMMAND",
+    "secondary": [],
+    "additional_root": "runtime-monolith",
+    "global_architecture_gate": "REQUIRED",
+    "full_reactor": "NOT REQUIRED / NOT RUN",
+    "unexpected_slice_crossing": "NONE",
+    "database": "CURRENT V3 WRITE V1-V6 / READ technical V1; historical chains only transitively in native gates",
+    "new_or_modified_migrations": [],
+    "new_or_modified_grants": []
+  },
+  "A1": {
+    "decision": "Explicit human GO 2026-10-31; accepted for I4",
+    "strict_plan": "docs/v3/L3_Identity_Inventory_and_Implementation_Plan.md sections 3.2 and 7.2",
+    "technical_exception": "Existing requireCompletionReady SELECT only; no new business row lock, authorization decision or mutation",
+    "store_modified": false,
+    "canon_or_specs_modified": false
+  },
+  "files": {
+    "app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/v3/V3IdentityAuthorityArchitectureTest.java": {
+      "sha256": "2d1cff7737f189f7f5a3872262b3c6611a2beaf518ceb6e0d7c4198c5ac9b333",
+      "kind": "test"
+    },
+    "app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/consumption/v3/V3ConsumptionWorkerConfiguration.java": {
+      "sha256": "33d8ed0b59689f7d1a7c961315aacc9c2c520c0d66e4dcadcae107dbb4f7adaf",
+      "kind": "production"
+    },
+    "app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/consumption/v3/V3ConsumptionWorkerSettings.java": {
+      "sha256": "be3170db20ead20206786d210e7e5fa5093a52f7c28ca24d732fe5c35ef881b9",
+      "kind": "production"
+    },
+    "app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/identity/JdbcIdentityPotActorAuthority.java": {
+      "sha256": "8ecda9bdcf24468989a12b9821d734180c97c2f3b3130376546c7afbf6367ed2",
+      "kind": "production"
+    },
+    "app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/identity/IdentityPotAuthorityPostgresTest.java": {
+      "sha256": "a741c3a7a63a2120ef8c11db28d6562e8533c79ce42ac81b8b8dbbff46a9b857",
+      "kind": "test"
+    },
+    "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/V3IdentityPotCommandPostgresTest.java": {
+      "sha256": "a9092fe7103cdf65d92e05c82ee45aaf28c6c7073075c98d48a2991acddbc3bc",
+      "kind": "test"
+    },
+    "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/V3IdentityRequestCompositionPostgresTest.java": {
+      "sha256": "ba32d8e0630779573d8913f64ced02b9b5e8c18a3c70b60be71b05e24dd3a1ee",
+      "kind": "test"
+    },
+    "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/V3PotCommandCompositionPostgresTest.java": {
+      "sha256": "1777158ac8447f8721ac89e4c485d3a512a193552699bf06d0a2c43725bfd66d",
+      "kind": "test"
+    },
+    "app/runtime-monolith/src/test/java/com/kartaguez/pocoma/V3IdentityRequestMonolithPostgresTest.java": {
+      "sha256": "a17fce44afec3260bdf5ea791cfee1f0eceaac4f6a4a4e030c8968867681cdc3",
+      "kind": "test"
+    },
+    "scripts/testing/verification-campaigns.json": {
+      "sha256": "d4b9cc440ee34b21c16f666c80757456297d71ff79850d343914c014d2ee2277",
+      "kind": "selection"
+    }
+  },
+  "campaigns": {
+    "fast-01": {
+      "verdict": "PASS",
+      "counts": {
+        "tests": 65,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exit_code": 0,
+      "seconds": 2.204833,
+      "invocation_id": "3a75110956434eb494e6fc6eafd199a1",
+      "expected_invocations": 65,
+      "command": [
+        "./mvnw",
+        "--batch-mode",
+        "--no-transfer-progress",
+        "-pl",
+        "engine-consume-registration,domain-pot",
+        "-am",
+        "-Dtest=com.kartaguez.pocoma.domain.pot.aggregate.ShareholderIdentityCollisionTest,com.kartaguez.pocoma.domain.pot.v3.InvitationAttachmentTest,com.kartaguez.pocoma.domain.pot.v3.PotAuthorizationTest,com.kartaguez.pocoma.domain.pot.v3.PotTransitionsTest,com.kartaguez.pocoma.domain.useridentity.UserIdentityModelTest,com.kartaguez.pocoma.domain.useridentity.v3.IdentityTransitionsTest,com.kartaguez.pocoma.domain.useridentity.v3.IdentityValueContractsTest,com.kartaguez.pocoma.engine.consume.registration.v3.ExecuteIdentityRequestTest,com.kartaguez.pocoma.engine.consume.registration.v3.IdentityRequestContractTest",
+        "-Dsurefire.failIfNoSpecifiedTests=false",
+        "-Dpocoma.verification.id=3a75110956434eb494e6fc6eafd199a1",
+        "-Dpocoma.verification.reports=/private/tmp/pocoma-l3-i4-fast-01/reports",
+        "test"
+      ],
+      "qualification_receipt": "result.json.gz",
+      "tested_sha": "def1c11eda27bd5a846c9d7563b6a2c545652e9e",
+      "files": {
+        "campaigns/fast-01/plan.json.gz": {
+          "bytes": 6639,
+          "sha256": "6636df45a659732ed3c5d79f6e20922aad3f209c456779352053e0b6f32179f0"
+        },
+        "campaigns/fast-01/provenance.json.gz": {
+          "bytes": 65382,
+          "sha256": "0df5be1f97ff9b4881c975f2336961037c6ec8277449812960464de933686c0c"
+        },
+        "campaigns/fast-01/raw.tar.gz": {
+          "bytes": 222631,
+          "sha256": "1e918701c6069db8383cc8d54c416d6ee5c1f4131f3ff3695d3877946e79d402"
+        },
+        "campaigns/fast-01/result.json.gz": {
+          "bytes": 4996,
+          "sha256": "9b8532616e1de1ffe84ad8c2b9bb65ff05bc1fc58253053f303bd9c685b65b52"
+        }
+      }
+    },
+    "change-01": {
+      "verdict": "FAIL",
+      "counts": {
+        "tests": 128,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exit_code": 1,
+      "seconds": 75.134979,
+      "invocation_id": "5ba0aadbf5ab474b862e02cec43b6cd7",
+      "expected_invocations": 144,
+      "command": [
+        "./mvnw",
+        "--batch-mode",
+        "--no-transfer-progress",
+        "-pl",
+        "runtime-command-consumption-worker",
+        "-am",
+        "-Dtest=com.kartaguez.pocoma.domain.pot.aggregate.ShareholderIdentityCollisionTest,com.kartaguez.pocoma.domain.pot.v3.InvitationAttachmentTest,com.kartaguez.pocoma.domain.pot.v3.PotAuthorizationTest,com.kartaguez.pocoma.domain.pot.v3.PotTransitionsTest,com.kartaguez.pocoma.domain.useridentity.UserIdentityModelTest,com.kartaguez.pocoma.domain.useridentity.v3.IdentityTransitionsTest,com.kartaguez.pocoma.domain.useridentity.v3.IdentityValueContractsTest,com.kartaguez.pocoma.engine.consume.registration.v3.ExecuteIdentityRequestTest,com.kartaguez.pocoma.engine.consume.registration.v3.IdentityRequestContractTest,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.BindingTokenGeneratorTest,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityAuthorityPostgresTest,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityConcurrencyPostgresTest,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityDiscoveryPostgresTest,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityPotAuthorityPostgresTest,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityPrivilegesPostgresTest,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityPublicationPostgresTest,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityRequestExecutionPostgresTest,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentitySchemaPostgresTest,com.kartaguez.pocoma.runtime.command.v3.V3IdentityPotCommandPostgresTest,com.kartaguez.pocoma.runtime.command.v3.V3IdentityRequestCompositionPostgresTest",
+        "-Dsurefire.failIfNoSpecifiedTests=false",
+        "-Dpocoma.verification.id=5ba0aadbf5ab474b862e02cec43b6cd7",
+        "-Dpocoma.verification.reports=/private/tmp/pocoma-l3-i4-change-01/reports",
+        "test"
+      ],
+      "qualification_receipt": "result.json.gz",
+      "tested_sha": "def1c11eda27bd5a846c9d7563b6a2c545652e9e",
+      "files": {
+        "campaigns/change-01/plan.json.gz": {
+          "bytes": 7977,
+          "sha256": "b399b81a5e086082811fe636c0dab67cbae1d1ed8cb710b99e5973f3d801a009"
+        },
+        "campaigns/change-01/provenance.json.gz": {
+          "bytes": 65912,
+          "sha256": "444c46674fe1145efd847f77dffc423321872a5be68e6a214f2a83b73cb0177c"
+        },
+        "campaigns/change-01/raw.tar.gz": {
+          "bytes": 1183438,
+          "sha256": "f4afbe7c774b76926b63c953835df7ae7e35cb3dba3c4f336b75b48fa2659543"
+        },
+        "campaigns/change-01/result.json.gz": {
+          "bytes": 12825,
+          "sha256": "92b0cfc6cf33e7ca23541e62d3e06dd6a6be826caa2b63a952916c3b0078d10a"
+        }
+      }
+    },
+    "feedback-01": {
+      "verdict": "FAIL",
+      "counts": {
+        "tests": 16,
+        "failures": 0,
+        "errors": 2,
+        "skipped": 0
+      },
+      "exit_code": 1,
+      "seconds": 74.915049,
+      "invocation_id": "5aa29947b06f4069962ca61529f64d47",
+      "expected_invocations": 36,
+      "command": [
+        "./mvnw",
+        "--batch-mode",
+        "--no-transfer-progress",
+        "-pl",
+        "runtime-command-consumption-worker,runtime-monolith",
+        "-am",
+        "-Dtest=com.kartaguez.pocoma.V3IdentityRequestMonolithPostgresTest,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityPotAuthorityPostgresTest,com.kartaguez.pocoma.runtime.command.v3.V3IdentityPotCommandPostgresTest,com.kartaguez.pocoma.runtime.command.v3.V3IdentityRequestCompositionPostgresTest,com.kartaguez.pocoma.runtime.command.v3.V3PotCommandCompositionPostgresTest",
+        "-Dsurefire.failIfNoSpecifiedTests=false",
+        "-Dpocoma.verification.id=5aa29947b06f4069962ca61529f64d47",
+        "-Dpocoma.verification.reports=/private/tmp/pocoma-l3-i4-feedback-01/reports",
+        "test"
+      ],
+      "qualification_receipt": "result.json.gz",
+      "tested_sha": "def1c11eda27bd5a846c9d7563b6a2c545652e9e",
+      "files": {
+        "campaigns/feedback-01/plan.json.gz": {
+          "bytes": 5566,
+          "sha256": "189d8d328d7919dd2c381b137fab6b6f3fd66568c222105c32827b88e3606bc7"
+        },
+        "campaigns/feedback-01/provenance.json.gz": {
+          "bytes": 65913,
+          "sha256": "27abeceeec81cb517db86c748f82408a5794354aba14b0e4b2916e0106c7ced9"
+        },
+        "campaigns/feedback-01/raw.tar.gz": {
+          "bytes": 1095785,
+          "sha256": "5f56000b0c4e1e50f16c01aa47c419227e511c78885308389abc44f2b5eb412b"
+        },
+        "campaigns/feedback-01/result.json.gz": {
+          "bytes": 4516,
+          "sha256": "2034c9d0d15e7a2820637a5bf1888a450de655e53619c50813824404b3228034"
+        }
+      }
+    },
+    "feedback-02": {
+      "verdict": "PASS",
+      "counts": {
+        "tests": 36,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exit_code": 0,
+      "seconds": 424.490291,
+      "invocation_id": "172b2643c1e8459d9b578fd74c7e68a5",
+      "expected_invocations": 36,
+      "command": [
+        "./mvnw",
+        "--batch-mode",
+        "--no-transfer-progress",
+        "-pl",
+        "runtime-command-consumption-worker,runtime-monolith",
+        "-am",
+        "-Dtest=com.kartaguez.pocoma.V3IdentityRequestMonolithPostgresTest,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityPotAuthorityPostgresTest,com.kartaguez.pocoma.runtime.command.v3.V3IdentityPotCommandPostgresTest,com.kartaguez.pocoma.runtime.command.v3.V3IdentityRequestCompositionPostgresTest,com.kartaguez.pocoma.runtime.command.v3.V3PotCommandCompositionPostgresTest",
+        "-Dsurefire.failIfNoSpecifiedTests=false",
+        "-Dpocoma.verification.id=172b2643c1e8459d9b578fd74c7e68a5",
+        "-Dpocoma.verification.reports=/private/tmp/pocoma-l3-i4-feedback-02/reports",
+        "test"
+      ],
+      "qualification_receipt": "result.json.gz",
+      "tested_sha": "def1c11eda27bd5a846c9d7563b6a2c545652e9e",
+      "files": {
+        "campaigns/feedback-02/plan.json.gz": {
+          "bytes": 5568,
+          "sha256": "5c2adfe514d49059250c602c92ffd6ffcb5287bdbb7dc672e2d21b66ea6d3c2c"
+        },
+        "campaigns/feedback-02/provenance.json.gz": {
+          "bytes": 65957,
+          "sha256": "05a494d3d2c8cad0b416a64bc547b351d1b769bd41e1c223963758b8b35eff18"
+        },
+        "campaigns/feedback-02/raw.tar.gz": {
+          "bytes": 1215072,
+          "sha256": "fe6c5a2e048baa66543e39dd453fd59b31b24703da09e4fa7aab101c77feecb1"
+        },
+        "campaigns/feedback-02/result.json.gz": {
+          "bytes": 6222,
+          "sha256": "fcbf5af7a2853a681fee24fa989b8431135529bb213ba52ead1956c44facd9bc"
+        }
+      }
+    },
+    "fast-final": {
+      "verdict": "PASS",
+      "counts": {
+        "tests": 65,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exit_code": 0,
+      "seconds": 2.205219,
+      "invocation_id": "6e235feadfa74799a704dfbcc07965bc",
+      "expected_invocations": 65,
+      "command": [
+        "./mvnw",
+        "--batch-mode",
+        "--no-transfer-progress",
+        "-pl",
+        "engine-consume-registration,domain-pot",
+        "-am",
+        "-Dtest=com.kartaguez.pocoma.domain.pot.aggregate.ShareholderIdentityCollisionTest,com.kartaguez.pocoma.domain.pot.v3.InvitationAttachmentTest,com.kartaguez.pocoma.domain.pot.v3.PotAuthorizationTest,com.kartaguez.pocoma.domain.pot.v3.PotTransitionsTest,com.kartaguez.pocoma.domain.useridentity.UserIdentityModelTest,com.kartaguez.pocoma.domain.useridentity.v3.IdentityTransitionsTest,com.kartaguez.pocoma.domain.useridentity.v3.IdentityValueContractsTest,com.kartaguez.pocoma.engine.consume.registration.v3.ExecuteIdentityRequestTest,com.kartaguez.pocoma.engine.consume.registration.v3.IdentityRequestContractTest",
+        "-Dsurefire.failIfNoSpecifiedTests=false",
+        "-Dpocoma.verification.id=6e235feadfa74799a704dfbcc07965bc",
+        "-Dpocoma.verification.reports=/private/tmp/pocoma-l3-i4-fast-final/reports",
+        "test"
+      ],
+      "qualification_receipt": "result.json.gz",
+      "tested_sha": "145f42731a4e35488e9aaa56a7de3c3f453a9231",
+      "files": {
+        "campaigns/fast-final/plan.json.gz": {
+          "bytes": 6657,
+          "sha256": "e57ad9e7864741e5dc42366fca39d841ec5728142aeb83f409e9b648d34d418c"
+        },
+        "campaigns/fast-final/provenance.json.gz": {
+          "bytes": 65460,
+          "sha256": "37b6ba290416b2d70d6a83e1887381196ea320ace5146c1431f5f107a39384d5"
+        },
+        "campaigns/fast-final/raw.tar.gz": {
+          "bytes": 222622,
+          "sha256": "814c1ffbd0ef6e9ce471a093a5f8f8650421f581a4742a62b411c6e9f4252abc"
+        },
+        "campaigns/fast-final/result.json.gz": {
+          "bytes": 4680,
+          "sha256": "2d32bc6447d48f083b47d3b49745c50cd85a3ee840267ed9551c78ac1c047f9a"
+        }
+      }
+    },
+    "change-final": {
+      "verdict": "PASS",
+      "counts": {
+        "tests": 149,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exit_code": 0,
+      "seconds": 475.719747,
+      "invocation_id": "975d185b96fd4d52a01bf2af020870cf",
+      "expected_invocations": 149,
+      "command": [
+        "./mvnw",
+        "--batch-mode",
+        "--no-transfer-progress",
+        "-pl",
+        "runtime-command-consumption-worker",
+        "-am",
+        "-Dtest=com.kartaguez.pocoma.domain.pot.aggregate.ShareholderIdentityCollisionTest,com.kartaguez.pocoma.domain.pot.v3.InvitationAttachmentTest,com.kartaguez.pocoma.domain.pot.v3.PotAuthorizationTest,com.kartaguez.pocoma.domain.pot.v3.PotTransitionsTest,com.kartaguez.pocoma.domain.useridentity.UserIdentityModelTest,com.kartaguez.pocoma.domain.useridentity.v3.IdentityTransitionsTest,com.kartaguez.pocoma.domain.useridentity.v3.IdentityValueContractsTest,com.kartaguez.pocoma.engine.consume.registration.v3.ExecuteIdentityRequestTest,com.kartaguez.pocoma.engine.consume.registration.v3.IdentityRequestContractTest,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.BindingTokenGeneratorTest,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityAuthorityPostgresTest,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityConcurrencyPostgresTest,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityDiscoveryPostgresTest,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityPotAuthorityPostgresTest,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityPrivilegesPostgresTest,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityPublicationPostgresTest,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityRequestExecutionPostgresTest,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentitySchemaPostgresTest,com.kartaguez.pocoma.runtime.command.v3.V3IdentityPotCommandPostgresTest,com.kartaguez.pocoma.runtime.command.v3.V3IdentityRequestCompositionPostgresTest",
+        "-Dsurefire.failIfNoSpecifiedTests=false",
+        "-Dpocoma.verification.id=975d185b96fd4d52a01bf2af020870cf",
+        "-Dpocoma.verification.reports=/private/tmp/pocoma-l3-i4-change-final/reports",
+        "test"
+      ],
+      "qualification_receipt": "result.json.gz",
+      "tested_sha": "145f42731a4e35488e9aaa56a7de3c3f453a9231",
+      "files": {
+        "campaigns/change-final/plan.json.gz": {
+          "bytes": 8057,
+          "sha256": "08cd5a0bc8a3dea828806a2963cfee23b04426bd95c210eb179df104911c82a9"
+        },
+        "campaigns/change-final/provenance.json.gz": {
+          "bytes": 65782,
+          "sha256": "ac98d41c4736366ec4961454ac19d256568854e7706f12692eb137b57c0dc022"
+        },
+        "campaigns/change-final/raw.tar.gz": {
+          "bytes": 1335689,
+          "sha256": "ad56255997e1014165d678ac5f2185854ea6051bee5a31b7c4b62571013622af"
+        },
+        "campaigns/change-final/result.json.gz": {
+          "bytes": 14632,
+          "sha256": "82335668d62c7f9ff9563fdff2298f52eed0cf27e116a82b2584421841287804"
+        }
+      }
+    },
+    "integration-final": {
+      "verdict": "PASS",
+      "counts": {
+        "tests": 187,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exit_code": 0,
+      "seconds": 574.830033,
+      "invocation_id": "d1d49b45949b49f19424f8198bff0e9f",
+      "expected_invocations": 187,
+      "command": [
+        "./mvnw",
+        "--batch-mode",
+        "--no-transfer-progress",
+        "-pl",
+        "runtime-command-consumption-worker,runtime-monolith",
+        "-am",
+        "-Dtest=com.kartaguez.pocoma.V3IdentityRequestMonolithPostgresTest,com.kartaguez.pocoma.domain.pot.aggregate.ShareholderIdentityCollisionTest,com.kartaguez.pocoma.domain.pot.v3.InvitationAttachmentTest,com.kartaguez.pocoma.domain.pot.v3.PotAuthorizationTest,com.kartaguez.pocoma.domain.pot.v3.PotTransitionsTest,com.kartaguez.pocoma.domain.useridentity.UserIdentityModelTest,com.kartaguez.pocoma.domain.useridentity.v3.IdentityTransitionsTest,com.kartaguez.pocoma.domain.useridentity.v3.IdentityValueContractsTest,com.kartaguez.pocoma.engine.consume.registration.v3.ExecuteIdentityRequestTest,com.kartaguez.pocoma.engine.consume.registration.v3.IdentityRequestContractTest,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.BindingTokenGeneratorTest,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityAuthorityPostgresTest,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityConcurrencyPostgresTest,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityDiscoveryPostgresTest,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityPotAuthorityPostgresTest,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityPrivilegesPostgresTest,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityPublicationPostgresTest,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityRequestExecutionPostgresTest,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentitySchemaPostgresTest,com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest,com.kartaguez.pocoma.infra.tx.spring.v3.V3FoundationCompositionTest,com.kartaguez.pocoma.infra.tx.spring.v3.V3HistoricalIntervalPostgresTest,com.kartaguez.pocoma.infra.tx.spring.v3.V3SchemaIsolationPostgresTest,com.kartaguez.pocoma.infra.tx.spring.v3.V3TransactionFoundationPostgresTest,com.kartaguez.pocoma.runtime.command.v3.V3IdentityPotCommandPostgresTest,com.kartaguez.pocoma.runtime.command.v3.V3IdentityRequestCompositionPostgresTest,com.kartaguez.pocoma.runtime.command.v3.V3PotCommandCompositionPostgresTest,com.kartaguez.pocoma.runtime.command.v3.V3WorkerCompositionPostgresTest",
+        "-Dsurefire.failIfNoSpecifiedTests=false",
+        "-Dpocoma.verification.id=d1d49b45949b49f19424f8198bff0e9f",
+        "-Dpocoma.verification.reports=/private/tmp/pocoma-l3-i4-integration-final/reports",
+        "test"
+      ],
+      "qualification_receipt": "result.json.gz",
+      "tested_sha": "145f42731a4e35488e9aaa56a7de3c3f453a9231",
+      "files": {
+        "campaigns/integration-final/plan.json.gz": {
+          "bytes": 8893,
+          "sha256": "600273be42facae4fc677b953c1c131687857fc6c36d9965650524dbabb550dd"
+        },
+        "campaigns/integration-final/provenance.json.gz": {
+          "bytes": 65869,
+          "sha256": "756d841eb705ef47917e3b4a2007a8ac2c4a49fe6923b3274dd7a8a78330de8b"
+        },
+        "campaigns/integration-final/raw.tar.gz": {
+          "bytes": 1478705,
+          "sha256": "6dd4f01aa1c05b7b84c9f05db3af9f33ad02aec86081452e11bf0b7e3f6fedf7"
+        },
+        "campaigns/integration-final/result.json.gz": {
+          "bytes": 17303,
+          "sha256": "f2bffd11b198575aa312d38febd27a57e3827ef22506ff2ab5c8282882380508"
+        }
+      }
+    },
+    "architecture-bounded": {
+      "verdict": "PASS",
+      "counts": {
+        "tests": 163,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exit_code": 0,
+      "seconds": 37.21429,
+      "invocation_id": "c1e783c4f0874ce19abc872475df3cfa",
+      "expected_invocations": 163,
+      "command": [
+        "./mvnw",
+        "--batch-mode",
+        "--no-transfer-progress",
+        "-pl",
+        "architecture-tests",
+        "-am",
+        "-Dtest=com.kartaguez.pocoma.architecture.BindingLockOwnershipTest,com.kartaguez.pocoma.architecture.DistributedComposeConfigurationTest,com.kartaguez.pocoma.architecture.EventPublicationContractArchitectureTest,com.kartaguez.pocoma.architecture.HexagonalArchitectureTest,com.kartaguez.pocoma.architecture.Pcl3LegacyAbsenceTest,com.kartaguez.pocoma.architecture.Pcl4LegacyQueryReadAbsenceTest,com.kartaguez.pocoma.architecture.Pcl5PipelineLifecycleAbsenceTest,com.kartaguez.pocoma.architecture.Pcl6MonolithAbsenceTest,com.kartaguez.pocoma.architecture.Pcl7ModuleDependencyCollapseTest,com.kartaguez.pocoma.architecture.Pcl8DatabaseDemolitionPostgresTest,com.kartaguez.pocoma.architecture.Pcl8DatabaseDemolitionTest,com.kartaguez.pocoma.architecture.PostWp4OwnershipArchitectureTest,com.kartaguez.pocoma.architecture.RegistrationModuleBoundaryTest,com.kartaguez.pocoma.architecture.Wa67BindingArchitectureTest,com.kartaguez.pocoma.architecture.Wp2BoundaryTest,com.kartaguez.pocoma.architecture.Wp3BoundaryTest,com.kartaguez.pocoma.architecture.Wp4BoundaryTest,com.kartaguez.pocoma.architecture.Wp5TargetTopologyTest,com.kartaguez.pocoma.architecture.ccr.CommandCompletionE2EPostgresTest,com.kartaguez.pocoma.architecture.ccr.CommandResultConsumptionChainPostgresTest,com.kartaguez.pocoma.architecture.ccr.CommandResultTakeoverRacePostgresTest,com.kartaguez.pocoma.architecture.ept.DurableEventToProjectionPostgresTest,com.kartaguez.pocoma.architecture.ept.HistoricalEventRouteEvolutionPostgresTest,com.kartaguez.pocoma.architecture.v3.V3ConsumptionEngineArchitectureTest,com.kartaguez.pocoma.architecture.v3.V3ConsumptionFoundationArchitectureTest,com.kartaguez.pocoma.architecture.v3.V3FoundationArchitectureTest,com.kartaguez.pocoma.architecture.v3.V3IdentityAuthorityArchitectureTest,com.kartaguez.pocoma.architecture.v3.V3PotExecutionArchitectureTest",
+        "-Dsurefire.failIfNoSpecifiedTests=false",
+        "-Dpocoma.verification.id=c1e783c4f0874ce19abc872475df3cfa",
+        "-Dpocoma.verification.reports=/private/tmp/pocoma-l3-i4-architecture-bounded/reports",
+        "test"
+      ],
+      "qualification_receipt": "result.json.gz",
+      "tested_sha": "145f42731a4e35488e9aaa56a7de3c3f453a9231",
+      "files": {
+        "campaigns/architecture-bounded/plan.json.gz": {
+          "bytes": 5803,
+          "sha256": "459dddd6d028704712bc129a03f31ceecd078e64a488173b41e08852b2c5b48b"
+        },
+        "campaigns/architecture-bounded/provenance.json.gz": {
+          "bytes": 65489,
+          "sha256": "605a61f172a782ed0beb30709a6ca9856d3c6790b19ba08418c5eed756b239af"
+        },
+        "campaigns/architecture-bounded/raw.tar.gz": {
+          "bytes": 1330844,
+          "sha256": "187ca5dbe0666bbc8d7dea8290ac129566d72a464de5bba1bbadf912e466b102"
+        },
+        "campaigns/architecture-bounded/result.json.gz": {
+          "bytes": 10249,
+          "sha256": "8214f2d665ea18d0be4d5df920523eaf251d7a01aa81c4ddf65fa1d6ff26c0df"
+        }
+      }
+    },
+    "native-command": {
+      "verdict": "FAIL",
+      "counts": {
+        "tests": 1789,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 1
+      },
+      "exit_code": 1,
+      "seconds": 3211.070173,
+      "invocation_id": "ef1fd20f15364747b0bf0ef71053857d",
+      "expected_invocations": 1182,
+      "command": [
+        "./mvnw",
+        "--batch-mode",
+        "--no-transfer-progress",
+        "-pl",
+        "runtime-command-consumption-worker,runtime-monolith",
+        "-am",
+        "-Pverification-provenance",
+        "-Dpocoma.verification.id=ef1fd20f15364747b0bf0ef71053857d",
+        "-Dpocoma.verification.reports=/private/tmp/pocoma-l3-i4-native-command/reports",
+        "test"
+      ],
+      "qualification_receipt": "qualified-result.json.gz",
+      "tested_sha": "145f42731a4e35488e9aaa56a7de3c3f453a9231",
+      "files": {
+        "campaigns/native-command/plan.json.gz": {
+          "bytes": 23775,
+          "sha256": "01684273c56b69ad2420581250e1188c4d46abfb42efd9fc4deff1d6fea7dcec"
+        },
+        "campaigns/native-command/provenance.json.gz": {
+          "bytes": 65886,
+          "sha256": "a0b1cfee9eb80f3834711476f904dfb994bf57b76ff5f02e76be46477423da7e"
+        },
+        "campaigns/native-command/qualified-result.json.gz": {
+          "bytes": 135243,
+          "sha256": "468e04f53d50999847cc5428fd2c6dd0be8cf2f69870122239299c1c592e82aa"
+        },
+        "campaigns/native-command/raw.tar.gz": {
+          "bytes": 35952854,
+          "sha256": "8c2d2af5bbc3ff4eadf0297d58513287b371aa40e43ed7788f15f30912d62529"
+        },
+        "campaigns/native-command/result.json.gz": {
+          "bytes": 135284,
+          "sha256": "b8772b65fb698098afca60bcbea7941b7b58c6d1ab447659bff487d67f665d52"
+        },
+        "campaigns/native-command/source-attribution-review.json.gz": {
+          "bytes": 645,
+          "sha256": "65e16eac5b89ac4f8334307a0fb8581d30061762f225bbdf77570ae82984cdb3"
+        },
+        "campaigns/native-command/source-inventory.json.gz": {
+          "bytes": 18134,
+          "sha256": "f4ab898b237c8ba0dcdbd523ef2a5c97ba3ac13e912cf2f3b8f605839e42e866"
+        }
+      }
+    },
+    "native-architecture": {
+      "verdict": "FAIL",
+      "counts": {
+        "tests": 1892,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 1
+      },
+      "exit_code": 1,
+      "seconds": 3242.034372,
+      "invocation_id": "a639e9be6b4f4641a139d1a703caee82",
+      "expected_invocations": 1345,
+      "command": [
+        "./mvnw",
+        "--batch-mode",
+        "--no-transfer-progress",
+        "-pl",
+        "architecture-tests",
+        "-am",
+        "-Pverification-provenance",
+        "-Dpocoma.verification.id=a639e9be6b4f4641a139d1a703caee82",
+        "-Dpocoma.verification.reports=/private/tmp/pocoma-l3-i4-native-architecture/reports",
+        "test"
+      ],
+      "qualification_receipt": "qualified-result.json.gz",
+      "tested_sha": "145f42731a4e35488e9aaa56a7de3c3f453a9231",
+      "files": {
+        "campaigns/native-architecture/plan.json.gz": {
+          "bytes": 28359,
+          "sha256": "acb61d38c53a4ed2587f1dd462c604205b8457ee05040fdb9654f00606f88d7d"
+        },
+        "campaigns/native-architecture/provenance.json.gz": {
+          "bytes": 65905,
+          "sha256": "9f44c4f3caa2690af448a4cf61c8f613d3aa14991a36eb1ca8654334b7c49c60"
+        },
+        "campaigns/native-architecture/qualified-result.json.gz": {
+          "bytes": 146365,
+          "sha256": "7f7659cb5dcdee67cc1153969f7248c9cb76903ac1239efb473d4d8279610444"
+        },
+        "campaigns/native-architecture/raw.tar.gz": {
+          "bytes": 36168553,
+          "sha256": "fbf85075ca37c1fb9778c6ffb7834bcb97ea41585f45e4d3ea2b3df886e3443b"
+        },
+        "campaigns/native-architecture/result.json.gz": {
+          "bytes": 146411,
+          "sha256": "606fceebaee00c5698bc2d1e1fd7296fc8c7efa6746496926ca9213c6985797f"
+        },
+        "campaigns/native-architecture/source-attribution-review.json.gz": {
+          "bytes": 647,
+          "sha256": "a81c6d812a10a9d00b42e21d5f446adcceab7d7dbf32ce96f4311a375cd53f4a"
+        },
+        "campaigns/native-architecture/source-inventory.json.gz": {
+          "bytes": 22489,
+          "sha256": "d84703a3f78c2eb2fee9b46b9bbd44dbefc2e22c592f73a5454641c877dff407"
+        }
+      }
+    }
+  },
+  "oracles": [
+    {
+      "id": "stable-negative",
+      "status": "PASS",
+      "tests": {
+        "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityPotAuthorityPostgresTest#l3_absent_stable": "PASS",
+        "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityPotAuthorityPostgresTest#l3_free_stable": "PASS",
+        "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityPotAuthorityPostgresTest#l3_invalid_token_same_version": "PASS",
+        "com.kartaguez.pocoma.runtime.command.v3.V3IdentityPotCommandPostgresTest#l3_negative_stable_and_a1_sql": "PASS"
+      },
+      "variants": [
+        "absent/no-anchor",
+        "absent/zero-anchor",
+        "free/N",
+        "bound/invalid-token/same-N"
+      ]
+    },
+    {
+      "id": "exact-key-and-token",
+      "status": "PASS",
+      "tests": {
+        "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityPotAuthorityPostgresTest#l3_valid_binding_and_foreign_token": "PASS",
+        "com.kartaguez.pocoma.runtime.command.v3.V3IdentityRequestCompositionPostgresTest#l3_registration_command_and_relink_restart": "PASS",
+        "com.kartaguez.pocoma.V3IdentityRequestMonolithPostgresTest#l3_registration_command_and_relink_restart": "PASS"
+      },
+      "variants": [
+        "same-User/distinct-EUI/crossed-tokens",
+        "same-subject/different-issuer",
+        "case-distinct",
+        "composed/decomposed-Unicode",
+        "token-trailing-space"
+      ]
+    },
+    {
+      "id": "collision-and-retry",
+      "status": "PASS",
+      "tests": {
+        "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityPotAuthorityPostgresTest#l3_observation_change": "PASS",
+        "com.kartaguez.pocoma.runtime.command.v3.V3IdentityPotCommandPostgresTest#l3_observation_change_and_l2_retry": "PASS",
+        "com.kartaguez.pocoma.runtime.command.v3.V3IdentityPotCommandPostgresTest#l3_registration_and_same_user_relink_collide_in_engine": "PASS"
+      },
+      "variants": [
+        "0-to-1",
+        "N-to-N+1/negative-negative",
+        "valid-to-free",
+        "N-to-N+2/same-User",
+        "new-claim-after-DB-retryAfter/original-token"
+      ]
+    },
+    {
+      "id": "R-ID-POT",
+      "status": "PASS",
+      "tests": {
+        "com.kartaguez.pocoma.runtime.command.v3.V3PotCommandCompositionPostgresTest#l3_composition_real_authority_and_classifier": "PASS",
+        "com.kartaguez.pocoma.runtime.command.v3.V3IdentityRequestCompositionPostgresTest#l3_registration_command_and_relink_restart": "PASS",
+        "com.kartaguez.pocoma.V3IdentityRequestMonolithPostgresTest#l3_registration_command_and_relink_restart": "PASS"
+      },
+      "variants": [
+        "Registration/CreatePot/UpdatePot",
+        "authoritative-creator",
+        "old-and-foreign-token-refused",
+        "valid-binding/forbidden-Pot",
+        "restart-no-double-effect"
+      ]
+    },
+    {
+      "id": "physical-serialization",
+      "status": "PASS",
+      "tests": {
+        "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityPotAuthorityPostgresTest#l3_registration_vs_command": "PASS",
+        "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityPotAuthorityPostgresTest#l3_command_vs_unlink_and_link": "PASS",
+        "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityPotAuthorityPostgresTest#l3_identity_first_commit_and_rollback": "PASS",
+        "com.kartaguez.pocoma.runtime.command.v3.V3IdentityPotCommandPostgresTest#l3_command_lock_until_resolution": "PASS"
+      },
+      "variants": [
+        "Command-first/Registration/absent-zero-free/commit-rollback:6",
+        "Command-first/Link-Unlink/commit-rollback:4",
+        "Identity-first/Registration-absent-zero-free-Link-Unlink/commit-rollback:10",
+        "Command-CHANGED-UNCHANGED-REJECTED/commit-rollback:6"
+      ]
+    },
+    {
+      "id": "canonical-path",
+      "status": "PASS",
+      "tests": {
+        "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityPotAuthorityPostgresTest#l3_canonical_pot_path": "PASS",
+        "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityConcurrencyPostgresTest#l3_canonical_unicode": "PASS",
+        "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityConcurrencyPostgresTest#l3_canonical_lock_paths": "PASS",
+        "com.kartaguez.pocoma.architecture.v3.V3IdentityAuthorityArchitectureTest#l3_canonical_acquisition_is_the_only_eui_writer_path": "PASS",
+        "com.kartaguez.pocoma.architecture.v3.V3IdentityAuthorityArchitectureTest#l3_real_authority_delegates_without_a_second_lock_protocol": "PASS"
+      },
+      "variants": [
+        "singleton/unique-primitive",
+        "reversed/non-ASCII-two-EUI",
+        "I2-vector-and-race-reexecution"
+      ]
+    },
+    {
+      "id": "zero-anchor-and-suffix",
+      "status": "PASS",
+      "tests": {
+        "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityPotAuthorityPostgresTest#l3_anchor_constraints_before_suffix": "PASS",
+        "com.kartaguez.pocoma.runtime.command.v3.V3IdentityPotCommandPostgresTest#l3_negative_stable_and_a1_sql": "PASS",
+        "com.kartaguez.pocoma.runtime.command.v3.V3IdentityPotCommandPostgresTest#l3_atomic_command_physical_unit_and_closed_suffix": "PASS"
+      },
+      "variants": [
+        "zero-anchor/no-User-state-Identity-event",
+        "named-constraints-before-suffix",
+        "poison-on-late-write"
+      ]
+    },
+    {
+      "id": "atomicity-and-R9",
+      "status": "PASS",
+      "tests": {
+        "com.kartaguez.pocoma.runtime.command.v3.V3IdentityPotCommandPostgresTest#l3_rollback_boundaries": "PASS",
+        "com.kartaguez.pocoma.runtime.command.v3.V3IdentityPotCommandPostgresTest#l3_unknown_commit": "PASS",
+        "com.kartaguez.pocoma.runtime.command.v3.V3IdentityPotCommandPostgresTest#l3_atomic_command_physical_unit_and_closed_suffix": "PASS",
+        "com.kartaguez.pocoma.runtime.command.v3.V3PotCommandCompositionPostgresTest#l3_composition_real_authority_and_classifier": "PASS",
+        "com.kartaguez.pocoma.runtime.command.v3.V3IdentityPotCommandPostgresTest#l3_real_authority_preserves_claim_fencing": "PASS"
+      },
+      "variants": [
+        "7-fault-boundaries",
+        "wire-BEFORE_COMMIT",
+        "wire-AFTER_COMMIT/ACK-lost",
+        "R9-before-reacquisition",
+        "one-use-handle",
+        "no-invented-failure-budget",
+        "takeover-expired-partition-handover:3",
+        "common-PID-XID/closed-suffix"
+      ]
+    },
+    {
+      "id": "history-and-abandonment",
+      "status": "PASS",
+      "tests": {
+        "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityPotAuthorityPostgresTest#l3_observation_change": "PASS",
+        "com.kartaguez.pocoma.runtime.command.v3.V3IdentityRequestCompositionPostgresTest#l3_registration_command_and_relink_restart": "PASS",
+        "com.kartaguez.pocoma.V3IdentityRequestMonolithPostgresTest#l3_registration_command_and_relink_restart": "PASS"
+      },
+      "variants": [
+        "monotone-versions/fresh-token",
+        "last-Unlink/User-persists",
+        "new-Registration/new-User/old-Pot-forbidden"
+      ]
+    },
+    {
+      "id": "runtime-isolation-and-secrets",
+      "status": "PASS",
+      "tests": {
+        "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityPotAuthorityPostgresTest#l3_no_hidden_transaction_and_redaction": "PASS",
+        "com.kartaguez.pocoma.runtime.command.v3.V3IdentityRequestCompositionPostgresTest#l3_command_only_preflight": "PASS",
+        "com.kartaguez.pocoma.V3IdentityRequestMonolithPostgresTest#l3_command_only_preflight": "PASS",
+        "com.kartaguez.pocoma.runtime.command.v3.V3IdentityRequestCompositionPostgresTest#l3_delivered_jpa_rejects_prebound_holder": "PASS",
+        "com.kartaguez.pocoma.V3IdentityRequestMonolithPostgresTest#l3_delivered_jpa_rejects_prebound_holder": "PASS",
+        "com.kartaguez.pocoma.architecture.v3.V3IdentityAuthorityArchitectureTest#l3_identity_authority_has_no_owner_or_runtime": "PASS"
+      },
+      "variants": [
+        "complete-real-modes",
+        "Command-only/excess-privileges-fixture-missing-V6-function-indirect-view-dangerous-logging",
+        "actual-JPA-owner/both-roots",
+        "SQLSTATE-without-sensitive-DETAIL"
+      ]
+    },
+    {
+      "id": "A1",
+      "status": "PASS",
+      "tests": {
+        "com.kartaguez.pocoma.runtime.command.v3.V3IdentityPotCommandPostgresTest#l3_negative_stable_and_a1_sql": "PASS",
+        "com.kartaguez.pocoma.runtime.command.v3.V3IdentityPotCommandPostgresTest#l3_a1_illicit_version_rejected": "PASS"
+      },
+      "variants": [
+        "no-business-Pot-SQL",
+        "technical-SELECT-identified",
+        "no-new-Pot-row/advisory-lock",
+        "illicit-version/refused-completion/full-rollback",
+        "atomicity-and-suffix-preserved"
+      ]
+    }
+  ],
+  "variant_receipts": "docs/testing/evidence/L3-I4/Variant_Receipts.json",
+  "physical_traces": {
+    "archive": "docs/testing/evidence/L3-I4/campaigns/integration-final/raw.tar.gz",
+    "members": [
+      {
+        "member": "app/infra-persistence-primary-jpa/target/l3-i2-evidence/IdentityPotAuthorityPostgresTest-l3_absent_stable.txt",
+        "bytes": 3198,
+        "sha256": "49f0f0c12ac0870d0f4d255eff6c502886db7a6857e453982cec36a7f36f6cd2"
+      },
+      {
+        "member": "app/infra-persistence-primary-jpa/target/l3-i2-evidence/IdentityPotAuthorityPostgresTest-l3_anchor_constraints_before_suffix.txt",
+        "bytes": 2751,
+        "sha256": "a88bde39b8d678ed8321bead0190a9c7d52d4e661a8d93915bd4144910313e09"
+      },
+      {
+        "member": "app/infra-persistence-primary-jpa/target/l3-i2-evidence/IdentityPotAuthorityPostgresTest-l3_canonical_pot_path.txt",
+        "bytes": 17428,
+        "sha256": "ef7db9efcc410d502d6f55b2d37e4c5c637a3f9b420a930c08b6f59b1f19792b"
+      },
+      {
+        "member": "app/infra-persistence-primary-jpa/target/l3-i2-evidence/IdentityPotAuthorityPostgresTest-l3_command_vs_unlink_and_link.txt",
+        "bytes": 49591,
+        "sha256": "37132d1e7c38bf9e6ac3c52fa418c1b4b847a6f31c3a30d9ccabf74816f4e19c"
+      },
+      {
+        "member": "app/infra-persistence-primary-jpa/target/l3-i2-evidence/IdentityPotAuthorityPostgresTest-l3_free_stable.txt",
+        "bytes": 12006,
+        "sha256": "12c48cd93006c0faed8dea4cf39a0711ba34d19b408b0260052b35ffe7e9be16"
+      },
+      {
+        "member": "app/infra-persistence-primary-jpa/target/l3-i2-evidence/IdentityPotAuthorityPostgresTest-l3_identity_first_commit_and_rollback.txt",
+        "bytes": 101092,
+        "sha256": "1e7373a4c7809dccd8981d46fab5e6fdcddd721d9399658a8c253464a4932b9f"
+      },
+      {
+        "member": "app/infra-persistence-primary-jpa/target/l3-i2-evidence/IdentityPotAuthorityPostgresTest-l3_invalid_token_same_version.txt",
+        "bytes": 8534,
+        "sha256": "013fcda8457c61dc3c959bc2e36d322b49e02913753557b808506755f20f81ce"
+      },
+      {
+        "member": "app/infra-persistence-primary-jpa/target/l3-i2-evidence/IdentityPotAuthorityPostgresTest-l3_no_hidden_transaction_and_redaction.txt",
+        "bytes": 1210,
+        "sha256": "b8c8971ba4cb3c88db77eaffcfed16a5e6ab949f25ed6c4c58b752172d7938a3"
+      },
+      {
+        "member": "app/infra-persistence-primary-jpa/target/l3-i2-evidence/IdentityPotAuthorityPostgresTest-l3_observation_change.txt",
+        "bytes": 37516,
+        "sha256": "61d5176ac340429b1821014e3580b4fc677935c63e7059e97f38987169a90a9d"
+      },
+      {
+        "member": "app/infra-persistence-primary-jpa/target/l3-i2-evidence/IdentityPotAuthorityPostgresTest-l3_registration_vs_command.txt",
+        "bytes": 70885,
+        "sha256": "6ebba1bd68647424dde3dcc1cf867f9e40af91ac34708b95692c0d59ff03a5fa"
+      },
+      {
+        "member": "app/infra-persistence-primary-jpa/target/l3-i2-evidence/IdentityPotAuthorityPostgresTest-l3_valid_binding_and_foreign_token.txt",
+        "bytes": 42259,
+        "sha256": "1878111358cfc08cd7127a1c9c149d496401fedfdb0d47413aaf07aa88d2b728"
+      },
+      {
+        "member": "app/runtime-command-consumption-worker/target/l3-i3-evidence/l3_i4_command_only_preflight.txt",
+        "bytes": 1231,
+        "sha256": "f52d066f85472b9eb6ff0cb84d9277dedf0c49374e8b53b5b9fdafe49a6d94d7"
+      },
+      {
+        "member": "app/runtime-command-consumption-worker/target/l3-i3-evidence/l3_i4_registration_command_relink_restart.txt",
+        "bytes": 2889,
+        "sha256": "590a7e75bb54685bb293a1a69fe678bc9b715ebab2846e2e9d5943a23d6abd60"
+      },
+      {
+        "member": "app/runtime-command-consumption-worker/target/l3-i4-evidence/l3_a1_illicit_version_rejected.txt",
+        "bytes": 24417,
+        "sha256": "1de06471d8d3e27cccaef297e4c78e5f1d332a12a1252841f8e5d6dffe9c76f6"
+      },
+      {
+        "member": "app/runtime-command-consumption-worker/target/l3-i4-evidence/l3_atomic_command_physical_unit_and_closed_suffix.txt",
+        "bytes": 27142,
+        "sha256": "d363837586ce8423df6bdf0a322d472df49be331ca3f97db20ebdf601f0c6de6"
+      },
+      {
+        "member": "app/runtime-command-consumption-worker/target/l3-i4-evidence/l3_command_lock_until_resolution_CHANGED_rollback_false.txt",
+        "bytes": 36556,
+        "sha256": "20d9b5310bc9c245716edbc2292ee1fe7b021e9f632be31a72790fb7f5cc96b8"
+      },
+      {
+        "member": "app/runtime-command-consumption-worker/target/l3-i4-evidence/l3_command_lock_until_resolution_CHANGED_rollback_true.txt",
+        "bytes": 37351,
+        "sha256": "af3493a248afa48c56cdde9d23ce92f5e01d98dc58f52c49390a31b6e55c95ec"
+      },
+      {
+        "member": "app/runtime-command-consumption-worker/target/l3-i4-evidence/l3_command_lock_until_resolution_REJECTED_rollback_false.txt",
+        "bytes": 33060,
+        "sha256": "472659249c7ac4e81d14aa1c1a2194a564a6d38493b691a68037fa78af607d0b"
+      },
+      {
+        "member": "app/runtime-command-consumption-worker/target/l3-i4-evidence/l3_command_lock_until_resolution_REJECTED_rollback_true.txt",
+        "bytes": 34027,
+        "sha256": "aee83fe37ed89e60020c42032264e0b6546696c3115fd5e0595906ea61734b7d"
+      },
+      {
+        "member": "app/runtime-command-consumption-worker/target/l3-i4-evidence/l3_command_lock_until_resolution_UNCHANGED_rollback_false.txt",
+        "bytes": 33054,
+        "sha256": "7d59782fbdb8659bc760669a1583072c87134939d339ec18c0ba36dd09cb4ead"
+      },
+      {
+        "member": "app/runtime-command-consumption-worker/target/l3-i4-evidence/l3_command_lock_until_resolution_UNCHANGED_rollback_true.txt",
+        "bytes": 34028,
+        "sha256": "94a18175d73455b91b05bb18f2e5aeb4407ae9a4feb7966afc7e310af44060a4"
+      },
+      {
+        "member": "app/runtime-command-consumption-worker/target/l3-i4-evidence/l3_composition_real_authority_and_classifier.txt",
+        "bytes": 26920,
+        "sha256": "735ae3079b46898cf147219de8ebb81ad728ccc3bcae51d9369f32344d79a981"
+      },
+      {
+        "member": "app/runtime-command-consumption-worker/target/l3-i4-evidence/l3_negative_stable_and_a1_sql.txt",
+        "bytes": 48849,
+        "sha256": "90fb69b614b81acffc181600645b57ab647ad2c6e9bbfc83e7d31870bea5fe4c"
+      },
+      {
+        "member": "app/runtime-command-consumption-worker/target/l3-i4-evidence/l3_observation_change_false.txt",
+        "bytes": 33814,
+        "sha256": "dfaf8a5a5ffaf1eebcd8bbe6da02204bcf6aa99c92d448660fd133c65bb5b5a3"
+      },
+      {
+        "member": "app/runtime-command-consumption-worker/target/l3-i4-evidence/l3_observation_change_true.txt",
+        "bytes": 34025,
+        "sha256": "444733860db7167af15d01c788f72ac4a07dfb2bb0f867562101b37af55fd13e"
+      },
+      {
+        "member": "app/runtime-command-consumption-worker/target/l3-i4-evidence/l3_real_authority_preserves_claim_fencing.txt",
+        "bytes": 33021,
+        "sha256": "cac4550a33128f401dd44ed3ca6477d600347ca7e622eb8d00a5689f19a4b2f4"
+      },
+      {
+        "member": "app/runtime-command-consumption-worker/target/l3-i4-evidence/l3_registration_relink_collision_absent.txt",
+        "bytes": 33490,
+        "sha256": "f9dda0a30b13f236c7c1721f92f0c2c971797579dfb7786e307aaa499a445e57"
+      },
+      {
+        "member": "app/runtime-command-consumption-worker/target/l3-i4-evidence/l3_registration_relink_collision_free.txt",
+        "bytes": 33608,
+        "sha256": "851bdc47785dcf613c19c7ef00b97bb52433f28ab5e1116b2f0864a2006d9dd2"
+      },
+      {
+        "member": "app/runtime-command-consumption-worker/target/l3-i4-evidence/l3_registration_relink_collision_same-user-relink.txt",
+        "bytes": 33868,
+        "sha256": "eefc3ff514c2b0592861c6aeca71bb47786e1c301215adb274d1ae52f65478e5"
+      },
+      {
+        "member": "app/runtime-command-consumption-worker/target/l3-i4-evidence/l3_registration_relink_collision_zero.txt",
+        "bytes": 34123,
+        "sha256": "ced3f4bba3c130db925eda3db76f84bd162b1d144d3ed960d12aa5af1bd1eef3"
+      },
+      {
+        "member": "app/runtime-command-consumption-worker/target/l3-i4-evidence/l3_rollback_boundaries.txt",
+        "bytes": 58967,
+        "sha256": "bb0176b27d77b26e48e10b68bd09c90d9d27b258218bf71e20bc032ec27f438e"
+      },
+      {
+        "member": "app/runtime-command-consumption-worker/target/l3-i4-evidence/l3_unknown_commit_AFTER_COMMIT.txt",
+        "bytes": 32267,
+        "sha256": "95765c68f9b8c35a096e741b8d665818cc50671a7267ccd571cf836c4ad95c11"
+      },
+      {
+        "member": "app/runtime-command-consumption-worker/target/l3-i4-evidence/l3_unknown_commit_BEFORE_COMMIT.txt",
+        "bytes": 44767,
+        "sha256": "b9345fd7fef8256630f1fd3c99af4adf1ceaad58b1bccfa737852c80dfcf735d"
+      },
+      {
+        "member": "app/runtime-monolith/target/l3-i3-evidence/l3_i4_command_only_preflight.txt",
+        "bytes": 1229,
+        "sha256": "8d52d586a16cb7b0cc26da6cedbb3a68cf20ec5a524fd4d808aa4152f7cea391"
+      },
+      {
+        "member": "app/runtime-monolith/target/l3-i3-evidence/l3_i4_registration_command_relink_restart.txt",
+        "bytes": 2889,
+        "sha256": "00d7b19828247d0b576ee3d12ac093f276433f7bbfbd9d165d53f37e02d51b66"
+      }
+    ]
+  },
+  "retention": {
+    "destination": "Git; no verified external destination",
+    "encoding": "Exact raw.tar.gz; other original JSON/log bytes retained by reversible gzip; SHA-256 verified",
+    "diagnostic_runs": [
+      "fast-01",
+      "change-01",
+      "feedback-01",
+      "feedback-02"
+    ],
+    "diagnostic_limit": "Intermediate dirty sources not archived as complete diffs; not attributed to final code. Failures preserved. Final proofs use clean executable code at tested_code_sha."
+  },
+  "inherited_reservations": [
+    "R-L2-01..05",
+    "G1/G2 INCONCLUSIVE; G3 NOT PASSED / NOT COMPLETED",
+    "I3 R1/JPA scope; manual JDBC counterexample outside qualification",
+    "I3 R2/closed DEV profile; trusted administrators; no continuous ACL surveillance",
+    "I3 R3/PostgreSQL-Docker logging scope; external collectors not certified",
+    "i5_r05 and i5_r12 historical availability reserves; historical native Architecture proof not acquired"
+  ],
+  "exclusions": [
+    "independent I4 acceptance",
+    "I5/L3 closure",
+    "HTTP/AuthN/Link external consent ID-02",
+    "READ/CurrentBinding projections",
+    "SPEC-09 SLO/capacity qualification",
+    "L8 distribution/global release certification"
+  ],
+  "proof_artifacts": {
+    "docs/testing/evidence/L3-I4/Campaign_Summary.json": {
+      "bytes": 25151,
+      "sha256": "01d3f7c576f637cf7d71531027694c2afcf776af0514d067ebfcae65a80d87b1"
+    },
+    "docs/testing/evidence/L3-I4/Migration_Observations.json": {
+      "bytes": 9623,
+      "sha256": "3b6fe2f7558b8cdef79281956a4454e26182575ed890234e84f8e2d4d4b3bcca"
+    },
+    "docs/testing/evidence/L3-I4/README.md": {
+      "bytes": 7261,
+      "sha256": "31c9520257e1bcb95871d5cf89a5a6676c2a4cb19c20d68cf5443d7d6beb79f2"
+    },
+    "docs/testing/evidence/L3-I4/Variant_Receipts.json": {
+      "bytes": 39187,
+      "sha256": "ebfc3ffc8da8106f01163224dea38b5a3bfd890f800b5f40cf8b3c53d8e0446e"
+    },
+    "docs/testing/evidence/L3-I4/campaigns/architecture-bounded/plan.json.gz": {
+      "bytes": 5803,
+      "sha256": "459dddd6d028704712bc129a03f31ceecd078e64a488173b41e08852b2c5b48b"
+    },
+    "docs/testing/evidence/L3-I4/campaigns/architecture-bounded/provenance.json.gz": {
+      "bytes": 65489,
+      "sha256": "605a61f172a782ed0beb30709a6ca9856d3c6790b19ba08418c5eed756b239af"
+    },
+    "docs/testing/evidence/L3-I4/campaigns/architecture-bounded/raw.tar.gz": {
+      "bytes": 1330844,
+      "sha256": "187ca5dbe0666bbc8d7dea8290ac129566d72a464de5bba1bbadf912e466b102"
+    },
+    "docs/testing/evidence/L3-I4/campaigns/architecture-bounded/result.json.gz": {
+      "bytes": 10249,
+      "sha256": "8214f2d665ea18d0be4d5df920523eaf251d7a01aa81c4ddf65fa1d6ff26c0df"
+    },
+    "docs/testing/evidence/L3-I4/campaigns/change-01/plan.json.gz": {
+      "bytes": 7977,
+      "sha256": "b399b81a5e086082811fe636c0dab67cbae1d1ed8cb710b99e5973f3d801a009"
+    },
+    "docs/testing/evidence/L3-I4/campaigns/change-01/provenance.json.gz": {
+      "bytes": 65912,
+      "sha256": "444c46674fe1145efd847f77dffc423321872a5be68e6a214f2a83b73cb0177c"
+    },
+    "docs/testing/evidence/L3-I4/campaigns/change-01/raw.tar.gz": {
+      "bytes": 1183438,
+      "sha256": "f4afbe7c774b76926b63c953835df7ae7e35cb3dba3c4f336b75b48fa2659543"
+    },
+    "docs/testing/evidence/L3-I4/campaigns/change-01/result.json.gz": {
+      "bytes": 12825,
+      "sha256": "92b0cfc6cf33e7ca23541e62d3e06dd6a6be826caa2b63a952916c3b0078d10a"
+    },
+    "docs/testing/evidence/L3-I4/campaigns/change-final/plan.json.gz": {
+      "bytes": 8057,
+      "sha256": "08cd5a0bc8a3dea828806a2963cfee23b04426bd95c210eb179df104911c82a9"
+    },
+    "docs/testing/evidence/L3-I4/campaigns/change-final/provenance.json.gz": {
+      "bytes": 65782,
+      "sha256": "ac98d41c4736366ec4961454ac19d256568854e7706f12692eb137b57c0dc022"
+    },
+    "docs/testing/evidence/L3-I4/campaigns/change-final/raw.tar.gz": {
+      "bytes": 1335689,
+      "sha256": "ad56255997e1014165d678ac5f2185854ea6051bee5a31b7c4b62571013622af"
+    },
+    "docs/testing/evidence/L3-I4/campaigns/change-final/result.json.gz": {
+      "bytes": 14632,
+      "sha256": "82335668d62c7f9ff9563fdff2298f52eed0cf27e116a82b2584421841287804"
+    },
+    "docs/testing/evidence/L3-I4/campaigns/fast-01/plan.json.gz": {
+      "bytes": 6639,
+      "sha256": "6636df45a659732ed3c5d79f6e20922aad3f209c456779352053e0b6f32179f0"
+    },
+    "docs/testing/evidence/L3-I4/campaigns/fast-01/provenance.json.gz": {
+      "bytes": 65382,
+      "sha256": "0df5be1f97ff9b4881c975f2336961037c6ec8277449812960464de933686c0c"
+    },
+    "docs/testing/evidence/L3-I4/campaigns/fast-01/raw.tar.gz": {
+      "bytes": 222631,
+      "sha256": "1e918701c6069db8383cc8d54c416d6ee5c1f4131f3ff3695d3877946e79d402"
+    },
+    "docs/testing/evidence/L3-I4/campaigns/fast-01/result.json.gz": {
+      "bytes": 4996,
+      "sha256": "9b8532616e1de1ffe84ad8c2b9bb65ff05bc1fc58253053f303bd9c685b65b52"
+    },
+    "docs/testing/evidence/L3-I4/campaigns/fast-final/plan.json.gz": {
+      "bytes": 6657,
+      "sha256": "e57ad9e7864741e5dc42366fca39d841ec5728142aeb83f409e9b648d34d418c"
+    },
+    "docs/testing/evidence/L3-I4/campaigns/fast-final/provenance.json.gz": {
+      "bytes": 65460,
+      "sha256": "37b6ba290416b2d70d6a83e1887381196ea320ace5146c1431f5f107a39384d5"
+    },
+    "docs/testing/evidence/L3-I4/campaigns/fast-final/raw.tar.gz": {
+      "bytes": 222622,
+      "sha256": "814c1ffbd0ef6e9ce471a093a5f8f8650421f581a4742a62b411c6e9f4252abc"
+    },
+    "docs/testing/evidence/L3-I4/campaigns/fast-final/result.json.gz": {
+      "bytes": 4680,
+      "sha256": "2d32bc6447d48f083b47d3b49745c50cd85a3ee840267ed9551c78ac1c047f9a"
+    },
+    "docs/testing/evidence/L3-I4/campaigns/feedback-01/plan.json.gz": {
+      "bytes": 5566,
+      "sha256": "189d8d328d7919dd2c381b137fab6b6f3fd66568c222105c32827b88e3606bc7"
+    },
+    "docs/testing/evidence/L3-I4/campaigns/feedback-01/provenance.json.gz": {
+      "bytes": 65913,
+      "sha256": "27abeceeec81cb517db86c748f82408a5794354aba14b0e4b2916e0106c7ced9"
+    },
+    "docs/testing/evidence/L3-I4/campaigns/feedback-01/raw.tar.gz": {
+      "bytes": 1095785,
+      "sha256": "5f56000b0c4e1e50f16c01aa47c419227e511c78885308389abc44f2b5eb412b"
+    },
+    "docs/testing/evidence/L3-I4/campaigns/feedback-01/result.json.gz": {
+      "bytes": 4516,
+      "sha256": "2034c9d0d15e7a2820637a5bf1888a450de655e53619c50813824404b3228034"
+    },
+    "docs/testing/evidence/L3-I4/campaigns/feedback-02/plan.json.gz": {
+      "bytes": 5568,
+      "sha256": "5c2adfe514d49059250c602c92ffd6ffcb5287bdbb7dc672e2d21b66ea6d3c2c"
+    },
+    "docs/testing/evidence/L3-I4/campaigns/feedback-02/provenance.json.gz": {
+      "bytes": 65957,
+      "sha256": "05a494d3d2c8cad0b416a64bc547b351d1b769bd41e1c223963758b8b35eff18"
+    },
+    "docs/testing/evidence/L3-I4/campaigns/feedback-02/raw.tar.gz": {
+      "bytes": 1215072,
+      "sha256": "fe6c5a2e048baa66543e39dd453fd59b31b24703da09e4fa7aab101c77feecb1"
+    },
+    "docs/testing/evidence/L3-I4/campaigns/feedback-02/result.json.gz": {
+      "bytes": 6222,
+      "sha256": "fcbf5af7a2853a681fee24fa989b8431135529bb213ba52ead1956c44facd9bc"
+    },
+    "docs/testing/evidence/L3-I4/campaigns/integration-final/plan.json.gz": {
+      "bytes": 8893,
+      "sha256": "600273be42facae4fc677b953c1c131687857fc6c36d9965650524dbabb550dd"
+    },
+    "docs/testing/evidence/L3-I4/campaigns/integration-final/provenance.json.gz": {
+      "bytes": 65869,
+      "sha256": "756d841eb705ef47917e3b4a2007a8ac2c4a49fe6923b3274dd7a8a78330de8b"
+    },
+    "docs/testing/evidence/L3-I4/campaigns/integration-final/raw.tar.gz": {
+      "bytes": 1478705,
+      "sha256": "6dd4f01aa1c05b7b84c9f05db3af9f33ad02aec86081452e11bf0b7e3f6fedf7"
+    },
+    "docs/testing/evidence/L3-I4/campaigns/integration-final/result.json.gz": {
+      "bytes": 17303,
+      "sha256": "f2bffd11b198575aa312d38febd27a57e3827ef22506ff2ab5c8282882380508"
+    },
+    "docs/testing/evidence/L3-I4/campaigns/native-architecture/plan.json.gz": {
+      "bytes": 28359,
+      "sha256": "acb61d38c53a4ed2587f1dd462c604205b8457ee05040fdb9654f00606f88d7d"
+    },
+    "docs/testing/evidence/L3-I4/campaigns/native-architecture/provenance.json.gz": {
+      "bytes": 65905,
+      "sha256": "9f44c4f3caa2690af448a4cf61c8f613d3aa14991a36eb1ca8654334b7c49c60"
+    },
+    "docs/testing/evidence/L3-I4/campaigns/native-architecture/qualified-result.json.gz": {
+      "bytes": 146365,
+      "sha256": "7f7659cb5dcdee67cc1153969f7248c9cb76903ac1239efb473d4d8279610444"
+    },
+    "docs/testing/evidence/L3-I4/campaigns/native-architecture/raw.tar.gz": {
+      "bytes": 36168553,
+      "sha256": "fbf85075ca37c1fb9778c6ffb7834bcb97ea41585f45e4d3ea2b3df886e3443b"
+    },
+    "docs/testing/evidence/L3-I4/campaigns/native-architecture/result.json.gz": {
+      "bytes": 146411,
+      "sha256": "606fceebaee00c5698bc2d1e1fd7296fc8c7efa6746496926ca9213c6985797f"
+    },
+    "docs/testing/evidence/L3-I4/campaigns/native-architecture/source-attribution-review.json.gz": {
+      "bytes": 647,
+      "sha256": "a81c6d812a10a9d00b42e21d5f446adcceab7d7dbf32ce96f4311a375cd53f4a"
+    },
+    "docs/testing/evidence/L3-I4/campaigns/native-architecture/source-inventory.json.gz": {
+      "bytes": 22489,
+      "sha256": "d84703a3f78c2eb2fee9b46b9bbd44dbefc2e22c592f73a5454641c877dff407"
+    },
+    "docs/testing/evidence/L3-I4/campaigns/native-command/plan.json.gz": {
+      "bytes": 23775,
+      "sha256": "01684273c56b69ad2420581250e1188c4d46abfb42efd9fc4deff1d6fea7dcec"
+    },
+    "docs/testing/evidence/L3-I4/campaigns/native-command/provenance.json.gz": {
+      "bytes": 65886,
+      "sha256": "a0b1cfee9eb80f3834711476f904dfb994bf57b76ff5f02e76be46477423da7e"
+    },
+    "docs/testing/evidence/L3-I4/campaigns/native-command/qualified-result.json.gz": {
+      "bytes": 135243,
+      "sha256": "468e04f53d50999847cc5428fd2c6dd0be8cf2f69870122239299c1c592e82aa"
+    },
+    "docs/testing/evidence/L3-I4/campaigns/native-command/raw.tar.gz": {
+      "bytes": 35952854,
+      "sha256": "8c2d2af5bbc3ff4eadf0297d58513287b371aa40e43ed7788f15f30912d62529"
+    },
+    "docs/testing/evidence/L3-I4/campaigns/native-command/result.json.gz": {
+      "bytes": 135284,
+      "sha256": "b8772b65fb698098afca60bcbea7941b7b58c6d1ab447659bff487d67f665d52"
+    },
+    "docs/testing/evidence/L3-I4/campaigns/native-command/source-attribution-review.json.gz": {
+      "bytes": 645,
+      "sha256": "65e16eac5b89ac4f8334307a0fb8581d30061762f225bbdf77570ae82984cdb3"
+    },
+    "docs/testing/evidence/L3-I4/campaigns/native-command/source-inventory.json.gz": {
+      "bytes": 18134,
+      "sha256": "f4ab898b237c8ba0dcdbd523ef2a5c97ba3ac13e912cf2f3b8f605839e42e866"
+    },
+    "docs/testing/evidence/L3-I4/collect_architecture.py": {
+      "bytes": 3362,
+      "sha256": "493cb13c82ba3ef03d641e7bbc82816cfda84ac8dd014b0c960b761229b4cbcb"
+    },
+    "docs/testing/evidence/L3-I4/collect_native.py": {
+      "bytes": 6977,
+      "sha256": "d8807a1dd99dd06ba5c532fffbb016181b442bb584a94a740cf76f897c226c7f"
+    },
+    "docs/testing/evidence/L3-I4/diagnostics/adapter-javap.txt.gz": {
+      "bytes": 540,
+      "sha256": "27b199a5277f19cc9c18dffb270ceab1caca5186860dbfe6beee42a93ac5df1d"
+    },
+    "docs/testing/evidence/L3-I4/diagnostics/bytecode-after.json.gz": {
+      "bytes": 95052,
+      "sha256": "4ef9101ee2fb43aa496f1195293e49f51f984840e91751fefa6c6933d0d96a4b"
+    },
+    "docs/testing/evidence/L3-I4/diagnostics/bytecode-before.json.gz": {
+      "bytes": 95079,
+      "sha256": "47299fc94fa9b2174611acbe547e285465ba168d4a36b6e35914a1e9ce90d92a"
+    },
+    "docs/testing/evidence/L3-I4/diagnostics/change-dry-final.json.gz": {
+      "bytes": 7274,
+      "sha256": "4ceef7b3a8e5f666da9060ac6dca1c240c8c8b2a01d71c263eae6715960cc113"
+    },
+    "docs/testing/evidence/L3-I4/diagnostics/clean-compile.log.gz": {
+      "bytes": 6815,
+      "sha256": "8fe0cd9f037f8dae7a306b8fbaadc07f8c3bbd647e81c597c283e702454963c2"
+    },
+    "docs/testing/evidence/L3-I4/diagnostics/compile-01.log.gz": {
+      "bytes": 5779,
+      "sha256": "e7a2523fbaf47cf4ac0b71cbfb6567909db19c4baebfe97f935d1ebd0c5e3c37"
+    },
+    "docs/testing/evidence/L3-I4/diagnostics/fast-dry-final.json.gz": {
+      "bytes": 6243,
+      "sha256": "f85b1d0f2e01b0943f9a0f55eced9916cfb051a1df365efc8c4cf5ee1a32ff8e"
+    },
+    "docs/testing/evidence/L3-I4/diagnostics/integration-dry-final.json.gz": {
+      "bytes": 8008,
+      "sha256": "af6be5c8eba12224f96985acb7d27888c447b440a2b68f33b5c2221f3acd6931"
+    },
+    "docs/testing/evidence/L3-I4/diagnostics/publication-javap.txt.gz": {
+      "bytes": 374,
+      "sha256": "2753f135d159ef2662bf9de146773cc8060032fb1ab4ae74417bcd1ebc1b6be5"
+    },
+    "docs/testing/evidence/L3-I4/diagnostics/selector-tests-01.log.gz": {
+      "bytes": 4226,
+      "sha256": "9253b279f1bc2bd4faff2d1446809580790d156404783a8fe276cadd8e0e946f"
+    },
+    "docs/testing/evidence/L3-I4/diagnostics/selector-tests-02.log.gz": {
+      "bytes": 752,
+      "sha256": "55d1290ebab8df3a344fa2978496c472d2b4a42c59e8c9f81a1681693c8dc733"
+    },
+    "docs/testing/evidence/L3-I4/diagnostics/selector-tests-final.log.gz": {
+      "bytes": 751,
+      "sha256": "0d02ae8cecef572f20a6e737f47e94d9b5bb2b1f9a70181fee4fc6281d06d4b6"
+    },
+    "docs/testing/evidence/L3-I4/diagnostics/terminal-javap.txt.gz": {
+      "bytes": 213,
+      "sha256": "28ed0d721fa6de3ddc5ee2a5681ea23a60233f61c188761df86b9c077dc5f46c"
+    },
+    "docs/testing/evidence/L3-I4/qualify_native.py": {
+      "bytes": 3964,
+      "sha256": "01cc8db353157e86fddf1666305422b335fcb4454b238aa643beb03ffeb14b10"
+    },
+    "docs/testing/evidence/L3-I4/selector-cli-final.tar.gz": {
+      "bytes": 3988003,
+      "sha256": "33830b322c4547357d00532acf21e2590932e5077af2280f5bcb123e062990b0"
+    },
+    "docs/testing/evidence/L3-I4/verify_evidence.py": {
+      "bytes": 6107,
+      "sha256": "62bb34bae6475b8352d0e55a7dab524faaea7772b17c54263925e66135065048"
+    }
+  },
+  "delivery_file_paths": [
+    "app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/v3/V3IdentityAuthorityArchitectureTest.java",
+    "app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/consumption/v3/V3ConsumptionWorkerConfiguration.java",
+    "app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/consumption/v3/V3ConsumptionWorkerSettings.java",
+    "app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/identity/JdbcIdentityPotActorAuthority.java",
+    "app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/identity/IdentityPotAuthorityPostgresTest.java",
+    "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/V3IdentityPotCommandPostgresTest.java",
+    "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/V3IdentityRequestCompositionPostgresTest.java",
+    "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/V3PotCommandCompositionPostgresTest.java",
+    "app/runtime-monolith/src/test/java/com/kartaguez/pocoma/V3IdentityRequestMonolithPostgresTest.java",
+    "docs/testing/evidence/L3-I4/Campaign_Summary.json",
+    "docs/testing/evidence/L3-I4/Migration_Observations.json",
+    "docs/testing/evidence/L3-I4/README.md",
+    "docs/testing/evidence/L3-I4/Variant_Receipts.json",
+    "docs/testing/evidence/L3-I4/campaigns/architecture-bounded/plan.json.gz",
+    "docs/testing/evidence/L3-I4/campaigns/architecture-bounded/provenance.json.gz",
+    "docs/testing/evidence/L3-I4/campaigns/architecture-bounded/raw.tar.gz",
+    "docs/testing/evidence/L3-I4/campaigns/architecture-bounded/result.json.gz",
+    "docs/testing/evidence/L3-I4/campaigns/change-01/plan.json.gz",
+    "docs/testing/evidence/L3-I4/campaigns/change-01/provenance.json.gz",
+    "docs/testing/evidence/L3-I4/campaigns/change-01/raw.tar.gz",
+    "docs/testing/evidence/L3-I4/campaigns/change-01/result.json.gz",
+    "docs/testing/evidence/L3-I4/campaigns/change-final/plan.json.gz",
+    "docs/testing/evidence/L3-I4/campaigns/change-final/provenance.json.gz",
+    "docs/testing/evidence/L3-I4/campaigns/change-final/raw.tar.gz",
+    "docs/testing/evidence/L3-I4/campaigns/change-final/result.json.gz",
+    "docs/testing/evidence/L3-I4/campaigns/fast-01/plan.json.gz",
+    "docs/testing/evidence/L3-I4/campaigns/fast-01/provenance.json.gz",
+    "docs/testing/evidence/L3-I4/campaigns/fast-01/raw.tar.gz",
+    "docs/testing/evidence/L3-I4/campaigns/fast-01/result.json.gz",
+    "docs/testing/evidence/L3-I4/campaigns/fast-final/plan.json.gz",
+    "docs/testing/evidence/L3-I4/campaigns/fast-final/provenance.json.gz",
+    "docs/testing/evidence/L3-I4/campaigns/fast-final/raw.tar.gz",
+    "docs/testing/evidence/L3-I4/campaigns/fast-final/result.json.gz",
+    "docs/testing/evidence/L3-I4/campaigns/feedback-01/plan.json.gz",
+    "docs/testing/evidence/L3-I4/campaigns/feedback-01/provenance.json.gz",
+    "docs/testing/evidence/L3-I4/campaigns/feedback-01/raw.tar.gz",
+    "docs/testing/evidence/L3-I4/campaigns/feedback-01/result.json.gz",
+    "docs/testing/evidence/L3-I4/campaigns/feedback-02/plan.json.gz",
+    "docs/testing/evidence/L3-I4/campaigns/feedback-02/provenance.json.gz",
+    "docs/testing/evidence/L3-I4/campaigns/feedback-02/raw.tar.gz",
+    "docs/testing/evidence/L3-I4/campaigns/feedback-02/result.json.gz",
+    "docs/testing/evidence/L3-I4/campaigns/integration-final/plan.json.gz",
+    "docs/testing/evidence/L3-I4/campaigns/integration-final/provenance.json.gz",
+    "docs/testing/evidence/L3-I4/campaigns/integration-final/raw.tar.gz",
+    "docs/testing/evidence/L3-I4/campaigns/integration-final/result.json.gz",
+    "docs/testing/evidence/L3-I4/campaigns/native-architecture/plan.json.gz",
+    "docs/testing/evidence/L3-I4/campaigns/native-architecture/provenance.json.gz",
+    "docs/testing/evidence/L3-I4/campaigns/native-architecture/qualified-result.json.gz",
+    "docs/testing/evidence/L3-I4/campaigns/native-architecture/raw.tar.gz",
+    "docs/testing/evidence/L3-I4/campaigns/native-architecture/result.json.gz",
+    "docs/testing/evidence/L3-I4/campaigns/native-architecture/source-attribution-review.json.gz",
+    "docs/testing/evidence/L3-I4/campaigns/native-architecture/source-inventory.json.gz",
+    "docs/testing/evidence/L3-I4/campaigns/native-command/plan.json.gz",
+    "docs/testing/evidence/L3-I4/campaigns/native-command/provenance.json.gz",
+    "docs/testing/evidence/L3-I4/campaigns/native-command/qualified-result.json.gz",
+    "docs/testing/evidence/L3-I4/campaigns/native-command/raw.tar.gz",
+    "docs/testing/evidence/L3-I4/campaigns/native-command/result.json.gz",
+    "docs/testing/evidence/L3-I4/campaigns/native-command/source-attribution-review.json.gz",
+    "docs/testing/evidence/L3-I4/campaigns/native-command/source-inventory.json.gz",
+    "docs/testing/evidence/L3-I4/collect_architecture.py",
+    "docs/testing/evidence/L3-I4/collect_native.py",
+    "docs/testing/evidence/L3-I4/diagnostics/adapter-javap.txt.gz",
+    "docs/testing/evidence/L3-I4/diagnostics/bytecode-after.json.gz",
+    "docs/testing/evidence/L3-I4/diagnostics/bytecode-before.json.gz",
+    "docs/testing/evidence/L3-I4/diagnostics/change-dry-final.json.gz",
+    "docs/testing/evidence/L3-I4/diagnostics/clean-compile.log.gz",
+    "docs/testing/evidence/L3-I4/diagnostics/compile-01.log.gz",
+    "docs/testing/evidence/L3-I4/diagnostics/fast-dry-final.json.gz",
+    "docs/testing/evidence/L3-I4/diagnostics/integration-dry-final.json.gz",
+    "docs/testing/evidence/L3-I4/diagnostics/publication-javap.txt.gz",
+    "docs/testing/evidence/L3-I4/diagnostics/selector-tests-01.log.gz",
+    "docs/testing/evidence/L3-I4/diagnostics/selector-tests-02.log.gz",
+    "docs/testing/evidence/L3-I4/diagnostics/selector-tests-final.log.gz",
+    "docs/testing/evidence/L3-I4/diagnostics/terminal-javap.txt.gz",
+    "docs/testing/evidence/L3-I4/qualify_native.py",
+    "docs/testing/evidence/L3-I4/selector-cli-final.tar.gz",
+    "docs/testing/evidence/L3-I4/verify_evidence.py",
+    "docs/v3/L3_I4_Execution_Report.md",
+    "docs/v3/L3_I4_Proof_Manifest.json",
+    "docs/v3/V3_Implementation_Master_Plan.md",
+    "scripts/testing/verification-campaigns.json"
+  ],
+  "documentation": {
+    "docs/v3/L3_I4_Execution_Report.md": {
+      "sha256": "86ef782318e68f0c540d6977d443332535f80dcea72cd7d3403ccd1869383c4c"
+    },
+    "docs/v3/V3_Implementation_Master_Plan.md": {
+      "sha256": "d45c9db44f5306ef61af37c714218261b1c0eacfc653974abfb80d5502768d41"
+    }
+  },
+  "independent_acceptance": "PENDING independent audit and distinct human decision",
+  "global_gate_qualification": {
+    "native-command": {
+      "verdict": "FAIL",
+      "counts": {
+        "tests": 1789,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 1
+      },
+      "limitations_retained": 46
+    },
+    "native-architecture": {
+      "verdict": "FAIL",
+      "counts": {
+        "tests": 1892,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 1
+      },
+      "limitations_retained": 67
+    }
+  }
+}

@@ -111,11 +111,11 @@ export function runConcurrentConflict(data) {
 
   const bodyA = JSON.stringify({
     label: label(cfg.labelPrefix, 'conflict-a', data.runId, __ITER),
-    expectedVersion: current,
+    observedVersion: current,
   });
   const bodyB = JSON.stringify({
     label: label(cfg.labelPrefix, 'conflict-b', data.runId, __ITER),
-    expectedVersion: current,
+    observedVersion: current,
   });
   const params = client.params({ kind: 'command', operation: 'concurrent_update_pot_details' });
   const responses = http.batch([
@@ -144,14 +144,14 @@ export function runIncoherentRequest(data) {
   if (choice === 0) {
     const response = client.rawCommand('PATCH', `/api/pots/${target.potId}/details`, {
       label: label(cfg.labelPrefix, 'stale', data.runId, __ITER),
-      expectedVersion: 1,
+      observedVersion: 1,
     }, { operation: 'stale_update_pot_details' });
     recordExpectedFailure(response, 'stale_update_pot_details', 'version_conflict', [409]);
   }
   else if (choice === 1) {
     const response = client.rawCommand('PATCH', `/api/pots/${UNKNOWN_UUID}/details`, {
       label: label(cfg.labelPrefix, 'unknown', data.runId, __ITER),
-      expectedVersion: 1,
+      observedVersion: 1,
     }, { operation: 'unknown_pot_update' });
     recordExpectedFailure(response, 'unknown_pot_update', 'not_found', [404]);
   }
@@ -160,7 +160,7 @@ export function runIncoherentRequest(data) {
     const current = currentPotVersion(client, target) || target.version;
     const response = outsider.rawCommand('PATCH', `/api/pots/${target.potId}/details`, {
       label: label(cfg.labelPrefix, 'forbidden', data.runId, __ITER),
-      expectedVersion: Math.max(1, current),
+      observedVersion: Math.max(1, current),
     }, { operation: 'forbidden_pot_update' });
     recordExpectedFailure(response, 'forbidden_pot_update', 'forbidden', [403]);
   }
@@ -172,7 +172,7 @@ export function runIncoherentRequest(data) {
       amountDenominator: 1,
       label: label(cfg.labelPrefix, 'invalid', data.runId, __ITER),
       shares: [],
-      expectedVersion: Math.max(1, current),
+      observedVersion: Math.max(1, current),
     }, { operation: 'invalid_create_expense' });
     recordExpectedFailure(response, 'invalid_create_expense', 'bad_request', [400]);
   }

@@ -1,0 +1,730 @@
+{
+  "verdict": "PASS",
+  "counts": {
+    "tests": 10,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "issues": [],
+  "executions": [
+    {
+      "classname": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest",
+      "method": "independentProgression",
+      "seconds": 17.785,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest",
+      "method": "resultsBeforeDomain",
+      "seconds": 1.303,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest",
+      "method": "participantConformance(String)[1]",
+      "seconds": 5.546,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest",
+      "method": "participantConformance(String)[2]",
+      "seconds": 5.435,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest",
+      "method": "participantConformance(String)[3]",
+      "seconds": 5.763,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest",
+      "method": "participantConformance(String)[4]",
+      "seconds": 5.598,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest",
+      "method": "participantConformance(String)[5]",
+      "seconds": 4.079,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest",
+      "method": "participantConformance(String)[6]",
+      "seconds": 4.15,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest",
+      "method": "boundedCapacityAndRenewal",
+      "seconds": 1.359,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest",
+      "method": "uncertainCommitHasNoSpeculativeSettlement",
+      "seconds": 2.416,
+      "outcome": "PASS"
+    }
+  ],
+  "compilation": {
+    "compiler_events": [],
+    "announced_recompiled_source_inputs": 0,
+    "source_inventory": [
+      {
+        "module": "domain-authorization",
+        "present_main_java": 5,
+        "present_test_java": 3,
+        "included_main_root_java": 5,
+        "included_test_root_java": 3,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "domain-event",
+        "present_main_java": 2,
+        "present_test_java": 1,
+        "included_main_root_java": 2,
+        "included_test_root_java": 1,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "domain-user-identity",
+        "present_main_java": 20,
+        "present_test_java": 3,
+        "included_main_root_java": 20,
+        "included_test_root_java": 3,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "contracts-authentication",
+        "present_main_java": 1,
+        "present_test_java": 0,
+        "included_main_root_java": 1,
+        "included_test_root_java": 0,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "domain-pot",
+        "present_main_java": 91,
+        "present_test_java": 45,
+        "included_main_root_java": 91,
+        "included_test_root_java": 45,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "domain-projection",
+        "present_main_java": 36,
+        "present_test_java": 5,
+        "included_main_root_java": 36,
+        "included_test_root_java": 5,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "domain-consumption",
+        "present_main_java": 27,
+        "present_test_java": 12,
+        "included_main_root_java": 27,
+        "included_test_root_java": 12,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "port-transaction",
+        "present_main_java": 7,
+        "present_test_java": 0,
+        "included_main_root_java": 7,
+        "included_test_root_java": 0,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "port-binding-authority",
+        "present_main_java": 6,
+        "present_test_java": 0,
+        "included_main_root_java": 6,
+        "included_test_root_java": 0,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "engine-consumption",
+        "present_main_java": 56,
+        "present_test_java": 9,
+        "included_main_root_java": 56,
+        "included_test_root_java": 9,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "contracts-command",
+        "present_main_java": 5,
+        "present_test_java": 0,
+        "included_main_root_java": 5,
+        "included_test_root_java": 0,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "engine-write-pot",
+        "present_main_java": 68,
+        "present_test_java": 24,
+        "included_main_root_java": 68,
+        "included_test_root_java": 24,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "engine-consume-command",
+        "present_main_java": 73,
+        "present_test_java": 19,
+        "included_main_root_java": 73,
+        "included_test_root_java": 19,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "orchestrator-consumption",
+        "present_main_java": 15,
+        "present_test_java": 2,
+        "included_main_root_java": 15,
+        "included_test_root_java": 2,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "supra-consume-command",
+        "present_main_java": 5,
+        "present_test_java": 4,
+        "included_main_root_java": 5,
+        "included_test_root_java": 4,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "engine-read-command-result",
+        "present_main_java": 9,
+        "present_test_java": 0,
+        "included_main_root_java": 9,
+        "included_test_root_java": 0,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "engine-materialize-command-result",
+        "present_main_java": 5,
+        "present_test_java": 2,
+        "included_main_root_java": 5,
+        "included_test_root_java": 2,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "supra-consume-command-result",
+        "present_main_java": 1,
+        "present_test_java": 0,
+        "included_main_root_java": 1,
+        "included_test_root_java": 0,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "contracts-registration",
+        "present_main_java": 2,
+        "present_test_java": 0,
+        "included_main_root_java": 2,
+        "included_test_root_java": 0,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "engine-admit-registration",
+        "present_main_java": 2,
+        "present_test_java": 0,
+        "included_main_root_java": 2,
+        "included_test_root_java": 0,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "engine-consume-registration",
+        "present_main_java": 10,
+        "present_test_java": 3,
+        "included_main_root_java": 10,
+        "included_test_root_java": 3,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "supra-consume-registration",
+        "present_main_java": 1,
+        "present_test_java": 0,
+        "included_main_root_java": 1,
+        "included_test_root_java": 0,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "engine-read-registration-result",
+        "present_main_java": 7,
+        "present_test_java": 0,
+        "included_main_root_java": 7,
+        "included_test_root_java": 0,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "engine-materialize-registration-result",
+        "present_main_java": 6,
+        "present_test_java": 2,
+        "included_main_root_java": 6,
+        "included_test_root_java": 2,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "supra-consume-registration-result",
+        "present_main_java": 1,
+        "present_test_java": 0,
+        "included_main_root_java": 1,
+        "included_test_root_java": 0,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "port-projection",
+        "present_main_java": 12,
+        "present_test_java": 0,
+        "included_main_root_java": 12,
+        "included_test_root_java": 0,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "engine-produce-projection-task",
+        "present_main_java": 6,
+        "present_test_java": 2,
+        "included_main_root_java": 6,
+        "included_test_root_java": 2,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "engine-read-projection",
+        "present_main_java": 5,
+        "present_test_java": 1,
+        "included_main_root_java": 5,
+        "included_test_root_java": 1,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "projector-pot",
+        "present_main_java": 5,
+        "present_test_java": 1,
+        "included_main_root_java": 5,
+        "included_test_root_java": 1,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "engine-consume-projection-task",
+        "present_main_java": 30,
+        "present_test_java": 6,
+        "included_main_root_java": 30,
+        "included_test_root_java": 6,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "supra-consume-projection-task",
+        "present_main_java": 1,
+        "present_test_java": 0,
+        "included_main_root_java": 1,
+        "included_test_root_java": 0,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "engine-read-current-binding",
+        "present_main_java": 4,
+        "present_test_java": 2,
+        "included_main_root_java": 4,
+        "included_test_root_java": 2,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "engine-read-pot",
+        "present_main_java": 15,
+        "present_test_java": 5,
+        "included_main_root_java": 15,
+        "included_test_root_java": 5,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "engine-materialize-current-binding",
+        "present_main_java": 9,
+        "present_test_java": 0,
+        "included_main_root_java": 9,
+        "included_test_root_java": 0,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "engine-materialize-latest-known-version",
+        "present_main_java": 6,
+        "present_test_java": 2,
+        "included_main_root_java": 6,
+        "included_test_root_java": 2,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "infra-tx-spring",
+        "present_main_java": 3,
+        "present_test_java": 8,
+        "included_main_root_java": 3,
+        "included_test_root_java": 8,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "infra-persistence-projection-jdbc",
+        "present_main_java": 5,
+        "present_test_java": 1,
+        "included_main_root_java": 5,
+        "included_test_root_java": 1,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "infra-persistence-read-jdbc",
+        "present_main_java": 17,
+        "present_test_java": 17,
+        "included_main_root_java": 17,
+        "included_test_root_java": 17,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "contracts-observability",
+        "present_main_java": 2,
+        "present_test_java": 1,
+        "included_main_root_java": 2,
+        "included_test_root_java": 1,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "engine-admit-command",
+        "present_main_java": 11,
+        "present_test_java": 2,
+        "included_main_root_java": 11,
+        "included_test_root_java": 2,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "supra-consume-lkv",
+        "present_main_java": 8,
+        "present_test_java": 2,
+        "included_main_root_java": 8,
+        "included_test_root_java": 2,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "infra-persistence-primary-jpa",
+        "present_main_java": 105,
+        "present_test_java": 71,
+        "included_main_root_java": 105,
+        "included_test_root_java": 71,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "infra-projection-validation-networknt",
+        "present_main_java": 1,
+        "present_test_java": 1,
+        "included_main_root_java": 1,
+        "included_test_root_java": 1,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "orchestrator-poll-consumption",
+        "present_main_java": 10,
+        "present_test_java": 2,
+        "included_main_root_java": 10,
+        "included_test_root_java": 2,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "supra-consume-event",
+        "present_main_java": 3,
+        "present_test_java": 2,
+        "included_main_root_java": 3,
+        "included_test_root_java": 2,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "supra-consume-binding",
+        "present_main_java": 4,
+        "present_test_java": 0,
+        "included_main_root_java": 4,
+        "included_test_root_java": 0,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "supra-http-write",
+        "present_main_java": 8,
+        "present_test_java": 1,
+        "included_main_root_java": 8,
+        "included_test_root_java": 1,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "supra-http-read",
+        "present_main_java": 8,
+        "present_test_java": 4,
+        "included_main_root_java": 8,
+        "included_test_root_java": 4,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "composition-runtime-spring",
+        "present_main_java": 55,
+        "present_test_java": 0,
+        "included_main_root_java": 55,
+        "included_test_root_java": 0,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "runtime-task-consumption-worker",
+        "present_main_java": 1,
+        "present_test_java": 14,
+        "included_main_root_java": 1,
+        "included_test_root_java": 14,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      }
+    ],
+    "reused_source_count": null,
+    "semantics": "Compiler announcements include singular/plural and main/test invocations. Presence is separate. Generated inputs may overlap roots; do not sum inventories. Exact reused files and actual javac reads are not observable from these logs. Resource copies are not Java compilation."
+  },
+  "command": [
+    "./mvnw",
+    "--batch-mode",
+    "--no-transfer-progress",
+    "-pl",
+    "runtime-task-consumption-worker",
+    "-am",
+    "-Dtest=com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance+independentProgression+resultsBeforeDomain+uncertainCommitHasNoSpeculativeSettlement+boundedCapacityAndRenewal",
+    "-Dsurefire.failIfNoSpecifiedTests=false",
+    "-Dpocoma.verification.id=45e2b7eb4edd4168a59eeb5d724f3248",
+    "-Dpocoma.verification.reports=/private/tmp/pocoma-i3-i7-integration-01/reports",
+    "test"
+  ],
+  "level": "INTEGRATION",
+  "scope": "READ-INTEGRATION-1",
+  "seconds": 59.853983,
+  "discovery_seconds": 1.8997184170293622,
+  "expected_invocations": 10,
+  "started_ns": 1793705059750647000,
+  "exit_code": 0,
+  "artifacts": {
+    "maven.log": "3676040c268cb6dfa636dc0facd7ee245f11282da1c129da7424bf8ea0fb644e",
+    "effective-pom.xml": "242311f18ec9d71406be31c3936697cd0f282636f558fd07e612a1c70ff8b0dd",
+    "discovery.log": "6830af4e40815d5ba2772f6b14c9f88ef061b453e1e8c6769bf79d1ea4ee2ef4",
+    "discovery.process.json": "976836b9c459f29935125c64b9f3e453467fd92f2b4f894857382b1e6980e46d",
+    "maven.process.json": "9f3efd99c3c34658c09b8f5b357f0981947ae56328aee7c3f930718c44b73641",
+    "reports/pocoma-runtime-task-consumption-worker/surefire-reports/TEST-com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest.xml": "2902f1f21e1f5378434a51bb8865afb0abf9ca300fbdc21e7afef0b53da481df",
+    "reports/pocoma-runtime-task-consumption-worker/surefire-reports/com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest.txt": "cbba9ad49fa369abaea0260e61ddc37748632829c36ac895b23dbaaec836699e",
+    "app/runtime-task-consumption-worker/target/l4-i1-evidence/45e2b7eb4edd4168a59eeb5d724f3248/pocoma-runtime-task-consumption-worker/physical/I2-L4-COMMAND_RESULT-afterComplete-i1_5835f7357ffa47bea2e5961c26891c1c.txt": "60fcf08b1b30a35255622f7f04de109011f280c9be496ae5291ada04d0007dfb",
+    "app/runtime-task-consumption-worker/target/l4-i1-evidence/45e2b7eb4edd4168a59eeb5d724f3248/pocoma-runtime-task-consumption-worker/physical/I2-L4-COMMAND_RESULT-missing-i1_461bc1675cb64c37bd581cff5c5903ce.txt": "9e17a6b714c6d98c54678c6808d44fa8ba0427c6c4f8cbabe1d2f5aea4fcf3b1",
+    "app/runtime-task-consumption-worker/target/l4-i1-evidence/45e2b7eb4edd4168a59eeb5d724f3248/pocoma-runtime-task-consumption-worker/physical/I2-L4-COMMAND_RESULT-success-i1_217eb9fdcc6c405cbe2110929ed92345.txt": "9f63c7d9eaa1803cbda8dc8910fe577ff1ac9c9a8d6b11c9d806b500cca5e0ed",
+    "app/runtime-task-consumption-worker/target/l4-i1-evidence/45e2b7eb4edd4168a59eeb5d724f3248/pocoma-runtime-task-consumption-worker/physical/I2-L4-CURRENT_BINDING-afterComplete-i1_861b7e5cbc244c9ea4364a0fdbc0dc1f.txt": "e4a8ab216d4a7a013bcc4fafb8ab57f85964ec95e8dadfd5cbe25f9cfb79a5fa",
+    "app/runtime-task-consumption-worker/target/l4-i1-evidence/45e2b7eb4edd4168a59eeb5d724f3248/pocoma-runtime-task-consumption-worker/physical/I2-L4-CURRENT_BINDING-missing-i1_0765c19cfbd641cf96f4b1ec6cb21ea0.txt": "de7e196feb0505b08063d87e3c575ff28757bdb4bc052fb35f00163439ae6b9d",
+    "app/runtime-task-consumption-worker/target/l4-i1-evidence/45e2b7eb4edd4168a59eeb5d724f3248/pocoma-runtime-task-consumption-worker/physical/I2-L4-CURRENT_BINDING-newer-i1_bc1c57bb6dff48c590f953780025d3c8.txt": "19334eb1968a3809b533bcc56deb33318d6a50b500bc59407129202e66e732ce",
+    "app/runtime-task-consumption-worker/target/l4-i1-evidence/45e2b7eb4edd4168a59eeb5d724f3248/pocoma-runtime-task-consumption-worker/physical/I2-L4-CURRENT_BINDING-success-i1_00b8f777b3b54db88fd6e525486e9544.txt": "2f93e837f1ed049f0598ba7db45526eb9548b77bb8f5dc127458e2ac193e0719",
+    "app/runtime-task-consumption-worker/target/l4-i1-evidence/45e2b7eb4edd4168a59eeb5d724f3248/pocoma-runtime-task-consumption-worker/physical/I2-L4-IDENTITY_REQUEST_RESULT-afterComplete-i1_dd93b55bcace4a439a3fccfb6d3d390d.txt": "26ab8712fdca02a79176a1539afa4cf2fb8b4097db6594eed111f83c9d3577fc",
+    "app/runtime-task-consumption-worker/target/l4-i1-evidence/45e2b7eb4edd4168a59eeb5d724f3248/pocoma-runtime-task-consumption-worker/physical/I2-L4-IDENTITY_REQUEST_RESULT-missing-i1_362902171b3d4e22a9b648723a332db5.txt": "427d5f7d6075718370d91551b484366dc8718a88183bbcf70b05e884a85d7c4f",
+    "app/runtime-task-consumption-worker/target/l4-i1-evidence/45e2b7eb4edd4168a59eeb5d724f3248/pocoma-runtime-task-consumption-worker/physical/I2-L4-IDENTITY_REQUEST_RESULT-success-i1_db08176e15af4919bc3f2bd156f4e0f2.txt": "f59788f2536e545817031c521c5f4aed70595c845d60335fd8a167eb1c11efb0",
+    "app/runtime-task-consumption-worker/target/l4-i1-evidence/45e2b7eb4edd4168a59eeb5d724f3248/pocoma-runtime-task-consumption-worker/physical/I2-L4-POT_BALANCE-afterComplete-i1_e1609de112084cef919bbc49724a9c3e.txt": "acd5fa2db703533dd39659df1595471a709479720f69c9b9d2366b0f69a42e4a",
+    "app/runtime-task-consumption-worker/target/l4-i1-evidence/45e2b7eb4edd4168a59eeb5d724f3248/pocoma-runtime-task-consumption-worker/physical/I2-L4-POT_BALANCE-missing-i1_d8907d9a7dd44d77b7bf9b317d0249df.txt": "fb250c33a03ad8ea3da6f321a351f4dcbe2affae6df34a9ba693b82e129e9183",
+    "app/runtime-task-consumption-worker/target/l4-i1-evidence/45e2b7eb4edd4168a59eeb5d724f3248/pocoma-runtime-task-consumption-worker/physical/I2-L4-POT_BALANCE-newer-i1_5dd1225ae8bf46238037dd33d55519f3.txt": "9f899f59a083cd31b2843eaa93922163da4af523b9f69a890a5c0e9c0849335d",
+    "app/runtime-task-consumption-worker/target/l4-i1-evidence/45e2b7eb4edd4168a59eeb5d724f3248/pocoma-runtime-task-consumption-worker/physical/I2-L4-POT_BALANCE-success-i1_26905dec174347e7a95549f622496a67.txt": "a8aad50cb1e725d72d55b48962b4c4918daad5c142c0e67f4e7337792c4ab617",
+    "app/runtime-task-consumption-worker/target/l4-i1-evidence/45e2b7eb4edd4168a59eeb5d724f3248/pocoma-runtime-task-consumption-worker/physical/I2-L4-POT_VERSION-afterComplete-i1_a56c2e38d23f4d16b269958048183614.txt": "f3f43ea540c5a05c07a7b7483e91fff1fcb5c1df495760f071f5b59507e34b28",
+    "app/runtime-task-consumption-worker/target/l4-i1-evidence/45e2b7eb4edd4168a59eeb5d724f3248/pocoma-runtime-task-consumption-worker/physical/I2-L4-POT_VERSION-missing-i1_5bca6ba471b54ef49af7e26953f4437d.txt": "6c4dd89958427d0d42a2e4a4e0e66459551cd89ecdfcd333cf7764ad5eb595ed",
+    "app/runtime-task-consumption-worker/target/l4-i1-evidence/45e2b7eb4edd4168a59eeb5d724f3248/pocoma-runtime-task-consumption-worker/physical/I2-L4-POT_VERSION-newer-i1_64b03da6f0fd4aeeb68c07ab19b8abb3.txt": "ac9e0e30944c31a450dcd3d46cebd1742cff8b69cdc8d70490fe25c305918ec4",
+    "app/runtime-task-consumption-worker/target/l4-i1-evidence/45e2b7eb4edd4168a59eeb5d724f3248/pocoma-runtime-task-consumption-worker/physical/I2-L4-POT_VERSION-success-i1_bcd8b5109e2147a5a8a97f96433c209e.txt": "93b8633e9b9d9616493511ab8d05563a9e72b2b57a2b82b4ac6f15b2f0ed44d4",
+    "app/runtime-task-consumption-worker/target/l4-i1-evidence/45e2b7eb4edd4168a59eeb5d724f3248/pocoma-runtime-task-consumption-worker/physical/I2-L4-POT_VISIBILITY-afterComplete-i1_a06893d2dc454ebebaf6063fe3f8247d.txt": "338b2c97dba928ee415fe7b1df0935f19ca9597663a46fab80a124674388d1fd",
+    "app/runtime-task-consumption-worker/target/l4-i1-evidence/45e2b7eb4edd4168a59eeb5d724f3248/pocoma-runtime-task-consumption-worker/physical/I2-L4-POT_VISIBILITY-missing-i1_8c7601f3b8dd4df5817e0de91ddd809d.txt": "6e15fb4bff69c285421ab473bf2d17bf394514230d6ff3d813d5e783dc0f6891",
+    "app/runtime-task-consumption-worker/target/l4-i1-evidence/45e2b7eb4edd4168a59eeb5d724f3248/pocoma-runtime-task-consumption-worker/physical/I2-L4-POT_VISIBILITY-newer-i1_93bcd2b934bd45f49acad6a5082aaf76.txt": "fd854f20e0a30abbe30214697ae28f4a1684486dde98b7bec049b65260f09c0c",
+    "app/runtime-task-consumption-worker/target/l4-i1-evidence/45e2b7eb4edd4168a59eeb5d724f3248/pocoma-runtime-task-consumption-worker/physical/I2-L4-POT_VISIBILITY-success-i1_8b224d259dc048c9bdb56fa49a380b2d.txt": "8125a2002ee67b3cc59746c8a358e0952cef4dfe42855fe4a84078928942963a",
+    "app/runtime-task-consumption-worker/target/l4-i1-evidence/45e2b7eb4edd4168a59eeb5d724f3248/pocoma-runtime-task-consumption-worker/physical/I2-L4-capacity-i1_79137c1e5e404065838852aa3cc8b74e.txt": "02d583f7d9b8f66701d42ed1f52d426006a0cc06f1243abae137e214ef212e5d",
+    "app/runtime-task-consumption-worker/target/l4-i1-evidence/45e2b7eb4edd4168a59eeb5d724f3248/pocoma-runtime-task-consumption-worker/physical/I2-L4-disabled-COMMAND_RESULT-i1_374ecc4ba0214bb2b50a6268004999f2.txt": "035b02b8d074f73f98fb49a69cb5922179f1ac04f12233397afffda9dbfd9ff9",
+    "app/runtime-task-consumption-worker/target/l4-i1-evidence/45e2b7eb4edd4168a59eeb5d724f3248/pocoma-runtime-task-consumption-worker/physical/I2-L4-disabled-CURRENT_BINDING-i1_e7f350e5dfab48dcb4039c4b5eb0128a.txt": "4e5557a609aa1b1a58b6f44c73f9a1db7c2866f314f5191a26651f5aed5ce283",
+    "app/runtime-task-consumption-worker/target/l4-i1-evidence/45e2b7eb4edd4168a59eeb5d724f3248/pocoma-runtime-task-consumption-worker/physical/I2-L4-disabled-IDENTITY_REQUEST_RESULT-i1_0f17e220bb18453fad874cdc7b9f879b.txt": "083f84900c66741ee69cc0274c151aa6b8960258d984c03acb676767b937bb59",
+    "app/runtime-task-consumption-worker/target/l4-i1-evidence/45e2b7eb4edd4168a59eeb5d724f3248/pocoma-runtime-task-consumption-worker/physical/I2-L4-disabled-POT_BALANCE-i1_0bb443d9d49e4bce8c7907fc098a3c71.txt": "208545bd71de5470c0ef5e5c01d58d8ed0ae866ed7a74bce0823ea29b04c873b",
+    "app/runtime-task-consumption-worker/target/l4-i1-evidence/45e2b7eb4edd4168a59eeb5d724f3248/pocoma-runtime-task-consumption-worker/physical/I2-L4-disabled-POT_VERSION-i1_44069315b634462c81122d88ab5c139f.txt": "fe060a5fec026f473f2ff70e8485e089fd83cf5b05b98dfd6cd4daaf609d54f4",
+    "app/runtime-task-consumption-worker/target/l4-i1-evidence/45e2b7eb4edd4168a59eeb5d724f3248/pocoma-runtime-task-consumption-worker/physical/I2-L4-disabled-POT_VISIBILITY-i1_7fa90cb4a08a463caa84d3e7cc7cfd17.txt": "0a2952f3937cf0e85ea755eb511b3b9f8ed7a79f9b79098c90a78019a15c8d95",
+    "app/runtime-task-consumption-worker/target/l4-i1-evidence/45e2b7eb4edd4168a59eeb5d724f3248/pocoma-runtime-task-consumption-worker/physical/I2-L4-order-[POT_BALANCE, POT_VERSION, POT_VISIBILITY]-i1_6137b9fa1c3e43c691c5ebea2a843f67.txt": "522a9e01496fc4682b566535f6bd19349a0d42b84f0361dca4b5d249cc53f1af",
+    "app/runtime-task-consumption-worker/target/l4-i1-evidence/45e2b7eb4edd4168a59eeb5d724f3248/pocoma-runtime-task-consumption-worker/physical/I2-L4-order-[POT_BALANCE, POT_VISIBILITY, POT_VERSION]-i1_3d6b75c5ef0e40b8900ba9ed13fe0bb9.txt": "4797f7eb5f8cb20c37eb59fa68ea137467f933a4b56b81d6a1fbc4a0006865a8",
+    "app/runtime-task-consumption-worker/target/l4-i1-evidence/45e2b7eb4edd4168a59eeb5d724f3248/pocoma-runtime-task-consumption-worker/physical/I2-L4-order-[POT_VERSION, POT_BALANCE, POT_VISIBILITY]-i1_fd0891bdac0b478a8c79d4fb45a5e77f.txt": "6fdee9660f1a0a4a1c720cbd74ec4440d8766574b94c9fe3c9ca575f0779280c",
+    "app/runtime-task-consumption-worker/target/l4-i1-evidence/45e2b7eb4edd4168a59eeb5d724f3248/pocoma-runtime-task-consumption-worker/physical/I2-L4-order-[POT_VERSION, POT_VISIBILITY, POT_BALANCE]-i1_c9f43f6b99384acaa6f970def74fda09.txt": "c5c93c9e3972ff948e5e08812bd3bf3d77317328f604fc9a6f9faacbbee276a9",
+    "app/runtime-task-consumption-worker/target/l4-i1-evidence/45e2b7eb4edd4168a59eeb5d724f3248/pocoma-runtime-task-consumption-worker/physical/I2-L4-order-[POT_VISIBILITY, POT_BALANCE, POT_VERSION]-i1_721ccb6e06914792b0d082baac8162bc.txt": "2caea9ba2d79981239b9131e97c71be9b6c446b567f6a4246e16cf521d341002",
+    "app/runtime-task-consumption-worker/target/l4-i1-evidence/45e2b7eb4edd4168a59eeb5d724f3248/pocoma-runtime-task-consumption-worker/physical/I2-L4-order-[POT_VISIBILITY, POT_VERSION, POT_BALANCE]-i1_467d6b1c6dec41cd986399f5570dbeb5.txt": "449841b7a3a63efd6bf0ef25b03eca1ae6125dd9183e14bec2f26f63b91e58cc",
+    "app/runtime-task-consumption-worker/target/l4-i1-evidence/45e2b7eb4edd4168a59eeb5d724f3248/pocoma-runtime-task-consumption-worker/physical/I2-L4-results-before-domain-i1_86ecfda6ff2746278d14a2dd543d1977.txt": "199a33bc46f9cfb39199f93d0a632a869547aaace104ece6f92e952f83e118b4",
+    "app/runtime-task-consumption-worker/target/l4-i1-evidence/45e2b7eb4edd4168a59eeb5d724f3248/pocoma-runtime-task-consumption-worker/physical/I2-L4-unknown-AFTER_COMMIT-i1_329f5979e4cd407593f6f271e77cd96e.txt": "594f0d26e3674b81f12c4215f1abe79f6be6307cc84b0fc38ec73f317210f008",
+    "app/runtime-task-consumption-worker/target/l4-i1-evidence/45e2b7eb4edd4168a59eeb5d724f3248/pocoma-runtime-task-consumption-worker/physical/I2-L4-unknown-BEFORE_COMMIT-i1_68121281c4a84bca9b733fb51e6e237b.txt": "0543ee448bea9cfc29378e1ffcc32fdb9fdc59465cc1f0604cc17712b5da1d77",
+    "app/runtime-task-consumption-worker/target/l4-i2-evidence/45e2b7eb4edd4168a59eeb5d724f3248/L4-COMMAND_RESULT-afterComplete.txt": "60fcf08b1b30a35255622f7f04de109011f280c9be496ae5291ada04d0007dfb",
+    "app/runtime-task-consumption-worker/target/l4-i2-evidence/45e2b7eb4edd4168a59eeb5d724f3248/L4-COMMAND_RESULT-missing.txt": "9e17a6b714c6d98c54678c6808d44fa8ba0427c6c4f8cbabe1d2f5aea4fcf3b1",
+    "app/runtime-task-consumption-worker/target/l4-i2-evidence/45e2b7eb4edd4168a59eeb5d724f3248/L4-COMMAND_RESULT-success.txt": "9f63c7d9eaa1803cbda8dc8910fe577ff1ac9c9a8d6b11c9d806b500cca5e0ed",
+    "app/runtime-task-consumption-worker/target/l4-i2-evidence/45e2b7eb4edd4168a59eeb5d724f3248/L4-CURRENT_BINDING-afterComplete.txt": "e4a8ab216d4a7a013bcc4fafb8ab57f85964ec95e8dadfd5cbe25f9cfb79a5fa",
+    "app/runtime-task-consumption-worker/target/l4-i2-evidence/45e2b7eb4edd4168a59eeb5d724f3248/L4-CURRENT_BINDING-missing.txt": "de7e196feb0505b08063d87e3c575ff28757bdb4bc052fb35f00163439ae6b9d",
+    "app/runtime-task-consumption-worker/target/l4-i2-evidence/45e2b7eb4edd4168a59eeb5d724f3248/L4-CURRENT_BINDING-newer.txt": "19334eb1968a3809b533bcc56deb33318d6a50b500bc59407129202e66e732ce",
+    "app/runtime-task-consumption-worker/target/l4-i2-evidence/45e2b7eb4edd4168a59eeb5d724f3248/L4-CURRENT_BINDING-success.txt": "2f93e837f1ed049f0598ba7db45526eb9548b77bb8f5dc127458e2ac193e0719",
+    "app/runtime-task-consumption-worker/target/l4-i2-evidence/45e2b7eb4edd4168a59eeb5d724f3248/L4-IDENTITY_REQUEST_RESULT-afterComplete.txt": "26ab8712fdca02a79176a1539afa4cf2fb8b4097db6594eed111f83c9d3577fc",
+    "app/runtime-task-consumption-worker/target/l4-i2-evidence/45e2b7eb4edd4168a59eeb5d724f3248/L4-IDENTITY_REQUEST_RESULT-missing.txt": "427d5f7d6075718370d91551b484366dc8718a88183bbcf70b05e884a85d7c4f",
+    "app/runtime-task-consumption-worker/target/l4-i2-evidence/45e2b7eb4edd4168a59eeb5d724f3248/L4-IDENTITY_REQUEST_RESULT-success.txt": "f59788f2536e545817031c521c5f4aed70595c845d60335fd8a167eb1c11efb0",
+    "app/runtime-task-consumption-worker/target/l4-i2-evidence/45e2b7eb4edd4168a59eeb5d724f3248/L4-POT_BALANCE-afterComplete.txt": "acd5fa2db703533dd39659df1595471a709479720f69c9b9d2366b0f69a42e4a",
+    "app/runtime-task-consumption-worker/target/l4-i2-evidence/45e2b7eb4edd4168a59eeb5d724f3248/L4-POT_BALANCE-missing.txt": "fb250c33a03ad8ea3da6f321a351f4dcbe2affae6df34a9ba693b82e129e9183",
+    "app/runtime-task-consumption-worker/target/l4-i2-evidence/45e2b7eb4edd4168a59eeb5d724f3248/L4-POT_BALANCE-newer.txt": "9f899f59a083cd31b2843eaa93922163da4af523b9f69a890a5c0e9c0849335d",
+    "app/runtime-task-consumption-worker/target/l4-i2-evidence/45e2b7eb4edd4168a59eeb5d724f3248/L4-POT_BALANCE-success.txt": "a8aad50cb1e725d72d55b48962b4c4918daad5c142c0e67f4e7337792c4ab617",
+    "app/runtime-task-consumption-worker/target/l4-i2-evidence/45e2b7eb4edd4168a59eeb5d724f3248/L4-POT_VERSION-afterComplete.txt": "f3f43ea540c5a05c07a7b7483e91fff1fcb5c1df495760f071f5b59507e34b28",
+    "app/runtime-task-consumption-worker/target/l4-i2-evidence/45e2b7eb4edd4168a59eeb5d724f3248/L4-POT_VERSION-missing.txt": "6c4dd89958427d0d42a2e4a4e0e66459551cd89ecdfcd333cf7764ad5eb595ed",
+    "app/runtime-task-consumption-worker/target/l4-i2-evidence/45e2b7eb4edd4168a59eeb5d724f3248/L4-POT_VERSION-newer.txt": "ac9e0e30944c31a450dcd3d46cebd1742cff8b69cdc8d70490fe25c305918ec4",
+    "app/runtime-task-consumption-worker/target/l4-i2-evidence/45e2b7eb4edd4168a59eeb5d724f3248/L4-POT_VERSION-success.txt": "93b8633e9b9d9616493511ab8d05563a9e72b2b57a2b82b4ac6f15b2f0ed44d4",
+    "app/runtime-task-consumption-worker/target/l4-i2-evidence/45e2b7eb4edd4168a59eeb5d724f3248/L4-POT_VISIBILITY-afterComplete.txt": "338b2c97dba928ee415fe7b1df0935f19ca9597663a46fab80a124674388d1fd",
+    "app/runtime-task-consumption-worker/target/l4-i2-evidence/45e2b7eb4edd4168a59eeb5d724f3248/L4-POT_VISIBILITY-missing.txt": "6e15fb4bff69c285421ab473bf2d17bf394514230d6ff3d813d5e783dc0f6891",
+    "app/runtime-task-consumption-worker/target/l4-i2-evidence/45e2b7eb4edd4168a59eeb5d724f3248/L4-POT_VISIBILITY-newer.txt": "fd854f20e0a30abbe30214697ae28f4a1684486dde98b7bec049b65260f09c0c",
+    "app/runtime-task-consumption-worker/target/l4-i2-evidence/45e2b7eb4edd4168a59eeb5d724f3248/L4-POT_VISIBILITY-success.txt": "8125a2002ee67b3cc59746c8a358e0952cef4dfe42855fe4a84078928942963a",
+    "app/runtime-task-consumption-worker/target/l4-i2-evidence/45e2b7eb4edd4168a59eeb5d724f3248/L4-capacity.txt": "02d583f7d9b8f66701d42ed1f52d426006a0cc06f1243abae137e214ef212e5d",
+    "app/runtime-task-consumption-worker/target/l4-i2-evidence/45e2b7eb4edd4168a59eeb5d724f3248/L4-disabled-COMMAND_RESULT.txt": "035b02b8d074f73f98fb49a69cb5922179f1ac04f12233397afffda9dbfd9ff9",
+    "app/runtime-task-consumption-worker/target/l4-i2-evidence/45e2b7eb4edd4168a59eeb5d724f3248/L4-disabled-CURRENT_BINDING.txt": "4e5557a609aa1b1a58b6f44c73f9a1db7c2866f314f5191a26651f5aed5ce283",
+    "app/runtime-task-consumption-worker/target/l4-i2-evidence/45e2b7eb4edd4168a59eeb5d724f3248/L4-disabled-IDENTITY_REQUEST_RESULT.txt": "083f84900c66741ee69cc0274c151aa6b8960258d984c03acb676767b937bb59",
+    "app/runtime-task-consumption-worker/target/l4-i2-evidence/45e2b7eb4edd4168a59eeb5d724f3248/L4-disabled-POT_BALANCE.txt": "208545bd71de5470c0ef5e5c01d58d8ed0ae866ed7a74bce0823ea29b04c873b",
+    "app/runtime-task-consumption-worker/target/l4-i2-evidence/45e2b7eb4edd4168a59eeb5d724f3248/L4-disabled-POT_VERSION.txt": "fe060a5fec026f473f2ff70e8485e089fd83cf5b05b98dfd6cd4daaf609d54f4",
+    "app/runtime-task-consumption-worker/target/l4-i2-evidence/45e2b7eb4edd4168a59eeb5d724f3248/L4-disabled-POT_VISIBILITY.txt": "0a2952f3937cf0e85ea755eb511b3b9f8ed7a79f9b79098c90a78019a15c8d95",
+    "app/runtime-task-consumption-worker/target/l4-i2-evidence/45e2b7eb4edd4168a59eeb5d724f3248/L4-order-[POT_BALANCE, POT_VERSION, POT_VISIBILITY].txt": "522a9e01496fc4682b566535f6bd19349a0d42b84f0361dca4b5d249cc53f1af",
+    "app/runtime-task-consumption-worker/target/l4-i2-evidence/45e2b7eb4edd4168a59eeb5d724f3248/L4-order-[POT_BALANCE, POT_VISIBILITY, POT_VERSION].txt": "4797f7eb5f8cb20c37eb59fa68ea137467f933a4b56b81d6a1fbc4a0006865a8",
+    "app/runtime-task-consumption-worker/target/l4-i2-evidence/45e2b7eb4edd4168a59eeb5d724f3248/L4-order-[POT_VERSION, POT_BALANCE, POT_VISIBILITY].txt": "6fdee9660f1a0a4a1c720cbd74ec4440d8766574b94c9fe3c9ca575f0779280c",
+    "app/runtime-task-consumption-worker/target/l4-i2-evidence/45e2b7eb4edd4168a59eeb5d724f3248/L4-order-[POT_VERSION, POT_VISIBILITY, POT_BALANCE].txt": "c5c93c9e3972ff948e5e08812bd3bf3d77317328f604fc9a6f9faacbbee276a9",
+    "app/runtime-task-consumption-worker/target/l4-i2-evidence/45e2b7eb4edd4168a59eeb5d724f3248/L4-order-[POT_VISIBILITY, POT_BALANCE, POT_VERSION].txt": "2caea9ba2d79981239b9131e97c71be9b6c446b567f6a4246e16cf521d341002",
+    "app/runtime-task-consumption-worker/target/l4-i2-evidence/45e2b7eb4edd4168a59eeb5d724f3248/L4-order-[POT_VISIBILITY, POT_VERSION, POT_BALANCE].txt": "449841b7a3a63efd6bf0ef25b03eca1ae6125dd9183e14bec2f26f63b91e58cc",
+    "app/runtime-task-consumption-worker/target/l4-i2-evidence/45e2b7eb4edd4168a59eeb5d724f3248/L4-results-before-domain.txt": "199a33bc46f9cfb39199f93d0a632a869547aaace104ece6f92e952f83e118b4",
+    "app/runtime-task-consumption-worker/target/l4-i2-evidence/45e2b7eb4edd4168a59eeb5d724f3248/L4-unknown-AFTER_COMMIT.txt": "594f0d26e3674b81f12c4215f1abe79f6be6307cc84b0fc38ec73f317210f008",
+    "app/runtime-task-consumption-worker/target/l4-i2-evidence/45e2b7eb4edd4168a59eeb5d724f3248/L4-unknown-BEFORE_COMMIT.txt": "0543ee448bea9cfc29378e1ffcc32fdb9fdc59465cc1f0604cc17712b5da1d77"
+  },
+  "invocation_id": "45e2b7eb4edd4168a59eeb5d724f3248",
+  "reports_root": "/private/tmp/pocoma-i3-i7-integration-01/reports",
+  "raw_sha256": "cf535d97583d79fa9d66177895b73871d176417204d77a600c87f5e9161066cf",
+  "previous_reports_not_counted": [
+    "app/engine-read-current-binding/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.read.currentbinding.v3.CurrentBindingV3ContractTest.xml"
+  ],
+  "not_selected": "All methods outside plan.expected for filtered feedback; NOT RUN, never PASS",
+  "quarantined_scenarios": {
+    "i5_r05": {
+      "class": "com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest",
+      "method": "i5_r05",
+      "anchor": "COMMAND",
+      "status": "QUALIFIED",
+      "active": false,
+      "reason": "Historical I1 failure; I2 PASS 52.451s. Temporal worker campaign, availability reserve remains open.",
+      "reference": "docs/v3/L3_I2_Execution_Report.md",
+      "decision": "Explicit nominative operational isolation authorized by verification optimization mandate; no normative waiver.",
+      "resolution": "Definitively qualified under Gemini counter-audit. Physical Discovery SKIP LOCKED contention validated on real PostgreSQL; false FAIL eliminated; availability/famine detection preserved; R1 reserve closed.",
+      "resolution_reference": "docs/v3/L2_I5_Counter_Audit_and_Definitive_Closure_Report.md",
+      "resolution_decision": "Quarantine lifted. Retained in registry as historical qualified scenario for diagnostic recipe access and CERTIFICATION coverage obligations."
+    },
+    "i5_r12": {
+      "class": "com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest",
+      "method": "i5_r12",
+      "anchor": "COMMAND",
+      "status": "QUALIFIED",
+      "active": false,
+      "reason": "I2 FAIL 95.825s: runtime condition deadline; Runtime.close:553 via I5TemporalV2Postgres.campaign:947. Physical root cause unresolved.",
+      "reference": "docs/v3/L3_I2_Execution_Report.md",
+      "decision": "Explicit nominative operational isolation authorized by verification optimization mandate; no normative waiver.",
+      "resolution": "Definitively qualified under Gemini counter-audit. Verified 2 active workers, 4 physical pools/worker, 8 retained business preparations, 4 concurrent contentions, B1/B32 x M_W1/M_W4, nominal drainage, zero timeouts in canonical gate; R2 reserve closed.",
+      "resolution_reference": "docs/v3/L2_I5_Counter_Audit_and_Definitive_Closure_Report.md",
+      "resolution_decision": "Quarantine lifted. Retained in registry as historical qualified scenario for diagnostic recipe access and CERTIFICATION coverage obligations."
+    }
+  },
+  "active_quarantined_scenarios": {},
+  "historical_quarantined_scenarios": {
+    "i5_r05": {
+      "class": "com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest",
+      "method": "i5_r05",
+      "anchor": "COMMAND",
+      "status": "QUALIFIED",
+      "active": false,
+      "reason": "Historical I1 failure; I2 PASS 52.451s. Temporal worker campaign, availability reserve remains open.",
+      "reference": "docs/v3/L3_I2_Execution_Report.md",
+      "decision": "Explicit nominative operational isolation authorized by verification optimization mandate; no normative waiver.",
+      "resolution": "Definitively qualified under Gemini counter-audit. Physical Discovery SKIP LOCKED contention validated on real PostgreSQL; false FAIL eliminated; availability/famine detection preserved; R1 reserve closed.",
+      "resolution_reference": "docs/v3/L2_I5_Counter_Audit_and_Definitive_Closure_Report.md",
+      "resolution_decision": "Quarantine lifted. Retained in registry as historical qualified scenario for diagnostic recipe access and CERTIFICATION coverage obligations."
+    },
+    "i5_r12": {
+      "class": "com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest",
+      "method": "i5_r12",
+      "anchor": "COMMAND",
+      "status": "QUALIFIED",
+      "active": false,
+      "reason": "I2 FAIL 95.825s: runtime condition deadline; Runtime.close:553 via I5TemporalV2Postgres.campaign:947. Physical root cause unresolved.",
+      "reference": "docs/v3/L3_I2_Execution_Report.md",
+      "decision": "Explicit nominative operational isolation authorized by verification optimization mandate; no normative waiver.",
+      "resolution": "Definitively qualified under Gemini counter-audit. Verified 2 active workers, 4 physical pools/worker, 8 retained business preparations, 4 concurrent contentions, B1/B32 x M_W1/M_W4, nominal drainage, zero timeouts in canonical gate; R2 reserve closed.",
+      "resolution_reference": "docs/v3/L2_I5_Counter_Audit_and_Definitive_Closure_Report.md",
+      "resolution_decision": "Quarantine lifted. Retained in registry as historical qualified scenario for diagnostic recipe access and CERTIFICATION coverage obligations."
+    }
+  },
+  "timing": {
+    "phases": {
+      "input_inventory": {
+        "status": "FINISHED",
+        "seconds": 0.16695799998706207
+      },
+      "discovery": {
+        "status": "FINISHED",
+        "seconds": 1.8994763750233687
+      },
+      "maven": {
+        "status": "FINISHED",
+        "seconds": 59.85313354100799
+      },
+      "collection": {
+        "status": "FINISHED",
+        "seconds": 0.6363870840286836
+      }
+    },
+    "campaign_seconds": 63.04281795799034,
+    "forecast": {
+      "seconds": 900,
+      "basis": "Indicative envelope, not a measured nominal estimate; nominal UNKNOWN",
+      "uncertainty": "HIGH",
+      "blocking": false
+    },
+    "forecast_delta_seconds": -836.9571820420097,
+    "forecast_exceeded": false,
+    "forecast_is_blocking": false
+  },
+  "operational_status": "PASS"
+}

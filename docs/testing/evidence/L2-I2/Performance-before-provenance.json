@@ -1,0 +1,8 @@
+{
+  "sha": "cd4dac2a5f4d34bd337cd3f494f5fd403f238a81",
+  "command": "./mvnw -pl infra-persistence-primary-jpa -am test -Dtest=WriteRevisionPerformancePostgresTest -Dsurefire.failIfNoSpecifiedTests=false -Df2.variant=i2-before",
+  "cwd": "/private/tmp/pocoma-v3-i2-performance-before/app",
+  "maven_concurrent": false,
+  "comparison": "Same fixture population/intents/warmups/repetitions, API-adapted harness; legacy L1 owner before versus canonical Engine/owner after. This is not a global performance/SLO proof.",
+  "raw_log_and_xml_archive": "Standalone-raw.tar.gz"
+}

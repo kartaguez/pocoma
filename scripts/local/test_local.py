@@ -1,0 +1,213 @@
+"""Safety and false-positive regression controls for destructive local orchestration."""
+import json
+from pathlib import Path
+import subprocess
+import sys
+import tempfile
+import unittest
+from unittest.mock import patch
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import bootstrap
+import runtime
+from public_api import exact_balances, canary
+
+
+class LocalSafety(unittest.TestCase):
+    def test_unknown_instance_is_not_adopted(self):
+        with self.assertRaises(runtime.Refusal):
+            with runtime.locked('../foreign'):
+                self.fail('escaped state')
+
+    def test_nested_symlink_is_refused_before_operation(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            root.chmod(0o700)
+            (root/'foreign').symlink_to('/tmp')
+            with self.assertRaisesRegex(runtime.Refusal, 'SYMLINK'):
+                runtime.safe_tree(root)
+
+    def test_instance_lock_refuses_concurrent_owner(self):
+        with tempfile.TemporaryDirectory() as folder, patch.object(runtime, 'HOME_LOCAL', Path(folder)):
+            with runtime.locked('same', create=True):
+                with self.assertRaisesRegex(runtime.Refusal, 'LOCKED'):
+                    with runtime.locked('same'):
+                        self.fail('second owner')
+
+    def test_foreign_project_label_refused(self):
+        manifest = {'project':'owned','owner':'uuid'}
+        with patch.object(runtime, 'run', return_value='foreign'), patch.object(runtime, 'docker_json',
+                return_value=[{'Config':{'Labels':{runtime.LABEL:'other'}}}]):
+            with self.assertRaisesRegex(runtime.Refusal, 'FOREIGN-CONTAINER'):
+                runtime.ownership(manifest)
+
+    def test_unnamed_reset_refused_without_docker(self):
+        with patch.object(sys, 'argv', ['runtime.py','reset','--confirm','RESET:demo']), patch.object(runtime, 'run') as command:
+            self.assertEqual(2, runtime.main())
+            command.assert_not_called()
+
+    def test_destroy_requires_exact_explicit_instance_confirmation_before_docker(self):
+        for argv in (['destroy'], ['destroy','--confirm','DESTROY:demo'],
+                     ['destroy','--instance','demo','--confirm','DESTROY:other']):
+            with patch.object(sys,'argv',['runtime.py',*argv]), patch.object(runtime,'run') as command:
+                self.assertEqual(2,runtime.main())
+                command.assert_not_called()
+
+    def test_destroy_refuses_foreign_ownership_before_stop_or_file_removal(self):
+        with tempfile.TemporaryDirectory() as folder, patch.object(runtime,'ownership',side_effect=runtime.Refusal('FOREIGN')), \
+             patch.object(runtime,'stop') as stop:
+            with self.assertRaisesRegex(runtime.Refusal,'FOREIGN'):
+                runtime.destroy(Path(folder),{},Path(folder))
+            stop.assert_not_called()
+
+    def test_destroy_plan_is_read_only_and_destroy_retains_evidence(self):
+        with tempfile.TemporaryDirectory() as folder, patch.object(runtime,'ownership'), \
+             patch.object(runtime,'stop',return_value={'exit':0}), patch.object(runtime,'diagnostics'), \
+             patch.object(runtime,'compose') as compose, patch.object(runtime,'run',return_value=''), \
+             patch.object(runtime,'unowned_attached_volumes',return_value=[]):
+            path=Path(folder);evidence=path/'runs/run';evidence.mkdir(parents=True)
+            for name in ('manifest.json','secrets.json','compose.json','lock'):
+                (path/name).write_text('{}')
+            m={'instance':'target','owner':'uuid','project':'owned-project'}
+            runtime.destruction_plan(path,m)
+            compose.assert_not_called()
+            self.assertTrue((path/'secrets.json').exists())
+            result=runtime.destroy(path,m,evidence)
+            self.assertEqual('DESTROYED',result['state'])
+            compose.assert_called_once()
+            self.assertEqual(('down','--timeout','45'),compose.call_args.args[2:])
+            self.assertTrue((path/'lock').exists())
+            self.assertTrue((evidence/'destroy-plan.json').exists())
+            self.assertFalse((path/'secrets.json').exists())
+            self.assertFalse((path/'manifest.json').exists())
+
+    def test_destroy_keeps_manifest_if_owned_resource_survives_compose_down(self):
+        with tempfile.TemporaryDirectory() as folder, patch.object(runtime,'ownership'), \
+             patch.object(runtime,'stop',return_value={'exit':0}), patch.object(runtime,'diagnostics'), \
+             patch.object(runtime,'compose'), patch.object(runtime,'run',side_effect=['','residual']), \
+             patch.object(runtime,'unowned_attached_volumes',return_value=[]):
+            path=Path(folder);evidence=path/'runs/run';evidence.mkdir(parents=True)
+            for name in ('manifest.json','compose.json'):(path/name).write_text('{}')
+            with self.assertRaisesRegex(runtime.Refusal,'RESOURCES-REMAIN'):
+                runtime.destroy(path,{'instance':'target','owner':'id','project':'owned'},evidence)
+            self.assertTrue((path/'manifest.json').exists())
+
+    def test_missing_manifest_does_not_create_ownership(self):
+        with tempfile.TemporaryDirectory() as folder, patch.object(runtime, 'HOME_LOCAL', Path(folder)):
+            target=Path(folder)/'instances'/'orphan';target.mkdir(parents=True,mode=0o700)
+            with patch.object(sys,'argv',['runtime.py','stop','--instance','orphan']):
+                self.assertEqual(2,runtime.main())
+            self.assertFalse((target/'manifest.json').exists())
+
+    def test_recovery_coverage_uses_read_only_sql_without_polling_extension(self):
+        from test_recovery import observations
+        texts, rows = observations()
+        responses = iter([__import__('io').BytesIO(texts[name].encode()) for name in runtime.recovery.PARTICIPANTS])
+        with patch.object(runtime, 'urlopen', side_effect=lambda *a, **k: next(responses)), \
+             patch.object(runtime, 'sql', side_effect=[json.dumps(rows['write']),json.dumps(rows['read'])]) as sql:
+            coverage = runtime.worker_coverage(Path('/unused'), {'ports':dict.fromkeys(runtime.recovery.PARTICIPANTS,1)})
+        self.assertTrue(all(row['qualified'] for row in coverage.values()))
+        self.assertEqual(36,sum(row['expectedLeases'] for row in coverage.values()))
+        self.assertEqual(2,sql.call_count)
+        for call in sql.call_args_list:
+            self.assertIn('BEGIN READ ONLY;',call.args[3])
+            self.assertNotIn('UPDATE',call.args[3])
+            self.assertNotIn('DELETE',call.args[3])
+
+    def test_health_only_cannot_be_ready(self):
+        result=runtime.verdict({'HTTP':'PASS'},False,'AVAILABLE')
+        self.assertEqual('NOT_READY',result['state'])
+        self.assertNotEqual(0,result['exit'])
+
+    def test_observability_degradation_has_distinct_exit(self):
+        result=runtime.verdict({'BUSINESS':'PASS'},True,'DEGRADED')
+        self.assertEqual('AVAILABLE',result['business'])
+        self.assertEqual('DEGRADED',result['state'])
+        self.assertEqual(4,result['exit'])
+        self.assertFalse(result['fullyQualifiable'])
+
+    def test_critical_failure_dominates_recent_canary(self):
+        result=runtime.verdict({'PG':'FAIL'},True,'AVAILABLE')
+        self.assertEqual('NOT_READY',result['state'])
+        self.assertEqual(1,result['exit'])
+
+    def test_exact_balance_rejects_invalid_sum_and_float(self):
+        for balances in ({'a':{'n':'1','d':'3'}},{'a':{'n':0,'d':'1'}},{'a':{'n':'0','d':'0'}}):
+            with self.assertRaises(RuntimeError):
+                exact_balances({'balances':balances})
+
+    def test_previous_canary_version_is_not_new_proof(self):
+        class FakeAPI:
+            def binding(self): return 'private-binding'
+            def command(self,*args): return 'request',{'resultingPotVersion':4}
+            def pot(self,*args): return {'potVersion':4}
+        with self.assertRaisesRegex(RuntimeError,'CANARY-NEW-VERSION'):
+            canary('00000000-0000-0000-0000-000000000001',FakeAPI(),'new-run',{},lambda s:None)
+
+    def test_bootstrap_composes_single_transaction_and_random_roles(self):
+        calls=[]
+        def sql(db,text):
+            calls.append((db,text))
+            if "FROM pg_database" in text: return '1'
+            if "pocoma_local_bootstrap')" in text: return 'f'
+            return ''
+        passwords={role:'random-'+role for role in bootstrap.ROLES}
+        bootstrap.initialize(sql,passwords)
+        ddl=[text for _,text in calls if 'CREATE TABLE public.pocoma_local_bootstrap' in text]
+        self.assertEqual(2,len(ddl))
+        for text in ddl:
+            self.assertEqual(1,len(__import__('re').findall(r'(?im)^BEGIN;',text)))
+            self.assertEqual(1,len(__import__('re').findall(r'(?im)^COMMIT;',text)))
+            self.assertIn('GRANT',text)
+            self.assertLess(text.index('GRANT'),text.index('CREATE TABLE public.pocoma_local_bootstrap'))
+        roles='\n'.join(text for _,text in calls if 'CREATE ROLE' in text)
+        self.assertNotIn('local-only',roles)
+        self.assertIn('random-pocoma_admission',roles)
+
+    def test_bootstrap_resume_does_not_replay_committed_databases(self):
+        def sql(db,text):
+            if "FROM pg_database" in text: return '1'
+            if "pocoma_local_bootstrap')" in text: return 't'
+            if text.startswith('SELECT fingerprint'):return bootstrap.fingerprint()
+            self.assertNotIn('CREATE TABLE public.pocoma_local_bootstrap',text)
+            return ''
+        bootstrap.initialize(sql,{r:'random-'+r for r in bootstrap.ROLES})
+
+    def test_gui_exports_only_public_configuration_and_no_authentication(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder);target=root/'scripts/bruno-playground/environments';target.mkdir(parents=True)
+            m={'instance':'example','issuer':'http://localhost:1234/realms/pocoma','ports':{'write':1235,'read':1236}}
+            with patch.object(runtime,'ROOT',root),patch.object(runtime,'ownership'), \
+                 patch.object(runtime,'discovery'), \
+                 patch.object(runtime,'private') as private,patch.object(runtime,'interactive') as interactive:
+                r=runtime.gui(root,m)
+                text=(target/'Instance-example.bru').read_text()
+                self.assertEqual('GUI_CONFIGURED',r['state'])
+                self.assertIn('issuerUrl:',text)
+                self.assertNotIn('bearer',text)
+                self.assertNotIn('password',text)
+                private.assert_not_called();interactive.assert_not_called()
+
+    def test_gui_refuses_environment_symlink(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder);target=root/'scripts/bruno-playground/environments';target.mkdir(parents=True)
+            (target/'Instance-example.bru').symlink_to(root/'unowned')
+            with patch.object(runtime,'ROOT',root),patch.object(runtime,'ownership'):
+                with self.assertRaisesRegex(runtime.Refusal,'SYMLINK'):
+                    runtime.gui(root,{'instance':'example'})
+            self.assertFalse((root/'unowned').exists())
+
+    def test_bruno_zero_receipts_cannot_pass(self):
+        with tempfile.TemporaryDirectory() as folder:
+            path=Path(folder);(path/'runs').mkdir()
+            with patch.object(runtime,'ownership'),patch.object(runtime,'private',return_value={'users':{'bruno':'a','guest':'b','third':'c'}}),\
+                 patch.object(runtime,'login',side_effect=['token-owner','token-guest','token-third']),\
+                 patch.object(runtime,'run',return_value='4.3.0'),\
+                 patch.object(runtime.subprocess,'run',return_value=subprocess.CompletedProcess([],0)):
+                result=runtime.bruno(path,{'ports':{'write':1,'read':2},'issuer':'http://localhost'},path/'runs')
+            self.assertEqual('BRUNO_FAIL',result['state'])
+            self.assertEqual([],json.loads((path/'runs/bruno-receipt.json').read_text())['actual'])
+
+
+if __name__=='__main__':
+    unittest.main()

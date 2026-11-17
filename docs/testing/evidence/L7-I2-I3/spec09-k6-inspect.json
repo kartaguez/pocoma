@@ -1,0 +1,109 @@
+{
+  "status": "STATIC_PASS",
+  "k6": "k6 v1.7.1 (commit/devel, go1.26.1, darwin/arm64)",
+  "cases": [
+    {
+      "command": [
+        "k6",
+        "inspect",
+        "-e",
+        "SCENARIO=nominal",
+        "-e",
+        "RATE=1",
+        "-e",
+        "DURATION=1200s",
+        "-e",
+        "POTS=10",
+        "-e",
+        "DECOUPLED=false",
+        "-e",
+        "ISOLATE_POTS_BY_VU=true",
+        "-e",
+        "PRE_SEEDED_POTS_FILE=/tmp/pocoma-l7-fixture-inspect.json",
+        "scripts/k6/v3-performance.js"
+      ],
+      "options": {
+        "executor": "constant-arrival-rate",
+        "startTime": null,
+        "gracefulStop": "13s",
+        "env": null,
+        "exec": null,
+        "tags": null,
+        "rate": 1,
+        "timeUnit": "1s",
+        "duration": "20m0s",
+        "preAllocatedVUs": 10,
+        "maxVUs": 10
+      }
+    },
+    {
+      "command": [
+        "k6",
+        "inspect",
+        "-e",
+        "SCENARIO=sustained",
+        "-e",
+        "RATE=10",
+        "-e",
+        "DURATION=900s",
+        "-e",
+        "POTS=100",
+        "-e",
+        "DECOUPLED=false",
+        "-e",
+        "ISOLATE_POTS_BY_VU=true",
+        "-e",
+        "PRE_SEEDED_POTS_FILE=/tmp/pocoma-l7-fixture-inspect.json",
+        "scripts/k6/v3-performance.js"
+      ],
+      "options": {
+        "executor": "constant-arrival-rate",
+        "startTime": null,
+        "gracefulStop": "13s",
+        "env": null,
+        "exec": null,
+        "tags": null,
+        "rate": 10,
+        "timeUnit": "1s",
+        "duration": "15m0s",
+        "preAllocatedVUs": 100,
+        "maxVUs": 100
+      }
+    },
+    {
+      "command": [
+        "k6",
+        "inspect",
+        "-e",
+        "SCENARIO=peak",
+        "-e",
+        "RATE=50",
+        "-e",
+        "DURATION=180s",
+        "-e",
+        "POTS=250",
+        "-e",
+        "DECOUPLED=false",
+        "-e",
+        "ISOLATE_POTS_BY_VU=true",
+        "-e",
+        "PRE_SEEDED_POTS_FILE=/tmp/pocoma-l7-fixture-inspect.json",
+        "scripts/k6/v3-performance.js"
+      ],
+      "options": {
+        "executor": "constant-arrival-rate",
+        "startTime": null,
+        "gracefulStop": "13s",
+        "env": null,
+        "exec": null,
+        "tags": null,
+        "rate": 50,
+        "timeUnit": "1s",
+        "duration": "3m0s",
+        "preAllocatedVUs": 250,
+        "maxVUs": 250
+      }
+    }
+  ],
+  "limit": "inspect loads the compact fixture in init and reports configuration. No setup, HTTP or load."
+}

@@ -1,0 +1,62 @@
+{
+  "scenario": "Canonical FOUNDATION silently narrowed through JVM environment; deliberate audit counterexample, not a valid slice PASS",
+  "injected_environment": {
+    "_JAVA_OPTIONS": "-Dtest=SpringTransactionRunnerTest -Dsurefire.failIfNoSpecifiedTests=false"
+  },
+  "declared_command": [
+    "./mvnw",
+    "--batch-mode",
+    "--no-transfer-progress",
+    "-pl",
+    "infra-tx-spring",
+    "-am",
+    "test"
+  ],
+  "declared_filtered": false,
+  "declared_normative_gate": true,
+  "declared_expected": {},
+  "source_test_counts": {
+    "app/infra-tx-spring/src/test/java/com/kartaguez/pocoma/infra/tx/spring/SpringTransactionRunnerTest.java": 4,
+    "app/infra-tx-spring/src/test/java/com/kartaguez/pocoma/infra/tx/spring/v3/V3SchemaIsolationPostgresTest.java": 2,
+    "app/infra-tx-spring/src/test/java/com/kartaguez/pocoma/infra/tx/spring/v3/AttemptTransactionsPostgresTest.java": 9,
+    "app/infra-tx-spring/src/test/java/com/kartaguez/pocoma/infra/tx/spring/v3/V3FoundationCompositionTest.java": 3,
+    "app/infra-tx-spring/src/test/java/com/kartaguez/pocoma/infra/tx/spring/v3/V3HistoricalIntervalPostgresTest.java": 4,
+    "app/infra-tx-spring/src/test/java/com/kartaguez/pocoma/infra/tx/spring/v3/V3TransactionFoundationPostgresTest.java": 6
+  },
+  "source_total": 28,
+  "observed_verdict": "PASS",
+  "observed_counts": {
+    "tests": 4,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "observed_issues": [],
+  "actual_executions": [
+    {
+      "classname": "com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunnerTest",
+      "method": "runsActionInTransaction",
+      "seconds": 0.013,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunnerTest",
+      "method": "doesNotRunAfterCommitActionWhenTransactionRollsBack",
+      "seconds": 0.002,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunnerTest",
+      "method": "runsAfterCommitActionImmediatelyWhenNoTransactionIsActive",
+      "seconds": 0.001,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunnerTest",
+      "method": "runsAfterCommitActionAfterTransactionCommits",
+      "seconds": 0.001,
+      "outcome": "PASS"
+    }
+  ],
+  "first_attempt": "V3FoundationCompositionTest accepted hidden filter, then failed with Docker socket access; retained separately, no success inferred."
+}

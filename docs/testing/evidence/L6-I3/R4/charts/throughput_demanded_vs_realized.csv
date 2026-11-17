@@ -1,0 +1,7 @@
+demanded_rate_cmd_s,scenario,commands_offered,commands_admitted,commands_applied,admitted_rate_cmd_s
+1.0,q1-smoke,16,16,16,1.07
+1.0,q6-contention,102,102,102,5.1
+5.0,q2-nominal-5,301,301,148,5.02
+10.0,q3-ramp-10,600,600,135,10.0
+20.0,q4-ramp-20,1201,1197,48,19.64
+50.0,q5-ramp-50,3000,2965,42,45.61

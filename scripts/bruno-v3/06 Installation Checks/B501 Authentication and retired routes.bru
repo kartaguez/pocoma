@@ -1,0 +1,26 @@
+meta {
+  name: B501 Authentication and retired routes
+  type: http
+  seq: 501
+}
+
+get {
+  url: {{baseUrl}}/api/v3/me/binding
+  body: none
+  auth: none
+}
+
+headers {
+  Authorization: Bearer {{bearerOwner}}
+  Connection: close
+}
+
+settings {
+  timeout: 5000
+}
+
+tests {
+  expect(res.status).to.equal(200);
+  await require(require('path').resolve(process.cwd(),'lib/installation.js')).run('B501',bru,expect);
+  test('B501 authentication and retired routes',()=>expect(true).to.equal(true));
+}

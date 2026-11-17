@@ -1,0 +1,31 @@
+{
+  "status": "PASS",
+  "sha": "7494e9bf0226ab086d33a89e464b2a32e5812838",
+  "started": "2026-11-12T12:26:58Z",
+  "finished": "2026-11-12T12:31:19Z",
+  "seconds": 261.0,
+  "scope": "Targeted PROJECTION feedback before final unfiltered gates.",
+  "environment": {
+    "TESTCONTAINERS_HOST_OVERRIDE": "127.0.0.1",
+    "PostgreSQL": "17.11"
+  },
+  "cwd": "app",
+  "command": [
+    "./mvnw",
+    "--batch-mode",
+    "--no-transfer-progress",
+    "-pl",
+    "runtime-worker-materialize",
+    "-am",
+    "-Dtest=V3ReadReconstructionPostgresTest#readReplayPreservesExactValuesAndCatchesUpWithNewWritePublication",
+    "-Dsurefire.failIfNoSpecifiedTests=false",
+    "-Dpocoma.verification.id=l7-i2-i3-read-active-replay",
+    "-Dpocoma.verification.reports=/Users/julien.guezennec/Dev/projects/pocoma/certification-raw/l7-i2-i3-read-active-replay/reports",
+    "test"
+  ],
+  "artifacts": {
+    "maven.log.gz": "9c6681e7712e155ed7e058c06e282e410987b590365e9833e7186140c9965530",
+    "TEST-com.kartaguez.pocoma.runtime.task.v3.V3ReadReconstructionPostgresTest.xml.gz": "b94ac5cc41840a53882dacb6c1d5acfdb9b1f50d751fa625d1644d10484f4368",
+    "l7_exact_read_replay_and_new_write.txt": "c46ddab5b02d7f7bd384b41ee01dc131f9576e1ed95799dc4010da4191f7ef5f"
+  }
+}

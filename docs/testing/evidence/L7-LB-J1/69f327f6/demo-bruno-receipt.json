@@ -1,0 +1,21 @@
+{
+  "command": [
+    "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/node_modules/.bin/bru",
+    "run",
+    "--env",
+    "Local",
+    "--sandbox=developer",
+    "--reporter-junit",
+    "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/demo/runs/1794608818-a6c6c71a/bruno.xml"
+  ],
+  "expected": [
+    "PG01"
+  ],
+  "actual": [
+    "PG01"
+  ],
+  "namedTests": 1,
+  "junitPass": true,
+  "exit": 0,
+  "success": true
+}

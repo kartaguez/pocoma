@@ -1,0 +1,210 @@
+{
+  "globalBudgetSeconds": 3600,
+  "cumulativeSeconds": 541.0,
+  "remainingSeconds": 3059.0,
+  "runs": [
+    {
+      "runId": "run-r9-smoke-1794153180",
+      "scenario": "smoke",
+      "durationSeconds": 25.91,
+      "timestamp": "2026-11-08T15:53:26Z",
+      "success": false
+    },
+    {
+      "runId": "run-r9-smoke-1794153257",
+      "scenario": "smoke",
+      "durationSeconds": 25.77,
+      "timestamp": "2026-11-08T15:54:44Z",
+      "success": false
+    },
+    {
+      "runId": "run-r9-smoke-1794153476",
+      "scenario": "smoke",
+      "durationSeconds": 3.33,
+      "timestamp": "2026-11-08T15:58:00Z",
+      "success": true
+    },
+    {
+      "runId": "run-r9-smoke-1794153571",
+      "scenario": "smoke",
+      "durationSeconds": 3.32,
+      "timestamp": "2026-11-08T15:59:35Z",
+      "success": true
+    },
+    {
+      "runId": "run-r9-smoke-1794153612",
+      "scenario": "smoke",
+      "durationSeconds": 2.62,
+      "timestamp": "2026-11-08T16:00:15Z",
+      "success": true
+    },
+    {
+      "runId": "run-r9-smoke-1794153626",
+      "scenario": "smoke",
+      "durationSeconds": 3.2,
+      "timestamp": "2026-11-08T16:00:30Z",
+      "success": true
+    },
+    {
+      "runId": "run-r9-smoke-1794153641",
+      "scenario": "smoke",
+      "durationSeconds": 28.43,
+      "timestamp": "2026-11-08T16:01:10Z",
+      "success": true
+    },
+    {
+      "runId": "run-r9-smoke-1794153682",
+      "scenario": "smoke",
+      "durationSeconds": 22.29,
+      "timestamp": "2026-11-08T16:01:44Z",
+      "success": true
+    },
+    {
+      "runId": "run-r9-smoke-1794153716",
+      "scenario": "smoke",
+      "durationSeconds": 7.21,
+      "timestamp": "2026-11-08T16:02:03Z",
+      "success": true
+    },
+    {
+      "runId": "run-r9-smoke-1794153742",
+      "scenario": "smoke",
+      "durationSeconds": 3.19,
+      "timestamp": "2026-11-08T16:02:26Z",
+      "success": true
+    },
+    {
+      "runId": "run-r9-smoke-1794153747",
+      "scenario": "smoke",
+      "durationSeconds": 11.09,
+      "timestamp": "2026-11-08T16:02:38Z",
+      "success": true
+    },
+    {
+      "runId": "run-r9-smoke-1794153759",
+      "scenario": "smoke",
+      "durationSeconds": 19.64,
+      "timestamp": "2026-11-08T16:02:59Z",
+      "success": true
+    },
+    {
+      "runId": "run-r9-smoke-1794153780",
+      "scenario": "smoke",
+      "durationSeconds": 40.68,
+      "timestamp": "2026-11-08T16:03:41Z",
+      "success": true
+    },
+    {
+      "runId": "run-r9-smoke-1794153822",
+      "scenario": "smoke",
+      "durationSeconds": 66.74,
+      "timestamp": "2026-11-08T16:04:49Z",
+      "success": true
+    },
+    {
+      "runId": "run-r9-smoke-1794153900",
+      "scenario": "smoke",
+      "durationSeconds": 22.63,
+      "timestamp": "2026-11-08T16:05:23Z",
+      "success": true
+    },
+    {
+      "runId": "run-r9-smoke-1794153923",
+      "scenario": "smoke",
+      "durationSeconds": 11.58,
+      "timestamp": "2026-11-08T16:05:35Z",
+      "success": true
+    },
+    {
+      "runId": "run-r9-smoke-1794153943",
+      "scenario": "smoke",
+      "durationSeconds": 3.09,
+      "timestamp": "2026-11-08T16:05:46Z",
+      "success": true
+    },
+    {
+      "runId": "run-r9-smoke-1794153949",
+      "scenario": "smoke",
+      "durationSeconds": 3.07,
+      "timestamp": "2026-11-08T16:05:53Z",
+      "success": true
+    },
+    {
+      "runId": "run-r9-r9-s1-1-1794153978",
+      "scenario": "r9-s1-1",
+      "durationSeconds": 10.91,
+      "timestamp": "2026-11-08T16:06:29Z",
+      "success": true
+    },
+    {
+      "runId": "run-r9-r9-s2-5-1794154009",
+      "scenario": "r9-s2-5",
+      "durationSeconds": 15.82,
+      "timestamp": "2026-11-08T16:07:05Z",
+      "success": true
+    },
+    {
+      "runId": "run-r9-r9-s1-1-1794154029",
+      "scenario": "r9-s1-1",
+      "durationSeconds": 10.85,
+      "timestamp": "2026-11-08T16:07:20Z",
+      "success": true
+    },
+    {
+      "runId": "run-r9-r9-s1-1-1794154082",
+      "scenario": "r9-s1-1",
+      "durationSeconds": 11.36,
+      "timestamp": "2026-11-08T16:08:13Z",
+      "success": true
+    },
+    {
+      "runId": "run-r9-r9-s1-1-1794154105",
+      "scenario": "r9-s1-1",
+      "durationSeconds": 11.1,
+      "timestamp": "2026-11-08T16:08:37Z",
+      "success": true
+    },
+    {
+      "runId": "run-r9-r9-s1-1-1794154124",
+      "scenario": "r9-s1-1",
+      "durationSeconds": 10.87,
+      "timestamp": "2026-11-08T16:08:55Z",
+      "success": true
+    },
+    {
+      "runId": "run-r9-r9-s1-1-1794154142",
+      "scenario": "r9-s1-1",
+      "durationSeconds": 10.79,
+      "timestamp": "2026-11-08T16:09:13Z",
+      "success": true
+    },
+    {
+      "runId": "run-r9-r9-s1-1-1794154156",
+      "scenario": "r9-s1-1",
+      "durationSeconds": 10.81,
+      "timestamp": "2026-11-08T16:09:27Z",
+      "success": true
+    },
+    {
+      "runId": "run-r9-r9-s1-1-1794154170",
+      "scenario": "r9-s1-1",
+      "durationSeconds": 10.8,
+      "timestamp": "2026-11-08T16:09:41Z",
+      "success": true
+    },
+    {
+      "runId": "run-r9-r9-s1-1-1794154205",
+      "scenario": "r9-s1-1",
+      "durationSeconds": 66.94,
+      "timestamp": "2026-11-08T16:11:12Z",
+      "success": true
+    },
+    {
+      "runId": "run-r9-r9-s2-5-1794154331",
+      "scenario": "r9-s2-5",
+      "durationSeconds": 66.96,
+      "timestamp": "2026-11-08T16:13:18Z",
+      "success": true
+    }
+  ]
+}

@@ -1,0 +1,397 @@
+[
+  {
+    "iterationIndex": 0,
+    "results": [
+      {
+        "test": {
+          "filename": "03 Link Requests/B301 RegistrationE1.bru"
+        },
+        "request": {
+          "method": "GET",
+          "url": "http://127.0.0.1:51984/api/v3/me/binding",
+          "headers": {}
+        },
+        "response": {
+          "status": 404,
+          "statusText": "",
+          "headers": {},
+          "url": "http://127.0.0.1/api/v3/me/binding",
+          "responseTime": 17,
+          "duration": 17,
+          "size": 101
+        },
+        "error": null,
+        "status": "pass",
+        "assertionResults": [],
+        "testResults": [
+          {
+            "description": "B301 RegistrationE1",
+            "status": "pass",
+            "uid": "fCLDFChYATVCfQGfiSNmN"
+          }
+        ],
+        "preRequestTestResults": [],
+        "postResponseTestResults": [],
+        "shouldStopRunnerExecution": false,
+        "runDuration": 1.538438916,
+        "name": "B301 RegistrationE1",
+        "suitename": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/03 Link Requests/B301 RegistrationE1",
+        "path": "03 Link Requests/B301 RegistrationE1",
+        "iterationIndex": 0
+      },
+      {
+        "test": {
+          "filename": "03 Link Requests/B302 CreateAndSummary.bru"
+        },
+        "request": {
+          "method": "GET",
+          "url": "http://127.0.0.1:51984/api/v3/me/binding",
+          "headers": {}
+        },
+        "response": {
+          "status": 200,
+          "statusText": "",
+          "headers": {},
+          "url": "http://127.0.0.1/api/v3/me/binding",
+          "responseTime": 3,
+          "duration": 3,
+          "size": 91
+        },
+        "error": null,
+        "status": "pass",
+        "assertionResults": [],
+        "testResults": [
+          {
+            "description": "B302 CreateAndSummary",
+            "status": "pass",
+            "uid": "zYX_IXHIpBWrU0g-jQYcw"
+          }
+        ],
+        "preRequestTestResults": [],
+        "postResponseTestResults": [],
+        "shouldStopRunnerExecution": false,
+        "runDuration": 0.025721334,
+        "name": "B302 CreateAndSummary",
+        "suitename": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/03 Link Requests/B302 CreateAndSummary",
+        "path": "03 Link Requests/B302 CreateAndSummary",
+        "iterationIndex": 0
+      },
+      {
+        "test": {
+          "filename": "03 Link Requests/B303 ThirdIdentityMasked.bru"
+        },
+        "request": {
+          "method": "GET",
+          "url": "http://127.0.0.1:51984/api/v3/me/binding",
+          "headers": {}
+        },
+        "response": {
+          "status": 200,
+          "statusText": "",
+          "headers": {},
+          "url": "http://127.0.0.1/api/v3/me/binding",
+          "responseTime": 2,
+          "duration": 2,
+          "size": 91
+        },
+        "error": null,
+        "status": "pass",
+        "assertionResults": [],
+        "testResults": [
+          {
+            "description": "B303 ThirdIdentityMasked",
+            "status": "pass",
+            "uid": "nc1UTvOYlto9E2nLjrpUK"
+          }
+        ],
+        "preRequestTestResults": [],
+        "postResponseTestResults": [],
+        "shouldStopRunnerExecution": false,
+        "runDuration": 0.014986791,
+        "name": "B303 ThirdIdentityMasked",
+        "suitename": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/03 Link Requests/B303 ThirdIdentityMasked",
+        "path": "03 Link Requests/B303 ThirdIdentityMasked",
+        "iterationIndex": 0
+      },
+      {
+        "test": {
+          "filename": "03 Link Requests/B304 InitiatorCannotAccept.bru"
+        },
+        "request": {
+          "method": "GET",
+          "url": "http://127.0.0.1:51984/api/v3/me/binding",
+          "headers": {}
+        },
+        "response": {
+          "status": 200,
+          "statusText": "",
+          "headers": {},
+          "url": "http://127.0.0.1/api/v3/me/binding",
+          "responseTime": 2,
+          "duration": 2,
+          "size": 91
+        },
+        "error": null,
+        "status": "pass",
+        "assertionResults": [],
+        "testResults": [
+          {
+            "description": "B304 InitiatorCannotAccept",
+            "status": "pass",
+            "uid": "Em6nZ1IDR7fpb9BkENBl0"
+          }
+        ],
+        "preRequestTestResults": [],
+        "postResponseTestResults": [],
+        "shouldStopRunnerExecution": false,
+        "runDuration": 0.010597917,
+        "name": "B304 InitiatorCannotAccept",
+        "suitename": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/03 Link Requests/B304 InitiatorCannotAccept",
+        "path": "03 Link Requests/B304 InitiatorCannotAccept",
+        "iterationIndex": 0
+      },
+      {
+        "test": {
+          "filename": "03 Link Requests/B305 InvalidBearerRefused.bru"
+        },
+        "request": {
+          "method": "GET",
+          "url": "http://127.0.0.1:51984/api/v3/me/binding",
+          "headers": {}
+        },
+        "response": {
+          "status": 200,
+          "statusText": "",
+          "headers": {},
+          "url": "http://127.0.0.1/api/v3/me/binding",
+          "responseTime": 2,
+          "duration": 2,
+          "size": 91
+        },
+        "error": null,
+        "status": "pass",
+        "assertionResults": [],
+        "testResults": [
+          {
+            "description": "B305 InvalidBearerRefused",
+            "status": "pass",
+            "uid": "KU8UAoiC9nxuwVcl2qW_F"
+          }
+        ],
+        "preRequestTestResults": [],
+        "postResponseTestResults": [],
+        "shouldStopRunnerExecution": false,
+        "runDuration": 0.011608875,
+        "name": "B305 InvalidBearerRefused",
+        "suitename": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/03 Link Requests/B305 InvalidBearerRefused",
+        "path": "03 Link Requests/B305 InvalidBearerRefused",
+        "iterationIndex": 0
+      },
+      {
+        "test": {
+          "filename": "03 Link Requests/B307 AcceptAndReplay.bru"
+        },
+        "request": {
+          "method": "GET",
+          "url": "http://127.0.0.1:51984/api/v3/me/binding",
+          "headers": {}
+        },
+        "response": {
+          "status": 200,
+          "statusText": "",
+          "headers": {},
+          "url": "http://127.0.0.1/api/v3/me/binding",
+          "responseTime": 2,
+          "duration": 2,
+          "size": 91
+        },
+        "error": null,
+        "status": "pass",
+        "assertionResults": [],
+        "testResults": [
+          {
+            "description": "B307 AcceptAndReplay",
+            "status": "pass",
+            "uid": "fGLirEuEAFN9wOVEF-MTH"
+          }
+        ],
+        "preRequestTestResults": [],
+        "postResponseTestResults": [],
+        "shouldStopRunnerExecution": false,
+        "runDuration": 0.8411265,
+        "name": "B307 AcceptAndReplay",
+        "suitename": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/03 Link Requests/B307 AcceptAndReplay",
+        "path": "03 Link Requests/B307 AcceptAndReplay",
+        "iterationIndex": 0
+      },
+      {
+        "test": {
+          "filename": "03 Link Requests/B308 ImmutableIntent.bru"
+        },
+        "request": {
+          "method": "GET",
+          "url": "http://127.0.0.1:51984/api/v3/me/binding",
+          "headers": {}
+        },
+        "response": {
+          "status": 200,
+          "statusText": "",
+          "headers": {},
+          "url": "http://127.0.0.1/api/v3/me/binding",
+          "responseTime": 2,
+          "duration": 2,
+          "size": 91
+        },
+        "error": null,
+        "status": "pass",
+        "assertionResults": [],
+        "testResults": [
+          {
+            "description": "B308 ImmutableIntent",
+            "status": "pass",
+            "uid": "MISGrgbB0QBfk_lop6y3g"
+          }
+        ],
+        "preRequestTestResults": [],
+        "postResponseTestResults": [],
+        "shouldStopRunnerExecution": false,
+        "runDuration": 0.019342292,
+        "name": "B308 ImmutableIntent",
+        "suitename": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/03 Link Requests/B308 ImmutableIntent",
+        "path": "03 Link Requests/B308 ImmutableIntent",
+        "iterationIndex": 0
+      },
+      {
+        "test": {
+          "filename": "03 Link Requests/B309 OwnBindingOnly.bru"
+        },
+        "request": {
+          "method": "GET",
+          "url": "http://127.0.0.1:51984/api/v3/me/binding",
+          "headers": {}
+        },
+        "response": {
+          "status": 200,
+          "statusText": "",
+          "headers": {},
+          "url": "http://127.0.0.1/api/v3/me/binding",
+          "responseTime": 3,
+          "duration": 3,
+          "size": 91
+        },
+        "error": null,
+        "status": "pass",
+        "assertionResults": [],
+        "testResults": [
+          {
+            "description": "B309 OwnBindingOnly",
+            "status": "pass",
+            "uid": "FLPf4IZMrmCTH_KvCRDIX"
+          }
+        ],
+        "preRequestTestResults": [],
+        "postResponseTestResults": [],
+        "shouldStopRunnerExecution": false,
+        "runDuration": 0.018702708,
+        "name": "B309 OwnBindingOnly",
+        "suitename": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/03 Link Requests/B309 OwnBindingOnly",
+        "path": "03 Link Requests/B309 OwnBindingOnly",
+        "iterationIndex": 0
+      },
+      {
+        "test": {
+          "filename": "03 Link Requests/B310 ResultBelongsToE1.bru"
+        },
+        "request": {
+          "method": "GET",
+          "url": "http://127.0.0.1:51984/api/v3/me/binding",
+          "headers": {}
+        },
+        "response": {
+          "status": 200,
+          "statusText": "",
+          "headers": {},
+          "url": "http://127.0.0.1/api/v3/me/binding",
+          "responseTime": 2,
+          "duration": 2,
+          "size": 91
+        },
+        "error": null,
+        "status": "pass",
+        "assertionResults": [],
+        "testResults": [
+          {
+            "description": "B310 ResultBelongsToE1",
+            "status": "pass",
+            "uid": "Ku9XcXgF7nQ_JHb19Gims"
+          }
+        ],
+        "preRequestTestResults": [],
+        "postResponseTestResults": [],
+        "shouldStopRunnerExecution": false,
+        "runDuration": 0.014814,
+        "name": "B310 ResultBelongsToE1",
+        "suitename": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/03 Link Requests/B310 ResultBelongsToE1",
+        "path": "03 Link Requests/B310 ResultBelongsToE1",
+        "iterationIndex": 0
+      },
+      {
+        "test": {
+          "filename": "03 Link Requests/B313 CreationIdempotency.bru"
+        },
+        "request": {
+          "method": "GET",
+          "url": "http://127.0.0.1:51984/api/v3/me/binding",
+          "headers": {}
+        },
+        "response": {
+          "status": 200,
+          "statusText": "",
+          "headers": {},
+          "url": "http://127.0.0.1/api/v3/me/binding",
+          "responseTime": 2,
+          "duration": 2,
+          "size": 91
+        },
+        "error": null,
+        "status": "pass",
+        "assertionResults": [],
+        "testResults": [
+          {
+            "description": "B313 CreationIdempotency",
+            "status": "pass",
+            "uid": "OwBPVO4MbZhKMtTryxahS"
+          }
+        ],
+        "preRequestTestResults": [],
+        "postResponseTestResults": [],
+        "shouldStopRunnerExecution": false,
+        "runDuration": 0.013107,
+        "name": "B313 CreationIdempotency",
+        "suitename": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/03 Link Requests/B313 CreationIdempotency",
+        "path": "03 Link Requests/B313 CreationIdempotency",
+        "iterationIndex": 0
+      }
+    ],
+    "summary": {
+      "totalRequests": 10,
+      "passedRequests": 10,
+      "failedRequests": 0,
+      "errorRequests": 0,
+      "skippedRequests": 0,
+      "skippedByBail": 0,
+      "totalAssertions": 0,
+      "passedAssertions": 0,
+      "failedAssertions": 0,
+      "totalTests": 10,
+      "passedTests": 10,
+      "failedTests": 0,
+      "totalPreRequestTests": 0,
+      "passedPreRequestTests": 0,
+      "failedPreRequestTests": 0,
+      "totalPostResponseTests": 0,
+      "passedPostResponseTests": 0,
+      "failedPostResponseTests": 0
+    }
+  }
+]

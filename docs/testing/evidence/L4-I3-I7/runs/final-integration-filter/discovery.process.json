@@ -1,0 +1,18 @@
+{
+  "pid": 9877,
+  "process_group": 9877,
+  "command": [
+    "./mvnw",
+    "--batch-mode",
+    "--no-transfer-progress",
+    "-pl",
+    "runtime-task-consumption-worker",
+    "-am",
+    "-Dtest=com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance",
+    "-Dsurefire.failIfNoSpecifiedTests=false",
+    "-Dpocoma.verification.id=b7261ff9534a42c2b7be9ace0df80968",
+    "-Dpocoma.verification.reports=/private/tmp/pocoma-i3-i7-final-integration-filter/reports",
+    "help:effective-pom",
+    "-Doutput=/private/tmp/pocoma-i3-i7-final-integration-filter/effective-pom.xml"
+  ]
+}

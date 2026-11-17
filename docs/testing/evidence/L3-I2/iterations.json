@@ -1,0 +1,128 @@
+[
+  {
+    "name": "compile-initial",
+    "artifact": "compile-initial.log.gz",
+    "raw_sha256": "4bbb3e09cab5784fb1b4d887841883b9f75bca9d9aea2402be47b742cad8db86",
+    "compressed_sha256": "fafae1120ea06138f92698033d1ecda8b3db85bb6feea61c28b718e226fb8075",
+    "build": "FAILURE",
+    "exit_code": 1,
+    "totals": {
+      "tests": 0,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "finished_at": [
+      "2026-10-30T14:28:25+01:00"
+    ],
+    "duration": [
+      " 4.406 s"
+    ],
+    "input_attribution": "Exploratory I2 iteration; exact intermediate source tree not retained. Never attributed to the final candidate; final source proof is candidate-feedback and canonical-gate."
+  },
+  {
+    "name": "authority-initial",
+    "artifact": "authority-initial.log.gz",
+    "raw_sha256": "fb7c04e7c1ff2a2f666e2a1dd804a3e5f411c8a7e1ea4200025001816a46a28e",
+    "compressed_sha256": "1c7a3a3416e71126f46d5e4cccd81d7252660e721c49153c96313c2f0119dbce",
+    "build": "FAILURE",
+    "exit_code": 1,
+    "totals": {
+      "tests": 8,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    },
+    "finished_at": [
+      "2026-10-30T14:29:38+01:00"
+    ],
+    "duration": [
+      " 11.929 s"
+    ],
+    "input_attribution": "Exploratory I2 iteration; exact intermediate source tree not retained. Never attributed to the final candidate; final source proof is candidate-feedback and canonical-gate."
+  },
+  {
+    "name": "local-iteration-1",
+    "artifact": "local-iteration-1.log.gz",
+    "raw_sha256": "53feb007050da6231fbfbb448b94757910e40a28c03ab1743bc2a060f159feeb",
+    "compressed_sha256": "c05e15ee1da6b9b5db951d2c287236abc3a859381564b6ccae952fcfa2d8a317",
+    "build": "FAILURE",
+    "exit_code": 1,
+    "totals": {
+      "tests": 25,
+      "failures": 2,
+      "errors": 3,
+      "skipped": 0
+    },
+    "finished_at": [
+      "2026-10-30T14:33:09+01:00"
+    ],
+    "duration": [
+      " 20.548 s"
+    ],
+    "input_attribution": "Exploratory I2 iteration; exact intermediate source tree not retained. Never attributed to the final candidate; final source proof is candidate-feedback and canonical-gate."
+  },
+  {
+    "name": "local-iteration-2",
+    "artifact": "local-iteration-2.log.gz",
+    "raw_sha256": "719048420bfc8887d36f1e982d7b4cba1fa1b8655c44979c34f6a85404658686",
+    "compressed_sha256": "4c356304ff3b9260c63dae83cfb95ed0dbeff4bf4447ee201068e84aff2c8de4",
+    "build": "SUCCESS",
+    "exit_code": 0,
+    "totals": {
+      "tests": 25,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "finished_at": [
+      "2026-10-30T14:34:12+01:00"
+    ],
+    "duration": [
+      " 22.827 s"
+    ],
+    "input_attribution": "Exploratory I2 iteration; exact intermediate source tree not retained. Never attributed to the final candidate; final source proof is candidate-feedback and canonical-gate."
+  },
+  {
+    "name": "local-before-format",
+    "artifact": "local-before-format.log.gz",
+    "raw_sha256": "bb538b223dc7c73bae8f6fbc4d99abd5939fbae04aae10608e5e28bce2597dd9",
+    "compressed_sha256": "0ff84672d81ab3edf82c58acadd4275af434434c3762f3e842b5e7f956b73994",
+    "build": "SUCCESS",
+    "exit_code": 0,
+    "totals": {
+      "tests": 25,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "finished_at": [
+      "2026-10-30T14:35:34+01:00"
+    ],
+    "duration": [
+      " 22.804 s"
+    ],
+    "input_attribution": "Exploratory I2 iteration; exact intermediate source tree not retained. Never attributed to the final candidate; final source proof is candidate-feedback and canonical-gate."
+  },
+  {
+    "name": "architecture-before-format",
+    "artifact": "architecture-before-format.log.gz",
+    "raw_sha256": "d2a85108899a649877a403d902eafd267999002c46fdfc80f0ec82c873b4eea2",
+    "compressed_sha256": "02c7ca338f1a882409603c65657a98fcc3318f914af202af24a9c6566bfed768",
+    "build": "SUCCESS",
+    "exit_code": 0,
+    "totals": {
+      "tests": 21,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "finished_at": [
+      "2026-10-30T14:36:00+01:00"
+    ],
+    "duration": [
+      " 11.440 s"
+    ],
+    "input_attribution": "Exploratory I2 iteration; exact intermediate source tree not retained. Never attributed to the final candidate; final source proof is candidate-feedback and canonical-gate."
+  }
+]

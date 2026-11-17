@@ -1,0 +1,53 @@
+{
+  "observed_utc": "2026-11-04T17:31:09.575367+00:00",
+  "qualified_source_sha": "46b94ce69a4b0f42474d38ac10b26daa78bb6b23",
+  "source_boundaries": "PASS",
+  "unchanged_normative_and_domain_owners": [
+    "docs/testing/Reactor_Verification_Policy.md",
+    "docs/v3/L5_D1_D6_Ratification_and_D4_Calibration_Decision.md",
+    "docs/v3/L5_D4_Read_Calibration_Report.md",
+    "docs/v3/L5_D4_Read_Limits_Arbitration_Proposal.md",
+    "docs/v3/L5_D6_Gates_Mutualization_Report.md",
+    "app/architecture-tests",
+    "app/domain-pot",
+    "app/domain-user-identity",
+    "app/engine-consumption",
+    "app/engine-consume-projection-task",
+    "app/engine-materialize-current-binding",
+    "app/engine-materialize-command-result",
+    "app/engine-materialize-registration-result"
+  ],
+  "source_tree_clean_since_qualification": true,
+  "local_links_checked": 58,
+  "broken_links": [],
+  "archive_hash_and_secret_scan": "PASS",
+  "archives": 31,
+  "global_gate_actual_verdict": "PASS",
+  "global_gate_actual_counts": {
+    "tests": 2231,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "JUnit_I1": {
+    "tests": 40,
+    "states": {
+      "PASS": 40,
+      "FAIL": 0,
+      "ERROR": 0,
+      "SKIP": 0
+    },
+    "groups": {
+      "H": 24,
+      "Q": 10,
+      "C": 6
+    },
+    "attribution": "latest trusted observed invocation per identity, including non-PASS; separate mandatory gate verdict; no historical result overwritten"
+  },
+  "Bruno_scenarios": 32,
+  "diff_check": "PASS",
+  "publication_authorized": true,
+  "human_I1_closure": "NOT RECORDED",
+  "global_SPEC10_or_production_approval": "NOT CLAIMED",
+  "note": "Review PASS does not change a FAIL/INCONCLUSIVE mandatory gate into PASS; manifest/final verdict retain actual terminal state."
+}

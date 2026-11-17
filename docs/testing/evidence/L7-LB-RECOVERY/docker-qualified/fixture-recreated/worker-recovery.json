@@ -1,0 +1,5240 @@
+{
+  "startedAt": 1794737480.6922429,
+  "budgetSeconds": 270,
+  "before": {
+    "http-write": {
+      "containerId": "b23e6a44d2af528c847c56866e69bd42196fca91b94d471b860d564b89231428",
+      "createdAt": "2026-11-15T10:10:42.907355384Z",
+      "startedAt": "2026-11-15T10:10:43.575254592Z",
+      "running": true
+    },
+    "http-read": {
+      "containerId": "d3bacdf678b35f868afaa74be12ebc4d51129a9d33f9f566889c04dd4c4a85ce",
+      "createdAt": "2026-11-15T10:10:42.905886217Z",
+      "startedAt": "2026-11-15T10:10:43.143628134Z",
+      "running": true
+    },
+    "command-worker": {
+      "containerId": "7da69fab68dc70d30c113dd739e31dde293af865207aefda6e188850de0ed886",
+      "createdAt": "2026-11-15T10:10:42.906873634Z",
+      "startedAt": "2026-11-15T10:10:43.432967176Z",
+      "running": true
+    },
+    "results-worker": {
+      "containerId": "79de84d88490893d0d4e4df16dc22b07d510a6c232e8f6df496f24d0722ccfa1",
+      "createdAt": "2026-11-15T10:10:42.909139259Z",
+      "startedAt": "2026-11-15T10:10:43.303070217Z",
+      "running": true
+    },
+    "business-read-worker": {
+      "containerId": "fc7ea8be669dabe239ed6273e17eb61683585fede568f363cb6233074a36b0cc",
+      "createdAt": "2026-11-15T10:10:42.908031009Z",
+      "startedAt": "2026-11-15T10:10:44.124756259Z",
+      "running": true
+    }
+  },
+  "after": {
+    "http-write": {
+      "containerId": "b23e6a44d2af528c847c56866e69bd42196fca91b94d471b860d564b89231428",
+      "createdAt": "2026-11-15T10:10:42.907355384Z",
+      "startedAt": "2026-11-15T10:10:43.575254592Z",
+      "running": true
+    },
+    "http-read": {
+      "containerId": "d3bacdf678b35f868afaa74be12ebc4d51129a9d33f9f566889c04dd4c4a85ce",
+      "createdAt": "2026-11-15T10:10:42.905886217Z",
+      "startedAt": "2026-11-15T10:10:43.143628134Z",
+      "running": true
+    },
+    "command-worker": {
+      "containerId": "a340de64c50fe18ddbd3558b1441401bfc09dfcf99a5840805408a47887374d5",
+      "createdAt": "2026-11-15T10:11:11.762640175Z",
+      "startedAt": "2026-11-15T10:11:12.312436383Z",
+      "running": true
+    },
+    "results-worker": {
+      "containerId": "aeb7c29d1a79dde481ebb7171bf55d48aa37c7e990c5f8ede387f6e9bff8942e",
+      "createdAt": "2026-11-15T10:11:11.763182508Z",
+      "startedAt": "2026-11-15T10:11:12.430370217Z",
+      "running": true
+    },
+    "business-read-worker": {
+      "containerId": "4444f10eba801c6b71b38a3d400cf98481ff149848c7c711f89347be15cccb1d",
+      "createdAt": "2026-11-15T10:11:11.76254655Z",
+      "startedAt": "2026-11-15T10:11:12.207081675Z",
+      "running": true
+    }
+  },
+  "transitions": {
+    "http-write": "PRESERVED",
+    "http-read": "PRESERVED",
+    "command-worker": "RECREATED",
+    "results-worker": "RECREATED",
+    "business-read-worker": "RECREATED"
+  },
+  "generationId": "d0090ea067b9653cc1ba41289025a9a9e0c698c14f1f57dec2fc3fb762188458",
+  "observations": [
+    {
+      "observedAt": 1794737481.08262,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737482.329654,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737483.583665,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737484.821471,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737486.026211,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737487.2508318,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737488.4784482,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737489.712142,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737490.952267,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737492.186775,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737493.409606,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737494.651793,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737495.8809679,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737497.0979,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737498.308019,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737499.557547,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737500.792761,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737502.011818,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737503.2178292,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737504.455849,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737505.671851,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737506.888878,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737508.096849,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737509.318895,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737510.544866,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737511.764889,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737512.978899,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737514.18473,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737515.407839,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737516.621197,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737517.836916,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737519.041963,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737520.2691891,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737521.479448,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737522.6969962,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737523.943007,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737525.160042,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737526.366365,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737527.5923579,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737528.812203,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737530.0500321,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737531.26312,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737532.477532,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737533.690069,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737534.929067,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737536.1321511,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737537.347119,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737538.572118,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737539.794134,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737541.0001311,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737542.220101,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737543.439072,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737544.654878,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737545.878607,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737547.094183,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737548.305216,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737549.5432498,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737550.772516,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737551.980234,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737553.1932569,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737554.413443,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737555.634154,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737556.8412821,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737558.056318,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737559.269292,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737560.483271,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737561.6953468,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737562.9151738,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737564.122816,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737565.3415208,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737566.549344,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737567.759347,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737568.9634628,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737570.190759,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737571.4084291,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737572.639712,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737573.857227,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737575.085883,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737576.308435,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737577.5334241,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737578.747181,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737579.980503,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737581.1968262,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737582.432472,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737583.773514,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737585.024729,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737586.245845,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737587.487509,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737588.717105,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737589.945559,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737591.158609,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737592.404649,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737593.641566,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737594.872787,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737596.0768561,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737597.2915971,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737598.544595,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737599.772949,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737601.0546298,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737602.286668,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737603.5156832,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737604.7306921,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737605.961052,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737607.215316,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737608.4390059,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737609.707711,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737610.938803,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737612.18173,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737613.395753,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737614.611767,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737615.837793,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737617.058316,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737618.280824,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737619.533802,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737620.75878,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737621.9788978,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737623.1987462,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737624.419831,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737625.654401,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737626.874658,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737628.0945852,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737629.329891,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737630.554881,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737631.772877,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737632.993881,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737634.2069812,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737635.4189372,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737636.63324,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737637.852052,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737639.061718,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737640.2819011,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737641.4890208,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737642.715758,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737643.929991,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737645.154478,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737646.372082,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737647.603682,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737648.8170528,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737650.041557,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737651.2719622,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737652.500489,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737653.763087,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737654.996059,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737656.1990778,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737657.415339,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737658.672731,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737659.906139,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737661.12021,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737662.357161,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737663.577446,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737664.795702,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737665.9982011,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737667.213252,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737668.440324,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737669.67431,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737670.905251,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737672.104824,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737673.3242428,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737674.556553,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737675.780261,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737677.00042,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737678.2243001,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737679.464288,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737680.6815512,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737681.9112608,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737683.111337,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737684.329612,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737685.552355,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737686.774386,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737688.0014248,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737689.2116852,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737690.443707,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737691.6705558,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737692.888181,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737694.103421,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737695.3397539,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737696.551112,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737697.7634392,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737698.976208,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737700.213504,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737701.432488,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737702.655972,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [
+            {
+              "consumptionId": "190a93c6-b8af-5ac7-8001-72e2ec53c2df",
+              "partitionId": 2
+            },
+            {
+              "consumptionId": "190a93c6-b8af-5ac7-8001-72e2ec53c2df",
+              "partitionId": 3
+            },
+            {
+              "consumptionId": "3dec1c8b-6e3e-57e1-82aa-aa0b5f297a4a",
+              "partitionId": 0
+            },
+            {
+              "consumptionId": "7b8d2838-bf7a-5117-868a-e5c14b4c0221",
+              "partitionId": 2
+            },
+            {
+              "consumptionId": "7b8d2838-bf7a-5117-868a-e5c14b4c0221",
+              "partitionId": 3
+            },
+            {
+              "consumptionId": "924cd9e3-435d-5804-9d1e-c6aecadb9ab4",
+              "partitionId": 2
+            },
+            {
+              "consumptionId": "924cd9e3-435d-5804-9d1e-c6aecadb9ab4",
+              "partitionId": 3
+            }
+          ],
+          "qualified": false
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737703.8722692,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 8.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": true
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 20.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": true
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737705.114496,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 8.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": true
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 20.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": true
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737706.320578,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 8.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": true
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 20.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": true
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737707.546282,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 8.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": true
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 20.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": true
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737708.7736351,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 8.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": true
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 20.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": true
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737710.000542,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 8.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": true
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 20.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": true
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737711.215414,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 8.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": true
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 0.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": false
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 20.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": true
+        }
+      },
+      "qualified": false
+    },
+    {
+      "observedAt": 1794737712.436588,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 8.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": true
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 8.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": true
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 20.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": true
+        }
+      },
+      "qualified": true
+    }
+  ],
+  "state": "RECOVERED",
+  "completedAt": 1794737713.040354,
+  "seconds": 232.34811115264893
+}

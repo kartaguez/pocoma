@@ -1,0 +1,23 @@
+{
+  "status": "COMPLETED",
+  "classification": "DIAGNOSTIC: fixture correction validation; not the final certificate",
+  "question": "Do all four W2 variants execute two complete cycles, and does manual m03 shutdown avoid the incorrect startup ACK wait?",
+  "tested_sha": "8990737ce0b6f7df155d7e80aa698657815dc5ef",
+  "command": [
+    "./mvnw",
+    "-pl",
+    "runtime-command-consumption-worker",
+    "-am",
+    "-Dtest=V3WorkerResourcesPostgresTest#i5_r12,V3WorkerMetricsTest#i5_m03",
+    "-Dsurefire.failIfNoSpecifiedTests=false",
+    "test"
+  ],
+  "started_epoch": 1793294286.265356,
+  "contract_sha256": "4e07d322074d020f0734d29f05a95b24a073e8caf94d60ba2dae853cda3dc806",
+  "exit_code": 1,
+  "elapsed_seconds": 65.77492785453796,
+  "verdict": "FAIL",
+  "reason": "W2/B32/MW1 Worker1 READ two lease omissions, six calls for N4/R1 cap5; temporal qualification stopped",
+  "contract_unchanged": true,
+  "archive_sha256": "8fb26e8f55f99b4c1ac48f9e1f57ccdc3e3a5fd59277c020f54e35674a6f6094"
+}

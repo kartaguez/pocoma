@@ -1,0 +1,15 @@
+{
+  "tested_application_head": "8bc2eca60390efe1da2c82f3af7f4d78e93ddfea",
+  "application_files_compared": 1262,
+  "application_mismatches": [],
+  "application_diff": "",
+  "selector_sha256": "b3ad3f4344b7b119f6bc7882d5f1029160dd68c0b85b2226b6343fe0dfdd73d4",
+  "config_sha256": "65cab1ae0fcd15beeba2647aaddd734275db2b9033baf46f84915aa45108931c",
+  "all_campaign_tooling_hashes_match": true,
+  "unexpected_slice_crossings": "NONE",
+  "global_architecture_gate": "NOT REQUIRED / NOT RUN",
+  "full_reactor": "RUN once: explicit clean install diagnostic; FAIL",
+  "certification": "NOT RUN",
+  "selector_tests": "13 PASS",
+  "baseline_physical_artifacts_after_test_end": 0
+}

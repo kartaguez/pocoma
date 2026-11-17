@@ -1,0 +1,17 @@
+{
+  "pid": 96023,
+  "process_group": 96023,
+  "command": [
+    "./mvnw",
+    "--batch-mode",
+    "--no-transfer-progress",
+    "-pl",
+    "engine-read-current-binding,engine-materialize-command-result,engine-materialize-registration-result",
+    "-am",
+    "-Dtest=com.kartaguez.pocoma.engine.read.currentbinding.v3.CurrentBindingV3ContractTest#euiStateAndMinVersion,com.kartaguez.pocoma.engine.materialize.commandresult.v3.CommandResultV3ContractTest#terminalContract,com.kartaguez.pocoma.engine.materialize.registrationresult.v3.IdentityRequestResultV3ContractTest#terminalContract",
+    "-Dsurefire.failIfNoSpecifiedTests=false",
+    "-Dpocoma.verification.id=dd0caa2c2e3f444fbbad7185805de558",
+    "-Dpocoma.verification.reports=/private/tmp/pocoma-i3-i7-fast4-01/reports",
+    "test"
+  ]
+}

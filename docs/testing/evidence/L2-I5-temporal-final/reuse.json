@@ -1,0 +1,35 @@
+{
+  "baseline": "e0a7ec3bf3ce41bf599df915236a64bc1c599b05",
+  "v2Freeze": "5eab2e94379ef40c3f9ff54c14a4d04a8f13dcbd",
+  "v2ArchiveSha256": "fa510d8d477ce65dbf16c723c69c52c5569f711d0f078944da6a4c44084a7fe3",
+  "historicalAndProductionEntriesUnchanged": 1300,
+  "historicalAndProductionDigest": "17f12943fdf621f3eb02ead142c04795041768cb75961cecb76c1fc73189f834",
+  "v2InputsChanged": [
+    "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/I5TemporalV2Postgres.java",
+    "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/V3WorkerResourcesPostgresTest.java"
+  ],
+  "deterministicReuse": {
+    "tests": 15,
+    "result": "PASS historical; source and production dependencies unchanged"
+  },
+  "W1Reuse": "historical v2 PASS only; same numeric inputs and unchanged controlled=false path, no v3 W1 certification",
+  "newHelperUnitRuns": [
+    {
+      "file": "pocoma-i5-final-helper.log",
+      "mavenSeconds": 6.117,
+      "result": "testCompile FAIL before campaign: wrong accessor; corrected before freeze"
+    },
+    {
+      "file": "pocoma-i5-final-helper-2.log",
+      "mavenSeconds": 6.174,
+      "tests": 2,
+      "result": "PASS"
+    },
+    {
+      "file": "pocoma-i5-final-helper-3.log",
+      "mavenSeconds": 6.062,
+      "tests": 2,
+      "result": "PASS final prefreeze"
+    }
+  ]
+}

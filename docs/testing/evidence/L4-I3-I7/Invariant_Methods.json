@@ -1,0 +1,373 @@
+{
+  "methods": [
+    {
+      "classname": "com.kartaguez.pocoma.domain.projection.v3.PotVersionContractTest",
+      "method": "compositionAndKeys",
+      "invocations": 1,
+      "source": "app/domain-projection/src/test/java/com/kartaguez/pocoma/domain/projection/v3/PotVersionContractTest.java",
+      "invariants": "P01-A/B/C; A08",
+      "stimulus": "Composition avec les huit sortes, ordre UUID PostgreSQL, doublons et révisions invalides",
+      "oracle": "Liste de références canonique complète, snapshots immuables, rejet des clés/révisions invalides",
+      "fixture": "Valeurs pures",
+      "campaign": "READ-FAST-1"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.PotVersionJsonTest",
+      "method": "strictCanonicalCodec",
+      "invocations": 1,
+      "source": "app/infra-persistence-read-jdbc/src/test/java/com/kartaguez/pocoma/infra/persistence/read/jdbc/v3/PotVersionJsonTest.java",
+      "invariants": "P01-A/B/F; A08",
+      "stimulus": "Round-trip canonique et JSON mal formé/coercitif, champs supplémentaires/manquants, mauvais schema_version",
+      "oracle": "Égalité typée exacte ; chaque forme non canonique refusée",
+      "fixture": "Jackson + valeurs pures",
+      "campaign": "READ-FAST-1"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.engine.consume.projectiontask.v3.PotVisibilityRulesTest",
+      "method": "visibleSetRules",
+      "invocations": 1,
+      "source": "app/engine-consume-projection-task/src/test/java/com/kartaguez/pocoma/engine/consume/projectiontask/v3/PotVisibilityRulesTest.java",
+      "invariants": "P03-A/D/E/H",
+      "stimulus": "Créateur, plusieurs shareholders du même user, détachement, suppression",
+      "oracle": "Ensemble exact dédupliqué, créateur actif inclus, D vide",
+      "fixture": "Valeurs pures",
+      "campaign": "READ-FAST-3"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.engine.read.currentbinding.v3.CurrentBindingV3ContractTest",
+      "method": "euiStateAndMinVersion",
+      "invocations": 1,
+      "source": "app/engine-read-current-binding/src/test/java/com/kartaguez/pocoma/engine/read/currentbinding/v3/CurrentBindingV3ContractTest.java",
+      "invariants": "I01-Q; I6; SEC-02 interne",
+      "stimulus": "EUI propre active/inactive/absente, minVersion supérieure, EUI étrangère",
+      "oracle": "AVAILABLE/NOT_READY/ABSENT exacts ; aucune consultation étrangère, token absent des diagnostics",
+      "fixture": "Lecture interne simulée",
+      "campaign": "READ-FAST-4"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.engine.materialize.commandresult.v3.CommandResultV3ContractTest",
+      "method": "terminalContract",
+      "invocations": 1,
+      "source": "app/engine-materialize-command-result/src/test/java/com/kartaguez/pocoma/engine/materialize/commandresult/v3/CommandResultV3ContractTest.java",
+      "invariants": "A10-A/B/J/K; A10 mapping",
+      "stimulus": "CHANGED/UNCHANGED/REJECTED, formes invalides, EUI propriétaire et tierce",
+      "oracle": "COMPLETED version exacte ou REJECTED motif sans version, formes invalides refusées",
+      "fixture": "Valeurs pures",
+      "campaign": "READ-FAST-4"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.engine.materialize.registrationresult.v3.IdentityRequestResultV3ContractTest",
+      "method": "terminalContract",
+      "invocations": 1,
+      "source": "app/engine-materialize-registration-result/src/test/java/com/kartaguez/pocoma/engine/materialize/registrationresult/v3/IdentityRequestResultV3ContractTest.java",
+      "invariants": "A10-C/D/J/K; A10 mapping",
+      "stimulus": "Registration/Link/Unlink succès/rejet, faux UNCHANGED/FAILED, requester distinct de cible",
+      "oracle": "Formes exactes ; aucun statut artificiel ni token ; propriété EUI de la demande",
+      "fixture": "Valeurs pures",
+      "campaign": "READ-FAST-4"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotVersionSourcePostgresTest",
+      "method": "exactHistoricalComposition",
+      "invocations": 1,
+      "source": "app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/PotVersionSourcePostgresTest.java",
+      "invariants": "P01-A/B/C/J/L; AUD-V3-013",
+      "stimulus": "V1..V6 réel WRITE, huit sortes, modification locale, suppression Expense/Pot, lecture tardive et clés manquantes sélectionnées",
+      "oracle": "Références/versions/contenus exacts à V, anciennes sous-versions inchangées malgré activeTo, pas de chargement financier dans composition, uniquement contenus demandés",
+      "fixture": "CommandExecutionPostgresTest + ReadSourceSqlProbe",
+      "campaign": "READ-CHANGE-1"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.PotVersionReadStorePostgresTest",
+      "method": "historyAndReplay",
+      "invocations": 1,
+      "source": "app/infra-persistence-read-jdbc/src/test/java/com/kartaguez/pocoma/infra/persistence/read/jdbc/v3/PotVersionReadStorePostgresTest.java",
+      "invariants": "P01-A/C/D/F/J/K",
+      "stimulus": "V3,D puis V1,V2 et doublon ; second Pot ; réinsertion divergente",
+      "oracle": "Trois immuables exacts, CurrentPot=max, autres clés isolées, divergence sans altération",
+      "fixture": "ReadStoreFixture target V3",
+      "campaign": "READ-CHANGE-1"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.PotVersionReadStorePostgresTest",
+      "method": "concurrentPublishers",
+      "invocations": 1,
+      "source": "app/infra-persistence-read-jdbc/src/test/java/com/kartaguez/pocoma/infra/persistence/read/jdbc/v3/PotVersionReadStorePostgresTest.java",
+      "invariants": "P01-E/F; CON-04 contribution",
+      "stimulus": "V/V+1 simultanées ; gagnant immuable retenu pendant insertion divergente concurrente",
+      "oracle": "Max courant, deux historiques, attente PG observée ; comparaison après conflit sur gagnant réellement committé",
+      "fixture": "ReadStoreFixture + barrières + pg_stat_activity",
+      "campaign": "READ-CHANGE-1"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.PotVersionReadStorePostgresTest",
+      "method": "migrationAndPrivileges",
+      "invocations": 1,
+      "source": "app/infra-persistence-read-jdbc/src/test/java/com/kartaguez/pocoma/infra/persistence/read/jdbc/v3/PotVersionReadStorePostgresTest.java",
+      "invariants": "CON-06; P01 structure",
+      "stimulus": "Migration V3 répétée, FK absente, mutation immuable et writer hors owner",
+      "oracle": "Aucune migration répétée, FK effective, UPDATE/DELETE/TRUNCATE interdits runtime, appel autonome refusé",
+      "fixture": "ReadStoreFixture target V3",
+      "campaign": "READ-CHANGE-1"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotBalanceSourcePostgresTest",
+      "method": "exactHistoricalFinance",
+      "invocations": 1,
+      "source": "app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/PotBalanceSourcePostgresTest.java",
+      "invariants": "P02-A/B/C/D/E/H/M; DOM-03",
+      "stimulus": "Expense 17/19, poids implicites/explicites, changement poids, mutation non financière, suppression, lecture ancienne après D",
+      "oracle": "Fractions littérales indépendantes 17/19,-51/95,-34/95 puis -51/76,-17/76 ; V non financière complète ; zéros et D intentionnellement absent ; SQL groupé sans détails",
+      "fixture": "CommandExecutionPostgresTest + ReadSourceSqlProbe ; complément L1 d10/d11",
+      "campaign": "READ-CHANGE-2"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.PotBalanceReadStorePostgresTest",
+      "method": "historyAndRationals",
+      "invocations": 1,
+      "source": "app/infra-persistence-read-jdbc/src/test/java/com/kartaguez/pocoma/infra/persistence/read/jdbc/v3/PotBalanceReadStorePostgresTest.java",
+      "invariants": "P02-A/B/D/F/G/L",
+      "stimulus": "Vecteurs BigInteger/zeros et versions hors ordre, deuxième Pot, absence attendue à D",
+      "oracle": "Égalité de toutes clés/fractions, immutabilité par (P,V), aucun besoin de V-1 ni Balance(D)",
+      "fixture": "ReadStoreFixture target V4",
+      "campaign": "READ-CHANGE-2"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.PotBalanceReadStorePostgresTest",
+      "method": "concurrentImmutablePublication",
+      "invocations": 1,
+      "source": "app/infra-persistence-read-jdbc/src/test/java/com/kartaguez/pocoma/infra/persistence/read/jdbc/v3/PotBalanceReadStorePostgresTest.java",
+      "invariants": "P02-I; CON-04 contribution",
+      "stimulus": "Deux publications même V et réinsertion divergente",
+      "oracle": "Une seule valeur canonique, divergence refusée et original intact",
+      "fixture": "ReadStoreFixture + barrières",
+      "campaign": "READ-CHANGE-2"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.PotBalanceReadStorePostgresTest",
+      "method": "migrationAndPrivileges",
+      "invocations": 1,
+      "source": "app/infra-persistence-read-jdbc/src/test/java/com/kartaguez/pocoma/infra/persistence/read/jdbc/v3/PotBalanceReadStorePostgresTest.java",
+      "invariants": "CON-06; P02 structure",
+      "stimulus": "Extension V3→V4, privilèges et corruption de forme",
+      "oracle": "Migration bornée, pas UPDATE/DELETE/TRUNCATE runtime, données non conformes refusées",
+      "fixture": "ReadStoreFixture target V3 puis V4",
+      "campaign": "READ-CHANGE-2"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotVisibilitySourcePostgresTest",
+      "method": "exactHistoricalMembership",
+      "invocations": 1,
+      "source": "app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/PotVisibilitySourcePostgresTest.java",
+      "invariants": "P03-A/D/E/F; A11-E",
+      "stimulus": "Deux shareholders même user puis deux détachements, D et retour à V historique",
+      "oracle": "User reste après premier détachement puis disparaît ; créateur actif ; D vide ; aucune lecture Expense",
+      "fixture": "CommandExecutionPostgresTest + ReadSourceSqlProbe",
+      "campaign": "READ-CHANGE-3"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.PotVisibilityReadStorePostgresTest",
+      "method": "historyAndKeyset",
+      "invocations": 1,
+      "source": "app/infra-persistence-read-jdbc/src/test/java/com/kartaguez/pocoma/infra/persistence/read/jdbc/v3/PotVisibilityReadStorePostgresTest.java",
+      "invariants": "P03-A/C/E/F/H; S-01 interne",
+      "stimulus": "visible→invisible→visible, liste vide/non vide, V ancienne et V égale divergente, pages keyset",
+      "oracle": "Tombstones conservées, ensemble complet vérifié à même V, garde monotone ; pages bornées et sans doublons",
+      "fixture": "ReadStoreFixture target V5",
+      "campaign": "READ-CHANGE-3"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.PotVisibilityReadStorePostgresTest",
+      "method": "concurrentGuardAndAtomicReaders",
+      "invocations": 1,
+      "source": "app/infra-persistence-read-jdbc/src/test/java/com/kartaguez/pocoma/infra/persistence/read/jdbc/v3/PotVisibilityReadStorePostgresTest.java",
+      "invariants": "P03-B/G/L/N",
+      "stimulus": "Initialisation concurrente avec listes différentes, garde retenue, autre Pot et lecteur MVCC",
+      "oracle": "Attente PG réelle sur garde unique ; autre Pot progresse ; lecteur voit ancien ou nouvel ensemble complet",
+      "fixture": "ReadStoreFixture + barrières + pg_stat_activity",
+      "campaign": "READ-CHANGE-3"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.PotVisibilityReadStorePostgresTest",
+      "method": "plansAndProfiles",
+      "invocations": 1,
+      "source": "app/infra-persistence-read-jdbc/src/test/java/com/kartaguez/pocoma/infra/persistence/read/jdbc/v3/PotVisibilityReadStorePostgresTest.java",
+      "invariants": "P03-I/O contribution locale",
+      "stimulus": "10 000 tombstones et peu de visibles, EXPLAIN sur accès/diff/navigation",
+      "oracle": "Index partiel read_visible_* réellement choisi ; aucun scan séquentiel de tout historique ; volumes consignés, aucun SLO inféré",
+      "fixture": "ReadStoreFixture target V5 + EXPLAIN réel",
+      "campaign": "READ-CHANGE-3"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.PotVisibilityReadStorePostgresTest",
+      "method": "migrationAndPrivileges",
+      "invocations": 1,
+      "source": "app/infra-persistence-read-jdbc/src/test/java/com/kartaguez/pocoma/infra/persistence/read/jdbc/v3/PotVisibilityReadStorePostgresTest.java",
+      "invariants": "CON-06; P03 structure",
+      "stimulus": "Migration, permissions et mise à jour garde/entrée",
+      "oracle": "Privilèges bornés ; invariants de garde et tombstones SQL ; writer autonome refusé",
+      "fixture": "ReadStoreFixture target V5",
+      "campaign": "READ-CHANGE-3"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.CurrentBindingReadStorePostgresTest",
+      "method": "historyAndIsolation",
+      "invocations": 1,
+      "source": "app/infra-persistence-read-jdbc/src/test/java/com/kartaguez/pocoma/infra/persistence/read/jdbc/v3/CurrentBindingReadStorePostgresTest.java",
+      "invariants": "I6 monotonie; SEC-02 interne",
+      "stimulus": "Versions hors ordre, actif/inactif/relié et EUI distinctes",
+      "oracle": "Max local, contenu complet égal à même V, clés sensibles exactes, isolation EUI",
+      "fixture": "ReadStoreFixture target V6",
+      "campaign": "READ-CHANGE-4"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.CurrentBindingReadStorePostgresTest",
+      "method": "concurrentVersionsAndDivergence",
+      "invocations": 1,
+      "source": "app/infra-persistence-read-jdbc/src/test/java/com/kartaguez/pocoma/infra/persistence/read/jdbc/v3/CurrentBindingReadStorePostgresTest.java",
+      "invariants": "I6 concurrence; CON-04 contribution",
+      "stimulus": "Premières insertions concurrentes, V/V+1 et même V divergente",
+      "oracle": "Une seule EUI naturelle/id, max version, divergence refusée ; aucune fuite token dans diagnostics",
+      "fixture": "ReadStoreFixture + barrières",
+      "campaign": "READ-CHANGE-4"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.CurrentBindingReadStorePostgresTest",
+      "method": "migrationAndPrivileges",
+      "invocations": 1,
+      "source": "app/infra-persistence-read-jdbc/src/test/java/com/kartaguez/pocoma/infra/persistence/read/jdbc/v3/CurrentBindingReadStorePostgresTest.java",
+      "invariants": "CON-06; I6 structure",
+      "stimulus": "Migration V6, permissions, forme actif/inactif invalide",
+      "oracle": "Paires user/token et clé EUI contraintes, droits SQL bornés, hors-owner refusé",
+      "fixture": "ReadStoreFixture target V6",
+      "campaign": "READ-CHANGE-4"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.CurrentBindingSourcePostgresTest",
+      "method": "exactEuiHistory",
+      "invocations": 1,
+      "source": "app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/identity/CurrentBindingSourcePostgresTest.java",
+      "invariants": "I01-Q; I6 historique",
+      "stimulus": "Registration, Link/Unlink/re-Link E2 par E1 puis lecture EUI V3,V1,V2 ; événement User",
+      "oracle": "EUI cible/version/user/token historiques exacts ; forme inactive sans token ; source User vide ; token redacted",
+      "fixture": "IdentityEngineFixture, producteurs WRITE réels",
+      "campaign": "READ-CHANGE-4"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.TerminalResultsReadStorePostgresTest",
+      "method": "mappingsAndOwnership",
+      "invocations": 1,
+      "source": "app/infra-persistence-read-jdbc/src/test/java/com/kartaguez/pocoma/infra/persistence/read/jdbc/v3/TerminalResultsReadStorePostgresTest.java",
+      "invariants": "A10-A/B/C/D/E/F/G/H/I/K interne",
+      "stimulus": "Trois issues Command, six formes Identity ; propriétaire/cible/tierce/inconnu ; absence de binding ; retrait privilège SELECT",
+      "oracle": "Égalité de chaque champ, tiers et inconnu vides, résultat ancien conservé, indisponibilité SQL distincte de ligne absente ; aucune requête WRITE de la lecture",
+      "fixture": "ReadStoreFixture target V7 ; same-user binding/session/HTTP complet reste I8/L5",
+      "campaign": "READ-CHANGE-5"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.TerminalResultsReadStorePostgresTest",
+      "method": "concurrentImmutableResults",
+      "invocations": 1,
+      "source": "app/infra-persistence-read-jdbc/src/test/java/com/kartaguez/pocoma/infra/persistence/read/jdbc/v3/TerminalResultsReadStorePostgresTest.java",
+      "invariants": "A10-J/K",
+      "stimulus": "Doublons concurrents deux familles ; altération de chaque champ métier/provenance",
+      "oracle": "Une seule ligne exacte par requestId ; toute divergence refusée ; résultat original inchangé",
+      "fixture": "ReadStoreFixture + barrières",
+      "campaign": "READ-CHANGE-5"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.TerminalResultsReadStorePostgresTest",
+      "method": "migrationsAndPrivileges",
+      "invocations": 1,
+      "source": "app/infra-persistence-read-jdbc/src/test/java/com/kartaguez/pocoma/infra/persistence/read/jdbc/v3/TerminalResultsReadStorePostgresTest.java",
+      "invariants": "CON-06; A10 formes",
+      "stimulus": "Migration V6→V7, droits des deux tables et consultation sans owner",
+      "oracle": "Deux tables immuables, runtime sans UPDATE/DELETE/TRUNCATE, consultation caller READ obligatoire",
+      "fixture": "ReadStoreFixture target V6 puis V7",
+      "campaign": "READ-CHANGE-5"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.TerminalResultSourcesPostgresTest",
+      "method": "durableRequestsAndTerminals",
+      "invocations": 1,
+      "source": "app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/identity/TerminalResultSourcesPostgresTest.java",
+      "invariants": "A10-A/B/C/D/J; A10 provenance",
+      "stimulus": "Command réel CHANGED/UNCHANGED/REJECTED, Registration/Link/Unlink et rejet ; altération opération complétion",
+      "oracle": "Reconstruction demande+terminal, requester original, cible/version exacte, minimal completion, opération incohérente refusée",
+      "fixture": "ReadPotPublicationFixture + IdentityEngineFixture",
+      "campaign": "READ-CHANGE-5"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest",
+      "method": "participantConformance",
+      "invocations": 6,
+      "source": "app/runtime-task-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/task/v3/ReadParticipantsIntegrationPostgresTest.java",
+      "invariants": "CON-04/06; P01-G; P02-J; P03-J/K; I6/I7 readiness/recovery",
+      "stimulus": "Six participants × completion prématurée / writer poison rattrapé après complete / succès ; preuves absentes/divergentes/corrompues ; état récent/ancien slot ; User non enrôlé",
+      "oracle": "Rollback sans préfixe partiel, slot intact ; PID/XID commun effets/DELETE, aucune WRITE SQL en final READ, recovery lié checkpoint+slot+preuve complète ; aucun ancien succès inventé",
+      "fixture": "ReadParticipantsFixture deux autorités PostgreSQL ; 6 invocations, sous-cas nommés",
+      "campaign": "READ-INTEGRATION-1"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest",
+      "method": "independentProgression",
+      "invocations": 1,
+      "source": "app/runtime-task-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/task/v3/ReadParticipantsIntegrationPostgresTest.java",
+      "invariants": "P01-D/J; P02-F/G; P03-F/L; A11-B/C/D/E; indépendance",
+      "stimulus": "Chacun des six désactivé à tour de rôle ; six permutations des branches Pot avec D avant V1/V2",
+      "oracle": "UUID/familles exacts, cinq autres progressent ; checkpoints séparés, immuables conservés, CurrentPot max, Balance(D) absente et Visibility vide",
+      "fixture": "ReadParticipantsFixture ; boucles nommées dans une invocation",
+      "campaign": "READ-INTEGRATION-1"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest",
+      "method": "resultsBeforeDomain",
+      "invocations": 1,
+      "source": "app/runtime-task-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/task/v3/ReadParticipantsIntegrationPostgresTest.java",
+      "invariants": "A10-H/J interne",
+      "stimulus": "Résultats Command/Identity avant toute projection métier ou binding",
+      "oracle": "Résultats propriétaires complets disponibles, tables métier vides, tiers absent",
+      "fixture": "ReadParticipantsFixture deux autorités",
+      "campaign": "READ-INTEGRATION-1"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest",
+      "method": "uncertainCommitHasNoSpeculativeSettlement",
+      "invocations": 1,
+      "source": "app/runtime-task-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/task/v3/ReadParticipantsIntegrationPostgresTest.java",
+      "invariants": "CON-04/06 UNKNOWN; P01-F",
+      "stimulus": "Perte réelle ACK avant/après COMMIT du participant composite I3",
+      "oracle": "UNKNOWN, aucun release/cession spéculatif, effets/slot tout ou rien, recovery NOT_COMPLETED/COMPLETED conforme état observé ; capacité retenue",
+      "fixture": "CommitAcknowledgementProxy réel + ReadParticipantsFixture ; mécanisme partagé non répété six fois",
+      "campaign": "READ-INTEGRATION-1"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest",
+      "method": "boundedCapacityAndRenewal",
+      "invocations": 1,
+      "source": "app/runtime-task-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/task/v3/ReadParticipantsIntegrationPostgresTest.java",
+      "invariants": "CON-03/05 contribution branchements; capacité",
+      "stimulus": "M_W=2, deux snapshots WRITE retenus, troisième participant, renouvellement des deux claims",
+      "oracle": "Troisième acquisition vide ; connexions/réservations retenues ; deadlines SQL avancent ; deux commits puis capacité 0",
+      "fixture": "ReadParticipantsFixture + barrières ; production pool/load/restart reste I8",
+      "campaign": "READ-INTEGRATION-1"
+    }
+  ],
+  "deferred": [
+    {
+      "ids": "P01-H/I, P02-K, P03-M, READ-01, S-01/S-02 lecture complète, SEC internes assemblés",
+      "milestone": "I8",
+      "reason": "Services de lecture/assemblage/activation hors participants inactifs"
+    },
+    {
+      "ids": "A10 codes 200/401/404/503, enveloppes, polling, OIDC et consentement",
+      "milestone": "L5",
+      "reason": "Protocoles externes"
+    },
+    {
+      "ids": "P01-L/P02-M/P03-O profils exhaustifs et SLO, OPS/PERF/REC globaux",
+      "milestone": "L6",
+      "reason": "Mesures locales conservées, ne valent ni charge ni reconstruction globale"
+    }
+  ]
+}

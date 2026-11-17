@@ -1,0 +1,202 @@
+{
+  "baseline": "2fb9a536f3894e797923c0b49aeba1a9b5adfda2",
+  "tested_sha": "c94e7a4bec479ccbf22b058fd341ae0350c2ca67",
+  "files": [
+    {
+      "status": "A",
+      "path": "app/domain-pot/src/main/java/com/kartaguez/pocoma/domain/pot/v3/AttachShareholderViaInvitation.java"
+    },
+    {
+      "status": "M",
+      "path": "app/domain-pot/src/main/java/com/kartaguez/pocoma/domain/pot/v3/PotBalanceCalculator.java"
+    },
+    {
+      "status": "A",
+      "path": "app/domain-pot/src/test/java/com/kartaguez/pocoma/domain/pot/v3/InvitationAttachmentTest.java"
+    },
+    {
+      "status": "A",
+      "path": "app/domain-pot/src/test/java/com/kartaguez/pocoma/domain/pot/v3/PotBalanceProfile.java"
+    },
+    {
+      "status": "M",
+      "path": "app/engine-write-pot/src/main/java/com/kartaguez/pocoma/engine/write/pot/port/execution/v3/PotCommand.java"
+    },
+    {
+      "status": "M",
+      "path": "app/engine-write-pot/src/main/java/com/kartaguez/pocoma/engine/write/pot/v3/ExecutePotCommand.java"
+    },
+    {
+      "status": "M",
+      "path": "app/engine-write-pot/src/test/java/com/kartaguez/pocoma/engine/write/pot/v3/ExecutePotCommandTest.java"
+    },
+    {
+      "status": "A",
+      "path": "app/engine-write-pot/src/test/java/com/kartaguez/pocoma/engine/write/pot/v3/PotCommandIntentTest.java"
+    },
+    {
+      "status": "M",
+      "path": "app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/JdbcPotCommandStore.java"
+    },
+    {
+      "status": "M",
+      "path": "app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/JdbcPotHistoryAdapter.java"
+    },
+    {
+      "status": "M",
+      "path": "app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/JdbcPotRevisionAdapter.java"
+    },
+    {
+      "status": "M",
+      "path": "app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/PotHistoryRows.java"
+    },
+    {
+      "status": "A",
+      "path": "app/infra-persistence-primary-jpa/src/main/resources/db/v3-pot/migration/V3__point_history_indexes.sql"
+    },
+    {
+      "status": "M",
+      "path": "app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/CommandExecutionPostgresTest.java"
+    },
+    {
+      "status": "A",
+      "path": "app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/PotCommandJsonTest.java"
+    },
+    {
+      "status": "M",
+      "path": "app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/PotHistoryPostgresTest.java"
+    },
+    {
+      "status": "A",
+      "path": "docs/testing/evidence/L1-F/Changed-files.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/testing/evidence/L1-F/Diagnostics.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/testing/evidence/L1-F/Documentary-checks.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/testing/evidence/L1-F/Gate-index.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/testing/evidence/L1-F/Performance.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/testing/evidence/L1-F/Publication-preflight.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/testing/evidence/L1-F/README.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/testing/evidence/L1-F/diagnostics-raw.tar.gz"
+    },
+    {
+      "status": "A",
+      "path": "docs/testing/evidence/L1-F/diagnostics-raw.tar.gz.sha256"
+    },
+    {
+      "status": "A",
+      "path": "docs/testing/evidence/L1-F/gates-raw.tar.gz"
+    },
+    {
+      "status": "A",
+      "path": "docs/testing/evidence/L1-F/gates-raw.tar.gz.sha256"
+    },
+    {
+      "status": "A",
+      "path": "docs/testing/evidence/L1-F/performance-raw.tar.gz"
+    },
+    {
+      "status": "A",
+      "path": "docs/testing/evidence/L1-F/performance-raw.tar.gz.sha256"
+    },
+    {
+      "status": "A",
+      "path": "docs/testing/evidence/L1-F/preserved-branches.txt"
+    },
+    {
+      "status": "A",
+      "path": "docs/testing/evidence/L1-F/preserved-primary-status.txt"
+    },
+    {
+      "status": "A",
+      "path": "docs/testing/evidence/L1-F/preserved-v3-cleanup-status.txt"
+    },
+    {
+      "status": "A",
+      "path": "docs/testing/evidence/L1-F/preserved-worktrees.txt"
+    },
+    {
+      "status": "M",
+      "path": "docs/v3/L1_B_Persistence_Contract.md"
+    },
+    {
+      "status": "M",
+      "path": "docs/v3/L1_C_Transaction_Contract.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/v3/L1_F_Closure_Report.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/v3/L1_F_Contradictory_Inventory.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/v3/L1_F_Proof_Manifest.json"
+    },
+    {
+      "status": "M",
+      "path": "docs/v3/SPEC-01_Pot_Domain.md"
+    },
+    {
+      "status": "M",
+      "path": "docs/v3/SPEC-03_Events_Requests_Consumables.md"
+    },
+    {
+      "status": "M",
+      "path": "docs/v3/SPEC-04_Read_Projections.md"
+    },
+    {
+      "status": "M",
+      "path": "docs/v3/SPEC-05_Consumption_Discovery.md"
+    },
+    {
+      "status": "M",
+      "path": "docs/v3/SPEC-06_Supra_Contracts.md"
+    },
+    {
+      "status": "M",
+      "path": "docs/v3/SPEC-09_Performance.md"
+    },
+    {
+      "status": "M",
+      "path": "docs/v3/SPEC-10_Test_Certification.md"
+    },
+    {
+      "status": "M",
+      "path": "docs/v3/V3_Canon_and_Roadmap.md"
+    },
+    {
+      "status": "M",
+      "path": "docs/v3/V3_Implementation_Master_Plan.md"
+    },
+    {
+      "status": "A",
+      "path": "scripts/testing/profile-v3-l1-f.sh"
+    },
+    {
+      "status": "A",
+      "path": "scripts/testing/verify-v3-l1-f.py"
+    }
+  ]
+}

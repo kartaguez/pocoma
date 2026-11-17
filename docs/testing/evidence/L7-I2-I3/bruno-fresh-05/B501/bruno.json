@@ -1,0 +1,101 @@
+[
+  {
+    "iterationIndex": 0,
+    "results": [
+      {
+        "test": {
+          "filename": "06 Installation Checks/B501 Authentication and retired routes.bru"
+        },
+        "request": {
+          "method": "GET",
+          "url": "http://127.0.0.1:57816/api/v3/me/binding",
+          "headers": {}
+        },
+        "response": {
+          "status": 200,
+          "statusText": "",
+          "headers": {},
+          "url": "http://127.0.0.1/api/v3/me/binding",
+          "responseTime": 19,
+          "duration": 19,
+          "size": 91
+        },
+        "error": null,
+        "status": "pass",
+        "assertionResults": [],
+        "testResults": [
+          {
+            "description": "B501 authentication and retired routes",
+            "status": "pass",
+            "uid": "CCd-lR5e2m7qoQ_oT1Gh_"
+          }
+        ],
+        "preRequestTestResults": [],
+        "postResponseTestResults": [],
+        "shouldStopRunnerExecution": false,
+        "runDuration": 0.164057416,
+        "name": "B501 Authentication and retired routes",
+        "suitename": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/06 Installation Checks/B501 Authentication and retired routes",
+        "path": "06 Installation Checks/B501 Authentication and retired routes",
+        "iterationIndex": 0
+      },
+      {
+        "test": {
+          "filename": "06 Installation Checks/B502 Diagnostics.bru"
+        },
+        "request": {
+          "method": "GET",
+          "url": "http://127.0.0.1:57816/actuator/stage-handoffs",
+          "headers": {}
+        },
+        "response": {
+          "status": 200,
+          "statusText": "",
+          "headers": {},
+          "url": "http://127.0.0.1/actuator/stage-handoffs",
+          "responseTime": 17,
+          "duration": 17,
+          "size": 629
+        },
+        "error": null,
+        "status": "pass",
+        "assertionResults": [],
+        "testResults": [
+          {
+            "description": "B502 diagnostics are redacted and read-only",
+            "status": "pass",
+            "uid": "jpQL48v1QZ_vg7Ry2jjfm"
+          }
+        ],
+        "preRequestTestResults": [],
+        "postResponseTestResults": [],
+        "shouldStopRunnerExecution": false,
+        "runDuration": 0.050899375,
+        "name": "B502 Diagnostics",
+        "suitename": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/06 Installation Checks/B502 Diagnostics",
+        "path": "06 Installation Checks/B502 Diagnostics",
+        "iterationIndex": 0
+      }
+    ],
+    "summary": {
+      "totalRequests": 2,
+      "passedRequests": 2,
+      "failedRequests": 0,
+      "errorRequests": 0,
+      "skippedRequests": 0,
+      "skippedByBail": 0,
+      "totalAssertions": 0,
+      "passedAssertions": 0,
+      "failedAssertions": 0,
+      "totalTests": 2,
+      "passedTests": 2,
+      "failedTests": 0,
+      "totalPreRequestTests": 0,
+      "passedPreRequestTests": 0,
+      "failedPreRequestTests": 0,
+      "totalPostResponseTests": 0,
+      "passedPostResponseTests": 0,
+      "failedPostResponseTests": 0
+    }
+  }
+]

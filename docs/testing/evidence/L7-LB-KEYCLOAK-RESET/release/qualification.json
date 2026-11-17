@@ -1,0 +1,26 @@
+{
+  "verdict": "PASS",
+  "instance": "keycloak-release-validation",
+  "inputs": "999c85a83150de0611375397a9bab97760f04b44490b824a34f6a509ad33fc58",
+  "testedSha": "80792858d6aac9c648ebcfac2fb2d84ccf80154e",
+  "dirty": true,
+  "checks": [
+    "fresh READY",
+    "five JVMs/PG/Keycloak/Prometheus",
+    "master admin Code+S256",
+    "four accounts enabled/no required actions",
+    "three users Code+S256, missing/plain rejected",
+    "118 Bruno requests/236 named tests",
+    "installed Bruno parser/cache/VM/transport (version in receipt)",
+    "GUI public environment",
+    "loopback-only bindings and no PG port",
+    "graceful stop and restart READY",
+    "new canary version/demo checkpoints preserved"
+  ],
+  "limitations": [
+    "Rendered GUI login/Runner not executed; no complete GUI acceptance claim.",
+    "No historical L7 certification change, full reactor or destructive reset.",
+    "Dependency/image caches reused; new databases and fresh distribution package."
+  ],
+  "resources": "RUNNING_AND_RETAINED"
+}

@@ -1,0 +1,120 @@
+{
+  "production_modules": [
+    "composition-runtime-spring",
+    "engine-consumption",
+    "engine-write-pot",
+    "infra-persistence-primary-jpa",
+    "infra-tx-spring",
+    "port-transaction"
+  ],
+  "production_files": [
+    {
+      "status": "M",
+      "path": "app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/command/v3/V3PotCommandComposition.java"
+    },
+    {
+      "status": "A",
+      "path": "app/engine-consumption/src/main/java/com/kartaguez/pocoma/engine/consumption/v3/ClaimedSlot.java"
+    },
+    {
+      "status": "A",
+      "path": "app/engine-consumption/src/main/java/com/kartaguez/pocoma/engine/consumption/v3/ConsumptionEngine.java"
+    },
+    {
+      "status": "A",
+      "path": "app/engine-consumption/src/main/java/com/kartaguez/pocoma/engine/consumption/v3/ConsumptionParticipant.java"
+    },
+    {
+      "status": "A",
+      "path": "app/engine-consumption/src/main/java/com/kartaguez/pocoma/engine/consumption/v3/RecoveryObservation.java"
+    },
+    {
+      "status": "A",
+      "path": "app/engine-consumption/src/main/java/com/kartaguez/pocoma/engine/consumption/v3/SlotCompletion.java"
+    },
+    {
+      "status": "A",
+      "path": "app/engine-consumption/src/main/java/com/kartaguez/pocoma/engine/consumption/v3/port/ConsumptionSlotStore.java"
+    },
+    {
+      "status": "M",
+      "path": "app/engine-write-pot/pom.xml"
+    },
+    {
+      "status": "A",
+      "path": "app/engine-write-pot/src/main/java/com/kartaguez/pocoma/engine/write/pot/port/execution/v3/PotCommandObservation.java"
+    },
+    {
+      "status": "M",
+      "path": "app/engine-write-pot/src/main/java/com/kartaguez/pocoma/engine/write/pot/port/execution/v3/PotCommandStore.java"
+    },
+    {
+      "status": "D",
+      "path": "app/engine-write-pot/src/main/java/com/kartaguez/pocoma/engine/write/pot/port/execution/v3/PotCommandTransactions.java"
+    },
+    {
+      "status": "M",
+      "path": "app/engine-write-pot/src/main/java/com/kartaguez/pocoma/engine/write/pot/v3/ExecutePotCommand.java"
+    },
+    {
+      "status": "M",
+      "path": "app/infra-persistence-primary-jpa/pom.xml"
+    },
+    {
+      "status": "A",
+      "path": "app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/JdbcPotCommandObservation.java"
+    },
+    {
+      "status": "M",
+      "path": "app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/JdbcPotCommandStore.java"
+    },
+    {
+      "status": "M",
+      "path": "app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/JdbcPotRevisionAdapter.java"
+    },
+    {
+      "status": "D",
+      "path": "app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/PotCommandJdbcTransactions.java"
+    },
+    {
+      "status": "A",
+      "path": "app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/consumption/JdbcConsumptionSlotStore.java"
+    },
+    {
+      "status": "M",
+      "path": "app/infra-tx-spring/pom.xml"
+    },
+    {
+      "status": "A",
+      "path": "app/infra-tx-spring/src/main/java/com/kartaguez/pocoma/infra/tx/spring/v3/SpringAttemptTransactions.java"
+    },
+    {
+      "status": "A",
+      "path": "app/port-transaction/src/main/java/com/kartaguez/pocoma/port/transaction/v3/AttemptTransactions.java"
+    },
+    {
+      "status": "A",
+      "path": "app/port-transaction/src/main/java/com/kartaguez/pocoma/port/transaction/v3/RecoveryReadContext.java"
+    }
+  ],
+  "rejected_types": {
+    "FinalizationUnit": [],
+    "ReadUnit": [],
+    "PublicationControl": [],
+    "PhysicalWriteGuard": [],
+    "PotCommandTransactions": [],
+    "PotCommandJdbcTransactions": []
+  },
+  "new_concrete_classes": [
+    "ConsumptionEngine",
+    "SpringAttemptTransactions",
+    "JdbcConsumptionSlotStore",
+    "JdbcPotCommandObservation"
+  ],
+  "physical_owner": "SpringAttemptTransactions delegates to existing manager; two templates; no new production manager",
+  "mandatory_architecture_negative_tests": "V3ConsumptionEngineArchitectureTest.negativeExamplesReallyFailRules",
+  "global_gate": "REQUIRED; results in Gate-index.json",
+  "forbidden_production_impact": "NONE",
+  "unexpected_slice_crossing": "NONE",
+  "code_sha": "4f2264ae6e11e7e6e1511577064bca5e31ad1336"
+}

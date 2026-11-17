@@ -1,0 +1,463 @@
+{
+  "runId": "run-r2-ramp-p1-1794080330",
+  "demandedRate": 1,
+  "injectionTargetSeconds": 10.0,
+  "injectionActualSeconds": 33.27,
+  "totalScenarioSeconds": 33.89,
+  "generatorStatus": "GENERATOR_LIMITED",
+  "generatorRateRatio": 30.0,
+  "counts": {
+    "emitted": 10,
+    "admitted": 10,
+    "capacityRejected": 0,
+    "admissionErrors": 0,
+    "terminalized": 10,
+    "applied": 0,
+    "casRejected": 0,
+    "terminalTimeouts": 0,
+    "readMaterialized": 0,
+    "readTimeouts": 0,
+    "completeE2E": 0,
+    "nonTerminalAtClose": 0,
+    "nonReadAtClose": 0
+  },
+  "ratesPerSecond": {
+    "demanded": 1,
+    "emitted": 0.3,
+    "admitted": 0.3,
+    "applied": 0.0,
+    "readMaterialized": 0.0
+  },
+  "coverage": {
+    "completeOverAdmitted": 0.0,
+    "percentage": 0.0
+  },
+  "conservations": {
+    "emittedEquation": true,
+    "admittedEquation": false
+  },
+  "latencies": {
+    "admission": {
+      "count": 10,
+      "p50": 4.0,
+      "p90": 6.0,
+      "p95": 6.0,
+      "p99": 6.0,
+      "mean": 4.0,
+      "min": 2.0,
+      "max": 6.0
+    },
+    "terminal": {
+      "count": 10,
+      "p50": 849.68,
+      "p90": 1063.63,
+      "p95": 1086.94,
+      "p99": 1105.58,
+      "mean": 825.46,
+      "min": 457.73,
+      "max": 1110.24
+    },
+    "readMaterialization": {
+      "count": 0,
+      "p50": null,
+      "p90": null,
+      "p95": null,
+      "p99": null,
+      "mean": null,
+      "min": null,
+      "max": null
+    },
+    "e2eTotal": {
+      "count": 0,
+      "p50": null,
+      "p90": null,
+      "p95": null,
+      "p99": null,
+      "mean": null,
+      "min": null,
+      "max": null
+    }
+  },
+  "probesAnd503": {
+    "terminalProbes": 385,
+    "terminal503": 0,
+    "readProbes": 0,
+    "read503": 0
+  },
+  "backlogTimeseries": [
+    {
+      "timestamp": 1794080330.93,
+      "elapsedSeconds": 0.0,
+      "phase": "injection",
+      "dbBacklog": 0,
+      "pendingTerminalQueue": 0,
+      "pendingReadQueue": 0,
+      "admitted": 0,
+      "applied": 0,
+      "completeE2E": 0
+    },
+    {
+      "timestamp": 1794080331.97,
+      "elapsedSeconds": 1.04,
+      "phase": "injection",
+      "dbBacklog": 0,
+      "pendingTerminalQueue": 0,
+      "pendingReadQueue": 0,
+      "admitted": 0,
+      "applied": 0,
+      "completeE2E": 0
+    },
+    {
+      "timestamp": 1794080333.03,
+      "elapsedSeconds": 2.1,
+      "phase": "injection",
+      "dbBacklog": 0,
+      "pendingTerminalQueue": 0,
+      "pendingReadQueue": 0,
+      "admitted": 0,
+      "applied": 0,
+      "completeE2E": 0
+    },
+    {
+      "timestamp": 1794080334.1,
+      "elapsedSeconds": 3.17,
+      "phase": "injection",
+      "dbBacklog": 0,
+      "pendingTerminalQueue": 0,
+      "pendingReadQueue": 0,
+      "admitted": 0,
+      "applied": 0,
+      "completeE2E": 0
+    },
+    {
+      "timestamp": 1794080335.16,
+      "elapsedSeconds": 4.24,
+      "phase": "injection",
+      "dbBacklog": 0,
+      "pendingTerminalQueue": 0,
+      "pendingReadQueue": 0,
+      "admitted": 0,
+      "applied": 0,
+      "completeE2E": 0
+    },
+    {
+      "timestamp": 1794080336.22,
+      "elapsedSeconds": 5.29,
+      "phase": "injection",
+      "dbBacklog": 0,
+      "pendingTerminalQueue": 0,
+      "pendingReadQueue": 0,
+      "admitted": 0,
+      "applied": 0,
+      "completeE2E": 0
+    },
+    {
+      "timestamp": 1794080337.29,
+      "elapsedSeconds": 6.36,
+      "phase": "injection",
+      "dbBacklog": 0,
+      "pendingTerminalQueue": 0,
+      "pendingReadQueue": 0,
+      "admitted": 0,
+      "applied": 0,
+      "completeE2E": 0
+    },
+    {
+      "timestamp": 1794080338.36,
+      "elapsedSeconds": 7.43,
+      "phase": "injection",
+      "dbBacklog": 0,
+      "pendingTerminalQueue": 0,
+      "pendingReadQueue": 0,
+      "admitted": 0,
+      "applied": 0,
+      "completeE2E": 0
+    },
+    {
+      "timestamp": 1794080339.42,
+      "elapsedSeconds": 8.49,
+      "phase": "injection",
+      "dbBacklog": 0,
+      "pendingTerminalQueue": 0,
+      "pendingReadQueue": 0,
+      "admitted": 0,
+      "applied": 0,
+      "completeE2E": 0
+    },
+    {
+      "timestamp": 1794080340.48,
+      "elapsedSeconds": 9.55,
+      "phase": "injection",
+      "dbBacklog": 0,
+      "pendingTerminalQueue": 0,
+      "pendingReadQueue": 0,
+      "admitted": 0,
+      "applied": 0,
+      "completeE2E": 0
+    },
+    {
+      "timestamp": 1794080341.53,
+      "elapsedSeconds": 10.6,
+      "phase": "injection",
+      "dbBacklog": 1,
+      "pendingTerminalQueue": 0,
+      "pendingReadQueue": 0,
+      "admitted": 0,
+      "applied": 0,
+      "completeE2E": 0
+    },
+    {
+      "timestamp": 1794080342.59,
+      "elapsedSeconds": 11.67,
+      "phase": "injection",
+      "dbBacklog": 0,
+      "pendingTerminalQueue": 0,
+      "pendingReadQueue": 0,
+      "admitted": 0,
+      "applied": 0,
+      "completeE2E": 0
+    },
+    {
+      "timestamp": 1794080343.66,
+      "elapsedSeconds": 12.73,
+      "phase": "injection",
+      "dbBacklog": 0,
+      "pendingTerminalQueue": 0,
+      "pendingReadQueue": 0,
+      "admitted": 0,
+      "applied": 0,
+      "completeE2E": 0
+    },
+    {
+      "timestamp": 1794080344.71,
+      "elapsedSeconds": 13.78,
+      "phase": "injection",
+      "dbBacklog": 0,
+      "pendingTerminalQueue": 0,
+      "pendingReadQueue": 0,
+      "admitted": 0,
+      "applied": 0,
+      "completeE2E": 0
+    },
+    {
+      "timestamp": 1794080345.78,
+      "elapsedSeconds": 14.85,
+      "phase": "injection",
+      "dbBacklog": 0,
+      "pendingTerminalQueue": 0,
+      "pendingReadQueue": 0,
+      "admitted": 0,
+      "applied": 0,
+      "completeE2E": 0
+    },
+    {
+      "timestamp": 1794080346.83,
+      "elapsedSeconds": 15.91,
+      "phase": "injection",
+      "dbBacklog": 0,
+      "pendingTerminalQueue": 0,
+      "pendingReadQueue": 0,
+      "admitted": 0,
+      "applied": 0,
+      "completeE2E": 0
+    },
+    {
+      "timestamp": 1794080347.89,
+      "elapsedSeconds": 16.97,
+      "phase": "injection",
+      "dbBacklog": 0,
+      "pendingTerminalQueue": 0,
+      "pendingReadQueue": 0,
+      "admitted": 0,
+      "applied": 0,
+      "completeE2E": 0
+    },
+    {
+      "timestamp": 1794080348.97,
+      "elapsedSeconds": 18.04,
+      "phase": "injection",
+      "dbBacklog": 0,
+      "pendingTerminalQueue": 0,
+      "pendingReadQueue": 0,
+      "admitted": 0,
+      "applied": 0,
+      "completeE2E": 0
+    },
+    {
+      "timestamp": 1794080350.03,
+      "elapsedSeconds": 19.1,
+      "phase": "injection",
+      "dbBacklog": 0,
+      "pendingTerminalQueue": 0,
+      "pendingReadQueue": 0,
+      "admitted": 0,
+      "applied": 0,
+      "completeE2E": 0
+    },
+    {
+      "timestamp": 1794080351.08,
+      "elapsedSeconds": 20.15,
+      "phase": "injection",
+      "dbBacklog": 0,
+      "pendingTerminalQueue": 0,
+      "pendingReadQueue": 0,
+      "admitted": 0,
+      "applied": 0,
+      "completeE2E": 0
+    },
+    {
+      "timestamp": 1794080352.13,
+      "elapsedSeconds": 21.2,
+      "phase": "injection",
+      "dbBacklog": 0,
+      "pendingTerminalQueue": 0,
+      "pendingReadQueue": 0,
+      "admitted": 0,
+      "applied": 0,
+      "completeE2E": 0
+    },
+    {
+      "timestamp": 1794080353.18,
+      "elapsedSeconds": 22.25,
+      "phase": "injection",
+      "dbBacklog": 0,
+      "pendingTerminalQueue": 0,
+      "pendingReadQueue": 0,
+      "admitted": 0,
+      "applied": 0,
+      "completeE2E": 0
+    },
+    {
+      "timestamp": 1794080354.24,
+      "elapsedSeconds": 23.32,
+      "phase": "injection",
+      "dbBacklog": 0,
+      "pendingTerminalQueue": 1,
+      "pendingReadQueue": 0,
+      "admitted": 1,
+      "applied": 0,
+      "completeE2E": 0
+    },
+    {
+      "timestamp": 1794080355.29,
+      "elapsedSeconds": 24.36,
+      "phase": "injection",
+      "dbBacklog": 0,
+      "pendingTerminalQueue": 1,
+      "pendingReadQueue": 0,
+      "admitted": 2,
+      "applied": 0,
+      "completeE2E": 0
+    },
+    {
+      "timestamp": 1794080356.34,
+      "elapsedSeconds": 25.41,
+      "phase": "injection",
+      "dbBacklog": 0,
+      "pendingTerminalQueue": 0,
+      "pendingReadQueue": 0,
+      "admitted": 3,
+      "applied": 0,
+      "completeE2E": 0
+    },
+    {
+      "timestamp": 1794080357.39,
+      "elapsedSeconds": 26.46,
+      "phase": "injection",
+      "dbBacklog": 1,
+      "pendingTerminalQueue": 1,
+      "pendingReadQueue": 0,
+      "admitted": 4,
+      "applied": 0,
+      "completeE2E": 0
+    },
+    {
+      "timestamp": 1794080358.44,
+      "elapsedSeconds": 27.51,
+      "phase": "injection",
+      "dbBacklog": 0,
+      "pendingTerminalQueue": 1,
+      "pendingReadQueue": 0,
+      "admitted": 5,
+      "applied": 0,
+      "completeE2E": 0
+    },
+    {
+      "timestamp": 1794080359.5,
+      "elapsedSeconds": 28.57,
+      "phase": "injection",
+      "dbBacklog": 0,
+      "pendingTerminalQueue": 0,
+      "pendingReadQueue": 0,
+      "admitted": 6,
+      "applied": 0,
+      "completeE2E": 0
+    },
+    {
+      "timestamp": 1794080360.55,
+      "elapsedSeconds": 29.62,
+      "phase": "injection",
+      "dbBacklog": 0,
+      "pendingTerminalQueue": 1,
+      "pendingReadQueue": 0,
+      "admitted": 7,
+      "applied": 0,
+      "completeE2E": 0
+    },
+    {
+      "timestamp": 1794080361.6,
+      "elapsedSeconds": 30.68,
+      "phase": "injection",
+      "dbBacklog": 0,
+      "pendingTerminalQueue": 1,
+      "pendingReadQueue": 0,
+      "admitted": 8,
+      "applied": 0,
+      "completeE2E": 0
+    },
+    {
+      "timestamp": 1794080362.66,
+      "elapsedSeconds": 31.74,
+      "phase": "injection",
+      "dbBacklog": 0,
+      "pendingTerminalQueue": 1,
+      "pendingReadQueue": 0,
+      "admitted": 9,
+      "applied": 0,
+      "completeE2E": 0
+    },
+    {
+      "timestamp": 1794080363.72,
+      "elapsedSeconds": 32.79,
+      "phase": "injection",
+      "dbBacklog": 1,
+      "pendingTerminalQueue": 1,
+      "pendingReadQueue": 0,
+      "admitted": 10,
+      "applied": 0,
+      "completeE2E": 0
+    },
+    {
+      "timestamp": 1794080364.77,
+      "elapsedSeconds": 33.85,
+      "phase": "drainage",
+      "dbBacklog": 0,
+      "pendingTerminalQueue": 0,
+      "pendingReadQueue": 0,
+      "admitted": 10,
+      "applied": 0,
+      "completeE2E": 0
+    }
+  ],
+  "drainage": {
+    "drainDurationSec": 0.62,
+    "finalDbBacklog": 0,
+    "timedOut": false
+  },
+  "oidcTelemetry": {
+    "renewalCount": 0,
+    "renewalFailures": 0,
+    "totalAuthDurationMs": 83.39,
+    "tokenRemainingSeconds": 265.0
+  }
+}

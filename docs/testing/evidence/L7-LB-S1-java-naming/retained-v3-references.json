@@ -1,0 +1,276 @@
+{
+  "status": "PASS",
+  "remaining_java_name_exceptions": {
+    "v3": [
+      {
+        "file": "app/domain-identity/src/test/java/com/kartaguez/pocoma/domain/identity/IdentityTransitionsTest.java",
+        "line": 91
+      },
+      {
+        "file": "app/domain-identity/src/test/java/com/kartaguez/pocoma/domain/identity/IdentityTransitionsTest.java",
+        "line": 94
+      },
+      {
+        "file": "app/domain-identity/src/test/java/com/kartaguez/pocoma/domain/identity/IdentityTransitionsTest.java",
+        "line": 96
+      },
+      {
+        "file": "app/domain-identity/src/test/java/com/kartaguez/pocoma/domain/identity/IdentityTransitionsTest.java",
+        "line": 96
+      },
+      {
+        "file": "app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/PotHistoryPostgresTest.java",
+        "line": 568
+      },
+      {
+        "file": "app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/PotHistoryPostgresTest.java",
+        "line": 586
+      },
+      {
+        "file": "app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/PotHistoryPostgresTest.java",
+        "line": 587
+      },
+      {
+        "file": "app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/PotHistoryPostgresTest.java",
+        "line": 589
+      },
+      {
+        "file": "app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/PotHistoryPostgresTest.java",
+        "line": 617
+      },
+      {
+        "file": "app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/PotVersionSourcePostgresTest.java",
+        "line": 30
+      },
+      {
+        "file": "app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/PotVersionSourcePostgresTest.java",
+        "line": 31
+      },
+      {
+        "file": "app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/PotVersionSourcePostgresTest.java",
+        "line": 31
+      },
+      {
+        "file": "app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/PotVersionSourcePostgresTest.java",
+        "line": 32
+      },
+      {
+        "file": "app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/PotVersionSourcePostgresTest.java",
+        "line": 32
+      },
+      {
+        "file": "app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/PotVersionSourcePostgresTest.java",
+        "line": 39
+      },
+      {
+        "file": "app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/PotVersionSourcePostgresTest.java",
+        "line": 39
+      },
+      {
+        "file": "app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/PotVersionSourcePostgresTest.java",
+        "line": 50
+      },
+      {
+        "file": "app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/PotVersionSourcePostgresTest.java",
+        "line": 50
+      },
+      {
+        "file": "app/runtime-worker-materialize/src/test/java/com/kartaguez/pocoma/runtime/task/ReadParticipantsIntegrationPostgresTest.java",
+        "line": 322
+      },
+      {
+        "file": "app/runtime-worker-materialize/src/test/java/com/kartaguez/pocoma/runtime/task/ReadParticipantsIntegrationPostgresTest.java",
+        "line": 324
+      },
+      {
+        "file": "app/runtime-worker-materialize/src/test/java/com/kartaguez/pocoma/runtime/task/ReadParticipantsIntegrationPostgresTest.java",
+        "line": 394
+      },
+      {
+        "file": "app/runtime-worker-materialize/src/test/java/com/kartaguez/pocoma/runtime/task/ReadParticipantsIntegrationPostgresTest.java",
+        "line": 404
+      }
+    ],
+    "runtimeClasspathAppliesAndValidatesMigrationsV1ThroughV31": [
+      {
+        "file": "app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/migration/PrimaryMigrationsPostgresTest.java",
+        "line": 47
+      }
+    ],
+    "existingV1ThroughV31DatabaseValidatesWithoutRepairOrReexecution": [
+      {
+        "file": "app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/migration/PrimaryMigrationsPostgresTest.java",
+        "line": 117
+      }
+    ],
+    "nonApiV3EndpointsAreNotFiltered": [
+      {
+        "file": "app/supra-web-read/src/test/java/com/kartaguez/pocoma/supra/web/read/maintenance/ReadMaintenanceBarrierTest.java",
+        "line": 159
+      }
+    ]
+  },
+  "retained_literal_families": {
+    "S2 diagnostics/pools/threads/profils, ou valeurs de scénario versionnées": {
+      "occurrences": 186,
+      "examples": [
+        {
+          "file": "app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/l7/L7DeploymentArchitectureTest.java",
+          "line": 12,
+          "literal": "\"docker-compose.v3-five-runtimes.yml\""
+        },
+        {
+          "file": "app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/l7/L7DeploymentArchitectureTest.java",
+          "line": 17,
+          "literal": "\"docker-compose.v3-five-runtimes.yml\""
+        },
+        {
+          "file": "app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/qualification/QualificationSettings.java",
+          "line": 39,
+          "literal": "\"v3-consumption-worker-dev\""
+        },
+        {
+          "file": "app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/qualification/QualificationSettings.java",
+          "line": 40,
+          "literal": "\"v3-read-worker\""
+        }
+      ]
+    },
+    "S2/A4 chemins outils, ressources et preuves": {
+      "occurrences": 63,
+      "examples": [
+        {
+          "file": "app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/l7/L7DeploymentArchitectureTest.java",
+          "line": 39,
+          "literal": "\"docker/v3-five-runtimes\""
+        },
+        {
+          "file": "app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/l7/L7ReactorArchitectureTest.java",
+          "line": 28,
+          "literal": "\"../docs/v3/L7_Target_Modular_Architecture_and_Migration_Plan.md\""
+        },
+        {
+          "file": "app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/AdmissionArchitectureTest.java",
+          "line": 117,
+          "literal": "\"../infra-postgres-write/src/main/resources/db/v3-admission/migration/V7__public_admission.sql\""
+        },
+        {
+          "file": "app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/ConsumptionFoundationArchitectureTest.java",
+          "line": 47,
+          "literal": "\"../infra-postgres-write/src/main/resources/db/v3-consumption-write/migration/V5__consumption_foundation.sql\""
+        }
+      ]
+    },
+    "S2 propriétés et métriques": {
+      "occurrences": 321,
+      "examples": [
+        {
+          "file": "app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/l7/L7DeploymentArchitectureTest.java",
+          "line": 42,
+          "literal": "\"pocoma.v3.worker.write-source-read.username\""
+        },
+        {
+          "file": "app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/l7/L7DeploymentArchitectureTest.java",
+          "line": 43,
+          "literal": "\"pocoma.v3.pilot.write.password\""
+        },
+        {
+          "file": "app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/l7/L7DeploymentArchitectureTest.java",
+          "line": 46,
+          "literal": "\"pocoma.v3.pilot.read.\""
+        },
+        {
+          "file": "app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/l7/L7DeploymentArchitectureTest.java",
+          "line": 48,
+          "literal": "\"pocoma.v3.http.read.username\""
+        }
+      ]
+    },
+    "A4 absence explicite de l’ancien contrôleur retiré": {
+      "occurrences": 1,
+      "examples": [
+        {
+          "file": "app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/AdmissionArchitectureTest.java",
+          "line": 112,
+          "literal": "\"V3LinkProposalController\""
+        }
+      ]
+    },
+    "Commentaires historiques inchangés": {
+      "occurrences": 12,
+      "examples": [
+        {
+          "file": "app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/FoundationArchitectureTest.java",
+          "line": 20,
+          "literal": "/** Reusable direction guards, not certification of the still absent V3 domain/runtime. */"
+        },
+        {
+          "file": "app/compose-polling-nonburnable-materialize-postgres/src/main/java/com/kartaguez/pocoma/compose/polling/materialize/maintenance/ReadinessOracle.java",
+          "line": 251,
+          "literal": "// Batch resolve positions from v3_event_position in WRITE"
+        },
+        {
+          "file": "app/compose-web-read-postgres/src/main/java/com/kartaguez/pocoma/compose/web/read/ReadHttpConfiguration.java",
+          "line": 56,
+          "literal": "/** Explicit V3 HTTP assembly. Standalone WEB owns only a two-connection READ pool. */"
+        },
+        {
+          "file": "app/infra-postgres-core/src/main/java/com/kartaguez/pocoma/infra/postgres/core/PostgresPotHistoryReader.java",
+          "line": 21,
+          "literal": "/** Explicitly composed V3 WRITE reader. Never auto-activates alongside the V2 runtime. */"
+        }
+      ]
+    },
+    "S3 SQL, schemas, contraintes et fixtures": {
+      "occurrences": 1737,
+      "examples": [
+        {
+          "file": "app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/IdentityAuthorityArchitectureTest.java",
+          "line": 142,
+          "literal": "\"v3_pot_\""
+        },
+        {
+          "file": "app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/IdentityAuthorityArchitectureTest.java",
+          "line": 143,
+          "literal": "\"v3_identity_anchor_state,\""
+        },
+        {
+          "file": "app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/IdentityAuthorityArchitectureTest.java",
+          "line": 144,
+          "literal": "\"v3_identity_version_state immediate\""
+        },
+        {
+          "file": "app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/IdentityAuthorityArchitectureTest.java",
+          "line": 201,
+          "literal": "\"insert into v3_eui_authority\""
+        }
+      ]
+    },
+    "CONTRACT HTTP /api/v3": {
+      "occurrences": 79,
+      "examples": [
+        {
+          "file": "app/compose-web-read-postgres/src/main/java/com/kartaguez/pocoma/compose/web/read/ReadHttpConfiguration.java",
+          "line": 107,
+          "literal": "\"/api/v3/*\""
+        },
+        {
+          "file": "app/compose-web-read-postgres/src/main/java/com/kartaguez/pocoma/compose/web/read/ReadHttpConfiguration.java",
+          "line": 325,
+          "literal": "\"/api/v3/*\""
+        },
+        {
+          "file": "app/compose-web-read-postgres/src/main/java/com/kartaguez/pocoma/compose/web/read/StageHandoffController.java",
+          "line": 24,
+          "literal": "\"/api/v3/diagnostics/stage-handoffs\""
+        },
+        {
+          "file": "app/compose-web-write-postgres/src/main/java/com/kartaguez/pocoma/compose/web/write/AdmissionHttpConfiguration.java",
+          "line": 248,
+          "literal": "\"/api/v3/commands\""
+        }
+      ]
+    }
+  },
+  "stale_qualified_java_names_or_paths": []
+}

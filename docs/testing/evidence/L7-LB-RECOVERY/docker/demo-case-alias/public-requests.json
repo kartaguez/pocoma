@@ -1,0 +1,79 @@
+[
+  {
+    "method": "GET",
+    "path": "/me/binding",
+    "startedAt": 1794737155.111219,
+    "status": 200,
+    "completedAt": 1794737155.1241589
+  },
+  {
+    "method": "POST",
+    "path": "/commands",
+    "startedAt": 1794737155.124896,
+    "status": 202,
+    "completedAt": 1794737155.141807
+  },
+  {
+    "method": "GET",
+    "path": "/commands/7230e225-d627-41e4-aec3-810c55bca0ed/result",
+    "startedAt": 1794737155.143114,
+    "status": 200,
+    "completedAt": 1794737155.148302
+  },
+  {
+    "method": "GET",
+    "path": "/pots/781047aa-eaf1-51e7-8a03-d512e1389f7e?minVersion=1",
+    "startedAt": 1794737155.150475,
+    "status": 200,
+    "completedAt": 1794737155.1583
+  },
+  {
+    "method": "POST",
+    "path": "/commands",
+    "startedAt": 1794737155.159722,
+    "status": 202,
+    "completedAt": 1794737155.170324
+  },
+  {
+    "method": "GET",
+    "path": "/commands/4409484c-84ac-4380-93f9-9b7c73f6863d/result",
+    "startedAt": 1794737155.173611,
+    "status": 404,
+    "completedAt": 1794737155.178436
+  },
+  {
+    "method": "GET",
+    "path": "/commands/4409484c-84ac-4380-93f9-9b7c73f6863d/result",
+    "startedAt": 1794737155.2799308,
+    "status": 200,
+    "completedAt": 1794737155.284595
+  },
+  {
+    "method": "GET",
+    "path": "/pots/781047aa-eaf1-51e7-8a03-d512e1389f7e?minVersion=14",
+    "startedAt": 1794737155.28686,
+    "status": 503,
+    "completedAt": 1794737155.292366
+  },
+  {
+    "method": "GET",
+    "path": "/pots/781047aa-eaf1-51e7-8a03-d512e1389f7e?minVersion=14",
+    "startedAt": 1794737155.394984,
+    "status": 200,
+    "completedAt": 1794737155.407849
+  },
+  {
+    "method": "GET",
+    "path": "/pots/781047aa-eaf1-51e7-8a03-d512e1389f7e/versions/14/balance",
+    "startedAt": 1794737155.411509,
+    "status": 200,
+    "completedAt": 1794737155.416896
+  },
+  {
+    "method": "GET",
+    "path": "/me/binding",
+    "startedAt": 1794737155.420225,
+    "status": 401,
+    "completedAt": 1794737155.4224691
+  }
+]

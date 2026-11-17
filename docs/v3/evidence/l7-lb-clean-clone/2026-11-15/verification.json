@@ -1,0 +1,46 @@
+{
+  "declaredPrimary": "LOCAL_DISTRIBUTION",
+  "mavenSlices": [],
+  "secondarySlices": [],
+  "forbiddenProductionImpact": [
+    "app/",
+    "COMMAND/RESULT contracts",
+    "leases",
+    "fencing",
+    "asynchronous engine"
+  ],
+  "globalArchitectureGate": "NOT_REQUIRED: no dependency/boundary/runtime isolation rule changed",
+  "fullReactor": "NOT_RUN: no global closure requested, distribution qualification only",
+  "database": "CURRENT: fresh published V3 SQL bootstrap; no historical migration replay or trusted baseline claimed",
+  "unexpectedSliceCrossing": "NONE",
+  "targetedTests": {
+    "command": [
+      "python3",
+      "-B",
+      "-m",
+      "unittest",
+      "scripts/local/test_local.py",
+      "scripts/local/test_recovery.py",
+      "scripts/local/test_keycloak.py",
+      "scripts/local/test_grafana.py",
+      "scripts/local/test_bruno_qualification.py"
+    ],
+    "initialSandbox": {
+      "exit": 1,
+      "tests": 77,
+      "errors": 6,
+      "reason": "Loopback bind denied by sandbox; no product failure",
+      "log": "distribution-tests.txt"
+    },
+    "hostReplay": {
+      "exit": 0,
+      "tests": 77,
+      "errors": 0,
+      "failures": 0,
+      "skips": 0,
+      "log": "distribution-tests-host.txt"
+    }
+  },
+  "quickstartDeviation": "NONE in product procedure; host sandbox escalation and read-only qualification collectors recorded separately",
+  "corrections": []
+}

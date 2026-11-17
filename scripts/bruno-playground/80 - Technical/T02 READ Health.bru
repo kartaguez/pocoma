@@ -1,0 +1,39 @@
+meta {
+  name: T02 READ Health
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{managementReadUrl}}/actuator/health
+  body: none
+  auth: none
+}
+
+headers {
+  Connection: close
+}
+
+settings {
+  timeout: 5000
+}
+
+script:pre-request {
+  const options = {"id":"T02","role":"none","kind":"health","status":200,"requires":["managementReadUrl"]};
+  await require('./lib/workspace.js').prepare(bru, req, options);
+}
+
+tests {
+  const options = {"id":"T02","role":"none","kind":"health","status":200,"requires":["managementReadUrl"]};
+  const work = require('./lib/workspace.js');
+  test('T02 transport and privacy', () => work.transport(bru, res, expect, options));
+  test('T02 contract and variables', () => {
+    work.verify(bru, req, res, expect, options);
+    work.record(bru, req, res, options);
+  });
+}
+
+docs {
+  Endpoint technique READ local, aucune preuve metier deduite de ce resultat.
+  URLs preparees par ./pocoma-local gui ; aucun reset ni secret requis.
+}

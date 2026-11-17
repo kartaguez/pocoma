@@ -1,6 +1,0 @@
-package com.kartaguez.pocoma.domain.consumption.lifecycle;
-
-public enum ConsumptionStatus {
-	PENDING,
-	DONE
-}

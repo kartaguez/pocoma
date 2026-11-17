@@ -1,0 +1,41 @@
+[
+  {
+    "gate": "COMMAND",
+    "started_utc": "2026-10-26T18:07:40.776924+00:00",
+    "status": "PASS",
+    "finished_utc": "2026-10-26T18:12:27.605588+00:00",
+    "exit_code": 0,
+    "log": "/private/tmp/i1-final-command.log"
+  },
+  {
+    "gate": "READ",
+    "started_utc": "2026-10-26T18:12:27.975794+00:00",
+    "status": "PASS",
+    "finished_utc": "2026-10-26T18:12:48.268220+00:00",
+    "exit_code": 0,
+    "log": "/private/tmp/i1-final-read.log"
+  },
+  {
+    "gate": "MONOLITH",
+    "started_utc": "2026-10-26T18:12:48.365194+00:00",
+    "status": "PASS",
+    "finished_utc": "2026-10-26T18:15:35.617257+00:00",
+    "exit_code": 0,
+    "log": "/private/tmp/i1-final-monolith.log"
+  },
+  {
+    "gate": "ARCHITECTURE",
+    "started_utc": "2026-10-26T18:24:33.828050+00:00",
+    "status": "PASS",
+    "finished_utc": "2026-10-26T18:30:37.610121+00:00",
+    "exit_code": 0,
+    "log": "/private/tmp/i1-final-architecture.log",
+    "prior_attempt": {
+      "started_utc": "2026-10-26T18:15:35.898363+00:00",
+      "finished_utc": "2026-10-26T18:21:40.486213+00:00",
+      "status": "FAIL",
+      "exit_code": 1
+    },
+    "code_sha": "6835b5c15cc40d09c22e0b0a4f3b6538ac49992d"
+  }
+]

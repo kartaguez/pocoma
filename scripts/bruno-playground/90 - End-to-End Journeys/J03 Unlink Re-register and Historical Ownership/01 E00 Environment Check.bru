@@ -1,0 +1,44 @@
+meta {
+  name: J03-01-E00 Environment Check
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{issuerUrl}}/.well-known/openid-configuration
+  body: none
+  auth: none
+}
+
+headers {
+  Connection: close
+}
+
+settings {
+  timeout: 5000
+}
+
+script:pre-request {
+  const options = {"id":"J03-01-E00","role":"none","kind":"discovery","status":200};
+  bru.setVar('actor', 'owner');
+  await require('./lib/workspace.js').prepare(bru, req, options);
+}
+
+tests {
+  const options = {"id":"J03-01-E00","role":"none","kind":"discovery","status":200};
+  const work = require('./lib/workspace.js');
+  test('J03-01-E00 transport and privacy', () => work.transport(bru, res, expect, options));
+  test('J03-01-E00 contract and variables', () => {
+    work.verify(bru, req, res, expect, options);
+    work.record(bru, req, res, options);
+  });
+}
+
+docs {
+  Parcours J03 ; etape 1. Source : 00 - Getting Started/E00 Environment Check.bru.
+  Discovery reelle : issuer exact, Authorization Code et S256. Aucun token requis.
+  Identite : none. Prerequis : URLs de l environnement ; session native si role authentifie.
+  Chaque Send appelle la methode et le corps visibles. Les GET asynchrones attendent
+  le meme endpoint au plus 30 s avant l appel affiche ; aucun POST cache.
+  Modifier le JSON librement ; une nouvelle intention recoit une nouvelle cle.
+}
