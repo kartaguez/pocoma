@@ -688,12 +688,12 @@ class ReadWorkerResourcesPostgresTest {
                 // candidate per
                 // physical call.
                 var blockers = new ConcurrentHashMap<String, Connection>();
+                var omittedBindings = ConcurrentHashMap.<UUID>newKeySet();
                 for (var b : cohostedBindings) {
                     var sql =
                             b.definition().authority() == ConsumptionDefinition.Authority.READ
                                     ? f.read
                                     : f.write;
-                    var omitOnce = new AtomicBoolean();
                     var original = (PartitionOwnershipStore) field(b.engine(), "ownership");
                     replace(
                             b.engine(),
@@ -702,40 +702,52 @@ class ReadWorkerResourcesPostgresTest {
                                     getClass().getClassLoader(),
                                     new Class<?>[] {PartitionOwnershipStore.class},
                                     (p, m, a) -> {
-                                        if (!m.getName().equals("renew"))
+                                        if (!m.getName().equals("renew")
+                                                && !m.getName().equals("renewBatch"))
                                             return invoke(original, m, a);
                                         @SuppressWarnings("unchecked")
                                         var requested = (List<PartitionLease>) a[1];
-                                        var one = requested.subList(0, 1);
+                                        var toOmit = new ArrayList<PartitionLease>();
+                                        var seenInCall = new HashSet<UUID>();
+                                        for (var candidate : requested) {
+                                            var cid = candidate.consumptionId().value();
+                                            if (seenInCall.add(cid) && omittedBindings.add(cid))
+                                                toOmit.add(candidate);
+                                        }
+                                        var selectedLeases =
+                                                toOmit.isEmpty()
+                                                        ? requested.subList(0, 1)
+                                                        : List.copyOf(toOmit);
                                         Object[] selected = a.clone();
-                                        selected[1] = one;
+                                        selected[1] = selectedLeases;
                                         // Hold only during this renewal SQL. A long pre-existing
                                         // lock would also
                                         // obstruct Discovery/acquisition and exceed this scenario's
                                         // omission
                                         // hypothesis.
-                                        if (omitOnce.compareAndSet(false, true)) {
-                                            var candidate = one.getFirst();
+                                        if (!toOmit.isEmpty()) {
                                             var blocker = sql.getDataSource().getConnection();
                                             blocker.setAutoCommit(false);
                                             try (var statement = blocker.createStatement()) {
                                                 statement.execute("set local lock_timeout='500ms'");
                                             }
-                                            try (var statement =
-                                                    blocker.prepareStatement(
-                                                            "select 1 from partition_ownership"
-                                                                + " where consumption_id=? and"
-                                                                + " partition_id=? for update")) {
-                                                statement.setObject(
-                                                        1, candidate.consumptionId().value());
-                                                statement.setInt(2, candidate.partitionId());
-                                                statement.executeQuery().close();
+                                            for (var candidate : toOmit) {
+                                                try (var statement =
+                                                        blocker.prepareStatement(
+                                                                "select 1 from partition_ownership"
+                                                                    + " where consumption_id=? and"
+                                                                    + " partition_id=? for update")) {
+                                                    statement.setObject(
+                                                            1, candidate.consumptionId().value());
+                                                    statement.setInt(2, candidate.partitionId());
+                                                    statement.executeQuery().close();
+                                                }
+                                                blockers.put(
+                                                        candidate.consumptionId().value()
+                                                                + "/"
+                                                                + candidate.partitionId(),
+                                                        blocker);
                                             }
-                                            blockers.put(
-                                                    candidate.consumptionId().value()
-                                                            + "/"
-                                                            + candidate.partitionId(),
-                                                    blocker);
                                         }
                                         long began = System.nanoTime();
                                         @SuppressWarnings("unchecked")
@@ -744,17 +756,20 @@ class ReadWorkerResourcesPostgresTest {
                                                         invoke(original, m, selected);
                                         if (requested.size() > result.size())
                                             partial.incrementAndGet();
-                                        if (result.isEmpty()) omissions.incrementAndGet();
-                                        for (var candidate : one) {
+                                        if (result.isEmpty() && !toOmit.isEmpty())
+                                            omissions.addAndGet(toOmit.size());
+                                        var toClose = new LinkedHashSet<Connection>();
+                                        for (var candidate : selectedLeases) {
                                             var c =
                                                     blockers.remove(
                                                             candidate.consumptionId().value()
                                                                     + "/"
                                                                     + candidate.partitionId());
-                                            if (c != null) {
-                                                c.rollback();
-                                                c.close();
-                                            }
+                                            if (c != null) toClose.add(c);
+                                        }
+                                        for (var c : toClose) {
+                                            c.rollback();
+                                            c.close();
                                         }
                                         calls.add(
                                                 "authority="
@@ -915,7 +930,7 @@ class ReadWorkerResourcesPostgresTest {
                         heldRead.release.countDown();
                         for (var loan : loans) loan.close();
                         sourceRelease.countDown();
-                        for (var blocker : blockers.values()) {
+                        for (var blocker : new LinkedHashSet<>(blockers.values())) {
                             blocker.rollback();
                             blocker.close();
                         }
