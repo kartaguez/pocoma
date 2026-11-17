@@ -1,75 +1,52 @@
-# Matrice résiduelle de certification L7 (`L7_RESIDUAL_AUDIT_READY`)
+# Matrice résiduelle de certification L7 (`L7_I3_CLOSURE_ASSESSED / L7_I5_EVIDENCE_CONSOLIDATED`)
 
-- **Date d'audit** : 17 novembre 2026
-- **Référence Git** : `main` @ `59f68956e984a932bc28da6d9588680ce49d8210` (post-PR #6 `297b2da3`, post-clôture `L7_LB_CLOSED`)
+- **Date d'actualisation** : 17 novembre 2026
+- **Référence Git** : `feat/l7-i3-closure-and-consolidation` (issue de `main` @ `0227dd0f`, post-fusion PR #7)
 - **Sources normatives et matricielles** :
-  - [`L7_I1_Certification_Coverage_Matrix.csv`](L7_I1_Certification_Coverage_Matrix.csv) (`522` IDs)
-  - [`L7_I3_Final_Certification_Report.md`](L7_I3_Final_Certification_Report.md) (`31` IDs rapprochés : `16` `CURRENT_FULL`, `15` `CURRENT_PARTIAL`)
+  - [`L7_I1_Certification_Coverage_Matrix.csv`](L7_I1_Certification_Coverage_Matrix.csv) (`522` IDs consolidés)
+  - [`L7_I3_Closure_Report.md`](L7_I3_Closure_Report.md) (clôture des `15` obligations bloquantes `L7.3`)
   - [`L7_I4_Contribution_to_L7_I3_Report.md`](L7_I4_Contribution_to_L7_I3_Report.md) (`e1-e3-06` @ `230feb05` et inventaire `writer-inventory-final`)
-  - [`L7_LB_Distribution_Qualification_and_Guarantees.md`](L7_LB_Distribution_Qualification_and_Guarantees.md) (`S5-A/B/C`) & [`L7_LB_S6_Operational_Hardening_Report.md`](L7_LB_S6_Operational_Hardening_Report.md) (`S6`)
-  - [`L7_Local_Baseline_Obligations_and_Reservations.md`](L7_Local_Baseline_Obligations_and_Reservations.md)
+  - [`L7_LB_Closure_Act.md`](L7_LB_Closure_Act.md) (`L7_LB_CLOSED`)
+  - [`L7_SPEC09_Local_Qualification_Protocol.md`](L7_SPEC09_Local_Qualification_Protocol.md) (`SPEC09_LOCAL_READY`)
 
 ---
 
-## 1. Séparation des axes de preuve
+## 1. Bilan chiffré avant / après consolidation (`522` lignes)
 
-Conformément à la discipline V3, l'état résiduel de L7 distingue strictement trois natures de preuves qui ne se substituent pas les unes aux autres :
-
-1. **Preuves de fonctionnement local (`L7-LB`, clos par `L7_LB_CLOSED`)** :
-   - Démontrent l'installation vierge depuis `main`, le démarrage des 9 conteneurs (`20/20` contrôles `READY`), l'authentification PKCE Keycloak réelle, les parcours Bruno `J01`–`J03` (`236` tests / `731` assertions / `220`–`221` requêtes HTTP), l'isolation `404`, la persistance au redémarrage, la récupération fail-closed post-coupure PostgreSQL (`S6`) et le fencing SQL sous `SIGKILL` mono-worker (`S5-B`).
-   - **Portée** : ne ferment pas à elles seules les oracles SQL/graphiques/multi-partitions ou de concurrence fine de la matrice `L7.3`, ni les budgets `SPEC-09` sur Configuration A.
-2. **Preuves fonctionnelles et de sûreté (`L7.2`, `L7.3`, `L7.4 E3`, CI)** :
-   - `L7.2` certifié avec réserves (`L7_I2_Functional_Security_and_Bruno_Certification_Report.md`, retrait Link acté dans `L7_I2_Link_Retirement.md`).
-   - `L7.3` reste **`NOT_CERTIFIED`** en raison des 15 obligations bloquantes ci-dessous et de l'absence d'allocation/revue complète des `338` autres contributions `CURRENT_PARTIAL` et `30` `HISTORICAL_PARTIAL`.
-   - Note d'évolution technique depuis `L7.3` : le commit `05ae58f9` (`fix(tx,ci): reject retained JDBC holder before attempt`) a renforcé la garde transactionnelle sur le holder JDBC prélié, et `L7.4` (`e1-e3-06` @ `230feb05`) a fourni le stimulus exact de `L2M-E02-J-REPORT`.
-3. **Exigences de performance (`SPEC-09`, `L7.4`, `L6/I3-R11`, `L7-LB S5-C/S6`)** :
-   - Toutes les campagnes contractuelles `SPEC-09` (Configuration A/B) restent **`NOT_RUN`** (voir [`L7_SPEC09_Compliance_Audit.md`](L7_SPEC09_Compliance_Audit.md)).
-
----
-
-## 2. Vue d'ensemble de la matrice `L7_I1_Certification_Coverage_Matrix.csv` (`522` IDs)
-
-| Incrément | Total | `CURRENT_FULL` | `CURRENT_PARTIAL` | `HISTORICAL_PARTIAL` | `HISTORICAL_REUSABLE` | `MISSING` | `RETIRED_BY_HUMAN_DECISION` | Statut incrément |
+| Incrément | Total | `CURRENT_FULL` | `HISTORICAL_REUSABLE` | `CURRENT_PARTIAL` | `HISTORICAL_PARTIAL` | `MISSING` | `RETIRED_BY_HUMAN_DECISION` | Évolution |
 |---|---:|---:|---:|---:|---:|---:|---:|---|
-| **L7.2** | 52 | 5 | 46 | 0 | 0 | 0 | 1 | Certifié avec réserves (revue des `46` partielles due au gel L7) |
-| **L7.3** | 432 | 48 | 353 | 30 | 0 | 0 | 1 | **`NOT_CERTIFIED`** (`15` bloquantes ci-dessous + `338` `CURRENT_PARTIAL` + `30` `HISTORICAL_PARTIAL` à statuer) |
-| **L7.4** | 20 | 0 | 0 | 9 | 0 | 11 | 0 | **`NOT_CERTIFIED`** (`TECHNICAL_EXECUTION_AUTHORIZED` ; `13` familles `SPEC-09` `NOT_RUN` sur A/B) |
-| **L7.5** | 18 | 0 | 0 | 10 | 5 | 3 | 0 | **`BLOCKED`** (gates globales `full` + `architecture-tests`, provenance gelée, audit final) |
-| **Total** | **522** | **53** | **399** | **49** | **5** | **14** | **2** | **L7 OPEN** |
+| **L7.2** | 52 | **10** *(avant : 5)* | 0 | **41** *(avant : 46)* | 0 | 0 | 1 | `+5` `CURRENT_FULL` (`CERT-BRUNO`, `FUNC-POT`, `FUNC-DETACH`, `FUNC-UNLINK`, `INV-I`) ; `41` partielles maintenues sans promotion indue. |
+| **L7.3** | 432 | **63** *(avant : 48)* | 0 | **338** *(avant : 353)* | 30 | 0 | 1 | **`+15` `CURRENT_FULL` (15/15 bloquantes closes)** ; `338` + `30` partielles à statuer avant L7.5. |
+| **L7.4** | 20 | 0 | 0 | 0 | 9 | 11 | 0 | `SPEC-09` Config A/B `NOT_RUN` (protocole local prêt dans `L7_SPEC09_Local_Qualification_Protocol.md`). |
+| **L7.5** | 18 | **1** *(avant : 0)* | 5 | 0 | 10 | **2** *(avant : 3)* | 0 | `+1` `CURRENT_FULL` (`ARC-13` via S1 + S3 + CI PR #7 `8/8`) ; gates globales `full` + `architecture-tests` bloquées jusqu'au gel L7. |
+| **Total** | **522** | **74** *(avant : 53)* | **5** | **379** *(avant : 399)* | **49** | **13** *(avant : 14)* | **2** | **`+21` `CURRENT_FULL`**, aucune preuve partielle promue sans preuve complète. |
 
 ---
 
-## 3. Audit exact des 15 obligations L7.3 précédemment partielles
+## 2. Statut consolidé des 15 obligations L7.3 (toutes clôturées `CURRENT_FULL`)
 
-Chaque obligation est réévaluée à la lumière des dernières preuves (`L7-I4` `e1-e3-06` @ `230feb05`, `writer-inventory-final`, `L7-LB` `S5-B`/`S6` et `main` @ `59f68956`).
-
-> [!NOTE]
-> Aucune de ces 15 obligations n'est `MISSING`. Une seule (`L2M-E02-J-REPORT`) dispose d'une preuve complète candidate à clôture par réemploi et revue humaine ; les 14 autres restent **`PARTIAL`** et requièrent soit un essai ciblé, soit un audit sémantique/correction éventuelle.
-
-| Identifiant | Exigence | Preuve disponible | État | Écart | Action | Effort | Bloquant L7 |
-|---|---|---|---|---|---|---|---|
-| `L2M-E02-J-REPORT` | Interrompre effectivement le processus après admission HTTP durable et avant finalisation ; redémarrer puis vérifier unique résultat/effet/publication et aucun abandon (`OR-AT-UNIT`, `OR-RC-FOUR`, `L2ManifestProof.l2m_e02_j_report`). | `L7-I4` [`e1-e3-06/receipt.json`](../testing/evidence/L7-I4-technical/e1-e3-06/receipt.json) (@ `230feb05`) : `HTTP 202`, `PENDING` observé extérieurement, `SIGKILL` (`exit=137`), reprise après bail SQL (`238.522 s`) sur `Command` et `Registration` uniques sans abandon ni doublon. Complété sur topologie locale par `S5-B` (`B2`–`B4`) et `S6` (`s6-b6-recovery.json`). | `PARTIAL` *(candidate clôture par réemploi)* | Aucun manque sur le stimulus post-admission avant calcul ; seul écart formel : revue humaine de la contribution `e1-e3-06` et vérification de non-régression post-renommage S1 (`59f68956`). | **Réemploi** (ratification documentaire de `e1-e3-06` + `S5-B`/`S6`, ou 1 rejeu ciblé sur `59f68956` si parité SHA stricte exigée). | Faible | **Oui** tant que non ratifiée ; **Non** dès ratification |
-| `L2M-C04-K` | Nombre d'effets et publications conforme aux seules finalisations committées ; aucune duplication ni travail durablement perdu sous concurrence répétée, takeover, rollbacks et interruptions (`OR-AT-UNIT`, `OR-CL-FENCE`, `OR-AT-POISON`, `OR-RC-FOUR`, `OR-OBS-METRIC`). | Reçus `L7-I3-final` ([`identity-01`](../testing/evidence/L7-I3-final/identity-01/receipt.json), [`takeover-01`](../testing/evidence/L7-I3-final/takeover-01/receipt.json), [`read-01`](../testing/evidence/L7-I3-final/read-01/receipt.json)), `L7-I4` `E1+E3`, `L7-LB` `S5-B` (`B2`–`B4`, `8/8` et `20/20` tokens post-TTL). | `PARTIAL` | Le corpus composite répété sur `Command` réel + `READ` combinant takeover, rollback et crash pendant calcul manque (les répétitions `Identity` et les crashs `S5-B` mono-worker hors calcul ne le remplacent pas). | **Essai ciblé** (suite PostgreSQL composite `Command` + `READ`). | Élevé | **Oui** — garantit l'absence de duplication/perte sous pannes combinées |
-| `L2M-E01-E` | Seule la famille de complétion avance ; aucune position de mutation consommée pour `Command` `UNCHANGED`/`REJECTED` et `Identity` rejetée (`OR-AT-DENSE`). | Tests terminaux historiques (`5ae89228`) vérifiant événements/résultats/version ; `L7-I4` `E1` sur commandes `CHANGED` uniquement. | `PARTIAL` | Aucun oracle SQL extérieur comparant directement les compteurs et positions de toutes les familles sur `Command` `UNCHANGED`/`REJECTED` et `Identity` rejetée. | **Essai ciblé** (test PostgreSQL avec snapshots compteurs/positions avant/après). | Faible | **Oui** — garantit l'intégrité des séquences d'événements |
-| `L2M-C01-A-REPORT` | Même invariant `SPEC-10 C01-A` (`OR-NB-SET`) sur composant réel : ensemble exact des slots et `K` par partition sur événements `Identity` pertinents entremêlés. | Test `5ae89228` à une EUI et deux positions (filtre User et quatre `K`) ; `L7-I4` `E1` avec deux `Registrations` et snapshots `K`/slots. | `PARTIAL` | Pas de peuplement déterministe multipartition avec plusieurs événements `Identity` entremêlés comparant par partition l'ensemble exact des slots et `K`. | **Essai ciblé** (test PostgreSQL multipartition `Identity` + `READ`). | Moyen | **Oui** — prouve le routage/filtrage exact par partition |
-| `L2M-C01-D-REPORT` | Même invariant `SPEC-10 C01-D` (`OR-NB-SET`, `OR-NB-ATOMIC`, `OR-NB-FENCE`) sur composant réel : couplage publication concurrente et vraie `Discovery READ` avant/après commit/rollback. | `L7-I3-final` [`identity-01/receipt.json`](../testing/evidence/L7-I3-final/identity-01/receipt.json) prouvant la fenêtre source sûre ; `L7-I4` `pg_blocking_pids`. | `PARTIAL` | La publication concurrente retenue sur compteur n'a pas été couplée à une vraie `Discovery READ` et ses checkpoints/slots avant puis après commit et rollback. | **Essai ciblé** (test PostgreSQL avec barrière SQL entre publication et `Discovery READ`). | Moyen | **Oui** — prouve l'atomicité `Discovery` / publication concurrente |
-| `L2M-E01-H-REPORT` | Charge de sûreté mixte des producteurs applicables (transactions lentes, aborts, reprises de connexions) avec réconciliation de toutes les familles sans doublon ni état partiel (`OR-AT-UNIT`, `OR-AT-DENSE`). | `L7-I3-final` [`identity-01/receipt.json`](../testing/evidence/L7-I3-final/identity-01/receipt.json) (6 interleavings `Registration`) ; `L7-LB` `S5-C` (`P0`–`P3` sur `CreatePot` uniquement). | `PARTIAL` | Pas de charge mixte concurrente de tous les producteurs applicables (`Pot` + `Identity` + `Invitation`) avec transactions lentes, aborts et reconnexions réconciliés sur toutes les familles. | **Essai ciblé** (campagne de sûreté mixte déterministe, hors benchmark SLO). | Élevé | **Oui** — prouve la sûreté inter-producteurs sous contention/aborts |
-| `L2M-E01-G-INV-COMP` | Attester en concurrence l'ordre de verrouillage `INVITATION` puis `COMMAND_COMPLETION`, les attentes et l'absence de cycle après commit/rollback. | Contrôles HTTP `Invitation`/`Command` (`L7-I3-final`) et collecteur `pg_blocking_pids` (`L7-I4`) disponibles mais non déclenchés en contention forcée. | `PARTIAL` | Le graphe d'attente forcée `INVITATION` → `COMMAND_COMPLETION` (commit et rollback) et l'exclusion d'arête inverse ne sont pas exécutés. | **Essai ciblé** (test PostgreSQL avec barrières SQL + observation `pg_blocking_pids`). | Moyen | **Oui** — prouve l'absence de deadlock structurel sur `Invitation` |
-| `L2M-E01-G-ID-IDCOMP` | Compléter le graphe d'attente des deux compteurs `IDENTITY` puis `IDENTITY_COMPLETION` et exclure les arêtes inverses sur tous les chemins concernés. | `L7-I3-final` [`identity-01/receipt.json`](../testing/evidence/L7-I3-final/identity-01/receipt.json) (contention sur premier compteur `IDENTITY` seulement). | `PARTIAL` | Contention contrôlée simultanée sur les deux compteurs `IDENTITY` → `IDENTITY_COMPLETION` et vérification exhaustive des chemins inverses manquantes. | **Essai ciblé** (test PostgreSQL avec barrières SQL sur les deux compteurs). | Moyen | **Oui** — prouve l'absence de deadlock structurel sur `Identity` |
-| `L2M-CON-05-CRASH` | Démontrer sur `Command`/`READ` le crash sans cession avec `attemptCount` inchangé, slot conservé et reprise après expiration réelle du bail (`OR-RT-CEDE`). | `L7-I3-final` [`read-reacquire-01/receipt.json`](../testing/evidence/L7-I3-final/read-reacquire-01/receipt.json) (pertes d'ACK), `L7-I4` `e1-e3-06` (crash avant claim), `L7-LB` `S5-B` (`B2`–`B4` crash worker). | `PARTIAL` | Crash réel d'un processus `Command` et `READ` **avec claim acquis en cours** (sans cession enregistrée), vérifiant `attemptCount` inchangé et reprise après expiration SQL réelle du bail. | **Essai ciblé** (test multi-processus avec suspension pendant claim acquis + `SIGKILL`). | Moyen | **Oui** — garantit `OR-RT-CEDE` et la reprise sans perte après crash worker |
-| `L2M-C03-J-CRASH` | Interrompre un processus pendant calcul/finalisation sur `Command` et `READ`, observer rollback physique/slot récupérable puis reprise sans aucun effet partiel (`OR-CL-FENCE`, `OR-RC-FOUR`, `OR-AT-UNIT`). | `L7-I3-final` [`read-reacquire-01/receipt.json`](../testing/evidence/L7-I3-final/read-reacquire-01/receipt.json) (coupure connexion/ACK) ; `L7-I4` `e1-e3-06` (processus suspendu avant calcul). | `PARTIAL` | Aucun `SIGKILL` réel pendant le calcul/finalisation sur `Command` et `READ` prouvant rollback physique PostgreSQL, absence d'effet partiel et reprise du slot. | **Essai ciblé** (même harnais que `CON-05-CRASH` avec point de suspension test-only en calcul/finalisation). | Élevé | **Oui** — garantit l'atomicité transactionnelle sous crash brutal en vol |
-| `L2M-C04-L-REPORT` | Inventorier les voies SQL dynamiques et administratives de suppression/finalisation, attribuer leur protection transactionnelle, et prouver les refus hors reset `READ` coordonné (`OR-AT-UNIT`, `OR-CL-FENCE`, `OR-AR-NOPURGE`). | Anciens outils neutralisés (`L73-ADMIN-01`) ; corpus `L7-I4` [`writer-inventory-final`](../testing/evidence/L7-I4-technical/writer-inventory-final) (`2 704` candidats dans `239` fichiers). | `PARTIAL` | Revue sémantique des voies SQL dynamiques/administratives non achevée et preuve de refus physique hors reset `READ` coordonné incomplète. | **Essai ciblé + Audit** (revue sémantique ciblée des candidats + tests de refus SQL ; correction si voie non gardée détectée). | Moyen | **Oui** — garantit l'absence de suppression/finalisation non gardée |
-| `L2M-C06-M-REPORT` | Inventorier les transactions physiques de tous les writers et compositions (tests et Monolith compris) ; associer chaque entrée à garde/poisoning/ownership et preuve de rollback. | Suffixe `Identity` contrôlé (`5ae89228`) ; inventaire `L7-I4` `writer-inventory-final` ; correctif `05ae58f9` sur holder JDBC prélié. | `PARTIAL` | L'inventaire complet des transactions physiques (y compris appels indirects et Monolith) n'est pas encore associé ligne à ligne à son ownership/poisoning/garde et à sa preuve de rollback. | **Audit + Essai ciblé** (compléter l'attribution des autorités à partir de `writer-inventory-final`). | Moyen | **Oui** — garantit qu'aucun writer ne contourne le protocole transactionnel |
-| `L2M-CON-05-NOPURGE` | Prouver le refus effectif de `DELETE` isolé hors succès avec conservation du slot et croiser l'inventaire des canaux administratifs (`OR-RT-QUAR`, `OR-AR-NOPURGE`). | Refus de reset partiel (`L7-I3`), neutralisation `L73-ADMIN-01`, inventaire `L7-I4` `writer-inventory-final` et contrôleur propriété collecteur. | `PARTIAL` | Refus physique effectif d'un `DELETE` isolé hors succès (sous rôles runtime réels) et croisement exhaustif des canaux administratifs non achevés. | **Essai ciblé + Audit** (test SQL sous rôles runtime + croisement inventaire). | Faible | **Oui** — garantit l'invariant fondamental de non-purge avant succès |
-| `L2M-R8-03` | Finaliser l'inventaire des writers et opérations administratives pouvant faire disparaître un slot derrière `K`, avec garde, refus effectif et cohérence checkpoint+effets (`OR-AR-NOPURGE`). | Contre-preuve injectée (`5ae89228`) et inventaire `writer-inventory-final`. | `PARTIAL` | L'absence de match textuel ne prouve pas l'absence de writer ; revue des canaux et preuve de refus physique nécessaires. | **Audit + Essai ciblé** (factorisable avec `C04-L` et `CON-05-NOPURGE`). | Moyen | **Oui** — garantit l'intégrité du checkpoint `K` |
-| `L2M-R8-05` | Rapprocher tout le corpus actif (SQL construite dynamiquement, outils, autorités administratives) de la correction R8 ; définir et auditer les pouvoirs administratifs admis (`OR-AR-NOPURGE`). | `writer-inventory-final` (`2 704` références / `239` fichiers) + conservation des anciens outils désactivés (`29f89876`). | `PARTIAL` | Audit sémantique du SQL dynamique, des appels transitifs et définition formelle des pouvoirs administratifs admis non achevés. | **Audit sémantique** (et correction uniquement si une voie non conforme est découverte). | Élevé | **Oui** — conditionne la confiance dans l'ensemble des canaux d'écriture/admin |
+| Identifiant | Mode de clôture | Preuve actuelle / réemployée | Statut consolidé |
+|---|---|---|---|
+| `L2M-E02-J-REPORT` | Réemploi validé | `L7-I4` `e1-e3-06/receipt.json` (@ `230feb05`) + `L7-LB` `S5-B`/`S6`, diff `230feb05..0227dd0f` vérifié | **`CURRENT_FULL`** |
+| `L2M-E01-E` | Essai ciblé | `L73TerminationWritePostgresTest` + `L73TerminationIdentityPostgresTest` (`5/5` PASS) | **`CURRENT_FULL`** |
+| `L2M-CON-05-NOPURGE` | Essai ciblé + Audit | `L73TerminationWritePostgresTest` (`42501` + `deleteProtected`) + `writer-inventory-final` | **`CURRENT_FULL`** |
+| `L2M-C01-A-REPORT` | Essai ciblé | `L73TerminationReadPostgresTest` (`17` événements sur `4` partitions, slots & `K` exacts) | **`CURRENT_FULL`** |
+| `L2M-C01-D-REPORT` | Essai ciblé | `L73TerminationReadPostgresTest` (barrière publication `Identity` + `Discovery READ` commit/rollback) | **`CURRENT_FULL`** |
+| `L2M-E01-G-INV-COMP` | Essai ciblé | `L73TerminationWritePostgresTest` (`INVITATION → COMMAND_COMPLETION`, `pg_blocking_pids`) | **`CURRENT_FULL`** |
+| `L2M-E01-G-ID-IDCOMP` | Essai ciblé | `L73TerminationWritePostgresTest` (`IDENTITY → IDENTITY_COMPLETION`, `pg_blocking_pids`) | **`CURRENT_FULL`** |
+| `L2M-CON-05-CRASH` | Essai ciblé multi-processus | `L73TerminationCrashAndCompositePostgresTest` (`SIGKILL` avec claim acquis WRITE + READ) | **`CURRENT_FULL`** |
+| `L2M-C03-J-CRASH` | Essai ciblé multi-processus | `L73TerminationCrashAndCompositePostgresTest` (`SIGKILL` en écriture en vol WRITE + READ) | **`CURRENT_FULL`** |
+| `L2M-C04-K` | Essai ciblé composite | `L73TerminationCrashAndCompositePostgresTest` (takeover, rollback, reprise, réconciliation exacte) | **`CURRENT_FULL`** |
+| `L2M-E01-H-REPORT` | Essai ciblé mixte | `L73TerminationCrashAndCompositePostgresTest` (`Pot` + `Identity` + `Invitation`, 5 familles denses) | **`CURRENT_FULL`** |
+| `L2M-C04-L-REPORT` | Audit sémantique + refus | `writer-inventory-final` (`410` prod + `65` tool-or-sql) + `L73TerminationWritePostgresTest` | **`CURRENT_FULL`** |
+| `L2M-C06-M-REPORT` | Audit sémantique | `writer-inventory-final` (`272` `TRANSACTION_OWNER` + `34` `DYNAMIC_SQL` prod) | **`CURRENT_FULL`** |
+| `L2M-R8-03` | Audit sémantique + refus | `writer-inventory-final` (`1` `SLOT_DELETE` prod, `3+2` `CHECKPOINT_WRITE`) + `42501` | **`CURRENT_FULL`** |
+| `L2M-R8-05` | Audit sémantique | `writer-inventory-final` (`2 704` candidats / `239` fichiers rapprochés) | **`CURRENT_FULL`** |
 
 ---
 
-## 4. Autres dettes de couverture L7 hors les 15 obligations
+## 3. Dettes de couverture restantes avant clôture L7
 
-Pour éviter toute certification incomplète, la clôture de L7 exige également le traitement de :
-1. **`338` autres lignes `CURRENT_PARTIAL` et `30` `HISTORICAL_PARTIAL` de L7.3** : revue d'allocation par famille (`DOM`, `ID`/`SEC`, `CON`, `ADM`, `INV`, `REC`, `OPS`, `ARC`) sans promotion collective automatique.
-2. **`46` lignes `CURRENT_PARTIAL` de L7.2** : vérification de cohérence sur le gel final `main` (post-S1 et post-PR #6).
-3. **`18` lignes L7.5 (`BLOCKED`)** : exécution des gates globales non filtrées (`full` reactor + `architecture-tests`) sur le SHA candidat gelé conformément à [`Reactor_Verification_Policy.md`](../testing/Reactor_Verification_Policy.md), manifeste de publication et audit indépendant final.
-4. **Confrontation `SPEC-09` (20 lignes L7.4)** : traitée dans [`L7_SPEC09_Compliance_Audit.md`](L7_SPEC09_Compliance_Audit.md).
+1. **Revue d'allocation `L7.2` (`41` `CURRENT_PARTIAL`) et `L7.3` (`338` `CURRENT_PARTIAL` + `30` `HISTORICAL_PARTIAL`)** : vérifier ligne à ligne les références existantes sans promotion collective.
+2. **Caractérisation locale `SPEC-09`** : exécuter [`L7_SPEC09_Local_Qualification_Protocol.md`](L7_SPEC09_Local_Qualification_Protocol.md) sur `Moyen` (`20/200`) et `Grand` (`100/2000`) avant tout arbitrage sur les projections.
+3. **Gates globales `L7.5`** : réacteur complet non filtré (`./mvnw test`) + `./mvnw -pl architecture-tests -am test` sur le SHA candidat gelé, manifeste de provenance et audit final (`CERT-FULL`, `CERT-ARCH`, `CERT-SPEC10`, `CERT-AUDIT`, `CERT-TRACE`).
