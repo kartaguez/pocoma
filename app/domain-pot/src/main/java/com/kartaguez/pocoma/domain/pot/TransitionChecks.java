@@ -1,5 +1,9 @@
 package com.kartaguez.pocoma.domain.pot;
 
+
+import com.kartaguez.pocoma.domain.pot.revision.InconsistentPotFactsException;
+import com.kartaguez.pocoma.domain.pot.revision.Versioned;
+import com.kartaguez.pocoma.domain.pot.shareholder.ShareholderReference;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;

@@ -124,12 +124,12 @@ public final class ReadFacadeComposition {
                     public ReadPotResult<List<Expense>> expenses(ExternalIdentity e,String t,UUID i,long v,List<ExpenseRef> refs,RecoveryReadContext c) { return pot.expenses(e,t,i,v,refs,c); }
                     public ReadPotResult<List<UUID>> visible(ExternalIdentity e,String t,UUID i,int n,RecoveryReadContext c) { return navigation.visible(e,t,i,n,c); }
                     public BindingRead.Answer binding(ExternalIdentity e,long v,RecoveryReadContext c) { return new GetCurrentBinding(key -> binding.read(key,c)).get(e,v); }
-                    private ReadInvitation invitations(Function<com.kartaguez.pocoma.domain.pot.Invitation,String> decrypt) {
+                    private ReadInvitation invitations(Function<com.kartaguez.pocoma.domain.pot.invitation.Invitation,String> decrypt) {
                         return new ReadInvitation(new JdbcInvitationStore(source),new JdbcPotVersionStore(source,owner),
                             new JdbcSubobjectVersionStore(source,owner),binding::read,decrypt,
                             () -> sql.queryForObject("select clock_timestamp()",java.sql.Timestamp.class).toInstant());
                     }
-                    public ReadPotResult<InvitationRead.Link> invitationLink(ExternalIdentity e,UUID i,Function<com.kartaguez.pocoma.domain.pot.Invitation,String> d,RecoveryReadContext c) { return invitations(d).link(e,i,c); }
+                    public ReadPotResult<InvitationRead.Link> invitationLink(ExternalIdentity e,UUID i,Function<com.kartaguez.pocoma.domain.pot.invitation.Invitation,String> d,RecoveryReadContext c) { return invitations(d).link(e,i,c); }
                     public ReadPotResult<List<InvitationRead.Place>> invitationPlaces(ExternalIdentity e,String b,String t,RecoveryReadContext c) { return invitations(i -> {throw new IllegalStateException("Decryption forbidden");}).places(e,b,t,c); }
                     public Optional<CommandTerminalResult> commandResult(UUID i,ExternalIdentity e,RecoveryReadContext c) { return command.get(i,e); }
                     public Optional<IdentityTerminalResult> identityResult(UUID i,ExternalIdentity e,RecoveryReadContext c) { return identity.get(i,e); }

@@ -1,5 +1,7 @@
-package com.kartaguez.pocoma.domain.pot;
+package com.kartaguez.pocoma.domain.pot.shareholder;
 
+
+import com.kartaguez.pocoma.domain.pot.value.Weight;
 import java.util.Objects;
 
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;

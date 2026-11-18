@@ -6,6 +6,11 @@ import com.kartaguez.pocoma.infra.postgres.core.history.*;
 import static com.kartaguez.pocoma.infra.postgres.core.history.PotHistoryRows.*;
 
 import com.kartaguez.pocoma.domain.pot.*;
+import com.kartaguez.pocoma.domain.pot.expense.*;
+import com.kartaguez.pocoma.domain.pot.invitation.*;
+import com.kartaguez.pocoma.domain.pot.revision.*;
+import com.kartaguez.pocoma.domain.pot.shareholder.*;
+import com.kartaguez.pocoma.domain.pot.value.*;
 import com.kartaguez.pocoma.domain.pot.value.id.*;
 import com.kartaguez.pocoma.engine.write.pot.port.persistence.PotRevisionPort;
 import com.kartaguez.pocoma.infra.tx.spring.SpringAttemptTransactions;

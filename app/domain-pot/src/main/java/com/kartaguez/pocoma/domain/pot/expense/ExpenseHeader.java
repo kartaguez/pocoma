@@ -1,4 +1,4 @@
-package com.kartaguez.pocoma.domain.pot;
+package com.kartaguez.pocoma.domain.pot.expense;
 
 import java.util.Objects;
 

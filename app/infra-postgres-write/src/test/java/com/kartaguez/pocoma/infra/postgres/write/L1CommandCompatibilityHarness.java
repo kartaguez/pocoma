@@ -10,7 +10,7 @@ import com.kartaguez.pocoma.contract.consumption.spi.LifecycleSettings;
 import com.kartaguez.pocoma.contract.consumption.spi.PartitionLease;
 
 import com.kartaguez.pocoma.domain.consumption.*;
-import com.kartaguez.pocoma.domain.pot.InconsistentPotFactsException;
+import com.kartaguez.pocoma.domain.pot.revision.InconsistentPotFactsException;
 import com.kartaguez.pocoma.contract.consumption.spi.ConsumptionSlotStore;
 import com.kartaguez.pocoma.engine.write.pot.port.execution.*;
 import com.kartaguez.pocoma.engine.write.pot.port.execution.PotCommandStore.Result;

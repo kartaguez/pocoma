@@ -3,6 +3,11 @@ package com.kartaguez.pocoma.engine.write.pot;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.kartaguez.pocoma.domain.pot.*;
+import com.kartaguez.pocoma.domain.pot.expense.*;
+import com.kartaguez.pocoma.domain.pot.invitation.*;
+import com.kartaguez.pocoma.domain.pot.revision.*;
+import com.kartaguez.pocoma.domain.pot.shareholder.*;
+import com.kartaguez.pocoma.domain.pot.value.*;
 import com.kartaguez.pocoma.domain.pot.value.Name;
 import com.kartaguez.pocoma.domain.pot.value.id.*;
 import com.kartaguez.pocoma.contract.writeadmission.PotCommand.*;
@@ -102,12 +107,12 @@ class PotCommandIntentTest {
                         id,
                         new Name("A"),
                         Optional.empty(),
-                        new com.kartaguez.pocoma.domain.pot.Weight(Fraction.ONE)),
+                        new com.kartaguez.pocoma.domain.pot.value.Weight(Fraction.ONE)),
                 new ShareholderTransitions.Creation(
                         id,
                         new Name("B"),
                         Optional.empty(),
-                        new com.kartaguez.pocoma.domain.pot.Weight(Fraction.ONE)),
+                        new com.kartaguez.pocoma.domain.pot.value.Weight(Fraction.ONE)),
                 AddShareholders::new,
                 i -> ((AddShareholders) i).targets());
     }
@@ -125,9 +130,9 @@ class PotCommandIntentTest {
     void weightsValidateStructureAndCopy() {
         check(
                 new ShareholderTransitions.WeightIntent(
-                        id, new com.kartaguez.pocoma.domain.pot.Weight(Fraction.ONE)),
+                        id, new com.kartaguez.pocoma.domain.pot.value.Weight(Fraction.ONE)),
                 new ShareholderTransitions.WeightIntent(
-                        id, new com.kartaguez.pocoma.domain.pot.Weight(new Fraction(2, 1))),
+                        id, new com.kartaguez.pocoma.domain.pot.value.Weight(new Fraction(2, 1))),
                 UpdateShareholderWeights::new,
                 i -> ((UpdateShareholderWeights) i).targets());
     }

@@ -31,9 +31,9 @@ import com.kartaguez.pocoma.contract.writeadmission.PotCommand.UpdateExpenseFina
 import com.kartaguez.pocoma.contract.writeadmission.PotCommand.UpdatePotDetails;
 import com.kartaguez.pocoma.contract.writeadmission.PotCommand.UpdateShareholderDetails;
 import com.kartaguez.pocoma.contract.writeadmission.PotCommand.UpdateShareholderWeights;
-import com.kartaguez.pocoma.domain.pot.ExpenseDetails;
-import com.kartaguez.pocoma.domain.pot.ExpenseFinancials;
-import com.kartaguez.pocoma.domain.pot.InvitationTokenHash;
+import com.kartaguez.pocoma.domain.pot.expense.ExpenseDetails;
+import com.kartaguez.pocoma.domain.pot.expense.ExpenseFinancials;
+import com.kartaguez.pocoma.domain.pot.invitation.InvitationTokenHash;
 import com.kartaguez.pocoma.domain.pot.ShareholderTransitions;
 import com.kartaguez.pocoma.domain.pot.value.Label;
 import com.kartaguez.pocoma.domain.pot.value.Name;
@@ -259,7 +259,7 @@ public final class CommandAdmissionInput {
 
     private static ExpenseFinancials financials(
             Map<String, Object> p, PotId pot, ExpenseId id, int digits) {
-        var amount = new com.kartaguez.pocoma.domain.pot.Amount(fraction(p, "amount", digits));
+        var amount = new com.kartaguez.pocoma.domain.pot.value.Amount(fraction(p, "amount", digits));
         var payer = new ShareholderId(uuid(p, "payerId"));
         var entries = new ArrayList<ExpenseFinancials.Participation>();
         var normalized = new ArrayList<Map<String, Object>>();
@@ -279,12 +279,12 @@ public final class CommandAdmissionInput {
         return ExpenseFinancials.of(pot, id, amount, payer, entries);
     }
 
-    private static com.kartaguez.pocoma.domain.pot.Weight weight(
+    private static com.kartaguez.pocoma.domain.pot.value.Weight weight(
             Map<String, Object> m, String key, int digits) {
-        return new com.kartaguez.pocoma.domain.pot.Weight(fraction(m, key, digits));
+        return new com.kartaguez.pocoma.domain.pot.value.Weight(fraction(m, key, digits));
     }
 
-    private static com.kartaguez.pocoma.domain.pot.Fraction fraction(
+    private static com.kartaguez.pocoma.domain.pot.value.Fraction fraction(
             Map<String, Object> m, String key, int digits) {
         var f = object(m.get(key), "numerator", "denominator");
         String a = text(f, "numerator"), b = text(f, "denominator");
@@ -294,7 +294,7 @@ public final class CommandAdmissionInput {
                         && a.matches("-?[0-9]{1," + digits + "}")
                         && b.matches("-?[0-9]{1," + digits + "}"));
         var value =
-                new com.kartaguez.pocoma.domain.pot.Fraction(
+                new com.kartaguez.pocoma.domain.pot.value.Fraction(
                         new BigInteger(a), new BigInteger(b));
         m.put(
                 key,

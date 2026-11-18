@@ -1,6 +1,6 @@
 package com.kartaguez.pocoma.supra.web.read;
 
-import com.kartaguez.pocoma.domain.pot.Fraction;
+import com.kartaguez.pocoma.domain.pot.value.Fraction;
 import com.kartaguez.pocoma.contract.readquery.ReadPotResult;
 import java.util.*;
 

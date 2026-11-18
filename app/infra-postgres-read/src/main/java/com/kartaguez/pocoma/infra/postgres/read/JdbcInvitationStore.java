@@ -1,6 +1,6 @@
 package com.kartaguez.pocoma.infra.postgres.read;
 
-import com.kartaguez.pocoma.domain.pot.Invitation;
+import com.kartaguez.pocoma.domain.pot.invitation.Invitation;
 import com.kartaguez.pocoma.infra.tx.spring.SpringAttemptTransactions;
 import com.kartaguez.pocoma.port.projection.InvitationStore;
 

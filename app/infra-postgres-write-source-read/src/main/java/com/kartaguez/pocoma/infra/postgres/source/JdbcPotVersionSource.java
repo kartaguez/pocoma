@@ -19,16 +19,16 @@ import javax.sql.DataSource;
 
 import org.springframework.jdbc.support.SqlArrayValue;
 
-import com.kartaguez.pocoma.domain.pot.Amount;
-import com.kartaguez.pocoma.domain.pot.ExpenseDetails;
-import com.kartaguez.pocoma.domain.pot.ExpenseFinancials;
-import com.kartaguez.pocoma.domain.pot.ExpenseHeader;
+import com.kartaguez.pocoma.domain.pot.value.Amount;
+import com.kartaguez.pocoma.domain.pot.expense.ExpenseDetails;
+import com.kartaguez.pocoma.domain.pot.expense.ExpenseFinancials;
+import com.kartaguez.pocoma.domain.pot.expense.ExpenseHeader;
 import com.kartaguez.pocoma.domain.pot.PotDetails;
 import com.kartaguez.pocoma.domain.pot.PotHeader;
-import com.kartaguez.pocoma.domain.pot.ShareholderDetails;
-import com.kartaguez.pocoma.domain.pot.ShareholderHeader;
-import com.kartaguez.pocoma.domain.pot.ShareholderWeight;
-import com.kartaguez.pocoma.domain.pot.Weight;
+import com.kartaguez.pocoma.domain.pot.shareholder.ShareholderDetails;
+import com.kartaguez.pocoma.domain.pot.shareholder.ShareholderHeader;
+import com.kartaguez.pocoma.domain.pot.shareholder.ShareholderWeight;
+import com.kartaguez.pocoma.domain.pot.value.Weight;
 import com.kartaguez.pocoma.domain.pot.value.Label;
 import com.kartaguez.pocoma.domain.pot.value.Name;
 import com.kartaguez.pocoma.domain.pot.value.UserId;

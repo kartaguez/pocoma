@@ -1,4 +1,4 @@
-package com.kartaguez.pocoma.domain.pot;
+package com.kartaguez.pocoma.domain.pot.revision;
 
 
 /** Technical inconsistency; never translated into a business rejection. */

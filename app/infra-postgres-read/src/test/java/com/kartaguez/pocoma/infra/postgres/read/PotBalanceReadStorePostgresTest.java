@@ -1,6 +1,6 @@
 package com.kartaguez.pocoma.infra.postgres.read;
 import com.kartaguez.pocoma.domain.projection.*;
-import com.kartaguez.pocoma.domain.pot.Fraction;
+import com.kartaguez.pocoma.domain.pot.value.Fraction;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.junit.jupiter.*;
 import org.testcontainers.postgresql.PostgreSQLContainer;

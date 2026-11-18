@@ -1,5 +1,21 @@
 package com.kartaguez.pocoma.domain.pot;
 
+
+import com.kartaguez.pocoma.domain.pot.expense.ExpenseDetails;
+import com.kartaguez.pocoma.domain.pot.expense.ExpenseFinancials;
+import com.kartaguez.pocoma.domain.pot.expense.ExpenseHeader;
+import com.kartaguez.pocoma.domain.pot.expense.ExpenseState;
+import com.kartaguez.pocoma.domain.pot.revision.InconsistentPotFactsException;
+import com.kartaguez.pocoma.domain.pot.revision.Versioned;
+import com.kartaguez.pocoma.domain.pot.shareholder.ActiveShareholderUsage;
+import com.kartaguez.pocoma.domain.pot.shareholder.ShareholderDetails;
+import com.kartaguez.pocoma.domain.pot.shareholder.ShareholderHeader;
+import com.kartaguez.pocoma.domain.pot.shareholder.ShareholderReference;
+import com.kartaguez.pocoma.domain.pot.shareholder.ShareholderState;
+import com.kartaguez.pocoma.domain.pot.shareholder.ShareholderWeight;
+import com.kartaguez.pocoma.domain.pot.value.Amount;
+import com.kartaguez.pocoma.domain.pot.value.Fraction;
+import com.kartaguez.pocoma.domain.pot.value.Weight;
 import static org.junit.jupiter.api.Assertions.*;
 import static com.kartaguez.pocoma.domain.pot.TransitionResult.Rejection.*;
 import java.math.BigInteger;

@@ -1,5 +1,8 @@
 package com.kartaguez.pocoma.domain.pot;
 
+
+import com.kartaguez.pocoma.domain.pot.revision.InconsistentPotFactsException;
+import com.kartaguez.pocoma.domain.pot.revision.Versioned;
 import java.util.Objects;
 
 public record PotState(Versioned<PotHeader> header, Versioned<PotDetails> details) {

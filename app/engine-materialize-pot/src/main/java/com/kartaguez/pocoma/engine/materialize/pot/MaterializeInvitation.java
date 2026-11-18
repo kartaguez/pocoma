@@ -37,16 +37,16 @@ public final class MaterializeInvitation implements ConsumptionParticipant {
     }
 
     private static boolean matchesExpected(
-            com.kartaguez.pocoma.domain.pot.Invitation actual,
-            com.kartaguez.pocoma.domain.pot.Invitation expected) {
+            com.kartaguez.pocoma.domain.pot.invitation.Invitation actual,
+            com.kartaguez.pocoma.domain.pot.invitation.Invitation expected) {
         if (!sameIdentity(actual, expected)) return false;
         if (actual.version() > expected.version()) return true;
         return actual.version() == expected.version() && actual.equals(expected);
     }
 
     private static boolean sameIdentity(
-            com.kartaguez.pocoma.domain.pot.Invitation a,
-            com.kartaguez.pocoma.domain.pot.Invitation b) {
+            com.kartaguez.pocoma.domain.pot.invitation.Invitation a,
+            com.kartaguez.pocoma.domain.pot.invitation.Invitation b) {
         if (!a.invitationId().equals(b.invitationId())) return false;
         if (!a.creationRequestId().equals(b.creationRequestId())) return false;
         if (!a.creatorIssuer().equals(b.creatorIssuer())) return false;

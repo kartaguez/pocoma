@@ -1,5 +1,7 @@
 package com.kartaguez.pocoma.domain.pot;
 
+
+import com.kartaguez.pocoma.domain.pot.revision.InconsistentPotFactsException;
 import java.util.Objects;
 
 import com.kartaguez.pocoma.domain.pot.value.UserId;

@@ -2,7 +2,7 @@ package com.kartaguez.pocoma.engine.write.pot.port.persistence;
 
 import java.util.Optional;
 
-import com.kartaguez.pocoma.domain.pot.ActiveShareholderUsage;
+import com.kartaguez.pocoma.domain.pot.shareholder.ActiveShareholderUsage;
 import com.kartaguez.pocoma.domain.pot.PotFinancialState;
 import com.kartaguez.pocoma.domain.pot.PotHistory;
 import com.kartaguez.pocoma.domain.pot.value.UserId;

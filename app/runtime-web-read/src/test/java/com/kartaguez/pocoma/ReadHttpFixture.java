@@ -57,15 +57,15 @@ import com.kartaguez.pocoma.domain.identity.ExternalIdentity;
 import com.kartaguez.pocoma.domain.identity.ExternalUserIdentity;
 import com.kartaguez.pocoma.domain.identity.ExternalUserIdentityId;
 import com.kartaguez.pocoma.domain.identity.PocomaUserId;
-import com.kartaguez.pocoma.domain.pot.ExpenseDetails;
-import com.kartaguez.pocoma.domain.pot.ExpenseFinancials;
-import com.kartaguez.pocoma.domain.pot.ExpenseHeader;
-import com.kartaguez.pocoma.domain.pot.Fraction;
+import com.kartaguez.pocoma.domain.pot.expense.ExpenseDetails;
+import com.kartaguez.pocoma.domain.pot.expense.ExpenseFinancials;
+import com.kartaguez.pocoma.domain.pot.expense.ExpenseHeader;
+import com.kartaguez.pocoma.domain.pot.value.Fraction;
 import com.kartaguez.pocoma.domain.pot.PotDetails;
 import com.kartaguez.pocoma.domain.pot.PotHeader;
-import com.kartaguez.pocoma.domain.pot.ShareholderDetails;
-import com.kartaguez.pocoma.domain.pot.ShareholderHeader;
-import com.kartaguez.pocoma.domain.pot.ShareholderWeight;
+import com.kartaguez.pocoma.domain.pot.shareholder.ShareholderDetails;
+import com.kartaguez.pocoma.domain.pot.shareholder.ShareholderHeader;
+import com.kartaguez.pocoma.domain.pot.shareholder.ShareholderWeight;
 import com.kartaguez.pocoma.domain.pot.value.Label;
 import com.kartaguez.pocoma.domain.pot.value.Name;
 import com.kartaguez.pocoma.domain.pot.value.UserId;
@@ -388,7 +388,7 @@ final class ReadHttpFixture implements AutoCloseable {
     private record SeedAccumulator(
             List<PotVersion.Shareholder> shares,
             List<PotVersion.Expense> refs,
-            Map<ShareholderId, Optional<com.kartaguez.pocoma.domain.pot.Weight>> parts,
+            Map<ShareholderId, Optional<com.kartaguez.pocoma.domain.pot.value.Weight>> parts,
             List<SubobjectVersion> values,
             Map<UUID, Fraction> vector) {
         SeedAccumulator() {
@@ -422,7 +422,7 @@ final class ReadHttpFixture implements AutoCloseable {
     }
 
     private static void populateShareholders(SeedContext ctx, int shareholders, SeedAccumulator acc) {
-        var weight = new com.kartaguez.pocoma.domain.pot.Weight(ctx.rational());
+        var weight = new com.kartaguez.pocoma.domain.pot.value.Weight(ctx.rational());
         for (int n = 0; n < shareholders; n++) {
             UUID s = id(201 + n);
             acc.shares().add(new PotVersion.Shareholder(s, ctx.version(), ctx.version(), ctx.version(), false, true));
@@ -442,7 +442,7 @@ final class ReadHttpFixture implements AutoCloseable {
     }
 
     private static void populateExpenses(SeedContext ctx, int expenseCount, SeedAccumulator acc) {
-        var amount = new com.kartaguez.pocoma.domain.pot.Amount(ctx.expenseRationals() ? ctx.rational() : new Fraction(1, 3));
+        var amount = new com.kartaguez.pocoma.domain.pot.value.Amount(ctx.expenseRationals() ? ctx.rational() : new Fraction(1, 3));
         for (int n = 0; n < expenseCount; n++) {
             UUID e = id(1000 + n);
             acc.refs().add(new PotVersion.Expense(e, ctx.version(), ctx.version(), ctx.version(), false));

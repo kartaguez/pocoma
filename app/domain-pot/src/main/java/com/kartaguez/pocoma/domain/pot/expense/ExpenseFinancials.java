@@ -1,5 +1,8 @@
-package com.kartaguez.pocoma.domain.pot;
+package com.kartaguez.pocoma.domain.pot.expense;
 
+
+import com.kartaguez.pocoma.domain.pot.value.Amount;
+import com.kartaguez.pocoma.domain.pot.value.Weight;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

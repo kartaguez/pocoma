@@ -3,6 +3,11 @@ import com.kartaguez.pocoma.infra.security.spring.InvitationCryptography;
 import com.kartaguez.pocoma.contract.writeadmission.PotCommand;
 
 import com.kartaguez.pocoma.domain.pot.*;
+import com.kartaguez.pocoma.domain.pot.expense.*;
+import com.kartaguez.pocoma.domain.pot.invitation.*;
+import com.kartaguez.pocoma.domain.pot.revision.*;
+import com.kartaguez.pocoma.domain.pot.shareholder.*;
+import com.kartaguez.pocoma.domain.pot.value.*;
 import com.kartaguez.pocoma.engine.write.pot.port.execution.*;
 import com.kartaguez.pocoma.infra.tx.spring.SpringAttemptTransactions;
 

@@ -1,7 +1,7 @@
 package com.kartaguez.pocoma.contract.readquery;
 import com.kartaguez.pocoma.domain.identity.ExternalIdentity;
 import com.kartaguez.pocoma.domain.projection.*;
-import com.kartaguez.pocoma.domain.pot.Invitation;
+import com.kartaguez.pocoma.domain.pot.invitation.Invitation;
 import com.kartaguez.pocoma.port.transaction.RecoveryReadContext;
 import static com.kartaguez.pocoma.contract.readquery.ReadPotResult.*;
 import java.util.*;

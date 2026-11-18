@@ -1,7 +1,7 @@
 package com.kartaguez.pocoma.infra.postgres.read;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
-import com.kartaguez.pocoma.domain.pot.Fraction;
+import com.kartaguez.pocoma.domain.pot.value.Fraction;
 import com.kartaguez.pocoma.domain.projection.*;
 import com.kartaguez.pocoma.port.projection.PotBalanceStore;
 import com.kartaguez.pocoma.port.projection.ReadEvidence;

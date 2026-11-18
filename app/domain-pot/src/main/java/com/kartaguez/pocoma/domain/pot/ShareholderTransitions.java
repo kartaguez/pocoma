@@ -1,5 +1,16 @@
 package com.kartaguez.pocoma.domain.pot;
 
+
+import com.kartaguez.pocoma.domain.pot.invitation.Invitation;
+import com.kartaguez.pocoma.domain.pot.revision.InconsistentPotFactsException;
+import com.kartaguez.pocoma.domain.pot.revision.Versioned;
+import com.kartaguez.pocoma.domain.pot.shareholder.ActiveShareholderUsage;
+import com.kartaguez.pocoma.domain.pot.shareholder.ShareholderDetails;
+import com.kartaguez.pocoma.domain.pot.shareholder.ShareholderHeader;
+import com.kartaguez.pocoma.domain.pot.shareholder.ShareholderReference;
+import com.kartaguez.pocoma.domain.pot.shareholder.ShareholderState;
+import com.kartaguez.pocoma.domain.pot.shareholder.ShareholderWeight;
+import com.kartaguez.pocoma.domain.pot.value.Weight;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;

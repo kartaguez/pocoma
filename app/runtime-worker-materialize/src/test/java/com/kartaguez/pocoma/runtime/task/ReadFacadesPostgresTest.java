@@ -13,6 +13,11 @@ import static com.kartaguez.pocoma.runtime.task.ReadRuntimeI8Fixture.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.kartaguez.pocoma.domain.pot.*;
+import com.kartaguez.pocoma.domain.pot.expense.*;
+import com.kartaguez.pocoma.domain.pot.invitation.*;
+import com.kartaguez.pocoma.domain.pot.revision.*;
+import com.kartaguez.pocoma.domain.pot.shareholder.*;
+import com.kartaguez.pocoma.domain.pot.value.*;
 import com.kartaguez.pocoma.domain.pot.value.*;
 import com.kartaguez.pocoma.domain.pot.value.id.*;
 import com.kartaguez.pocoma.domain.projection.*;
@@ -279,8 +284,8 @@ class ReadFacadesPostgresTest {
                                 new ShareholderWeight(
                                         new PotId(pot),
                                         new ShareholderId(s),
-                                        new com.kartaguez.pocoma.domain.pot.Weight(
-                                                new com.kartaguez.pocoma.domain.pot.Fraction(
+                                        new com.kartaguez.pocoma.domain.pot.value.Weight(
+                                                new com.kartaguez.pocoma.domain.pot.value.Fraction(
                                                         2, 3)))));
             }
             for (int n = 0; n < expenses; n++) {
@@ -317,8 +322,8 @@ class ReadFacadesPostgresTest {
                                 new ExpenseFinancials(
                                         new PotId(pot),
                                         new ExpenseId(expense),
-                                        new com.kartaguez.pocoma.domain.pot.Amount(
-                                                new com.kartaguez.pocoma.domain.pot.Fraction(
+                                        new com.kartaguez.pocoma.domain.pot.value.Amount(
+                                                new com.kartaguez.pocoma.domain.pot.value.Fraction(
                                                         1, 3)),
                                         new ShareholderId(S1),
                                         Map.of(
@@ -355,9 +360,9 @@ class ReadFacadesPostgresTest {
                             version,
                             Map.of(
                                     S1,
-                                    new com.kartaguez.pocoma.domain.pot.Fraction(1, 3),
+                                    new com.kartaguez.pocoma.domain.pot.value.Fraction(1, 3),
                                     S2,
-                                    new com.kartaguez.pocoma.domain.pot.Fraction(-1, 3))));
+                                    new com.kartaguez.pocoma.domain.pot.value.Fraction(-1, 3))));
         }
 
         static void add(
@@ -435,7 +440,7 @@ class ReadFacadesPostgresTest {
                         List.of(S1, S2),
                         view.value().shareholders().stream().map(Shareholder::id).toList());
                 assertEquals(
-                        new com.kartaguez.pocoma.domain.pot.Fraction(1, 3),
+                        new com.kartaguez.pocoma.domain.pot.value.Fraction(1, 3),
                         view.value().balances().get(S1));
                 assertFalse(
                         view.value().toString().contains(OWNER.toString()),

@@ -107,7 +107,7 @@ public final class PotCommandComposition {
 
     private static FailureKind classifyCauseNode(Throwable next) {
         if (next instanceof ExecutePotCommand.Collision) return FailureKind.COLLISION;
-        if (next instanceof com.kartaguez.pocoma.domain.pot.InconsistentPotFactsException) {
+        if (next instanceof com.kartaguez.pocoma.domain.pot.revision.InconsistentPotFactsException) {
             return FailureKind.INCONSISTENT_FACTS;
         }
         if (!(next instanceof org.postgresql.util.PSQLException sql)) return null;

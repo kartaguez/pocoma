@@ -1,6 +1,6 @@
 package com.kartaguez.pocoma.infra.postgres.core.history;
 
-import com.kartaguez.pocoma.domain.pot.InconsistentPotFactsException;
+import com.kartaguez.pocoma.domain.pot.revision.InconsistentPotFactsException;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 
 import org.springframework.jdbc.core.ConnectionCallback;

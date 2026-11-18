@@ -459,8 +459,8 @@ class AdmissionFlowPostgresTest {
     private com.kartaguez.pocoma.domain.pot.TransitionResult.Changed<
                     Map<
                             com.kartaguez.pocoma.domain.pot.value.id.ShareholderId,
-                            com.kartaguez.pocoma.domain.pot.Versioned<
-                                    com.kartaguez.pocoma.domain.pot.ShareholderDetails>>>
+                            com.kartaguez.pocoma.domain.pot.revision.Versioned<
+                                    com.kartaguez.pocoma.domain.pot.shareholder.ShareholderDetails>>>
             computeMemberAttachment(DriverManagerDataSource fixtureSource, UUID memberShare) {
         var potId = new com.kartaguez.pocoma.domain.pot.value.id.PotId(pot);
         var shareholderId =
@@ -492,8 +492,8 @@ class AdmissionFlowPostgresTest {
                         .orElseThrow();
         var target = selected.shareholders().get(shareholderId);
         var details =
-                ((com.kartaguez.pocoma.domain.pot.ComponentRead.Present<
-                                        com.kartaguez.pocoma.domain.pot.ShareholderDetails>)
+                ((com.kartaguez.pocoma.domain.pot.revision.ComponentRead.Present<
+                                        com.kartaguez.pocoma.domain.pot.shareholder.ShareholderDetails>)
                                 target.details())
                         .revision();
         var decision =
@@ -502,8 +502,8 @@ class AdmissionFlowPostgresTest {
         return (com.kartaguez.pocoma.domain.pot.TransitionResult.Changed<
                         Map<
                                 com.kartaguez.pocoma.domain.pot.value.id.ShareholderId,
-                                com.kartaguez.pocoma.domain.pot.Versioned<
-                                        com.kartaguez.pocoma.domain.pot.ShareholderDetails>>>)
+                                com.kartaguez.pocoma.domain.pot.revision.Versioned<
+                                        com.kartaguez.pocoma.domain.pot.shareholder.ShareholderDetails>>>)
                 decision;
     }
 

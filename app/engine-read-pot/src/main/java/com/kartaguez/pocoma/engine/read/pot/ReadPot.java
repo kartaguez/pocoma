@@ -347,7 +347,7 @@ public final class ReadPot {
             take(6L * text.length());
         }
 
-        void fraction(com.kartaguez.pocoma.domain.pot.Fraction f) {
+        void fraction(com.kartaguez.pocoma.domain.pot.value.Fraction f) {
             take(32);
             text(f.numerator().toString());
             text(f.denominator().toString());

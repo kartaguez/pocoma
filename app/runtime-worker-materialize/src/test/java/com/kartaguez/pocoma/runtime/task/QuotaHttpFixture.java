@@ -7,7 +7,12 @@ import static com.kartaguez.pocoma.domain.projection.SubobjectContent.*;
 import static com.kartaguez.pocoma.domain.projection.SubobjectKind.*;
 import com.fasterxml.jackson.databind.*;
 import com.kartaguez.pocoma.domain.pot.*;
-import com.kartaguez.pocoma.domain.pot.Fraction;
+import com.kartaguez.pocoma.domain.pot.expense.*;
+import com.kartaguez.pocoma.domain.pot.invitation.*;
+import com.kartaguez.pocoma.domain.pot.revision.*;
+import com.kartaguez.pocoma.domain.pot.shareholder.*;
+import com.kartaguez.pocoma.domain.pot.value.*;
+import com.kartaguez.pocoma.domain.pot.value.Fraction;
 import java.util.Date;
 import com.kartaguez.pocoma.domain.pot.value.*;
 import com.kartaguez.pocoma.domain.pot.value.id.*;
@@ -153,7 +158,7 @@ final class QuotaHttpFixture implements AutoCloseable {
     void seedProfile(UUID pot, long version, int expenseCount, int shareholders, Set<UUID> allowed, boolean deleted, boolean withBalance, boolean expenseDetails, String label, int digits, boolean expenseRationals) {
         Fraction rational = digits == 0 ? new Fraction(2, 3) : new Fraction(java.math.BigInteger.TEN.pow(digits-1).add(java.math.BigInteger.ONE), java.math.BigInteger.TEN.pow(digits-1).add(java.math.BigInteger.valueOf(3)));
 
-        var shares = new ArrayList<PotVersion.Shareholder>(); var refs = new ArrayList<PotVersion.Expense>(); var parts = new LinkedHashMap<ShareholderId, Optional<com.kartaguez.pocoma.domain.pot.Weight>>();
+        var shares = new ArrayList<PotVersion.Shareholder>(); var refs = new ArrayList<PotVersion.Expense>(); var parts = new LinkedHashMap<ShareholderId, Optional<com.kartaguez.pocoma.domain.pot.value.Weight>>();
         var values = new ArrayList<SubobjectVersion>(); var vector = new LinkedHashMap<UUID, Fraction>();
         add(values, pot, POT_HEADER, pot, version, new PotHeaderContent(new PotHeader(new PotId(pot), deleted)));
         add(values, pot, POT_DETAILS, pot, version, new PotDetailsContent(new PotDetails(new PotId(pot), new Label(label), new UserId(OWNER))));
@@ -161,14 +166,14 @@ final class QuotaHttpFixture implements AutoCloseable {
             UUID s = id(201 + n); shares.add(new PotVersion.Shareholder(s, version, version, version, false, true));
             add(values, pot, SHAREHOLDER_HEADER, s, version, new ShareholderHeaderContent(new ShareholderHeader(new PotId(pot), new ShareholderId(s), false)));
             add(values, pot, SHAREHOLDER_DETAILS, s, version, new ShareholderDetailsContent(new ShareholderDetails(new PotId(pot), new ShareholderId(s), new Name("share-" + n), Optional.empty())));
-            add(values, pot, SHAREHOLDER_WEIGHT, s, version, new ShareholderWeightContent(new ShareholderWeight(new PotId(pot), new ShareholderId(s), new com.kartaguez.pocoma.domain.pot.Weight(rational))));
-            parts.put(new ShareholderId(s), expenseRationals ? Optional.of(new com.kartaguez.pocoma.domain.pot.Weight(rational)) : Optional.empty()); vector.put(s, n == 0 ? new Fraction(1, 3) : n == 1 ? new Fraction(-1, 3) : Fraction.ZERO);
+            add(values, pot, SHAREHOLDER_WEIGHT, s, version, new ShareholderWeightContent(new ShareholderWeight(new PotId(pot), new ShareholderId(s), new com.kartaguez.pocoma.domain.pot.value.Weight(rational))));
+            parts.put(new ShareholderId(s), expenseRationals ? Optional.of(new com.kartaguez.pocoma.domain.pot.value.Weight(rational)) : Optional.empty()); vector.put(s, n == 0 ? new Fraction(1, 3) : n == 1 ? new Fraction(-1, 3) : Fraction.ZERO);
         }
         for (int n = 0; n < expenseCount; n++) {
             UUID e = id(1000 + n); refs.add(new PotVersion.Expense(e, version, version, version, false));
             add(values, pot, EXPENSE_HEADER, e, version, new ExpenseHeaderContent(new ExpenseHeader(new PotId(pot), new ExpenseId(e), false)));
             if (expenseDetails) add(values, pot, EXPENSE_DETAILS, e, version, new ExpenseDetailsContent(new ExpenseDetails(new PotId(pot), new ExpenseId(e), new Label("dépense\\\"-" + n), LocalDate.of(2026, 11, 3))));
-            add(values, pot, EXPENSE_FINANCIALS, e, version, new ExpenseFinancialsContent(new ExpenseFinancials(new PotId(pot), new ExpenseId(e), new com.kartaguez.pocoma.domain.pot.Amount(expenseRationals ? rational : new Fraction(1, 3)), new ShareholderId(S1), parts)));
+            add(values, pot, EXPENSE_FINANCIALS, e, version, new ExpenseFinancialsContent(new ExpenseFinancials(new PotId(pot), new ExpenseId(e), new com.kartaguez.pocoma.domain.pot.value.Amount(expenseRationals ? rational : new Fraction(1, 3)), new ShareholderId(S1), parts)));
         }
         injector.write(() -> { objects.insertOrVerifyAll(values); pots.insertAndAdvance(new PotVersion(pot, version, version, version, deleted, shares, refs, allowed, Set.of()));
             if (withBalance && !deleted) balances.insertOrVerify(new PotBalance(pot, version, vector)); return null; });

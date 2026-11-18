@@ -17,7 +17,7 @@ import com.kartaguez.pocoma.orchestrator.consumption.WorkerCapacity;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.kartaguez.pocoma.domain.pot.Invitation;
+import com.kartaguez.pocoma.domain.pot.invitation.Invitation;
 import com.kartaguez.pocoma.infra.postgres.write.admission.*;
 import com.kartaguez.pocoma.infra.postgres.write.pot.*;
 import com.kartaguez.pocoma.infra.postgres.write.consumption.*;

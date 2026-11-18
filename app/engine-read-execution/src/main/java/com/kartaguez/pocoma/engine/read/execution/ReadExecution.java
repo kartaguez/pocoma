@@ -154,7 +154,7 @@ public class ReadExecution implements PotRead.Queries {
         public ReadPotResult<InvitationRead.Link> invitationLink(
                 ExternalIdentity eui,
                 UUID request,
-                Function<com.kartaguez.pocoma.domain.pot.Invitation, String> decrypt) {
+                Function<com.kartaguez.pocoma.domain.pot.invitation.Invitation, String> decrypt) {
             if (eui == null || request == null) {
                 return invalidInput("invitation_link");
             }

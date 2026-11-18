@@ -1,5 +1,8 @@
-package com.kartaguez.pocoma.domain.pot;
+package com.kartaguez.pocoma.domain.pot.shareholder;
 
+
+import com.kartaguez.pocoma.domain.pot.revision.InconsistentPotFactsException;
+import com.kartaguez.pocoma.domain.pot.revision.Versioned;
 import java.util.Objects;
 
 public record ShareholderState(Versioned<ShareholderHeader> header, Versioned<ShareholderDetails> details, Versioned<ShareholderWeight> weight) {

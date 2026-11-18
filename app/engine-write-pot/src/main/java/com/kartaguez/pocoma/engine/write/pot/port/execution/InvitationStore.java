@@ -1,7 +1,7 @@
 package com.kartaguez.pocoma.engine.write.pot.port.execution;
 import com.kartaguez.pocoma.contract.writeadmission.PotCommand;
 
-import com.kartaguez.pocoma.domain.pot.Invitation;
+import com.kartaguez.pocoma.domain.pot.invitation.Invitation;
 
 import java.util.Optional;
 

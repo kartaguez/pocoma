@@ -1,4 +1,4 @@
-package com.kartaguez.pocoma.domain.pot;
+package com.kartaguez.pocoma.domain.pot.invitation;
 
 import java.time.Instant;
 import java.util.*;

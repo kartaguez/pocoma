@@ -1,4 +1,4 @@
-package com.kartaguez.pocoma.domain.pot;
+package com.kartaguez.pocoma.domain.pot.value;
 
 import java.math.BigInteger;
 import java.math.BigDecimal;

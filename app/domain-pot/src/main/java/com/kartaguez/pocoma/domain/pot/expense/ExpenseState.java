@@ -1,5 +1,8 @@
-package com.kartaguez.pocoma.domain.pot;
+package com.kartaguez.pocoma.domain.pot.expense;
 
+
+import com.kartaguez.pocoma.domain.pot.revision.InconsistentPotFactsException;
+import com.kartaguez.pocoma.domain.pot.revision.Versioned;
 import java.util.Objects;
 
 public record ExpenseState(Versioned<ExpenseHeader> header, Versioned<ExpenseDetails> details, Versioned<ExpenseFinancials> financials) {

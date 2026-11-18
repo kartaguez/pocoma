@@ -3,6 +3,11 @@ package com.kartaguez.pocoma.infra.postgres.write.pot;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.node.*;
 import com.kartaguez.pocoma.domain.pot.*;
+import com.kartaguez.pocoma.domain.pot.expense.*;
+import com.kartaguez.pocoma.domain.pot.invitation.*;
+import com.kartaguez.pocoma.domain.pot.revision.*;
+import com.kartaguez.pocoma.domain.pot.shareholder.*;
+import com.kartaguez.pocoma.domain.pot.value.*;
 import com.kartaguez.pocoma.domain.pot.value.*;
 import com.kartaguez.pocoma.domain.pot.value.id.*;
 import com.kartaguez.pocoma.contract.writeadmission.PotCommand;
@@ -247,7 +252,7 @@ public final class PotCommandJson {
                 sid(t),
                 new Name(text(t, "name")),
                 user(t),
-                new com.kartaguez.pocoma.domain.pot.Weight(readFraction(t.required("weight"))));
+                new com.kartaguez.pocoma.domain.pot.value.Weight(readFraction(t.required("weight"))));
     }
 
     private static ShareholderTransitions.DetailsIntent readDetailsIntent(JsonNode t) {
@@ -257,7 +262,7 @@ public final class PotCommandJson {
     private static ShareholderTransitions.WeightIntent readWeightIntent(JsonNode t) {
         return new ShareholderTransitions.WeightIntent(
                 sid(t),
-                new com.kartaguez.pocoma.domain.pot.Weight(readFraction(t.required("weight"))));
+                new com.kartaguez.pocoma.domain.pot.value.Weight(readFraction(t.required("weight"))));
     }
 
     private static Intent decodePotOrInvitationIntent(String operation, JsonNode n) {
@@ -293,15 +298,15 @@ public final class PotCommandJson {
         };
     }
 
-    private static ObjectNode fraction(com.kartaguez.pocoma.domain.pot.Fraction f) {
+    private static ObjectNode fraction(com.kartaguez.pocoma.domain.pot.value.Fraction f) {
         return JSON.createObjectNode()
                 .put("numerator", f.numerator().toString())
                 .put("denominator", f.denominator().toString());
     }
 
-    private static com.kartaguez.pocoma.domain.pot.Fraction readFraction(JsonNode n) {
+    private static com.kartaguez.pocoma.domain.pot.value.Fraction readFraction(JsonNode n) {
         var value =
-                new com.kartaguez.pocoma.domain.pot.Fraction(
+                new com.kartaguez.pocoma.domain.pot.value.Fraction(
                         new BigInteger(text(n, "numerator")),
                         new BigInteger(text(n, "denominator")));
         if (!value.numerator().toString().equals(text(n, "numerator"))
@@ -359,14 +364,14 @@ public final class PotCommandJson {
                                         p.required("weight").isNull()
                                                 ? Optional.empty()
                                                 : Optional.of(
-                                                        new com.kartaguez.pocoma.domain.pot
+                                                        new com.kartaguez.pocoma.domain.pot.value
                                                                 .Weight(
                                                                 readFraction(
                                                                         p.required("weight"))))));
         return ExpenseFinancials.of(
                 new PotId(UUID.fromString(text(n, "potId"))),
                 eid(n),
-                new com.kartaguez.pocoma.domain.pot.Amount(readFraction(n.required("amount"))),
+                new com.kartaguez.pocoma.domain.pot.value.Amount(readFraction(n.required("amount"))),
                 new ShareholderId(UUID.fromString(text(n, "payerId"))),
                 participants);
     }

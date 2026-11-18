@@ -1,5 +1,5 @@
 package com.kartaguez.pocoma.domain.projection;
-import com.kartaguez.pocoma.domain.pot.Fraction;
+import com.kartaguez.pocoma.domain.pot.value.Fraction;
 import java.util.*;
 public record PotBalance(UUID potId,long version,Map<UUID,Fraction> values) {
     public PotBalance {
