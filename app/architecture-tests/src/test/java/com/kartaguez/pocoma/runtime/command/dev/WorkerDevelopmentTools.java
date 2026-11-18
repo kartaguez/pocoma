@@ -6,7 +6,7 @@ import com.kartaguez.pocoma.domain.pot.value.Label;
 import com.kartaguez.pocoma.domain.identity.ExternalIdentity;
 import com.kartaguez.pocoma.domain.identity.BindingToken;
 import com.kartaguez.pocoma.contract.writeadmission.PotCommand;
-import com.kartaguez.pocoma.infra.postgres.write.PotCommandJson;
+import com.kartaguez.pocoma.infra.postgres.write.pot.PotCommandJson;
 import com.kartaguez.pocoma.infra.postgres.write.identity.*;
 import com.kartaguez.pocoma.infra.tx.spring.SpringAttemptTransactions;
 import com.kartaguez.pocoma.architecture.qualification.QualificationSettings;

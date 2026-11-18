@@ -1,4 +1,4 @@
-package com.kartaguez.pocoma.infra.postgres.write;
+package com.kartaguez.pocoma.infra.postgres.write.pot;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.node.*;

@@ -21,7 +21,7 @@ import com.kartaguez.pocoma.contract.writeadmission.AdmissionFailure;
 import com.kartaguez.pocoma.contract.writeadmission.PotCommand;
 import com.kartaguez.pocoma.engine.admit.command.CommandAdmission;
 import com.kartaguez.pocoma.engine.admit.identity.IdentityRequestAdmission;
-import com.kartaguez.pocoma.infra.postgres.write.HmacAdmissionProtection;
+import com.kartaguez.pocoma.infra.postgres.write.admission.HmacAdmissionProtection;
 import com.kartaguez.pocoma.port.transaction.AttemptTransactions;
 import com.kartaguez.pocoma.port.transaction.RecoveryReadContext;
 

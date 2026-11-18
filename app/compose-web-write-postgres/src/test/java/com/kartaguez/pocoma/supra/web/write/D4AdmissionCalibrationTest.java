@@ -22,7 +22,7 @@ import com.kartaguez.pocoma.contract.writeadmission.CommandAdmissionInput;
 import com.kartaguez.pocoma.contract.writeadmission.IdentityAdmissionInput;
 import com.kartaguez.pocoma.contract.writeadmission.PotCommand;
 import com.kartaguez.pocoma.domain.identity.ExternalIdentity;
-import com.kartaguez.pocoma.infra.postgres.write.HmacAdmissionProtection;
+import com.kartaguez.pocoma.infra.postgres.write.admission.HmacAdmissionProtection;
 
 /** Finite D4-A only: no admission service, JDBC, PostgreSQL, Spring or HTTP server. */
 class D4AdmissionCalibrationTest {

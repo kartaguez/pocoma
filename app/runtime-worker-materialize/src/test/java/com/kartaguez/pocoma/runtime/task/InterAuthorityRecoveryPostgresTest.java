@@ -1261,7 +1261,7 @@ class InterAuthorityRecoveryPostgresTest {
 
             public Recovery prepareRecovery(UUID id, PreparationReads reads) {
                 return c ->
-                        switch (new com.kartaguez.pocoma.infra.postgres.write
+                        switch (new com.kartaguez.pocoma.infra.postgres.write.pot
                                         .JdbcPotCommandObservation(f.primary)
                                 .observe(id, c)) {
                             case COMPLETED -> EffectEvidence.SATISFIED;

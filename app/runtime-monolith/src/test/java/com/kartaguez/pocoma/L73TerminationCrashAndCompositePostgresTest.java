@@ -40,11 +40,11 @@ import com.kartaguez.pocoma.engine.write.pot.ExecutePotCommand;
 import com.kartaguez.pocoma.engine.write.pot.port.execution.PotActorAuthority;
 import com.kartaguez.pocoma.infra.postgres.core.consumption.JdbcConsumptionSlotStore;
 import com.kartaguez.pocoma.infra.postgres.core.consumption.JdbcPartitionOwnershipStore;
-import com.kartaguez.pocoma.infra.postgres.write.JdbcPotCommandObservation;
-import com.kartaguez.pocoma.infra.postgres.write.JdbcPotCommandStore;
-import com.kartaguez.pocoma.infra.postgres.write.JdbcPotHistoryAdapter;
-import com.kartaguez.pocoma.infra.postgres.write.JdbcPotRevisionAdapter;
-import com.kartaguez.pocoma.infra.postgres.write.PotCommandJson;
+import com.kartaguez.pocoma.infra.postgres.write.pot.JdbcPotCommandObservation;
+import com.kartaguez.pocoma.infra.postgres.write.pot.JdbcPotCommandStore;
+import com.kartaguez.pocoma.infra.postgres.write.pot.JdbcPotHistoryAdapter;
+import com.kartaguez.pocoma.infra.postgres.write.pot.JdbcPotRevisionAdapter;
+import com.kartaguez.pocoma.infra.postgres.write.pot.PotCommandJson;
 import com.kartaguez.pocoma.infra.postgres.write.identity.IdentityRequestJson;
 import com.kartaguez.pocoma.infra.postgres.write.identity.JdbcIdentityAuthority;
 import com.kartaguez.pocoma.infra.postgres.write.identity.JdbcIdentityRequestObservation;
@@ -406,7 +406,7 @@ class L73TerminationCrashAndCompositePostgresTest {
                             new JdbcPotHistoryAdapter(writeDs),
                             new JdbcPotRevisionAdapter(writeDs),
                             Clock.systemUTC(),
-                            new com.kartaguez.pocoma.infra.postgres.write.JdbcInvitationStore(
+                            new com.kartaguez.pocoma.infra.postgres.write.pot.JdbcInvitationStore(
                                     writeDs,
                                     new com.kartaguez.pocoma.infra.security.spring
                                             .InvitationCryptography(

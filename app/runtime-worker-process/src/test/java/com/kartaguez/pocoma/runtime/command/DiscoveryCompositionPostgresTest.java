@@ -51,7 +51,7 @@ import com.kartaguez.pocoma.infra.postgres.core.consumption.JdbcConsumptionSlotS
 import com.kartaguez.pocoma.infra.postgres.core.consumption.JdbcDiscoveryAdmissionStore;
 import com.kartaguez.pocoma.infra.postgres.core.consumption.JdbcPartitionOwnershipStore;
 import com.kartaguez.pocoma.infra.postgres.source.JdbcEventDiscoveryReferences;
-import com.kartaguez.pocoma.infra.postgres.write.PotCommandJson;
+import com.kartaguez.pocoma.infra.postgres.write.pot.PotCommandJson;
 import com.kartaguez.pocoma.infra.tx.spring.SpringAttemptTransactions;
 import com.kartaguez.pocoma.orchestrator.consumption.ConsumptionEngine;
 import com.kartaguez.pocoma.orchestrator.consumption.WorkerCapacity;

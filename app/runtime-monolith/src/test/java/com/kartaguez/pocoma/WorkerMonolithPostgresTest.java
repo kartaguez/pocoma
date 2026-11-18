@@ -7,7 +7,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.kartaguez.pocoma.domain.pot.value.Label;
 import com.kartaguez.pocoma.contract.writeadmission.PotCommand;
-import com.kartaguez.pocoma.infra.postgres.write.PotCommandJson;
+import com.kartaguez.pocoma.infra.postgres.write.pot.PotCommandJson;
 import com.kartaguez.pocoma.supra.polling.consumption.ConsumptionWorker;
 import com.kartaguez.pocoma.port.transaction.*;
 import com.zaxxer.hikari.HikariDataSource;

@@ -70,7 +70,7 @@ import com.kartaguez.pocoma.contract.writeadmission.PotCommand;
 import com.kartaguez.pocoma.domain.consumption.ConsumptionCatalog;
 import com.kartaguez.pocoma.domain.pot.value.Label;
 import com.kartaguez.pocoma.infra.postgres.core.bootstrap.BootstrapGuard;
-import com.kartaguez.pocoma.infra.postgres.write.PotCommandJson;
+import com.kartaguez.pocoma.infra.postgres.write.pot.PotCommandJson;
 import com.kartaguez.pocoma.orchestrator.consumption.ConsumptionEngine;
 import com.kartaguez.pocoma.orchestrator.consumption.WorkerCapacity;
 import com.kartaguez.pocoma.port.transaction.AttemptTransactions;

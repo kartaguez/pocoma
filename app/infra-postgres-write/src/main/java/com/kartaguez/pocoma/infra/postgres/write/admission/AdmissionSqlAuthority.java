@@ -1,4 +1,4 @@
-package com.kartaguez.pocoma.infra.postgres.write;
+package com.kartaguez.pocoma.infra.postgres.write.admission;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 

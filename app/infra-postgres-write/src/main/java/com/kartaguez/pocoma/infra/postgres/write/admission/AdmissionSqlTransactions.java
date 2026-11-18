@@ -1,4 +1,4 @@
-package com.kartaguez.pocoma.infra.postgres.write;
+package com.kartaguez.pocoma.infra.postgres.write.admission;
 
 import com.kartaguez.pocoma.contract.writeadmission.AdmissionFailure;
 import com.kartaguez.pocoma.infra.tx.spring.SpringAttemptTransactions;

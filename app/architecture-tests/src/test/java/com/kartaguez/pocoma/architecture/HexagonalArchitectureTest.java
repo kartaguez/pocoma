@@ -137,7 +137,7 @@ class HexagonalArchitectureTest {
                 && !target.startsWith(BASE + "engine.")
                 && !target.startsWith(BASE + "orchestrator.")
                 && !target.startsWith(BASE + "supra."));
-        requireDependencies(List.of(type("infra.postgres.write.JdbcPotCommandStore")),
+        requireDependencies(List.of(type("infra.postgres.write.pot.JdbcPotCommandStore")),
                 target -> !target.startsWith("jakarta.persistence.")
                         && !target.startsWith("org.hibernate.")
                         && !target.startsWith(BASE + "supra."));

@@ -8,7 +8,8 @@ import com.kartaguez.pocoma.domain.consumption.ConsumableFamily;
 import com.kartaguez.pocoma.contract.consumption.spi.AttemptFailureClassifier.FailureKind;
 import com.kartaguez.pocoma.engine.write.pot.port.execution.PotActorAuthority;
 import com.kartaguez.pocoma.engine.write.pot.ExecutePotCommand;
-import com.kartaguez.pocoma.infra.postgres.write.*;
+import com.kartaguez.pocoma.infra.postgres.write.admission.*;
+import com.kartaguez.pocoma.infra.postgres.write.pot.*;
 import com.kartaguez.pocoma.infra.tx.spring.SpringAttemptTransactions;
 import com.kartaguez.pocoma.infra.postgres.core.bootstrap.BootstrapGuard;
 

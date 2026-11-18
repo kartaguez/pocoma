@@ -1,4 +1,4 @@
-package com.kartaguez.pocoma.infra.postgres.write;
+package com.kartaguez.pocoma.infra.postgres.write.admission;
 import java.security.MessageDigest;
 import java.util.HashMap;
 import java.util.Map;

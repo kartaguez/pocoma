@@ -1,4 +1,6 @@
 package com.kartaguez.pocoma.infra.postgres.write;
+
+import com.kartaguez.pocoma.infra.postgres.write.pot.JdbcPotCommandObservation;
 import com.kartaguez.pocoma.infra.postgres.core.bootstrap.*;
 import com.kartaguez.pocoma.infra.postgres.core.consumption.*;
 import com.kartaguez.pocoma.infra.postgres.core.history.*;

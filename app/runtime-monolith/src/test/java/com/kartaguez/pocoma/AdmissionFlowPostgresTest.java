@@ -442,11 +442,11 @@ class AdmissionFlowPostgresTest {
                 () -> {
                     var potId = new com.kartaguez.pocoma.domain.pot.value.id.PotId(pot);
                     assertTrue(
-                            new com.kartaguez.pocoma.infra.postgres.write.JdbcPotCommandStore(
+                            new com.kartaguez.pocoma.infra.postgres.write.pot.JdbcPotCommandStore(
                                             fixtureSource, fixtureOwner)
                                     .protectPot(potId, version));
                     var revisions =
-                            new com.kartaguez.pocoma.infra.postgres.write.JdbcPotRevisionAdapter(
+                            new com.kartaguez.pocoma.infra.postgres.write.pot.JdbcPotRevisionAdapter(
                                     fixtureSource);
                     revisions.recordVersion(potId, version, version + 1, Instant.now());
                     revisions.reviseShareholderDetails(potId, initialAffiliation);
@@ -466,7 +466,7 @@ class AdmissionFlowPostgresTest {
         var shareholderId =
                 new com.kartaguez.pocoma.domain.pot.value.id.ShareholderId(memberShare);
         var history =
-                new com.kartaguez.pocoma.infra.postgres.write.JdbcPotHistoryAdapter(fixtureSource);
+                new com.kartaguez.pocoma.infra.postgres.write.pot.JdbcPotHistoryAdapter(fixtureSource);
         var member =
                 new com.kartaguez.pocoma.domain.pot.value.UserId(
                         worker.write.queryForObject(

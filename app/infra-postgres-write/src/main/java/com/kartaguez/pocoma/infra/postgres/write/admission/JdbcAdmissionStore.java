@@ -1,4 +1,6 @@
-package com.kartaguez.pocoma.infra.postgres.write;
+package com.kartaguez.pocoma.infra.postgres.write.admission;
+
+import com.kartaguez.pocoma.infra.postgres.write.pot.PotCommandJson;
 import java.sql.Timestamp;
 import java.util.Objects;
 import java.util.Optional;

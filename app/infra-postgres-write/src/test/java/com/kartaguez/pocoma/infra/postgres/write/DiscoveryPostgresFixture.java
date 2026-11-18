@@ -1,4 +1,6 @@
 package com.kartaguez.pocoma.infra.postgres.write;
+
+import com.kartaguez.pocoma.infra.postgres.write.pot.PotCommandJson;
 import com.kartaguez.pocoma.infra.postgres.source.*;
 import com.kartaguez.pocoma.infra.postgres.core.bootstrap.*;
 import com.kartaguez.pocoma.infra.postgres.core.consumption.*;

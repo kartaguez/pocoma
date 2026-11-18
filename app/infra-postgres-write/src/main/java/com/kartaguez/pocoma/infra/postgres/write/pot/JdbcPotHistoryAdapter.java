@@ -1,4 +1,4 @@
-package com.kartaguez.pocoma.infra.postgres.write;
+package com.kartaguez.pocoma.infra.postgres.write.pot;
 import javax.sql.DataSource;
 
 import com.kartaguez.pocoma.engine.write.pot.port.persistence.PotHistoryPort;

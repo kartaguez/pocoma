@@ -1,4 +1,9 @@
 package com.kartaguez.pocoma.infra.postgres.write;
+
+import com.kartaguez.pocoma.infra.postgres.write.pot.JdbcPotCommandStore;
+import com.kartaguez.pocoma.infra.postgres.write.pot.JdbcPotHistoryAdapter;
+import com.kartaguez.pocoma.infra.postgres.write.pot.JdbcPotRevisionAdapter;
+import com.kartaguez.pocoma.infra.postgres.write.pot.PotCommandJson;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;

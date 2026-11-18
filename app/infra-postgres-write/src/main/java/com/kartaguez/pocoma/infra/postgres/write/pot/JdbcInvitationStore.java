@@ -1,4 +1,4 @@
-package com.kartaguez.pocoma.infra.postgres.write;
+package com.kartaguez.pocoma.infra.postgres.write.pot;
 import com.kartaguez.pocoma.infra.security.spring.InvitationCryptography;
 import com.kartaguez.pocoma.contract.writeadmission.PotCommand;
 

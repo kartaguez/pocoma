@@ -246,14 +246,14 @@ class WorkerResourcesPostgresTest {
                 ConsumptionParticipant participant =
                         write
                                 ? new com.kartaguez.pocoma.engine.write.pot.ExecutePotCommand(
-                                        new com.kartaguez.pocoma.infra.postgres.write
+                                        new com.kartaguez.pocoma.infra.postgres.write.pot
                                                 .JdbcPotCommandStore(source, owner),
-                                        new com.kartaguez.pocoma.infra.postgres.write
+                                        new com.kartaguez.pocoma.infra.postgres.write.pot
                                                 .JdbcPotCommandObservation(source),
                                         new com.kartaguez.pocoma.compose.polling.process.dev.FixturePotActorAuthority(source),
-                                        new com.kartaguez.pocoma.infra.postgres.write
+                                        new com.kartaguez.pocoma.infra.postgres.write.pot
                                                 .JdbcPotHistoryAdapter(source),
-                                        new com.kartaguez.pocoma.infra.postgres.write
+                                        new com.kartaguez.pocoma.infra.postgres.write.pot
                                                 .JdbcPotRevisionAdapter(source),
                                         Clock.systemUTC())
                                 : new com.kartaguez.pocoma.runtime.consumption.dev

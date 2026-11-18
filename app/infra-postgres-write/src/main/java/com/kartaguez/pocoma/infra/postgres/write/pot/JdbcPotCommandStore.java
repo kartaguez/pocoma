@@ -1,4 +1,4 @@
-package com.kartaguez.pocoma.infra.postgres.write;
+package com.kartaguez.pocoma.infra.postgres.write.pot;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;

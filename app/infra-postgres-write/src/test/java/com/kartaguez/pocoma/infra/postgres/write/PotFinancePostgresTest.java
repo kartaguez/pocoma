@@ -1,5 +1,7 @@
 package com.kartaguez.pocoma.infra.postgres.write;
 
+
+import com.kartaguez.pocoma.infra.postgres.write.pot.JdbcPotHistoryAdapter;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.kartaguez.pocoma.domain.pot.*;

@@ -100,7 +100,7 @@ final class L2ProofHarness {
                                     observation,
                                     InvitationConfiguration.keys(env) == null
                                             ? null
-                                            : new com.kartaguez.pocoma.infra.postgres.write
+                                            : new com.kartaguez.pocoma.infra.postgres.write.pot
                                                     .JdbcInvitationStore(
                                                     resources.writeBusiness,
                                                     InvitationConfiguration.keys(env)), tracker::linkCommandEvents);

@@ -1,4 +1,4 @@
-package com.kartaguez.pocoma.infra.postgres.write;
+package com.kartaguez.pocoma.infra.postgres.write.pot;
 
 import com.kartaguez.pocoma.contract.consumption.spi.RecoveryObservation;
 import com.kartaguez.pocoma.engine.write.pot.port.execution.PotCommandObservation;

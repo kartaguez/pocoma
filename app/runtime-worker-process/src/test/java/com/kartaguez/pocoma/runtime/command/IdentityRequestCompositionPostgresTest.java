@@ -51,7 +51,7 @@ import com.kartaguez.pocoma.domain.identity.ExternalIdentity;
 import com.kartaguez.pocoma.domain.pot.value.Label;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.infra.postgres.core.bootstrap.BootstrapGuard;
-import com.kartaguez.pocoma.infra.postgres.write.PotCommandJson;
+import com.kartaguez.pocoma.infra.postgres.write.pot.PotCommandJson;
 import com.kartaguez.pocoma.infra.postgres.write.identity.IdentityRequestJson;
 import com.kartaguez.pocoma.infra.postgres.write.identity.JdbcIdentityAuthority;
 import com.kartaguez.pocoma.infra.postgres.write.identity.JdbcIdentityRequestObservation;
