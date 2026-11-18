@@ -1,5 +1,6 @@
 package com.kartaguez.pocoma.runtime.task;
 import com.kartaguez.pocoma.compose.polling.materialize.MaterializeComposeConfiguration;
+import com.kartaguez.pocoma.compose.polling.materialize.MaterializeResources;
 import com.kartaguez.pocoma.compose.polling.materialize.MaterializeSettings;
 import com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant;
 import com.kartaguez.pocoma.contract.consumption.participation.PreparationReads;
@@ -103,7 +104,7 @@ class ReadRuntimeAssemblyPostgresTest {
             refused(f, Map.of());
             f.read.execute("revoke select on read_current_binding from public");
             var ctx = f.start();
-            var resources=ctx.getBean(MaterializeComposeConfiguration.Resources.class);
+            var resources=ctx.getBean(MaterializeResources.class);
             assertTrue(ctx.getBeansOfType(HikariDataSource.class).isEmpty(),"no global pool bean");
             assertEquals(3,Set.of(resources.writeSourceRead,resources.readBusiness,resources.readControl).size());
             assertTrue(resources.writeSourceRead.isReadOnly());
@@ -134,7 +135,7 @@ class ReadRuntimeAssemblyPostgresTest {
                     idle.getBeansOfType(ConsumptionWorker.class).isEmpty(),
                     "empty selection has no Worker");
             assertTrue(
-                    idle.getBean(MaterializeComposeConfiguration.Resources.class).capacityView().isEmpty(),
+                    idle.getBean(MaterializeResources.class).capacityView().isEmpty(),
                     "empty selection has no capacity");
             assertTrue(
                     f.services(idle).workerState().isEmpty(), "activation separate from readiness");

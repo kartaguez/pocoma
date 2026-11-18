@@ -8,16 +8,13 @@ import com.kartaguez.pocoma.supra.polling.consumption.ConsumptionWorker;
 import com.kartaguez.pocoma.infra.postgres.core.bootstrap.*;
 import com.kartaguez.pocoma.infra.postgres.core.consumption.*;
 import com.kartaguez.pocoma.infra.postgres.core.history.*;
-import com.kartaguez.pocoma.infra.tx.spring.*;
 import com.kartaguez.pocoma.infra.observability.micrometer.*;
-import com.zaxxer.hikari.*;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.context.*;
 import org.springframework.context.annotation.*;
 import org.springframework.core.env.Environment;
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import java.time.*;
 import java.util.*;
 import com.kartaguez.pocoma.infra.postgres.write.admission.*;
@@ -81,14 +78,14 @@ public class ProcessComposeConfiguration {
     }
 
     @Bean(destroyMethod = "closeIfSafe")
-    public Resources processResources(
+    public ProcessResources processResources(
             ProcessSettings settings, Environment env, Optional<MeterRegistry> registry) {
-        return new Resources(settings, env, registry.orElse(null));
+        return new ProcessResources(settings, env, registry.orElse(null));
     }
 
     @Bean(destroyMethod = "")
     public ConsumptionWorker processWorker(
-            @Qualifier("processResources") Resources resources,
+            @Qualifier("processResources") ProcessResources resources,
             ProcessSettings settings,
             Environment env,
             Optional<MeterRegistry> registry,
@@ -112,8 +109,7 @@ public class ProcessComposeConfiguration {
                         resources::close,
                         tracker,
                         ConsumptionSafety::new);
-        resources.capacityView = capacity;
-        resources.worker = worker;
+        resources.bindWorker(worker, capacity);
         if (observation instanceof MicrometerConsumptionObservation metrics) metrics.bind(worker);
         tracker.registerWakeSignal(worker::signal);
         return worker;
@@ -137,7 +133,7 @@ public class ProcessComposeConfiguration {
     }
 
     private static List<ConsumptionWorker.Binding> buildBindings(
-            Resources resources,
+            ProcessResources resources,
             ProcessSettings settings,
             Environment env,
             WorkerCapacity capacity,
@@ -177,7 +173,7 @@ public class ProcessComposeConfiguration {
 
     private static ConsumptionEngine buildEngine(
             String name,
-            Resources resources,
+            ProcessResources resources,
             ProcessSettings settings,
             Environment env,
             WorkerCapacity capacity,
@@ -216,7 +212,7 @@ public class ProcessComposeConfiguration {
                 keys == null ? null : new JdbcInvitationStore(resources.writeBusiness, keys),
                 tracker::linkCommandEvents);
     }
-    @Bean public SmartLifecycle processLifecycle(@Qualifier("processResources") Resources resources,
+    @Bean public SmartLifecycle processLifecycle(@Qualifier("processResources") ProcessResources resources,
             @Qualifier("processWorker") Optional<ConsumptionWorker> worker) {
         return new SmartLifecycle() {
             public void start(){worker.ifPresent(ConsumptionWorker::start);}
@@ -238,111 +234,5 @@ public class ProcessComposeConfiguration {
             return result.withDetail("workerState",view.state().name()).withDetail("pendingHandles",view.handles())
                     .withDetail("renewalUnknown",view.unknownRenewals()).withDetail("drainDeadlineExceeded",view.deadlineExceeded()).build();
         }).orElseGet(() -> org.springframework.boot.health.contributor.Health.unknown().withDetail("workerState","INACTIVE").build());
-    }
-    public static final class Resources {
-        public final HikariDataSource writeBusiness,writeControl;
-        public final SpringAttemptTransactions writeEffects,writeTechnical;
-        public final BootstrapGuard guard;
-        private volatile ConsumptionWorker worker;
-        private volatile CapacityView capacityView;
-        private boolean closed;
-        Resources(ProcessSettings settings,Environment env,MeterRegistry registry) {
-            var opened=new ArrayList<HikariDataSource>();
-            try {
-                writeBusiness=open(settings,settings.writeBusiness(),opened,registry);
-                writeControl=open(settings,settings.writeControl(),opened,registry);
-                writeEffects=owner(writeBusiness,60);writeTechnical=owner(writeControl,3);
-                var target=new BootstrapGuard.Target(writeControl,settings.writeControl().database(),settings.writeControl().schema(),settings.writeControl().username());
-                String sourceRole=env.getProperty("pocoma.v3.process.source-read-role",env.getProperty("pocoma.v3.pilot.read.username","pocoma_write_source_read"));
-                guard=BootstrapGuard.processWorker(target,sourceRole,settings.catalog(),settings.fixtureIdentity());
-                for(var spec:List.of(settings.writeBusiness(),settings.writeControl()))settings.validateTarget(spec,spec.business()?writeBusiness:writeControl);
-                guard.validateLifecycleSource(writeBusiness,ConsumptionDefinition.Authority.WRITE,BootstrapGuard.Privileges.LIFECYCLE_AND_DISCOVERY);
-                guard.validateLifecycleSource(writeControl,ConsumptionDefinition.Authority.WRITE,BootstrapGuard.Privileges.LIFECYCLE_AND_DISCOVERY);
-                if (settings.identityAuthority().equals("real")) {
-                    String readEffectRole = env.getProperty("pocoma.v3.pilot.read.username");
-                    guard.validateIdentitySource(writeBusiness, readEffectRole);
-                    guard.validateIdentitySource(writeControl, readEffectRole);
-                }
-            } catch(RuntimeException|Error failure) {
-                for(var pool:opened)try{pool.close();}catch(RuntimeException cleanup){failure.addSuppressed(cleanup);}
-                throw failure;
-            }
-        }
-        private static SpringAttemptTransactions owner(HikariDataSource pool,int timeout) {
-            var manager=new DataSourceTransactionManager(pool);manager.setNestedTransactionAllowed(false);return new SpringAttemptTransactions(pool,manager,timeout);
-        }
-        private static HikariDataSource open(
-                ProcessSettings settings,
-                ProcessSettings.Pool spec,
-                List<HikariDataSource> opened,
-                MeterRegistry registry) {
-            var pool = new HikariDataSource(buildHikariConfig(settings, spec));
-            if (registry != null) {
-                pool.setMetricsTrackerFactory(
-                        new com.zaxxer.hikari.metrics.micrometer.MicrometerMetricsTrackerFactory(
-                                registry));
-            }
-            opened.add(pool);
-            awaitPoolReserve(pool, spec.minimumIdle());
-            return pool;
-        }
-
-        private static HikariConfig buildHikariConfig(
-                ProcessSettings settings, ProcessSettings.Pool spec) {
-            var config = new HikariConfig();
-            config.setPoolName(settings.workerName() + "-" + spec.name());
-            config.setJdbcUrl(spec.url());
-            config.setUsername(spec.username());
-            config.setPassword(spec.password());
-            config.setMaximumPoolSize(spec.maximum());
-            config.setMinimumIdle(spec.minimumIdle());
-            config.setConnectionTimeout(1000);
-            config.setValidationTimeout(500);
-            config.setInitializationFailTimeout(5000);
-            config.addDataSourceProperty("connectTimeout", "2");
-            config.addDataSourceProperty("socketTimeout", spec.business() ? "70" : "5");
-            config.addDataSourceProperty("ApplicationName", config.getPoolName());
-            config.addDataSourceProperty(
-                    "options",
-                    spec.business()
-                            ? "-c statement_timeout=60000 -c transaction_timeout=65000"
-                            : "-c lock_timeout=500 -c statement_timeout=2000 -c"
-                                    + " transaction_timeout=3000");
-            return config;
-        }
-
-        private static void awaitPoolReserve(HikariDataSource pool, int minimumIdle) {
-            long deadline = System.nanoTime() + Duration.ofSeconds(10).toNanos();
-            while (pool.getHikariPoolMXBean().getIdleConnections() < minimumIdle
-                    && System.nanoTime() < deadline) {
-                try {
-                    Thread.sleep(10);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    throw new IllegalStateException("pool initialization interrupted");
-                }
-            }
-            if (pool.getHikariPoolMXBean().getIdleConnections() < minimumIdle) {
-                throw new IllegalStateException("physical pool reserve not established");
-            }
-        }
-
-        public synchronized void closeIfSafe() {
-            if (worker == null) {
-                close();
-                return;
-            }
-            var state = worker.snapshot().state();
-            if (state == WorkerView.State.STARTING || state == WorkerView.State.STOPPED) {
-                close();
-            }
-        }
-        private synchronized void close() {
-            if(closed)return;
-            writeControl.close();
-            writeBusiness.close();closed=true;
-        }
-        public Optional<CapacityView> capacityView(){return Optional.ofNullable(capacityView);}
-        public Optional<WorkerView.Snapshot> workerState(){return Optional.ofNullable(worker).map(ConsumptionWorker::snapshot);}
     }
 }

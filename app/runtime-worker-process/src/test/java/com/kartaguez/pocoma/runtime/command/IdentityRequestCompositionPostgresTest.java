@@ -1076,7 +1076,7 @@ class IdentityRequestCompositionPostgresTest {
         try (var f = new Fixture(PG)) {
             var context = f.start();
             var resources = context.getBean(
-                    com.kartaguez.pocoma.compose.polling.process.ProcessComposeConfiguration.Resources.class);
+                    com.kartaguez.pocoma.compose.polling.process.ProcessResources.class);
             var owner = resources.writeEffects;
             var pool = resources.writeBusiness;
             var authority = new JdbcIdentityAuthority(pool, owner);

@@ -714,14 +714,14 @@ public final class ReadMonolithI8Fixture implements AutoCloseable {
         return values;
     }
 
-    static com.kartaguez.pocoma.compose.polling.materialize.MaterializeComposeConfiguration.Resources
+    static com.kartaguez.pocoma.compose.polling.materialize.MaterializeResources
             materialize(ConfigurableApplicationContext context) {
-        return context.getBean(com.kartaguez.pocoma.compose.polling.materialize.MaterializeComposeConfiguration.Resources.class);
+        return context.getBean(com.kartaguez.pocoma.compose.polling.materialize.MaterializeResources.class);
     }
 
-    static com.kartaguez.pocoma.compose.polling.process.ProcessComposeConfiguration.Resources
+    static com.kartaguez.pocoma.compose.polling.process.ProcessResources
             process(ConfigurableApplicationContext context) {
-        return context.getBean(com.kartaguez.pocoma.compose.polling.process.ProcessComposeConfiguration.Resources.class);
+        return context.getBean(com.kartaguez.pocoma.compose.polling.process.ProcessResources.class);
     }
 
     ReadFacadeComposition.Services services(ConfigurableApplicationContext context) {

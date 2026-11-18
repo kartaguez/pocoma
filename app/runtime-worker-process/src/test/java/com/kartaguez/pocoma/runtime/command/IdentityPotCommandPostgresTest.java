@@ -165,7 +165,7 @@ class IdentityPotCommandPostgresTest {
                     };
             var settings = LifecycleSettings.pilot();
             var resources = context.getBean(
-                    com.kartaguez.pocoma.compose.polling.process.ProcessComposeConfiguration.Resources.class);
+                    com.kartaguez.pocoma.compose.polling.process.ProcessResources.class);
             var guard = resources.guard;
             var definition = ProcessSettings.definition("Command");
             engine =

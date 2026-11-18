@@ -153,8 +153,8 @@ class ReadFacadesPostgresTest {
             }
         }
 
-        com.kartaguez.pocoma.compose.polling.materialize.MaterializeComposeConfiguration.Resources resources() {
-            return ctx.getBean(com.kartaguez.pocoma.compose.polling.materialize.MaterializeComposeConfiguration.Resources.class);
+        com.kartaguez.pocoma.compose.polling.materialize.MaterializeResources resources() {
+            return ctx.getBean(com.kartaguez.pocoma.compose.polling.materialize.MaterializeResources.class);
         }
 
         long writeBorrowCount() {

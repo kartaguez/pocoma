@@ -672,7 +672,7 @@ public final class ReadRuntimeI8Fixture implements AutoCloseable {
     }
 
     ReadFacadeComposition.Services services(ConfigurableApplicationContext context) {
-        var resources=context.getBean(com.kartaguez.pocoma.compose.polling.materialize.MaterializeComposeConfiguration.Resources.class);
+        var resources=context.getBean(com.kartaguez.pocoma.compose.polling.materialize.MaterializeResources.class);
         var settings=context.getBean(MaterializeSettings.class);
         return ReadFacadeComposition.create(resources.readBusiness,resources.readEffects,
             new com.kartaguez.pocoma.contract.readquery.ReadLimits(50,20,16_000_000),new HashSet<>(settings.readParticipants()),resources::workerState);
