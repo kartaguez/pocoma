@@ -9,20 +9,29 @@ import java.util.*;
 @Import({com.kartaguez.pocoma.compose.polling.process.ProcessComposeConfiguration.class})
 public class PocomaProcessWorkerApplication {
     public static void main(String[] args){SpringApplication.run(PocomaProcessWorkerApplication.class,args);}
-    @Bean static BeanFactoryPostProcessor hostingSelection(Environment env) {
+    @Bean
+    static BeanFactoryPostProcessor hostingSelection(Environment env) {
         return factory -> {
             // Worker pools are private to the selected Compose, never unowned Spring resources.
-            for(String name:factory.getBeanDefinitionNames()) {
-                Class<?> type=factory.getType(name,false);
-                if(type!=null && (javax.sql.DataSource.class.isAssignableFrom(type)
-                        || org.springframework.transaction.PlatformTransactionManager.class.isAssignableFrom(type)
-                        || jakarta.persistence.EntityManagerFactory.class.isAssignableFrom(type)))
-                    throw new IllegalStateException("Unallocated worker authority bean: "+name);
+            for (String name : factory.getBeanDefinitionNames()) {
+                if (isUnallocatedAuthorityType(factory.getType(name, false))) {
+                    throw new IllegalStateException("Unallocated worker authority bean: " + name);
+                }
             }
             var profiles = Set.of(env.getActiveProfiles());
-            if (!profiles.equals(Set.of("v3-consumption-worker-dev")))
+            if (!profiles.equals(Set.of("v3-consumption-worker-dev"))) {
                 throw new IllegalStateException("Unsupported Runtime selection: " + profiles);
+            }
         };
+    }
+
+    private static boolean isUnallocatedAuthorityType(Class<?> type) {
+        if (type == null) return false;
+        if (javax.sql.DataSource.class.isAssignableFrom(type)) return true;
+        if (org.springframework.transaction.PlatformTransactionManager.class.isAssignableFrom(type)) {
+            return true;
+        }
+        return jakarta.persistence.EntityManagerFactory.class.isAssignableFrom(type);
     }
     @Bean
     @Profile("!v3-http-admission & !v3-http-read")

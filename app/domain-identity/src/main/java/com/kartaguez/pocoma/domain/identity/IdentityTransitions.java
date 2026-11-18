@@ -69,14 +69,27 @@ public final class IdentityTransitions {
             throw new IllegalArgumentException("State belongs to another external identity");
     }
 
-    private static void checkPair(ExternalIdentity requester, Optional<ExternalUserIdentity> initiator,
-                                  ExternalIdentity target, Optional<ExternalUserIdentity> current) {
+    private static void checkPair(
+            ExternalIdentity requester,
+            Optional<ExternalUserIdentity> initiator,
+            ExternalIdentity target,
+            Optional<ExternalUserIdentity> current) {
         checkState(requester, initiator);
         checkState(target, current);
-        if (requester.equals(target) && !initiator.equals(current))
-            throw new IllegalArgumentException("One external key must have one current state");
-        if (!requester.equals(target) && initiator.isPresent() && current.isPresent()
-                && initiator.get().id().equals(current.get().id()))
+        if (requester.equals(target)) {
+            if (!initiator.equals(current)) {
+                throw new IllegalArgumentException("One external key must have one current state");
+            }
+            return;
+        }
+        if (haveSameStoredId(initiator, current)) {
             throw new IllegalArgumentException("Distinct external keys cannot share an EUI ID");
+        }
+    }
+
+    private static boolean haveSameStoredId(
+            Optional<ExternalUserIdentity> first, Optional<ExternalUserIdentity> second) {
+        if (first.isEmpty() || second.isEmpty()) return false;
+        return first.get().id().equals(second.get().id());
     }
 }

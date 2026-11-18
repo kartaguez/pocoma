@@ -1,6 +1,11 @@
 package com.kartaguez.pocoma.infra.security.spring;
 
 import com.kartaguez.pocoma.domain.pot.*;
+import com.kartaguez.pocoma.domain.pot.expense.*;
+import com.kartaguez.pocoma.domain.pot.invitation.*;
+import com.kartaguez.pocoma.domain.pot.revision.*;
+import com.kartaguez.pocoma.domain.pot.shareholder.*;
+import com.kartaguez.pocoma.domain.pot.value.*;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -57,34 +62,46 @@ public final class InvitationCryptography {
         }
     }
 
+    private record DecodedEnvelope(byte[] key, byte[] nonce, byte[] ciphertext) {}
+
+    private DecodedEnvelope parseProtectedEnvelope(String protectedLink) {
+        String[] parts = protectedLink.split("\\.", -1);
+        if (parts.length != 4 || !parts[0].equals("v1")) {
+            throw unavailable();
+        }
+        byte[] key = keys.get(parts[1]);
+        byte[] nonce = Base64.getUrlDecoder().decode(parts[2]);
+        if (key == null || nonce.length != 12) {
+            throw unavailable();
+        }
+        return new DecodedEnvelope(key, nonce, Base64.getUrlDecoder().decode(parts[3]));
+    }
+
     public String decrypt(Invitation invitation) {
         try {
-            String[] parts = invitation.protectedLink().split("\\.", -1);
-            if (parts.length != 4 || !parts[0].equals("v1") || !keys.containsKey(parts[1]))
-                throw unavailable();
-            byte[] nonce = Base64.getUrlDecoder().decode(parts[2]);
-            if (nonce.length != 12) throw unavailable();
+            DecodedEnvelope envelope = parseProtectedEnvelope(invitation.protectedLink());
             var cipher = Cipher.getInstance("AES/GCM/NoPadding");
             cipher.init(
                     Cipher.DECRYPT_MODE,
-                    new SecretKeySpec(keys.get(parts[1]), "AES"),
-                    new GCMParameterSpec(128, nonce));
+                    new SecretKeySpec(envelope.key(), "AES"),
+                    new GCMParameterSpec(128, envelope.nonce()));
             cipher.updateAAD(context(invitation));
-            String link =
-                    new String(
-                            cipher.doFinal(Base64.getUrlDecoder().decode(parts[3])),
-                            StandardCharsets.UTF_8);
-            String prefix = "pocoma://invitation/";
-            if (!link.startsWith(prefix)
-                    || !MessageDigest.isEqual(
-                            InvitationTokenHash.of(link.substring(prefix.length()))
-                                    .getBytes(StandardCharsets.US_ASCII),
-                            invitation.tokenHash().getBytes(StandardCharsets.US_ASCII)))
-                throw unavailable();
+            String link = new String(cipher.doFinal(envelope.ciphertext()), StandardCharsets.UTF_8);
+            verifyDecryptedLink(invitation, link);
             return link;
         } catch (GeneralSecurityException | IllegalArgumentException failure) {
             throw unavailable();
         }
+    }
+
+    private static void verifyDecryptedLink(Invitation invitation, String link) {
+        String prefix = "pocoma://invitation/";
+        if (!link.startsWith(prefix)) throw unavailable();
+        byte[] actualHash =
+                InvitationTokenHash.of(link.substring(prefix.length()))
+                        .getBytes(StandardCharsets.US_ASCII);
+        byte[] expectedHash = invitation.tokenHash().getBytes(StandardCharsets.US_ASCII);
+        if (!MessageDigest.isEqual(actualHash, expectedHash)) throw unavailable();
     }
 
     private static String encode(byte[] bytes) {

@@ -133,22 +133,37 @@ public final class StageHandoffTracker
         public Map<String, Object> toMap(boolean includeBusinessIds) {
             var m = new LinkedHashMap<String, Object>();
             if (includeBusinessIds) {
-                m.put("commandId", commandId.toString());
-                m.put("potId", potId != null ? potId.toString() : null);
-                m.put("resultingVersion", resultingVersion);
-                m.put("potEventId", potEventId != null ? potEventId.toString() : null);
-                m.put("completionEventId", completionEventId != null ? completionEventId.toString() : null);
+                putBusinessIds(m);
             }
+            putTimestamps(m);
+            putDurations(m);
+            putProjections(m);
+            putC03Readiness(m);
+            return m;
+        }
+
+        private void putBusinessIds(Map<String, Object> m) {
+            m.put("commandId", commandId.toString());
+            m.put("potId", uuidStringOrNull(potId));
+            m.put("resultingVersion", resultingVersion);
+            m.put("potEventId", uuidStringOrNull(potEventId));
+            m.put("completionEventId", uuidStringOrNull(completionEventId));
+        }
+
+        private void putTimestamps(Map<String, Object> m) {
             m.put("partition", partition);
             m.put("attempts", attempts);
-            m.put("status", terminalStatus != null ? terminalStatus.name() : (t1Nanos > 0 ? "EXECUTING" : "PENDING"));
+            m.put("status", resolveStatus());
             m.put("missingDataReason", missingDataReason());
-            m.put("t0EpochMs", t0EpochMs > 0 ? t0EpochMs : null);
-            m.put("t0aEpochMs", t0aEpochMs > 0 ? t0aEpochMs : null);
-            m.put("t0bEpochMs", t0bEpochMs > 0 ? t0bEpochMs : null);
-            m.put("t0cEpochMs", t0cEpochMs > 0 ? t0cEpochMs : null);
-            m.put("t1EpochMs", t1EpochMs > 0 ? t1EpochMs : null);
-            m.put("t2EpochMs", t2EpochMs > 0 ? t2EpochMs : null);
+            m.put("t0EpochMs", positiveOrNull(t0EpochMs));
+            m.put("t0aEpochMs", positiveOrNull(t0aEpochMs));
+            m.put("t0bEpochMs", positiveOrNull(t0bEpochMs));
+            m.put("t0cEpochMs", positiveOrNull(t0cEpochMs));
+            m.put("t1EpochMs", positiveOrNull(t1EpochMs));
+            m.put("t2EpochMs", positiveOrNull(t2EpochMs));
+        }
+
+        private void putDurations(Map<String, Object> m) {
             m.put("commandWaitMs", commandWaitMs);
             m.put("waitBeforeDiscoveryMs", waitBeforeDiscoveryMs);
             m.put("discoveryToSlotMs", discoveryToSlotMs);
@@ -157,30 +172,54 @@ public final class StageHandoffTracker
             m.put("t0aToT1Ms", t0aToT1Ms);
             m.put("commandProcessingMs", commandProcessingMs);
             m.put("t1ToT2Ms", commandProcessingMs);
+        }
 
+        private void putProjections(Map<String, Object> m) {
             var projs = new LinkedHashMap<String, Object>();
             for (var entry : projections.entrySet()) {
                 projs.put(entry.getKey(), entry.getValue().toMap());
             }
             m.put("projections", projs);
+        }
 
-            // Compute C-03 readiness: requires PotBalance and PotVersion
+        private void putC03Readiness(Map<String, Object> m) {
             var pv = projections.get("PotVersion");
             var pb = projections.get("PotBalance");
-            if (pv != null && pb != null && pv.t4EpochMs > 0 && pb.t4EpochMs > 0) {
-                long c03Epoch = Math.max(pv.t4EpochMs, pb.t4EpochMs);
-                m.put("c03ReadyEpochMs", c03Epoch);
-                if (t2EpochMs > 0) {
-                    m.put("c03ReadWaitMs", Math.max(0.0, (c03Epoch - t2EpochMs)));
-                } else {
-                    m.put("c03ReadWaitMs", null);
-                }
-            } else {
+            if (!hasPositiveT4(pv) || !hasPositiveT4(pb)) {
                 m.put("c03ReadyEpochMs", null);
                 m.put("c03ReadWaitMs", null);
+                return;
             }
-            return m;
+            long c03Epoch = Math.max(pv.t4EpochMs, pb.t4EpochMs);
+            m.put("c03ReadyEpochMs", c03Epoch);
+            m.put("c03ReadWaitMs", t2EpochMs > 0 ? Math.max(0.0, (c03Epoch - t2EpochMs)) : null);
         }
+
+        private String resolveStatus() {
+            if (terminalStatus != null) return terminalStatus.name();
+            return t1Nanos > 0 ? "EXECUTING" : "PENDING";
+        }
+    }
+
+    private static boolean hasPositiveT4(ProjectionRecord record) {
+        return record != null && record.t4EpochMs > 0;
+    }
+
+    private static Long positiveOrNull(long epochMs) {
+        return epochMs > 0 ? epochMs : null;
+    }
+
+    private static String uuidStringOrNull(UUID id) {
+        return id != null ? id.toString() : null;
+    }
+
+    private static Double elapsedMillisIfValid(long startNanos, long endNanos) {
+        if (startNanos <= 0 || endNanos < startNanos) return null;
+        return roundMillis(endNanos - startNanos);
+    }
+
+    private static double roundMillis(long nanos) {
+        return Math.round((nanos / 1_000_000.0) * 100.0) / 100.0;
     }
 
     private final Map<ConsumptionId, String> consumptionNames = new ConcurrentHashMap<>();
@@ -247,14 +286,24 @@ public final class StageHandoffTracker
 
     private void recordTimer(String name, Duration elapsed, Tags tags) {
         var reg = this.registry;
-        if (reg != null && elapsed != null && !elapsed.isNegative()) {
-            Timer.builder("pocoma.v3." + name)
-                    .tags(tags)
-                    .publishPercentileHistogram()
-                    .serviceLevelObjectives(HISTOGRAM_BUCKETS)
-                    .register(reg)
-                    .record(elapsed);
-        }
+        if (reg == null || elapsed == null) return;
+        if (elapsed.isNegative()) return;
+        Timer.builder("pocoma.v3." + name)
+                .tags(tags)
+                .publishPercentileHistogram()
+                .serviceLevelObjectives(HISTOGRAM_BUCKETS)
+                .register(reg)
+                .record(elapsed);
+    }
+
+    private CommandRecord getOrCreateCommand(UUID commandId) {
+        return commands.computeIfAbsent(
+                commandId,
+                k -> {
+                    evictIfNeeded();
+                    ring.add(k);
+                    return new CommandRecord(k);
+                });
     }
 
     private boolean isCommand(ConsumptionDefinition definition) {
@@ -268,23 +317,18 @@ public final class StageHandoffTracker
     public void onCandidateDiscovered(ConsumptionDefinition definition, int partition, UUID id, long nanos) {
         if (id == null || !isCommand(definition)) return;
         long epoch = System.currentTimeMillis();
-        var rec = commands.computeIfAbsent(id, k -> {
-            evictIfNeeded();
-            ring.add(k);
-            return new CommandRecord(k);
-        });
-        if (rec.t0aNanos == 0) {
-            rec.t0aNanos = nanos;
-            rec.t0aEpochMs = epoch;
-            rec.partition = partition;
-            appendLogLine(
-                    String.format(
-                            Locale.ROOT,
-                            "{\"stage\":\"T0a\",\"commandId\":\"%s\",\"partition\":%d,\"t0aEpochMs\":%d}",
-                            id,
-                            partition,
-                            epoch));
-        }
+        var rec = getOrCreateCommand(id);
+        if (rec.t0aNanos != 0) return;
+        rec.t0aNanos = nanos;
+        rec.t0aEpochMs = epoch;
+        rec.partition = partition;
+        appendLogLine(
+                String.format(
+                        Locale.ROOT,
+                        "{\"stage\":\"T0a\",\"commandId\":\"%s\",\"partition\":%d,\"t0aEpochMs\":%d}",
+                        id,
+                        partition,
+                        epoch));
     }
 
     // T0b: Slot durably admitted / persisted in consumption_slot
@@ -292,28 +336,20 @@ public final class StageHandoffTracker
     public void onSlotAdmitted(ConsumptionDefinition definition, int partition, UUID id, long nanos) {
         if (id == null || !isCommand(definition)) return;
         long epoch = System.currentTimeMillis();
-        var rec = commands.computeIfAbsent(id, k -> {
-            evictIfNeeded();
-            ring.add(k);
-            return new CommandRecord(k);
-        });
-        if (rec.t0bNanos == 0) {
-            rec.t0bNanos = nanos;
-            rec.t0bEpochMs = epoch;
-            if (rec.partition == null) rec.partition = partition;
-            if (rec.t0aNanos > 0 && nanos >= rec.t0aNanos) {
-                rec.discoveryToSlotMs =
-                        Math.round(((nanos - rec.t0aNanos) / 1_000_000.0) * 100.0) / 100.0;
-            }
-            appendLogLine(
-                    String.format(
-                            Locale.ROOT,
-                            "{\"stage\":\"T0b\",\"commandId\":\"%s\",\"partition\":%d,\"t0bEpochMs\":%d,\"discoveryToSlotMs\":%s}",
-                            id,
-                            partition,
-                            epoch,
-                            rec.discoveryToSlotMs != null ? rec.discoveryToSlotMs : "null"));
-        }
+        var rec = getOrCreateCommand(id);
+        if (rec.t0bNanos != 0) return;
+        rec.t0bNanos = nanos;
+        rec.t0bEpochMs = epoch;
+        if (rec.partition == null) rec.partition = partition;
+        rec.discoveryToSlotMs = elapsedMillisIfValid(rec.t0aNanos, nanos);
+        appendLogLine(
+                String.format(
+                        Locale.ROOT,
+                        "{\"stage\":\"T0b\",\"commandId\":\"%s\",\"partition\":%d,\"t0bEpochMs\":%d,\"discoveryToSlotMs\":%s}",
+                        id,
+                        partition,
+                        epoch,
+                        rec.discoveryToSlotMs != null ? rec.discoveryToSlotMs : "null"));
     }
 
     // T0c: Slot acquired by worker
@@ -321,31 +357,22 @@ public final class StageHandoffTracker
     public void onSlotAcquired(ConsumptionId id, UUID consumableId, int partition, long nanos) {
         if (consumableId == null) return;
         String name = consumptionNames.getOrDefault(id, "unknown");
-        if ("Command".equals(name)) {
-            long epoch = System.currentTimeMillis();
-            var rec = commands.computeIfAbsent(consumableId, k -> {
-                evictIfNeeded();
-                ring.add(k);
-                return new CommandRecord(k);
-            });
-            if (rec.t0cNanos == 0) {
-                rec.t0cNanos = nanos;
-                rec.t0cEpochMs = epoch;
-                if (rec.partition == null) rec.partition = partition;
-                if (rec.t0bNanos > 0 && nanos >= rec.t0bNanos) {
-                    rec.slotAcquisitionWaitMs =
-                            Math.round(((nanos - rec.t0bNanos) / 1_000_000.0) * 100.0) / 100.0;
-                }
-                appendLogLine(
-                        String.format(
-                                Locale.ROOT,
-                                "{\"stage\":\"T0c\",\"commandId\":\"%s\",\"partition\":%d,\"t0cEpochMs\":%d,\"slotAcquisitionWaitMs\":%s}",
-                                consumableId,
-                                partition,
-                                epoch,
-                                rec.slotAcquisitionWaitMs != null ? rec.slotAcquisitionWaitMs : "null"));
-            }
-        }
+        if (!"Command".equals(name)) return;
+        long epoch = System.currentTimeMillis();
+        var rec = getOrCreateCommand(consumableId);
+        if (rec.t0cNanos != 0) return;
+        rec.t0cNanos = nanos;
+        rec.t0cEpochMs = epoch;
+        if (rec.partition == null) rec.partition = partition;
+        rec.slotAcquisitionWaitMs = elapsedMillisIfValid(rec.t0bNanos, nanos);
+        appendLogLine(
+                String.format(
+                        Locale.ROOT,
+                        "{\"stage\":\"T0c\",\"commandId\":\"%s\",\"partition\":%d,\"t0cEpochMs\":%d,\"slotAcquisitionWaitMs\":%s}",
+                        consumableId,
+                        partition,
+                        epoch,
+                        rec.slotAcquisitionWaitMs != null ? rec.slotAcquisitionWaitMs : "null"));
     }
 
     @FunctionalInterface
@@ -428,94 +455,92 @@ public final class StageHandoffTracker
         if (id == null || consumableId == null) return;
         String name = consumptionNames.getOrDefault(id, "unknown");
         long epoch = System.currentTimeMillis();
-
         if ("Command".equals(name)) {
-            // T1: Command worker starts attempt
-            var rec = commands.computeIfAbsent(consumableId, k -> {
-                evictIfNeeded();
-                ring.add(k);
-                return new CommandRecord(k);
-            });
-            rec.attempts++;
-            if (rec.t1Nanos == 0) {
-                rec.t1Nanos = startNanos;
-                rec.t1EpochMs = epoch;
-                if (rec.t0aNanos > 0 && startNanos >= rec.t0aNanos) {
-                    rec.t0aToT1Ms =
-                            Math.round(((startNanos - rec.t0aNanos) / 1_000_000.0) * 100.0) / 100.0;
-                }
-                if (rec.t0bNanos >= rec.t0aNanos && rec.t0aNanos > 0) {
-                    rec.discoveryToSlotMs =
-                            Math.round(((rec.t0bNanos - rec.t0aNanos) / 1_000_000.0) * 100.0) / 100.0;
-                }
-                if (rec.t0cNanos >= rec.t0bNanos && rec.t0bNanos > 0) {
-                    rec.slotAcquisitionWaitMs =
-                            Math.round(((rec.t0cNanos - rec.t0bNanos) / 1_000_000.0) * 100.0) / 100.0;
-                }
-                if (startNanos >= rec.t0cNanos && rec.t0cNanos > 0) {
-                    rec.acquisitionToAttemptMs =
-                            Math.round(((startNanos - rec.t0cNanos) / 1_000_000.0) * 100.0) / 100.0;
-                }
-                if (rec.t0Nanos > 0 && startNanos >= rec.t0Nanos) {
-                    long waitNanos = startNanos - rec.t0Nanos;
-                    rec.commandWaitMs = Math.round((waitNanos / 1_000_000.0) * 100.0) / 100.0;
-                    recordTimer(
-                            "handoff.wait",
-                            Duration.ofNanos(waitNanos),
-                            Tags.of("phase", "command", "consumption", "Command"));
+            recordCommandAttemptStart(consumableId, startNanos, epoch);
+            return;
+        }
+        recordProjectionAttemptStart(name, consumableId, startNanos, epoch);
+    }
 
-                    // Sub-interval A1 (same JVM only)
-                    if (rec.t0aNanos >= rec.t0Nanos) {
-                        rec.waitBeforeDiscoveryMs =
-                                Math.round(((rec.t0aNanos - rec.t0Nanos) / 1_000_000.0) * 100.0) / 100.0;
-                    }
-                }
-                appendLogLine(
-                        String.format(
-                                Locale.ROOT,
-                                "{\"stage\":\"T1\",\"commandId\":\"%s\",\"partition\":%s,\"t1EpochMs\":%d,\"t0aToT1Ms\":%s,\"discoveryToSlotMs\":%s,\"slotAcquisitionWaitMs\":%s,\"acquisitionToAttemptMs\":%s}",
-                                consumableId,
-                                rec.partition != null ? rec.partition : "null",
-                                epoch,
-                                rec.t0aToT1Ms != null ? rec.t0aToT1Ms : "null",
-                                rec.discoveryToSlotMs != null ? rec.discoveryToSlotMs : "null",
-                                rec.slotAcquisitionWaitMs != null ? rec.slotAcquisitionWaitMs : "null",
-                                rec.acquisitionToAttemptMs != null ? rec.acquisitionToAttemptMs : "null"));
-            }
-        } else {
-            // T3: Read projection starts attempt
-            var eventProjMap =
-                    eventProjections.computeIfAbsent(consumableId, k -> new ConcurrentHashMap<>());
-            var eventProj = eventProjMap.computeIfAbsent(name, ProjectionRecord::new);
-            if (eventProj.t3Nanos == 0) {
-                eventProj.t3Nanos = startNanos;
-                eventProj.t3EpochMs = epoch;
-            }
-            UUID commandId = eventToCommand.get(consumableId);
-            if (commandId != null) {
-                var rec = commands.get(commandId);
-                if (rec != null) {
-                    var proj = rec.projections.computeIfAbsent(name, ProjectionRecord::new);
-                    proj.t3Nanos = startNanos;
-                    proj.t3EpochMs = epoch;
-                    if (rec.t2Nanos > 0 && startNanos >= rec.t2Nanos) {
-                        long waitNanos = startNanos - rec.t2Nanos;
-                        proj.readWaitMs = Math.round((waitNanos / 1_000_000.0) * 100.0) / 100.0;
-                        eventProj.readWaitMs = proj.readWaitMs;
-                        recordTimer(
-                                "handoff.wait",
-                                Duration.ofNanos(waitNanos),
-                                Tags.of("phase", "read", "consumption", name));
-                    }
-                }
-            }
-            appendLogLine(
-                    String.format(
-                            Locale.ROOT,
-                            "{\"stage\":\"T3\",\"eventId\":\"%s\",\"consumption\":\"%s\",\"t3EpochMs\":%d}",
-                            consumableId,
-                            name,
-                            epoch));
+    private void recordCommandAttemptStart(UUID commandId, long startNanos, long epoch) {
+        var rec = getOrCreateCommand(commandId);
+        rec.attempts++;
+        if (rec.t1Nanos != 0) return;
+        rec.t1Nanos = startNanos;
+        rec.t1EpochMs = epoch;
+        populateCommandStartDurations(rec, startNanos);
+        logT1(commandId, rec, epoch);
+    }
+
+    private void populateCommandStartDurations(CommandRecord rec, long startNanos) {
+        rec.t0aToT1Ms = elapsedMillisIfValid(rec.t0aNanos, startNanos);
+        if (rec.t0bNanos >= rec.t0aNanos && rec.t0aNanos > 0) {
+            rec.discoveryToSlotMs = roundMillis(rec.t0bNanos - rec.t0aNanos);
+        }
+        if (rec.t0cNanos >= rec.t0bNanos && rec.t0bNanos > 0) {
+            rec.slotAcquisitionWaitMs = roundMillis(rec.t0cNanos - rec.t0bNanos);
+        }
+        rec.acquisitionToAttemptMs = elapsedMillisIfValid(rec.t0cNanos, startNanos);
+        if (rec.t0Nanos > 0 && startNanos >= rec.t0Nanos) {
+            long waitNanos = startNanos - rec.t0Nanos;
+            rec.commandWaitMs = roundMillis(waitNanos);
+            recordTimer(
+                    "handoff.wait",
+                    Duration.ofNanos(waitNanos),
+                    Tags.of("phase", "command", "consumption", "Command"));
+            rec.waitBeforeDiscoveryMs = elapsedMillisIfValid(rec.t0Nanos, rec.t0aNanos);
+        }
+    }
+
+    private void logT1(UUID commandId, CommandRecord rec, long epoch) {
+        appendLogLine(
+                String.format(
+                        Locale.ROOT,
+                        "{\"stage\":\"T1\",\"commandId\":\"%s\",\"partition\":%s,\"t1EpochMs\":%d,\"t0aToT1Ms\":%s,\"discoveryToSlotMs\":%s,\"slotAcquisitionWaitMs\":%s,\"acquisitionToAttemptMs\":%s}",
+                        commandId,
+                        rec.partition != null ? rec.partition : "null",
+                        epoch,
+                        rec.t0aToT1Ms != null ? rec.t0aToT1Ms : "null",
+                        rec.discoveryToSlotMs != null ? rec.discoveryToSlotMs : "null",
+                        rec.slotAcquisitionWaitMs != null ? rec.slotAcquisitionWaitMs : "null",
+                        rec.acquisitionToAttemptMs != null ? rec.acquisitionToAttemptMs : "null"));
+    }
+
+    private void recordProjectionAttemptStart(
+            String name, UUID eventId, long startNanos, long epoch) {
+        var eventProjMap = eventProjections.computeIfAbsent(eventId, k -> new ConcurrentHashMap<>());
+        var eventProj = eventProjMap.computeIfAbsent(name, ProjectionRecord::new);
+        if (eventProj.t3Nanos == 0) {
+            eventProj.t3Nanos = startNanos;
+            eventProj.t3EpochMs = epoch;
+        }
+        linkProjectionStartToCommand(name, eventId, startNanos, eventProj);
+        appendLogLine(
+                String.format(
+                        Locale.ROOT,
+                        "{\"stage\":\"T3\",\"eventId\":\"%s\",\"consumption\":\"%s\",\"t3EpochMs\":%d}",
+                        eventId,
+                        name,
+                        epoch));
+    }
+
+    private void linkProjectionStartToCommand(
+            String name, UUID eventId, long startNanos, ProjectionRecord eventProj) {
+        UUID commandId = eventToCommand.get(eventId);
+        if (commandId == null) return;
+        var rec = commands.get(commandId);
+        if (rec == null) return;
+        var proj = rec.projections.computeIfAbsent(name, ProjectionRecord::new);
+        proj.t3Nanos = startNanos;
+        proj.t3EpochMs = eventProj.t3EpochMs;
+        if (rec.t2Nanos > 0 && startNanos >= rec.t2Nanos) {
+            long waitNanos = startNanos - rec.t2Nanos;
+            proj.readWaitMs = roundMillis(waitNanos);
+            eventProj.readWaitMs = proj.readWaitMs;
+            recordTimer(
+                    "handoff.wait",
+                    Duration.ofNanos(waitNanos),
+                    Tags.of("phase", "read", "consumption", name));
         }
     }
 
@@ -529,110 +554,126 @@ public final class StageHandoffTracker
         if (id == null || consumableId == null) return;
         String name = consumptionNames.getOrDefault(id, "unknown");
         long epoch = System.currentTimeMillis();
-
         if ("Command".equals(name)) {
-            // T2: Command write transaction commit confirmed
-            var rec = commands.get(consumableId);
-            if (rec != null) {
-                rec.terminalStatus = status;
-                if (status == ConsumptionProtocol.Status.COMMITTED && rec.t2Nanos == 0) {
-                    rec.t2Nanos = finishNanos;
-                    rec.t2EpochMs = epoch;
-                    if (rec.t1Nanos > 0 && finishNanos >= rec.t1Nanos) {
-                        long procNanos = finishNanos - rec.t1Nanos;
-                        rec.commandProcessingMs = Math.round((procNanos / 1_000_000.0) * 100.0) / 100.0;
-                        recordTimer(
-                                "handoff.processing",
-                                Duration.ofNanos(procNanos),
-                                Tags.of("phase", "command", "consumption", "Command"));
-                    }
-                    appendLogLine(
-                            String.format(
-                                    Locale.ROOT,
-                                    "{\"stage\":\"T2\",\"commandId\":\"%s\",\"t2EpochMs\":%d,\"t1ToT2Ms\":%s,\"potId\":%s,\"resultingVersion\":%s,\"potEventId\":%s,\"completionEventId\":%s}",
-                                    consumableId,
-                                    epoch,
-                                    rec.commandProcessingMs != null ? rec.commandProcessingMs : "null",
-                                    rec.potId != null ? "\"" + rec.potId + "\"" : "null",
-                                    rec.resultingVersion != null ? rec.resultingVersion : "null",
-                                    rec.potEventId != null ? "\"" + rec.potEventId + "\"" : "null",
-                                    rec.completionEventId != null ? "\"" + rec.completionEventId + "\"" : "null"));
-                }
-            }
-        } else {
-            // T4: Read projection write transaction commit confirmed
-            if (status != ConsumptionProtocol.Status.COMMITTED) return;
-            Double procMs = null;
-            var eventProjMap =
-                    eventProjections.computeIfAbsent(consumableId, k -> new ConcurrentHashMap<>());
-            var eventProj = eventProjMap.computeIfAbsent(name, ProjectionRecord::new);
-            eventProj.t4Nanos = finishNanos;
-            eventProj.t4EpochMs = epoch;
-            if (eventProj.t3Nanos > 0 && finishNanos >= eventProj.t3Nanos) {
-                long procNanos = finishNanos - eventProj.t3Nanos;
-                procMs = Math.round((procNanos / 1_000_000.0) * 100.0) / 100.0;
-                eventProj.readProcessingMs = procMs;
-                recordTimer(
-                        "handoff.processing",
-                        Duration.ofNanos(procNanos),
-                        Tags.of("phase", "read", "consumption", name));
-            }
-            UUID commandId = eventToCommand.get(consumableId);
-            if (commandId != null) {
-                var rec = commands.get(commandId);
-                if (rec != null) {
-                    var proj = rec.projections.computeIfAbsent(name, ProjectionRecord::new);
-                    proj.t4Nanos = finishNanos;
-                    proj.t4EpochMs = epoch;
-                    if (proj.t3Nanos > 0 && finishNanos >= proj.t3Nanos) {
-                        long procNanos = finishNanos - proj.t3Nanos;
-                        proj.readProcessingMs = Math.round((procNanos / 1_000_000.0) * 100.0) / 100.0;
-                    }
-                    checkC03Ready(rec);
-                }
-            }
-            appendLogLine(
-                    String.format(
-                            Locale.ROOT,
-                            "{\"stage\":\"T4\",\"eventId\":\"%s\",\"consumption\":\"%s\",\"t4EpochMs\":%d,\"t3ToT4Ms\":%s}",
-                            consumableId,
-                            name,
-                            epoch,
-                            procMs != null ? procMs : "null"));
+            recordCommandAttemptFinish(consumableId, status, finishNanos, epoch);
+            return;
         }
+        if (status != ConsumptionProtocol.Status.COMMITTED) return;
+        recordProjectionAttemptFinish(name, consumableId, finishNanos, epoch);
+    }
+
+    private void recordCommandAttemptFinish(
+            UUID commandId, ConsumptionProtocol.Status status, long finishNanos, long epoch) {
+        var rec = commands.get(commandId);
+        if (rec == null) return;
+        rec.terminalStatus = status;
+        if (status != ConsumptionProtocol.Status.COMMITTED || rec.t2Nanos != 0) return;
+        rec.t2Nanos = finishNanos;
+        rec.t2EpochMs = epoch;
+        if (rec.t1Nanos > 0 && finishNanos >= rec.t1Nanos) {
+            long procNanos = finishNanos - rec.t1Nanos;
+            rec.commandProcessingMs = roundMillis(procNanos);
+            recordTimer(
+                    "handoff.processing",
+                    Duration.ofNanos(procNanos),
+                    Tags.of("phase", "command", "consumption", "Command"));
+        }
+        logT2(commandId, rec, epoch);
+    }
+
+    private void logT2(UUID commandId, CommandRecord rec, long epoch) {
+        appendLogLine(
+                String.format(
+                        Locale.ROOT,
+                        "{\"stage\":\"T2\",\"commandId\":\"%s\",\"t2EpochMs\":%d,\"t1ToT2Ms\":%s,\"potId\":%s,\"resultingVersion\":%s,\"potEventId\":%s,\"completionEventId\":%s}",
+                        commandId,
+                        epoch,
+                        valueOrNullLiteral(rec.commandProcessingMs),
+                        quotedUuidOrNullLiteral(rec.potId),
+                        valueOrNullLiteral(rec.resultingVersion),
+                        quotedUuidOrNullLiteral(rec.potEventId),
+                        quotedUuidOrNullLiteral(rec.completionEventId)));
+    }
+
+    private static Object valueOrNullLiteral(Object value) {
+        return value != null ? value : "null";
+    }
+
+    private static String quotedUuidOrNullLiteral(UUID id) {
+        return id != null ? "\"" + id + "\"" : "null";
+    }
+
+    private void recordProjectionAttemptFinish(
+            String name, UUID eventId, long finishNanos, long epoch) {
+        var eventProjMap = eventProjections.computeIfAbsent(eventId, k -> new ConcurrentHashMap<>());
+        var eventProj = eventProjMap.computeIfAbsent(name, ProjectionRecord::new);
+        eventProj.t4Nanos = finishNanos;
+        eventProj.t4EpochMs = epoch;
+        Double procMs = elapsedMillisIfValid(eventProj.t3Nanos, finishNanos);
+        if (procMs != null) {
+            eventProj.readProcessingMs = procMs;
+            recordTimer(
+                    "handoff.processing",
+                    Duration.ofNanos(finishNanos - eventProj.t3Nanos),
+                    Tags.of("phase", "read", "consumption", name));
+        }
+        linkProjectionFinishToCommand(name, eventId, finishNanos, epoch);
+        appendLogLine(
+                String.format(
+                        Locale.ROOT,
+                        "{\"stage\":\"T4\",\"eventId\":\"%s\",\"consumption\":\"%s\",\"t4EpochMs\":%d,\"t3ToT4Ms\":%s}",
+                        eventId,
+                        name,
+                        epoch,
+                        procMs != null ? procMs : "null"));
+    }
+
+    private void linkProjectionFinishToCommand(
+            String name, UUID eventId, long finishNanos, long epoch) {
+        UUID commandId = eventToCommand.get(eventId);
+        if (commandId == null) return;
+        var rec = commands.get(commandId);
+        if (rec == null) return;
+        var proj = rec.projections.computeIfAbsent(name, ProjectionRecord::new);
+        proj.t4Nanos = finishNanos;
+        proj.t4EpochMs = epoch;
+        proj.readProcessingMs = elapsedMillisIfValid(proj.t3Nanos, finishNanos);
+        checkC03Ready(rec);
     }
 
     private void checkC03Ready(CommandRecord rec) {
-        var pv = rec.projections.get("PotVersion");
-        if (pv == null) pv = rec.projections.get("MaterializePotVersion");
-        var pb = rec.projections.get("PotBalance");
-        if (pb == null) pb = rec.projections.get("MaterializePotBalance");
-        if (pv != null && pv.t4EpochMs > 0 && pb != null && pb.t4EpochMs > 0) {
-            long maxT4 = Math.max(pv.t4EpochMs, pb.t4EpochMs);
-            rec.c03ReadyEpochMs = maxT4;
-            if (rec.t2EpochMs > 0 && maxT4 >= rec.t2EpochMs) {
-                rec.c03ReadWaitMs = (double) (maxT4 - rec.t2EpochMs);
-            }
+        var pv = findProjection(rec, "PotVersion", "MaterializePotVersion");
+        var pb = findProjection(rec, "PotBalance", "MaterializePotBalance");
+        if (!hasPositiveT4(pv) || !hasPositiveT4(pb)) return;
+        long maxT4 = Math.max(pv.t4EpochMs, pb.t4EpochMs);
+        rec.c03ReadyEpochMs = maxT4;
+        if (rec.t2EpochMs > 0 && maxT4 >= rec.t2EpochMs) {
+            rec.c03ReadWaitMs = (double) (maxT4 - rec.t2EpochMs);
         }
+    }
+
+    private static ProjectionRecord findProjection(
+            CommandRecord rec, String primary, String fallback) {
+        var found = rec.projections.get(primary);
+        return found != null ? found : rec.projections.get(fallback);
     }
 
     private void evictIfNeeded() {
         while (ring.size() > MAX_TRACKED_COMMANDS) {
             UUID evicted = ring.pollFirst();
-            if (evicted != null) {
-                var rec = commands.remove(evicted);
-                if (rec != null) {
-                    if (rec.potEventId != null) {
-                        eventToCommand.remove(rec.potEventId);
-                        eventProjections.remove(rec.potEventId);
-                    }
-                    if (rec.completionEventId != null) {
-                        eventToCommand.remove(rec.completionEventId);
-                        eventProjections.remove(rec.completionEventId);
-                    }
-                }
+            if (evicted == null) continue;
+            var rec = commands.remove(evicted);
+            if (rec != null) {
+                removeEventMapping(rec.potEventId);
+                removeEventMapping(rec.completionEventId);
             }
         }
+    }
+
+    private void removeEventMapping(UUID eventId) {
+        if (eventId == null) return;
+        eventToCommand.remove(eventId);
+        eventProjections.remove(eventId);
     }
 
     public void clear() {
@@ -651,11 +692,22 @@ public final class StageHandoffTracker
     }
 
     public Map<String, Object> snapshot(int limit, Long sinceEpochMs, boolean includeBusinessIds) {
-        var result = new LinkedHashMap<String, Object>();
-        var list = new ArrayList<Map<String, Object>>();
-        int count = 0;
         int max = limit > 0 ? limit : 2000;
+        var partitionStats = initPartitionStats();
+        var list = collectSnapshotRecords(max, sinceEpochMs, includeBusinessIds, partitionStats);
+        var exportedEventProjections =
+                includeBusinessIds ? exportEventProjections(max) : new LinkedHashMap<String, Map<String, Object>>();
 
+        var result = new LinkedHashMap<String, Object>();
+        result.put("totalTracked", ring.size());
+        result.put("returned", list.size());
+        result.put("partitionStats", partitionStats);
+        result.put("records", list);
+        result.put("eventProjections", exportedEventProjections);
+        return result;
+    }
+
+    private static Map<String, Map<String, Object>> initPartitionStats() {
         var partitionStats = new LinkedHashMap<String, Map<String, Object>>();
         for (int p = 0; p < 4; p++) {
             var pMap = new LinkedHashMap<String, Object>();
@@ -668,49 +720,64 @@ public final class StageHandoffTracker
             pMap.put("attemptFinished", 0);
             partitionStats.put("partition_" + p, pMap);
         }
+        return partitionStats;
+    }
 
+    private List<Map<String, Object>> collectSnapshotRecords(
+            int max,
+            Long sinceEpochMs,
+            boolean includeBusinessIds,
+            Map<String, Map<String, Object>> partitionStats) {
+        var list = new ArrayList<Map<String, Object>>();
         for (UUID cid : ring) {
             var rec = commands.get(cid);
-            if (rec != null) {
-                if (sinceEpochMs != null && sinceEpochMs > 0 && rec.t0EpochMs > 0 && rec.t0EpochMs < sinceEpochMs) {
-                    continue;
+            if (rec == null || isBeforeSince(rec, sinceEpochMs)) continue;
+            updatePartitionStats(partitionStats, rec);
+            list.add(rec.toMap(includeBusinessIds));
+            if (list.size() >= max) break;
+        }
+        return list;
+    }
+
+    private static boolean isBeforeSince(CommandRecord rec, Long sinceEpochMs) {
+        if (sinceEpochMs == null || sinceEpochMs <= 0) return false;
+        return rec.t0EpochMs > 0 && rec.t0EpochMs < sinceEpochMs;
+    }
+
+    private static void updatePartitionStats(
+            Map<String, Map<String, Object>> partitionStats, CommandRecord rec) {
+        if (rec.partition == null) return;
+        if (rec.partition < 0 || rec.partition >= 4) return;
+        var pMap = partitionStats.get("partition_" + rec.partition);
+        if (pMap == null) return;
+        incrementStat(pMap, "totalTracked");
+        incrementIfPositive(pMap, "discovered", rec.t0aNanos);
+        incrementIfPositive(pMap, "slotPersisted", rec.t0bNanos);
+        incrementIfPositive(pMap, "slotAcquired", rec.t0cNanos);
+        incrementIfPositive(pMap, "attemptStarted", rec.t1Nanos);
+        incrementIfPositive(pMap, "attemptFinished", rec.t2Nanos);
+    }
+
+    private static void incrementIfPositive(Map<String, Object> pMap, String key, long nanos) {
+        if (nanos > 0) incrementStat(pMap, key);
+    }
+
+    private static void incrementStat(Map<String, Object> pMap, String key) {
+        pMap.put(key, (int) pMap.get(key) + 1);
+    }
+
+    private Map<String, Map<String, Object>> exportEventProjections(int max) {
+        var exported = new LinkedHashMap<String, Map<String, Object>>();
+        synchronized (eventProjections) {
+            for (var entry : eventProjections.entrySet()) {
+                var projMap = new LinkedHashMap<String, Object>();
+                for (var projection : entry.getValue().entrySet()) {
+                    projMap.put(projection.getKey(), projection.getValue().toMap());
                 }
-                if (rec.partition != null && rec.partition >= 0 && rec.partition < 4) {
-                    var pMap = partitionStats.get("partition_" + rec.partition);
-                    if (pMap != null) {
-                        pMap.put("totalTracked", (int) pMap.get("totalTracked") + 1);
-                        if (rec.t0aNanos > 0) pMap.put("discovered", (int) pMap.get("discovered") + 1);
-                        if (rec.t0bNanos > 0) pMap.put("slotPersisted", (int) pMap.get("slotPersisted") + 1);
-                        if (rec.t0cNanos > 0) pMap.put("slotAcquired", (int) pMap.get("slotAcquired") + 1);
-                        if (rec.t1Nanos > 0) pMap.put("attemptStarted", (int) pMap.get("attemptStarted") + 1);
-                        if (rec.t2Nanos > 0) pMap.put("attemptFinished", (int) pMap.get("attemptFinished") + 1);
-                    }
-                }
-                list.add(rec.toMap(includeBusinessIds));
-                count++;
-                if (count >= max) break;
+                exported.put(entry.getKey().toString(), projMap);
+                if (exported.size() >= max) break;
             }
         }
-
-        var exportedEventProjections = new LinkedHashMap<String, Map<String, Object>>();
-        if (includeBusinessIds) {
-            synchronized (eventProjections) {
-                for (var entry : eventProjections.entrySet()) {
-                    var projMap = new LinkedHashMap<String, Object>();
-                    for (var projection : entry.getValue().entrySet()) {
-                        projMap.put(projection.getKey(), projection.getValue().toMap());
-                    }
-                    exportedEventProjections.put(entry.getKey().toString(), projMap);
-                    if (exportedEventProjections.size() >= max) break;
-                }
-            }
-        }
-
-        result.put("totalTracked", ring.size());
-        result.put("returned", list.size());
-        result.put("partitionStats", partitionStats);
-        result.put("records", list);
-        result.put("eventProjections", exportedEventProjections);
-        return result;
+        return exported;
     }
 }

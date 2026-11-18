@@ -15,7 +15,7 @@ sys.path.insert(0, str(ROOT/"scripts/performance"))
 import spec09_bench as bench
 
 
-def check(directory):
+def _load_archived_artifacts(directory):
     manifest = json.loads((directory/"archive-manifest.json").read_text())
     raw = {}
     for entry in manifest["artifacts"]:
@@ -28,6 +28,10 @@ def check(directory):
         if entry["originalPath"] in raw:
             raise ValueError("duplicate artifact")
         raw[entry["originalPath"]] = data
+    return raw
+
+
+def _verify_receipts(raw):
     receipts = {name: json.loads(data) for name, data in raw.items()
                 if name.endswith("/receipt.json") and name.startswith("e1")}
     if len(receipts) != 6:
@@ -40,16 +44,10 @@ def check(directory):
                 data = raw[str(Path(path).parent/name)]
                 if hashlib.sha256(data).hexdigest() != sha:
                     raise ValueError("metric reference changed")
-    final = receipts["e1-e3-06/receipt.json"]
-    if final["status"] != "PASS" or final["provenance"]["sha"] != bench.command(["git", "rev-parse", "230feb05"], cwd=ROOT):
-        raise ValueError("final tested SHA/status differs")
-    if len(final["observations"]) != 12 or final["summary"]["observed"] != 12:
-        raise ValueError("final E1 population differs")
-    expected = bench.summarize(final["observations"], 12, 12)
-    if expected != final["summary"] or not final["reconciliation"]["complete"]:
-        raise ValueError("E1 summary/reconciliation differs")
-    bench.validate_progress(final["snapshots"][0], final["snapshots"][-1])
-    crash = final["crashCampaign"]
+    return receipts
+
+
+def _verify_crash_campaign(crash):
     if crash["status"] != "PASS" or len(crash["cases"]) != 2:
         raise ValueError("two actual E3 subjects required")
     for case in crash["cases"]:
@@ -67,6 +65,18 @@ def check(directory):
         raise ValueError("Identity uniqueness differs")
     if identity["read"]["results"] != 1 or not identity["authorizedEmptyNavigation"]:
         raise ValueError("Identity READ usability missing")
+
+
+def _verify_final_receipt(final, raw):
+    if final["status"] != "PASS" or final["provenance"]["sha"] != bench.command(["git", "rev-parse", "230feb05"], cwd=ROOT):
+        raise ValueError("final tested SHA/status differs")
+    if len(final["observations"]) != 12 or final["summary"]["observed"] != 12:
+        raise ValueError("final E1 population differs")
+    expected = bench.summarize(final["observations"], 12, 12)
+    if expected != final["summary"] or not final["reconciliation"]["complete"]:
+        raise ValueError("E1 summary/reconciliation differs")
+    bench.validate_progress(final["snapshots"][0], final["snapshots"][-1])
+    _verify_crash_campaign(final["crashCampaign"])
     for path, sha in final["provenance"]["inputs"].items():
         if bench.digest(ROOT/path) != sha:
             raise ValueError("current input differs from final tested source/artifact: " + path)
@@ -74,6 +84,13 @@ def check(directory):
     seeds = [json.loads(raw[name+"/seed.json"])["fingerprintSha256"] for name in ("e1-03", "e1-e3-05", "e1-e3-06")]
     if len(set(seeds)) != 1:
         raise ValueError("fixed seed changed")
+
+
+def check(directory):
+    raw = _load_archived_artifacts(directory)
+    receipts = _verify_receipts(raw)
+    final = receipts["e1-e3-06/receipt.json"]
+    _verify_final_receipt(final, raw)
     contribution = json.loads(raw["l73-contribution.json"])
     if (contribution["officialPartial"], contribution["closureCandidates"], contribution["automaticPromotions"]) != (15, 1, 0):
         raise ValueError("L7.3 attribution differs")

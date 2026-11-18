@@ -1,18 +1,22 @@
 package com.kartaguez.pocoma.infra.postgres.write;
-import com.kartaguez.pocoma.infra.postgres.core.*;
+
+import com.kartaguez.pocoma.infra.postgres.write.pot.JdbcPotCommandObservation;
+import com.kartaguez.pocoma.infra.postgres.core.bootstrap.*;
+import com.kartaguez.pocoma.infra.postgres.core.consumption.*;
+import com.kartaguez.pocoma.infra.postgres.core.history.*;
 import com.kartaguez.pocoma.orchestrator.consumption.I2ReservedClaimFixture;
 import com.kartaguez.pocoma.contract.consumption.spi.ClaimedSlot;
 import com.kartaguez.pocoma.contract.consumption.spi.LifecycleSettings;
 import com.kartaguez.pocoma.contract.consumption.spi.PartitionLease;
 
 import com.kartaguez.pocoma.domain.consumption.*;
-import com.kartaguez.pocoma.domain.pot.InconsistentPotFactsException;
+import com.kartaguez.pocoma.domain.pot.revision.InconsistentPotFactsException;
 import com.kartaguez.pocoma.contract.consumption.spi.ConsumptionSlotStore;
 import com.kartaguez.pocoma.engine.write.pot.port.execution.*;
 import com.kartaguez.pocoma.engine.write.pot.port.execution.PotCommandStore.Result;
 import com.kartaguez.pocoma.engine.write.pot.port.persistence.*;
 import com.kartaguez.pocoma.engine.write.pot.ExecutePotCommand;
-import com.kartaguez.pocoma.infra.postgres.core.JdbcConsumptionSlotStore;
+import com.kartaguez.pocoma.infra.postgres.core.consumption.JdbcConsumptionSlotStore;
 import com.kartaguez.pocoma.port.transaction.*;
 
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;

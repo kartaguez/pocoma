@@ -22,6 +22,23 @@ class AdmissionArchitectureTest {
                     .withImportOption(ImportOption.Predefined.DO_NOT_INCLUDE_TESTS)
                     .importPackages(ROOT);
 
+    private static final Set<String> FORBIDDEN_ADMISSION_PREFIXES =
+            Set.of(
+                    ROOT + ".infra",
+                    ROOT + ".runtime",
+                    ROOT + ".supra",
+                    ROOT + ".engine.read",
+                    "org.springframework",
+                    "java.sql",
+                    "javax.sql");
+
+    private static boolean isForbiddenAdmissionPackage(JavaClass type) {
+        if (type.getName().equals("java.sql.Timestamp")) return false;
+        String pkg = type.getPackageName();
+        return FORBIDDEN_ADMISSION_PREFIXES.stream()
+                .anyMatch(prefix -> pkg.equals(prefix) || pkg.startsWith(prefix + "."));
+    }
+
     @Test
     void admissionHasNoBusinessAuthorityOrFramework() {
         noClasses()
@@ -33,24 +50,7 @@ class AdmissionArchitectureTest {
                 .dependOnClassesThat(
                         new DescribedPredicate<JavaClass>("forbidden infrastructure or frameworks") {
                             public boolean test(JavaClass type) {
-                                if (type.getName().equals("java.sql.Timestamp")) {
-                                    return false;
-                                }
-                                String pkg = type.getPackageName();
-                                return pkg.startsWith(ROOT + ".infra.")
-                                        || pkg.equals(ROOT + ".infra")
-                                        || pkg.startsWith(ROOT + ".runtime.")
-                                        || pkg.equals(ROOT + ".runtime")
-                                        || pkg.startsWith(ROOT + ".supra.")
-                                        || pkg.equals(ROOT + ".supra")
-                                        || pkg.startsWith(ROOT + ".engine.read.")
-                                        || pkg.equals(ROOT + ".engine.read")
-                                        || pkg.startsWith("org.springframework.")
-                                        || pkg.equals("org.springframework")
-                                        || pkg.startsWith("java.sql.")
-                                        || pkg.equals("java.sql")
-                                        || pkg.startsWith("javax.sql.")
-                                        || pkg.equals("javax.sql");
+                                return isForbiddenAdmissionPackage(type);
                             }
                         })
                 .check(CLASSES);

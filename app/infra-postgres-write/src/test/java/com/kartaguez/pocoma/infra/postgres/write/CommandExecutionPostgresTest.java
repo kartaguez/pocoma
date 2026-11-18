@@ -1,4 +1,9 @@
 package com.kartaguez.pocoma.infra.postgres.write;
+
+import com.kartaguez.pocoma.infra.postgres.write.pot.JdbcPotCommandStore;
+import com.kartaguez.pocoma.infra.postgres.write.pot.JdbcPotHistoryAdapter;
+import com.kartaguez.pocoma.infra.postgres.write.pot.JdbcPotRevisionAdapter;
+import com.kartaguez.pocoma.infra.postgres.write.pot.PotCommandJson;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
@@ -68,17 +73,17 @@ import com.kartaguez.pocoma.contract.writeadmission.PotCommand.UpdateExpenseFina
 import com.kartaguez.pocoma.contract.writeadmission.PotCommand.UpdatePotDetails;
 import com.kartaguez.pocoma.contract.writeadmission.PotCommand.UpdateShareholderDetails;
 import com.kartaguez.pocoma.contract.writeadmission.PotCommand.UpdateShareholderWeights;
-import com.kartaguez.pocoma.domain.pot.Amount;
-import com.kartaguez.pocoma.domain.pot.ComponentRead;
-import com.kartaguez.pocoma.domain.pot.ExpenseDetails;
-import com.kartaguez.pocoma.domain.pot.ExpenseFinancials;
-import com.kartaguez.pocoma.domain.pot.Fraction;
-import com.kartaguez.pocoma.domain.pot.InconsistentPotFactsException;
-import com.kartaguez.pocoma.domain.pot.ShareholderDetails;
+import com.kartaguez.pocoma.domain.pot.value.Amount;
+import com.kartaguez.pocoma.domain.pot.revision.ComponentRead;
+import com.kartaguez.pocoma.domain.pot.expense.ExpenseDetails;
+import com.kartaguez.pocoma.domain.pot.expense.ExpenseFinancials;
+import com.kartaguez.pocoma.domain.pot.value.Fraction;
+import com.kartaguez.pocoma.domain.pot.revision.InconsistentPotFactsException;
+import com.kartaguez.pocoma.domain.pot.shareholder.ShareholderDetails;
 import com.kartaguez.pocoma.domain.pot.ShareholderTransitions;
 import com.kartaguez.pocoma.domain.pot.TransitionResult;
-import com.kartaguez.pocoma.domain.pot.Versioned;
-import com.kartaguez.pocoma.domain.pot.Weight;
+import com.kartaguez.pocoma.domain.pot.revision.Versioned;
+import com.kartaguez.pocoma.domain.pot.value.Weight;
 import com.kartaguez.pocoma.domain.pot.value.Label;
 import com.kartaguez.pocoma.domain.pot.value.Name;
 import com.kartaguez.pocoma.domain.pot.value.UserId;

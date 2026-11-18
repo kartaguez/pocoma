@@ -1,6 +1,6 @@
 package com.kartaguez.pocoma.port.projection;
 
-import com.kartaguez.pocoma.domain.pot.Invitation;
+import com.kartaguez.pocoma.domain.pot.invitation.Invitation;
 
 import java.util.*;
 

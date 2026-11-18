@@ -258,58 +258,52 @@ class CorrelationStore:
         self.journal_path.parent.mkdir(parents=True, exist_ok=True)
         self._journal_file = open(self.journal_path, "a", encoding="utf-8")
 
+    def _classify_admission(self, rec: CorrelationRecord, status: int, cid: str):
+        if status == 202 and not cid.startswith("unassigned"):
+            self.admitted_count += 1
+            self.records[cid] = rec
+            self.terminal_queue.put((cid, 0, time.time() * 1000 + 15))
+            return
+        if status == 503:
+            self.rejected_admission_count += 1
+            rec.failure_reason = "ADMISSION_503_CAPACITY"
+        else:
+            self.error_admission_count += 1
+            rec.failure_reason = f"ADMISSION_ERROR_HTTP_{status}"
+        self.records[cid] = rec
+
+    def _notify_scheduler(self, cid: str, rec: CorrelationRecord, status: int, event_data: Dict[str, Any]):
+        if not self.scheduler:
+            return
+        try:
+            self.scheduler.record_admission(
+                command_id=cid, pot_id=rec.pot_id, operation=rec.operation,
+                status=status, meta=event_data.get("_meta"),
+            )
+        except Exception:
+            pass
+
     def record_admission_event(self, event_data: Dict[str, Any]) -> CorrelationRecord:
         """Processes an admission event emitted by the injector."""
         with self._lock:
             self.emitted_count += 1
             cid = event_data.get("commandId") or f"unassigned-{self.emitted_count}"
             status = int(event_data.get("status", 0))
-
             if len(self.records) >= self.max_capacity:
                 raise OverflowError(f"CorrelationStore capacity {self.max_capacity} exceeded")
-
             rec = CorrelationRecord(
-                command_id=cid,
-                pot_id=event_data.get("potId", ""),
+                command_id=cid, pot_id=event_data.get("potId", ""),
                 t_send=float(event_data.get("t_send", time.time() * 1000)),
                 t_admit=float(event_data.get("t_admit", time.time() * 1000)),
-                admission_status=status,
-                expected_version=int(event_data.get("expectedVersion", 1)),
+                admission_status=status, expected_version=int(event_data.get("expectedVersion", 1)),
                 observed_version=int(event_data.get("observedVersion", 0)),
-                attempts=int(event_data.get("attempts", 1)),
-                retries=int(event_data.get("retries", 0)),
+                attempts=int(event_data.get("attempts", 1)), retries=int(event_data.get("retries", 0)),
                 operation=str(event_data.get("operation", "CreateExpense")),
             )
-
-            if status == 202 and rec.command_id and not rec.command_id.startswith("unassigned"):
-                self.admitted_count += 1
-                self.records[cid] = rec
-                # Enqueue for concurrent observation with initial poll delay of 15ms
-                self.terminal_queue.put((cid, 0, time.time() * 1000 + 15))
-            elif status == 503:
-                self.rejected_admission_count += 1
-                rec.failure_reason = "ADMISSION_503_CAPACITY"
-                self.records[cid] = rec
-            else:
-                self.error_admission_count += 1
-                rec.failure_reason = f"ADMISSION_ERROR_HTTP_{status}"
-                self.records[cid] = rec
-
+            self._classify_admission(rec, status, cid)
             self._journal_file.write(json.dumps(rec.to_dict()) + "\n")
             self._journal_file.flush()
-
-            if self.scheduler:
-                try:
-                    self.scheduler.record_admission(
-                        command_id=cid,
-                        pot_id=rec.pot_id,
-                        operation=rec.operation,
-                        status=status,
-                        meta=event_data.get("_meta"),
-                    )
-                except Exception:
-                    pass
-
+            self._notify_scheduler(cid, rec, status, event_data)
             return rec
 
     def close(self):
@@ -362,111 +356,99 @@ class TerminalObserver:
         for t in self.threads:
             t.join(timeout=2.0)
 
+    def _notify_callback(self, cid: str, pot_id: str, version: Optional[int], outcome: str):
+        if not self.on_terminal_callback:
+            return
+        try:
+            self.on_terminal_callback(cid, pot_id, version, outcome)
+        except Exception:
+            pass
+
+    def _record_terminal_outcome(self, rec: CorrelationRecord, cid: str, data: Dict[str, Any]):
+        rec.t_terminal = time.time() * 1000
+        outcome = data.get("outcome", "UNKNOWN")
+        rec.terminal_status = outcome
+        with self._counter_lock:
+            self.terminalized_count += 1
+            if outcome in ("COMPLETED", "CHANGED", "APPLIED"):
+                self.applied_count += 1
+            elif outcome == "REJECTED":
+                self.rejected_cas_count += 1
+        if outcome in ("COMPLETED", "CHANGED", "APPLIED"):
+            rec.resulting_version = data.get("resultingPotVersion")
+            self.store.read_queue.put((cid, 0, time.time() * 1000 + 10))
+        elif outcome == "REJECTED":
+            rec.failure_reason = f"CAS_REJECTED: {data.get('rejection', 'n/a')}"
+        self._notify_callback(cid, rec.pot_id, data.get("resultingPotVersion"), outcome)
+
+    def _handle_http_error(self, rec: CorrelationRecord, cid: str, attempt: int, code: int):
+        if code == 404:
+            backoff = min(250.0, 20.0 * (2 ** min(attempt, 4)))
+            self.store.terminal_queue.put((cid, attempt + 1, time.time() * 1000 + backoff))
+            return
+        if code == 503:
+            with self._counter_lock:
+                self.total_503 += 1
+            rec.terminal_503 += 1
+            time.sleep(0.04)
+            self.store.terminal_queue.put((cid, attempt + 1, time.time() * 1000 + 100))
+            return
+        if code == 401:
+            try:
+                self.token_getter(force_renew=True)
+            except Exception:
+                pass
+            time.sleep(0.04)
+            self.store.terminal_queue.put((cid, attempt + 1, time.time() * 1000 + 50))
+            return
+        rec.terminal_status = f"HTTP_{code}"
+        rec.failure_reason = f"Terminal probe HTTP {code}"
+        with self._counter_lock:
+            self.terminalized_count += 1
+        self._notify_callback(cid, rec.pot_id, None, f"HTTP_{code}")
+
+    def _process_terminal_item(self, item):
+        cid, attempt, next_poll_ms = item
+        now_ms = time.time() * 1000
+        if now_ms < next_poll_ms:
+            time.sleep(max(0.005, min(0.02, (next_poll_ms - now_ms) / 1000.0)))
+        with self.store._lock:
+            rec = self.store.records.get(cid)
+        if not rec:
+            return
+        if (now_ms - rec.t_admit) > (self.command_timeout_sec * 1000):
+            rec.terminal_status = "TIMEOUT"
+            rec.failure_reason = f"Terminal probe timeout after {self.command_timeout_sec}s"
+            with self._counter_lock:
+                self.timeouts_count += 1
+            self._notify_callback(cid, rec.pot_id, None, "TIMEOUT")
+            return
+        req = urllib.request.Request(
+            f"{self.base_url}/api/v3/commands/{cid}/result",
+            headers={"Authorization": f"Bearer {self.token_getter()}"},
+        )
+        with self._counter_lock:
+            self.total_probes += 1
+        rec.terminal_probes += 1
+        try:
+            with urllib.request.urlopen(req, timeout=5) as resp:
+                if resp.status == 200:
+                    self._record_terminal_outcome(rec, cid, json.loads(resp.read().decode()))
+        except urllib.error.HTTPError as e:
+            self._handle_http_error(rec, cid, attempt, e.code)
+        except Exception:
+            self.store.terminal_queue.put((cid, attempt + 1, time.time() * 1000 + 50))
+
     def _worker_loop(self):
         while not self.stop_event.is_set():
             try:
                 item = self.store.terminal_queue.get(timeout=0.1)
             except queue.Empty:
                 continue
-
-            cid, attempt, next_poll_ms = item
-            now_ms = time.time() * 1000
-
-            if now_ms < next_poll_ms:
-                # Sleep fractionally and re-check stop event
-                sleep_sec = min(0.02, (next_poll_ms - now_ms) / 1000.0)
-                time.sleep(max(0.005, sleep_sec))
-
-            with self.store._lock:
-                rec = self.store.records.get(cid)
-
-            if not rec:
-                self.store.terminal_queue.task_done()
-                continue
-
-            # Check timeout
-            if (now_ms - rec.t_admit) > (self.command_timeout_sec * 1000):
-                rec.terminal_status = "TIMEOUT"
-                rec.failure_reason = f"Terminal probe timeout after {self.command_timeout_sec}s"
-                with self._counter_lock:
-                    self.timeouts_count += 1
-                if self.on_terminal_callback:
-                    try:
-                        self.on_terminal_callback(cid, rec.pot_id, None, "TIMEOUT")
-                    except Exception:
-                        pass
-                self.store.terminal_queue.task_done()
-                continue
-
-            token = self.token_getter()
-            url = f"{self.base_url}/api/v3/commands/{cid}/result"
-            req = urllib.request.Request(url, headers={"Authorization": f"Bearer {token}"})
-
-            with self._counter_lock:
-                self.total_probes += 1
-            rec.terminal_probes += 1
-
             try:
-                with urllib.request.urlopen(req, timeout=5) as resp:
-                    if resp.status == 200:
-                        data = json.loads(resp.read().decode())
-                        rec.t_terminal = time.time() * 1000
-                        outcome = data.get("outcome", "UNKNOWN")
-                        rec.terminal_status = outcome
-                        with self._counter_lock:
-                            self.terminalized_count += 1
-
-                        if outcome in ("COMPLETED", "CHANGED", "APPLIED"):
-                            rec.resulting_version = data.get("resultingPotVersion")
-                            with self._counter_lock:
-                                self.applied_count += 1
-                            self.store.read_queue.put((cid, 0, time.time() * 1000 + 10))
-                        elif outcome == "REJECTED":
-                            with self._counter_lock:
-                                self.rejected_cas_count += 1
-                            rec.failure_reason = f"CAS_REJECTED: {data.get('rejection', 'n/a')}"
-
-                        if self.on_terminal_callback:
-                            try:
-                                self.on_terminal_callback(cid, rec.pot_id, data.get("resultingPotVersion"), outcome)
-                            except Exception:
-                                pass
-
-                        self.store.terminal_queue.task_done()
-                        continue
-            except urllib.error.HTTPError as e:
-                if e.code == 404:
-                    # In-flight: schedule retry with exponential backoff (20ms, 40ms, 80ms, 160ms, cap at 250ms)
-                    backoff = min(250.0, 20.0 * (2 ** min(attempt, 4)))
-                    self.store.terminal_queue.put((cid, attempt + 1, time.time() * 1000 + backoff))
-                elif e.code == 503:
-                    with self._counter_lock:
-                        self.total_503 += 1
-                    rec.terminal_503 += 1
-                    time.sleep(0.04)
-                    self.store.terminal_queue.put((cid, attempt + 1, time.time() * 1000 + 100))
-                elif e.code == 401:
-                    try:
-                        self.token_getter(force_renew=True)
-                    except Exception:
-                        pass
-                    time.sleep(0.04)
-                    self.store.terminal_queue.put((cid, attempt + 1, time.time() * 1000 + 50))
-                else:
-                    rec.terminal_status = f"HTTP_{e.code}"
-                    rec.failure_reason = f"Terminal probe HTTP {e.code}"
-                    with self._counter_lock:
-                        self.terminalized_count += 1
-                    if self.on_terminal_callback:
-                        try:
-                            self.on_terminal_callback(cid, rec.pot_id, None, f"HTTP_{e.code}")
-                        except Exception:
-                            pass
-            except Exception:
-                # Network transient: brief pause and re-queue
-                self.store.terminal_queue.put((cid, attempt + 1, time.time() * 1000 + 50))
-
-            self.store.terminal_queue.task_done()
+                self._process_terminal_item(item)
+            finally:
+                self.store.terminal_queue.task_done()
 
 
 class ReadObserver:
@@ -504,223 +486,147 @@ class ReadObserver:
         for t in self.threads:
             t.join(timeout=2.0)
 
+    def _probe_json(self, url: str, headers: Dict[str, str], rec: CorrelationRecord) -> Optional[Dict[str, Any]]:
+        with self._counter_lock:
+            self.total_read_probes += 1
+        rec.read_probes += 1
+        try:
+            with urllib.request.urlopen(urllib.request.Request(url, headers=headers), timeout=5) as resp:
+                if resp.status == 200:
+                    return json.loads(resp.read().decode())
+        except urllib.error.HTTPError as e:
+            if e.code == 503:
+                with self._counter_lock:
+                    self.total_read_503 += 1
+                rec.read_503 += 1
+            elif e.code == 401:
+                try:
+                    self.token_getter(force_renew=True)
+                except Exception:
+                    pass
+        except Exception:
+            pass
+        return None
+
+    def _process_read_item(self, item):
+        cid, attempt, next_poll_ms = item
+        now_ms = time.time() * 1000
+        if now_ms < next_poll_ms:
+            time.sleep(max(0.005, min(0.02, (next_poll_ms - now_ms) / 1000.0)))
+        with self.store._lock:
+            rec = self.store.records.get(cid)
+        if not rec or rec.resulting_version is None:
+            return
+        if (now_ms - (rec.t_terminal or rec.t_admit)) > (self.read_timeout_sec * 1000):
+            rec.failure_reason = f"READ probe timeout after {self.read_timeout_sec}s"
+            with self._counter_lock:
+                self.read_timeouts_count += 1
+            return
+        v = rec.resulting_version
+        req_headers = {"Authorization": f"Bearer {self.token_getter()}"}
+        if self.binding_token:
+            req_headers["X-Pocoma-Binding-Token"] = self.binding_token
+        bdata = self._probe_json(f"{self.base_url}/api/v3/pots/{rec.pot_id}/versions/{v}/balance", req_headers, rec)
+        if not (bdata and bdata.get("potVersion") == v and bdata.get("balances")):
+            backoff = min(200.0, 20.0 * (2 ** min(attempt, 4)))
+            self.store.read_queue.put((cid, attempt + 1, time.time() * 1000 + backoff))
+            return
+        pdata = self._probe_json(f"{self.base_url}/api/v3/pots/{rec.pot_id}?minVersion={v}", req_headers, rec)
+        if pdata and pdata.get("potVersion", 0) >= v:
+            rec.t_read = time.time() * 1000
+            rec.read_version = v
+            with self._counter_lock:
+                self.read_materialized_count += 1
+        else:
+            backoff = min(200.0, 20.0 * (2 ** min(attempt, 4)))
+            self.store.read_queue.put((cid, attempt + 1, time.time() * 1000 + backoff))
+
     def _worker_loop(self):
         while not self.stop_event.is_set():
             try:
                 item = self.store.read_queue.get(timeout=0.1)
             except queue.Empty:
                 continue
-
-            cid, attempt, next_poll_ms = item
-            now_ms = time.time() * 1000
-
-            if now_ms < next_poll_ms:
-                sleep_sec = min(0.02, (next_poll_ms - now_ms) / 1000.0)
-                time.sleep(max(0.005, sleep_sec))
-
-            with self.store._lock:
-                rec = self.store.records.get(cid)
-
-            if not rec or rec.resulting_version is None:
-                self.store.read_queue.task_done()
-                continue
-
-            start_ref = rec.t_terminal or rec.t_admit
-            if (now_ms - start_ref) > (self.read_timeout_sec * 1000):
-                rec.failure_reason = f"READ probe timeout after {self.read_timeout_sec}s"
-                with self._counter_lock:
-                    self.read_timeouts_count += 1
-                self.store.read_queue.task_done()
-                continue
-
-            token = self.token_getter()
-            pot_id = rec.pot_id
-            v = rec.resulting_version
-
-            req_headers = {"Authorization": f"Bearer {token}"}
-            if self.binding_token:
-                req_headers["X-Pocoma-Binding-Token"] = self.binding_token
-
-            # Step 1: Probe balance
-            bal_url = f"{self.base_url}/api/v3/pots/{pot_id}/versions/{v}/balance"
-            bal_req = urllib.request.Request(bal_url, headers=req_headers)
-
-            with self._counter_lock:
-                self.total_read_probes += 1
-            rec.read_probes += 1
-
-            balance_ok = False
             try:
-                with urllib.request.urlopen(bal_req, timeout=5) as resp:
-                    if resp.status == 200:
-                        bdata = json.loads(resp.read().decode())
-                        if bdata.get("potVersion") == v and bdata.get("balances"):
-                            balance_ok = True
-            except urllib.error.HTTPError as e:
-                if e.code == 503:
-                    with self._counter_lock:
-                        self.total_read_503 += 1
-                    rec.read_503 += 1
-                elif e.code == 401:
-                    try:
-                        self.token_getter(force_renew=True)
-                    except Exception:
-                        pass
-            except Exception:
-                pass
-
-            if not balance_ok:
-                backoff = min(200.0, 20.0 * (2 ** min(attempt, 4)))
-                self.store.read_queue.put((cid, attempt + 1, time.time() * 1000 + backoff))
+                self._process_read_item(item)
+            finally:
                 self.store.read_queue.task_done()
-                continue
-
-            # Step 2: Probe complete pot
-            pot_url = f"{self.base_url}/api/v3/pots/{pot_id}?minVersion={v}"
-            pot_req = urllib.request.Request(pot_url, headers=req_headers)
-
-            with self._counter_lock:
-                self.total_read_probes += 1
-            rec.read_probes += 1
-
-            pot_ok = False
-            try:
-                with urllib.request.urlopen(pot_req, timeout=5) as resp:
-                    if resp.status == 200:
-                        pdata = json.loads(resp.read().decode())
-                        if pdata.get("potVersion", 0) >= v:
-                            pot_ok = True
-            except urllib.error.HTTPError as e:
-                if e.code == 503:
-                    with self._counter_lock:
-                        self.total_read_503 += 1
-                    rec.read_503 += 1
-                elif e.code == 401:
-                    try:
-                        self.token_getter(force_renew=True)
-                    except Exception:
-                        pass
-            except Exception:
-                pass
-
-            if pot_ok:
-                rec.t_read = time.time() * 1000
-                rec.read_version = v
-                with self._counter_lock:
-                    self.read_materialized_count += 1
-            else:
-                backoff = min(200.0, 20.0 * (2 ** min(attempt, 4)))
-                self.store.read_queue.put((cid, attempt + 1, time.time() * 1000 + backoff))
-
-            self.store.read_queue.task_done()
 
 
 class SqlReconciler:
     """Performs read-only PostgreSQL server-side ground truth reconciliation."""
 
     @staticmethod
-    def reconcile(store: CorrelationStore) -> Dict[str, Any]:
-        with store._lock:
-            records = list(store.records.values())
-
-        admitted_records = [r for r in records if r.admission_status == 202 and r.command_id]
-        if not admitted_records:
-            return {
-                "serverTotalAdmitted": 0,
-                "serverApplied": 0,
-                "serverCasRejected": 0,
-                "serverPending": 0,
-                "serverFailed": 0,
-                "serverUnknown": 0,
-                "readMaterializedVerified": 0,
-                "serverTerminalVerified": 0,
-                "reconciliationExact": True,
-            }
-
-        # Query v3_write in chunks of 500 IDs to avoid query length limits
-        cids = [r.command_id for r in admitted_records]
-        chunk_size = 500
+    def _query_server_map(cids: List[str]) -> Dict[str, Tuple[str, Optional[str], Optional[int]]]:
         server_map: Dict[str, Tuple[str, Optional[str], Optional[int]]] = {}
-
-        for i in range(0, len(cids), chunk_size):
-            chunk = cids[i:i + chunk_size]
-            id_list_str = "'" + "','".join(chunk) + "'"
-            sql = f"""
-            SELECT c.request_id, c.status, r.outcome, r.resulting_pot_version
-            FROM v3_write.v3_command c
-            LEFT JOIN v3_write.v3_command_result r ON c.request_id = r.request_id
-            WHERE c.request_id IN ({id_list_str});
-            """
-            cmd = [
-                "docker", "exec", "-i", "-e", f"PGPASSWORD={POSTGRES_PASSWORD}",
-                POSTGRES_CONTAINER, "psql", "-U", POSTGRES_USER, "-d", WRITE_DB, "-tAc", sql
-            ]
+        for i in range(0, len(cids), 500):
+            id_list_str = "'" + "','".join(cids[i:i + 500]) + "'"
+            sql = (
+                "SELECT c.request_id, c.status, r.outcome, r.resulting_pot_version "
+                "FROM v3_write.v3_command c "
+                "LEFT JOIN v3_write.v3_command_result r ON c.request_id = r.request_id "
+                f"WHERE c.request_id IN ({id_list_str});"
+            )
+            cmd = ["docker", "exec", "-i", "-e", f"PGPASSWORD={POSTGRES_PASSWORD}",
+                   POSTGRES_CONTAINER, "psql", "-U", POSTGRES_USER, "-d", WRITE_DB, "-tAc", sql]
             try:
                 res = subprocess.run(cmd, capture_output=True, text=True, timeout=15)
                 if res.returncode == 0:
-                    for line in res.stdout.strip().split("\n"):
-                        if line.strip():
-                            parts = line.strip().split("|")
-                            req_id = parts[0]
-                            st = parts[1]
-                            outcome = parts[2] if len(parts) > 2 and parts[2] else None
-                            v = int(parts[3]) if len(parts) > 3 and parts[3].isdigit() else None
-                            server_map[req_id] = (st, outcome, v)
+                    SqlReconciler._parse_server_rows(res.stdout, server_map)
             except Exception as e:
                 print(f"[Warning] SQL reconciliation query failed for chunk {i}: {e}")
+        return server_map
 
-        # Update records with server state
-        server_applied = 0
-        server_cas_rejected = 0
-        server_pending = 0
-        server_failed = 0
-        server_unknown = 0
-        read_verified = 0
+    @staticmethod
+    def _parse_server_rows(stdout: str, server_map: Dict[str, Tuple[str, Optional[str], Optional[int]]]):
+        for line in stdout.strip().split("\n"):
+            if not line.strip():
+                continue
+            parts = line.strip().split("|")
+            outcome = parts[2] if len(parts) > 2 and parts[2] else None
+            v = int(parts[3]) if len(parts) > 3 and parts[3].isdigit() else None
+            server_map[parts[0]] = (parts[1], outcome, v)
 
-        for r in admitted_records:
-            if r.command_id in server_map:
-                st, outcome, v = server_map[r.command_id]
-                r.server_status = st
-                r.server_outcome = outcome
-                r.server_version = v
-
-                if st == "TERMINAL":
-                    if outcome in ("COMPLETED", "CHANGED", "APPLIED"):
-                        server_applied += 1
-                    elif outcome == "REJECTED":
-                        server_cas_rejected += 1
-                    else:
-                        server_failed += 1
-                elif st == "PENDING":
-                    server_pending += 1
-                else:
-                    server_unknown += 1
-            else:
-                r.server_status = "UNKNOWN"
-                server_unknown += 1
-
-            # Check READ verification
-            if r.server_version is not None and r.resulting_version == r.server_version:
-                r.server_read_materialized = True
-                read_verified += 1
-            else:
-                r.server_read_materialized = False
-
-        total_admitted = len(admitted_records)
-        server_terminal = server_applied + server_cas_rejected + server_failed
-        reconciliation_exact = (total_admitted == (server_terminal + server_pending + server_unknown))
-
+    @staticmethod
+    def reconcile(store: CorrelationStore) -> Dict[str, Any]:
+        with store._lock:
+            admitted = [r for r in store.records.values() if r.admission_status == 202 and r.command_id]
+        if not admitted:
+            return {
+                "serverTotalAdmitted": 0, "serverApplied": 0, "serverCasRejected": 0,
+                "serverPending": 0, "serverFailed": 0, "serverUnknown": 0,
+                "readMaterializedVerified": 0, "serverTerminalVerified": 0, "reconciliationExact": True,
+            }
+        server_map = SqlReconciler._query_server_map([r.command_id for r in admitted])
+        counts = {"applied": 0, "cas": 0, "pending": 0, "failed": 0, "unknown": 0, "read": 0}
+        for r in admitted:
+            SqlReconciler._tally_record(r, server_map.get(r.command_id), counts)
+        total = len(admitted)
+        terminal = counts["applied"] + counts["cas"] + counts["failed"]
         return {
-            "serverTotalAdmitted": total_admitted,
-            "serverApplied": server_applied,
-            "serverCasRejected": server_cas_rejected,
-            "serverPending": server_pending,
-            "serverFailed": server_failed,
-            "serverUnknown": server_unknown,
-            "serverTerminalVerified": server_terminal,
-            "readMaterializedVerified": read_verified,
-            "reconciliationExact": reconciliation_exact,
+            "serverTotalAdmitted": total, "serverApplied": counts["applied"],
+            "serverCasRejected": counts["cas"], "serverPending": counts["pending"],
+            "serverFailed": counts["failed"], "serverUnknown": counts["unknown"],
+            "serverTerminalVerified": terminal, "readMaterializedVerified": counts["read"],
+            "reconciliationExact": total == (terminal + counts["pending"] + counts["unknown"]),
         }
+
+    @staticmethod
+    def _tally_record(r: CorrelationRecord, entry: Optional[Tuple[str, Optional[str], Optional[int]]], counts: Dict[str, int]):
+        if entry is None:
+            r.server_status = "UNKNOWN"
+            counts["unknown"] += 1
+        else:
+            st, outcome, v = entry
+            r.server_status, r.server_outcome, r.server_version = st, outcome, v
+            if st == "TERMINAL":
+                key = "applied" if outcome in ("COMPLETED", "CHANGED", "APPLIED") else ("cas" if outcome == "REJECTED" else "failed")
+                counts[key] += 1
+            else:
+                counts["pending" if st == "PENDING" else "unknown"] += 1
+        r.server_read_materialized = r.server_version is not None and r.resulting_version == r.server_version
+        if r.server_read_materialized:
+            counts["read"] += 1
 
 
 class DecoupledBenchCoordinator:
@@ -804,31 +710,27 @@ class DecoupledBenchCoordinator:
     def mark_injection_ended(self):
         self.injection_stop_time = time.time()
 
+    def _is_drained(self) -> bool:
+        bl_info = normalize_backlog_info(query_db_backlog())
+        return (
+            bl_info["upstreamPending"] == 0
+            and bl_info["slotBufferTotal"] == 0
+            and self.store.terminal_queue.qsize() == 0
+            and self.store.read_queue.qsize() == 0
+        )
+
     def drain(self) -> Dict[str, Any]:
         """Runs the bounded drainage window until all admitted commands complete or timeout."""
         drain_start = time.time()
         drain_deadline = drain_start + self.max_drain_seconds
-
         print(f"\n▶ Step 4: Entering Bounded Drainage Window (Limit: {self.max_drain_seconds}s)...")
         while time.time() < drain_deadline:
-            bl_raw = query_db_backlog()
-            bl_info = normalize_backlog_info(bl_raw)
-            pending_term = self.store.terminal_queue.qsize()
-            pending_read = self.store.read_queue.qsize()
-
-            if (bl_info["upstreamPending"] == 0
-                    and bl_info["slotBufferTotal"] == 0
-                    and pending_term == 0
-                    and pending_read == 0):
+            if self._is_drained():
                 print(f"  ✓ Drainage complete in {time.time() - drain_start:.1f}s (all queues and backlogs drained)")
                 break
-
             time.sleep(0.5)
 
         self.drainage_stop_time = time.time()
-        drain_duration = self.drainage_stop_time - drain_start
-
-        # Stop poller and observers cleanly
         self._poller_stop.set()
         if self._poller_thread:
             self._poller_thread.join(timeout=2.0)
@@ -837,280 +739,181 @@ class DecoupledBenchCoordinator:
         self.store.close()
 
         final_bl = normalize_backlog_info(query_db_backlog())
+        has_backlog = final_bl["upstreamPending"] > 0 or final_bl["slotBufferTotal"] > 0
         return {
-            "drainDurationSec": round(drain_duration, 2),
+            "drainDurationSec": round(self.drainage_stop_time - drain_start, 2),
             "finalUpstreamPending": final_bl["upstreamPending"],
             "finalSlotBufferTotal": final_bl["slotBufferTotal"],
             "finalDbBacklog": final_bl["slotBufferTotal"],
-            "timedOut": time.time() >= drain_deadline and (final_bl["upstreamPending"] > 0 or final_bl["slotBufferTotal"] > 0),
+            "timedOut": time.time() >= drain_deadline and has_backlog,
         }
 
-    def consolidate_metrics(self, demanded_rate: float, injection_target_sec: float) -> Dict[str, Any]:
-        """Consolidates complete E2E metrics, dual-axis populations, and conservation equations."""
-        all_records = list(self.store.records.values())
-
-        if all_records:
-            t0 = min(r.t_send for r in all_records) / 1000.0
-            t1 = self.injection_stop_time if self.injection_stop_time else (max(r.t_send for r in all_records) / 1000.0)
-            inj_duration = max(1.0, round(t1 - t0, 2))
-        else:
-            inj_duration = injection_target_sec
-
-        total_duration = (self.drainage_stop_time - self.injection_start_time) if self.drainage_stop_time else inj_duration
-
-        # Perform read-only SQL reconciliation
-        sql_proof = SqlReconciler.reconcile(self.store)
-
-        # Exact client observation populations
-        admitted_records = [r for r in all_records if r.admission_status == 202]
-        client_terminal_records = [r for r in admitted_records if r.t_terminal is not None]
-        client_applied_records = [r for r in client_terminal_records if r.terminal_status in ("COMPLETED", "CHANGED", "APPLIED")]
-        client_cas_records = [r for r in client_terminal_records if r.terminal_status == "REJECTED"]
-        client_timeout_records = [r for r in admitted_records if r.terminal_status == "TIMEOUT"]
-        client_unpolled = len(admitted_records) - (len(client_applied_records) + len(client_cas_records) + len(client_timeout_records))
-
-        client_read_records = [r for r in client_applied_records if r.t_read is not None]
-        client_read_timeouts = [r for r in client_applied_records if r.t_read is None and r.failure_reason and "READ probe timeout" in r.failure_reason]
-        client_read_unpolled = len(client_applied_records) - (len(client_read_records) + len(client_read_timeouts))
-        complete_records = [r for r in client_read_records if r.is_complete_client]
-
-        # Latency samples
-        adm_latencies = [r.latency_admission_ms for r in admitted_records]
-        term_latencies = [r.latency_terminal_ms for r in client_terminal_records if r.latency_terminal_ms is not None]
-        read_latencies = [r.latency_read_ms for r in client_read_records if r.latency_read_ms is not None]
-        e2e_latencies = [r.latency_e2e_ms for r in complete_records if r.latency_e2e_ms is not None]
-
-        # Rates calculated strictly over homogeneous injection window
-        emitted_rate = round(self.store.emitted_count / inj_duration, 2)
-        admission_rate = round(self.store.admitted_count / inj_duration, 2)
-        client_applied_rate = round(len(client_applied_records) / inj_duration, 2)
-        server_applied_rate = round(sql_proof["serverApplied"] / inj_duration, 2)
-        client_read_rate = round(len(client_read_records) / inj_duration, 2)
-
-        # Generator compliance (mandate: >= 95% demanded rate)
-        gen_ratio = emitted_rate / demanded_rate if demanded_rate > 0 else 1.0
-        is_gen_valid = gen_ratio >= 0.95
-
-        # Strict mathematical conservation equations (no double counting)
-        emitted_eq = (self.store.emitted_count == (
-            self.store.admitted_count + self.store.rejected_admission_count + self.store.error_admission_count
-        ))
-        client_admitted_eq = (len(admitted_records) == (
-            len(client_applied_records) + len(client_cas_records) + len(client_timeout_records) + client_unpolled
-        ))
-        server_admitted_eq = sql_proof["reconciliationExact"]
-        read_eq = (len(client_applied_records) == (
-            len(client_read_records) + len(client_read_timeouts) + client_read_unpolled
-        ))
-
-        coverage_ratio = len(complete_records) / len(admitted_records) if admitted_records else 0.0
-
-        # Per-operation breakdown
-        ops = sorted(list(set(r.operation for r in admitted_records)))
+    @staticmethod
+    def _compute_operation_metrics(admitted_records: List[CorrelationRecord]) -> Dict[str, Any]:
         operation_metrics = {}
-        for op in ops:
+        for op in sorted({r.operation for r in admitted_records}):
             op_admitted = [r for r in admitted_records if r.operation == op]
             op_applied = [r for r in op_admitted if r.terminal_status in ("COMPLETED", "CHANGED", "APPLIED")]
             op_cas = [r for r in op_admitted if r.terminal_status == "REJECTED"]
             op_term = [r for r in op_admitted if r.t_terminal is not None]
             op_read = [r for r in op_applied if r.t_read is not None]
             op_e2e = [r for r in op_applied if r.is_complete_client]
-
             operation_metrics[op] = {
-                "admitted": len(op_admitted),
-                "applied": len(op_applied),
-                "casRejected": len(op_cas),
-                "readMaterialized": len(op_read),
-                "completeE2E": len(op_e2e),
+                "admitted": len(op_admitted), "applied": len(op_applied), "casRejected": len(op_cas),
+                "readMaterialized": len(op_read), "completeE2E": len(op_e2e),
                 "latencies": {
                     "admission": calculate_exact_quantiles([r.latency_admission_ms for r in op_admitted]),
                     "terminal": calculate_exact_quantiles([r.latency_terminal_ms for r in op_term if r.latency_terminal_ms is not None]),
                     "readMaterialization": calculate_exact_quantiles([r.latency_read_ms for r in op_read if r.latency_read_ms is not None]),
                     "e2eTotal": calculate_exact_quantiles([r.latency_e2e_ms for r in op_e2e if r.latency_e2e_ms is not None]),
-                }
+                },
             }
+        return operation_metrics
 
-        # Stage Handoff Correlation & Metrology (Phase B/C/D)
+    @staticmethod
+    def _record_server_handoff(r: CorrelationRecord, srec: Dict[str, Any], state):
+        samples, proj_waits, proj_procs, counters = state
+        r.server_t0_ms, r.server_t0a_ms, r.server_t0b_ms = srec.get("t0EpochMs"), srec.get("t0aEpochMs"), srec.get("t0bEpochMs")
+        r.server_t0c_ms, r.server_t1_ms, r.server_t2_ms = srec.get("t0cEpochMs"), srec.get("t1EpochMs"), srec.get("t2EpochMs")
+        r.partition, r.missing_data_reason = srec.get("partition"), srec.get("missingDataReason")
+        field_map = (
+            ("commandWaitMs", "stage_a_cmd_wait_ms", "cmd_wait"),
+            ("waitBeforeDiscoveryMs", "stage_a1_wait_discovery_ms", "a1"),
+            ("discoveryToSlotMs", "stage_a2_discovery_to_slot_ms", "a2"),
+            ("slotAcquisitionWaitMs", "stage_a3_slot_acq_wait_ms", "a3"),
+            ("acquisitionToAttemptMs", "stage_a4_acq_to_attempt_ms", "a4"),
+            ("commandProcessingMs", "stage_b_cmd_proc_ms", "cmd_proc"),
+            ("c03ReadWaitMs", "stage_c_read_wait_ms", "c03_wait"),
+        )
+        for src_key, attr, bucket in field_map:
+            val = srec.get(src_key)
+            if val is not None:
+                setattr(r, attr, val)
+                samples[bucket].append(val)
+        stages = [srec.get(k) for k in ("waitBeforeDiscoveryMs", "discoveryToSlotMs", "slotAcquisitionWaitMs", "acquisitionToAttemptMs", "commandWaitMs")]
+        if all(v is not None for v in stages):
+            counters["fully"] += 1
+            if abs(sum(stages[:4]) - stages[4]) <= 1.0:
+                counters["reconciled"] += 1
+        for p_name, p_data in srec.get("projections", {}).items():
+            if p_data.get("readWaitMs") is not None:
+                proj_waits.setdefault(p_name, []).append(p_data["readWaitMs"])
+            if p_data.get("readProcessingMs") is not None:
+                proj_procs.setdefault(p_name, []).append(p_data["readProcessingMs"])
+        c03_ready = srec.get("c03ReadyEpochMs")
+        if c03_ready and r.t_read:
+            obs_delay = max(0.0, r.t_read - c03_ready)
+            r.stage_e_obs_wait_ms = obs_delay
+            samples["c03_obs"].append(obs_delay)
+
+    def _correlate_handoff_metrics(self, client_applied_records: List[CorrelationRecord]) -> Dict[str, Any]:
         server_records = fetch_server_stage_handoffs(self.read_obs.base_url)
         server_by_id = {r["commandId"]: r for r in server_records if "commandId" in r}
-
-        cmd_wait_samples: List[float] = []      # A: T1 - T0
-        a1_samples: List[float] = []            # A1: T0a - T0
-        a2_samples: List[float] = []            # A2: T0b - T0a
-        a3_samples: List[float] = []            # A3: T0c - T0b
-        a4_samples: List[float] = []            # A4: T1 - T0c
-        cmd_proc_samples: List[float] = []      # B: T2 - T1
-        c03_wait_samples: List[float] = []      # C: T3(C-03) - T2
-        c03_obs_samples: List[float] = []       # E: T5 - T4_C03
-
+        samples: Dict[str, List[float]] = {k: [] for k in ("cmd_wait", "a1", "a2", "a3", "a4", "cmd_proc", "c03_wait", "c03_obs")}
         proj_waits: Dict[str, List[float]] = {}
         proj_procs: Dict[str, List[float]] = {}
-        reconciled_count = 0
-        fully_correlated_count = 0
-
+        counters = {"reconciled": 0, "fully": 0}
         for r in client_applied_records:
-            srec = server_by_id.get(r.command_id)
-            if srec:
-                r.server_t0_ms = srec.get("t0EpochMs")
-                r.server_t0a_ms = srec.get("t0aEpochMs")
-                r.server_t0b_ms = srec.get("t0bEpochMs")
-                r.server_t0c_ms = srec.get("t0cEpochMs")
-                r.server_t1_ms = srec.get("t1EpochMs")
-                r.server_t2_ms = srec.get("t2EpochMs")
-                r.partition = srec.get("partition")
-                r.missing_data_reason = srec.get("missingDataReason")
-
-                w = srec.get("commandWaitMs")
-                if w is not None:
-                    r.stage_a_cmd_wait_ms = w
-                    cmd_wait_samples.append(w)
-
-                a1 = srec.get("waitBeforeDiscoveryMs")
-                if a1 is not None:
-                    r.stage_a1_wait_discovery_ms = a1
-                    a1_samples.append(a1)
-
-                a2 = srec.get("discoveryToSlotMs")
-                if a2 is not None:
-                    r.stage_a2_discovery_to_slot_ms = a2
-                    a2_samples.append(a2)
-
-                a3 = srec.get("slotAcquisitionWaitMs")
-                if a3 is not None:
-                    r.stage_a3_slot_acq_wait_ms = a3
-                    a3_samples.append(a3)
-
-                a4 = srec.get("acquisitionToAttemptMs")
-                if a4 is not None:
-                    r.stage_a4_acq_to_attempt_ms = a4
-                    a4_samples.append(a4)
-
-                if a1 is not None and a2 is not None and a3 is not None and a4 is not None and w is not None:
-                    fully_correlated_count += 1
-                    if abs((a1 + a2 + a3 + a4) - w) <= 1.0:
-                        reconciled_count += 1
-
-                p = srec.get("commandProcessingMs")
-                if p is not None:
-                    r.stage_b_cmd_proc_ms = p
-                    cmd_proc_samples.append(p)
-
-                rw = srec.get("c03ReadWaitMs")
-                if rw is not None:
-                    r.stage_c_read_wait_ms = rw
-                    c03_wait_samples.append(rw)
-
-                for p_name, p_data in srec.get("projections", {}).items():
-                    if p_data.get("readWaitMs") is not None:
-                        proj_waits.setdefault(p_name, []).append(p_data["readWaitMs"])
-                    if p_data.get("readProcessingMs") is not None:
-                        proj_procs.setdefault(p_name, []).append(p_data["readProcessingMs"])
-
-                c03_ready = srec.get("c03ReadyEpochMs")
-                if c03_ready and r.t_read:
-                    obs_delay = max(0.0, r.t_read - c03_ready)
-                    r.stage_e_obs_wait_ms = obs_delay
-                    c03_obs_samples.append(obs_delay)
-
-        reconcile_rate = (reconciled_count / fully_correlated_count * 100.0) if fully_correlated_count > 0 else 0.0
-
-        handoff_metrics = {
+            if r.command_id in server_by_id:
+                self._record_server_handoff(r, server_by_id[r.command_id], (samples, proj_waits, proj_procs, counters))
+        reconcile_rate = (counters["reconciled"] / counters["fully"] * 100.0) if counters["fully"] > 0 else 0.0
+        return {
             "totalServerTracked": len(server_records),
             "matchedCommands": sum(1 for r in client_applied_records if r.command_id in server_by_id),
-            "fullyCorrelatedCommands": fully_correlated_count,
-            "reconciledDecompositions": reconciled_count,
+            "fullyCorrelatedCommands": counters["fully"],
+            "reconciledDecompositions": counters["reconciled"],
             "reconciliationRatePercent": round(reconcile_rate, 2),
-            "stageA_commandWait": calculate_exact_quantiles(cmd_wait_samples),
-            "stageA1_waitBeforeDiscovery": calculate_exact_quantiles(a1_samples),
-            "stageA2_discoveryToSlot": calculate_exact_quantiles(a2_samples),
-            "stageA3_slotAcquisitionWait": calculate_exact_quantiles(a3_samples),
-            "stageA4_acquisitionToAttempt": calculate_exact_quantiles(a4_samples),
-            "stageB_commandProcessing": calculate_exact_quantiles(cmd_proc_samples),
-            "stageC_c03ReadWait": calculate_exact_quantiles(c03_wait_samples),
-            "stageE_observationWait": calculate_exact_quantiles(c03_obs_samples),
+            "stageA_commandWait": calculate_exact_quantiles(samples["cmd_wait"]),
+            "stageA1_waitBeforeDiscovery": calculate_exact_quantiles(samples["a1"]),
+            "stageA2_discoveryToSlot": calculate_exact_quantiles(samples["a2"]),
+            "stageA3_slotAcquisitionWait": calculate_exact_quantiles(samples["a3"]),
+            "stageA4_acquisitionToAttempt": calculate_exact_quantiles(samples["a4"]),
+            "stageB_commandProcessing": calculate_exact_quantiles(samples["cmd_proc"]),
+            "stageC_c03ReadWait": calculate_exact_quantiles(samples["c03_wait"]),
+            "stageE_observationWait": calculate_exact_quantiles(samples["c03_obs"]),
             "projections": {
-                p: {
-                    "readWait": calculate_exact_quantiles(proj_waits.get(p, [])),
-                    "readProcessing": calculate_exact_quantiles(proj_procs.get(p, [])),
-                }
-                for p in sorted(set(list(proj_waits.keys()) + list(proj_procs.keys())))
-            }
+                p: {"readWait": calculate_exact_quantiles(proj_waits.get(p, [])),
+                    "readProcessing": calculate_exact_quantiles(proj_procs.get(p, []))}
+                for p in sorted(set(proj_waits) | set(proj_procs))
+            },
         }
 
+    def consolidate_metrics(self, demanded_rate: float, injection_target_sec: float) -> Dict[str, Any]:
+        """Consolidates complete E2E metrics, dual-axis populations, and conservation equations."""
+        all_records = list(self.store.records.values())
+        if all_records:
+            t0 = min(r.t_send for r in all_records) / 1000.0
+            t1 = self.injection_stop_time or (max(r.t_send for r in all_records) / 1000.0)
+            inj_duration = max(1.0, round(t1 - t0, 2))
+        else:
+            inj_duration = injection_target_sec
+        total_duration = (self.drainage_stop_time - self.injection_start_time) if self.drainage_stop_time else inj_duration
+        sql_proof = SqlReconciler.reconcile(self.store)
+
+        admitted = [r for r in all_records if r.admission_status == 202]
+        terminal = [r for r in admitted if r.t_terminal is not None]
+        applied = [r for r in terminal if r.terminal_status in ("COMPLETED", "CHANGED", "APPLIED")]
+        cas_rejected = [r for r in terminal if r.terminal_status == "REJECTED"]
+        timeouts = [r for r in admitted if r.terminal_status == "TIMEOUT"]
+        unpolled = len(admitted) - (len(applied) + len(cas_rejected) + len(timeouts))
+        read_records = [r for r in applied if r.t_read is not None]
+        read_timeouts = [r for r in applied if r.t_read is None and r.failure_reason and "READ probe timeout" in r.failure_reason]
+        read_unpolled = len(applied) - (len(read_records) + len(read_timeouts))
+        complete = [r for r in read_records if r.is_complete_client]
+
+        emitted_rate = round(self.store.emitted_count / inj_duration, 2)
+        gen_ratio = emitted_rate / demanded_rate if demanded_rate > 0 else 1.0
+        coverage_ratio = len(complete) / len(admitted) if admitted else 0.0
+        client_admitted_eq = len(admitted) == (len(applied) + len(cas_rejected) + len(timeouts) + unpolled)
         return {
-            "runId": self.run_id,
-            "demandedRate": demanded_rate,
-            "injectionTargetSeconds": injection_target_sec,
-            "injectionActualSeconds": round(inj_duration, 2),
+            "runId": self.run_id, "demandedRate": demanded_rate,
+            "injectionTargetSeconds": injection_target_sec, "injectionActualSeconds": round(inj_duration, 2),
             "totalScenarioSeconds": round(total_duration, 2),
-            "generatorStatus": "LOAD_GENERATOR_VALID" if is_gen_valid else "GENERATOR_LIMITED",
+            "generatorStatus": "LOAD_GENERATOR_VALID" if gen_ratio >= 0.95 else "GENERATOR_LIMITED",
             "generatorRateRatio": round(gen_ratio * 100.0, 1),
             "mixReport": self.scheduler.get_mix_report() if self.scheduler else None,
-            "latenciesByOperation": operation_metrics,
+            "latenciesByOperation": self._compute_operation_metrics(admitted),
             "counts": {
-                "emitted": self.store.emitted_count,
-                "admitted": self.store.admitted_count,
-                "capacityRejected": self.store.rejected_admission_count,
-                "admissionErrors": self.store.error_admission_count,
-
-                # Client Observation counts
-                "clientTerminalized": len(client_terminal_records),
-                "applied": len(client_applied_records),
-                "clientApplied": len(client_applied_records),
-                "clientCasRejected": len(client_cas_records),
-                "clientTimeouts": len(client_timeout_records),
-                "clientUnpolledAtClose": client_unpolled,
-
-                "readMaterialized": len(client_read_records),
-                "clientReadMaterialized": len(client_read_records),
-                "clientReadTimeouts": len(client_read_timeouts),
-                "clientReadUnpolled": client_read_unpolled,
-                "completeE2E": len(complete_records),
-
-                # Server Ground Truth counts
-                "serverApplied": sql_proof["serverApplied"],
-                "serverCasRejected": sql_proof["serverCasRejected"],
-                "serverPending": sql_proof["serverPending"],
-                "serverFailed": sql_proof["serverFailed"],
-                "serverUnknown": sql_proof["serverUnknown"],
-                "serverTerminalVerified": sql_proof["serverTerminalVerified"],
+                "emitted": self.store.emitted_count, "admitted": self.store.admitted_count,
+                "capacityRejected": self.store.rejected_admission_count, "admissionErrors": self.store.error_admission_count,
+                "clientTerminalized": len(terminal), "applied": len(applied), "clientApplied": len(applied),
+                "clientCasRejected": len(cas_rejected), "clientTimeouts": len(timeouts), "clientUnpolledAtClose": unpolled,
+                "readMaterialized": len(read_records), "clientReadMaterialized": len(read_records),
+                "clientReadTimeouts": len(read_timeouts), "clientReadUnpolled": read_unpolled, "completeE2E": len(complete),
+                "serverApplied": sql_proof["serverApplied"], "serverCasRejected": sql_proof["serverCasRejected"],
+                "serverPending": sql_proof["serverPending"], "serverFailed": sql_proof["serverFailed"],
+                "serverUnknown": sql_proof["serverUnknown"], "serverTerminalVerified": sql_proof["serverTerminalVerified"],
                 "serverReadVerified": sql_proof["readMaterializedVerified"],
             },
             "ratesPerSecond": {
-                "demanded": demanded_rate,
-                "emitted": emitted_rate,
-                "admitted": admission_rate,
-                "applied": client_applied_rate,
-                "clientApplied": client_applied_rate,
-                "serverApplied": server_applied_rate,
-                "readMaterialized": client_read_rate,
+                "demanded": demanded_rate, "emitted": emitted_rate,
+                "admitted": round(self.store.admitted_count / inj_duration, 2),
+                "applied": round(len(applied) / inj_duration, 2), "clientApplied": round(len(applied) / inj_duration, 2),
+                "serverApplied": round(sql_proof["serverApplied"] / inj_duration, 2),
+                "readMaterialized": round(len(read_records) / inj_duration, 2),
             },
             "coverage": {
-                "completeOverAdmitted": round(coverage_ratio, 4),
-                "percentage": round(coverage_ratio * 100.0, 2),
-                "clientObservedPercentage": round((len(client_terminal_records) / len(admitted_records) * 100.0), 2) if admitted_records else 0.0,
-                "serverVerifiedPercentage": round((sql_proof["serverTerminalVerified"] / len(admitted_records) * 100.0), 2) if admitted_records else 0.0,
+                "completeOverAdmitted": round(coverage_ratio, 4), "percentage": round(coverage_ratio * 100.0, 2),
+                "clientObservedPercentage": round((len(terminal) / len(admitted) * 100.0), 2) if admitted else 0.0,
+                "serverVerifiedPercentage": round((sql_proof["serverTerminalVerified"] / len(admitted) * 100.0), 2) if admitted else 0.0,
             },
             "conservations": {
-                "emittedEquation": emitted_eq,
-                "admittedEquation": client_admitted_eq,
-                "clientAdmittedEquation": client_admitted_eq,
-                "serverAdmittedEquation": server_admitted_eq,
-                "readMaterializedEquation": read_eq,
+                "emittedEquation": self.store.emitted_count == (self.store.admitted_count + self.store.rejected_admission_count + self.store.error_admission_count),
+                "admittedEquation": client_admitted_eq, "clientAdmittedEquation": client_admitted_eq,
+                "serverAdmittedEquation": sql_proof["reconciliationExact"],
+                "readMaterializedEquation": len(applied) == (len(read_records) + len(read_timeouts) + read_unpolled),
             },
             "latencies": {
-                "admission": calculate_exact_quantiles(adm_latencies),
-                "terminal": calculate_exact_quantiles(term_latencies),
-                "readMaterialization": calculate_exact_quantiles(read_latencies),
-                "e2eTotal": calculate_exact_quantiles(e2e_latencies),
+                "admission": calculate_exact_quantiles([r.latency_admission_ms for r in admitted]),
+                "terminal": calculate_exact_quantiles([r.latency_terminal_ms for r in terminal if r.latency_terminal_ms is not None]),
+                "readMaterialization": calculate_exact_quantiles([r.latency_read_ms for r in read_records if r.latency_read_ms is not None]),
+                "e2eTotal": calculate_exact_quantiles([r.latency_e2e_ms for r in complete if r.latency_e2e_ms is not None]),
             },
             "probesAnd503": {
-                "terminalProbes": self.term_obs.total_probes,
-                "terminal503": self.term_obs.total_503,
-                "readProbes": self.read_obs.total_read_probes,
-                "read503": self.read_obs.total_read_503,
+                "terminalProbes": self.term_obs.total_probes, "terminal503": self.term_obs.total_503,
+                "readProbes": self.read_obs.total_read_probes, "read503": self.read_obs.total_read_503,
             },
             "backlogTimeseries": self.backlog_timeseries,
             "sqlReconciliation": sql_proof,
-            "asyncStageHandoffs": handoff_metrics,
+            "asyncStageHandoffs": self._correlate_handoff_metrics(applied),
         }

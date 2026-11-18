@@ -65,11 +65,15 @@ public final class ReadinessOracle {
 
     public static String toReadFamily(String family) {
         if (family == null) return null;
-        if (!family.endsWith("_EVENT") && !family.equals("COMMAND") && !family.equals("IDENTITY_REQUEST")) {
-            return family + "_EVENT";
-        }
-        return family;
+        if (family.endsWith("_EVENT") || family.equals("COMMAND")) return family;
+        if (family.equals("IDENTITY_REQUEST")) return family;
+        return family + "_EVENT";
     }
+
+    private record CheckpointEvaluation(boolean satisfied, int count, String diagnostic) {}
+
+    private record SlotEvaluation(
+            boolean satisfied, int residual, int quarantined, String diagnostic) {}
 
     /**
      * In-memory evaluation method for unit testing and contract verification.
@@ -79,139 +83,184 @@ public final class ReadinessOracle {
             List<CheckpointEntry> checkpoints,
             List<SlotEntry> slots,
             List<String> integrityErrors) {
-
         Objects.requireNonNull(targetPrefix, "targetPrefix cannot be null");
         Objects.requireNonNull(checkpoints, "checkpoints cannot be null");
         Objects.requireNonNull(slots, "slots cannot be null");
         Objects.requireNonNull(integrityErrors, "integrityErrors cannot be null");
 
-        List<String> checkpointDiagnostics = new ArrayList<>();
+        var cpEval = evaluateCheckpoints(targetPrefix, checkpoints);
+        var slotEval = evaluateSlots(targetPrefix, slots);
+        boolean integritySatisfied = integrityErrors.isEmpty();
+        boolean ready = cpEval.satisfied() && slotEval.satisfied() && integritySatisfied;
+        String diagnostic = buildEvaluationDiagnostic(cpEval, slotEval, integrityErrors);
 
-        // Conservative pre-check: All canonical WRITE families must be present in targetPrefix B
-        Set<String> missingWriteFamilies = new HashSet<>();
-        for (String expectedFam : EXPECTED_WRITE_FAMILIES) {
-            if (!targetPrefix.containsKey(expectedFam)) {
-                missingWriteFamilies.add(expectedFam);
-            }
-        }
+        return new Evaluation(
+                ready,
+                cpEval.satisfied(),
+                cpEval.count(),
+                EXPECTED_CHECKPOINTS_COUNT,
+                slotEval.satisfied(),
+                slotEval.residual(),
+                slotEval.quarantined(),
+                integritySatisfied,
+                diagnostic);
+    }
+
+    private CheckpointEvaluation evaluateCheckpoints(
+            Map<String, Long> targetPrefix, List<CheckpointEntry> checkpoints) {
+        List<String> diagnostics = new ArrayList<>();
+        Set<String> missingWriteFamilies = findMissingWriteFamilies(targetPrefix);
         if (!missingWriteFamilies.isEmpty()) {
-            checkpointDiagnostics.add("Target prefix B missing expected families: " + missingWriteFamilies);
+            diagnostics.add(
+                    "Target prefix B missing expected families: " + missingWriteFamilies);
         }
-
-        // 1. Condition C_checkpoints
-        int satisfiedCheckpoints = 0;
+        int satisfied = 0;
         Set<CheckpointKey> seenKeys = new HashSet<>();
         boolean catalogMismatch = false;
-
         for (CheckpointEntry cp : checkpoints) {
-            CheckpointKey key = new CheckpointKey(cp.consumptionId(), cp.partitionId());
-            if (!EXPECTED_CHECKPOINT_KEYS.contains(key)) {
-                checkpointDiagnostics.add(String.format("Unexpected checkpoint: %s p%d", cp.consumptionId(), cp.partitionId()));
+            if (!isUniqueExpectedCheckpoint(cp, seenKeys, diagnostics)) {
                 catalogMismatch = true;
                 continue;
             }
-            if (!seenKeys.add(key)) {
-                checkpointDiagnostics.add(String.format("Duplicate checkpoint: %s p%d", cp.consumptionId(), cp.partitionId()));
-                catalogMismatch = true;
-                continue;
-            }
-
-            String writeFam = toWriteFamily(cp.family());
-            Long targetPos = targetPrefix.get(writeFam);
-            if (targetPos == null) {
-                targetPos = targetPrefix.get(cp.family());
-            }
-
-            if (targetPos == null) {
-                checkpointDiagnostics.add(String.format("Checkpoint %s p%d family '%s' not found in target prefix",
-                        cp.consumptionId(), cp.partitionId(), cp.family()));
-            } else if (cp.position() >= targetPos) {
-                satisfiedCheckpoints++;
-            } else {
-                checkpointDiagnostics.add(String.format("Checkpoint %s p%d at %d < target %d",
-                        cp.family(), cp.partitionId(), cp.position(), targetPos));
+            if (isCheckpointSatisfied(targetPrefix, cp, diagnostics)) {
+                satisfied++;
             }
         }
-
-        // Check if all expected keys are present
         if (seenKeys.size() < EXPECTED_CHECKPOINT_KEYS.size()) {
             Set<CheckpointKey> missing = new HashSet<>(EXPECTED_CHECKPOINT_KEYS);
             missing.removeAll(seenKeys);
-            checkpointDiagnostics.add("Missing checkpoints: " + missing.size());
+            diagnostics.add("Missing checkpoints: " + missing.size());
         }
+        boolean allSatisfied =
+                missingWriteFamilies.isEmpty()
+                        && !catalogMismatch
+                        && seenKeys.size() == EXPECTED_CHECKPOINTS_COUNT
+                        && satisfied == EXPECTED_CHECKPOINTS_COUNT;
+        return new CheckpointEvaluation(allSatisfied, satisfied, String.join(", ", diagnostics));
+    }
 
-        boolean checkpointsSatisfied = missingWriteFamilies.isEmpty()
-                && !catalogMismatch
-                && (seenKeys.size() == EXPECTED_CHECKPOINTS_COUNT)
-                && (satisfiedCheckpoints == EXPECTED_CHECKPOINTS_COUNT);
+    private static boolean isUniqueExpectedCheckpoint(
+            CheckpointEntry cp, Set<CheckpointKey> seenKeys, List<String> diagnostics) {
+        CheckpointKey key = new CheckpointKey(cp.consumptionId(), cp.partitionId());
+        if (!EXPECTED_CHECKPOINT_KEYS.contains(key)) {
+            diagnostics.add(
+                    String.format(
+                            "Unexpected checkpoint: %s p%d",
+                            cp.consumptionId(), cp.partitionId()));
+            return false;
+        }
+        if (!seenKeys.add(key)) {
+            diagnostics.add(
+                    String.format(
+                            "Duplicate checkpoint: %s p%d",
+                            cp.consumptionId(), cp.partitionId()));
+            return false;
+        }
+        return true;
+    }
 
-        // 2. Condition C_slots: Strictly 0 slots with position <= targetPrefix, and 0 unresolved positions
+    private static Set<String> findMissingWriteFamilies(Map<String, Long> targetPrefix) {
+        Set<String> missing = new HashSet<>();
+        for (String expectedFam : EXPECTED_WRITE_FAMILIES) {
+            if (!targetPrefix.containsKey(expectedFam)) {
+                missing.add(expectedFam);
+            }
+        }
+        return missing;
+    }
+
+    private static boolean isCheckpointSatisfied(
+            Map<String, Long> targetPrefix, CheckpointEntry cp, List<String> diagnostics) {
+        Long targetPos = resolveTargetPosition(targetPrefix, cp.family());
+        if (targetPos == null) {
+            diagnostics.add(
+                    String.format(
+                            "Checkpoint %s p%d family '%s' not found in target prefix",
+                            cp.consumptionId(), cp.partitionId(), cp.family()));
+            return false;
+        }
+        if (cp.position() >= targetPos) return true;
+        diagnostics.add(
+                String.format(
+                        "Checkpoint %s p%d at %d < target %d",
+                        cp.family(), cp.partitionId(), cp.position(), targetPos));
+        return false;
+    }
+
+    private static Long resolveTargetPosition(Map<String, Long> targetPrefix, String family) {
+        Long targetPos = targetPrefix.get(toWriteFamily(family));
+        return targetPos != null ? targetPos : targetPrefix.get(family);
+    }
+
+    private SlotEvaluation evaluateSlots(Map<String, Long> targetPrefix, List<SlotEntry> slots) {
         int residualSlots = 0;
         int quarantinedSlots = 0;
-        List<String> slotDiagnostics = new ArrayList<>();
-
+        List<String> diagnostics = new ArrayList<>();
         for (SlotEntry slot : slots) {
             if ("QUARANTINED".equalsIgnoreCase(slot.state())) {
                 quarantinedSlots++;
             }
-
-            // Negative position indicates position could not be resolved from WRITE
-            if (slot.position() < 0) {
+            if (isResidualSlot(targetPrefix, slot, diagnostics)) {
                 residualSlots++;
-                slotDiagnostics.add(String.format("Slot %s position UNRESOLVED in WRITE", slot.consumableId()));
-                continue;
-            }
-
-            String writeFam = toWriteFamily(slot.family());
-            Long targetPos = targetPrefix.get(writeFam);
-            if (targetPos == null) {
-                targetPos = targetPrefix.get(slot.family());
-            }
-
-            if (targetPos == null) {
-                residualSlots++;
-                slotDiagnostics.add(String.format("Slot %s family '%s' missing from targetPrefix",
-                        slot.consumableId(), slot.family()));
-            } else if (slot.position() <= targetPos) {
-                residualSlots++;
-                slotDiagnostics.add(String.format("Slot %s (state=%s) at pos %d <= target %d",
-                        slot.consumableId(), slot.state(), slot.position(), targetPos));
             }
         }
+        boolean satisfied = residualSlots == 0 && quarantinedSlots == 0;
+        return new SlotEvaluation(
+                satisfied, residualSlots, quarantinedSlots, String.join(", ", diagnostics));
+    }
 
-        boolean slotsSatisfied = (residualSlots == 0) && (quarantinedSlots == 0);
+    private static boolean isResidualSlot(
+            Map<String, Long> targetPrefix, SlotEntry slot, List<String> diagnostics) {
+        if (slot.position() < 0) {
+            diagnostics.add(
+                    String.format("Slot %s position UNRESOLVED in WRITE", slot.consumableId()));
+            return true;
+        }
+        Long targetPos = resolveTargetPosition(targetPrefix, slot.family());
+        if (targetPos == null) {
+            diagnostics.add(
+                    String.format(
+                            "Slot %s family '%s' missing from targetPrefix",
+                            slot.consumableId(), slot.family()));
+            return true;
+        }
+        if (slot.position() <= targetPos) {
+            diagnostics.add(
+                    String.format(
+                            "Slot %s (state=%s) at pos %d <= target %d",
+                            slot.consumableId(), slot.state(), slot.position(), targetPos));
+            return true;
+        }
+        return false;
+    }
 
-        // 3. Condition C_integrity
-        boolean integritySatisfied = integrityErrors.isEmpty();
-
-        boolean ready = checkpointsSatisfied && slotsSatisfied && integritySatisfied;
-
+    private static String buildEvaluationDiagnostic(
+            CheckpointEvaluation cpEval,
+            SlotEvaluation slotEval,
+            List<String> integrityErrors) {
         StringBuilder sb = new StringBuilder();
-        if (!checkpointsSatisfied) {
-            sb.append("Checkpoints incomplete (").append(satisfiedCheckpoints).append("/")
-              .append(EXPECTED_CHECKPOINTS_COUNT).append("): ").append(String.join(", ", checkpointDiagnostics)).append("; ");
+        if (!cpEval.satisfied()) {
+            sb.append("Checkpoints incomplete (")
+                    .append(cpEval.count())
+                    .append("/")
+                    .append(EXPECTED_CHECKPOINTS_COUNT)
+                    .append("): ")
+                    .append(cpEval.diagnostic())
+                    .append("; ");
         }
-        if (!slotsSatisfied) {
-            sb.append("Residual slots <= target: ").append(residualSlots)
-              .append(" (quarantined: ").append(quarantinedSlots).append("): ")
-              .append(String.join(", ", slotDiagnostics)).append("; ");
+        if (!slotEval.satisfied()) {
+            sb.append("Residual slots <= target: ")
+                    .append(slotEval.residual())
+                    .append(" (quarantined: ")
+                    .append(slotEval.quarantined())
+                    .append("): ")
+                    .append(slotEval.diagnostic())
+                    .append("; ");
         }
-        if (!integritySatisfied) {
+        if (!integrityErrors.isEmpty()) {
             sb.append("Integrity violations: ").append(String.join(", ", integrityErrors));
         }
-
-        String diagnostic = sb.isEmpty() ? "READY predicate fully satisfied" : sb.toString().trim();
-
-        return new Evaluation(
-                ready,
-                checkpointsSatisfied,
-                satisfiedCheckpoints,
-                EXPECTED_CHECKPOINTS_COUNT,
-                slotsSatisfied,
-                residualSlots,
-                quarantinedSlots,
-                integritySatisfied,
-                diagnostic);
+        return sb.isEmpty() ? "READY predicate fully satisfied" : sb.toString().trim();
     }
 
     /**
@@ -222,72 +271,96 @@ public final class ReadinessOracle {
             JdbcTemplate readJdbc,
             JdbcTemplate writeJdbc,
             Map<String, Long> targetPrefix) {
+        List<CheckpointEntry> checkpoints = fetchCheckpoints(readJdbc);
+        List<SlotEntry> slots = fetchSlots(readJdbc, writeJdbc);
+        List<String> integrityErrors = checkRelationalIntegrity(readJdbc);
+        return evaluatePure(targetPrefix, checkpoints, slots, integrityErrors);
+    }
 
-        // 1. Fetch checkpoints
-        String cpSql = "SELECT dc.consumption_id, crc.family, dc.partition_id, dc.position "
-                + "FROM discovery_checkpoint dc "
-                + "JOIN consumption_routing_contract crc ON dc.consumption_id = crc.consumption_id "
-                + "WHERE crc.partition_count = 4";
-        List<CheckpointEntry> checkpoints = readJdbc.query(cpSql, (rs, rowNum) -> new CheckpointEntry(
-                (UUID) rs.getObject("consumption_id"),
-                rs.getString("family"),
-                rs.getInt("partition_id"),
-                rs.getLong("position")
-        ));
+    private static List<CheckpointEntry> fetchCheckpoints(JdbcTemplate readJdbc) {
+        String cpSql =
+                "SELECT dc.consumption_id, crc.family, dc.partition_id, dc.position "
+                        + "FROM discovery_checkpoint dc "
+                        + "JOIN consumption_routing_contract crc ON dc.consumption_id ="
+                        + " crc.consumption_id "
+                        + "WHERE crc.partition_count = 4";
+        return readJdbc.query(
+                cpSql,
+                (rs, rowNum) ->
+                        new CheckpointEntry(
+                                (UUID) rs.getObject("consumption_id"),
+                                rs.getString("family"),
+                                rs.getInt("partition_id"),
+                                rs.getLong("position")));
+    }
 
-        // 2. Fetch slots and cross-reference position with writeJdbc via single batch query
-        String slotSql = "SELECT cs.consumption_id, crc.family, cs.consumable_id, cs.state "
-                + "FROM consumption_slot cs "
-                + "JOIN consumption_routing_contract crc ON cs.consumption_id = crc.consumption_id";
-        List<SlotRaw> rawSlots = readJdbc.query(slotSql, (rs, rowNum) -> new SlotRaw(
-                (UUID) rs.getObject("consumption_id"),
-                rs.getString("family"),
-                (UUID) rs.getObject("consumable_id"),
-                rs.getString("state")
-        ));
+    private static List<SlotEntry> fetchSlots(JdbcTemplate readJdbc, JdbcTemplate writeJdbc) {
+        String slotSql =
+                "SELECT cs.consumption_id, crc.family, cs.consumable_id, cs.state "
+                        + "FROM consumption_slot cs "
+                        + "JOIN consumption_routing_contract crc ON cs.consumption_id ="
+                        + " crc.consumption_id";
+        List<SlotRaw> rawSlots =
+                readJdbc.query(
+                        slotSql,
+                        (rs, rowNum) ->
+                                new SlotRaw(
+                                        (UUID) rs.getObject("consumption_id"),
+                                        rs.getString("family"),
+                                        (UUID) rs.getObject("consumable_id"),
+                                        rs.getString("state")));
+        if (rawSlots.isEmpty()) return List.of();
+        Map<UUID, Long> positionMap = resolveWritePositions(writeJdbc, rawSlots);
+        return rawSlots.stream()
+                .map(
+                        raw -> {
+                            Long pos = positionMap.get(raw.consumableId);
+                            long resolvedPos = pos != null ? pos : -1L;
+                            return new SlotEntry(
+                                    raw.consumptionId,
+                                    raw.family,
+                                    raw.consumableId,
+                                    resolvedPos,
+                                    raw.state);
+                        })
+                .toList();
+    }
 
-        List<SlotEntry> slots = new ArrayList<>();
-        if (!rawSlots.isEmpty()) {
-            // Batch resolve positions from v3_event_position in WRITE
-            Map<UUID, Long> positionMap = new HashMap<>();
-            List<UUID> ids = rawSlots.stream().map(s -> s.consumableId).distinct().toList();
-
-            // Query in chunks of 500 if large
-            int chunkSize = 500;
-            for (int i = 0; i < ids.size(); i += chunkSize) {
-                List<UUID> chunk = ids.subList(i, Math.min(i + chunkSize, ids.size()));
-                String inClause = String.join(",", Collections.nCopies(chunk.size(), "?"));
-                String batchSql = "SELECT event_id, position FROM v3_event_position WHERE event_id IN (" + inClause + ")";
-                writeJdbc.query(batchSql, (rs, rowNum) -> {
-                    positionMap.put((UUID) rs.getObject("event_id"), rs.getLong("position"));
-                    return null;
-                }, chunk.toArray());
-            }
-
-            for (SlotRaw raw : rawSlots) {
-                Long pos = positionMap.get(raw.consumableId);
-                // Unresolved position marked as -1L so evaluatePure strictly treats as residual
-                long resolvedPos = pos != null ? pos : -1L;
-                slots.add(new SlotEntry(raw.consumptionId, raw.family, raw.consumableId, resolvedPos, raw.state));
-            }
+    private static Map<UUID, Long> resolveWritePositions(
+            JdbcTemplate writeJdbc, List<SlotRaw> rawSlots) {
+        Map<UUID, Long> positionMap = new HashMap<>();
+        List<UUID> ids = rawSlots.stream().map(s -> s.consumableId).distinct().toList();
+        int chunkSize = 500;
+        for (int i = 0; i < ids.size(); i += chunkSize) {
+            List<UUID> chunk = ids.subList(i, Math.min(i + chunkSize, ids.size()));
+            String inClause = String.join(",", Collections.nCopies(chunk.size(), "?"));
+            String batchSql =
+                    "SELECT event_id, position FROM v3_event_position WHERE event_id IN ("
+                            + inClause
+                            + ")";
+            writeJdbc.query(
+                    batchSql,
+                    (rs, rowNum) -> {
+                        positionMap.put((UUID) rs.getObject("event_id"), rs.getLong("position"));
+                        return null;
+                    },
+                    chunk.toArray());
         }
+        return positionMap;
+    }
 
-        // 3. Relational integrity checks
+    private static List<String> checkRelationalIntegrity(JdbcTemplate readJdbc) {
         List<String> integrityErrors = new ArrayList<>();
-
-        // Check 3.1: CurrentPot -> PotVersion
-        Integer danglingCurrentPot = readJdbc.queryForObject(
+        addIfPositive(
+                readJdbc,
                 "SELECT count(*) FROM read_current_pot cp "
-                        + "LEFT JOIN read_pot_version pv ON cp.pot_id = pv.pot_id AND cp.pot_version = pv.pot_version "
+                        + "LEFT JOIN read_pot_version pv ON cp.pot_id = pv.pot_id AND"
+                        + " cp.pot_version = pv.pot_version "
                         + "WHERE pv.pot_id IS NULL",
-                Integer.class
-        );
-        if (danglingCurrentPot != null && danglingCurrentPot > 0) {
-            integrityErrors.add("read_current_pot has " + danglingCurrentPot + " dangling version references");
-        }
-
-        // Active historical versions keep their balances. A terminal DeletePot version has none.
-        Integer invalidBalances = readJdbc.queryForObject(
+                "read_current_pot has %d dangling version references",
+                integrityErrors);
+        addIfPositive(
+                readJdbc,
                 """
                 select count(*) from read_pot_version pv
                 left join read_pot_balance pb using (pot_id, pot_version)
@@ -295,33 +368,31 @@ public final class ReadinessOracle {
                    or (pv.payload->'deleted' = 'false'::jsonb and pb.pot_id is null)
                    or (pv.payload->'deleted' = 'true'::jsonb and pb.pot_id is not null)
                 """,
-                Integer.class
-        );
-        if (invalidBalances != null && invalidBalances > 0) {
-            integrityErrors.add(invalidBalances + " Pot versions with missing balance rows, unexpected terminal balances or invalid deletion flags");
-        }
-
-        // Check 3.3: CurrentPot -> PotVisibility
-        Integer missingVisibility = readJdbc.queryForObject(
+                "%d Pot versions with missing balance rows, unexpected terminal balances or"
+                        + " invalid deletion flags",
+                integrityErrors);
+        addIfPositive(
+                readJdbc,
                 "SELECT count(*) FROM read_current_pot cp "
-                        + "LEFT JOIN read_pot_visibility_state vs ON cp.pot_id = vs.pot_id AND cp.pot_version <= vs.materialized_version "
+                        + "LEFT JOIN read_pot_visibility_state vs ON cp.pot_id = vs.pot_id AND"
+                        + " cp.pot_version <= vs.materialized_version "
                         + "WHERE vs.pot_id IS NULL",
-                Integer.class
-        );
-        if (missingVisibility != null && missingVisibility > 0) {
-            integrityErrors.add("read_current_pot has " + missingVisibility + " missing visibility rows");
-        }
-
-        // Check 3.4: CurrentBinding sanity
-        Integer invalidBindings = readJdbc.queryForObject(
+                "read_current_pot has %d missing visibility rows",
+                integrityErrors);
+        addIfPositive(
+                readJdbc,
                 "SELECT count(*) FROM read_current_binding WHERE eui_version < 0",
-                Integer.class
-        );
-        if (invalidBindings != null && invalidBindings > 0) {
-            integrityErrors.add("read_current_binding has " + invalidBindings + " invalid versions");
-        }
+                "read_current_binding has %d invalid versions",
+                integrityErrors);
+        return integrityErrors;
+    }
 
-        return evaluatePure(targetPrefix, checkpoints, slots, integrityErrors);
+    private static void addIfPositive(
+            JdbcTemplate readJdbc, String sql, String messageFormat, List<String> errors) {
+        Integer count = readJdbc.queryForObject(sql, Integer.class);
+        if (count != null && count > 0) {
+            errors.add(String.format(messageFormat, count));
+        }
     }
 
     private record SlotRaw(UUID consumptionId, String family, UUID consumableId, String state) {}

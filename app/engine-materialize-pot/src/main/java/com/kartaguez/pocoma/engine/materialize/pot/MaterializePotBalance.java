@@ -4,6 +4,11 @@ import com.kartaguez.pocoma.contract.consumption.participation.PreparationReads;
 import com.kartaguez.pocoma.contract.consumption.participation.SlotCompletion;
 import com.kartaguez.pocoma.domain.projection.PotBalance;
 import com.kartaguez.pocoma.domain.pot.*;
+import com.kartaguez.pocoma.domain.pot.expense.*;
+import com.kartaguez.pocoma.domain.pot.invitation.*;
+import com.kartaguez.pocoma.domain.pot.revision.*;
+import com.kartaguez.pocoma.domain.pot.shareholder.*;
+import com.kartaguez.pocoma.domain.pot.value.*;
 import com.kartaguez.pocoma.port.projection.PotBalanceStore;
 import java.util.*;
 public final class MaterializePotBalance implements ConsumptionParticipant {

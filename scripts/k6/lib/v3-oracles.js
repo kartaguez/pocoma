@@ -78,18 +78,25 @@ export class V3Oracles {
     return { ok: errors.length === 0, errors, observedVersion: pot.potVersion };
   }
 
+  static _isValidRational(v) {
+    return Boolean(v) && typeof v.n === 'string' && typeof v.d === 'string' && v.d !== '0';
+  }
+
   /** Exact Balance(P,V). A Balance(P,V+1) never proves V. */
   static validateBalanceExact(b, version, potId, expectedShareholderIds = []) {
-    const errors = [];
     if (!b || typeof b !== 'object') return { ok: false, errors: ['Balance absent'] };
+    const errors = [];
     if (potId && b.potId !== potId) errors.push(`Balance potId mismatch: ${b.potId}`);
     if (b.potVersion !== version) errors.push(`Balance version mismatch: expected exactly ${version}, got ${b.potVersion}`);
-    if (!b.balances || typeof b.balances !== 'object') errors.push('Balance map missing');
-    else {
-      for (const [k, v] of Object.entries(b.balances)) {
-        if (!v || typeof v.n !== 'string' || typeof v.d !== 'string' || v.d === '0') errors.push(`Invalid rational for ${k}`);
-      }
-      for (const id of expectedShareholderIds) if (!(id in b.balances)) errors.push(`Balance missing shareholder ${id}`);
+    if (!b.balances || typeof b.balances !== 'object') {
+      errors.push('Balance map missing');
+      return { ok: false, errors };
+    }
+    for (const [k, v] of Object.entries(b.balances)) {
+      if (!V3Oracles._isValidRational(v)) errors.push(`Invalid rational for ${k}`);
+    }
+    for (const id of expectedShareholderIds) {
+      if (!(id in b.balances)) errors.push(`Balance missing shareholder ${id}`);
     }
     return { ok: errors.length === 0, errors };
   }
@@ -112,10 +119,14 @@ export class V3Oracles {
   /** Identity: binding usable only after an actually authorized READ with the new token. */
   static validateIdentityUsable(identityResult, binding, authorizedReadStatus) {
     const errors = [];
-    if (!identityResult || identityResult.outcome !== 'CHANGED') errors.push(`Identity outcome not CHANGED (${identityResult && identityResult.outcome})`);
+    const hasChanged = identityResult && identityResult.outcome === 'CHANGED';
+    if (!hasChanged) errors.push(`Identity outcome not CHANGED (${identityResult && identityResult.outcome})`);
     else if (typeof identityResult.targetVersion !== 'number' || identityResult.targetVersion < 1) errors.push('Invalid targetVersion');
-    if (!binding || binding.active !== true || !binding.bindingToken) errors.push('Binding not active');
-    else if (identityResult && typeof identityResult.targetVersion === 'number' && binding.euiVersion < identityResult.targetVersion) errors.push(`Binding euiVersion ${binding.euiVersion} < targetVersion ${identityResult.targetVersion}`);
+    const hasBinding = binding && binding.active === true && Boolean(binding.bindingToken);
+    if (!hasBinding) errors.push('Binding not active');
+    else if (hasChanged && typeof identityResult.targetVersion === 'number' && binding.euiVersion < identityResult.targetVersion) {
+      errors.push(`Binding euiVersion ${binding.euiVersion} < targetVersion ${identityResult.targetVersion}`);
+    }
     if (authorizedReadStatus !== 200) errors.push(`Authorized READ with new bindingToken failed: HTTP ${authorizedReadStatus}`);
     return { ok: errors.length === 0, errors };
   }

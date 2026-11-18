@@ -7,7 +7,7 @@ import time
 import runtime as rt
 
 
-def inventory():
+def _load_instances():
     instances, owners = [], {}
     root = rt.HOME_LOCAL / 'instances'
     for path in sorted(root.iterdir()) if root.exists() else []:
@@ -23,7 +23,46 @@ def inventory():
             row.update(manifestState='NO_MANIFEST', plan='RETAIN: no ownership authority')
         row['privateFilesBytes'] = sum(f.stat().st_size for f in path.rglob('*') if f.is_file())
         instances.append(row)
-    unrelated, orphans, unowned_attached, attachments = [], [], [], {}
+    return instances, owners
+
+
+def _record_container_details(row, value, labels, owner_project, attachments):
+    owner, project = owner_project
+    mounts = [m for m in value.get('Mounts', []) if m['Type'] == 'volume']
+    row.update(service=labels.get('com.docker.compose.service'), state=value['State']['Status'],
+               volumes=[mount['Name'] for mount in mounts])
+    for mount in mounts:
+        attachments.setdefault(mount['Name'], []).append(dict(
+            container=row['id'], service=row['service'], owner=owner,
+            project=project, destination=mount['Destination']))
+
+
+def _is_owned_attachment(attachments, name, owners):
+    return any(ref['owner'] in owners and owners[ref['owner']]['project'] == ref['project']
+               for ref in attachments.get(name, []))
+
+
+def _classify_resource(row, kind, owners, attachments, buckets):
+    owner, project = row['owner'], row['project']
+    if owner in owners and owners[owner]['project'] == project:
+        owners[owner]['resources'].append(row)
+        return
+    if kind == 'volume' and _is_owned_attachment(attachments, row['name'], owners):
+        buckets['unowned_attached'].append(dict(
+            row, attachedTo=attachments[row['name']],
+            action='PRESERVE: attached to playground but without matching owner/project labels'))
+        return
+    is_pocoma = bool(owner) or (project or '').startswith('pocoma-lb-') or row['name'].startswith('pocoma-lb-')
+    if is_pocoma:
+        buckets['orphans'].append(dict(row, action='RETAIN: ownership requires investigation; no automatic deletion'))
+    else:
+        buckets['unrelated'].append(row)
+
+
+def inventory():
+    instances, owners = _load_instances()
+    buckets = dict(unrelated=[], orphans=[], unowned_attached=[])
+    attachments = {}
     for kind, query, inspect in (
         ('container', ['ps', '-aq'], ['inspect']),
         ('volume', ['volume', 'ls', '-q'], ['volume', 'inspect']),
@@ -35,25 +74,11 @@ def inventory():
             row = dict(kind=kind, id=value.get('Id', value.get('ID', resource)),
                        name=value.get('Name', resource).lstrip('/'), project=project, owner=owner)
             if kind == 'container':
-                row.update(service=labels.get('com.docker.compose.service'), state=value['State']['Status'],
-                           volumes=[mount['Name'] for mount in value.get('Mounts', []) if mount['Type'] == 'volume'])
-                for mount in value.get('Mounts', []):
-                    if mount['Type'] == 'volume':
-                        attachments.setdefault(mount['Name'], []).append(dict(container=row['id'], service=row['service'],
-                            owner=owner, project=project, destination=mount['Destination']))
-            if owner in owners and owners[owner]['project'] == project:
-                owners[owner]['resources'].append(row)
-            elif kind == 'volume' and any(ref['owner'] in owners and owners[ref['owner']]['project'] == ref['project']
-                                         for ref in attachments.get(row['name'], [])):
-                unowned_attached.append(dict(row, attachedTo=attachments[row['name']],
-                    action='PRESERVE: attached to playground but without matching owner/project labels'))
-            elif owner or (project or '').startswith('pocoma-lb-') or row['name'].startswith('pocoma-lb-'):
-                orphans.append(dict(row, action='RETAIN: ownership requires investigation; no automatic deletion'))
-            else:
-                unrelated.append(row)
-    return dict(observedAt=time.time(), instances=instances, potentialOrphans=orphans,
-                unownedAttachedVolumes=unowned_attached,
-                unrelatedResources=unrelated, composeProjects=rt.docker_json('compose', 'ls', '--all', '--format', 'json'),
+                _record_container_details(row, value, labels, (owner, project), attachments)
+            _classify_resource(row, kind, owners, attachments, buckets)
+    return dict(observedAt=time.time(), instances=instances, potentialOrphans=buckets['orphans'],
+                unownedAttachedVolumes=buckets['unowned_attached'],
+                unrelatedResources=buckets['unrelated'], composeProjects=rt.docker_json('compose', 'ls', '--all', '--format', 'json'),
                 policy='Dry-run only. No resource or persistent data is deleted. Explicit human confirmation required.')
 
 

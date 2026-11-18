@@ -1,6 +1,8 @@
 package com.kartaguez.pocoma.runtime.task;
 import com.kartaguez.pocoma.infra.postgres.source.*;
-import com.kartaguez.pocoma.infra.postgres.core.*;
+import com.kartaguez.pocoma.infra.postgres.core.bootstrap.*;
+import com.kartaguez.pocoma.infra.postgres.core.consumption.*;
+import com.kartaguez.pocoma.infra.postgres.core.history.*;
 import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionProtocol;
 import com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant;
 import com.kartaguez.pocoma.contract.consumption.participation.PreparationReads;
@@ -13,7 +15,7 @@ import static com.kartaguez.pocoma.runtime.task.SubobjectPostgresFixture.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.kartaguez.pocoma.infra.postgres.write.JdbcPotHistoryAdapter;
+import com.kartaguez.pocoma.infra.postgres.write.pot.JdbcPotHistoryAdapter;
 import com.kartaguez.pocoma.infra.tx.spring.SpringAttemptTransactions;
 import com.kartaguez.pocoma.port.transaction.*;
 
@@ -734,7 +736,7 @@ class InterAuthorityPreparationPostgresTest {
             var changed = new CountDownLatch(1);
             var snapshots = new CopyOnWriteArrayList<Map<String, Object>>();
             var original =
-                    new com.kartaguez.pocoma.infra.postgres.write.JdbcPotCommandStore(
+                    new com.kartaguez.pocoma.infra.postgres.write.pot.JdbcPotCommandStore(
                             f.primary, f.sourceOwner);
             var store =
                     (com.kartaguez.pocoma.engine.write.pot.port.execution.PotCommandStore)
@@ -762,7 +764,7 @@ class InterAuthorityPreparationPostgresTest {
                                         return value;
                                     });
             var baseHistory =
-                    new com.kartaguez.pocoma.infra.postgres.write.JdbcPotHistoryAdapter(
+                    new com.kartaguez.pocoma.infra.postgres.write.pot.JdbcPotHistoryAdapter(
                             f.primary);
             var history =
                     (com.kartaguez.pocoma.engine.write.pot.port.persistence.PotHistoryPort)
@@ -812,20 +814,20 @@ class InterAuthorityPreparationPostgresTest {
             var participant =
                     new com.kartaguez.pocoma.engine.write.pot.ExecutePotCommand(
                             store,
-                            new com.kartaguez.pocoma.infra.postgres.write
+                            new com.kartaguez.pocoma.infra.postgres.write.pot
                                     .JdbcPotCommandObservation(f.primary),
                             actor,
                             history,
-                            new com.kartaguez.pocoma.infra.postgres.write
+                            new com.kartaguez.pocoma.infra.postgres.write.pot
                                     .JdbcPotRevisionAdapter(f.primary),
                             java.time.Clock.systemUTC());
             var e =
                     new ConsumptionEngine(
                             definition,
                             f.sourceOwner,
-                            new com.kartaguez.pocoma.infra.postgres.core.JdbcConsumptionSlotStore(f.primary),
+                            new com.kartaguez.pocoma.infra.postgres.core.consumption.JdbcConsumptionSlotStore(f.primary),
                             participant,
-                            new com.kartaguez.pocoma.infra.postgres.core.JdbcPartitionOwnershipStore(f.primary),
+                            new com.kartaguez.pocoma.infra.postgres.core.consumption.JdbcPartitionOwnershipStore(f.primary),
                             f.read.settings,
                             new WorkerCapacity(1, Map.of(definition.id(), 1)),
                             fault -> AttemptFailureClassifier.FailureKind.NON_COUNTABLE);

@@ -77,51 +77,44 @@ const cReadQueries200 = new Counter('v3_read_queries_200');
 const cReadQueriesErrors = new Counter('v3_read_queries_errors');
 const cStarvation = new Counter('v3_generator_pot_starvation');
 
-function scenarioOptions() {
-  const arrival = (rate, vus, maxVus = null) => {
-    const isDecoupled = __ENV.DECOUPLED !== 'false';
-    if (ISOLATE_POTS_BY_VU && isDecoupled)
-      throw new Error('Independent Pot mode requires a VU to retain its Pot through the terminal result');
-    const preVUs = ISOLATE_POTS_BY_VU ? POTS : isDecoupled ? Math.max(rate, 10) : vus;
-    const peakVUs = ISOLATE_POTS_BY_VU ? POTS : isDecoupled ? Math.max(rate * 2, 20) : (maxVus || Math.max(vus * 2, 8));
-    return {
-      executor: 'constant-arrival-rate',
-      rate,
-      timeUnit: '1s',
-      duration: DURATION,
-      preAllocatedVUs: preVUs,
-      maxVUs: peakVUs,
-      gracefulStop: isDecoupled ? '5s' : `${Math.ceil(POLL_TIMEOUT_MS / 1000) + 5}s`,
-    };
-  };
-
-  switch (SCENARIO) {
-    case 'smoke':
-      return { smoke: { executor: 'per-vu-iterations', vus: 1, iterations: 3, maxDuration: '90s' } };
-    case 'idle':
-      return { idle: { executor: 'per-vu-iterations', vus: 1, iterations: 1, maxDuration: `${IDLE_SECONDS + 60}s` } };
-    case 'contention':
-      return { contention: { executor: 'constant-vus', vus: CONTENTION_VUS, duration: DURATION } };
-    case 'read':
-      return { read: { executor: 'constant-vus', vus: READ_VUS, duration: DURATION } };
-    case 'mixed':
-      return {
-        mixed_write: { executor: 'constant-vus', vus: 2, duration: DURATION },
-        mixed_read: { executor: 'constant-vus', vus: 2, duration: DURATION },
-      };
-    case 'nominal':
-    case 'sustained':
-    case 'peak':
-    case 'ramp':
-      return { [SCENARIO]: arrival(RATE, Math.max(POTS, 4), Math.max(POTS * 4, 24)) };
-    case 'structural':
-      return { structural: arrival(RATE, Math.max(POTS, 2), Math.max(POTS * 2, 6)) };
-    default:
-      if (SCENARIO.startsWith('m') || __ENV.WORKLOAD_MODE === 'realistic') {
-        return { [SCENARIO]: arrival(RATE, Math.max(RATE, 10), Math.max(RATE * 2, 20)) };
-      }
-      throw new Error(`Unknown SCENARIO ${SCENARIO}`);
+function buildArrivalScenario(rate, vus, maxVus = null) {
+  const isDecoupled = __ENV.DECOUPLED !== 'false';
+  if (ISOLATE_POTS_BY_VU && isDecoupled) {
+    throw new Error('Independent Pot mode requires a VU to retain its Pot through the terminal result');
   }
+  const preVUs = ISOLATE_POTS_BY_VU ? POTS : isDecoupled ? Math.max(rate, 10) : vus;
+  const peakVUs = ISOLATE_POTS_BY_VU ? POTS : isDecoupled ? Math.max(rate * 2, 20) : (maxVus || Math.max(vus * 2, 8));
+  return {
+    executor: 'constant-arrival-rate',
+    rate,
+    timeUnit: '1s',
+    duration: DURATION,
+    preAllocatedVUs: preVUs,
+    maxVUs: peakVUs,
+    gracefulStop: isDecoupled ? '5s' : `${Math.ceil(POLL_TIMEOUT_MS / 1000) + 5}s`,
+  };
+}
+
+function scenarioOptions() {
+  const builders = {
+    smoke: () => ({ smoke: { executor: 'per-vu-iterations', vus: 1, iterations: 3, maxDuration: '90s' } }),
+    idle: () => ({ idle: { executor: 'per-vu-iterations', vus: 1, iterations: 1, maxDuration: `${IDLE_SECONDS + 60}s` } }),
+    contention: () => ({ contention: { executor: 'constant-vus', vus: CONTENTION_VUS, duration: DURATION } }),
+    read: () => ({ read: { executor: 'constant-vus', vus: READ_VUS, duration: DURATION } }),
+    mixed: () => ({
+      mixed_write: { executor: 'constant-vus', vus: 2, duration: DURATION },
+      mixed_read: { executor: 'constant-vus', vus: 2, duration: DURATION },
+    }),
+    structural: () => ({ structural: buildArrivalScenario(RATE, Math.max(POTS, 2), Math.max(POTS * 2, 6)) }),
+  };
+  for (const name of ['nominal', 'sustained', 'peak', 'ramp']) {
+    builders[name] = () => ({ [SCENARIO]: buildArrivalScenario(RATE, Math.max(POTS, 4), Math.max(POTS * 4, 24)) });
+  }
+  if (builders[SCENARIO]) return builders[SCENARIO]();
+  if (SCENARIO.startsWith('m') || __ENV.WORKLOAD_MODE === 'realistic') {
+    return { [SCENARIO]: buildArrivalScenario(RATE, Math.max(RATE, 10), Math.max(RATE * 2, 20)) };
+  }
+  throw new Error(`Unknown SCENARIO ${SCENARIO}`);
 }
 
 export const options = {
@@ -171,68 +164,49 @@ function expensePayload(shareholders, label) {
   };
 }
 
-export function setup() {
-  if (__ENV.WORKLOAD_MODE === 'realistic' || SCENARIO.startsWith('m')) {
-    return { seededAt: Date.now() };
-  }
-  if (!TOKEN || !BINDING) {
-    throw new Error('POCOMA_TOKEN and POCOMA_BINDING_TOKEN are required (set by v3-run.py)');
-  }
-  const c = client();
-  const pots = [];
-
-  const prePotsJson = __ENV.PRE_SEEDED_POTS_JSON;
-  if (PRESEEDED_POTS && prePotsJson)
-    throw new Error('Provide only one Pot fixture source');
-  const list = PRESEEDED_POTS || (prePotsJson ? JSON.parse(prePotsJson) : null);
-  if (ISOLATE_POTS_BY_VU && !list)
-    throw new Error('Independent Pot mode requires a prevalidated fixture manifest');
-  if (list) {
-    if (ISOLATE_POTS_BY_VU && (list.length !== POTS || new Set(list.map(p => p.potId)).size !== POTS))
+function validatePreseededManifest(list) {
+  if (ISOLATE_POTS_BY_VU) {
+    if (list.length !== POTS || new Set(list.map((p) => p.potId)).size !== POTS) {
       throw new Error('Independent Pot mode requires exactly one distinct Pot per VU');
-    if (ISOLATE_POTS_BY_VU && list.some(p => !p.potId || !Number.isSafeInteger(p.version)
-        || p.version < 1 || !Array.isArray(p.shareholders) || p.shareholders.length !== SHAREHOLDERS
-        || new Set(p.shareholders).size !== SHAREHOLDERS
-        || (p.expenses ?? p.version - 2) !== SEED_EXPENSES))
-      throw new Error('Pot fixture does not match the requested population');
-    const pots = list.map((p) => ({
-      potId: p.potId,
-      shareholders: p.shareholders,
-      initialVersion: p.version,
-      version: p.version,
-      expenses: p.expenses ?? p.version - 2,
-    }));
-    return { pots, seededAt: Date.now() };
-  }
-
-  const prePotId = __ENV.PRE_SEEDED_POT_ID || null;
-  if (prePotId) {
-    const shareholders = (__ENV.PRE_SEEDED_SHAREHOLDERS || '').split(',').filter(Boolean);
-    const v = Number(__ENV.PRE_SEEDED_VERSION || 1);
-    const expCount = Number(__ENV.PRE_SEEDED_EXPENSES || 0);
-    const ready = c.pollPotCurrent(prePotId, v, (j) =>
-      O.validatePotComplete(j, v, prePotId, { shareholders: shareholders.length, expenses: expCount }).ok
-    );
-    if (ready.outcome !== 'OK') {
-      throw new Error(`pre-seeded Pot ${prePotId} not READ-complete at v${v}: ${ready.outcome}`);
     }
-    pots.push({ potId: prePotId, shareholders, version: v, expenses: expCount });
-    return { pots, seededAt: Date.now() };
+    const invalid = list.some((p) => (
+      !p.potId || !Number.isSafeInteger(p.version) || p.version < 1
+      || !Array.isArray(p.shareholders) || p.shareholders.length !== SHAREHOLDERS
+      || new Set(p.shareholders).size !== SHAREHOLDERS
+      || (p.expenses ?? p.version - 2) !== SEED_EXPENSES
+    ));
+    if (invalid) throw new Error('Pot fixture does not match the requested population');
   }
+  return list.map((p) => ({
+    potId: p.potId,
+    shareholders: p.shareholders,
+    initialVersion: p.version,
+    version: p.version,
+    expenses: p.expenses ?? p.version - 2,
+  }));
+}
 
-  const nPots = SCENARIO === 'contention' ? 1 : POTS;
+function loadSinglePreseededPot(c, prePotId) {
+  const shareholders = (__ENV.PRE_SEEDED_SHAREHOLDERS || '').split(',').filter(Boolean);
+  const v = Number(__ENV.PRE_SEEDED_VERSION || 1);
+  const expCount = Number(__ENV.PRE_SEEDED_EXPENSES || 0);
+  const ready = c.pollPotCurrent(prePotId, v, (j) =>
+    O.validatePotComplete(j, v, prePotId, { shareholders: shareholders.length, expenses: expCount }).ok
+  );
+  if (ready.outcome !== 'OK') {
+    throw new Error(`pre-seeded Pot ${prePotId} not READ-complete at v${v}: ${ready.outcome}`);
+  }
+  return [{ potId: prePotId, shareholders, version: v, expenses: expCount }];
+}
 
+function seedFreshPots(c, nPots) {
+  const pots = [];
   for (let i = 0; i < nPots; i++) {
     const potId = uuid4();
     const shareholders = Array.from({ length: SHAREHOLDERS }, () => uuid4());
     let v = seedCommand(c, 'CreatePot', potId, 0, { label: `Bench ${SCENARIO} ${i}` });
     v = seedCommand(c, 'AddShareholders', potId, v, {
-      targets: shareholders.map((id, n) => ({
-        id,
-        name: `S${n}`,
-        attachment: 'SELF',
-        weight: fraction(1, 1),
-      })),
+      targets: shareholders.map((id, n) => ({ id, name: `S${n}`, attachment: 'SELF', weight: fraction(1, 1) })),
     });
     for (let e = 0; e < SEED_EXPENSES; e++) {
       v = seedCommand(c, 'CreateExpense', potId, v, expensePayload(shareholders, `seed ${e}`));
@@ -245,7 +219,26 @@ export function setup() {
     }
     pots.push({ potId, shareholders, version: v, expenses: SEED_EXPENSES });
   }
-  return { pots, seededAt: Date.now() };
+  return pots;
+}
+
+export function setup() {
+  if (__ENV.WORKLOAD_MODE === 'realistic' || SCENARIO.startsWith('m')) {
+    return { seededAt: Date.now() };
+  }
+  if (!TOKEN || !BINDING) {
+    throw new Error('POCOMA_TOKEN and POCOMA_BINDING_TOKEN are required (set by v3-run.py)');
+  }
+  const c = client();
+  const prePotsJson = __ENV.PRE_SEEDED_POTS_JSON;
+  if (PRESEEDED_POTS && prePotsJson) throw new Error('Provide only one Pot fixture source');
+  const list = PRESEEDED_POTS || (prePotsJson ? JSON.parse(prePotsJson) : null);
+  if (ISOLATE_POTS_BY_VU && !list) {
+    throw new Error('Independent Pot mode requires a prevalidated fixture manifest');
+  }
+  if (list) return { pots: validatePreseededManifest(list), seededAt: Date.now() };
+  if (__ENV.PRE_SEEDED_POT_ID) return { pots: loadSinglePreseededPot(c, __ENV.PRE_SEEDED_POT_ID), seededAt: Date.now() };
+  return { pots: seedFreshPots(c, SCENARIO === 'contention' ? 1 : POTS), seededAt: Date.now() };
 }
 
 let own = null;
@@ -268,52 +261,11 @@ function checkAndRefreshToken(c) {
 }
 
 function injectDecoupled(c, pot) {
-  checkAndRefreshToken(c);
-  const observed = pot.version;
-  const t0_send = Date.now();
-  cAdmissionsOffered.add(1);
-
-  const payload = expensePayload(pot.shareholders, `bench-${exec.scenario.iterationInTest}`);
-  let adm = c.submitCommand('CreateExpense', pot.potId, observed, payload, null, { maxRetries: 0 });
-
-  if (adm.status === 401 && __ENV.POCOMA_AUTH_URL) {
-    // Immediate token refresh and retry on 401
-    lastTokenRefresh = 0;
-    checkAndRefreshToken(c);
-    adm = c.submitCommand('CreateExpense', pot.potId, observed, payload, null, { maxRetries: 0 });
-  }
-
-  cAdmissionsAttempted.add(adm.attempts);
-  cAdmissionRetriesTotal.add(adm.retries);
-  tAdmissionRetriesPerCmd.add(adm.retries);
-  tAdmission.add(adm.duration);
-  tAdmissionWithRetries.add(adm.totalAdmissionDuration);
-
+  const adm = injectDecoupledForPot(c, pot, pot.version, exec.scenario.iterationInTest);
   if (adm.status === 202) {
-    cAdmitted.add(1);
-    cFirstAttemptSuccess.add(1);
-    pot.version = observed + 1;
+    pot.version += 1;
     pot.expenses += 1;
-  } else if (adm.status === 503) {
-    cWriteCapacity503.add(1);
-    cCapacityRejected.add(1);
-  } else {
-    cAdmissionErrors.add(1);
-    cOracle.add(1);
   }
-
-  // Pure JSON line to console for correlation engine
-  console.log(JSON.stringify({
-    commandId: adm.requestId,
-    potId: pot.potId,
-    t_send: t0_send,
-    t_admit: adm.admittedAt,
-    status: adm.status,
-    attempts: adm.attempts,
-    retries: adm.retries,
-    expectedVersion: observed + 1,
-    observedVersion: observed,
-  }));
 }
 
 function injectDecoupledForPot(c, pot, observedVersion, iteration) {
@@ -358,6 +310,7 @@ function injectDecoupledForPot(c, pot, observedVersion, iteration) {
     expectedVersion: observedVersion + 1,
     observedVersion: observedVersion,
   }));
+  return adm;
 }
 
 function injectRealistic(c) {
@@ -379,7 +332,12 @@ function injectRealistic(c) {
     return;
   }
 
-  if (!cmdResp || !cmdResp.available || !cmdResp.command) {
+  if (!cmdResp || !cmdResp.available) {
+    cStarvation.add(1);
+    sleep(0.005);
+    return;
+  }
+  if (!cmdResp.command) {
     cStarvation.add(1);
     sleep(0.005);
     return;
@@ -431,12 +389,8 @@ function injectRealistic(c) {
   }));
 }
 
-function measureMutation(c, pot) {
-  const observed = pot.version;
-  const expectedV = observed + 1;
-  const t0_send = Date.now();
+function submitMeasuredAdmission(c, pot, observed) {
   cAdmissionsOffered.add(1);
-
   const retryOpts = { maxRetries: MAX_ADMISSION_RETRIES, backoffMs: 15 };
   const adm = c.submitCommand(
     'CreateExpense',
@@ -446,7 +400,6 @@ function measureMutation(c, pot) {
     null,
     retryOpts
   );
-
   cAdmissionsAttempted.add(adm.attempts);
   cAdmissionRetriesTotal.add(adm.retries);
   tAdmissionRetriesPerCmd.add(adm.retries);
@@ -456,35 +409,63 @@ function measureMutation(c, pot) {
   if (adm.isMaintenance503) {
     cMaintenance503.add(1);
     cOracle.add(1);
-    return;
+    return null;
   }
-
-  if (adm.status === 202) {
-    cAdmitted.add(1);
-    if (adm.retries === 0) {
-      cFirstAttemptSuccess.add(1);
-    } else {
-      cRetriedSuccess.add(1);
-    }
-  } else if (adm.status === 503) {
+  if (adm.status === 503) {
     cWriteCapacity503.add(adm.attempts);
     cCapacityRejected.add(1);
-    return;
-  } else {
+    return null;
+  }
+  if (adm.status !== 202 || !O.validateAdmission(adm.status, adm.requestId).ok) {
     cAdmissionErrors.add(1);
     cOracle.add(1);
-    return;
+    return null;
   }
+  cAdmitted.add(1);
+  if (adm.retries === 0) cFirstAttemptSuccess.add(1);
+  else cRetriedSuccess.add(1);
+  return adm;
+}
 
-  const a = O.validateAdmission(adm.status, adm.requestId);
-  if (!a.ok) {
-    cAdmissionErrors.add(1);
-    cOracle.add(1);
-    return;
+function tryParseJson(res) {
+  try {
+    return res.json();
+  } catch (_) {
+    return null;
   }
+}
 
-  const t0_admitted = adm.admittedAt;
-  const deadline = t0_admitted + POLL_TIMEOUT_MS;
+function probeBranch(branch, hdr, tag, accept) {
+  if (branch.at !== null || !branch.url) return { maintenance: false, hardError: null };
+  cProbeRequests.add(1);
+  const res = http.get(branch.url, { headers: hdr, tags: { endpoint: tag } });
+  if (res.status === 200) {
+    const j = tryParseJson(res);
+    if (j !== null && accept(j)) {
+      branch.at = Date.now();
+      branch.data = j;
+    }
+    return { maintenance: false, hardError: null };
+  }
+  if (res.status === 503) {
+    if (classify503(res) === 'maintenance') return { maintenance: true, hardError: null };
+    cReadCapacity503.add(1);
+    sleep(0.025);
+    return { maintenance: false, hardError: null };
+  }
+  if (res.status !== 404) return { maintenance: false, hardError: `${tag}: HTTP ${res.status}` };
+  return { maintenance: false, hardError: null };
+}
+
+function pollSecondaryBranches(branches, hdr) {
+  const targetV = branches.result.data.resultingPotVersion;
+  const bState = probeBranch(branches.balance, hdr, 'probe_balance', (j) => j.potVersion === targetV);
+  if (bState.maintenance || bState.hardError) return bState;
+  return probeBranch(branches.pot, hdr, 'probe_pot', (j) => typeof j.potVersion === 'number' && j.potVersion >= targetV);
+}
+
+function pollMutationReadBranches(c, pot, observed, adm) {
+  const deadline = adm.admittedAt + POLL_TIMEOUT_MS;
   const base = `${BASE_URL}/api/v3`;
   const hdr = c.headers({}, true);
   const branches = {
@@ -492,123 +473,71 @@ function measureMutation(c, pot) {
     balance: { url: null, at: null, data: null },
     pot: { url: null, at: null, data: null },
   };
-
-  let maintenance = false;
-  let hardError = null;
-
-  while (Date.now() < deadline && !maintenance && !hardError) {
-    if (branches.result.at === null) {
-      cProbeRequests.add(1);
-      const res = http.get(branches.result.url, { headers: hdr, tags: { endpoint: 'probe_result' } });
-      if (res.status === 200) {
-        let j = null;
-        try { j = res.json(); } catch (_) { j = null; }
-        if (j !== null && typeof j.outcome === 'string') {
-          branches.result.at = Date.now();
-          branches.result.data = j;
-          const r = O.validateCommandResult(j, observed);
-          if (!r.applied) break;
-          branches.balance.url = `${base}/pots/${pot.potId}/versions/${r.version}/balance`;
-          branches.pot.url = `${base}/pots/${pot.potId}?minVersion=${r.version}`;
-        }
-      } else if (res.status === 503) {
-        if (classify503(res) === 'maintenance') { maintenance = true; break; }
-        cReadCapacity503.add(1);
-        sleep(0.025);
-      } else if (res.status !== 404) {
-        hardError = `result: HTTP ${res.status}`;
-        break;
-      }
+  let state = { maintenance: false, hardError: null };
+  while (Date.now() < deadline && !state.maintenance && !state.hardError) {
+    state = probeBranch(branches.result, hdr, 'probe_result', (j) => typeof j.outcome === 'string');
+    if (state.maintenance || state.hardError) break;
+    if (branches.result.at !== null && !branches.balance.url) {
+      const r = O.validateCommandResult(branches.result.data, observed);
+      if (!r.applied) break;
+      branches.balance.url = `${base}/pots/${pot.potId}/versions/${r.version}/balance`;
+      branches.pot.url = `${base}/pots/${pot.potId}?minVersion=${r.version}`;
     }
-
-    if (branches.result.at !== null && branches.balance.url) {
-      if (branches.balance.at === null) {
-        cProbeRequests.add(1);
-        const res = http.get(branches.balance.url, { headers: hdr, tags: { endpoint: 'probe_balance' } });
-        if (res.status === 200) {
-          let j = null;
-          try { j = res.json(); } catch (_) { j = null; }
-          const targetV = branches.result.data.resultingPotVersion;
-          if (j !== null && j.potVersion === targetV) {
-            branches.balance.at = Date.now();
-            branches.balance.data = j;
-          }
-        } else if (res.status === 503) {
-          if (classify503(res) === 'maintenance') { maintenance = true; break; }
-          cReadCapacity503.add(1);
-          sleep(0.025);
-        } else if (res.status !== 404) {
-          hardError = `balance: HTTP ${res.status}`;
-          break;
-        }
-      }
-
-      if (branches.pot.at === null) {
-        cProbeRequests.add(1);
-        const res = http.get(branches.pot.url, { headers: hdr, tags: { endpoint: 'probe_pot' } });
-        if (res.status === 200) {
-          let j = null;
-          try { j = res.json(); } catch (_) { j = null; }
-          const targetV = branches.result.data.resultingPotVersion;
-          if (j !== null && typeof j.potVersion === 'number' && j.potVersion >= targetV) {
-            branches.pot.at = Date.now();
-            branches.pot.data = j;
-          }
-        } else if (res.status === 503) {
-          if (classify503(res) === 'maintenance') { maintenance = true; break; }
-          cReadCapacity503.add(1);
-          sleep(0.025);
-        } else if (res.status !== 404) {
-          hardError = `pot: HTTP ${res.status}`;
-          break;
-        }
-      }
-
+    if (branches.balance.url) {
+      state = pollSecondaryBranches(branches, hdr);
+      if (state.maintenance || state.hardError) break;
       if (branches.balance.at !== null && branches.pot.at !== null) break;
     }
-
     sleep(POLL_INTERVAL_MS / 1000);
   }
+  return { branches, maintenance: state.maintenance, hardError: state.hardError };
+}
 
+function recordReadBranchMetrics(pot, actualV, t0_send, t0_admitted, branches) {
+  if (branches.balance.at === null) {
+    cCensored.add(1);
+  } else {
+    const vb = O.validateBalanceExact(branches.balance.data, actualV, pot.potId, pot.shareholders);
+    if (vb.ok) tBalance.add(branches.balance.at - t0_admitted);
+    else cOracle.add(1);
+  }
+  if (branches.pot.at === null) {
+    cCensored.add(1);
+    return;
+  }
+  const vp = O.validatePotComplete(branches.pot.data, actualV, pot.potId, {
+    shareholders: SHAREHOLDERS,
+    expenses: pot.expenses,
+  });
+  if (!vp.ok) { cOracle.add(1); return; }
+  tPot.add(branches.pot.at - t0_admitted);
+  tReadLag.add(branches.pot.at - branches.result.at);
+  tE2ETotal.add(branches.pot.at - t0_send);
+}
+
+function measureMutation(c, pot) {
+  const observed = pot.version;
+  const t0_send = Date.now();
+  const adm = submitMeasuredAdmission(c, pot, observed);
+  if (!adm) return;
+
+  const t0_admitted = adm.admittedAt;
+  const { branches, maintenance, hardError } = pollMutationReadBranches(c, pot, observed, adm);
   if (maintenance) { cMaintenance503.add(1); cOracle.add(1); return; }
   if (hardError) { cOracle.add(1); return; }
   if (branches.result.at === null) { cCensored.add(1); return; }
 
   cTerminal.add(1);
-  const durTerminal = branches.result.at - t0_admitted;
-  tTerminal.add(durTerminal);
+  tTerminal.add(branches.result.at - t0_admitted);
 
   const r = O.validateCommandResult(branches.result.data, observed);
   if (!r.applied) { cRejected.add(1); return; }
   if (r.version <= observed) { cOracle.add(1); pot.version = r.version; return; }
 
   cApplied.add(1);
-  const actualV = r.version;
-  pot.version = actualV;
+  pot.version = r.version;
   pot.expenses += 1;
-
-  if (branches.balance.at === null) {
-    cCensored.add(1);
-  } else {
-    const vb = O.validateBalanceExact(branches.balance.data, actualV, pot.potId, pot.shareholders);
-    if (vb.ok) tBalance.add(branches.balance.at - t0_admitted); else cOracle.add(1);
-  }
-
-  if (branches.pot.at === null) {
-    cCensored.add(1);
-  } else {
-    const vp = O.validatePotComplete(branches.pot.data, actualV, pot.potId, {
-      shareholders: SHAREHOLDERS,
-      expenses: pot.expenses,
-    });
-    if (vp.ok) {
-      tPot.add(branches.pot.at - t0_admitted);
-      tReadLag.add(branches.pot.at - branches.result.at);
-      tE2ETotal.add(branches.pot.at - t0_send);
-    } else {
-      cOracle.add(1);
-    }
-  }
+  recordReadBranchMetrics(pot, r.version, t0_send, t0_admitted, branches);
 }
 
 function contentionIteration(c, data) {

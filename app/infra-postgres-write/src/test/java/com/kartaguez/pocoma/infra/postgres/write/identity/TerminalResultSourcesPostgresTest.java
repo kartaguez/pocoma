@@ -4,6 +4,8 @@ import com.kartaguez.pocoma.infra.postgres.source.*;
 import com.kartaguez.pocoma.contract.writeadmission.IdentityRequest;
 import com.kartaguez.pocoma.domain.identity.BindingToken;
 import com.kartaguez.pocoma.infra.postgres.write.*;
+import com.kartaguez.pocoma.infra.postgres.write.admission.*;
+import com.kartaguez.pocoma.infra.postgres.write.pot.*;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import static org.junit.jupiter.api.Assertions.*;

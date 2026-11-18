@@ -33,14 +33,14 @@ import com.kartaguez.pocoma.contract.consumption.spi.ClaimedSlot;
 import com.kartaguez.pocoma.contract.consumption.spi.LifecycleSettings;
 import com.kartaguez.pocoma.contract.writeadmission.PotCommand;
 import com.kartaguez.pocoma.domain.consumption.ConsumptionId;
-import com.kartaguez.pocoma.domain.pot.Amount;
-import com.kartaguez.pocoma.domain.pot.ExpenseDetails;
-import com.kartaguez.pocoma.domain.pot.ExpenseFinancials;
-import com.kartaguez.pocoma.domain.pot.Fraction;
-import com.kartaguez.pocoma.domain.pot.InconsistentPotFactsException;
+import com.kartaguez.pocoma.domain.pot.value.Amount;
+import com.kartaguez.pocoma.domain.pot.expense.ExpenseDetails;
+import com.kartaguez.pocoma.domain.pot.expense.ExpenseFinancials;
+import com.kartaguez.pocoma.domain.pot.value.Fraction;
+import com.kartaguez.pocoma.domain.pot.revision.InconsistentPotFactsException;
 import com.kartaguez.pocoma.domain.pot.PotBalanceCalculator;
 import com.kartaguez.pocoma.domain.pot.ShareholderTransitions;
-import com.kartaguez.pocoma.domain.pot.Weight;
+import com.kartaguez.pocoma.domain.pot.value.Weight;
 import com.kartaguez.pocoma.domain.pot.value.Label;
 import com.kartaguez.pocoma.domain.pot.value.Name;
 import com.kartaguez.pocoma.domain.pot.value.UserId;
@@ -50,8 +50,8 @@ import com.kartaguez.pocoma.domain.pot.value.id.ShareholderId;
 import com.kartaguez.pocoma.engine.write.pot.CalculatePotBalances;
 import com.kartaguez.pocoma.engine.write.pot.ExecutePotCommand;
 import com.kartaguez.pocoma.engine.write.pot.port.execution.PotActorAuthority;
-import com.kartaguez.pocoma.infra.postgres.write.JdbcPotHistoryAdapter;
-import com.kartaguez.pocoma.infra.postgres.write.PotCommandJson;
+import com.kartaguez.pocoma.infra.postgres.write.pot.JdbcPotHistoryAdapter;
+import com.kartaguez.pocoma.infra.postgres.write.pot.PotCommandJson;
 import com.kartaguez.pocoma.infra.tx.spring.SpringAttemptTransactions;
 import com.kartaguez.pocoma.orchestrator.consumption.CommandReservedClaimFixture;
 import com.kartaguez.pocoma.orchestrator.consumption.ConsumptionEngine;
@@ -411,13 +411,13 @@ class PotCommandCompositionPostgresTest {
                     h.owner.<Boolean>read(
                             c ->
                                     new com.kartaguez.pocoma.engine.write.pot.ExecutePotCommand(
-                                                    new com.kartaguez.pocoma.infra.postgres.write.JdbcPotCommandStore(
+                                                    new com.kartaguez.pocoma.infra.postgres.write.pot.JdbcPotCommandStore(
                                                             h.source, h.owner),
-                                                    new com.kartaguez.pocoma.infra.postgres.write
+                                                    new com.kartaguez.pocoma.infra.postgres.write.pot
                                                             .JdbcPotCommandObservation(h.source),
                                                     h.real,
                                                     new JdbcPotHistoryAdapter(h.source),
-                                                    new com.kartaguez.pocoma.infra.postgres.write.JdbcPotRevisionAdapter(
+                                                    new com.kartaguez.pocoma.infra.postgres.write.pot.JdbcPotRevisionAdapter(
                                                             h.source),
                                                     Clock.systemUTC())
                                             .prepare(command.requestId(), inSnapshot(c))

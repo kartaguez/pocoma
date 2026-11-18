@@ -54,10 +54,10 @@ import com.kartaguez.pocoma.contract.consumption.spi.PartitionLease;
 import com.kartaguez.pocoma.contract.consumption.spi.RecoveryObservation;
 import com.kartaguez.pocoma.domain.consumption.ConsumptionCatalog;
 import com.kartaguez.pocoma.domain.consumption.ConsumptionDefinition;
-import com.kartaguez.pocoma.infra.postgres.core.BootstrapGuard;
-import com.kartaguez.pocoma.infra.postgres.core.JdbcConsumptionSlotStore;
-import com.kartaguez.pocoma.infra.postgres.core.JdbcDiscoveryAdmissionStore;
-import com.kartaguez.pocoma.infra.postgres.core.JdbcPartitionOwnershipStore;
+import com.kartaguez.pocoma.infra.postgres.core.bootstrap.BootstrapGuard;
+import com.kartaguez.pocoma.infra.postgres.core.consumption.JdbcConsumptionSlotStore;
+import com.kartaguez.pocoma.infra.postgres.core.consumption.JdbcDiscoveryAdmissionStore;
+import com.kartaguez.pocoma.infra.postgres.core.consumption.JdbcPartitionOwnershipStore;
 import com.kartaguez.pocoma.infra.postgres.source.JdbcEventDiscoveryReferences;
 import com.kartaguez.pocoma.infra.tx.spring.SpringAttemptTransactions;
 import com.kartaguez.pocoma.orchestrator.consumption.ConsumptionEngine;
@@ -335,7 +335,7 @@ class ConsumptionLifecycleCompositionPostgresTest {
                 PotCommandComposition.class.isAnnotationPresent(
                         org.springframework.context.annotation.Configuration.class));
         var slots =
-                new com.kartaguez.pocoma.infra.postgres.core.JdbcConsumptionSlotStore(target.source());
+                new com.kartaguez.pocoma.infra.postgres.core.consumption.JdbcConsumptionSlotStore(target.source());
         assertThrows(
                 RuntimeException.class,
                 () -> slots.renew(List.of(), java.time.Duration.ofSeconds(60)));

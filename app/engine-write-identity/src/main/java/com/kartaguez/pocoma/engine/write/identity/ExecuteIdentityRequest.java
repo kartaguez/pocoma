@@ -42,60 +42,78 @@ public final class ExecuteIdentityRequest implements ConsumptionParticipant {
                         .orElseThrow(() -> new IllegalStateException("Identity request missing"));
         if (stored.status() == IdentityRequestStore.Status.TERMINAL) return Optional.empty();
         var request = stored.request();
-        if (request.operation() instanceof IdentityRequest.Link)
+        if (request.operation() instanceof IdentityRequest.Link) {
             throw new IllegalStateException("Pending retired Identity Link request");
-        return Optional.of(
-                new Prepared() {
-                    private IdentityTransitionResult actual;
+        }
+        return Optional.of(new PreparedIdentityRequest(requestId, stored, request));
+    }
 
-                    @Override
-                    public void finalizeIn(SlotCompletion completion) {
-                        if (actual != null)
-                            throw new IllegalStateException("Identity proposal already finalized");
-                        var durable = store.load(requestId).orElseThrow();
-                        if (!durable.equals(stored))
-                            throw new IllegalStateException("Identity intention changed");
-                        var ids =
-                                authority.lockInCanonicalOrder(
-                                        List.of(request.requesterEui(), request.target()));
-                        var initiator = authority.current(request.requesterEui());
-                        var target =
-                                request.requesterEui().equals(request.target())
-                                        ? initiator
-                                        : authority.current(request.target());
-                        actual =
-                                switch (request.operation()) {
-                                    case IdentityRequest.Registration ignored ->
-                                            IdentityTransitions.registration(
-                                                    request.requesterEui(),
-                                                    target,
-                                                    ids.get(request.target()),
-                                                    new PocomaUserId(userIds.get()),
-                                                    tokens.get());
-                                    case IdentityRequest.Link ignored ->
-                                            throw new IllegalStateException("Retired Identity operation");
-                                    case IdentityRequest.Unlink ignored ->
-                                            IdentityTransitions.unlink(
-                                                    request.requesterEui(),
-                                                    request.bindingToken(),
-                                                    initiator,
-                                                    request.target(),
-                                                    target);
-                                };
-                        if (actual instanceof IdentityTransitionResult.Changed changed)
-                            authority.apply(changed, requestId);
-                        store.finishTerminal(request, IdentityRequestStore.Result.from(actual));
-                        completion.complete();
-                        store.publish(request, actual);
-                    }
+    private final class PreparedIdentityRequest implements Prepared {
+        private final UUID requestId;
+        private final IdentityRequestStore.Stored stored;
+        private final IdentityRequest request;
+        private IdentityTransitionResult actual;
 
-                    @Override
-                    public void requireCompletionReady() {
-                        if (actual == null)
-                            throw new IllegalStateException("Identity transition not finalized");
-                        store.requireCompletionReady(request, actual);
-                    }
-                });
+        PreparedIdentityRequest(
+                UUID requestId, IdentityRequestStore.Stored stored, IdentityRequest request) {
+            this.requestId = requestId;
+            this.stored = stored;
+            this.request = request;
+        }
+
+        @Override
+        public void finalizeIn(SlotCompletion completion) {
+            if (actual != null) {
+                throw new IllegalStateException("Identity proposal already finalized");
+            }
+            var durable = store.load(requestId).orElseThrow();
+            if (!durable.equals(stored)) {
+                throw new IllegalStateException("Identity intention changed");
+            }
+            actual = computeTransition(request);
+            if (actual instanceof IdentityTransitionResult.Changed changed) {
+                authority.apply(changed, requestId);
+            }
+            store.finishTerminal(request, IdentityRequestStore.Result.from(actual));
+            completion.complete();
+            store.publish(request, actual);
+        }
+
+        @Override
+        public void requireCompletionReady() {
+            if (actual == null) {
+                throw new IllegalStateException("Identity transition not finalized");
+            }
+            store.requireCompletionReady(request, actual);
+        }
+    }
+
+    private IdentityTransitionResult computeTransition(IdentityRequest request) {
+        var ids =
+                authority.lockInCanonicalOrder(List.of(request.requesterEui(), request.target()));
+        var initiator = authority.current(request.requesterEui());
+        var target =
+                request.requesterEui().equals(request.target())
+                        ? initiator
+                        : authority.current(request.target());
+        return switch (request.operation()) {
+            case IdentityRequest.Registration ignored ->
+                    IdentityTransitions.registration(
+                            request.requesterEui(),
+                            target,
+                            ids.get(request.target()),
+                            new PocomaUserId(userIds.get()),
+                            tokens.get());
+            case IdentityRequest.Link ignored ->
+                    throw new IllegalStateException("Retired Identity operation");
+            case IdentityRequest.Unlink ignored ->
+                    IdentityTransitions.unlink(
+                            request.requesterEui(),
+                            request.bindingToken(),
+                            initiator,
+                            request.target(),
+                            target);
+        };
     }
 
     @Override

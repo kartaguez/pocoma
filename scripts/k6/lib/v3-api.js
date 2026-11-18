@@ -43,6 +43,35 @@ export class V3ApiClient {
     return h;
   }
 
+  _isCapacity503(res) {
+    return Boolean(res) && res.status === 503 && classify503(res) === 'capacity';
+  }
+
+  _isMaintenance503(res) {
+    return Boolean(res) && res.status === 503 && classify503(res) === 'maintenance';
+  }
+
+  _parseJsonSafe(res) {
+    try { return res.json(); } catch (_) { return null; }
+  }
+
+  _readJson(path, endpointTag) {
+    const start = Date.now();
+    const res = http.get(`${this.baseUrl}${path}`, {
+      headers: this.headers({}, true),
+      tags: { endpoint: endpointTag },
+    });
+    const data = res.status === 200 ? this._parseJsonSafe(res) : null;
+    return {
+      status: res.status,
+      duration: res.timings.duration,
+      elapsed: Date.now() - start,
+      data,
+      isCapacity503: this._isCapacity503(res),
+      isMaintenance503: this._isMaintenance503(res),
+    };
+  }
+
   // ---- Admission -------------------------------------------------------------
   submitCommand(operation, potId, observedVersion, payload, idempotencyKey, retryOptions = {}) {
     const key = idempotencyKey || `perf-${operation}-${potId}-${observedVersion}-${Math.random().toString(36).slice(2, 10)}`;
@@ -63,19 +92,15 @@ export class V3ApiClient {
         headers: this.headers({ 'Idempotency-Key': key }),
         tags: { endpoint: 'admission_command', operation },
       });
-      if (attempts === 1) {
-        firstDuration = res.timings.duration;
-      }
+      if (attempts === 1) firstDuration = res.timings.duration;
       if (res.status === 202) {
-        try { requestId = res.json().requestId || null; } catch (_) { requestId = null; }
+        const parsed = this._parseJsonSafe(res);
+        requestId = (parsed && parsed.requestId) || null;
         break;
       }
-      if (res.status === 503 && classify503(res) === 'capacity' && attempts <= maxRetries) {
-        retries++;
-        sleep((baseBackoffMs * attempts) / 1000);
-        continue;
-      }
-      break;
+      if (!this._isCapacity503(res) || attempts > maxRetries) break;
+      retries++;
+      sleep((baseBackoffMs * attempts) / 1000);
     }
 
     const admittedAt = Date.now();
@@ -88,90 +113,48 @@ export class V3ApiClient {
       attempts,
       retries,
       wasRetried: retries > 0,
-      isCapacity503: res ? (res.status === 503 && classify503(res) === 'capacity') : false,
-      isMaintenance503: res ? (res.status === 503 && classify503(res) === 'maintenance') : false,
+      isCapacity503: this._isCapacity503(res),
+      isMaintenance503: this._isMaintenance503(res),
     };
   }
 
   // ---- Pure Read Queries -----------------------------------------------------
   getPotCurrent(potId) {
-    const start = Date.now();
-    const res = http.get(`${this.baseUrl}/api/v3/pots/${potId}`, {
-      headers: this.headers({}, true),
-      tags: { endpoint: 'read_pot_current' },
-    });
-    let data = null;
-    if (res.status === 200) {
-      try { data = res.json(); } catch (_) { data = null; }
-    }
-    return {
-      status: res.status,
-      duration: res.timings.duration,
-      elapsed: Date.now() - start,
-      data,
-      isCapacity503: res.status === 503 && classify503(res) === 'capacity',
-      isMaintenance503: res.status === 503 && classify503(res) === 'maintenance',
-    };
+    return this._readJson(`/api/v3/pots/${potId}`, 'read_pot_current');
   }
 
   getPotVersion(potId, version) {
-    const start = Date.now();
-    const res = http.get(`${this.baseUrl}/api/v3/pots/${potId}/versions/${version}`, {
-      headers: this.headers({}, true),
-      tags: { endpoint: 'read_pot_version' },
-    });
-    let data = null;
-    if (res.status === 200) {
-      try { data = res.json(); } catch (_) { data = null; }
-    }
-    return {
-      status: res.status,
-      duration: res.timings.duration,
-      elapsed: Date.now() - start,
-      data,
-      isCapacity503: res.status === 503 && classify503(res) === 'capacity',
-      isMaintenance503: res.status === 503 && classify503(res) === 'maintenance',
-    };
+    return this._readJson(`/api/v3/pots/${potId}/versions/${version}`, 'read_pot_version');
   }
 
   getPotBalance(potId, version) {
-    const start = Date.now();
-    const res = http.get(`${this.baseUrl}/api/v3/pots/${potId}/versions/${version}/balance`, {
-      headers: this.headers({}, true),
-      tags: { endpoint: 'read_pot_balance' },
-    });
-    let data = null;
-    if (res.status === 200) {
-      try { data = res.json(); } catch (_) { data = null; }
-    }
-    return {
-      status: res.status,
-      duration: res.timings.duration,
-      elapsed: Date.now() - start,
-      data,
-      isCapacity503: res.status === 503 && classify503(res) === 'capacity',
-      isMaintenance503: res.status === 503 && classify503(res) === 'maintenance',
-    };
+    return this._readJson(`/api/v3/pots/${potId}/versions/${version}/balance`, 'read_pot_balance');
   }
 
   queryExpenses(potId, limit = 50) {
-    const start = Date.now();
-    const res = http.get(`${this.baseUrl}/api/v3/pots/${potId}/expenses/query?limit=${limit}`, {
-      headers: this.headers({}, true),
-      tags: { endpoint: 'read_expenses_query' },
-    });
-    let data = null;
+    return this._readJson(`/api/v3/pots/${potId}/expenses/query?limit=${limit}`, 'read_expenses_query');
+  }
+
+  _evaluatePollResponse(res, accept, start, stats) {
     if (res.status === 200) {
-      try { data = res.json(); } catch (_) { data = null; }
+      const json = this._parseJsonSafe(res);
+      if (json !== null && accept(json)) {
+        return { outcome: 'OK', data: json, elapsed: Date.now() - start, ...stats };
+      }
+      return null;
     }
-    return {
-      status: res.status,
-      duration: res.timings.duration,
-      elapsed: Date.now() - start,
-      data,
-      isCapacity503: res.status === 503 && classify503(res) === 'capacity',
-      isMaintenance503: res.status === 503 && classify503(res) === 'maintenance',
-    };
+    if (res.status === 404) {
+      stats.notFound++;
+      return null;
+    }
+    if (res.status === 503) {
+      if (classify503(res) === 'maintenance') {
+        return { outcome: 'MAINTENANCE_503', elapsed: Date.now() - start, ...stats };
+      }
+      stats.capacity503++;
+      return null;
+    }
+    return { outcome: 'HTTP_ERROR', status: res.status, elapsed: Date.now() - start, ...stats };
   }
 
   // ---- Generic bounded poll --------------------------------------------------
@@ -182,23 +165,8 @@ export class V3ApiClient {
     while (Date.now() < deadline) {
       stats.attempts++;
       const res = http.get(url, { headers: this.headers({}, withBinding), tags: { endpoint: endpointTag } });
-      if (res.status === 200) {
-        let json = null;
-        try { json = res.json(); } catch (_) { json = null; }
-        if (json !== null && accept(json)) {
-          return { outcome: 'OK', data: json, elapsed: Date.now() - start, ...stats };
-        }
-        // 200 not satisfying predicate (e.g. W<V not possible with minVersion, or balance V mismatch)
-      } else if (res.status === 404) {
-        stats.notFound++;
-      } else if (res.status === 503) {
-        if (classify503(res) === 'maintenance') {
-          return { outcome: 'MAINTENANCE_503', elapsed: Date.now() - start, ...stats };
-        }
-        stats.capacity503++;
-      } else {
-        return { outcome: 'HTTP_ERROR', status: res.status, elapsed: Date.now() - start, ...stats };
-      }
+      const result = this._evaluatePollResponse(res, accept, start, stats);
+      if (result) return result;
       sleep(this.pollIntervalMs / 1000);
     }
     return { outcome: 'TIMEOUT', elapsed: Date.now() - start, ...stats };

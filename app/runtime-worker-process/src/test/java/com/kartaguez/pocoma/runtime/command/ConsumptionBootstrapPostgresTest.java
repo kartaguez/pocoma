@@ -34,8 +34,8 @@ import com.kartaguez.pocoma.domain.consumption.ConsumptionCatalog;
 import com.kartaguez.pocoma.domain.consumption.ConsumptionDefinition;
 import com.kartaguez.pocoma.domain.consumption.ConsumptionDefinition.Authority;
 import com.kartaguez.pocoma.domain.consumption.ConsumptionId;
-import com.kartaguez.pocoma.infra.postgres.core.BootstrapGuard;
-import com.kartaguez.pocoma.infra.postgres.core.BootstrapGuard.Target;
+import com.kartaguez.pocoma.infra.postgres.core.bootstrap.BootstrapGuard;
+import com.kartaguez.pocoma.infra.postgres.core.bootstrap.BootstrapGuard.Target;
 
 @Testcontainers
 class ConsumptionBootstrapPostgresTest {
@@ -424,13 +424,13 @@ class ConsumptionBootstrapPostgresTest {
     void rejectsAllOldWriterOwnerAndPollerTypesBeforeInstantiation() {
         for (Class<?> type :
                 List.of(
-                        com.kartaguez.pocoma.infra.postgres.write.JdbcPotCommandStore
+                        com.kartaguez.pocoma.infra.postgres.write.pot.JdbcPotCommandStore
                                 .class,
                         com.kartaguez.pocoma.infra.tx.spring.SpringAttemptTransactions.class,
                         com.kartaguez.pocoma.engine.write.pot.ExecutePotCommand.class,
                         com.kartaguez.pocoma.orchestrator.consumption.ConsumptionEngine.class,
-                        com.kartaguez.pocoma.infra.postgres.core.JdbcConsumptionSlotStore.class,
-                        com.kartaguez.pocoma.infra.postgres.write
+                        com.kartaguez.pocoma.infra.postgres.core.consumption.JdbcConsumptionSlotStore.class,
+                        com.kartaguez.pocoma.infra.postgres.write.pot
                                 .JdbcPotCommandObservation.class)) {
             try (var context =
                     new org.springframework.context.annotation

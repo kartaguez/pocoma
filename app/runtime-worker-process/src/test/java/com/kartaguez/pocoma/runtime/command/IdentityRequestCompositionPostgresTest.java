@@ -50,8 +50,8 @@ import com.kartaguez.pocoma.domain.identity.BindingToken;
 import com.kartaguez.pocoma.domain.identity.ExternalIdentity;
 import com.kartaguez.pocoma.domain.pot.value.Label;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
-import com.kartaguez.pocoma.infra.postgres.core.BootstrapGuard;
-import com.kartaguez.pocoma.infra.postgres.write.PotCommandJson;
+import com.kartaguez.pocoma.infra.postgres.core.bootstrap.BootstrapGuard;
+import com.kartaguez.pocoma.infra.postgres.write.pot.PotCommandJson;
 import com.kartaguez.pocoma.infra.postgres.write.identity.IdentityRequestJson;
 import com.kartaguez.pocoma.infra.postgres.write.identity.JdbcIdentityAuthority;
 import com.kartaguez.pocoma.infra.postgres.write.identity.JdbcIdentityRequestObservation;
@@ -805,7 +805,7 @@ class IdentityRequestCompositionPostgresTest {
                             .findFirst()
                             .orElseThrow();
             var ownership =
-                    new com.kartaguez.pocoma.infra.postgres.core.JdbcPartitionOwnershipStore(read);
+                    new com.kartaguez.pocoma.infra.postgres.core.consumption.JdbcPartitionOwnershipStore(read);
             var discovery =
                     com.kartaguez.pocoma.compose.polling.materialize.ConsumptionDiscoveryComposition.events(
                             guard,
@@ -1076,7 +1076,7 @@ class IdentityRequestCompositionPostgresTest {
         try (var f = new Fixture(PG)) {
             var context = f.start();
             var resources = context.getBean(
-                    com.kartaguez.pocoma.compose.polling.process.ProcessComposeConfiguration.Resources.class);
+                    com.kartaguez.pocoma.compose.polling.process.ProcessResources.class);
             var owner = resources.writeEffects;
             var pool = resources.writeBusiness;
             var authority = new JdbcIdentityAuthority(pool, owner);

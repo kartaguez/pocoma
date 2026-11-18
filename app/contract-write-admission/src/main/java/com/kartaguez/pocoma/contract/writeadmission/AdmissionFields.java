@@ -88,23 +88,31 @@ public final class AdmissionFields {
             return;
         }
         if (value instanceof Map<?, ?> map) {
-            out.writeByte(3);
-            out.writeInt(map.size());
-            var sorted = new TreeMap<String, Object>();
-            map.forEach((k, v) -> sorted.put((String) k, v));
-            for (var e : sorted.entrySet()) {
-                encode(out, e.getKey());
-                encode(out, e.getValue());
-            }
+            encodeMap(out, map);
             return;
         }
         if (value instanceof List<?> list) {
-            out.writeByte(4);
-            out.writeInt(list.size());
-            for (var item : list) encode(out, item);
+            encodeList(out, list);
             return;
         }
         throw new AdmissionFailure(400);
+    }
+
+    private static void encodeMap(DataOutputStream out, Map<?, ?> map) throws IOException {
+        out.writeByte(3);
+        out.writeInt(map.size());
+        var sorted = new TreeMap<String, Object>();
+        map.forEach((k, v) -> sorted.put((String) k, v));
+        for (var e : sorted.entrySet()) {
+            encode(out, e.getKey());
+            encode(out, e.getValue());
+        }
+    }
+
+    private static void encodeList(DataOutputStream out, List<?> list) throws IOException {
+        out.writeByte(4);
+        out.writeInt(list.size());
+        for (var item : list) encode(out, item);
     }
 
     public static void textsWithin(Object value, int bytes) {

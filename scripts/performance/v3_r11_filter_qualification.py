@@ -163,29 +163,64 @@ def run_benchmark(scenario: str, duration: str = "30s", rate: Optional[int] = No
     return data
 
 
+def _stage_summary(stage: Dict[str, Any], include_max: bool = False) -> Dict[str, Any]:
+    summary = {
+        "p50": stage.get("p50"),
+        "p95": stage.get("p95"),
+        "p99": stage.get("p99"),
+        "avg": stage.get("avg"),
+        "count": stage.get("count"),
+    }
+    if include_max:
+        summary["max"] = stage.get("max")
+    return summary
+
+
+def _client_latency_summary(dec: Dict[str, Any], fallback: Dict[str, Any]) -> Dict[str, Any]:
+    return {
+        "p50": dec.get("p50") or fallback.get("p50"),
+        "p95": dec.get("p95") or fallback.get("p95"),
+        "p99": dec.get("p99") or fallback.get("p99"),
+        "avg": dec.get("mean") or fallback.get("avg"),
+    }
+
+
+def _extract_throughputs(cm: Dict[str, Any], dm: Dict[str, Any]) -> Dict[str, Any]:
+    rates = dm.get("ratesPerSecond") or {}
+    counts = dm.get("counts") or {}
+    return {
+        "demandedRate": rates.get("demanded", cm.get("admissionsOffered", 0) / 30.0),
+        "emittedRate": rates.get("emitted", cm.get("admissionsOffered", 0) / 30.0),
+        "admittedRate": rates.get("admitted", cm.get("admissionsAccepted", 0) / 30.0),
+        "completedRate": rates.get("applied", cm.get("commandsApplied", 0) / 30.0),
+        "offeredCount": counts.get("emitted", cm.get("admissionsOffered", 0)),
+        "admittedCount": counts.get("admitted", cm.get("admissionsAccepted", 0)),
+        "appliedCount": counts.get("applied", cm.get("commandsApplied", 0)),
+    }
+
+
+def _extract_reliability(et: Dict[str, Any], cm: Dict[str, Any], dm: Dict[str, Any]) -> Dict[str, Any]:
+    return {
+        "admissionErrors": cm.get("admissionErrors", 0),
+        "oracleFailures": cm.get("oracleFailures", 0),
+        "write503Capacity": cm.get("write503Capacity", 0),
+        "read503Capacity": cm.get("read503Capacity", 0),
+        "retriesTotal": cm.get("retriesTotal", 0),
+        "droppedIterations": cm.get("droppedIterations", 0),
+        "potStarvationCount": (dm.get("mixReport") or {}).get("potStarvationCount", 0),
+        "pendingCommandQueue": et.get("physicalPendingCommand", 0),
+        "pendingReadBacklog": et.get("physicalPendingPotVersion", 0),
+    }
+
+
 def extract_metrics(report: Dict[str, Any], q_before: int, q_after: int, q_dist: Dict[int, int], pg_buf: Dict[str, Any]) -> Dict[str, Any]:
     et = report.get("engineTelemetry", {})
     st = et.get("stages", {})
-    ww = st.get("writeWait", {})
-    rd = st.get("readDiscovery", {})
-    adm_eng = st.get("admissionHttp", {})
-    w_tot = st.get("writeTotalAttempt", {})
-    r_tot = st.get("readProjectionTotalAttempt", {})
-
     cm = report.get("k6ClientMetrics", {})
     lat = cm.get("latencies", {})
-    cmd_res = lat.get("commandResult", {})
-    e2e = lat.get("e2eTotal", {})
     adm_1st = lat.get("admissionFirstTry", {})
-    adm_retries = lat.get("admissionWithRetries", {})
-
     dm = report.get("decoupledMetrics") or {}
-    rates = dm.get("ratesPerSecond") or {}
-    counts = dm.get("counts") or {}
     dm_lat = dm.get("latencies") or {}
-    dec_e2e = dm_lat.get("e2eTotal") or {}
-    dec_term = dm_lat.get("terminal") or {}
-
     sys_t = report.get("systemTelemetry", {})
     pg_t = report.get("postgresTelemetry", {})
 
@@ -197,60 +232,18 @@ def extract_metrics(report: Dict[str, Any], q_before: int, q_after: int, q_dist:
             "before": q_before,
             "after": q_after,
             "preserved": (q_after >= q_before if q_before > 0 else True),
-            "distribution": q_dist
+            "distribution": q_dist,
         },
-        "throughputs": {
-            "demandedRate": rates.get("demanded", cm.get("admissionsOffered", 0) / 30.0),
-            "emittedRate": rates.get("emitted", cm.get("admissionsOffered", 0) / 30.0),
-            "admittedRate": rates.get("admitted", cm.get("admissionsAccepted", 0) / 30.0),
-            "completedRate": rates.get("applied", cm.get("commandsApplied", 0) / 30.0),
-            "offeredCount": counts.get("emitted", cm.get("admissionsOffered", 0)),
-            "admittedCount": counts.get("admitted", cm.get("admissionsAccepted", 0)),
-            "appliedCount": counts.get("applied", cm.get("commandsApplied", 0)),
-        },
+        "throughputs": _extract_throughputs(cm, dm),
         "engineLatenciesMs": {
-            "writeWait": {
-                "p50": ww.get("p50"),
-                "p95": ww.get("p95"),
-                "p99": ww.get("p99"),
-                "avg": ww.get("avg"),
-                "count": ww.get("count"),
-                "max": ww.get("max")
-            },
-            "readDiscovery": {
-                "p50": rd.get("p50"),
-                "p95": rd.get("p95"),
-                "p99": rd.get("p99"),
-                "avg": rd.get("avg"),
-                "count": rd.get("count")
-            },
-            "admissionHttp": {
-                "p50": adm_eng.get("p50"),
-                "p95": adm_eng.get("p95"),
-                "p99": adm_eng.get("p99"),
-                "avg": adm_eng.get("avg"),
-                "count": adm_eng.get("count")
-            }
+            "writeWait": _stage_summary(st.get("writeWait", {}), include_max=True),
+            "readDiscovery": _stage_summary(st.get("readDiscovery", {})),
+            "admissionHttp": _stage_summary(st.get("admissionHttp", {})),
         },
         "clientLatenciesMs": {
-            "admissionFirstTry": {
-                "p50": adm_1st.get("p50"),
-                "p95": adm_1st.get("p95"),
-                "p99": adm_1st.get("p99"),
-                "avg": adm_1st.get("avg")
-            },
-            "commandResult": {
-                "p50": dec_term.get("p50") or cmd_res.get("p50"),
-                "p95": dec_term.get("p95") or cmd_res.get("p95"),
-                "p99": dec_term.get("p99") or cmd_res.get("p99"),
-                "avg": dec_term.get("mean") or cmd_res.get("avg")
-            },
-            "e2eTotal": {
-                "p50": dec_e2e.get("p50") or e2e.get("p50"),
-                "p95": dec_e2e.get("p95") or e2e.get("p95"),
-                "p99": dec_e2e.get("p99") or e2e.get("p99"),
-                "avg": dec_e2e.get("mean") or e2e.get("avg")
-            }
+            "admissionFirstTry": {k: adm_1st.get(k) for k in ("p50", "p95", "p99", "avg")},
+            "commandResult": _client_latency_summary(dm_lat.get("terminal") or {}, lat.get("commandResult", {})),
+            "e2eTotal": _client_latency_summary(dm_lat.get("e2eTotal") or {}, lat.get("e2eTotal", {})),
         },
         "system": {
             "jvmHeapMb": round((sys_t.get("jvmHeapUsedBytes") or 0) / (1024 * 1024), 2),
@@ -258,19 +251,9 @@ def extract_metrics(report: Dict[str, Any], q_before: int, q_after: int, q_dist:
             "systemCpuPct": round(((sys_t.get("systemCpuUsage") or 0) * 100), 2),
             "activePgSessions": pg_t.get("activeSessions"),
             "totalPgSessions": pg_t.get("totalSessions"),
-            "pgBuffer": pg_buf
+            "pgBuffer": pg_buf,
         },
-        "reliability": {
-            "admissionErrors": cm.get("admissionErrors", 0),
-            "oracleFailures": cm.get("oracleFailures", 0),
-            "write503Capacity": cm.get("write503Capacity", 0),
-            "read503Capacity": cm.get("read503Capacity", 0),
-            "retriesTotal": cm.get("retriesTotal", 0),
-            "droppedIterations": cm.get("droppedIterations", 0),
-            "potStarvationCount": (dm.get("mixReport") or {}).get("potStarvationCount", 0),
-            "pendingCommandQueue": et.get("physicalPendingCommand", 0),
-            "pendingReadBacklog": et.get("physicalPendingPotVersion", 0)
-        }
+        "reliability": _extract_reliability(et, cm, dm),
     }
 
 
@@ -288,32 +271,32 @@ def record_scenario_result(scenario_id: str, data: Dict[str, Any]) -> None:
     print(f"[✓] Scenario {scenario_id} recorded in {RESULTS_FILE}")
 
 
+def _prepare_quarantines(quarantined_count: int, target_partition: Optional[int]) -> None:
+    current_q = get_quarantined_count()
+    if quarantined_count == 0:
+        if current_q > 0:
+            cleanup_quarantined_slots()
+        return
+    if current_q == quarantined_count:
+        print(f"[*] Reusing existing {current_q} quarantined slots.")
+        return
+    cleanup_quarantined_slots()
+    inject_quarantined_slots(quarantined_count, target_partition=target_partition)
+
+
 def execute_scenario(scenario_id: str, scenario_name: str, target_rate: int, quarantined_count: int,
                      target_partition: Optional[int], duration: str = "30s") -> Dict[str, Any]:
     print("\n" + "=" * 80)
     print(f"▶ Executing {scenario_id}: {scenario_name} (Rate: {target_rate} cmd/s, Quarantines: {quarantined_count})")
     print("=" * 80)
 
-    # 1. State preparation
-    current_q = get_quarantined_count()
-    if quarantined_count == 0:
-        if current_q > 0:
-            cleanup_quarantined_slots()
-    else:
-        if current_q != quarantined_count:
-            cleanup_quarantined_slots()
-            inject_quarantined_slots(quarantined_count, target_partition=target_partition)
-        else:
-            print(f"[*] Reusing existing {current_q} quarantined slots.")
-
+    _prepare_quarantines(quarantined_count, target_partition)
     q_before = get_quarantined_count()
     q_dist = get_quarantine_distribution()
     print(f"[*] Quarantined slots before run: {q_before}")
 
-    # 2. Run benchmark
     report = run_benchmark(scenario_name, duration=duration, rate=target_rate)
 
-    # 3. Post-run state verification
     q_after = get_quarantined_count()
     pg_buf = get_pg_buffer_stats()
     print(f"[*] Quarantined slots after run: {q_after}")
@@ -323,13 +306,36 @@ def execute_scenario(scenario_id: str, scenario_name: str, target_rate: int, qua
             raise RuntimeError(f"CRITICAL VIOLATION of D5 (Quarantine Conservation): Expected at least {quarantined_count}, got {q_after}!")
         print(f"[✓] D5 Conservation verified: Initial {quarantined_count} quarantined slots preserved (total active in DB: {q_after}).")
 
-    # 4. Extract metrics
     metrics = extract_metrics(report, q_before, q_after, q_dist, pg_buf)
     record_scenario_result(scenario_id, metrics)
-
-    # Short settlement pause between runs
     time.sleep(3)
     return metrics
+
+
+def _within_tolerance(ref_val: float, test_val: float, abs_limit: float, rel_limit: float) -> bool:
+    diff = abs(test_val - ref_val)
+    return diff <= abs_limit or (diff / max(ref_val, 1.0)) <= rel_limit
+
+
+def _evaluate_pair(k_ref: str, k_test: str, ref: Dict[str, Any], test: Dict[str, Any]) -> bool:
+    ww_ref_p50 = ref["engineLatenciesMs"]["writeWait"]["p50"] or 0.0
+    ww_ref_p95 = ref["engineLatenciesMs"]["writeWait"]["p95"] or 0.0
+    ww_test_p50 = test["engineLatenciesMs"]["writeWait"]["p50"] or 0.0
+    ww_test_p95 = test["engineLatenciesMs"]["writeWait"]["p95"] or 0.0
+    rate_ref = ref["throughputs"]["completedRate"] or 0.0
+    rate_test = test["throughputs"]["completedRate"] or 0.0
+
+    p50_ok = _within_tolerance(ww_ref_p50, ww_test_p50, 15.0, 0.25)
+    p95_ok = _within_tolerance(ww_ref_p95, ww_test_p95, 25.0, 0.35)
+    rate_ok = _within_tolerance(rate_ref, rate_test, 1.0, 0.10)
+    passed = p50_ok and p95_ok and rate_ok
+
+    p50_str = f"{ww_ref_p50:.1f} vs {ww_test_p50:.1f} (Δ {abs(ww_test_p50 - ww_ref_p50):+.1f})"
+    p95_str = f"{ww_ref_p95:.1f} vs {ww_test_p95:.1f} (Δ {abs(ww_test_p95 - ww_ref_p95):+.1f})"
+    rate_str = f"{rate_ref:.1f} vs {rate_test:.1f}"
+    verdict = "EQUIVALENT [PASS]" if passed else "DEGRADED [FAIL]"
+    print(f"{k_ref} vs {k_test:<22} | {p50_str:<20} | {p95_str:<20} | {rate_str:<18} | {verdict}")
+    return passed
 
 
 def evaluate_comparisons(all_results: Dict[str, Any]) -> None:
@@ -337,55 +343,17 @@ def evaluate_comparisons(all_results: Dict[str, Any]) -> None:
     print(" Pocoma V3 — R11 Comparative Evaluation (0 vs 803 Quarantines)")
     print("=" * 80)
 
-    pairs = [
-        ("S0 (Ref 1 cmd/s)", "S1 (Quar 1 cmd/s)", "S0", "S1"),
-        ("S2 (Ref 5 cmd/s)", "S3 (Quar 5 cmd/s)", "S2", "S3"),
-        ("S4 (Ref 20 cmd/s)", "S5 (Quar 20 cmd/s)", "S4", "S5"),
-        ("S2 (Ref 5 cmd/s)", "S6 (Conc 5 cmd/s)", "S2", "S6"),
-    ]
-
+    pairs = [("S0", "S1"), ("S2", "S3"), ("S4", "S5"), ("S2", "S6")]
     print(f"{'Comparison':<28} | {'writeWait p50 (ms)':<20} | {'writeWait p95 (ms)':<20} | {'Completed Rate':<18} | {'Verdict'}")
     print("-" * 105)
 
     all_passed = True
-    for label_ref, label_test, k_ref, k_test in pairs:
+    for k_ref, k_test in pairs:
         if k_ref not in all_results or k_test not in all_results:
             print(f"Missing results for {k_ref} or {k_test}, skipping comparison.")
             continue
-        ref = all_results[k_ref]
-        test = all_results[k_test]
-
-        ww_ref_p50 = ref["engineLatenciesMs"]["writeWait"]["p50"] or 0.0
-        ww_ref_p95 = ref["engineLatenciesMs"]["writeWait"]["p95"] or 0.0
-        ww_test_p50 = test["engineLatenciesMs"]["writeWait"]["p50"] or 0.0
-        ww_test_p95 = test["engineLatenciesMs"]["writeWait"]["p95"] or 0.0
-
-        rate_ref = ref["throughputs"]["completedRate"] or 0.0
-        rate_test = test["throughputs"]["completedRate"] or 0.0
-
-        # Equivalence threshold:
-        # writeWait p50 difference <= 15% or <= 10ms
-        diff_p50 = abs(ww_test_p50 - ww_ref_p50)
-        p50_ok = diff_p50 <= 15.0 or (diff_p50 / max(ww_ref_p50, 1.0)) <= 0.25
-
-        # writeWait p95 difference <= 25ms
-        diff_p95 = abs(ww_test_p95 - ww_ref_p95)
-        p95_ok = diff_p95 <= 25.0 or (diff_p95 / max(ww_ref_p95, 1.0)) <= 0.35
-
-        # Rate equivalence: within 10%
-        rate_ok = abs(rate_test - rate_ref) <= 1.0 or (abs(rate_test - rate_ref) / max(rate_ref, 1.0)) <= 0.10
-
-        passed = p50_ok and p95_ok and rate_ok
-        if not passed:
+        if not _evaluate_pair(k_ref, k_test, all_results[k_ref], all_results[k_test]):
             all_passed = False
-        verdict = "EQUIVALENT [PASS]" if passed else "DEGRADED [FAIL]"
-
-        p50_str = f"{ww_ref_p50:.1f} vs {ww_test_p50:.1f} (Δ {diff_p50:+.1f})"
-        p95_str = f"{ww_ref_p95:.1f} vs {ww_test_p95:.1f} (Δ {diff_p95:+.1f})"
-        rate_str = f"{rate_ref:.1f} vs {rate_test:.1f}"
-        comp_label = f"{k_ref} vs {k_test}"
-
-        print(f"{comp_label:<28} | {p50_str:<20} | {p95_str:<20} | {rate_str:<18} | {verdict}")
 
     print("-" * 105)
     overall = "QUALIFICATION SUCCESSFUL" if all_passed else "QUALIFICATION RESERVATIONS"

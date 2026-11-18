@@ -1,5 +1,8 @@
 package com.kartaguez.pocoma.domain.pot;
 
+
+import com.kartaguez.pocoma.domain.pot.value.Fraction;
+import com.kartaguez.pocoma.domain.pot.value.Weight;
 import com.kartaguez.pocoma.domain.pot.value.id.*;
 
 import java.util.*;

@@ -266,7 +266,7 @@ class ReadQuotaPostgresTest {
             var request = workerFixture.admit("REGISTRATION", "i1-worker", "i1-worker", null);
             var context = workerFixture.start();
             var resources = context.getBean(
-                    com.kartaguez.pocoma.compose.polling.materialize.MaterializeComposeConfiguration.Resources.class);
+                    com.kartaguez.pocoma.compose.polling.materialize.MaterializeResources.class);
             workerFixture.read.execute("grant usage on schema " + workerFixture.schema + " to " + f.role);
             workerFixture.read.execute("grant select on read_current_binding to " + f.role);
             workerFixture.read.execute("grant select on public.read_maintenance_state to " + f.role);

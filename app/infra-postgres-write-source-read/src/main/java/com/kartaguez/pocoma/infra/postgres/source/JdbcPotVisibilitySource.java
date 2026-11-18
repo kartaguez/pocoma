@@ -1,7 +1,7 @@
 package com.kartaguez.pocoma.infra.postgres.source;
-import static com.kartaguez.pocoma.infra.postgres.core.PotHistoryRows.bad;
-import static com.kartaguez.pocoma.infra.postgres.core.PotHistoryRows.number;
-import static com.kartaguez.pocoma.infra.postgres.core.PotHistoryRows.uuid;
+import static com.kartaguez.pocoma.infra.postgres.core.history.PotHistoryRows.bad;
+import static com.kartaguez.pocoma.infra.postgres.core.history.PotHistoryRows.number;
+import static com.kartaguez.pocoma.infra.postgres.core.history.PotHistoryRows.uuid;
 
 import java.util.Map;
 import java.util.Set;
@@ -13,7 +13,7 @@ import com.kartaguez.pocoma.domain.pot.PotVisibilityRules;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.domain.projection.PotVisibility;
 import com.kartaguez.pocoma.engine.materialize.pot.PotVisibilitySource;
-import com.kartaguez.pocoma.infra.postgres.core.PotHistoryRows;
+import com.kartaguez.pocoma.infra.postgres.core.history.PotHistoryRows;
 import com.kartaguez.pocoma.infra.tx.spring.SpringAttemptTransactions;
 import com.kartaguez.pocoma.port.transaction.RecoveryReadContext;
 public final class JdbcPotVisibilitySource implements PotVisibilitySource {

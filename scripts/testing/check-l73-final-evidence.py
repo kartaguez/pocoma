@@ -38,11 +38,7 @@ def method(source, name):
     return source[match.start():end]
 
 
-def main():
-    rec = json.loads((P / 'reconciliation.json').read_text())
-    plan = json.loads((P / 'execution-plan.json').read_text())
-    assert len(rec['obligations']) == len(plan['obligations']) == 31
-    assert {r['ID'] for r in rec['obligations']} == {r['ID'] for r in plan['obligations']}
+def _verify_matrix_reconciliation(rec):
     matrix_path = 'docs/v3/L7_I1_Certification_Coverage_Matrix.csv'
     old = list(csv.DictReader(git('show', BASE + ':' + matrix_path).decode().splitlines()))
     now = list(csv.DictReader((ROOT / matrix_path).open()))
@@ -53,63 +49,68 @@ def main():
     previous_rows = {r['ID']: r for r in previous['obligations']}
     for before, after in zip(old, now):
         assert all(before[k] == after[k] for k in fields[:-4]), after['ID']
-        if after['ID'] in obligations:
-            row = obligations[after['ID']]
-            assert before[fields[-4]] == row['initialStatus']
-            assert previous_rows[after['ID']]['finalStatus'] == row['initialStatus']
-            assert row['source'] == before['Source normative']
-            assert after[fields[-4]] == row['finalStatus']
-            assert row['blocking'] == (row['finalStatus'] != 'CURRENT_FULL')
-            if row['finalStatus'] == 'CURRENT_FULL':
-                assert row['newEvidence']
-            assert row['previousReconciliation'].endswith('#' + after['ID'])
-        else:
+        if after['ID'] not in obligations:
             assert before == after, after['ID']
-    totals = dict(tests=0, failures=0, errors=0, skipped=0)
-    seconds = 0
-    for directory in sorted(P.iterdir()):
-        if not directory.is_dir() or directory.name.endswith('-collection-attempt'):
             continue
-        receipt = json.loads((directory / 'receipt.json').read_text())
-        assert receipt['verdict'] == 'PASS'
-        cases = []
-        for name, expected in receipt['artifacts'].items():
-            if name.startswith('app/'):
-                continue
-            data = gzip.decompress((directory / name).read_bytes())
-            assert digest(data) == expected, (directory.name, name)
-            if name.endswith('.xml.gz'):
-                suite = ET.fromstring(data)
-                assert suite.find("./properties/property[@name='pocoma.verification.id']").get('value') == 'l7-i3-final-' + directory.name
-                for case in suite.findall('testcase'):
-                    assert not any(case.find(k) is not None for k in ('failure', 'error', 'skipped'))
-                    cases.append((case.get('classname'), case.get('name')))
-        assert set(cases) == {(e['classname'], e['method']) for e in receipt['executions']}
-        assert len(cases) == len(set(cases)) == receipt['counts']['tests']
-        assert all(receipt['counts'][k] == 0 for k in ('failures', 'errors', 'skipped'))
-        archive = directory / 'physical.tar.gz'
-        assert digest(archive.read_bytes()) == receipt['physicalArchiveSha256']
-        with tarfile.open(archive) as tar:
-            assert set(tar.getnames()) == {n for n in receipt['artifacts'] if n.startswith('app/')}
-            for member in tar.getnames():
-                assert digest(tar.extractfile(member).read()) == receipt['artifacts'][member]
-        for execution in receipt['executions']:
-            name = execution['classname'].split('.')[-1] + '.java'
-            sources = [s for s in receipt['testInputSha256'] if s.endswith('/' + name)]
-            assert len(sources) == 1, sources
-            source = sources[0]
-            tested = git('show', receipt['sha'] + ':' + source)
-            assert digest(tested) == receipt['testInputSha256'][source]
-            if directory.name == 'read-01' and execution['method'] == 'l73_allReadParticipantsRetainUncertainCapacityAndExactEffects':
-                # The later read-reacquire-01 adds the independent reacquisition/value oracle.
-                assert (P / 'read-reacquire-01/receipt.json').exists()
-            else:
-                assert method(tested.decode(), execution['method']) == method((ROOT / source).read_text(), execution['method'])
-        changed = git('diff', '--name-only', receipt['sha'], '--', 'app', 'scripts/v3').decode().splitlines()
-        assert all('/src/test/' in s for s in changed), changed
-        for k in totals:
-            totals[k] += receipt['counts'][k]
-        seconds += receipt['wallSeconds']
+        row = obligations[after['ID']]
+        assert before[fields[-4]] == row['initialStatus']
+        assert previous_rows[after['ID']]['finalStatus'] == row['initialStatus']
+        assert row['source'] == before['Source normative']
+        assert after[fields[-4]] == row['finalStatus']
+        assert row['blocking'] == (row['finalStatus'] != 'CURRENT_FULL')
+        if row['finalStatus'] == 'CURRENT_FULL':
+            assert row['newEvidence']
+        assert row['previousReconciliation'].endswith('#' + after['ID'])
+
+
+def _verify_xml_artifacts(directory, receipt):
+    cases = []
+    for name, expected in receipt['artifacts'].items():
+        if name.startswith('app/'):
+            continue
+        data = gzip.decompress((directory / name).read_bytes())
+        assert digest(data) == expected, (directory.name, name)
+        if name.endswith('.xml.gz'):
+            suite = ET.fromstring(data)
+            assert suite.find("./properties/property[@name='pocoma.verification.id']").get('value') == 'l7-i3-final-' + directory.name
+            for case in suite.findall('testcase'):
+                assert not any(case.find(k) is not None for k in ('failure', 'error', 'skipped'))
+                cases.append((case.get('classname'), case.get('name')))
+    assert set(cases) == {(e['classname'], e['method']) for e in receipt['executions']}
+    assert len(cases) == len(set(cases)) == receipt['counts']['tests']
+    assert all(receipt['counts'][k] == 0 for k in ('failures', 'errors', 'skipped'))
+
+
+def _verify_execution_directory(directory, totals):
+    receipt = json.loads((directory / 'receipt.json').read_text())
+    assert receipt['verdict'] == 'PASS'
+    _verify_xml_artifacts(directory, receipt)
+    archive = directory / 'physical.tar.gz'
+    assert digest(archive.read_bytes()) == receipt['physicalArchiveSha256']
+    with tarfile.open(archive) as tar:
+        assert set(tar.getnames()) == {n for n in receipt['artifacts'] if n.startswith('app/')}
+        for member in tar.getnames():
+            assert digest(tar.extractfile(member).read()) == receipt['artifacts'][member]
+    for execution in receipt['executions']:
+        name = execution['classname'].split('.')[-1] + '.java'
+        sources = [s for s in receipt['testInputSha256'] if s.endswith('/' + name)]
+        assert len(sources) == 1, sources
+        source = sources[0]
+        tested = git('show', receipt['sha'] + ':' + source)
+        assert digest(tested) == receipt['testInputSha256'][source]
+        if directory.name == 'read-01' and execution['method'] == 'l73_allReadParticipantsRetainUncertainCapacityAndExactEffects':
+            # The later read-reacquire-01 adds the independent reacquisition/value oracle.
+            assert (P / 'read-reacquire-01/receipt.json').exists()
+        else:
+            assert method(tested.decode(), execution['method']) == method((ROOT / source).read_text(), execution['method'])
+    changed = git('diff', '--name-only', receipt['sha'], '--', 'app', 'scripts/v3').decode().splitlines()
+    assert all('/src/test/' in s for s in changed), changed
+    for k in totals:
+        totals[k] += receipt['counts'][k]
+    return receipt['wallSeconds']
+
+
+def _verify_reuse_receipt():
     # Revalidate historical archives and exact unchanged sources, without rerunning them.
     reuse = json.loads((P / 'reuse-receipt.json').read_text())
     for item in reuse.values():
@@ -134,6 +135,20 @@ def main():
     for n, d in target['artifacts'].items():
         data = (discovery.parent / n).read_bytes()
         assert digest(gzip.decompress(data) if n.endswith('.gz') else data) == d
+
+
+def main():
+    rec = json.loads((P / 'reconciliation.json').read_text())
+    plan = json.loads((P / 'execution-plan.json').read_text())
+    assert len(rec['obligations']) == len(plan['obligations']) == 31
+    assert {r['ID'] for r in rec['obligations']} == {r['ID'] for r in plan['obligations']}
+    _verify_matrix_reconciliation(rec)
+    totals = dict(tests=0, failures=0, errors=0, skipped=0)
+    seconds = 0
+    for directory in sorted(P.iterdir()):
+        if directory.is_dir() and not directory.name.endswith('-collection-attempt'):
+            seconds += _verify_execution_directory(directory, totals)
+    _verify_reuse_receipt()
     productive = git('diff', '--name-only', BASE, '--', 'app', 'scripts/v3').decode().splitlines()
     assert all('/src/test/' in s for s in productive), productive
     assert json.loads((P / 'collection-correction.json').read_text())['admissible'] is False

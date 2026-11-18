@@ -51,6 +51,15 @@ def discovery(issuer):
     return data
 
 
+def _validate_admin_claims(claims, identity, auth, now):
+    audience = identity.get('aud', [])
+    audience = [audience] if isinstance(audience, str) else audience
+    valid_access = claims.get('iss') == auth.ISSUER and claims.get('azp') == auth.CLIENT and claims.get('exp', 0) > now
+    valid_identity = identity.get('iss') == auth.ISSUER and auth.CLIENT in audience and bool(identity.get('sub')) and identity.get('exp', 0) > now
+    if not valid_access or not valid_identity:
+        raise ValueError('Invalid admin claims')
+
+
 def administrator(issuer):
     """Authenticate the stock console client with Code + S256 in master."""
     base = issuer.rsplit('/realms/', 1)[0]
@@ -68,62 +77,66 @@ def administrator(issuer):
         token = session['access_token']
         claims = json.loads(base64.urlsafe_b64decode(token.split('.')[1] + '==='))
         identity = json.loads(base64.urlsafe_b64decode(session['id_token'].split('.')[1] + '==='))
-        audience = identity.get('aud', [])
-        audience = [audience] if isinstance(audience, str) else audience
         # 26.7 console access tokens are lightweight: sub is in the OIDC ID token.
         # Both tokens come directly from the owned loopback token endpoint.
-        if (claims.get('iss') != auth.ISSUER or claims.get('azp') != auth.CLIENT
-                or claims.get('exp', 0) <= time.time() or identity.get('iss') != auth.ISSUER
-                or auth.CLIENT not in audience or not identity.get('sub') or identity.get('exp', 0) <= time.time()):
-            raise ValueError('Invalid admin claims')
+        _validate_admin_claims(claims, identity, auth, time.time())
         return token, identity['sub']
     except Exception:
         raise failure('KEYCLOAK_ADMIN_AUTH_FAILED', 'master console Code + PKCE S256',
                       'Expected local admin credentials did not complete the console browser flow.') from None
 
 
+def _inspect_user(base, admin_token, realm, name):
+    control = 'KEYCLOAK_ADMIN_NOT_PROVISIONED' if realm == 'master' else 'KEYCLOAK_USER_' + name.upper() + '_NOT_PROVISIONED'
+    try:
+        users = fetch(base + '/admin/realms/' + realm + '/users?' +
+                      urlencode(dict(username=name, exact='true')), admin_token)
+    except Exception:
+        raise failure(control, realm + '/' + name + ' account inspection',
+                      'Admin REST inspection unavailable or administrator lacks permission.') from None
+    valid_user = len(users) == 1 and users[0].get('username') == name and users[0].get('enabled') is True
+    if not valid_user or users[0].get('requiredActions'):
+        raise failure(control, realm + '/' + name + ' enabled/no required actions',
+                      'Account missing, disabled, ambiguous or requires an initial action.')
+    return users[0]['id']
+
+
+def _prove_user_pkce(issuer, name, subject, subjects):
+    try:
+        token = prove_pkce(issuer, name, LOCAL_PASSWORD)
+        claims = json.loads(base64.urlsafe_b64decode(token.split('.')[1] + '==='))
+        if claims.get('sub') != subject or subject in subjects:
+            raise ValueError('Unexpected identity')
+        return token
+    except Exception:
+        raise failure('KEYCLOAK_USER_' + name.upper() + '_AUTH_FAILED',
+                      'pocoma/' + name + ' Code + PKCE S256 (missing/plain rejected)',
+                      'Expected credentials, subject or enforced PKCE contract failed.') from None
+
+
 def identities(issuer, record):
     """Prove all identities, persisting only allowlisted checks via record()."""
     checks = {}
+
     def passed(name):
         checks[name] = 'PASS'
         record(dict(checks=checks.copy(), observedAt=time.time()))
+
     try:
         discovery(issuer)
         passed('KEYCLOAK-OIDC-DISCOVERY')
         admin_token, admin_id = administrator(issuer)
         passed('KEYCLOAK-ADMIN-AUTH')
         base = issuer.rsplit('/realms/', 1)[0]
-        def user(realm, name):
-            control = 'KEYCLOAK_ADMIN_NOT_PROVISIONED' if realm == 'master' else 'KEYCLOAK_USER_' + name.upper() + '_NOT_PROVISIONED'
-            try:
-                users = fetch(base + '/admin/realms/' + realm + '/users?' +
-                              urlencode(dict(username=name, exact='true')), admin_token)
-            except Exception:
-                raise failure(control, realm + '/' + name + ' account inspection',
-                              'Admin REST inspection unavailable or administrator lacks permission.') from None
-            if (len(users) != 1 or users[0].get('username') != name or users[0].get('enabled') is not True
-                    or users[0].get('requiredActions')):
-                raise failure(control, realm + '/' + name + ' enabled/no required actions',
-                              'Account missing, disabled, ambiguous or requires an initial action.')
-            passed('KEYCLOAK-' + name.upper() + '-ENABLED')
-            return users[0]['id']
-        if user('master', 'admin') != admin_id:
+        if _inspect_user(base, admin_token, 'master', 'admin') != admin_id:
             raise failure('KEYCLOAK_ADMIN_AUTH_FAILED', 'master subject', 'Authenticated subject does not match admin.')
+        passed('KEYCLOAK-ADMIN-ENABLED')
         tokens, subjects = {}, set()
         for name in LOCAL_USERS:
-            subject = user('pocoma', name)
-            try:
-                token = prove_pkce(issuer, name, LOCAL_PASSWORD)
-                claims = json.loads(base64.urlsafe_b64decode(token.split('.')[1] + '==='))
-                if claims.get('sub') != subject or subject in subjects:
-                    raise ValueError('Unexpected identity')
-            except Exception:
-                raise failure('KEYCLOAK_USER_' + name.upper() + '_AUTH_FAILED',
-                              'pocoma/' + name + ' Code + PKCE S256 (missing/plain rejected)',
-                              'Expected credentials, subject or enforced PKCE contract failed.') from None
+            subject = _inspect_user(base, admin_token, 'pocoma', name)
+            passed('KEYCLOAK-' + name.upper() + '-ENABLED')
+            tokens[name] = _prove_user_pkce(issuer, name, subject, subjects)
             subjects.add(subject)
-            tokens[name] = token
             passed('KEYCLOAK-' + name.upper() + '-PKCE')
         return checks, tokens
     except KeycloakFailure as error:

@@ -331,10 +331,10 @@ class L73TerminationReadPostgresTest {
                                             .ConsumptionEngine(
                                             writeDef,
                                             retainingTx,
-                                            new com.kartaguez.pocoma.infra.postgres.core
+                                            new com.kartaguez.pocoma.infra.postgres.core.consumption
                                                     .JdbcConsumptionSlotStore(fixture.f.primary),
                                             p,
-                                            new com.kartaguez.pocoma.infra.postgres.core
+                                            new com.kartaguez.pocoma.infra.postgres.core.consumption
                                                     .JdbcPartitionOwnershipStore(fixture.f.primary),
                                             fixture.f.read.settings,
                                             new com.kartaguez.pocoma.orchestrator.consumption

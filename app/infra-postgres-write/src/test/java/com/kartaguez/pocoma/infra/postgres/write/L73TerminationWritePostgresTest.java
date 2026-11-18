@@ -1,5 +1,10 @@
 package com.kartaguez.pocoma.infra.postgres.write;
 
+
+import com.kartaguez.pocoma.infra.postgres.write.pot.JdbcPotCommandStore;
+import com.kartaguez.pocoma.infra.postgres.write.pot.JdbcPotHistoryAdapter;
+import com.kartaguez.pocoma.infra.postgres.write.pot.JdbcPotRevisionAdapter;
+import com.kartaguez.pocoma.infra.postgres.write.pot.PotCommandJson;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.kartaguez.pocoma.contract.consumption.spi.ClaimedSlot;
@@ -13,7 +18,7 @@ import com.kartaguez.pocoma.domain.pot.value.UserId;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.engine.write.pot.port.execution.PotCommandStore.Outcome;
 import com.kartaguez.pocoma.engine.write.pot.port.execution.PotCommandStore.Result;
-import com.kartaguez.pocoma.infra.postgres.core.JdbcConsumptionSlotStore;
+import com.kartaguez.pocoma.infra.postgres.core.consumption.JdbcConsumptionSlotStore;
 import com.kartaguez.pocoma.infra.postgres.write.CommandExecutionPostgresTest.FixtureAuthority;
 import com.kartaguez.pocoma.infra.postgres.write.L1CommandCompatibilityHarness.RetryPolicy;
 import com.kartaguez.pocoma.infra.postgres.write.L1CommandCompatibilityHarness.Status;

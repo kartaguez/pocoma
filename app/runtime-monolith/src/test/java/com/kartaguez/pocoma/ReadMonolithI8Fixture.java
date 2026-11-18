@@ -1,7 +1,9 @@
 package com.kartaguez.pocoma;
 import com.kartaguez.pocoma.compose.polling.materialize.MaterializeSettings;
 import com.kartaguez.pocoma.compose.web.read.ReadFacadeComposition;
-import com.kartaguez.pocoma.infra.postgres.core.*;
+import com.kartaguez.pocoma.infra.postgres.core.bootstrap.*;
+import com.kartaguez.pocoma.infra.postgres.core.consumption.*;
+import com.kartaguez.pocoma.infra.postgres.core.history.*;
 import com.kartaguez.pocoma.contract.consumption.invocation.WorkerView;
 import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionProtocol;
 import com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant;
@@ -22,8 +24,9 @@ import com.kartaguez.pocoma.domain.identity.BindingToken;
 import com.kartaguez.pocoma.engine.write.identity.ExecuteIdentityRequest;
 import com.kartaguez.pocoma.contract.writeadmission.PotCommand;
 import com.kartaguez.pocoma.engine.write.pot.ExecutePotCommand;
-import com.kartaguez.pocoma.infra.postgres.write.*;
-import com.kartaguez.pocoma.infra.postgres.write.PotCommandJson;
+import com.kartaguez.pocoma.infra.postgres.write.admission.*;
+import com.kartaguez.pocoma.infra.postgres.write.pot.*;
+import com.kartaguez.pocoma.infra.postgres.write.pot.PotCommandJson;
 import com.kartaguez.pocoma.infra.postgres.write.consumption.*;
 import com.kartaguez.pocoma.infra.postgres.write.identity.*;
 import com.kartaguez.pocoma.infra.tx.spring.SpringAttemptTransactions;
@@ -711,14 +714,14 @@ public final class ReadMonolithI8Fixture implements AutoCloseable {
         return values;
     }
 
-    static com.kartaguez.pocoma.compose.polling.materialize.MaterializeComposeConfiguration.Resources
+    static com.kartaguez.pocoma.compose.polling.materialize.MaterializeResources
             materialize(ConfigurableApplicationContext context) {
-        return context.getBean(com.kartaguez.pocoma.compose.polling.materialize.MaterializeComposeConfiguration.Resources.class);
+        return context.getBean(com.kartaguez.pocoma.compose.polling.materialize.MaterializeResources.class);
     }
 
-    static com.kartaguez.pocoma.compose.polling.process.ProcessComposeConfiguration.Resources
+    static com.kartaguez.pocoma.compose.polling.process.ProcessResources
             process(ConfigurableApplicationContext context) {
-        return context.getBean(com.kartaguez.pocoma.compose.polling.process.ProcessComposeConfiguration.Resources.class);
+        return context.getBean(com.kartaguez.pocoma.compose.polling.process.ProcessResources.class);
     }
 
     ReadFacadeComposition.Services services(ConfigurableApplicationContext context) {

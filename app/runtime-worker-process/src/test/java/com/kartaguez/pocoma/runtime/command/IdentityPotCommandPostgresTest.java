@@ -1,7 +1,7 @@
 package com.kartaguez.pocoma.runtime.command;
 import com.kartaguez.pocoma.compose.polling.process.ProcessSettings;
 import com.kartaguez.pocoma.compose.polling.process.PotCommandComposition;
-import com.kartaguez.pocoma.infra.postgres.core.BootstrapGuard;
+import com.kartaguez.pocoma.infra.postgres.core.bootstrap.BootstrapGuard;
 import com.kartaguez.pocoma.contract.consumption.spi.DiscoverySettings;
 import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionProtocol;
 import com.kartaguez.pocoma.contract.consumption.spi.AttemptFailureClassifier;
@@ -19,7 +19,8 @@ import com.kartaguez.pocoma.domain.consumption.*;
 import com.kartaguez.pocoma.domain.pot.value.Label;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.engine.write.pot.port.execution.*;
-import com.kartaguez.pocoma.infra.postgres.write.*;
+import com.kartaguez.pocoma.infra.postgres.write.admission.*;
+import com.kartaguez.pocoma.infra.postgres.write.pot.*;
 import com.kartaguez.pocoma.infra.postgres.write.identity.*;
 import com.kartaguez.pocoma.infra.tx.spring.SpringAttemptTransactions;
 import com.kartaguez.pocoma.port.transaction.AttemptTransactions;
@@ -164,7 +165,7 @@ class IdentityPotCommandPostgresTest {
                     };
             var settings = LifecycleSettings.pilot();
             var resources = context.getBean(
-                    com.kartaguez.pocoma.compose.polling.process.ProcessComposeConfiguration.Resources.class);
+                    com.kartaguez.pocoma.compose.polling.process.ProcessResources.class);
             var guard = resources.guard;
             var definition = ProcessSettings.definition("Command");
             engine =

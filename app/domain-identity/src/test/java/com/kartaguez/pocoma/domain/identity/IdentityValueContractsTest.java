@@ -24,48 +24,51 @@ class IdentityValueContractsTest {
 
     @Test
     void idsAndTokensHaveExactOpaqueValueSemanticsWithoutGenerationOrOrdering() {
-        assertEquals(ID, new ExternalUserIdentityId(new UUID(0, 1)));
-        assertEquals(ID.hashCode(), new ExternalUserIdentityId(new UUID(0, 1)).hashCode());
-        assertNotEquals(ID, new ExternalUserIdentityId(new UUID(0, 2)));
-        assertFalse(Comparable.class.isAssignableFrom(ExternalUserIdentityId.class));
-        assertThrows(NullPointerException.class, () -> new ExternalUserIdentityId(null));
-        assertEquals(TOKEN, new BindingToken("secret-token"));
-        assertEquals(TOKEN.hashCode(), new BindingToken("secret-token").hashCode());
-        assertNotEquals(TOKEN, new BindingToken("Secret-token"));
-        assertNotEquals(TOKEN, new BindingToken(" secret-token "));
-        assertEquals(" secret-token ", new BindingToken(" secret-token ").value());
-        assertFalse(Comparable.class.isAssignableFrom(BindingToken.class));
-        assertThrows(NullPointerException.class, () -> new BindingToken(null));
-        assertThrows(IllegalArgumentException.class, () -> new BindingToken(""));
-        assertThrows(IllegalArgumentException.class, () -> new BindingToken(" \t\n"));
+        org.junit.jupiter.api.Assertions.assertAll(
+                () -> assertEquals(ID, new ExternalUserIdentityId(new UUID(0, 1))),
+                () -> assertEquals(ID.hashCode(), new ExternalUserIdentityId(new UUID(0, 1)).hashCode()),
+                () -> assertNotEquals(ID, new ExternalUserIdentityId(new UUID(0, 2))),
+                () -> assertFalse(Comparable.class.isAssignableFrom(ExternalUserIdentityId.class)),
+                () -> assertThrows(NullPointerException.class, () -> new ExternalUserIdentityId(null)),
+                () -> assertEquals(TOKEN, new BindingToken("secret-token")),
+                () -> assertEquals(TOKEN.hashCode(), new BindingToken("secret-token").hashCode()),
+                () -> assertNotEquals(TOKEN, new BindingToken("Secret-token")),
+                () -> assertNotEquals(TOKEN, new BindingToken(" secret-token ")),
+                () -> assertEquals(" secret-token ", new BindingToken(" secret-token ").value()),
+                () -> assertFalse(Comparable.class.isAssignableFrom(BindingToken.class)),
+                () -> assertThrows(NullPointerException.class, () -> new BindingToken(null)),
+                () -> assertThrows(IllegalArgumentException.class, () -> new BindingToken("")),
+                () -> assertThrows(IllegalArgumentException.class, () -> new BindingToken(" \t\n")));
     }
 
     @Test
     void statesRequirePositiveVersionAndUserTokenTogether() {
-        assertEquals(1, state(1, USER, TOKEN).version());
-        assertTrue(state(Long.MAX_VALUE, USER, TOKEN).isBound());
-        assertFalse(state(3, null, null).isBound());
-        assertThrows(IllegalArgumentException.class, () -> state(0, null, null));
-        assertThrows(IllegalArgumentException.class, () -> state(-1, USER, TOKEN));
-        assertThrows(IllegalArgumentException.class, () -> state(1, USER, null));
-        assertThrows(IllegalArgumentException.class, () -> state(1, null, TOKEN));
-        assertThrows(NullPointerException.class, () -> new ExternalUserIdentity(null, KEY, 1, null, null));
-        assertThrows(NullPointerException.class, () -> new ExternalUserIdentity(ID, null, 1, null, null));
-        assertEquals(state(2, USER, TOKEN), state(2, USER, new BindingToken("secret-token")));
-        assertNotEquals(state(1, USER, TOKEN), state(2, USER, TOKEN));
+        org.junit.jupiter.api.Assertions.assertAll(
+                () -> assertEquals(1, state(1, USER, TOKEN).version()),
+                () -> assertTrue(state(Long.MAX_VALUE, USER, TOKEN).isBound()),
+                () -> assertFalse(state(3, null, null).isBound()),
+                () -> assertThrows(IllegalArgumentException.class, () -> state(0, null, null)),
+                () -> assertThrows(IllegalArgumentException.class, () -> state(-1, USER, TOKEN)),
+                () -> assertThrows(IllegalArgumentException.class, () -> state(1, USER, null)),
+                () -> assertThrows(IllegalArgumentException.class, () -> state(1, null, TOKEN)),
+                () -> assertThrows(NullPointerException.class, () -> new ExternalUserIdentity(null, KEY, 1, null, null)),
+                () -> assertThrows(NullPointerException.class, () -> new ExternalUserIdentity(ID, null, 1, null, null)),
+                () -> assertEquals(state(2, USER, TOKEN), state(2, USER, new BindingToken("secret-token"))),
+                () -> assertNotEquals(state(1, USER, TOKEN), state(2, USER, TOKEN)));
     }
 
     @Test
     void changedIsNonemptyAndCanOnlyCreateTheUserOfItsNewBoundState() {
         var changed = new IdentityTransitionResult.Changed(Optional.empty(), state(1, null, null));
-        assertNotNull(changed.identity());
-        assertThrows(NullPointerException.class, () -> new IdentityTransitionResult.Changed(Optional.empty(), null));
-        assertThrows(NullPointerException.class, () -> new IdentityTransitionResult.Changed(null, state(1, null, null)));
-        assertThrows(IllegalArgumentException.class, () -> new IdentityTransitionResult.Changed(
-                Optional.of(new User(USER)), state(1, null, null)));
-        assertThrows(IllegalArgumentException.class, () -> new IdentityTransitionResult.Changed(
-                Optional.of(new User(new PocomaUserId(new UUID(1, 2)))), state(1, USER, TOKEN)));
-        assertThrows(NullPointerException.class, () -> new IdentityTransitionResult.Rejected(null));
+        org.junit.jupiter.api.Assertions.assertAll(
+                () -> assertNotNull(changed.identity()),
+                () -> assertThrows(NullPointerException.class, () -> new IdentityTransitionResult.Changed(Optional.empty(), null)),
+                () -> assertThrows(NullPointerException.class, () -> new IdentityTransitionResult.Changed(null, state(1, null, null))),
+                () -> assertThrows(IllegalArgumentException.class, () -> new IdentityTransitionResult.Changed(
+                        Optional.of(new User(USER)), state(1, null, null))),
+                () -> assertThrows(IllegalArgumentException.class, () -> new IdentityTransitionResult.Changed(
+                        Optional.of(new User(new PocomaUserId(new UUID(1, 2)))), state(1, USER, TOKEN))),
+                () -> assertThrows(NullPointerException.class, () -> new IdentityTransitionResult.Rejected(null)));
     }
 
     @Test
@@ -85,10 +88,11 @@ class IdentityValueContractsTest {
             assertNotEquals(original, different);
             assertNotEquals(0, compareKeys(original, different));
         }
-        assertNotEquals(key("é", "x"), key("e\u0301", "x"));
-        assertNotEquals(0, compareKeys(key("é", "x"), key("e\u0301", "x")));
-        assertEquals("e\u0301", key("e\u0301", "x").issuer());
-        assertEquals(0, compareKeys(KEY, key("issuer", "subject")));
+        org.junit.jupiter.api.Assertions.assertAll(
+                () -> assertNotEquals(key("é", "x"), key("e\u0301", "x")),
+                () -> assertNotEquals(0, compareKeys(key("é", "x"), key("e\u0301", "x"))),
+                () -> assertEquals("e\u0301", key("e\u0301", "x").issuer()),
+                () -> assertEquals(0, compareKeys(KEY, key("issuer", "subject"))));
     }
 
     @Test
@@ -97,11 +101,12 @@ class IdentityValueContractsTest {
         var strings = List.of("A", "AA", "e\u0301", "z", "\u007f", "\u0080", "é", "\ue000", "\ud800\udc00");
         assertOrderedPairs(strings.stream().map(s -> key(s, "same-subject")).toList());
         assertOrderedPairs(strings.stream().map(s -> key("same-issuer", s)).toList());
-        assertTrue(compareKeys(key("a", "z"), key("aa", "a")) < 0);
-        assertTrue(compareKeys(key("a", "z"), key("b", "a")) < 0);
-        // Tuple order, deliberately unlike concatenation with ':' (prefix a / aa).
-        assertTrue(compareKeys(key("a", "zz"), key("a:", "a")) < 0);
-        assertTrue(compareKeys(key("\ue000", "s"), key("\ud800\udc00", "s")) < 0);
+        org.junit.jupiter.api.Assertions.assertAll(
+                () -> assertTrue(compareKeys(key("a", "z"), key("aa", "a")) < 0),
+                () -> assertTrue(compareKeys(key("a", "z"), key("b", "a")) < 0),
+                // Tuple order, deliberately unlike concatenation with ':' (prefix a / aa).
+                () -> assertTrue(compareKeys(key("a", "zz"), key("a:", "a")) < 0),
+                () -> assertTrue(compareKeys(key("\ue000", "s"), key("\ud800\udc00", "s")) < 0));
     }
 
     @Test
@@ -122,18 +127,20 @@ class IdentityValueContractsTest {
     void nulAndIsolatedSurrogatesAreRejectedInEitherFieldAndEitherOperand() {
         for (String bad : List.of("a\0b", "a\ud800b", "a\udc00b", "\ud800", "\udc00")) {
             for (ExternalIdentity invalid : List.of(key(bad, "valid"), key("valid", bad))) {
-                assertThrows(IllegalArgumentException.class, () -> compareKeys(invalid, KEY));
-                assertThrows(IllegalArgumentException.class, () -> compareKeys(KEY, invalid));
-                assertThrows(IllegalArgumentException.class, () -> compareKeys(invalid, invalid));
-                assertThrows(IllegalArgumentException.class,
-                        () -> new ExternalUserIdentity(ID, invalid, 1, null, null));
+                org.junit.jupiter.api.Assertions.assertAll(
+                        () -> assertThrows(IllegalArgumentException.class, () -> compareKeys(invalid, KEY)),
+                        () -> assertThrows(IllegalArgumentException.class, () -> compareKeys(KEY, invalid)),
+                        () -> assertThrows(IllegalArgumentException.class, () -> compareKeys(invalid, invalid)),
+                        () -> assertThrows(IllegalArgumentException.class,
+                                () -> new ExternalUserIdentity(ID, invalid, 1, null, null)));
             }
         }
-        assertThrows(NullPointerException.class, () -> compareKeys(null, KEY));
-        assertThrows(NullPointerException.class, () -> compareKeys(KEY, null));
-        // A literal replacement character is valid and distinct from malformed UTF-16 input.
-        assertEquals(0, compareKeys(key("issuer", "\ufffd"), key("issuer", "\ufffd")));
-        assertEquals(0, compareKeys(key("issuer", "😀"), key("issuer", "😀")));
+        org.junit.jupiter.api.Assertions.assertAll(
+                () -> assertThrows(NullPointerException.class, () -> compareKeys(null, KEY)),
+                () -> assertThrows(NullPointerException.class, () -> compareKeys(KEY, null)),
+                // A literal replacement character is valid and distinct from malformed UTF-16 input.
+                () -> assertEquals(0, compareKeys(key("issuer", "\ufffd"), key("issuer", "\ufffd"))),
+                () -> assertEquals(0, compareKeys(key("issuer", "😀"), key("issuer", "😀"))));
     }
 
     private static void assertOrderedPairs(List<ExternalIdentity> expected) {

@@ -26,7 +26,10 @@ public final class StageHandoffController {
             @RequestParam(name = "limit", defaultValue = "1000") int limit,
             @RequestParam(name = "sinceEpochMs", required = false) Long sinceEpochMs,
             @RequestParam(name = "clear", defaultValue = "false") boolean clear) {
-        if (clear || limit < 1 || (sinceEpochMs != null && sinceEpochMs < 0)) {
+        if (clear || limit < 1) {
+            return ResponseEntity.badRequest().cacheControl(CacheControl.noStore()).build();
+        }
+        if (sinceEpochMs != null && sinceEpochMs < 0) {
             return ResponseEntity.badRequest().cacheControl(CacheControl.noStore()).build();
         }
         return ResponseEntity.ok().cacheControl(CacheControl.noStore())

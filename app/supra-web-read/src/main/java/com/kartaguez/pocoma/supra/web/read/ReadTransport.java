@@ -77,45 +77,41 @@ public final class ReadTransport extends OncePerRequestFilter {
 
     public static String classify(String uri) {
         if (uri == null) return "other";
-        if (uri.startsWith("/api/v3/pots/")) {
-            if (uri.endsWith("/balance")) return "balance";
-            if (uri.endsWith("/expenses/query")) return "expenses";
-            if (uri.contains("/versions/")) return "pot_version";
-            return "pot_current";
-        }
+        if (uri.startsWith("/api/v3/pots/")) return classifyPotUri(uri);
         if (uri.equals("/api/v3/me/pots")) return "pots_visible";
         if (uri.equals("/api/v3/me/binding")) return "binding";
         if (uri.startsWith("/api/v3/commands/") && uri.endsWith("/result")) return "command_result";
-        if (uri.startsWith("/api/v3/identity/requests/") && uri.endsWith("/result")) return "identity_result";
-        if (uri.startsWith("/api/v3/invitations")) return "invitation";
-        return "other";
+        if (uri.startsWith("/api/v3/identity/requests/") && uri.endsWith("/result")) {
+            return "identity_result";
+        }
+        return uri.startsWith("/api/v3/invitations") ? "invitation" : "other";
     }
 
-    @Override protected boolean shouldNotFilter(HttpServletRequest request) {
+    private static String classifyPotUri(String uri) {
+        if (uri.endsWith("/balance")) return "balance";
+        if (uri.endsWith("/expenses/query")) return "expenses";
+        if (uri.contains("/versions/")) return "pot_version";
+        return "pot_current";
+    }
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
         return !request.getRequestURI().startsWith("/api/v3/")
                 || (admissionActive
                         && Set.of("/api/v3/commands", "/api/v3/identity/requests")
                                 .contains(request.getRequestURI()));
     }
-    @Override protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
-            FilterChain chain) throws ServletException, IOException {
+
+    @Override
+    protected void doFilterInternal(
+            HttpServletRequest request, HttpServletResponse response, FilterChain chain)
+            throws ServletException, IOException {
         response.setHeader("Cache-Control", "no-store");
         long startNanos = System.nanoTime();
         String endpoint = classify(request.getRequestURI());
         byte[] body;
         try {
-            require(request.getRequestURI().length() + (request.getQueryString() == null ? 0 : 1 + request.getQueryString().length()) <= 2048);
-            if (request.getHeader("Content-Encoding") != null) throw new Failure(415);
-            if (request.getMethod().equals("POST")) {
-                String media = request.getContentType();
-                if (media == null || !media.toLowerCase(Locale.ROOT).matches("application/json(?:\\s*;\\s*charset=utf-8)?"))
-                    throw new Failure(415);
-            }
-            // Count received bytes, including chunked input; never trust Content-Length alone.
-            if (request.getContentLengthLong() > INPUT_BYTES) throw new Failure(413);
-            body = request.getInputStream().readNBytes(INPUT_BYTES + 1);
-            if (body.length > INPUT_BYTES) throw new Failure(413);
-            if (request.getMethod().equals("GET")) require(body.length == 0);
+            body = readBoundedBody(request);
         } catch (Failure failure) {
             if (!response.isCommitted()) error(response, failure.status);
             telemetry.record(endpoint, response.getStatus(), System.nanoTime() - startNanos);
@@ -136,6 +132,26 @@ public final class ReadTransport extends OncePerRequestFilter {
             capacity.release();
             telemetry.record(endpoint, response.getStatus(), System.nanoTime() - startNanos);
         }
+    }
+
+    private static byte[] readBoundedBody(HttpServletRequest request) throws IOException {
+        int queryLen = request.getQueryString() == null ? 0 : 1 + request.getQueryString().length();
+        require(request.getRequestURI().length() + queryLen <= 2048);
+        if (request.getHeader("Content-Encoding") != null) throw new Failure(415);
+        if (request.getMethod().equals("POST")) {
+            String media = request.getContentType();
+            if (media == null
+                    || !media.toLowerCase(Locale.ROOT)
+                            .matches("application/json(?:\\s*;\\s*charset=utf-8)?")) {
+                throw new Failure(415);
+            }
+        }
+        // Count received bytes, including chunked input; never trust Content-Length alone.
+        if (request.getContentLengthLong() > INPUT_BYTES) throw new Failure(413);
+        byte[] body = request.getInputStream().readNBytes(INPUT_BYTES + 1);
+        if (body.length > INPUT_BYTES) throw new Failure(413);
+        if (request.getMethod().equals("GET")) require(body.length == 0);
+        return body;
     }
     public void write(HttpServletResponse response, Object dto) throws IOException {
         // Segmented bounded buffer: no toByteArray copy and no second serialization on send.

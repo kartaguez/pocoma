@@ -8,7 +8,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
-import com.kartaguez.pocoma.domain.pot.Fraction;
+import com.kartaguez.pocoma.domain.pot.value.Fraction;
 
 /** Public internal views deliberately exclude User IDs, authorization sets and binding tokens. */
 public sealed interface ReadPotResult<T> {

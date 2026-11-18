@@ -139,24 +139,24 @@ public final class JdbcSubobjectVersionStore implements SubobjectVersionStore {
     }
 
     private static List<SubobjectKey> sortedKeys(Collection<SubobjectKey> keys) {
-        Objects.requireNonNull(keys);
-        var result = new ArrayList<>(keys);
-        result.forEach(Objects::requireNonNull);
-        result.sort(Comparator.naturalOrder());
-        for (int i = 1; i < result.size(); i++)
-            if (result.get(i - 1).equals(result.get(i)))
-                throw new IllegalArgumentException("Duplicate subobject key");
-        return result;
+        return sortedUnique(keys, java.util.function.Function.identity());
     }
 
     private static List<SubobjectVersion> sortedVersions(Collection<SubobjectVersion> versions) {
-        Objects.requireNonNull(versions);
-        var result = new ArrayList<>(versions);
+        return sortedUnique(versions, SubobjectVersion::key);
+    }
+
+    private static <T> List<T> sortedUnique(
+            Collection<T> items, java.util.function.Function<T, SubobjectKey> keyOf) {
+        Objects.requireNonNull(items);
+        var result = new ArrayList<>(items);
         result.forEach(Objects::requireNonNull);
-        result.sort(Comparator.comparing(SubobjectVersion::key));
-        for (int i = 1; i < result.size(); i++)
-            if (result.get(i - 1).key().equals(result.get(i).key()))
+        result.sort(Comparator.comparing(keyOf));
+        for (int i = 1; i < result.size(); i++) {
+            if (keyOf.apply(result.get(i - 1)).equals(keyOf.apply(result.get(i)))) {
                 throw new IllegalArgumentException("Duplicate subobject key");
+            }
+        }
         return result;
     }
 }

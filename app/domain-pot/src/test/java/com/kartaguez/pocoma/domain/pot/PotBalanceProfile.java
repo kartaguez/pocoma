@@ -1,5 +1,14 @@
 package com.kartaguez.pocoma.domain.pot;
 
+
+import com.kartaguez.pocoma.domain.pot.expense.ExpenseFinancials;
+import com.kartaguez.pocoma.domain.pot.expense.ExpenseHeader;
+import com.kartaguez.pocoma.domain.pot.revision.Versioned;
+import com.kartaguez.pocoma.domain.pot.shareholder.ShareholderHeader;
+import com.kartaguez.pocoma.domain.pot.shareholder.ShareholderWeight;
+import com.kartaguez.pocoma.domain.pot.value.Amount;
+import com.kartaguez.pocoma.domain.pot.value.Fraction;
+import com.kartaguez.pocoma.domain.pot.value.Weight;
 import com.kartaguez.pocoma.domain.pot.value.id.*;
 
 import java.lang.management.ManagementFactory;

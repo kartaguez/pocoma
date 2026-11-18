@@ -4,6 +4,7 @@ import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.core.importer.ClassFileImporter;
 import com.tngtech.archunit.core.importer.ImportOption;
+import com.tngtech.archunit.lang.ArchRule;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -11,8 +12,11 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
+import static com.tngtech.archunit.library.dependencies.SlicesRuleDefinition.slices;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class HexagonalArchitectureTest {
@@ -97,17 +101,23 @@ class HexagonalArchitectureTest {
         }
     }
 
+    private static final List<String> FORBIDDEN_HTTP_SUPRA_PREFIXES =
+            List.of(
+                    BASE + "engine.",
+                    BASE + "infra.",
+                    BASE + "orchestrator.",
+                    "org.springframework.jdbc.",
+                    "org.springframework.transaction.",
+                    "jakarta.persistence.",
+                    "javax.sql.",
+                    "java.sql.");
+
     @Test
     void httpSupraDoesNotOwnPersistenceOrBusinessExecution() {
         for (String scope : List.of("supra.web.write", "supra.web.read")) {
-            requireDependencies(classesIn(scope), target -> !target.startsWith(BASE + "engine.")
-                    && !target.startsWith(BASE + "infra.")
-                    && !target.startsWith(BASE + "orchestrator.")
-                    && !target.startsWith("org.springframework.jdbc.")
-                    && !target.startsWith("org.springframework.transaction.")
-                    && !target.startsWith("jakarta.persistence.")
-                    && !target.startsWith("javax.sql.")
-                    && !target.startsWith("java.sql."));
+            requireDependencies(
+                    classesIn(scope),
+                    target -> FORBIDDEN_HTTP_SUPRA_PREFIXES.stream().noneMatch(target::startsWith));
         }
     }
 
@@ -131,7 +141,7 @@ class HexagonalArchitectureTest {
                 && !target.startsWith(BASE + "engine.")
                 && !target.startsWith(BASE + "orchestrator.")
                 && !target.startsWith(BASE + "supra."));
-        requireDependencies(List.of(type("infra.postgres.write.JdbcPotCommandStore")),
+        requireDependencies(List.of(type("infra.postgres.write.pot.JdbcPotCommandStore")),
                 target -> !target.startsWith("jakarta.persistence.")
                         && !target.startsWith("org.hibernate.")
                         && !target.startsWith(BASE + "supra."));
@@ -187,6 +197,122 @@ class HexagonalArchitectureTest {
         }
         type("engine.write.pot.ExecutePotCommand");
         type("engine.materialize.pot.MaterializePotVersion");
+    }
+
+    @Test
+    void domainPotPackagesAreAcyclicAndRespectHybridBoundaries() {
+        slices().matching(BASE + "domain.pot.(*)..").should().beFreeOfCycles().check(CLASSES);
+        requireDependencies(classesIn("domain.pot.value.id"), target -> target.startsWith("java.")
+                || target.startsWith(BASE + "domain.pot.value.id."));
+        requireDependencies(classesIn("domain.pot.value"), inPackages("domain.pot.value"));
+        requireDependencies(classesIn("domain.pot.revision"), inPackages("domain.pot.revision"));
+        requireDependencies(classesIn("domain.pot.invitation"),
+                inPackages("domain.pot.invitation", "domain.pot.value"));
+        requireDependencies(classesIn("domain.pot.shareholder"),
+                inPackages("domain.pot.shareholder", "domain.pot.revision", "domain.pot.value"));
+        requireDependencies(classesIn("domain.pot.expense"),
+                inPackages("domain.pot.expense", "domain.pot.revision", "domain.pot.value"));
+    }
+
+    @Test
+    void infraPostgresCoreAndWritePackagesAreAcyclicAndRespectBoundaries() {
+        slices().matching(BASE + "infra.postgres.core.(*)..").should().beFreeOfCycles().check(CLASSES);
+        slices().matching(BASE + "infra.postgres.write.(*)..").should().beFreeOfCycles().check(CLASSES);
+
+        noClasses().that().resideInAPackage(BASE + "infra.postgres.core.bootstrap..")
+                .should().dependOnClassesThat().resideInAnyPackage(
+                        BASE + "infra.postgres.core.consumption..",
+                        BASE + "infra.postgres.core.history..")
+                .check(CLASSES);
+        noClasses().that().resideInAPackage(BASE + "infra.postgres.core.consumption..")
+                .should().dependOnClassesThat().resideInAnyPackage(
+                        BASE + "infra.postgres.core.bootstrap..",
+                        BASE + "infra.postgres.core.history..")
+                .check(CLASSES);
+        noClasses().that().resideInAPackage(BASE + "infra.postgres.core.history..")
+                .should().dependOnClassesThat().resideInAnyPackage(
+                        BASE + "infra.postgres.core.bootstrap..",
+                        BASE + "infra.postgres.core.consumption..")
+                .check(CLASSES);
+        noClasses().that().resideInAPackage(BASE + "infra.postgres.write.pot..")
+                .should().dependOnClassesThat().resideInAPackage(BASE + "infra.postgres.write.admission..")
+                .check(CLASSES);
+        noClasses().that().resideInAPackage(BASE + "infra.postgres.write.admission..")
+                .should().dependOnClassesThat().resideInAPackage(BASE + "infra.postgres.write.consumption..")
+                .check(CLASSES);
+    }
+
+    @Test
+    void reorganizedClassesResideInExpectedPackages() {
+        assertCanonical("infra.postgres.core.bootstrap.BootstrapGuard");
+        assertCanonical("infra.postgres.core.bootstrap.WriteSourceReadPrivileges");
+        assertCanonical("infra.postgres.core.consumption.JdbcConsumptionSlotStore");
+        assertCanonical("infra.postgres.core.history.PostgresPotHistoryReader");
+        assertCanonical("infra.postgres.core.history.PotHistoryRows");
+        assertCanonical("infra.postgres.write.admission.AdmissionSqlAuthority");
+        assertCanonical("infra.postgres.write.admission.JdbcAdmissionStore");
+        type("infra.postgres.write.pot.JdbcInvitationStore");
+        assertCanonical("infra.postgres.write.pot.JdbcPotCommandStore");
+        assertCanonical("domain.pot.shareholder.ShareholderHeader");
+        assertCanonical("domain.pot.shareholder.ActiveShareholderUsage");
+        assertCanonical("domain.pot.expense.ExpenseHeader");
+        assertCanonical("domain.pot.expense.ExpenseFinancials");
+        assertCanonical("domain.pot.invitation.Invitation");
+        assertCanonical("domain.pot.invitation.InvitationTokenHash");
+        assertCanonical("domain.pot.revision.Versioned");
+        assertCanonical("domain.pot.revision.ComponentRead");
+        assertCanonical("domain.pot.revision.InconsistentPotFactsException");
+        assertCanonical("domain.pot.value.Fraction");
+        assertCanonical("domain.pot.value.Amount");
+        assertCanonical("domain.pot.value.Weight");
+
+        var checks = type("domain.pot.TransitionChecks");
+        assertFalse(checks.getModifiers().contains(com.tngtech.archunit.core.domain.JavaModifier.PUBLIC),
+                "TransitionChecks must remain package-private");
+    }
+
+    @Test
+    void writeAndReadSidesDoNotCrossForbiddenBoundaries() {
+        writeDoesNotDependOnReadRule().check(CLASSES);
+        readDoesNotDependOnWriteRule().check(CLASSES);
+    }
+
+    @Test
+    void negativeFixturesProveWriteReadAndCycleRules() {
+        var importer = new ClassFileImporter();
+        var badWrite = importer.importClasses(
+                com.kartaguez.pocoma.architecture.fixture.badwrite.BadWriteToReadFixture.class);
+        assertThrows(AssertionError.class, () -> writeDoesNotDependOnReadRule().check(badWrite));
+
+        var badRead = importer.importClasses(
+                com.kartaguez.pocoma.architecture.fixture.badread.BadReadToWriteFixture.class);
+        assertThrows(AssertionError.class, () -> readDoesNotDependOnWriteRule().check(badRead));
+
+        var cycle = importer.importClasses(
+                com.kartaguez.pocoma.architecture.fixture.cycle.left.CycleLeftFixture.class,
+                com.kartaguez.pocoma.architecture.fixture.cycle.right.CycleRightFixture.class);
+        assertThrows(AssertionError.class,
+                () -> slices().matching(BASE + "architecture.fixture.cycle.(*)..").should().beFreeOfCycles().check(cycle));
+    }
+
+    private static ArchRule writeDoesNotDependOnReadRule() {
+        return noClasses().that()
+                .resideInAnyPackage(BASE + "infra.postgres.write..", BASE + "architecture.fixture.badwrite..")
+                .should().dependOnClassesThat().resideInAnyPackage(
+                        BASE + "infra.postgres.read..",
+                        BASE + "infra.persistence.projection..",
+                        BASE + "engine.read..",
+                        BASE + "supra.web.read..");
+    }
+
+    private static ArchRule readDoesNotDependOnWriteRule() {
+        return noClasses().that()
+                .resideInAnyPackage(BASE + "infra.postgres.read..", BASE + "architecture.fixture.badread..")
+                .should().dependOnClassesThat().resideInAnyPackage(
+                        BASE + "infra.postgres.write..",
+                        BASE + "infra.postgres.source..",
+                        BASE + "engine.write..",
+                        BASE + "supra.web.write..");
     }
 
     private static List<JavaClass> classesIn(String packageName) {

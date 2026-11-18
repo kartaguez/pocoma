@@ -106,66 +106,108 @@ public class ReadHttpConfiguration {
     }
 
     public record HttpPreflight(Environment env) implements BeanFactoryPostProcessor {
+        private static final Set<String> ADMISSION_ALLOWLIST =
+                Set.of(
+                        "com.kartaguez.pocoma.engine.admit.command.CommandAdmission",
+                        "com.kartaguez.pocoma.engine.admit.identity.IdentityRequestAdmission",
+                        "com.kartaguez.pocoma.supra.web.write.AdmissionController",
+                        "com.kartaguez.pocoma.supra.web.write.AdmissionTransport");
+
+        private static final Set<String> LEGACY_WEB_TYPES =
+                Set.of(
+                        "com.kartaguez.pocoma.PocomaWebRuntimeConfiguration",
+                        "com.kartaguez.pocoma.runtime.web.authentication.WebApiSecurityConfiguration");
+
         @Override
         public void postProcessBeanFactory(
                 org.springframework.beans.factory.config.ConfigurableListableBeanFactory factory) {
-            if (env.getProperty("spring.flyway.enabled", Boolean.class, true)
-                    || env.getProperty("spring.jpa.open-in-view", Boolean.class, true)
-                    || env.getProperty("management.health.db.enabled", Boolean.class, true))
-                throw new IllegalStateException(
-                        "V3 HTTP requires migrations, OSIV and DB health disabled");
+            requireDisabledProperties();
             var profiles = Set.of(env.getActiveProfiles());
-            boolean workerSelected = profiles.contains("v3-consumption-worker-dev")
-                    || profiles.contains("v3-read-worker");
-            if (!workerSelected && Arrays.stream(factory.getBeanDefinitionNames())
-                    .map(n -> factory.getType(n, false))
-                    .filter(Objects::nonNull)
-                    .anyMatch(
-                            t ->
-                                    t.getName().contains("WorkerCapacity")
-                                            || t.getName().contains("ConsumptionWorker"))) {
-                throw new IllegalStateException(
-                        "Workers and partition ownership forbidden on HTTP READ runtime");
+            rejectWorkerBeans(factory, profiles);
+            if (!profiles.contains("v3-http-admission")) {
+                rejectAdmissionBeans(factory);
             }
-            if (!Arrays.asList(env.getActiveProfiles()).contains("v3-http-admission")) {
-                for (String name : factory.getBeanDefinitionNames()) {
-                    Class<?> type = factory.getType(name, false);
-                    if (type == null) continue;
-                    String val = type.getName();
-                    if (name.equals("admissionPool")
-                            || val.startsWith("com.kartaguez.pocoma.supra.web.write.")
-                            || val.startsWith("com.kartaguez.pocoma.engine.admit.")) {
-                        throw new IllegalStateException(
-                                "Admission component forbidden on HTTP READ runtime: " + val);
-                    }
+            rejectLegacyBeans(factory, profiles.contains("v3-http-admission"));
+            env.getRequiredProperty("pocoma.v3.http.issuer");
+            env.getRequiredProperty("pocoma.v3.http.audience");
+            env.getRequiredProperty("pocoma.v3.http.jwk-set-uri");
+        }
+
+        private void requireDisabledProperties() {
+            for (String key :
+                    List.of(
+                            "spring.flyway.enabled",
+                            "spring.jpa.open-in-view",
+                            "management.health.db.enabled")) {
+                if (env.getProperty(key, Boolean.class, true)) {
+                    throw new IllegalStateException(
+                            "V3 HTTP requires migrations, OSIV and DB health disabled");
                 }
             }
+        }
+
+        private static void rejectWorkerBeans(
+                org.springframework.beans.factory.config.ConfigurableListableBeanFactory factory,
+                Set<String> profiles) {
+            if (profiles.contains("v3-consumption-worker-dev")
+                    || profiles.contains("v3-read-worker")) {
+                return;
+            }
+            for (String name : factory.getBeanDefinitionNames()) {
+                if (isWorkerBeanType(factory.getType(name, false))) {
+                    throw new IllegalStateException(
+                            "Workers and partition ownership forbidden on HTTP READ runtime");
+                }
+            }
+        }
+
+        private static boolean isWorkerBeanType(Class<?> type) {
+            if (type == null) return false;
+            String className = type.getName();
+            return className.contains("WorkerCapacity")
+                    || className.contains("ConsumptionWorker");
+        }
+
+        private static void rejectAdmissionBeans(
+                org.springframework.beans.factory.config.ConfigurableListableBeanFactory factory) {
+            for (String name : factory.getBeanDefinitionNames()) {
+                Class<?> type = factory.getType(name, false);
+                if (type == null) continue;
+                String val = type.getName();
+                if (isAdmissionBean(name, val)) {
+                    throw new IllegalStateException(
+                            "Admission component forbidden on HTTP READ runtime: " + val);
+                }
+            }
+        }
+
+        private static boolean isAdmissionBean(String name, String val) {
+            if (name.equals("admissionPool")) return true;
+            if (val.startsWith("com.kartaguez.pocoma.supra.web.write.")) return true;
+            return val.startsWith("com.kartaguez.pocoma.engine.admit.");
+        }
+
+        private static void rejectLegacyBeans(
+                org.springframework.beans.factory.config.ConfigurableListableBeanFactory factory,
+                boolean admissionEnabled) {
             for (String name : factory.getBeanDefinitionNames()) {
                 Class<?> type = factory.getType(name, false);
                 if (type == null) continue;
                 String value = type.getName();
-                boolean admission =
-                        Arrays.asList(env.getActiveProfiles()).contains("v3-http-admission")
-                                && Set.of(
-                                                "com.kartaguez.pocoma.engine.admit.command.CommandAdmission",
-                                                "com.kartaguez.pocoma.engine.admit.identity.IdentityRequestAdmission",
-                                                "com.kartaguez.pocoma.supra.web.write.AdmissionController",
-                                                "com.kartaguez.pocoma.supra.web.write.AdmissionTransport")
-                                        .contains(value);
-                if (!admission
-                        && ((value.startsWith("com.kartaguez.pocoma.supra.web.")
-                                        && !value.contains(".read."))
-                                || value.startsWith("com.kartaguez.pocoma.engine.admit.")
-                                || value.equals(
-                                        "com.kartaguez.pocoma.PocomaWebRuntimeConfiguration")
-                                || value.equals(
-                                        "com.kartaguez.pocoma.runtime.web.authentication.WebApiSecurityConfiguration")))
+                if (admissionEnabled && ADMISSION_ALLOWLIST.contains(value)) continue;
+                if (isForbiddenLegacyWebType(value)) {
                     throw new IllegalStateException(
                             "legacy HTTP/admission component refused in V3");
+                }
             }
-            env.getRequiredProperty("pocoma.v3.http.issuer");
-            env.getRequiredProperty("pocoma.v3.http.audience");
-            env.getRequiredProperty("pocoma.v3.http.jwk-set-uri");
+        }
+
+        private static boolean isForbiddenLegacyWebType(String value) {
+            if (value.startsWith("com.kartaguez.pocoma.supra.web.") && !value.contains(".read.")) {
+                return true;
+            }
+            if (value.startsWith("com.kartaguez.pocoma.engine.admit.")) return true;
+            return LEGACY_WEB_TYPES.contains(value);
         }
     }
 
@@ -180,8 +222,12 @@ public class ReadHttpConfiguration {
         int sqlPermits = env.getProperty(p + "sql-permits", Integer.class, ReadFacadeComposition.Services.SQL_PERMITS);
         int maxPoolSize = env.getProperty(p + "maximum-pool-size", Integer.class, sqlPermits);
         int minIdle = env.getProperty(p + "minimum-idle", Integer.class, maxPoolSize);
-        if (sqlPermits < 1 || maxPoolSize < sqlPermits || minIdle < 0 || minIdle > maxPoolSize)
+        if (sqlPermits < 1 || maxPoolSize < sqlPermits) {
             throw new IllegalArgumentException("Invalid READ pool/SQL permit sizing");
+        }
+        if (minIdle < 0 || minIdle > maxPoolSize) {
+            throw new IllegalArgumentException("Invalid READ pool/SQL permit sizing");
+        }
         config.setMaximumPoolSize(maxPoolSize);
         config.setMinimumIdle(minIdle);
         config.setConnectionTimeout(1000);
@@ -279,35 +325,20 @@ public class ReadHttpConfiguration {
 
     @Bean
     CommandResultRead.Query httpCommandResult(ReadFacadeComposition.Services services) {
-        return (id, eui) -> {
-            var result = services.commandResult(id, eui);
-            if (result instanceof ReadPotResult.Available<?> a) {
-                @SuppressWarnings("unchecked")
-                var value =
-                        (Optional<
-                                        com.kartaguez.pocoma.domain.projection.CommandTerminalResult>)
-                                a.value();
-                return value;
-            }
-            throw new ReadTransport.Failure(503);
-        };
+        return (id, eui) -> unwrapTerminalResult(services.commandResult(id, eui));
     }
 
     @Bean
-    IdentityResultRead.Query httpIdentityResult(
-            ReadFacadeComposition.Services services) {
-        return (id, eui) -> {
-            var result = services.identityResult(id, eui);
-            if (result instanceof ReadPotResult.Available<?> a) {
-                @SuppressWarnings("unchecked")
-                var value =
-                        (Optional<
-                                        com.kartaguez.pocoma.domain.projection.IdentityTerminalResult>)
-                                a.value();
-                return value;
-            }
-            throw new ReadTransport.Failure(503);
-        };
+    IdentityResultRead.Query httpIdentityResult(ReadFacadeComposition.Services services) {
+        return (id, eui) -> unwrapTerminalResult(services.identityResult(id, eui));
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> Optional<T> unwrapTerminalResult(ReadPotResult<?> result) {
+        if (result instanceof ReadPotResult.Available<?> a) {
+            return (Optional<T>) a.value();
+        }
+        throw new ReadTransport.Failure(503);
     }
 
     @Bean

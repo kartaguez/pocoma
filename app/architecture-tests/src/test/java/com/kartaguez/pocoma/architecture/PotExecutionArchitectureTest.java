@@ -91,8 +91,11 @@ class PotExecutionArchitectureTest {
                 java.nio.file.Path.of(
                         "../infra-postgres-write/src/main/java/com/kartaguez/pocoma/infra/postgres/write");
         // The owner rejects ambient nesting; no writer can opt into an independent effects unit.
-        try (var files = java.nio.file.Files.list(source)) {
-            for (var path : files.filter(p -> p.toString().endsWith(".java")).toList()) {
+        try (var files = java.nio.file.Files.walk(source)) {
+            for (var path :
+                    files.filter(java.nio.file.Files::isRegularFile)
+                            .filter(p -> p.toString().endsWith(".java"))
+                            .toList()) {
                 var code = java.nio.file.Files.readString(path);
                 assertFalse(code.contains("REQUIRES_NEW"), path.toString());
                 assertFalse(code.contains("PROPAGATION_NESTED"), path.toString());

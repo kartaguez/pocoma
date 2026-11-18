@@ -26,20 +26,58 @@ public final class JdbcIdentityTerminalSource implements IdentityTerminalSource 
                 join v3_identity_request_result r on r.request_id=c.request_id
                 where e.event_id=?
                 """,event);
-            if(rows.size()!=1) throw new IllegalStateException("Missing exact Identity completion");
-            var row=rows.getFirst(); var operation=(String)row.get("operation");
-            if(!"TERMINAL".equals(row.get("status")) || !operation.equals(row.get("subject_type")))
-                throw new IllegalStateException("Identity operation mismatch");
-            var requester=new ExternalIdentity((String)row.get("requester_issuer"),(String)row.get("requester_subject"));
-            var target=new ExternalIdentity((String)row.get("target_issuer"),(String)row.get("target_subject"));
-            boolean changed="CHANGED".equals(row.get("outcome"));
-            var version=(Number)row.get("target_version");
-            var rejection=(String)row.get("rejection");
-            if(rejection!=null) IdentityTransitionResult.Rejection.valueOf(rejection);
-            if(changed && (version==null || row.get("target_eui_id")==null || !history.at(new ExternalUserIdentityId((UUID)row.get("target_eui_id")),version.longValue(),context).identity().equals(target)))
-                throw new IllegalStateException("Identity result target mismatch");
-            if(!changed && row.get("target_eui_id")!=null) throw new IllegalStateException("Rejected Identity has target version");
-            return new IdentityTerminalResult((UUID)row.get("request_id"),operation,requester,(String)row.get("outcome"),changed?target:null,version==null?null:version.longValue(),rejection);
+            if (rows.size() != 1) throw new IllegalStateException("Missing exact Identity completion");
+            return toIdentityTerminalResult(rows.getFirst(), context);
         });
+    }
+
+    private IdentityTerminalResult toIdentityTerminalResult(
+            Map<String, Object> row, RecoveryReadContext context) {
+        var operation = (String) row.get("operation");
+        if (!"TERMINAL".equals(row.get("status")) || !operation.equals(row.get("subject_type"))) {
+            throw new IllegalStateException("Identity operation mismatch");
+        }
+        var requester =
+                new ExternalIdentity(
+                        (String) row.get("requester_issuer"),
+                        (String) row.get("requester_subject"));
+        var target =
+                new ExternalIdentity(
+                        (String) row.get("target_issuer"), (String) row.get("target_subject"));
+        boolean changed = "CHANGED".equals(row.get("outcome"));
+        var version = (Number) row.get("target_version");
+        var rejection = (String) row.get("rejection");
+        if (rejection != null) IdentityTransitionResult.Rejection.valueOf(rejection);
+        verifyTargetIdentity(row, target, changed, version, context);
+        return new IdentityTerminalResult(
+                (UUID) row.get("request_id"),
+                operation,
+                requester,
+                (String) row.get("outcome"),
+                changed ? target : null,
+                version == null ? null : version.longValue(),
+                rejection);
+    }
+
+    private void verifyTargetIdentity(
+            Map<String, Object> row,
+            ExternalIdentity target,
+            boolean changed,
+            Number version,
+            RecoveryReadContext context) {
+        Object euiId = row.get("target_eui_id");
+        if (!changed) {
+            if (euiId != null) {
+                throw new IllegalStateException("Rejected Identity has target version");
+            }
+            return;
+        }
+        if (version == null || euiId == null) {
+            throw new IllegalStateException("Identity result target mismatch");
+        }
+        var stored = history.at(new ExternalUserIdentityId((UUID) euiId), version.longValue(), context);
+        if (!stored.identity().equals(target)) {
+            throw new IllegalStateException("Identity result target mismatch");
+        }
     }
 }

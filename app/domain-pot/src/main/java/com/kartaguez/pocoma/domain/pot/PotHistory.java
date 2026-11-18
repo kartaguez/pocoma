@@ -1,4 +1,15 @@
 package com.kartaguez.pocoma.domain.pot;
+
+import com.kartaguez.pocoma.domain.pot.expense.ExpenseDetails;
+import com.kartaguez.pocoma.domain.pot.expense.ExpenseFinancials;
+import com.kartaguez.pocoma.domain.pot.expense.ExpenseHeader;
+import com.kartaguez.pocoma.domain.pot.expense.ExpenseState;
+import com.kartaguez.pocoma.domain.pot.revision.ComponentRead;
+import com.kartaguez.pocoma.domain.pot.revision.InconsistentPotFactsException;
+import com.kartaguez.pocoma.domain.pot.shareholder.ShareholderDetails;
+import com.kartaguez.pocoma.domain.pot.shareholder.ShareholderReference;
+import com.kartaguez.pocoma.domain.pot.shareholder.ShareholderState;
+import com.kartaguez.pocoma.domain.pot.shareholder.ShareholderWeight;
 import com.kartaguez.pocoma.domain.pot.value.id.*;
 import java.time.Instant;
 import java.util.*;

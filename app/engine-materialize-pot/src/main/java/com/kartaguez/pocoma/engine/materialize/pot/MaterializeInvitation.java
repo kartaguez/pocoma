@@ -29,35 +29,39 @@ public final class MaterializeInvitation implements ConsumptionParticipant {
 
                     public void requireCompletionReady() {
                         var actual = store.byRequest(expected.creationRequestId()).orElseThrow();
-                        if (!sameIdentity(actual, expected)
-                                || actual.version() < expected.version()
-                                || actual.version() == expected.version()
-                                        && !actual.equals(expected))
+                        if (!matchesExpected(actual, expected)) {
                             throw new IllegalStateException("Invitation materialization differs");
+                        }
                     }
                 });
     }
 
+    private static boolean matchesExpected(
+            com.kartaguez.pocoma.domain.pot.invitation.Invitation actual,
+            com.kartaguez.pocoma.domain.pot.invitation.Invitation expected) {
+        if (!sameIdentity(actual, expected)) return false;
+        if (actual.version() > expected.version()) return true;
+        return actual.version() == expected.version() && actual.equals(expected);
+    }
+
     private static boolean sameIdentity(
-            com.kartaguez.pocoma.domain.pot.Invitation a,
-            com.kartaguez.pocoma.domain.pot.Invitation b) {
-        return a.invitationId().equals(b.invitationId())
-                && a.creationRequestId().equals(b.creationRequestId())
-                && a.creatorIssuer().equals(b.creatorIssuer())
-                && a.creatorSubject().equals(b.creatorSubject())
-                && a.potId().equals(b.potId())
-                && a.tokenHash().equals(b.tokenHash());
+            com.kartaguez.pocoma.domain.pot.invitation.Invitation a,
+            com.kartaguez.pocoma.domain.pot.invitation.Invitation b) {
+        if (!a.invitationId().equals(b.invitationId())) return false;
+        if (!a.creationRequestId().equals(b.creationRequestId())) return false;
+        if (!a.creatorIssuer().equals(b.creatorIssuer())) return false;
+        if (!a.creatorSubject().equals(b.creatorSubject())) return false;
+        return a.potId().equals(b.potId()) && a.tokenHash().equals(b.tokenHash());
     }
 
     public Recovery prepareRecovery(UUID event, PreparationReads reads) {
         var expected = reads.source(c -> source.load(event, c));
         return c -> {
             var actual = store.byRequest(expected.creationRequestId());
-            if (actual.isEmpty() || actual.get().version() < expected.version())
+            if (actual.isEmpty() || actual.get().version() < expected.version()) {
                 return EffectEvidence.MISSING;
-            return sameIdentity(actual.get(), expected)
-                            && (actual.get().version() > expected.version()
-                                    || actual.get().equals(expected))
+            }
+            return matchesExpected(actual.get(), expected)
                     ? EffectEvidence.SATISFIED
                     : EffectEvidence.DIVERGENT;
         };

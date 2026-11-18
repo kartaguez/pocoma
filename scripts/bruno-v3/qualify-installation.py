@@ -100,6 +100,12 @@ def prepare_realm(temp):
     return path, realm
 
 
+def _exchange_client_token(auth, client_id, username, password):
+    auth.CLIENT = client_id
+    values, verifier = auth.authorize(['openid'], username=username, password=password)
+    return auth.exchange(values, verifier)
+
+
 def load_auth(issuer, realm):
     spec = importlib.util.spec_from_file_location('auth', ROOT / 'scripts/functional-auth-proof.py')
     auth = importlib.util.module_from_spec(spec)
@@ -114,17 +120,14 @@ def load_auth(issuer, realm):
         tokens.append((token, claims['sub']))
     if len(tokens) != 3 or len({subject for _, subject in tokens}) != 3:
         raise RuntimeError('Three distinct Keycloak subjects required')
-    auth.CLIENT = 'recipe-expiring'
-    values, verifier = auth.authorize(['openid'], username=user['username'], password=password)
-    expired, claims = auth.exchange(values, verifier)
+    expired, claims = _exchange_client_token(auth, 'recipe-expiring', user['username'], password)
     auth.check_token(claims, set())
     if not 0 < claims['exp'] - claims['iat'] <= 15:
         raise RuntimeError('Keycloak expiring fixture has unexpected lifespan')
     expiry = claims['exp']
-    auth.CLIENT = 'recipe-other-audience'
-    values, verifier = auth.authorize(['openid'], username=user['username'], password=password)
-    wrong_audience, claims = auth.exchange(values, verifier)
-    if claims.get('iss') != issuer or 'pocoma-api' in (claims.get('aud') or []):
+    wrong_audience, claims = _exchange_client_token(auth, 'recipe-other-audience', user['username'], password)
+    has_api_audience = 'pocoma-api' in (claims.get('aud') or [])
+    if claims.get('iss') != issuer or has_api_audience:
         raise RuntimeError('Keycloak wrong-audience fixture has unexpected claims')
     return tokens, (expired, expiry, wrong_audience)
 
@@ -274,6 +277,132 @@ def local_key():
     return base64.b64encode(secrets.token_bytes(32)).decode('ascii')
 
 
+def _start_postgres(prefix, pg_port, password, pg_image, evidence, names):
+    pg = prefix + '-pg'
+    call('docker', 'run', '-d', '--name', pg, '--network', prefix, '--network-alias', 'postgres',
+         '-p', f'127.0.0.1:{pg_port}:5432', '-e', 'POSTGRES_USER=pocoma', '-e', 'POSTGRES_DB=pocoma',
+         '-e', f'POSTGRES_PASSWORD={password}', '-v',
+         f'{ROOT}/docker/postgres/functional-init.sql:/docker-entrypoint-initdb.d/functional-init.sql:ro',
+         pg_image, stdout=subprocess.DEVNULL)
+    names.append(pg)
+    deadline = time.monotonic() + 45
+    while time.monotonic() < deadline:
+        if psql(pg, 'pocoma', 'public', "select 1 from pg_namespace where nspname='keycloak'",
+                'pocoma', password).stdout.strip() == '1':
+            break
+        time.sleep(0.25)
+    else:
+        raise RuntimeError('PostgreSQL fixture readiness deadline')
+    with (evidence / 'bootstrap.log').open('w') as log:
+        call('python3', str(ROOT / 'scripts/operations/setup-v3-database.py'),
+             '--postgres-container', pg, stdout=log, stderr=subprocess.STDOUT)
+    pg_address = output('docker', 'inspect', '--format',
+                        '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}', pg)
+    return pg, pg_address
+
+
+def _start_keycloak(prefix, kc_port, password, kc_image, temp, names, issuer):
+    kc = prefix + '-kc'
+    realm_file, realm = prepare_realm(temp)
+    call('docker', 'run', '-d', '--name', kc, '--network', prefix,
+         '-p', f'127.0.0.1:{kc_port}:8080', '-e', 'KC_DB=postgres',
+         '-e', 'KC_DB_URL=jdbc:postgresql://postgres:5432/pocoma', '-e', 'KC_DB_SCHEMA=keycloak',
+         '-e', 'KC_DB_USERNAME=pocoma', '-e', f'KC_DB_PASSWORD={password}', '-v',
+         f'{realm_file}:/opt/keycloak/data/import/pocoma-realm.json:ro',
+         kc_image, 'start-dev', '--import-realm', f'--hostname=http://localhost:{kc_port}',
+         stdout=subprocess.DEVNULL)
+    names.append(kc)
+    await_http(issuer + '/.well-known/openid-configuration')
+    return realm
+
+
+def _render_runtime_properties(name, ports, pg_address, issuer, invitation_key):
+    pg_port, write_port, read_port, management_port = ports
+    properties = (CONFIG / f'{name}.properties').read_text()
+    properties = (properties.replace('postgres:5432', f'127.0.0.1:{pg_port}')
+                  .replace('postgres,5432,', f'127.0.0.1,{pg_port},')
+                  .replace('172.28.0.2/32', pg_address + '/32')
+                  .replace('http://localhost:8081/realms/pocoma', issuer)
+                  .replace('http://keycloak:8080/realms/pocoma', issuer)
+                  .replace('=0.0.0.0', '=127.0.0.1'))
+    app_port = {'http-write': write_port, 'http-read': read_port}.get(name, 0)
+    properties = re.sub(r'(?m)^server.port=.*$', f'server.port={app_port}', properties)
+    properties = re.sub(r'(?m)^management.server.port=.*$',
+                        f'management.server.port={management_port}', properties)
+    if name in {'http-read', 'command-worker'}:
+        properties += ('\npocoma.v3.invitation.current-key=recipe'
+                       '\npocoma.v3.invitation.key-ids=recipe'
+                       f'\npocoma.v3.invitation.keys.recipe={invitation_key}\n')
+    if name == 'http-write':
+        for key in ('lookup-key', 'comparison-keys.k1'):
+            properties = re.sub(
+                rf'(?m)^pocoma\.v3\.http\.admission\.{re.escape(key)}=.*$',
+                f'pocoma.v3.http.admission.{key}={local_key()}', properties)
+    return properties
+
+
+def _start_runtimes(temp, evidence, context, processes, summary):
+    pg_port, pg_address, write_port, read_port, management, issuer, invitation_key = context
+    for (name, (module, profile)), management_port in zip(RUNTIMES.items(), management):
+        jar = package_path(module)
+        properties = _render_runtime_properties(
+            name, (pg_port, write_port, read_port, management_port), pg_address, issuer, invitation_key)
+        settings = temp / f'{name}.properties'
+        with open(settings, 'x', opener=lambda path, flags: os.open(path, flags, 0o600)) as config:
+            config.write(properties)
+        args = ['java', '-Xms128m', '-Xmx512m', '-XX:+UseSerialGC',
+                f'-Dpocoma.v3.handoff.log={temp / (name + "-handoffs.jsonl")}',
+                '-jar', str(jar), f'--spring.profiles.active={profile}',
+                f'--spring.config.additional-location={settings.as_uri()}']
+        with (evidence / f'{name}.log').open('w') as log:
+            process = subprocess.Popen(args, cwd=ROOT, stdout=log, stderr=subprocess.STDOUT)
+        processes[name] = process
+        summary['runtimes'][name] = {'sha256': hashlib.sha256(jar.read_bytes()).hexdigest(),
+                                     'profile': profile, 'ready': False,
+                                     'managementPort': management_port}
+        await_http(f'http://127.0.0.1:{management_port}/actuator/health/readiness', process)
+        summary['runtimes'][name]['ready'] = True
+
+
+def _build_bruno_env(write_port, read_port, issuer, auth_bundle):
+    sessions, (expired, expiry, wrong_audience) = auth_bundle
+    (owner, subject), (guest, guest_subject), (third, _) = sessions
+    write_url, read_url = f'http://127.0.0.1:{write_port}', f'http://127.0.0.1:{read_port}'
+    env = {**os.environ, 'POCOMA_L7_FRESH': '1', 'POCOMA_L7_WRITE_URL': write_url,
+           'POCOMA_L7_READ_URL': read_url, 'POCOMA_I2_BASE_URL': read_url,
+           'POCOMA_I2_ISSUER': issuer, 'POCOMA_I4_BASE_URL': read_url,
+           'POCOMA_I2_HELPER': str(COLLECTION / 'lib/i2-admission.js'), 'POCOMA_I2_bearerOwner': owner,
+           'POCOMA_I2_bearerOther': guest, 'POCOMA_L7_OWNER_SUBJECT': subject,
+           'POCOMA_L7_OTHER_SUBJECT': guest_subject, 'POCOMA_L7_EXPIRED_BEARER': expired,
+           'POCOMA_L7_WRONG_AUDIENCE_BEARER': wrong_audience, 'POCOMA_L7_EXPIRED_EPOCH': str(expiry),
+           'POCOMA_I4_BEARER_OWNER': owner, 'POCOMA_I4_BEARER_GUEST': guest,
+           'POCOMA_I4_BEARER_SECOND': third}
+    return env, (owner, guest, third, expired, wrong_audience)
+
+
+def _cleanup_resources(processes, names, network, prefix, summary):
+    for name, process in reversed(list(processes.items())):
+        if process.poll() is None:
+            process.terminate()
+        try:
+            summary['cleanup'][name] = process.wait(timeout=45)
+        except subprocess.TimeoutExpired:
+            process.kill()
+            summary['cleanup'][name] = 'SIGKILL'
+            process.wait()
+            summary['status'] = 'FAIL'
+    for name in reversed(names):
+        result = subprocess.run(['docker', 'rm', '-fv', name], capture_output=True, timeout=30)
+        summary['cleanup'][name] = result.returncode
+        if result.returncode:
+            summary['status'] = 'FAIL'
+    if network:
+        result = subprocess.run(['docker', 'network', 'rm', prefix], capture_output=True, timeout=30)
+        summary['cleanup']['network'] = result.returncode
+        if result.returncode:
+            summary['status'] = 'FAIL'
+
+
 def execute(evidence, temp):
     pg_image = output('docker', 'image', 'inspect', '--format={{.Id}}', 'postgres:17-alpine')
     kc_image = output('docker', 'image', 'inspect', '--format={{.Id}}', 'quay.io/keycloak/keycloak:26.7.0')
@@ -294,120 +423,29 @@ def execute(evidence, temp):
     try:
         call('docker', 'network', 'create', prefix, stdout=subprocess.DEVNULL)
         network = True
-        pg = prefix + '-pg'
-        call('docker', 'run', '-d', '--name', pg, '--network', prefix, '--network-alias', 'postgres',
-             '-p', f'127.0.0.1:{pg_port}:5432', '-e', 'POSTGRES_USER=pocoma', '-e', 'POSTGRES_DB=pocoma',
-             '-e', f'POSTGRES_PASSWORD={password}', '-v',
-             f'{ROOT}/docker/postgres/functional-init.sql:/docker-entrypoint-initdb.d/functional-init.sql:ro',
-             pg_image, stdout=subprocess.DEVNULL)
-        names.append(pg)
-        deadline = time.monotonic() + 45
-        while time.monotonic() < deadline:
-            if psql(pg, 'pocoma', 'public', 'select 1 from pg_namespace where nspname=\'keycloak\'',
-                    'pocoma', password).stdout.strip() == '1':
-                break
-            time.sleep(0.25)
-        else:
-            raise RuntimeError('PostgreSQL fixture readiness deadline')
-        with (evidence / 'bootstrap.log').open('w') as log:
-            call('python3', str(ROOT / 'scripts/operations/setup-v3-database.py'),
-                 '--postgres-container', pg, stdout=log, stderr=subprocess.STDOUT)
+        pg, pg_address = _start_postgres(prefix, pg_port, password, pg_image, evidence, names)
         summary['postgresVersion'] = psql(pg, 'pocoma', 'public', 'show server_version').stdout.strip()
-        pg_address = output('docker', 'inspect', '--format',
-                            '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}', pg)
-        kc = prefix + '-kc'
-        realm_file, realm = prepare_realm(temp)
-        call('docker', 'run', '-d', '--name', kc, '--network', prefix,
-             '-p', f'127.0.0.1:{kc_port}:8080', '-e', 'KC_DB=postgres',
-             '-e', 'KC_DB_URL=jdbc:postgresql://postgres:5432/pocoma', '-e', 'KC_DB_SCHEMA=keycloak',
-             '-e', 'KC_DB_USERNAME=pocoma', '-e', f'KC_DB_PASSWORD={password}', '-v',
-             f'{realm_file}:/opt/keycloak/data/import/pocoma-realm.json:ro',
-             kc_image, 'start-dev', '--import-realm', f'--hostname=http://localhost:{kc_port}',
-             stdout=subprocess.DEVNULL)
-        names.append(kc)
-        await_http(issuer + '/.well-known/openid-configuration')
-        for (name, (module, profile)), management_port in zip(RUNTIMES.items(), management):
-            jar = package_path(module)
-            properties = (CONFIG / f'{name}.properties').read_text()
-            properties = (properties.replace('postgres:5432', f'127.0.0.1:{pg_port}')
-                          .replace('postgres,5432,', f'127.0.0.1,{pg_port},')
-                          .replace('172.28.0.2/32', pg_address + '/32')
-                          .replace('http://localhost:8081/realms/pocoma', issuer)
-                          .replace('http://keycloak:8080/realms/pocoma', issuer)
-                          .replace('=0.0.0.0', '=127.0.0.1'))
-            app_port = {'http-write': write_port, 'http-read': read_port}.get(name, 0)
-            properties = re.sub(r'(?m)^server.port=.*$', f'server.port={app_port}', properties)
-            properties = re.sub(r'(?m)^management.server.port=.*$',
-                                f'management.server.port={management_port}', properties)
-            if name in {'http-read', 'command-worker'}:
-                properties += ('\npocoma.v3.invitation.current-key=recipe'
-                               '\npocoma.v3.invitation.key-ids=recipe'
-                               f'\npocoma.v3.invitation.keys.recipe={invitation_key}\n')
-            if name == 'http-write':
-                for key in ('lookup-key', 'comparison-keys.k1'):
-                    properties = re.sub(
-                        rf'(?m)^pocoma\.v3\.http\.admission\.{re.escape(key)}=.*$',
-                        f'pocoma.v3.http.admission.{key}={local_key()}', properties)
-            settings = temp / f'{name}.properties'
-            with open(settings, 'x', opener=lambda path, flags: os.open(path, flags, 0o600)) as config:
-                config.write(properties)
-            args = ['java', '-Xms128m', '-Xmx512m', '-XX:+UseSerialGC',
-                    f'-Dpocoma.v3.handoff.log={temp / (name + "-handoffs.jsonl")}',
-                    '-jar', str(jar), f'--spring.profiles.active={profile}',
-                    f'--spring.config.additional-location={settings.as_uri()}']
-            with (evidence / f'{name}.log').open('w') as log:
-                process = subprocess.Popen(args, cwd=ROOT, stdout=log, stderr=subprocess.STDOUT)
-            processes[name] = process
-            summary['runtimes'][name] = {'sha256': hashlib.sha256(jar.read_bytes()).hexdigest(),
-                                         'profile': profile, 'ready': False,
-                                         'managementPort': management_port}
-            await_http(f'http://127.0.0.1:{management_port}/actuator/health/readiness', process)
-            summary['runtimes'][name]['ready'] = True
-        sessions, (expired, expiry, wrong_audience) = load_auth(issuer, realm)
-        (owner, subject), (guest, guest_subject), (third, _) = sessions
-        write_url, read_url = f'http://127.0.0.1:{write_port}', f'http://127.0.0.1:{read_port}'
-        env = {**os.environ, 'POCOMA_L7_FRESH': '1', 'POCOMA_L7_WRITE_URL': write_url,
-               'POCOMA_L7_READ_URL': read_url, 'POCOMA_I2_BASE_URL': read_url,
-               'POCOMA_I2_ISSUER': issuer, 'POCOMA_I4_BASE_URL': read_url,
-               'POCOMA_I2_HELPER': str(COLLECTION / 'lib/i2-admission.js'), 'POCOMA_I2_bearerOwner': owner, 'POCOMA_I2_bearerOther': guest,
-               'POCOMA_L7_OWNER_SUBJECT': subject, 'POCOMA_L7_OTHER_SUBJECT': guest_subject,
-               'POCOMA_L7_EXPIRED_BEARER': expired, 'POCOMA_L7_WRONG_AUDIENCE_BEARER': wrong_audience,
-               'POCOMA_L7_EXPIRED_EPOCH': str(expiry),
-               'POCOMA_I4_BEARER_OWNER': owner, 'POCOMA_I4_BEARER_GUEST': guest,
-               'POCOMA_I4_BEARER_SECOND': third}
-        summary['bruno'] = run_corpora(evidence, env, (owner, guest, third, invitation_key, expired, wrong_audience))
+        realm = _start_keycloak(prefix, kc_port, password, kc_image, temp, names, issuer)
+        _start_runtimes(
+            temp, evidence,
+            (pg_port, pg_address, write_port, read_port, management, issuer, invitation_key),
+            processes, summary,
+        )
+        auth_bundle = load_auth(issuer, realm)
+        env, tokens = _build_bruno_env(write_port, read_port, issuer, auth_bundle)
+        summary['bruno'] = run_corpora(evidence, env, (*tokens, invitation_key))
         summary['sqlConvergence'] = read_write_convergence(pg)
         summary['acl'] = prove_acl(pg, password)
         summary['activeSqlPrincipals'] = observe_runtime_principals(pg)
         bindings = result_vector(pg, 'pocoma_write', 'v3_write',
                                  "select json_agg(binding_token) from v3_eui_version where binding_token is not null")
-        check_redaction(evidence.rglob('*.log'), (owner, guest, third, expired, wrong_audience,
-                                                invitation_key, *bindings))
+        check_redaction(evidence.rglob('*.log'), (*tokens, invitation_key, *bindings))
         summary['status'] = 'PASS'
     except Exception as error:
         summary['error'] = str(error)
         raise
     finally:
-        for name, process in reversed(list(processes.items())):
-            if process.poll() is None:
-                process.terminate()
-            try:
-                summary['cleanup'][name] = process.wait(timeout=45)
-            except subprocess.TimeoutExpired:
-                process.kill()
-                summary['cleanup'][name] = 'SIGKILL'
-                process.wait()
-                summary['status'] = 'FAIL'
-        for name in reversed(names):
-            result = subprocess.run(['docker', 'rm', '-fv', name], capture_output=True, timeout=30)
-            summary['cleanup'][name] = result.returncode
-            if result.returncode:
-                summary['status'] = 'FAIL'
-        if network:
-            result = subprocess.run(['docker', 'network', 'rm', prefix], capture_output=True, timeout=30)
-            summary['cleanup']['network'] = result.returncode
-            if result.returncode:
-                summary['status'] = 'FAIL'
+        _cleanup_resources(processes, names, network, prefix, summary)
         summary['seconds'] = time.monotonic() - began
         save(evidence / 'receipt.json', summary)
     if summary['status'] != 'PASS':

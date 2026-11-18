@@ -38,6 +38,7 @@ Les spécifications fonctionnelles et techniques du programme V3 sont conservée
   - [Registre des réserves actualisé](../v3/L7_Reservations_Register_Updated.md)
   - [Plan de terminaison L7](../v3/L7_Termination_Plan.md)
 - **Lots V3 (L0–L7)** : rapports de clôture, plans et manifestes conservés sous [`docs/v3/`](../v3/).
+- **Code Health V3 (Phase 1)** : [Rapport de clôture et registre des travaux différés](../v3/Code_Health_Phase_1_Closure_Report.md) (`refactor/codescene-code-health-10`, chantier en pause).
 - **Steps et plans historiques** : [`steps/`](steps/) (`completed/` et anciens `current/`) et [`plans/`](plans/).
 
 ## 4. Qualifications, benchmarks et preuves

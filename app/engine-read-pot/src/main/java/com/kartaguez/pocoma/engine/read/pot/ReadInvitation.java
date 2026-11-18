@@ -2,6 +2,8 @@ package com.kartaguez.pocoma.engine.read.pot;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -14,11 +16,13 @@ import com.kartaguez.pocoma.contract.readquery.ReadPotResult.Available;
 import com.kartaguez.pocoma.contract.readquery.ReadPotResult.NotFound;
 import com.kartaguez.pocoma.contract.readquery.ReadPotResult.NotReady;
 import com.kartaguez.pocoma.domain.identity.ExternalIdentity;
-import com.kartaguez.pocoma.domain.pot.Invitation;
-import com.kartaguez.pocoma.domain.pot.InvitationTokenHash;
+import com.kartaguez.pocoma.domain.pot.invitation.Invitation;
+import com.kartaguez.pocoma.domain.pot.invitation.InvitationTokenHash;
+import com.kartaguez.pocoma.domain.projection.PotVersion;
 import com.kartaguez.pocoma.domain.projection.SubobjectContent;
 import com.kartaguez.pocoma.domain.projection.SubobjectKey;
 import com.kartaguez.pocoma.domain.projection.SubobjectKind;
+import com.kartaguez.pocoma.domain.projection.SubobjectVersion;
 import com.kartaguez.pocoma.port.projection.PotVersionStore;
 import com.kartaguez.pocoma.port.projection.SubobjectVersionStore;
 import com.kartaguez.pocoma.port.transaction.RecoveryReadContext;
@@ -70,42 +74,58 @@ public final class ReadInvitation {
             String bindingToken,
             String invitationToken,
             RecoveryReadContext c) {
-        var binding = bindings.read(eui, c);
-        if (binding.isEmpty()
-                || !binding.get().isBound()
-                || !binding.get().bindingToken().value().equals(bindingToken))
-            return new NotFound<>();
+        var boundUserId = resolveBoundUserId(eui, bindingToken, c);
+        if (boundUserId.isEmpty()) return new NotFound<>();
         var invitation = invitations.byHash(InvitationTokenHash.of(invitationToken));
-        if (invitation.isEmpty() || !clock.get().isBefore(invitation.get().expiresAt()))
+        if (invitation.isEmpty() || !clock.get().isBefore(invitation.get().expiresAt())) {
             return new NotFound<>();
+        }
         UUID potId = invitation.get().potId();
         var current = pots.currentVersion(potId, c);
         if (current.isEmpty()) return new NotReady<>();
         var root = pots.read(potId, current.getAsLong(), c);
         if (root.isEmpty()) return new NotReady<>();
         var p = root.get();
-        if (p.deleted() || p.attachedActiveUserIds().contains(binding.get().userId().value()))
+        if (p.deleted() || p.attachedActiveUserIds().contains(boundUserId.get())) {
             return new NotFound<>();
-        var free = p.shareholders().stream().filter(s -> !s.deleted() && s.isFree()).toList();
-        var keys =
-                free.stream()
-                        .map(
-                                s ->
-                                        new SubobjectKey(
-                                                potId,
-                                                SubobjectKind.SHAREHOLDER_DETAILS,
-                                                s.id(),
-                                                s.detailsVersion()))
-                        .toList();
+        }
+        var keys = freeShareholderDetailKeys(potId, p);
         var details = objects.readAll(keys, c);
         if (!details.keySet().containsAll(keys)) return new NotReady<>();
+        return new Available<>(extractPlaces(keys, details), p.version());
+    }
+
+    private Optional<UUID> resolveBoundUserId(
+            ExternalIdentity eui, String bindingToken, RecoveryReadContext c) {
+        var binding = bindings.read(eui, c);
+        if (binding.isEmpty() || !binding.get().isBound()) return Optional.empty();
+        if (!binding.get().bindingToken().value().equals(bindingToken)) return Optional.empty();
+        return Optional.of(binding.get().userId().value());
+    }
+
+    private static List<SubobjectKey> freeShareholderDetailKeys(UUID potId, PotVersion p) {
+        return p.shareholders().stream()
+                .filter(s -> !s.deleted() && s.isFree())
+                .map(
+                        s ->
+                                new SubobjectKey(
+                                        potId,
+                                        SubobjectKind.SHAREHOLDER_DETAILS,
+                                        s.id(),
+                                        s.detailsVersion()))
+                .toList();
+    }
+
+    private static List<Place> extractPlaces(
+            List<SubobjectKey> keys, Map<SubobjectKey, SubobjectVersion> details) {
         var places = new ArrayList<Place>();
         for (var key : keys) {
             var d = (SubobjectContent.ShareholderDetailsContent) details.get(key).content();
-            if (d.value().userId().isPresent())
+            if (d.value().userId().isPresent()) {
                 throw new IllegalStateException("Inconsistent Invitation place");
+            }
             places.add(new Place(key.objectId(), d.value().name().value()));
         }
-        return new Available<>(List.copyOf(places), p.version());
+        return List.copyOf(places);
     }
 }

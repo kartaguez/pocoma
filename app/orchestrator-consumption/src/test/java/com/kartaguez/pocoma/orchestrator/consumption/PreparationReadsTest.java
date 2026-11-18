@@ -53,17 +53,23 @@ class PreparationReadsTest {
     final List<String> timeline = new ArrayList<>();
     final AttemptTransactions owner =
             new AttemptTransactions() {
+                private void checkSimulatedOutcome(Guard guard) {
+                    if (raw != null) {
+                        throw raw;
+                    }
+                    if (failed != null) {
+                        throw new Failure(failed, new IllegalStateException("lost read result"));
+                    }
+                    guard.requireValid();
+                }
+
                 public <T> T read(Function<RecoveryReadContext, T> action, Guard guard) {
                     guard.requireValid();
                     entered.incrementAndGet();
                     timeline.add("begin");
                     try {
                         T value = action.apply(guard::requireValid);
-                        if (raw != null) throw raw;
-                        if (failed != null)
-                            throw new Failure(
-                                    failed, new IllegalStateException("lost read result"));
-                        guard.requireValid();
+                        checkSimulatedOutcome(guard);
                         return value;
                     } catch (Failure failure) {
                         throw failure;
@@ -159,6 +165,13 @@ class PreparationReadsTest {
                 capacity.reserve(definition.id(), 1).getFirst());
     }
 
+    private void checkExecutionCounts(int expectedFinalized, int expectedRecoveries, int expectedEntered) {
+        org.junit.jupiter.api.Assertions.assertAll(
+                () -> assertEquals(expectedFinalized, finalized.get()),
+                () -> assertEquals(expectedRecoveries, recoveries.get()),
+                () -> assertEquals(expectedEntered, entered.get()));
+    }
+
     @Test
     void consecutiveScopesResolveBeforeNextBegin() {
         var e =
@@ -169,11 +182,12 @@ class PreparationReadsTest {
                             reads.source(c -> 3);
                             return prepared();
                         });
-        assertEquals(ConsumptionProtocol.Status.COMMITTED, e.execute(handle(e)).status());
-        assertEquals(
-                List.of("begin", "resolved", "begin", "resolved", "begin", "resolved"), timeline);
-        assertEquals(1, finalized.get());
-        assertEquals(0, capacity.snapshot().worker());
+        var result = e.execute(handle(e));
+        org.junit.jupiter.api.Assertions.assertAll(
+                () -> assertEquals(ConsumptionProtocol.Status.COMMITTED, result.status()),
+                () -> assertEquals(List.of("begin", "resolved", "begin", "resolved", "begin", "resolved"), timeline),
+                () -> assertEquals(1, finalized.get()),
+                () -> assertEquals(0, capacity.snapshot().worker()));
     }
 
     @Test
@@ -198,8 +212,7 @@ class PreparationReadsTest {
         var result = e.execute(handle(e));
         assertEquals(Resolution.ROLLED_BACK, result.resolution());
         assertInstanceOf(PreparationReads.Invalid.class, result.cause());
-        assertEquals(1, entered.get());
-        assertEquals(0, finalized.get());
+        checkExecutionCounts(0, 0, 1);
     }
 
     @Test
@@ -227,8 +240,7 @@ class PreparationReadsTest {
                             return prepared();
                         });
         assertEquals(Resolution.ROLLED_BACK, e.execute(handle(e)).resolution());
-        assertEquals(0, entered.get());
-        assertEquals(0, finalized.get());
+        checkExecutionCounts(0, 0, 0);
     }
 
     @Test
@@ -244,7 +256,6 @@ class PreparationReadsTest {
         var result = e.execute(handle(e));
         assertEquals(Resolution.COMMITTED, result.resolution());
         assertThrows(PreparationReads.Invalid.class, () -> retained.get().source(c -> 1));
-        assertEquals(Resolution.COMMITTED, result.resolution());
         assertEquals(1, entered.get());
     }
 
@@ -263,8 +274,7 @@ class PreparationReadsTest {
         assertEquals(Resolution.UNKNOWN, result.resolution());
         assertTrue(e.retainsCapacity(h));
         assertEquals(0, e.settlePending());
-        assertEquals(0, finalized.get());
-        assertEquals(0, recoveries.get());
+        checkExecutionCounts(0, 0, 1);
     }
 
     @Test
@@ -279,8 +289,7 @@ class PreparationReadsTest {
         var h = handle(e);
         var result = e.execute(h);
         assertEquals(Resolution.UNKNOWN, result.resolution());
-        assertEquals(0, finalized.get());
-        assertEquals(1, recoveries.get());
+        checkExecutionCounts(0, 1, 2);
         assertEquals(1, e.settlePending());
         assertFalse(e.retainsCapacity(h));
     }
@@ -314,7 +323,7 @@ class PreparationReadsTest {
         var h = handle(e);
         assertSame(raw, assertThrows(AssertionError.class, () -> e.execute(h)));
         assertTrue(e.retainsCapacity(h));
-        assertEquals(0, recoveries.get());
+        checkExecutionCounts(0, 0, 1);
         assertEquals(0, e.settlePending());
     }
 
@@ -329,10 +338,11 @@ class PreparationReadsTest {
                         });
         var h = handle(e);
         var result = e.execute(h);
-        assertSame(original, result.cause());
-        assertEquals(Resolution.ROLLED_BACK, result.resolution());
-        assertFalse(e.retainsCapacity(h));
-        assertEquals(0, finalized.get());
+        org.junit.jupiter.api.Assertions.assertAll(
+                () -> assertSame(original, result.cause()),
+                () -> assertEquals(Resolution.ROLLED_BACK, result.resolution()),
+                () -> assertFalse(e.retainsCapacity(h)),
+                () -> assertEquals(0, finalized.get()));
     }
 
     @Test
@@ -371,7 +381,6 @@ class PreparationReadsTest {
         assertEquals(RecoveryObservation.UNAVAILABLE, e.observe(claim));
         assertFalse(e.hasUnresolvedRecovery());
         assertEquals(RecoveryObservation.UNAVAILABLE, e.observe(claim));
-        assertEquals(2, recoveries.get());
-        assertEquals(0, entered.get());
+        checkExecutionCounts(0, 2, 0);
     }
 }

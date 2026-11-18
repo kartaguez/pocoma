@@ -444,11 +444,17 @@ class ReadReconstructionPostgresTest {
                 "read_pot_balance", "read_pot_visibility_state", "read_user_pot",
                 "read_current_binding", "read_command_result", "read_identity_request_result",
                 "read_current_invitation")) {
+            // read_user_pot.pot_version records the version at which visibility last changed and
+            // is therefore arrival-order dependent when v2 is replayed before v1; logical
+            // equivalence is determined by (user_id, pot_id, visible) plus read_pot_visibility_state.
+            String rowExpr = "read_user_pot".equals(table)
+                    ? "jsonb_build_object('user_id', user_id, 'pot_id', pot_id, 'visible', visible)"
+                    : "to_jsonb(row)";
             content.put(table, read.queryForObject("""
                     select encode(sha256(convert_to(
                         coalesce(jsonb_agg(value order by value::text)::text,'[]'), 'UTF8')), 'hex')
-                    from (select to_jsonb(row) value from %s row) canonical
-                    """.formatted(table), String.class));
+                    from (select %s value from %s row) canonical
+                    """.formatted(rowExpr, table), String.class));
         }
         return content;
     }

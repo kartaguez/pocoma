@@ -31,9 +31,9 @@ import com.kartaguez.pocoma.contract.writeadmission.PotCommand.UpdateExpenseFina
 import com.kartaguez.pocoma.contract.writeadmission.PotCommand.UpdatePotDetails;
 import com.kartaguez.pocoma.contract.writeadmission.PotCommand.UpdateShareholderDetails;
 import com.kartaguez.pocoma.contract.writeadmission.PotCommand.UpdateShareholderWeights;
-import com.kartaguez.pocoma.domain.pot.ExpenseDetails;
-import com.kartaguez.pocoma.domain.pot.ExpenseFinancials;
-import com.kartaguez.pocoma.domain.pot.InvitationTokenHash;
+import com.kartaguez.pocoma.domain.pot.expense.ExpenseDetails;
+import com.kartaguez.pocoma.domain.pot.expense.ExpenseFinancials;
+import com.kartaguez.pocoma.domain.pot.invitation.InvitationTokenHash;
 import com.kartaguez.pocoma.domain.pot.ShareholderTransitions;
 import com.kartaguez.pocoma.domain.pot.value.Label;
 import com.kartaguez.pocoma.domain.pot.value.Name;
@@ -80,6 +80,8 @@ public final class CommandAdmissionInput {
                 command.attachments());
     }
 
+    private record DecodedPayload(Map<String, Object> payload, Intent intent) {}
+
     public static CommandAdmissionInput decode(
             Object raw, PotCommand.Eui requester, int rationalDigits) {
         try {
@@ -92,145 +94,14 @@ public final class CommandAdmissionInput {
             long observed = ((Number) observation).longValue();
             n.put("observedVersion", observed);
             var modes = new HashMap<ShareholderId, Attachment>();
-            Map<String, Object> p;
-            Intent intent;
-            switch (op) {
-                case "CreateInvitation" -> {
-                    p = object(n.get("payload"), "expiresAt");
-                    var expiresAt = java.time.Instant.parse(text(p, "expiresAt"));
-                    require(text(p, "expiresAt").endsWith("Z"));
-                    require(expiresAt.getNano() % 1000 == 0);
-                    // Preserve the former Timestamp round-trip range without an SQL type in the contract.
-                    require(expiresAt.getEpochSecond() >= Long.MIN_VALUE / 1000L
-                            && expiresAt.getEpochSecond() <= Long.MAX_VALUE / 1000L);
-                    p.put("expiresAt", expiresAt.toString());
-                    intent = new CreateInvitation(expiresAt);
-                }
-                case "AttachShareholderViaInvitation" -> {
-                    p = object(n.get("payload"), "invitationToken", "shareholderId");
-                    intent =
-                            new PotCommand.AttachShareholderViaInvitation(
-                                    InvitationTokenHash.of(nonblank(p, "invitationToken")),
-                                    new ShareholderId(uuid(p, "shareholderId")));
-                }
-                case "CreatePot", "UpdatePotDetails" -> {
-                    p = object(n.get("payload"), "label");
-                    var label = new Label(text(p, "label"));
-                    intent =
-                            op.equals("CreatePot")
-                                    ? new CreatePot(label)
-                                    : new UpdatePotDetails(label);
-                }
-                case "DeletePot" -> {
-                    p = object(n.get("payload"));
-                    intent = new DeletePot();
-                }
-                case "AddShareholders" -> {
-                    p = object(n.get("payload"), "targets");
-                    var values = new ArrayList<ShareholderTransitions.Creation>();
-                    var normalized = new ArrayList<Object>();
-                    for (var rawTarget : list(p, "targets")) {
-                        var t = object(rawTarget, "id", "name", "attachment", "weight");
-                        var id = new ShareholderId(uuid(t, "id"));
-                        var mode = Attachment.valueOf(text(t, "attachment"));
-                        require(mode == Attachment.FREE || mode == Attachment.SELF);
-                        modes.put(id, mode);
-                        values.add(
-                                new ShareholderTransitions.Creation(
-                                        id,
-                                        new Name(text(t, "name")),
-                                        Optional.empty(),
-                                        weight(t, "weight", rationalDigits)));
-                        normalized.add(t);
-                    }
-                    p.put("targets", normalized);
-                    intent = new AddShareholders(values);
-                }
-                case "UpdateShareholderDetails" -> {
-                    p = object(n.get("payload"), "targets");
-                    var values = new ArrayList<ShareholderTransitions.DetailsIntent>();
-                    var normalized = new ArrayList<Object>();
-                    for (var rawTarget : list(p, "targets")) {
-                        var t = object(rawTarget, "id", "name", "attachment");
-                        var id = new ShareholderId(uuid(t, "id"));
-                        var mode = Attachment.valueOf(text(t, "attachment"));
-                        require(
-                                mode == Attachment.KEEP
-                                        || mode == Attachment.SELF
-                                        || mode == Attachment.DETACH);
-                        modes.put(id, mode);
-                        values.add(
-                                new ShareholderTransitions.DetailsIntent(
-                                        id, new Name(text(t, "name")), Optional.empty()));
-                        normalized.add(t);
-                    }
-                    p.put("targets", normalized);
-                    intent = new UpdateShareholderDetails(values);
-                }
-                case "UpdateShareholderWeights" -> {
-                    p = object(n.get("payload"), "targets");
-                    var values = new ArrayList<ShareholderTransitions.WeightIntent>();
-                    var normalized = new ArrayList<Object>();
-                    for (var rawTarget : list(p, "targets")) {
-                        var t = object(rawTarget, "id", "weight");
-                        var id = new ShareholderId(uuid(t, "id"));
-                        values.add(
-                                new ShareholderTransitions.WeightIntent(
-                                        id, weight(t, "weight", rationalDigits)));
-                        normalized.add(t);
-                    }
-                    p.put("targets", normalized);
-                    intent = new UpdateShareholderWeights(values);
-                }
-                case "DeleteShareholder" -> {
-                    p = object(n.get("payload"), "id");
-                    intent = new DeleteShareholder(new ShareholderId(uuid(p, "id")));
-                }
-                case "CreateExpense" -> {
-                    p =
-                            object(
-                                    n.get("payload"),
-                                    "id",
-                                    "label",
-                                    "date",
-                                    "amount",
-                                    "payerId",
-                                    "participants");
-                    var id = new ExpenseId(uuid(p, "id"));
-                    intent =
-                            new CreateExpense(
-                                    new ExpenseDetails(
-                                            pot,
-                                            id,
-                                            new Label(text(p, "label")),
-                                            LocalDate.parse(text(p, "date"))),
-                                    financials(p, pot, id, rationalDigits));
-                }
-                case "UpdateExpenseDetails" -> {
-                    p = object(n.get("payload"), "id", "label", "date");
-                    intent =
-                            new UpdateExpenseDetails(
-                                    new ExpenseId(uuid(p, "id")),
-                                    new Label(text(p, "label")),
-                                    LocalDate.parse(text(p, "date")));
-                }
-                case "UpdateExpenseFinancials" -> {
-                    p = object(n.get("payload"), "id", "amount", "payerId", "participants");
-                    var id = new ExpenseId(uuid(p, "id"));
-                    intent = new UpdateExpenseFinancials(financials(p, pot, id, rationalDigits));
-                }
-                case "DeleteExpense" -> {
-                    p = object(n.get("payload"), "id");
-                    intent = new DeleteExpense(new ExpenseId(uuid(p, "id")));
-                }
-                default -> throw new AdmissionFailure(400);
-            }
+            var decoded = decodeOperation(op, n.get("payload"), pot, rationalDigits, modes);
+            var p = decoded.payload();
             if (p.containsKey("date")) p.put("date", LocalDate.parse(text(p, "date")).toString());
             n.put("payload", p);
             n.put(
                     "requester",
                     Map.of("issuer", requester.issuer(), "subject", requester.subject()));
-            var c = new PotCommand(new UUID(0, 0), requester, token, pot, observed, intent, modes);
+            var c = new PotCommand(new UUID(0, 0), requester, token, pot, observed, decoded.intent(), modes);
             return new CommandAdmissionInput(c, op, n, maxText(n));
         } catch (AdmissionFailure failure) {
             throw failure;
@@ -239,9 +110,156 @@ public final class CommandAdmissionInput {
         }
     }
 
+    private static DecodedPayload decodeOperation(
+            String op,
+            Object rawPayload,
+            PotId pot,
+            int rationalDigits,
+            Map<ShareholderId, Attachment> modes) {
+        return switch (op) {
+            case "CreateInvitation" -> decodeCreateInvitation(rawPayload);
+            case "AttachShareholderViaInvitation" -> {
+                var p = object(rawPayload, "invitationToken", "shareholderId");
+                yield new DecodedPayload(
+                        p,
+                        new PotCommand.AttachShareholderViaInvitation(
+                                InvitationTokenHash.of(nonblank(p, "invitationToken")),
+                                new ShareholderId(uuid(p, "shareholderId"))));
+            }
+            case "CreatePot", "UpdatePotDetails" -> {
+                var p = object(rawPayload, "label");
+                var label = new Label(text(p, "label"));
+                yield new DecodedPayload(
+                        p,
+                        op.equals("CreatePot") ? new CreatePot(label) : new UpdatePotDetails(label));
+            }
+            case "DeletePot" -> new DecodedPayload(object(rawPayload), new DeletePot());
+            case "AddShareholders" -> decodeAddShareholders(rawPayload, rationalDigits, modes);
+            case "UpdateShareholderDetails" -> decodeUpdateShareholderDetails(rawPayload, modes);
+            case "UpdateShareholderWeights" ->
+                    decodeUpdateShareholderWeights(rawPayload, rationalDigits);
+            case "DeleteShareholder" -> {
+                var p = object(rawPayload, "id");
+                yield new DecodedPayload(p, new DeleteShareholder(new ShareholderId(uuid(p, "id"))));
+            }
+            case "CreateExpense" -> decodeCreateExpense(rawPayload, pot, rationalDigits);
+            case "UpdateExpenseDetails" -> {
+                var p = object(rawPayload, "id", "label", "date");
+                yield new DecodedPayload(
+                        p,
+                        new UpdateExpenseDetails(
+                                new ExpenseId(uuid(p, "id")),
+                                new Label(text(p, "label")),
+                                LocalDate.parse(text(p, "date"))));
+            }
+            case "UpdateExpenseFinancials" -> {
+                var p = object(rawPayload, "id", "amount", "payerId", "participants");
+                var id = new ExpenseId(uuid(p, "id"));
+                yield new DecodedPayload(
+                        p, new UpdateExpenseFinancials(financials(p, pot, id, rationalDigits)));
+            }
+            case "DeleteExpense" -> {
+                var p = object(rawPayload, "id");
+                yield new DecodedPayload(p, new DeleteExpense(new ExpenseId(uuid(p, "id"))));
+            }
+            default -> throw new AdmissionFailure(400);
+        };
+    }
+
+    private static DecodedPayload decodeCreateInvitation(Object rawPayload) {
+        var p = object(rawPayload, "expiresAt");
+        var expiresAt = java.time.Instant.parse(text(p, "expiresAt"));
+        require(text(p, "expiresAt").endsWith("Z"));
+        require(expiresAt.getNano() % 1000 == 0);
+        // Preserve the former Timestamp round-trip range without an SQL type in the contract.
+        require(
+                expiresAt.getEpochSecond() >= Long.MIN_VALUE / 1000L
+                        && expiresAt.getEpochSecond() <= Long.MAX_VALUE / 1000L);
+        p.put("expiresAt", expiresAt.toString());
+        return new DecodedPayload(p, new CreateInvitation(expiresAt));
+    }
+
+    private static DecodedPayload decodeAddShareholders(
+            Object rawPayload, int rationalDigits, Map<ShareholderId, Attachment> modes) {
+        var p = object(rawPayload, "targets");
+        var values = new ArrayList<ShareholderTransitions.Creation>();
+        var normalized = new ArrayList<Object>();
+        for (var rawTarget : list(p, "targets")) {
+            var t = object(rawTarget, "id", "name", "attachment", "weight");
+            var id = new ShareholderId(uuid(t, "id"));
+            var mode = Attachment.valueOf(text(t, "attachment"));
+            require(mode == Attachment.FREE || mode == Attachment.SELF);
+            modes.put(id, mode);
+            values.add(
+                    new ShareholderTransitions.Creation(
+                            id,
+                            new Name(text(t, "name")),
+                            Optional.empty(),
+                            weight(t, "weight", rationalDigits)));
+            normalized.add(t);
+        }
+        p.put("targets", normalized);
+        return new DecodedPayload(p, new AddShareholders(values));
+    }
+
+    private static DecodedPayload decodeUpdateShareholderDetails(
+            Object rawPayload, Map<ShareholderId, Attachment> modes) {
+        var p = object(rawPayload, "targets");
+        var values = new ArrayList<ShareholderTransitions.DetailsIntent>();
+        var normalized = new ArrayList<Object>();
+        for (var rawTarget : list(p, "targets")) {
+            var t = object(rawTarget, "id", "name", "attachment");
+            var id = new ShareholderId(uuid(t, "id"));
+            var mode = Attachment.valueOf(text(t, "attachment"));
+            require(
+                    mode == Attachment.KEEP
+                            || mode == Attachment.SELF
+                            || mode == Attachment.DETACH);
+            modes.put(id, mode);
+            values.add(
+                    new ShareholderTransitions.DetailsIntent(
+                            id, new Name(text(t, "name")), Optional.empty()));
+            normalized.add(t);
+        }
+        p.put("targets", normalized);
+        return new DecodedPayload(p, new UpdateShareholderDetails(values));
+    }
+
+    private static DecodedPayload decodeUpdateShareholderWeights(
+            Object rawPayload, int rationalDigits) {
+        var p = object(rawPayload, "targets");
+        var values = new ArrayList<ShareholderTransitions.WeightIntent>();
+        var normalized = new ArrayList<Object>();
+        for (var rawTarget : list(p, "targets")) {
+            var t = object(rawTarget, "id", "weight");
+            var id = new ShareholderId(uuid(t, "id"));
+            values.add(
+                    new ShareholderTransitions.WeightIntent(
+                            id, weight(t, "weight", rationalDigits)));
+            normalized.add(t);
+        }
+        p.put("targets", normalized);
+        return new DecodedPayload(p, new UpdateShareholderWeights(values));
+    }
+
+    private static DecodedPayload decodeCreateExpense(
+            Object rawPayload, PotId pot, int rationalDigits) {
+        var p = object(rawPayload, "id", "label", "date", "amount", "payerId", "participants");
+        var id = new ExpenseId(uuid(p, "id"));
+        return new DecodedPayload(
+                p,
+                new CreateExpense(
+                        new ExpenseDetails(
+                                pot,
+                                id,
+                                new Label(text(p, "label")),
+                                LocalDate.parse(text(p, "date"))),
+                        financials(p, pot, id, rationalDigits)));
+    }
+
     private static ExpenseFinancials financials(
             Map<String, Object> p, PotId pot, ExpenseId id, int digits) {
-        var amount = new com.kartaguez.pocoma.domain.pot.Amount(fraction(p, "amount", digits));
+        var amount = new com.kartaguez.pocoma.domain.pot.value.Amount(fraction(p, "amount", digits));
         var payer = new ShareholderId(uuid(p, "payerId"));
         var entries = new ArrayList<ExpenseFinancials.Participation>();
         var normalized = new ArrayList<Map<String, Object>>();
@@ -261,12 +279,12 @@ public final class CommandAdmissionInput {
         return ExpenseFinancials.of(pot, id, amount, payer, entries);
     }
 
-    private static com.kartaguez.pocoma.domain.pot.Weight weight(
+    private static com.kartaguez.pocoma.domain.pot.value.Weight weight(
             Map<String, Object> m, String key, int digits) {
-        return new com.kartaguez.pocoma.domain.pot.Weight(fraction(m, key, digits));
+        return new com.kartaguez.pocoma.domain.pot.value.Weight(fraction(m, key, digits));
     }
 
-    private static com.kartaguez.pocoma.domain.pot.Fraction fraction(
+    private static com.kartaguez.pocoma.domain.pot.value.Fraction fraction(
             Map<String, Object> m, String key, int digits) {
         var f = object(m.get(key), "numerator", "denominator");
         String a = text(f, "numerator"), b = text(f, "denominator");
@@ -276,7 +294,7 @@ public final class CommandAdmissionInput {
                         && a.matches("-?[0-9]{1," + digits + "}")
                         && b.matches("-?[0-9]{1," + digits + "}"));
         var value =
-                new com.kartaguez.pocoma.domain.pot.Fraction(
+                new com.kartaguez.pocoma.domain.pot.value.Fraction(
                         new BigInteger(a), new BigInteger(b));
         m.put(
                 key,

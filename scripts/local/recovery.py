@@ -39,6 +39,25 @@ def metric(text, name, **labels):
     return values[0] if len(values) == 1 else None
 
 
+def _evaluate_worker_coverage(name, spec, workers, rows):
+    authority, participants = spec
+    expected = {(p, i) for p in participants for i in range(4)}
+    observed = rows.get(authority, [])
+    matched = [r for r in observed if r['consumptionId'] in participants]
+    pairs = {(r['consumptionId'], r['partitionId']) for r in matched}
+    live = {(r['consumptionId'], r['partitionId']) for r in matched if r['live'] and r['partitionCount'] == 4}
+    duplicate = len(matched) != len(pairs)
+    text = workers.get(name, '')
+    local = metric(text, 'pocoma_v3_lease_local', authority=authority)
+    running = metric(text, 'pocoma_v3_worker_state', state='running') == 1
+    qualified = running and local == len(expected) and pairs == expected and live == expected and not duplicate
+    return dict(
+        expectedLeases=len(expected), localUsableLeases=local, running=running,
+        missingPartitions=[dict(consumptionId=p, partitionId=i) for p, i in sorted(expected - live)],
+        qualified=qualified,
+    )
+
+
 def coverage(workers, rows):
     """A local usable lease for every pair, corroborated by live durable ownership.
 
@@ -46,21 +65,32 @@ def coverage(workers, rows):
     one process per role, and exactly four configured partitions for each participant.
     Missing/duplicate/wrong catalogue rows fail closed.
     """
-    result = {}
-    for name, (authority, participants) in PARTICIPANTS.items():
-        expected = {(p, i) for p in participants for i in range(4)}
-        observed = rows.get(authority, [])
-        pairs = {(r['consumptionId'], r['partitionId']) for r in observed if r['consumptionId'] in participants}
-        live = {(r['consumptionId'], r['partitionId']) for r in observed
-                if r['consumptionId'] in participants and r['live'] and r['partitionCount'] == 4}
-        duplicate = len([r for r in observed if r['consumptionId'] in participants]) != len(pairs)
-        text = workers.get(name, '')
-        local = metric(text, 'pocoma_v3_lease_local', authority=authority)
-        running = metric(text, 'pocoma_v3_worker_state', state='running') == 1
-        result[name] = dict(expectedLeases=len(expected), localUsableLeases=local, running=running,
-            missingPartitions=[dict(consumptionId=p, partitionId=i) for p, i in sorted(expected-live)],
-            qualified=running and local == len(expected) and pairs == expected and live == expected and not duplicate)
-    return result
+    return {
+        name: _evaluate_worker_coverage(name, spec, workers, rows)
+        for name, spec in PARTICIPANTS.items()
+    }
+
+
+def _sample_workers(observe):
+    observation = dict(observedAt=time.time())
+    try:
+        workers = observe()
+        all_qualified = set(workers) == set(PARTICIPANTS) and all(v['qualified'] for v in workers.values())
+        observation.update(workers=workers, qualified=all_qualified)
+    except Exception as error:
+        # No exception messages/URLs: only our stable diagnostic and the exception class.
+        observation.update(qualified=False, control='RECOVERY-OBSERVATION-FAILED', errorClass=type(error).__name__)
+    return observation
+
+
+def _generation_preserved(generation, expected_id):
+    current = generation()
+    running = all(row and row['running'] for row in current.values())
+    return identity(current) == expected_id and running
+
+
+def _is_coverage_ready(observation, deadline, record):
+    return bool(observation['qualified'] and time.monotonic() <= deadline and record['generationId'])
 
 
 def await_coverage(observe, generation, save, before, *, budget=BUDGET):
@@ -70,22 +100,14 @@ def await_coverage(observe, generation, save, before, *, budget=BUDGET):
                   transitions=transitions(before, after), generationId=identity(after), observations=[], state='WAITING')
     save(record)
     while True:
-        observation = dict(observedAt=time.time())
-        try:
-            observation['workers'] = observe()
-            observation['qualified'] = (set(observation['workers']) == set(PARTICIPANTS)
-                and all(v['qualified'] for v in observation['workers'].values()))
-        except Exception as error:
-            # No exception messages/URLs: only our stable diagnostic and the exception class.
-            observation.update(qualified=False, control='RECOVERY-OBSERVATION-FAILED', errorClass=type(error).__name__)
+        observation = _sample_workers(observe)
         record['observations'].append(observation)
-        if observation['qualified'] and time.monotonic() <= deadline and record['generationId']:
-            current = generation()
-            if identity(current) != record['generationId'] or not all(r and r['running'] for r in current.values()):
+        if _is_coverage_ready(observation, deadline, record):
+            if not _generation_preserved(generation, record['generationId']):
                 record.update(state='FAILED', control='RECOVERY-GENERATION-CHANGED', completedAt=time.time())
                 save(record)
                 raise RuntimeError(record['control'])
-            record.update(state='RECOVERED', completedAt=time.time(), seconds=time.time()-began)
+            record.update(state='RECOVERED', completedAt=time.time(), seconds=time.time() - began)
             save(record)
             return record
         if time.monotonic() >= deadline:
@@ -93,7 +115,7 @@ def await_coverage(observe, generation, save, before, *, budget=BUDGET):
             save(record)
             raise RuntimeError(record['control'])
         save(record)
-        time.sleep(min(1, max(0, deadline-time.monotonic())))
+        time.sleep(min(1, max(0, deadline - time.monotonic())))
 
 
 def proof_state(proof, current, now, max_age):

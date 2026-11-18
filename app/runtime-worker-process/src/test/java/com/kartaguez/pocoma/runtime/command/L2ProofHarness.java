@@ -6,7 +6,7 @@ import com.kartaguez.pocoma.contract.consumption.invocation.WorkerView;
 import com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation;
 import com.kartaguez.pocoma.contract.consumption.spi.DiscoverySettings;
 import com.kartaguez.pocoma.domain.consumption.ConsumptionDefinition;
-import com.kartaguez.pocoma.infra.postgres.core.BootstrapGuard;
+import com.kartaguez.pocoma.infra.postgres.core.bootstrap.BootstrapGuard;
 import com.kartaguez.pocoma.infra.postgres.write.identity.JdbcIdentityPotActorAuthority;
 import com.kartaguez.pocoma.infra.observability.micrometer.*;
 import com.kartaguez.pocoma.infra.security.spring.InvitationConfiguration;
@@ -100,7 +100,7 @@ final class L2ProofHarness {
                                     observation,
                                     InvitationConfiguration.keys(env) == null
                                             ? null
-                                            : new com.kartaguez.pocoma.infra.postgres.write
+                                            : new com.kartaguez.pocoma.infra.postgres.write.pot
                                                     .JdbcInvitationStore(
                                                     resources.writeBusiness,
                                                     InvitationConfiguration.keys(env)), tracker::linkCommandEvents);

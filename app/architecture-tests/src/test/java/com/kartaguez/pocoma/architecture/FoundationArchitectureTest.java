@@ -86,46 +86,38 @@ class FoundationArchitectureTest {
                         new DescribedPredicate<JavaClass>(
                                 "pure port contracts and enumerated V2 value contracts") {
                             public boolean test(JavaClass type) {
-                                String pkg = type.getPackageName();
-                                if (pkg.startsWith("java.sql") || pkg.startsWith("javax.sql"))
-                                    return false;
-                                if (pkg.startsWith("java.")
-                                        || (pkg.equals(root + ".domain")
-                                                || pkg.startsWith(root + ".domain."))
-                                        || pkg.startsWith(root + ".contract.")
-                                        || pkg.startsWith(root + ".port.")
-                                        || (pkg.startsWith(root + ".engine.")
-                                                && (pkg.endsWith(".port")
-                                                        || pkg.contains(".port.")))) return true;
-                                // Precisely enumerated pure I2/I3 values, never Engine
-                                // implementations.
-                                if (root.equals(ROOT)
-                                        && java.util.Set.of(
-                                                        ROOT + ".contract.consumption.spi.ClaimedSlot",
-                                                        ROOT
-                                                                + ".contract.consumption.spi.PartitionLease",
-                                                        ROOT
-                                                                + ".contract.consumption.spi.LifecycleSettings$RetryPolicy",
-                                                        ROOT
-                                                                + ".contract.consumption.spi.RecoveryObservation")
-                                                .contains(type.getName())) return true;
-                                return root.equals(ROOT)
-                                        && LEGACY_PORT_CONTRACTS.stream()
-                                                .anyMatch(
-                                                        contract ->
-                                                                type.getName()
-                                                                                .equals(
-                                                                                        ROOT
-                                                                                                + ".engine."
-                                                                                                + contract)
-                                                                        || type.getName()
-                                                                                .startsWith(
-                                                                                        ROOT
-                                                                                                + ".engine."
-                                                                                                + contract
-                                                                                                + "$"));
+                                return isAllowedPortDependency(root, type);
                             }
                         });
+    }
+
+    private static final java.util.Set<String> ALLOWED_PORT_SPI_VALUES =
+            java.util.Set.of(
+                    ROOT + ".contract.consumption.spi.ClaimedSlot",
+                    ROOT + ".contract.consumption.spi.PartitionLease",
+                    ROOT + ".contract.consumption.spi.LifecycleSettings$RetryPolicy",
+                    ROOT + ".contract.consumption.spi.RecoveryObservation");
+
+    private static boolean isAllowedPortDependency(String root, JavaClass type) {
+        String pkg = type.getPackageName();
+        if (pkg.startsWith("java.sql") || pkg.startsWith("javax.sql")) return false;
+        if (isCorePortPackage(root, pkg)) return true;
+        if (!root.equals(ROOT)) return false;
+        if (ALLOWED_PORT_SPI_VALUES.contains(type.getName())) return true;
+        return LEGACY_PORT_CONTRACTS.stream()
+                .anyMatch(
+                        contract ->
+                                type.getName().equals(ROOT + ".engine." + contract)
+                                        || type.getName()
+                                                .startsWith(ROOT + ".engine." + contract + "$"));
+    }
+
+    private static boolean isCorePortPackage(String root, String pkg) {
+        if (pkg.startsWith("java.") || pkg.equals(root + ".domain")) return true;
+        if (pkg.startsWith(root + ".domain.") || pkg.startsWith(root + ".contract.")) return true;
+        if (pkg.startsWith(root + ".port.")) return true;
+        if (!pkg.startsWith(root + ".engine.")) return false;
+        return pkg.endsWith(".port") || pkg.contains(".port.");
     }
 
     @Test

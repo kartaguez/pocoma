@@ -1,4 +1,5 @@
 package com.kartaguez.pocoma.supra.polling.consumption;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -130,269 +131,12 @@ class ConsumptionWorkerTest {
                 ConsumptionObservation observation)
                 throws Exception {
             var limits = new LinkedHashMap<ConsumptionId, Integer>();
-            for (int i = 0; i < count; i++) limits.put(new ConsumptionId(new UUID(0, i + 1)), mw);
+            for (int i = 0; i < count; i++) {
+                limits.put(new ConsumptionId(new UUID(0, i + 1)), mw);
+            }
             capacity = new WorkerCapacity(mw, limits);
             for (var id : limits.keySet()) {
-                var definition =
-                        new ConsumptionDefinition(
-                                id,
-                                ConsumableFamily.COMMAND,
-                                ConsumptionDefinition.Authority.WRITE);
-                var ids = ConcurrentHashMap.<UUID>newKeySet();
-                ids.add(new UUID(1, 1));
-                keys.add(ids);
-                var granted = ConcurrentHashMap.<UUID>newKeySet();
-                var done = new AtomicInteger();
-                effects.add(done);
-                var store =
-                        (ConsumptionSlotStore)
-                                Proxy.newProxyInstance(
-                                        getClass().getClassLoader(),
-                                        new Class[] {ConsumptionSlotStore.class},
-                                        (p, m, a) ->
-                                                switch (m.getName()) {
-                                                    case "acquire" -> {
-                                                        beforeAcquire.run();
-                                                        if (failAcquire)
-                                                            throw new AttemptTransactions.Failure(
-                                                                    AttemptTransactions.Resolution
-                                                                            .ROLLED_BACK,
-                                                                    new RuntimeException());
-                                                        if (zeroAcquire) yield List.of();
-                                                        var lease = (PartitionLease) a[0];
-                                                        var result =
-                                                                new ArrayList<
-                                                                        ConsumptionSlotStore
-                                                                                .GrantedClaim>();
-                                                        for (var candidate :
-                                                                (List<
-                                                                                ConsumptionSlotStore
-                                                                                        .ClaimCandidate>)
-                                                                        a[1])
-                                                            if (ids.contains(
-                                                                            candidate
-                                                                                    .consumableId())
-                                                                    && granted.add(
-                                                                            candidate
-                                                                                    .consumableId()))
-                                                                result.add(
-                                                                        new ConsumptionSlotStore
-                                                                                .GrantedClaim(
-                                                                                new ClaimedSlot(
-                                                                                        id,
-                                                                                        candidate
-                                                                                                .consumableId(),
-                                                                                        candidate
-                                                                                                .freshToken()),
-                                                                                Instant.now()
-                                                                                        .plusSeconds(
-                                                                                                60)));
-                                                        yield result;
-                                                    }
-                                                    case "protectFinal" ->
-                                                            ConsumptionSlotStore.Protection.VALID;
-                                                    case "deleteProtected" -> {
-                                                        ids.remove(
-                                                                ((ClaimedSlot) a[0])
-                                                                        .consumableId());
-                                                        yield null;
-                                                    }
-                                                    case "renew" -> {
-                                                        beforeRenew.run();
-                                                        renewed.incrementAndGet();
-                                                        yield ((List<ClaimedSlot>) a[0])
-                                                                .stream()
-                                                                        .map(
-                                                                                c ->
-                                                                                        new ConsumptionSlotStore
-                                                                                                .GrantedClaim(
-                                                                                                c,
-                                                                                                Instant
-                                                                                                        .now()
-                                                                                                        .plusSeconds(
-                                                                                                                60)))
-                                                                        .toList();
-                                                    }
-                                                    case "inspectResolved" ->
-                                                            ((List<ClaimedSlot>) a[0])
-                                                                    .stream()
-                                                                            .map(
-                                                                                    c ->
-                                                                                            new ConsumptionSlotStore
-                                                                                                    .ClaimInspection(
-                                                                                                    c,
-                                                                                                    unknown
-                                                                                                            ? ConsumptionSlotStore
-                                                                                                                    .Inspection
-                                                                                                                    .LOCKED
-                                                                                                            : ConsumptionSlotStore
-                                                                                                                    .Inspection
-                                                                                                                    .ABSENT))
-                                                                            .toList();
-                                                    case "observe" ->
-                                                            ids.isEmpty()
-                                                                    ? ConsumptionSlotStore
-                                                                            .SlotObservation.ABSENT
-                                                                    : ConsumptionSlotStore
-                                                                            .SlotObservation
-                                                                            .PRESENT;
-                                                    case "cede" -> Optional.empty();
-                                                    default ->
-                                                            throw new AssertionError(m.getName());
-                                                });
-                var ownership =
-                        new PartitionOwnershipStore() {
-                            public Optional<PartitionLease> acquire(
-                                    ConsumptionDefinition d, int p, UUID token, Duration duration) {
-                                beforeLease.run();
-                                return Optional.of(
-                                        new PartitionLease(
-                                                d.id(), p, token, Instant.now().plusSeconds(30)));
-                            }
-
-                            public List<PartitionLease> renew(
-                                    ConsumptionDefinition d,
-                                    List<PartitionLease> l,
-                                    Duration duration) {
-                                return l;
-                            }
-
-                            public Optional<PartitionLease> protectAcquisition(
-                                    ConsumptionDefinition d, PartitionLease l) {
-                                return Optional.of(l);
-                            }
-
-                            public void bound(Duration l, Duration s) {}
-                        };
-                var participant =
-                        new ConsumptionParticipant() {
-                            public Optional<Prepared> prepare(UUID key, PreparationReads reads) {
-                                return reads.source(
-                                        preparationContext -> {
-                                            return Optional.of(
-                                                    new Prepared() {
-                                                        public void finalizeIn(
-                                                                SlotCompletion completion) {
-                                                            beforeEffect.run();
-                                                            done.incrementAndGet();
-                                                            completion.complete();
-                                                            if (unknown)
-                                                                throw new AttemptTransactions
-                                                                        .Failure(
-                                                                        AttemptTransactions
-                                                                                .Resolution.UNKNOWN,
-                                                                        new RuntimeException());
-                                                        }
-
-                                                        public void requireCompletionReady() {}
-                                                    });
-                                        });
-                            }
-
-                            public Recovery prepareRecovery(UUID key, PreparationReads reads) {
-                                return c -> evidence(observeInSnapshot(key, c, reads));
-                            }
-
-                            private RecoveryObservation observeInSnapshot(
-                                    UUID key, RecoveryReadContext c, PreparationReads reads) {
-                                return ids.isEmpty()
-                                        ? RecoveryObservation.COMPLETED
-                                        : RecoveryObservation.NOT_COMPLETED;
-                            }
-                        };
-                SlotKeyNavigation navigation =
-                        (c, p, walk, limit, context) -> {
-                            var upper =
-                                    walk.upperInclusive().isPresent()
-                                            ? walk.upperInclusive()
-                                            : ids.stream().max(SlotKeyNavigation::compare);
-                            var page =
-                                    ids.stream()
-                                            .sorted(SlotKeyNavigation::compare)
-                                            .filter(
-                                                    k ->
-                                                            upper.isPresent()
-                                                                    && SlotKeyNavigation.compare(
-                                                                                    k, upper.get())
-                                                                            <= 0
-                                                                    && (walk.afterExclusive()
-                                                                                    .isEmpty()
-                                                                            || SlotKeyNavigation
-                                                                                            .compare(
-                                                                                                    k,
-                                                                                                    walk.afterExclusive()
-                                                                                                            .get())
-                                                                                    > 0))
-                                            .limit(limit)
-                                            .toList();
-                            return new ConsumptionNavigation.Page(upper, page);
-                        };
-                var engine =
-                        new ConsumptionEngine(
-                                definition,
-                                TX,
-                                store,
-                                participant,
-                                TX,
-                                store,
-                                ownership,
-                                LifecycleSettings.pilot(),
-                                capacity,
-                                c -> AttemptFailureClassifier.FailureKind.NON_COUNTABLE,
-                                navigation,
-                                ConsumptionObservation.noop());
-                var admissions =
-                        (DiscoveryAdmissionStore)
-                                Proxy.newProxyInstance(
-                                        getClass().getClassLoader(),
-                                        new Class[] {DiscoveryAdmissionStore.class},
-                                        (p, m, a) ->
-                                                switch (m.getName()) {
-                                                    case "liveSlots",
-                                                            "checkpoint",
-                                                            "currentCheckpoint" ->
-                                                            0L;
-                                                    case "contains" -> true;
-                                                    case "insertInitial", "advanceCheckpoint" ->
-                                                            null;
-                                                    default ->
-                                                            throw new AssertionError(m.getName());
-                                                });
-                var source =
-                        new BurnableReferences() {
-                            public ConsumableFamily family() {
-                                return ConsumableFamily.COMMAND;
-                            }
-
-                            public Window window(long after, int max, RecoveryReadContext c) {
-                                discoveries.incrementAndGet();
-                                return new Window(after, after, List.of());
-                            }
-
-                            public boolean tryProtectPending(UUID key) {
-                                return false;
-                            }
-
-                            public boolean isTerminal(UUID key) {
-                                return false;
-                            }
-                        };
-                var discovery =
-                        new DiscoveryEngine(
-                                definition,
-                                TX,
-                                ownership,
-                                admissions,
-                                new DiscoverySettings(
-                                        32,
-                                        32,
-                                        32,
-                                        100,
-                                        Duration.ofMillis(10),
-                                        Duration.ofMillis(20)),
-                                source);
-                bindings.add(
-                        new ConsumptionWorker.Binding(definition, com.kartaguez.pocoma.orchestrator.consumption.ConsumptionProtocols.forDefinition(definition, engine, discovery), List.of(0)));
+                bindings.add(createBinding(id));
             }
             executor =
                     supplied != null
@@ -424,7 +168,8 @@ class ConsumptionWorkerTest {
                             settings,
                             observation,
                             closes::incrementAndGet,
-                            executor, com.kartaguez.pocoma.orchestrator.consumption.ConsumptionSafety::new);
+                            executor,
+                            com.kartaguez.pocoma.orchestrator.consumption.ConsumptionSafety::new);
             executor.prestartAllCoreThreads();
             await(
                     () ->
@@ -444,7 +189,261 @@ class ConsumptionWorkerTest {
                 state.setAccessible(true);
                 state.set(worker, WorkerView.State.RUNNING);
                 executor.prestartAllCoreThreads();
-            } else worker.start();
+            } else {
+                worker.start();
+            }
+        }
+
+        private ConsumptionWorker.Binding createBinding(ConsumptionId id) {
+            var definition =
+                    new ConsumptionDefinition(
+                            id,
+                            ConsumableFamily.COMMAND,
+                            ConsumptionDefinition.Authority.WRITE);
+            var ids = ConcurrentHashMap.<UUID>newKeySet();
+            ids.add(new UUID(1, 1));
+            keys.add(ids);
+            var granted = ConcurrentHashMap.<UUID>newKeySet();
+            var done = new AtomicInteger();
+            effects.add(done);
+            var store = slotStoreProxy(id, ids, granted);
+            var ownership = ownershipStore();
+            var participant = participantStub(ids, done);
+            var navigation = slotKeyNavigation(ids);
+            var engine =
+                    new ConsumptionEngine(
+                            definition,
+                            TX,
+                            store,
+                            participant,
+                            TX,
+                            store,
+                            ownership,
+                            LifecycleSettings.pilot(),
+                            capacity,
+                            c -> AttemptFailureClassifier.FailureKind.NON_COUNTABLE,
+                            navigation,
+                            ConsumptionObservation.noop());
+            var discovery =
+                    new DiscoveryEngine(
+                            definition,
+                            TX,
+                            ownership,
+                            admissionStoreProxy(),
+                            new DiscoverySettings(
+                                    32,
+                                    32,
+                                    32,
+                                    100,
+                                    Duration.ofMillis(10),
+                                    Duration.ofMillis(20)),
+                            burnableSource());
+            return new ConsumptionWorker.Binding(
+                    definition,
+                    com.kartaguez.pocoma.orchestrator.consumption.ConsumptionProtocols.forDefinition(
+                            definition, engine, discovery),
+                    List.of(0));
+        }
+
+        @SuppressWarnings("unchecked")
+        private ConsumptionSlotStore slotStoreProxy(
+                ConsumptionId id, Set<UUID> ids, Set<UUID> granted) {
+            return (ConsumptionSlotStore)
+                    Proxy.newProxyInstance(
+                            getClass().getClassLoader(),
+                            new Class[] {ConsumptionSlotStore.class},
+                            (p, m, a) ->
+                                    switch (m.getName()) {
+                                        case "acquire" ->
+                                                acquireClaims(
+                                                        id,
+                                                        ids,
+                                                        granted,
+                                                        (List<ConsumptionSlotStore.ClaimCandidate>)
+                                                                a[1]);
+                                        case "protectFinal" ->
+                                                ConsumptionSlotStore.Protection.VALID;
+                                        case "deleteProtected" -> {
+                                            ids.remove(((ClaimedSlot) a[0]).consumableId());
+                                            yield null;
+                                        }
+                                        case "renew" ->
+                                                renewClaims((List<ClaimedSlot>) a[0]);
+                                        case "inspectResolved" ->
+                                                inspectClaims((List<ClaimedSlot>) a[0]);
+                                        case "observe" ->
+                                                ids.isEmpty()
+                                                        ? ConsumptionSlotStore.SlotObservation.ABSENT
+                                                        : ConsumptionSlotStore.SlotObservation
+                                                                .PRESENT;
+                                        case "cede" -> Optional.empty();
+                                        default -> throw new AssertionError(m.getName());
+                                    });
+        }
+
+        private List<ConsumptionSlotStore.GrantedClaim> acquireClaims(
+                ConsumptionId id,
+                Set<UUID> ids,
+                Set<UUID> granted,
+                List<ConsumptionSlotStore.ClaimCandidate> candidates) {
+            beforeAcquire.run();
+            if (failAcquire) {
+                throw new AttemptTransactions.Failure(
+                        AttemptTransactions.Resolution.ROLLED_BACK, new RuntimeException());
+            }
+            if (zeroAcquire) {
+                return List.of();
+            }
+            var result = new ArrayList<ConsumptionSlotStore.GrantedClaim>();
+            for (var candidate : candidates) {
+                if (ids.contains(candidate.consumableId())
+                        && granted.add(candidate.consumableId())) {
+                    result.add(
+                            new ConsumptionSlotStore.GrantedClaim(
+                                    new ClaimedSlot(
+                                            id, candidate.consumableId(), candidate.freshToken()),
+                                    Instant.now().plusSeconds(60)));
+                }
+            }
+            return result;
+        }
+
+        private List<ConsumptionSlotStore.GrantedClaim> renewClaims(List<ClaimedSlot> claims) {
+            beforeRenew.run();
+            renewed.incrementAndGet();
+            return claims.stream()
+                    .map(
+                            c ->
+                                    new ConsumptionSlotStore.GrantedClaim(
+                                            c, Instant.now().plusSeconds(60)))
+                    .toList();
+        }
+
+        private List<ConsumptionSlotStore.ClaimInspection> inspectClaims(List<ClaimedSlot> claims) {
+            var state =
+                    unknown
+                            ? ConsumptionSlotStore.Inspection.LOCKED
+                            : ConsumptionSlotStore.Inspection.ABSENT;
+            return claims.stream()
+                    .map(c -> new ConsumptionSlotStore.ClaimInspection(c, state))
+                    .toList();
+        }
+
+        private PartitionOwnershipStore ownershipStore() {
+            return new PartitionOwnershipStore() {
+                public Optional<PartitionLease> acquire(
+                        ConsumptionDefinition d, int p, UUID token, Duration duration) {
+                    beforeLease.run();
+                    return Optional.of(
+                            new PartitionLease(d.id(), p, token, Instant.now().plusSeconds(30)));
+                }
+
+                public List<PartitionLease> renew(
+                        ConsumptionDefinition d, List<PartitionLease> l, Duration duration) {
+                    return l;
+                }
+
+                public Optional<PartitionLease> protectAcquisition(
+                        ConsumptionDefinition d, PartitionLease l) {
+                    return Optional.of(l);
+                }
+
+                public void bound(Duration l, Duration s) {}
+            };
+        }
+
+        private ConsumptionParticipant participantStub(Set<UUID> ids, AtomicInteger done) {
+            return new ConsumptionParticipant() {
+                public Optional<Prepared> prepare(UUID key, PreparationReads reads) {
+                    return reads.source(
+                            preparationContext ->
+                                    Optional.of(
+                                            new Prepared() {
+                                                public void finalizeIn(SlotCompletion completion) {
+                                                    beforeEffect.run();
+                                                    done.incrementAndGet();
+                                                    completion.complete();
+                                                    if (unknown) {
+                                                        throw new AttemptTransactions.Failure(
+                                                                AttemptTransactions.Resolution
+                                                                        .UNKNOWN,
+                                                                new RuntimeException());
+                                                    }
+                                                }
+
+                                                public void requireCompletionReady() {}
+                                            }));
+                }
+
+                public Recovery prepareRecovery(UUID key, PreparationReads reads) {
+                    return c ->
+                            evidence(
+                                    ids.isEmpty()
+                                            ? RecoveryObservation.COMPLETED
+                                            : RecoveryObservation.NOT_COMPLETED);
+                }
+            };
+        }
+
+        private static SlotKeyNavigation slotKeyNavigation(Set<UUID> ids) {
+            return (c, p, walk, limit, context) -> {
+                var upper =
+                        walk.upperInclusive().isPresent()
+                                ? walk.upperInclusive()
+                                : ids.stream().max(SlotKeyNavigation::compare);
+                var page =
+                        ids.stream()
+                                .sorted(SlotKeyNavigation::compare)
+                                .filter(
+                                        k ->
+                                                upper.isPresent()
+                                                        && SlotKeyNavigation.compare(k, upper.get())
+                                                                <= 0
+                                                        && (walk.afterExclusive().isEmpty()
+                                                                || SlotKeyNavigation.compare(
+                                                                                k,
+                                                                                walk.afterExclusive()
+                                                                                        .get())
+                                                                        > 0))
+                                .limit(limit)
+                                .toList();
+                return new ConsumptionNavigation.Page(upper, page);
+            };
+        }
+
+        private DiscoveryAdmissionStore admissionStoreProxy() {
+            return (DiscoveryAdmissionStore)
+                    Proxy.newProxyInstance(
+                            getClass().getClassLoader(),
+                            new Class[] {DiscoveryAdmissionStore.class},
+                            (p, m, a) ->
+                                    switch (m.getName()) {
+                                        case "liveSlots", "checkpoint", "currentCheckpoint" -> 0L;
+                                        case "contains" -> true;
+                                        case "insertInitial", "advanceCheckpoint" -> null;
+                                        default -> throw new AssertionError(m.getName());
+                                    });
+        }
+
+        private BurnableReferences burnableSource() {
+            return new BurnableReferences() {
+                public ConsumableFamily family() {
+                    return ConsumableFamily.COMMAND;
+                }
+
+                public Window window(long after, int max, RecoveryReadContext c) {
+                    discoveries.incrementAndGet();
+                    return new Window(after, after, List.of());
+                }
+
+                public boolean tryProtectPending(UUID key) {
+                    return false;
+                }
+
+                public boolean isTerminal(UUID key) {
+                    return false;
+                }
+            };
         }
 
         public void close() throws Exception {
@@ -481,77 +480,117 @@ class ConsumptionWorkerTest {
         return (ConsumptionEngine) field.get(protocol);
     }
 
+    private void wrapOwnershipRenew(
+            ConsumptionEngine engine, java.util.function.Predicate<String> returnEmpty)
+            throws Exception {
+        var originalField = ConsumptionEngine.class.getDeclaredField("ownership");
+        originalField.setAccessible(true);
+        var original = (PartitionOwnershipStore) originalField.get(engine);
+        originalField.set(
+                engine,
+                Proxy.newProxyInstance(
+                        getClass().getClassLoader(),
+                        new Class[] {PartitionOwnershipStore.class},
+                        (proxy, method, args) -> {
+                            if (returnEmpty.test(method.getName())) {
+                                return List.of();
+                            }
+                            try {
+                                return method.invoke(original, args);
+                            } catch (InvocationTargetException failure) {
+                                throw failure.getCause();
+                            }
+                        }));
+    }
+
     @Test
     void i5_u10() throws Exception {
         try (var f = new Fixture(1, 1, true, null)) {
             var binding = f.bindings.getFirst();
-            var lease = f.worker.lease(binding, 0);
+            f.worker.lease(binding, 0);
             var pair = new ConsumptionWorker.Pair(binding, 0);
             var entry = f.worker.leases.get(pair);
-            var originalField = ConsumptionEngine.class.getDeclaredField("ownership");
-            originalField.setAccessible(true);
-            var original = (PartitionOwnershipStore) originalField.get(underlying(binding.engine()));
             var calls = new AtomicInteger();
             var alwaysMissing = new AtomicBoolean();
-            originalField.set(
+            wrapOwnershipRenew(
                     underlying(binding.engine()),
-                    Proxy.newProxyInstance(
-                            getClass().getClassLoader(),
-                            new Class[] {PartitionOwnershipStore.class},
-                            (proxy, method, args) -> {
-                                if (method.getName().equals("renew")
-                                        && (calls.incrementAndGet() == 1 || alwaysMissing.get()))
-                                    return List.of();
-                                try {
-                                    return method.invoke(original, args);
-                                } catch (InvocationTargetException failure) {
-                                    throw failure.getCause();
-                                }
-                            }));
-            entry.renewedAt = System.nanoTime() - f.worker.settings.renewalInterval().toNanos();
+                    name -> name.equals("renew") && (calls.incrementAndGet() == 1 || alwaysMissing.get()));
             var renewal = new RenewalService(f.worker);
-            assertTrue(renewal.renewLeasesOnce(binding.definition().authority()));
-            assertSame(
-                    entry,
-                    f.worker.leases.get(pair),
-                    "SKIP LOCKED omission is not proof of lease loss");
-            assertFalse(entry.usable);
-            assertNull(f.worker.lease(binding, 0));
-            await(
-                    () ->
-                            System.nanoTime() - entry.renewedAt
-                                    >= f.worker.settings.renewalInterval().toNanos());
-            var staleLease = entry.lease; // Retain the actually issued pre-renewal opaque handle.
-            assertTrue(renewal.renewLeasesOnce(binding.definition().authority()));
-            assertSame(entry, f.worker.leases.get(pair));
-            assertTrue(entry.usable);
-            assertEquals(2, calls.get());
-            assertEquals(0, f.capacity.snapshot().worker());
-            f.worker.suspend(binding, staleLease);
-            assertTrue(entry.usable, "stale pre-renewal incarnation cannot suspend renewed lease");
-            f.worker.suspend(binding, entry.lease);
-            assertFalse(entry.usable);
-            await(
-                    () ->
-                            System.nanoTime() - entry.renewedAt
-                                    >= f.worker.settings.renewalInterval().toNanos());
-            assertTrue(renewal.renewLeasesOnce(binding.definition().authority()));
-            assertTrue(entry.usable, "loop suspension schedules immediate minPoll re-verification");
-            alwaysMissing.set(true);
-            entry.renewedAt = System.nanoTime() - f.worker.settings.renewalInterval().toNanos();
-            assertTrue(renewal.renewLeasesOnce(binding.definition().authority()));
-            assertSame(entry, f.worker.leases.get(pair));
-            assertFalse(entry.usable);
-            var budget = entry.getClass().getDeclaredField("retryUntil");
-            budget.setAccessible(true);
-            budget.setLong(entry, System.nanoTime() - 1);
-            entry.renewedAt = System.nanoTime() - f.worker.settings.renewalInterval().toNanos();
-            assertTrue(renewal.renewLeasesOnce(binding.definition().authority()));
-            assertFalse(
-                    f.worker.leases.containsKey(pair),
-                    "bounded local retry expires without asserting durable loss");
-            assertEquals(0, f.effects.getFirst().get());
+            verifySkippedLeaseAndRecovery(f, binding, pair, entry, renewal, calls);
+            verifyStaleSuspendAndBudgetExpiry(f, binding, pair, entry, renewal, alwaysMissing);
         }
+    }
+
+    private void verifySkippedLeaseAndRecovery(
+            Fixture f,
+            ConsumptionWorker.Binding binding,
+            ConsumptionWorker.Pair pair,
+            ConsumptionWorker.LeaseEntry entry,
+            RenewalService renewal,
+            AtomicInteger calls)
+            throws Exception {
+        entry.renewedAt = System.nanoTime() - f.worker.settings.renewalInterval().toNanos();
+        assertAll(
+                () -> assertTrue(renewal.renewLeasesOnce(binding.definition().authority())),
+                () ->
+                        assertSame(
+                                entry,
+                                f.worker.leases.get(pair),
+                                "SKIP LOCKED omission is not proof of lease loss"),
+                () -> assertFalse(entry.usable),
+                () -> assertNull(f.worker.lease(binding, 0)));
+        await(
+                () ->
+                        System.nanoTime() - entry.renewedAt
+                                >= f.worker.settings.renewalInterval().toNanos());
+        var staleLease = entry.lease; // Retain the actually issued pre-renewal opaque handle.
+        assertAll(
+                () -> assertTrue(renewal.renewLeasesOnce(binding.definition().authority())),
+                () -> assertSame(entry, f.worker.leases.get(pair)),
+                () -> assertTrue(entry.usable),
+                () -> assertEquals(2, calls.get()),
+                () -> assertEquals(0, f.capacity.snapshot().worker()));
+        f.worker.suspend(binding, staleLease);
+        assertTrue(entry.usable, "stale pre-renewal incarnation cannot suspend renewed lease");
+    }
+
+    private void verifyStaleSuspendAndBudgetExpiry(
+            Fixture f,
+            ConsumptionWorker.Binding binding,
+            ConsumptionWorker.Pair pair,
+            ConsumptionWorker.LeaseEntry entry,
+            RenewalService renewal,
+            AtomicBoolean alwaysMissing)
+            throws Exception {
+        f.worker.suspend(binding, entry.lease);
+        assertFalse(entry.usable);
+        await(
+                () ->
+                        System.nanoTime() - entry.renewedAt
+                                >= f.worker.settings.renewalInterval().toNanos());
+        assertAll(
+                () -> assertTrue(renewal.renewLeasesOnce(binding.definition().authority())),
+                () ->
+                        assertTrue(
+                                entry.usable,
+                                "loop suspension schedules immediate minPoll re-verification"));
+        alwaysMissing.set(true);
+        entry.renewedAt = System.nanoTime() - f.worker.settings.renewalInterval().toNanos();
+        assertAll(
+                () -> assertTrue(renewal.renewLeasesOnce(binding.definition().authority())),
+                () -> assertSame(entry, f.worker.leases.get(pair)),
+                () -> assertFalse(entry.usable));
+        var budget = entry.getClass().getDeclaredField("retryUntil");
+        budget.setAccessible(true);
+        budget.setLong(entry, System.nanoTime() - 1);
+        entry.renewedAt = System.nanoTime() - f.worker.settings.renewalInterval().toNanos();
+        assertAll(
+                () -> assertTrue(renewal.renewLeasesOnce(binding.definition().authority())),
+                () ->
+                        assertFalse(
+                                f.worker.leases.containsKey(pair),
+                                "bounded local retry expires without asserting durable loss"),
+                () -> assertEquals(0, f.effects.getFirst().get()));
     }
 
     @Test
@@ -790,10 +829,12 @@ class ConsumptionWorkerTest {
                 f.worker.prune();
                 assertEquals(0, f.worker.snapshot().handles());
                 renewReturn.countDown();
-                assertTrue(call.get(5, TimeUnit.SECONDS));
-                assertEquals(0, f.worker.snapshot().handles());
-                assertEquals(0, f.capacity.snapshot().worker());
-                assertEquals(1, f.effects.getFirst().get());
+                boolean renewed = call.get(5, TimeUnit.SECONDS);
+                assertAll(
+                        () -> assertTrue(renewed),
+                        () -> assertEquals(0, f.worker.snapshot().handles()),
+                        () -> assertEquals(0, f.capacity.snapshot().worker()),
+                        () -> assertEquals(1, f.effects.getFirst().get()));
             } finally {
                 release.countDown();
                 renewReturn.countDown();
@@ -824,13 +865,17 @@ class ConsumptionWorkerTest {
                 for (var entry : f.worker.leases.values())
                     entry.renewedAt -= f.worker.settings.renewalInterval().toNanos() + 1;
             }
-            assertEquals(
-                    2,
-                    visited.size(),
-                    "no fixed-binding starvation when a lease becomes due again");
-            assertEquals(0, f.capacity.snapshot().worker());
-            assertEquals(0, f.worker.snapshot().renewalCalls());
-            assertEquals(0, f.effects.stream().mapToInt(AtomicInteger::get).sum());
+            assertAll(
+                    () ->
+                            assertEquals(
+                                    2,
+                                    visited.size(),
+                                    "no fixed-binding starvation when a lease becomes due again"),
+                    () -> assertEquals(0, f.capacity.snapshot().worker()),
+                    () -> assertEquals(0, f.worker.snapshot().renewalCalls()),
+                    () ->
+                            assertEquals(
+                                    0, f.effects.stream().mapToInt(AtomicInteger::get).sum()));
         }
     }
 
@@ -838,48 +883,37 @@ class ConsumptionWorkerTest {
     void i5_v2_selector_bound() throws Exception {
         // Use the real service. Every older contender omits repeatedly; no R limit.
         for (int configuration : List.of(2, 4, 8, -8)) {
-            int n = Math.abs(configuration);
-            try (var f = new Fixture(n, 1, true, null)) {
-                for (var binding : f.bindings) f.worker.lease(binding, 0);
-                var entries = new ArrayList<>(f.worker.leases.values());
-                long base = System.nanoTime() - Duration.ofSeconds(1).toNanos();
-                for (int i = 0; i < n; i++) {
-                    var entry = entries.get(i);
-                    entry.renewedAt = base + (configuration < 0 ? 0 : i); // Include all ties.
-                    var engine = underlying(entry.pair.binding().engine());
-                    var member = ConsumptionEngine.class.getDeclaredField("ownership");
-                    member.setAccessible(true);
-                    var owner = (PartitionOwnershipStore) member.get(engine);
-                    member.set(
-                            engine,
-                            Proxy.newProxyInstance(
-                                    getClass().getClassLoader(),
-                                    new Class[] {PartitionOwnershipStore.class},
-                                    (proxy, method, args) -> {
-                                        if (method.getName().equals("renew")
-                                                || method.getName().equals("renewBatch"))
-                                            return List.of();
-                                        try {
-                                            return method.invoke(owner, args);
-                                        } catch (InvocationTargetException error) {
-                                            throw error.getCause();
-                                        }
-                                    }));
-                }
-                var service = new RenewalService(f.worker);
-                var visited = new HashSet<ConsumptionWorker.LeaseEntry>();
-                var before = new IdentityHashMap<ConsumptionWorker.LeaseEntry, Long>();
-                entries.forEach(e -> before.put(e, e.renewedAt));
-                assertTrue(service.renewLeasesOnce(ConsumptionDefinition.Authority.WRITE));
-                var changed =
-                        entries.stream().filter(e -> e.renewedAt != before.get(e)).toList();
-                assertEquals(n, changed.size());
-                visited.addAll(changed);
-                assertEquals(n, visited.size());
-                assertFalse(entries.getLast().usable);
-                assertEquals(0, f.worker.snapshot().renewalCalls());
-                assertEquals(0, f.capacity.snapshot().worker());
+            verifySelectorBoundConfiguration(configuration);
+        }
+    }
+
+    private void verifySelectorBoundConfiguration(int configuration) throws Exception {
+        int n = Math.abs(configuration);
+        try (var f = new Fixture(n, 1, true, null)) {
+            for (var binding : f.bindings) {
+                f.worker.lease(binding, 0);
             }
+            var entries = new ArrayList<>(f.worker.leases.values());
+            long base = System.nanoTime() - Duration.ofSeconds(1).toNanos();
+            for (int i = 0; i < n; i++) {
+                var entry = entries.get(i);
+                entry.renewedAt = base + (configuration < 0 ? 0 : i); // Include all ties.
+                wrapOwnershipRenew(
+                        underlying(entry.pair.binding().engine()),
+                        name -> name.equals("renew") || name.equals("renewBatch"));
+            }
+            var service = new RenewalService(f.worker);
+            var before = new IdentityHashMap<ConsumptionWorker.LeaseEntry, Long>();
+            entries.forEach(e -> before.put(e, e.renewedAt));
+            assertTrue(service.renewLeasesOnce(ConsumptionDefinition.Authority.WRITE));
+            var changed = entries.stream().filter(e -> e.renewedAt != before.get(e)).toList();
+            var visited = new HashSet<>(changed);
+            assertAll(
+                    () -> assertEquals(n, changed.size()),
+                    () -> assertEquals(n, visited.size()),
+                    () -> assertFalse(entries.getLast().usable),
+                    () -> assertEquals(0, f.worker.snapshot().renewalCalls()),
+                    () -> assertEquals(0, f.capacity.snapshot().worker()));
         }
     }
 
@@ -887,45 +921,58 @@ class ConsumptionWorkerTest {
     void i5_u09() throws Exception {
         for (boolean discovery : List.of(true, false)) {
             for (boolean raw : List.of(true, false)) {
-                try (var f = new Fixture(1, 1, true, null)) {
-                    f.beforeLease =
-                            () -> {
-                                if (raw) throw new IllegalStateException("unqualified local exit");
-                                throw new AttemptTransactions.Failure(
-                                        AttemptTransactions.Resolution.UNKNOWN,
-                                        new IllegalStateException("physical unit unresolved"));
-                            };
-                    assertThrows(
-                            RuntimeException.class,
-                            () -> {
-                                if (discovery) new DiscoveryLoop(f.worker).runOnePass();
-                                else new ConsumptionLoop(f.worker).runOnePass();
-                            });
-                    assertEquals(WorkerView.State.DRAINING, f.worker.snapshot().state());
-                    assertEquals(1, f.worker.snapshot().operations());
-                    assertEquals(0, f.capacity.snapshot().worker());
-                    f.bindings.getFirst().engine().settlePending();
-                    f.worker.prune();
-                    assertEquals(1, f.worker.snapshot().operations());
-                    assertEquals(0, f.closes.get());
-                }
+                verifyUnresolvedLeaseExit(discovery, raw);
             }
-            try (var f = new Fixture(1, 1, true, null)) {
-                f.beforeLease =
-                        () -> {
-                            throw new AttemptTransactions.Failure(
-                                    AttemptTransactions.Resolution.ROLLED_BACK,
-                                    new IllegalStateException("known rollback"));
-                        };
-                assertThrows(
-                        AttemptTransactions.Failure.class,
-                        () -> {
-                            if (discovery) new DiscoveryLoop(f.worker).runOnePass();
-                            else new ConsumptionLoop(f.worker).runOnePass();
-                        });
-                assertEquals(0, f.worker.snapshot().operations());
-                assertEquals(WorkerView.State.RUNNING, f.worker.snapshot().state());
-            }
+            verifyKnownRollbackLease(discovery);
+        }
+    }
+
+    private void verifyUnresolvedLeaseExit(boolean discovery, boolean raw) throws Exception {
+        try (var f = new Fixture(1, 1, true, null)) {
+            f.beforeLease =
+                    () -> {
+                        if (raw) {
+                            throw new IllegalStateException("unqualified local exit");
+                        }
+                        throw new AttemptTransactions.Failure(
+                                AttemptTransactions.Resolution.UNKNOWN,
+                                new IllegalStateException("physical unit unresolved"));
+                    };
+            assertThrows(
+                    RuntimeException.class,
+                    () -> runSingleLoopPass(f.worker, discovery));
+            assertAll(
+                    () -> assertEquals(WorkerView.State.DRAINING, f.worker.snapshot().state()),
+                    () -> assertEquals(1, f.worker.snapshot().operations()),
+                    () -> assertEquals(0, f.capacity.snapshot().worker()));
+            f.bindings.getFirst().engine().settlePending();
+            f.worker.prune();
+            assertEquals(1, f.worker.snapshot().operations());
+            assertEquals(0, f.closes.get());
+        }
+    }
+
+    private void verifyKnownRollbackLease(boolean discovery) throws Exception {
+        try (var f = new Fixture(1, 1, true, null)) {
+            f.beforeLease =
+                    () -> {
+                        throw new AttemptTransactions.Failure(
+                                AttemptTransactions.Resolution.ROLLED_BACK,
+                                new IllegalStateException("known rollback"));
+                    };
+            assertThrows(
+                    AttemptTransactions.Failure.class,
+                    () -> runSingleLoopPass(f.worker, discovery));
+            assertEquals(0, f.worker.snapshot().operations());
+            assertEquals(WorkerView.State.RUNNING, f.worker.snapshot().state());
+        }
+    }
+
+    private static void runSingleLoopPass(ConsumptionWorker worker, boolean discovery) {
+        if (discovery) {
+            new DiscoveryLoop(worker).runOnePass();
+        } else {
+            new ConsumptionLoop(worker).runOnePass();
         }
     }
 
@@ -948,235 +995,254 @@ class ConsumptionWorkerTest {
 
         TourFixture(ConsumableFamily family, int count, int size, int pageSize, int softCap)
                 throws Exception {
-            base =
-                    new Fixture(
-                            count,
-                            1,
-                            true,
-                            null,
-                            (id, phase, outcome, amount, elapsed) -> {
-                                if (phase == ConsumptionObservation.Phase.DISCOVERY_ADVANCED) {
-                                    journal.add("metric:" + id.value());
-                                    advanced.addAndGet((int) amount);
-                                }
-                                if (observerFailure)
-                                    throw new AssertionError("observer unavailable");
-                            });
+            base = new Fixture(count, 1, true, null, tourObservation());
             for (long n = 1; source.size() < size; n++) {
                 var key = new UUID(0, n);
-                if (RoutingV1.partition(RoutingV1.hash(family, key), 4) == 0) source.add(key);
+                if (RoutingV1.partition(RoutingV1.hash(family, key), 4) == 0) {
+                    source.add(key);
+                }
             }
+            var settings =
+                    new DiscoverySettings(
+                            pageSize,
+                            pageSize,
+                            softCap,
+                            softCap,
+                            Duration.ofMillis(10),
+                            Duration.ofMillis(20));
             var bindings = new ArrayList<ConsumptionWorker.Binding>();
             for (var original : base.bindings) {
-                var definition =
-                        new ConsumptionDefinition(
-                                original.definition().id(),
-                                family,
-                                family == ConsumableFamily.COMMAND
-                                                || family == ConsumableFamily.IDENTITY_REQUEST
-                                        ? ConsumptionDefinition.Authority.WRITE
-                                        : ConsumptionDefinition.Authority.READ);
-                var ownership =
-                        new PartitionOwnershipStore() {
-                            public Optional<PartitionLease> acquire(
-                                    ConsumptionDefinition d, int p, UUID token, Duration ttl) {
-                                return noLease
-                                        ? Optional.empty()
-                                        : Optional.of(
-                                                new PartitionLease(
-                                                        d.id(),
-                                                        p,
-                                                        token,
-                                                        Instant.now().plusSeconds(90)));
-                            }
-
-                            public List<PartitionLease> renew(
-                                    ConsumptionDefinition d,
-                                    List<PartitionLease> leases,
-                                    Duration ttl) {
-                                return leases;
-                            }
-
-                            public Optional<PartitionLease> protectAcquisition(
-                                    ConsumptionDefinition d, PartitionLease lease) {
-                                protections++;
-                                if (fenceFailure && protections > 1)
-                                    throw new IllegalStateException("fence");
-                                return notOwner ? Optional.empty() : Optional.of(lease);
-                            }
-
-                            public void bound(Duration lock, Duration statement) {}
-                        };
-                var admissions =
-                        (DiscoveryAdmissionStore)
-                                Proxy.newProxyInstance(
-                                        getClass().getClassLoader(),
-                                        new Class[] {DiscoveryAdmissionStore.class},
-                                        (p, m, args) ->
-                                                switch (m.getName()) {
-                                                    case "liveSlots" ->
-                                                            full
-                                                                    ? (long) softCap
-                                                                    : (long) admitted.size();
-                                                    case "contains" ->
-                                                            admitted.contains((UUID) args[2]);
-                                                    case "insertInitial" -> {
-                                                        if (admissionFailure)
-                                                            throw new IllegalStateException(
-                                                                    "admission");
-                                                        admitted.add((UUID) args[2]);
-                                                        yield null;
-                                                    }
-                                                    case "checkpoint" ->
-                                                            checkpoints.getOrDefault(
-                                                                    (ConsumptionId) args[0], 0L);
-                                                    case "currentCheckpoint" ->
-                                                            checkpoints.getOrDefault(
-                                                                    ((PartitionLease) args[0])
-                                                                            .consumptionId(),
-                                                                    0L);
-                                                    case "advanceCheckpoint" -> {
-                                                        long next = (long) args[2];
-                                                        checkpoints.put(
-                                                                ((PartitionLease) args[0])
-                                                                        .consumptionId(),
-                                                                next);
-                                                        checkpoint = next;
-                                                        yield null;
-                                                    }
-                                                    default ->
-                                                            throw new AssertionError(m.getName());
-                                                });
-                var owner =
-                        new AttemptTransactions() {
-                            public <T> T read(
-                                    Function<RecoveryReadContext, T> body,
-                                    com.kartaguez.pocoma.port.transaction.AttemptTransactions
-                                                    .Guard
-                                            guard) {
-                                guard.requireValid();
-                                return body.apply(() -> {});
-                            }
-
-                            public <T> T write(
-                                    Supplier<T> body,
-                                    com.kartaguez.pocoma.port.transaction.AttemptTransactions
-                                                    .Guard
-                                            guard) {
-                                guard.requireValid();
-                                journal.add("owner-enter");
-                                T result = body.get();
-                                if (lostResult != null)
-                                    throw new AttemptTransactions.Failure(
-                                            lostResult, new RuntimeException("lost result"));
-                                journal.add("owner-return");
-                                return result;
-                            }
-
-                            public void poison(Throwable failure) {}
-
-                            public void requirePublicationClosed() {}
-                        };
-                var settings =
-                        new DiscoverySettings(
-                                pageSize,
-                                pageSize,
-                                softCap,
-                                softCap,
-                                Duration.ofMillis(10),
-                                Duration.ofMillis(20));
-                DiscoveryEngine discovery;
-                Optional<NonBurnableReferences> recovery = Optional.empty();
-                if (family == ConsumableFamily.COMMAND
-                        || family == ConsumableFamily.IDENTITY_REQUEST) {
-                    var requests =
-                            new BurnableReferences() {
-                                public ConsumableFamily family() {
-                                    return family;
-                                }
-
-                                public Window window(
-                                        long after, int limit, RecoveryReadContext read) {
-                                    journal.add("window:" + after);
-                                    if (sourceFailure) throw new IllegalStateException("source");
-                                    var refs = new ArrayList<Reference>();
-                                    for (int i = (int) after;
-                                            i < source.size() && refs.size() < limit;
-                                            i++) {
-                                        refs.add(new Reference(i + 1L, source.get(i)));
-                                    }
-                                    return new Window(after, after + refs.size(), refs);
-                                }
-
-                                public boolean tryProtectPending(UUID key) {
-                                    return !lockedPending.contains(key);
-                                }
-
-                                public boolean isTerminal(UUID key) {
-                                    return false;
-                                }
-                            };
-                    discovery =
-                            new DiscoveryEngine(
-                                    definition, owner, ownership, admissions, settings, requests);
-                } else {
-                    var events =
-                            new NonBurnableReferences() {
-                                public ConsumableFamily family() {
-                                    return family;
-                                }
-
-                                public java.util.Optional<
-                                                com.kartaguez.pocoma.contract.consumption.spi.NonBurnableReferences.Reference>
-                                        find(
-                                                java.util.UUID eventId,
-                                                com.kartaguez.pocoma.port.transaction
-                                                                .RecoveryReadContext
-                                                        context) {
-                                    throw new AssertionError(
-                                            "This discovery-only source does not implement"
-                                                    + " recovery");
-                                }
-
-                                public Window window(
-                                        long after, int max, RecoveryReadContext read) {
-                                    return new Window(
-                                            after,
-                                            after == 0 ? 1 : after,
-                                            after == 0
-                                                    ? List.of(
-                                                            new Reference(
-                                                                    1, source.getFirst(), "test"))
-                                                    : List.of());
-                                }
-                            };
-                    recovery = Optional.of(events);
-                    discovery =
-                            new DiscoveryEngine(
-                                    definition,
-                                    owner,
-                                    ownership,
-                                    admissions,
-                                    settings,
-                                    owner,
-                                    events,
-                                    r -> true);
-                }
-                var template = underlying(original.protocol());
-                var effectsOwner = TourFixture.<AttemptTransactions>read(template, "transactions");
-                var engine = new ConsumptionEngine(definition,
-                        effectsOwner, read(template, "slots"), read(template, "participant"),
-                        definition.authority() == ConsumptionDefinition.Authority.WRITE ? effectsOwner : owner,
-                        recovery, r -> true, admissions,
-                        read(template, "controlTransactions"), read(template, "controlSlots"), ownership,
-                        read(template, "settings"), base.capacity, read(template, "classifier"),
-                        read(template, "navigation"), read(template, "observation"));
-                bindings.add(new ConsumptionWorker.Binding(definition,
-                        com.kartaguez.pocoma.orchestrator.consumption.ConsumptionProtocols.forDefinition(
-                                definition, engine, discovery), List.of(0)));
+                bindings.add(createTourBinding(original, family, settings, softCap));
             }
             set(base.worker, "bindings", List.copyOf(bindings));
             loop = new DiscoveryLoop(base.worker);
+        }
+
+        private ConsumptionObservation tourObservation() {
+            return (id, phase, outcome, amount, elapsed) -> {
+                if (phase == ConsumptionObservation.Phase.DISCOVERY_ADVANCED) {
+                    journal.add("metric:" + id.value());
+                    advanced.addAndGet((int) amount);
+                }
+                if (observerFailure) {
+                    throw new AssertionError("observer unavailable");
+                }
+            };
+        }
+
+        private ConsumptionWorker.Binding createTourBinding(
+                ConsumptionWorker.Binding original,
+                ConsumableFamily family,
+                DiscoverySettings settings,
+                int softCap)
+                throws Exception {
+            boolean isWrite =
+                    family == ConsumableFamily.COMMAND
+                            || family == ConsumableFamily.IDENTITY_REQUEST;
+            var definition =
+                    new ConsumptionDefinition(
+                            original.definition().id(),
+                            family,
+                            isWrite
+                                    ? ConsumptionDefinition.Authority.WRITE
+                                    : ConsumptionDefinition.Authority.READ);
+            var ownership = tourOwnershipStore();
+            var admissions = tourAdmissionStore(softCap);
+            var owner = tourTransactions();
+            Optional<NonBurnableReferences> recovery = Optional.empty();
+            DiscoveryEngine discovery;
+            if (isWrite) {
+                discovery =
+                        new DiscoveryEngine(
+                                definition,
+                                owner,
+                                ownership,
+                                admissions,
+                                settings,
+                                tourBurnableReferences(family));
+            } else {
+                var events = tourNonBurnableReferences(family);
+                recovery = Optional.of(events);
+                discovery =
+                        new DiscoveryEngine(
+                                definition,
+                                owner,
+                                ownership,
+                                admissions,
+                                settings,
+                                owner,
+                                events,
+                                r -> true);
+            }
+            var template = underlying(original.protocol());
+            var effectsOwner = TourFixture.<AttemptTransactions>read(template, "transactions");
+            var engine =
+                    new ConsumptionEngine(
+                            definition,
+                            effectsOwner,
+                            read(template, "slots"),
+                            read(template, "participant"),
+                            isWrite ? effectsOwner : owner,
+                            recovery,
+                            r -> true,
+                            admissions,
+                            read(template, "controlTransactions"),
+                            read(template, "controlSlots"),
+                            ownership,
+                            read(template, "settings"),
+                            base.capacity,
+                            read(template, "classifier"),
+                            read(template, "navigation"),
+                            read(template, "observation"));
+            return new ConsumptionWorker.Binding(
+                    definition,
+                    com.kartaguez.pocoma.orchestrator.consumption.ConsumptionProtocols.forDefinition(
+                            definition, engine, discovery),
+                    List.of(0));
+        }
+
+        private PartitionOwnershipStore tourOwnershipStore() {
+            return new PartitionOwnershipStore() {
+                public Optional<PartitionLease> acquire(
+                        ConsumptionDefinition d, int p, UUID token, Duration ttl) {
+                    return noLease
+                            ? Optional.empty()
+                            : Optional.of(
+                                    new PartitionLease(
+                                            d.id(), p, token, Instant.now().plusSeconds(90)));
+                }
+
+                public List<PartitionLease> renew(
+                        ConsumptionDefinition d, List<PartitionLease> leases, Duration ttl) {
+                    return leases;
+                }
+
+                public Optional<PartitionLease> protectAcquisition(
+                        ConsumptionDefinition d, PartitionLease lease) {
+                    protections++;
+                    if (fenceFailure && protections > 1) {
+                        throw new IllegalStateException("fence");
+                    }
+                    return notOwner ? Optional.empty() : Optional.of(lease);
+                }
+
+                public void bound(Duration lock, Duration statement) {}
+            };
+        }
+
+        private DiscoveryAdmissionStore tourAdmissionStore(int softCap) {
+            return (DiscoveryAdmissionStore)
+                    Proxy.newProxyInstance(
+                            getClass().getClassLoader(),
+                            new Class[] {DiscoveryAdmissionStore.class},
+                            (p, m, args) ->
+                                    switch (m.getName()) {
+                                        case "liveSlots" ->
+                                                full ? (long) softCap : (long) admitted.size();
+                                        case "contains" -> admitted.contains((UUID) args[2]);
+                                        case "insertInitial" -> {
+                                            if (admissionFailure) {
+                                                throw new IllegalStateException("admission");
+                                            }
+                                            admitted.add((UUID) args[2]);
+                                            yield null;
+                                        }
+                                        case "checkpoint" ->
+                                                checkpoints.getOrDefault(
+                                                        (ConsumptionId) args[0], 0L);
+                                        case "currentCheckpoint" ->
+                                                checkpoints.getOrDefault(
+                                                        ((PartitionLease) args[0]).consumptionId(),
+                                                        0L);
+                                        case "advanceCheckpoint" -> {
+                                            long next = (long) args[2];
+                                            checkpoints.put(
+                                                    ((PartitionLease) args[0]).consumptionId(),
+                                                    next);
+                                            checkpoint = next;
+                                            yield null;
+                                        }
+                                        default -> throw new AssertionError(m.getName());
+                                    });
+        }
+
+        private AttemptTransactions tourTransactions() {
+            return new AttemptTransactions() {
+                public <T> T read(
+                        Function<RecoveryReadContext, T> body,
+                        com.kartaguez.pocoma.port.transaction.AttemptTransactions.Guard guard) {
+                    guard.requireValid();
+                    return body.apply(() -> {});
+                }
+
+                public <T> T write(
+                        Supplier<T> body,
+                        com.kartaguez.pocoma.port.transaction.AttemptTransactions.Guard guard) {
+                    guard.requireValid();
+                    journal.add("owner-enter");
+                    T result = body.get();
+                    if (lostResult != null) {
+                        throw new AttemptTransactions.Failure(
+                                lostResult, new RuntimeException("lost result"));
+                    }
+                    journal.add("owner-return");
+                    return result;
+                }
+
+                public void poison(Throwable failure) {}
+
+                public void requirePublicationClosed() {}
+            };
+        }
+
+        private BurnableReferences tourBurnableReferences(ConsumableFamily family) {
+            return new BurnableReferences() {
+                public ConsumableFamily family() {
+                    return family;
+                }
+
+                public Window window(long after, int limit, RecoveryReadContext read) {
+                    journal.add("window:" + after);
+                    if (sourceFailure) {
+                        throw new IllegalStateException("source");
+                    }
+                    var refs = new ArrayList<Reference>();
+                    for (int i = (int) after; i < source.size() && refs.size() < limit; i++) {
+                        refs.add(new Reference(i + 1L, source.get(i)));
+                    }
+                    return new Window(after, after + refs.size(), refs);
+                }
+
+                public boolean tryProtectPending(UUID key) {
+                    return !lockedPending.contains(key);
+                }
+
+                public boolean isTerminal(UUID key) {
+                    return false;
+                }
+            };
+        }
+
+        private NonBurnableReferences tourNonBurnableReferences(ConsumableFamily family) {
+            return new NonBurnableReferences() {
+                public ConsumableFamily family() {
+                    return family;
+                }
+
+                public Optional<NonBurnableReferences.Reference> find(
+                        UUID eventId, RecoveryReadContext context) {
+                    throw new AssertionError("This discovery-only source does not implement recovery");
+                }
+
+                public Window window(long after, int max, RecoveryReadContext read) {
+                    return new Window(
+                            after,
+                            after == 0 ? 1 : after,
+                            after == 0
+                                    ? List.of(new Reference(1, source.getFirst(), "test"))
+                                    : List.of());
+                }
+            };
         }
 
         @SuppressWarnings("unchecked")

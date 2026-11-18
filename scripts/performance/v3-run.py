@@ -261,26 +261,30 @@ K6_SCENARIO_MAP = {
 }
 
 
-class BudgetTracker:
-    @staticmethod
-    def get_consumed_seconds() -> float:
-        if not BUDGET_FILE.exists():
+class _BaseBudgetTracker:
+    budget_file = BUDGET_FILE
+    evidence_dir = EVIDENCE_DIR
+    global_budget_seconds = GLOBAL_BUDGET_SECONDS
+
+    @classmethod
+    def get_consumed_seconds(cls) -> float:
+        if not cls.budget_file.exists():
             return 0.0
         try:
-            with open(BUDGET_FILE, "r", encoding="utf-8") as f:
+            with open(cls.budget_file, "r", encoding="utf-8") as f:
                 data = json.load(f)
                 return float(data.get("cumulativeSeconds", 0.0))
         except Exception:
             return 0.0
 
-    @staticmethod
-    def record_run(scenario: str, duration_sec: float, run_id: str, success: bool):
-        consumed = BudgetTracker.get_consumed_seconds() + duration_sec
-        EVIDENCE_DIR.mkdir(parents=True, exist_ok=True)
+    @classmethod
+    def record_run(cls, scenario: str, duration_sec: float, run_id: str, success: bool):
+        consumed = cls.get_consumed_seconds() + duration_sec
+        cls.evidence_dir.mkdir(parents=True, exist_ok=True)
         history = []
-        if BUDGET_FILE.exists():
+        if cls.budget_file.exists():
             try:
-                with open(BUDGET_FILE, "r", encoding="utf-8") as f:
+                with open(cls.budget_file, "r", encoding="utf-8") as f:
                     history = json.load(f).get("runs", [])
             except Exception:
                 pass
@@ -291,382 +295,36 @@ class BudgetTracker:
             "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
             "success": success,
         })
-        with open(BUDGET_FILE, "w", encoding="utf-8") as f:
+        with open(cls.budget_file, "w", encoding="utf-8") as f:
             json.dump({
-                "globalBudgetSeconds": GLOBAL_BUDGET_SECONDS,
+                "globalBudgetSeconds": cls.global_budget_seconds,
                 "cumulativeSeconds": round(consumed, 2),
-                "remainingSeconds": round(max(0.0, GLOBAL_BUDGET_SECONDS - consumed), 2),
+                "remainingSeconds": round(max(0.0, cls.global_budget_seconds - consumed), 2),
                 "runs": history,
             }, f, indent=2)
 
 
-class BudgetTrackerR4:
-    """Dedicated budget tracker for the R4 qualification campaign (1800s / 30m ceiling)."""
-
-    @staticmethod
-    def get_consumed_seconds() -> float:
-        if not BUDGET_FILE_R4.exists():
-            return 0.0
-        try:
-            with open(BUDGET_FILE_R4, "r", encoding="utf-8") as f:
-                data = json.load(f)
-                return float(data.get("cumulativeSeconds", 0.0))
-        except Exception:
-            return 0.0
-
-    @staticmethod
-    def record_run(scenario: str, duration_sec: float, run_id: str, success: bool):
-        consumed = BudgetTrackerR4.get_consumed_seconds() + duration_sec
-        EVIDENCE_DIR_R4.mkdir(parents=True, exist_ok=True)
-        history = []
-        if BUDGET_FILE_R4.exists():
-            try:
-                with open(BUDGET_FILE_R4, "r", encoding="utf-8") as f:
-                    history = json.load(f).get("runs", [])
-            except Exception:
-                pass
-        history.append({
-            "runId": run_id,
-            "scenario": scenario,
-            "durationSeconds": round(duration_sec, 2),
-            "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-            "success": success,
-        })
-        with open(BUDGET_FILE_R4, "w", encoding="utf-8") as f:
-            json.dump({
-                "globalBudgetSeconds": GLOBAL_BUDGET_SECONDS_R4,
-                "cumulativeSeconds": round(consumed, 2),
-                "remainingSeconds": round(max(0.0, GLOBAL_BUDGET_SECONDS_R4 - consumed), 2),
-                "runs": history,
-            }, f, indent=2)
+class BudgetTracker(_BaseBudgetTracker):
+    pass
 
 
-class BudgetTrackerR5:
-    """Dedicated budget tracker for the R5 realistic workload qualification campaign (1800s / 30m ceiling)."""
-
-    @staticmethod
-    def get_consumed_seconds() -> float:
-        if not BUDGET_FILE_R5.exists():
-            return 0.0
-        try:
-            with open(BUDGET_FILE_R5, "r", encoding="utf-8") as f:
-                data = json.load(f)
-                return float(data.get("cumulativeSeconds", 0.0))
-        except Exception:
-            return 0.0
-
-    @staticmethod
-    def record_run(scenario: str, duration_sec: float, run_id: str, success: bool):
-        consumed = BudgetTrackerR5.get_consumed_seconds() + duration_sec
-        EVIDENCE_DIR_R5.mkdir(parents=True, exist_ok=True)
-        history = []
-        if BUDGET_FILE_R5.exists():
-            try:
-                with open(BUDGET_FILE_R5, "r", encoding="utf-8") as f:
-                    history = json.load(f).get("runs", [])
-            except Exception:
-                pass
-        history.append({
-            "runId": run_id,
-            "scenario": scenario,
-            "durationSeconds": round(duration_sec, 2),
-            "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-            "success": success,
-        })
-        with open(BUDGET_FILE_R5, "w", encoding="utf-8") as f:
-            json.dump({
-                "globalBudgetSeconds": GLOBAL_BUDGET_SECONDS_R5,
-                "cumulativeSeconds": round(consumed, 2),
-                "remainingSeconds": round(max(0.0, GLOBAL_BUDGET_SECONDS_R5 - consumed), 2),
-                "runs": history,
-            }, f, indent=2)
+def _make_tracker(budget_file, evidence_dir, global_budget_seconds):
+    return type("BudgetTracker", (_BaseBudgetTracker,), {
+        "budget_file": budget_file,
+        "evidence_dir": evidence_dir,
+        "global_budget_seconds": global_budget_seconds,
+    })
 
 
-class BudgetTrackerR6:
-    """Dedicated budget tracker for the R6 async stage handoff metrology campaign (1800s / 30m ceiling)."""
-
-    @staticmethod
-    def get_consumed_seconds() -> float:
-        if not BUDGET_FILE_R6.exists():
-            return 0.0
-        try:
-            with open(BUDGET_FILE_R6, "r", encoding="utf-8") as f:
-                data = json.load(f)
-                return float(data.get("cumulativeSeconds", 0.0))
-        except Exception:
-            return 0.0
-
-    @staticmethod
-    def record_run(scenario: str, duration_sec: float, run_id: str, success: bool):
-        consumed = BudgetTrackerR6.get_consumed_seconds() + duration_sec
-        EVIDENCE_DIR_R6.mkdir(parents=True, exist_ok=True)
-        history = []
-        if BUDGET_FILE_R6.exists():
-            try:
-                with open(BUDGET_FILE_R6, "r", encoding="utf-8") as f:
-                    history = json.load(f).get("runs", [])
-            except Exception:
-                pass
-        history.append({
-            "runId": run_id,
-            "scenario": scenario,
-            "durationSeconds": round(duration_sec, 2),
-            "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-            "success": success,
-        })
-        with open(BUDGET_FILE_R6, "w", encoding="utf-8") as f:
-            json.dump({
-                "globalBudgetSeconds": GLOBAL_BUDGET_SECONDS_R6,
-                "cumulativeSeconds": round(consumed, 2),
-                "remainingSeconds": round(max(0.0, GLOBAL_BUDGET_SECONDS_R6 - consumed), 2),
-                "runs": history,
-            }, f, indent=2)
-
-
-class BudgetTrackerR7:
-    """Dedicated budget tracker for the R7 controlled async performance optimization campaign (2400s / 40m ceiling)."""
-
-    @staticmethod
-    def get_consumed_seconds() -> float:
-        if not BUDGET_FILE_R7.exists():
-            return 0.0
-        try:
-            with open(BUDGET_FILE_R7, "r", encoding="utf-8") as f:
-                data = json.load(f)
-                return float(data.get("cumulativeSeconds", 0.0))
-        except Exception:
-            return 0.0
-
-    @staticmethod
-    def record_run(scenario: str, duration_sec: float, run_id: str, success: bool):
-        consumed = BudgetTrackerR7.get_consumed_seconds() + duration_sec
-        EVIDENCE_DIR_R7.mkdir(parents=True, exist_ok=True)
-        history = []
-        if BUDGET_FILE_R7.exists():
-            try:
-                with open(BUDGET_FILE_R7, "r", encoding="utf-8") as f:
-                    history = json.load(f).get("runs", [])
-            except Exception:
-                pass
-        history.append({
-            "runId": run_id,
-            "scenario": scenario,
-            "durationSeconds": round(duration_sec, 2),
-            "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-            "success": success,
-        })
-        with open(BUDGET_FILE_R7, "w", encoding="utf-8") as f:
-            json.dump({
-                "globalBudgetSeconds": GLOBAL_BUDGET_SECONDS_R7,
-                "cumulativeSeconds": round(consumed, 2),
-                "remainingSeconds": round(max(0.0, GLOBAL_BUDGET_SECONDS_R7 - consumed), 2),
-                "runs": history,
-            }, f, indent=2)
-
-
-class BudgetTrackerR8:
-    """Dedicated budget tracker for the R8 command discovery and scheduling latency diagnosis campaign (1800s / 30m ceiling)."""
-
-    @staticmethod
-    def get_consumed_seconds() -> float:
-        if not BUDGET_FILE_R8.exists():
-            return 0.0
-        try:
-            with open(BUDGET_FILE_R8, "r", encoding="utf-8") as f:
-                data = json.load(f)
-                return float(data.get("cumulativeSeconds", 0.0))
-        except Exception:
-            return 0.0
-
-    @staticmethod
-    def record_run(scenario: str, duration_sec: float, run_id: str, success: bool):
-        consumed = BudgetTrackerR8.get_consumed_seconds() + duration_sec
-        EVIDENCE_DIR_R8.mkdir(parents=True, exist_ok=True)
-        history = []
-        if BUDGET_FILE_R8.exists():
-            try:
-                with open(BUDGET_FILE_R8, "r", encoding="utf-8") as f:
-                    history = json.load(f).get("runs", [])
-            except Exception:
-                pass
-        history.append({
-            "runId": run_id,
-            "scenario": scenario,
-            "durationSeconds": round(duration_sec, 2),
-            "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-            "success": success,
-        })
-        with open(BUDGET_FILE_R8, "w", encoding="utf-8") as f:
-            json.dump({
-                "globalBudgetSeconds": GLOBAL_BUDGET_SECONDS_R8,
-                "cumulativeSeconds": round(consumed, 2),
-                "remainingSeconds": round(max(0.0, GLOBAL_BUDGET_SECONDS_R8 - consumed), 2),
-                "runs": history,
-            }, f, indent=2)
-
-
-class BudgetTrackerR9:
-    """Dedicated budget tracker for the R9 consumption resilience and requalification campaign (3600s / 60m ceiling)."""
-
-    @staticmethod
-    def get_consumed_seconds() -> float:
-        if not BUDGET_FILE_R9.exists():
-            return 0.0
-        try:
-            with open(BUDGET_FILE_R9, "r", encoding="utf-8") as f:
-                data = json.load(f)
-                return float(data.get("cumulativeSeconds", 0.0))
-        except Exception:
-            return 0.0
-
-    @staticmethod
-    def record_run(scenario: str, duration_sec: float, run_id: str, success: bool):
-        consumed = BudgetTrackerR9.get_consumed_seconds() + duration_sec
-        EVIDENCE_DIR_R9.mkdir(parents=True, exist_ok=True)
-        history = []
-        if BUDGET_FILE_R9.exists():
-            try:
-                with open(BUDGET_FILE_R9, "r", encoding="utf-8") as f:
-                    history = json.load(f).get("runs", [])
-            except Exception:
-                pass
-        history.append({
-            "runId": run_id,
-            "scenario": scenario,
-            "durationSeconds": round(duration_sec, 2),
-            "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-            "success": success,
-        })
-        with open(BUDGET_FILE_R9, "w", encoding="utf-8") as f:
-            json.dump({
-                "globalBudgetSeconds": GLOBAL_BUDGET_SECONDS_R9,
-                "cumulativeSeconds": round(consumed, 2),
-                "remainingSeconds": round(max(0.0, GLOBAL_BUDGET_SECONDS_R9 - consumed), 2),
-                "runs": history,
-            }, f, indent=2)
-
-
-class BudgetTrackerR10:
-    """Dedicated budget tracker for the R10 consolidation campaign (3600s / 60m ceiling)."""
-
-    @staticmethod
-    def get_consumed_seconds() -> float:
-        if not BUDGET_FILE_R10.exists():
-            return 0.0
-        try:
-            with open(BUDGET_FILE_R10, "r", encoding="utf-8") as f:
-                data = json.load(f)
-                return float(data.get("cumulativeSeconds", 0.0))
-        except Exception:
-            return 0.0
-
-    @staticmethod
-    def record_run(scenario: str, duration_sec: float, run_id: str, success: bool):
-        consumed = BudgetTrackerR10.get_consumed_seconds() + duration_sec
-        EVIDENCE_DIR_R10.mkdir(parents=True, exist_ok=True)
-        history = []
-        if BUDGET_FILE_R10.exists():
-            try:
-                with open(BUDGET_FILE_R10, "r", encoding="utf-8") as f:
-                    history = json.load(f).get("runs", [])
-            except Exception:
-                pass
-        history.append({
-            "runId": run_id,
-            "scenario": scenario,
-            "durationSeconds": round(duration_sec, 2),
-            "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-            "success": success,
-        })
-        with open(BUDGET_FILE_R10, "w", encoding="utf-8") as f:
-            json.dump({
-                "globalBudgetSeconds": GLOBAL_BUDGET_SECONDS_R10,
-                "cumulativeSeconds": round(consumed, 2),
-                "remainingSeconds": round(max(0.0, GLOBAL_BUDGET_SECONDS_R10 - consumed), 2),
-                "runs": history,
-            }, f, indent=2)
-
-
-class BudgetTrackerR11:
-    """Dedicated budget tracker for the R11 qualification campaign (3600s / 60m ceiling)."""
-
-    @staticmethod
-    def get_consumed_seconds() -> float:
-        if not BUDGET_FILE_R11.exists():
-            return 0.0
-        try:
-            with open(BUDGET_FILE_R11, "r", encoding="utf-8") as f:
-                data = json.load(f)
-                return float(data.get("cumulativeSeconds", 0.0))
-        except Exception:
-            return 0.0
-
-    @staticmethod
-    def record_run(scenario: str, duration_sec: float, run_id: str, success: bool):
-        consumed = BudgetTrackerR11.get_consumed_seconds() + duration_sec
-        EVIDENCE_DIR_R11.mkdir(parents=True, exist_ok=True)
-        history = []
-        if BUDGET_FILE_R11.exists():
-            try:
-                with open(BUDGET_FILE_R11, "r", encoding="utf-8") as f:
-                    history = json.load(f).get("runs", [])
-            except Exception:
-                pass
-        history.append({
-            "runId": run_id,
-            "scenario": scenario,
-            "durationSeconds": round(duration_sec, 2),
-            "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-            "success": success,
-        })
-        with open(BUDGET_FILE_R11, "w", encoding="utf-8") as f:
-            json.dump({
-                "globalBudgetSeconds": GLOBAL_BUDGET_SECONDS_R11,
-                "cumulativeSeconds": round(consumed, 2),
-                "remainingSeconds": round(max(0.0, GLOBAL_BUDGET_SECONDS_R11 - consumed), 2),
-                "runs": history,
-            }, f, indent=2)
-
-
-class BudgetTrackerFinalSla:
-    """Dedicated budget tracker for the Final SPEC-09 SLA Qualification (3600s / 60m ceiling)."""
-
-    @staticmethod
-    def get_consumed_seconds() -> float:
-        if not BUDGET_FILE_FINAL_SLA.exists():
-            return 0.0
-        try:
-            with open(BUDGET_FILE_FINAL_SLA, "r", encoding="utf-8") as f:
-                data = json.load(f)
-                return float(data.get("cumulativeSeconds", 0.0))
-        except Exception:
-            return 0.0
-
-    @staticmethod
-    def record_run(scenario: str, duration_sec: float, run_id: str, success: bool):
-        consumed = BudgetTrackerFinalSla.get_consumed_seconds() + duration_sec
-        EVIDENCE_DIR_FINAL_SLA.mkdir(parents=True, exist_ok=True)
-        history = []
-        if BUDGET_FILE_FINAL_SLA.exists():
-            try:
-                with open(BUDGET_FILE_FINAL_SLA, "r", encoding="utf-8") as f:
-                    history = json.load(f).get("runs", [])
-            except Exception:
-                pass
-        history.append({
-            "runId": run_id,
-            "scenario": scenario,
-            "durationSeconds": round(duration_sec, 2),
-            "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-            "success": success,
-        })
-        with open(BUDGET_FILE_FINAL_SLA, "w", encoding="utf-8") as f:
-            json.dump({
-                "globalBudgetSeconds": GLOBAL_BUDGET_SECONDS_FINAL_SLA,
-                "cumulativeSeconds": round(consumed, 2),
-                "remainingSeconds": round(max(0.0, GLOBAL_BUDGET_SECONDS_FINAL_SLA - consumed), 2),
-                "runs": history,
-            }, f, indent=2)
+BudgetTrackerR4 = _make_tracker(BUDGET_FILE_R4, EVIDENCE_DIR_R4, GLOBAL_BUDGET_SECONDS_R4)
+BudgetTrackerR5 = _make_tracker(BUDGET_FILE_R5, EVIDENCE_DIR_R5, GLOBAL_BUDGET_SECONDS_R5)
+BudgetTrackerR6 = _make_tracker(BUDGET_FILE_R6, EVIDENCE_DIR_R6, GLOBAL_BUDGET_SECONDS_R6)
+BudgetTrackerR7 = _make_tracker(BUDGET_FILE_R7, EVIDENCE_DIR_R7, GLOBAL_BUDGET_SECONDS_R7)
+BudgetTrackerR8 = _make_tracker(BUDGET_FILE_R8, EVIDENCE_DIR_R8, GLOBAL_BUDGET_SECONDS_R8)
+BudgetTrackerR9 = _make_tracker(BUDGET_FILE_R9, EVIDENCE_DIR_R9, GLOBAL_BUDGET_SECONDS_R9)
+BudgetTrackerR10 = _make_tracker(BUDGET_FILE_R10, EVIDENCE_DIR_R10, GLOBAL_BUDGET_SECONDS_R10)
+BudgetTrackerR11 = _make_tracker(BUDGET_FILE_R11, EVIDENCE_DIR_R11, GLOBAL_BUDGET_SECONDS_R11)
+BudgetTrackerFinalSla = _make_tracker(BUDGET_FILE_FINAL_SLA, EVIDENCE_DIR_FINAL_SLA, GLOBAL_BUDGET_SECONDS_FINAL_SLA)
 
 
 class Watchdog:
@@ -734,31 +392,197 @@ class Watchdog:
             print(f"Error terminating process: {e}", file=sys.stderr)
 
 
+def _try_parse_json(raw: str) -> Optional[Dict[str, Any]]:
+    try:
+        return json.loads(raw)
+    except Exception:
+        return None
+
+
 def extract_correlation_event(line: str) -> Optional[Dict[str, Any]]:
     stripped = line.strip()
-    if '"commandId":' in stripped:
-        if stripped.startswith('{"commandId":'):
-            try:
-                return json.loads(stripped)
-            except Exception:
-                pass
-        match = re.search(r'msg="(\{.*?\})"', stripped)
-        if match:
-            try:
-                raw = match.group(1).replace('\\"', '"')
-                return json.loads(raw)
-            except Exception:
-                pass
-        start = stripped.find('{"commandId":')
-        if start != -1:
-            end = stripped.rfind('}')
-            if end != -1:
-                try:
-                    snippet = stripped[start:end+1].replace('\\"', '"')
-                    return json.loads(snippet)
-                except Exception:
-                    pass
+    if '"commandId":' not in stripped:
+        return None
+    if stripped.startswith('{"commandId":'):
+        parsed = _try_parse_json(stripped)
+        if parsed is not None:
+            return parsed
+    match = re.search(r'msg="(\{.*?\})"', stripped)
+    if match:
+        parsed = _try_parse_json(match.group(1).replace('\\"', '"'))
+        if parsed is not None:
+            return parsed
+    start = stripped.find('{"commandId":')
+    end = stripped.rfind('}')
+    if start != -1 and end != -1:
+        return _try_parse_json(stripped[start:end + 1].replace('\\"', '"'))
     return None
+
+
+CAMPAIGN_PROFILES = (
+    ("final_sla", "n", "Final SLA Budget:", EVIDENCE_DIR_FINAL_SLA, BudgetTrackerFinalSla, GLOBAL_BUDGET_SECONDS_FINAL_SLA, "final-sla"),
+    ("r11", "r11", "R11 Budget:      ", EVIDENCE_DIR_R11, BudgetTrackerR11, GLOBAL_BUDGET_SECONDS_R11, "run-r11"),
+    ("r10", "r10", "R10 Budget:      ", EVIDENCE_DIR_R10, BudgetTrackerR10, GLOBAL_BUDGET_SECONDS_R10, "run-r10"),
+    ("r9", "r9", "R9 Budget:       ", EVIDENCE_DIR_R9, BudgetTrackerR9, GLOBAL_BUDGET_SECONDS_R9, "run-r9"),
+    ("r8", "r8", "R8 Budget:       ", EVIDENCE_DIR_R8, BudgetTrackerR8, GLOBAL_BUDGET_SECONDS_R8, "run-r8"),
+    ("r7", "r7", "R7 Budget:       ", EVIDENCE_DIR_R7, BudgetTrackerR7, GLOBAL_BUDGET_SECONDS_R7, "run-r7"),
+    ("r6", "h", "R6 Budget:       ", EVIDENCE_DIR_R6, BudgetTrackerR6, GLOBAL_BUDGET_SECONDS_R6, "run-r6"),
+    ("r5", "m", "R5 Budget:       ", EVIDENCE_DIR_R5, BudgetTrackerR5, GLOBAL_BUDGET_SECONDS_R5, "run-r5"),
+    ("r4", "q", "R4 Budget:       ", EVIDENCE_DIR_R4, BudgetTrackerR4, GLOBAL_BUDGET_SECONDS_R4, "run-r4"),
+)
+DEFAULT_PROFILE = ("r2", "", "Global Budget:   ", EVIDENCE_DIR, BudgetTracker, GLOBAL_BUDGET_SECONDS, "run-r2")
+
+
+def _resolve_campaign_profile(scenario_name: str = "", flags: Optional[Dict[str, bool]] = None):
+    flags = flags or {}
+    for profile in CAMPAIGN_PROFILES:
+        key, prefix_match = profile[0], profile[1]
+        if flags.get(key) or (prefix_match and scenario_name.startswith(prefix_match)):
+            return profile
+    return DEFAULT_PROFILE
+
+
+def _parse_duration_seconds(eff_duration: str) -> float:
+    if not eff_duration.endswith("s"):
+        return 20.0
+    try:
+        return float(eff_duration[:-1])
+    except ValueError:
+        return 20.0
+
+
+def _run_preflight_gate() -> bool:
+    print("\n▶ Step 1: Executing Mandatory Preflight Verification...")
+    preflight_script = REPO_ROOT / "scripts" / "performance" / "v3-preflight.py"
+    if subprocess.run([sys.executable, str(preflight_script)]).returncode != 0:
+        print("ERROR: Preflight failed. Halting campaign.", file=sys.stderr)
+        return False
+    print("  ✓ Preflight passed.")
+    return True
+
+
+def _resolve_binding_token(token: str) -> Optional[str]:
+    binding_token = os.environ.get("POCOMA_BINDING_TOKEN")
+    if binding_token:
+        return binding_token
+    try:
+        spec = importlib.util.spec_from_file_location(
+            "demo_journey", REPO_ROOT / "scripts" / "operations" / "run-demo-journey.py"
+        )
+        journey_mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(journey_mod)
+        st, _, b = journey_mod.http_req("GET", "http://127.0.0.1:8080/api/v3/me/binding", token=token)
+        if st == 200:
+            bind_data = json.loads(b.decode())
+            if bind_data.get("bindingToken"):
+                print("  ✓ Authenticated OIDC session & active binding token established")
+                return bind_data["bindingToken"]
+    except Exception as e:
+        print(f"  [Notice] Binding token auto-resolution skipped ({e})")
+    return None
+
+
+def _refresh_final_sla_pots() -> Optional[List[Dict[str, Any]]]:
+    manifest_path = EVIDENCE_DIR_FINAL_SLA / "fixtures_manifest.json"
+    if not manifest_path.exists():
+        return None
+    with open(manifest_path, "r", encoding="utf-8") as f:
+        mdata = json.load(f)
+    manifest_pots = mdata.get("pots", [])
+    try:
+        pot_ids_sql = ",".join(f"'{p['potId']}'" for p in manifest_pots)
+        cmd = [
+            "docker", "exec", "pocoma-functional-postgres-1",
+            "psql", "-U", "pocoma", "-d", "pocoma_write", "-t", "-A", "-c",
+            f"SELECT pot_id, MAX(version) FROM v3_write.v3_pot_version WHERE pot_id IN ({pot_ids_sql}) GROUP BY pot_id;"
+        ]
+        res = subprocess.run(cmd, capture_output=True, text=True, check=True)
+        db_versions = {}
+        for line in res.stdout.strip().splitlines():
+            if "|" in line:
+                pid, ver = line.split("|", 1)
+                db_versions[pid.strip()] = int(ver.strip())
+        for p in manifest_pots:
+            if p["potId"] in db_versions:
+                p["version"] = db_versions[p["potId"]]
+        mdata["pots"] = manifest_pots
+        with open(manifest_path, "w", encoding="utf-8") as f:
+            json.dump(mdata, f, indent=2)
+        print(f"  ✓ Refreshed live versions for {len(manifest_pots)} Pots moyens: {[p['version'] for p in manifest_pots]}")
+    except Exception as e:
+        print(f"  [Warning] Failed to refresh live pot versions from DB: {e}")
+    print(f"  ✓ Loaded {len(manifest_pots)} pre-seeded SPEC-09 Pots moyens from {manifest_path.name}")
+    return manifest_pots
+
+
+def _is_decoupled_scenario(profile_key: str, scenario_name: str, k6_cfg: Dict[str, Any]) -> bool:
+    if profile_key in ("final_sla", "r11", "r10", "r9", "r8", "r7", "r6", "r5"):
+        return True
+    if k6_cfg.get("SCENARIO") in ("nominal", "sustained", "peak", "ramp"):
+        return True
+    if scenario_name in ("q1-smoke", "q2-nominal-5", "q3-ramp-10", "q4-ramp-20", "q5-ramp-50", "q7-large"):
+        return True
+    return scenario_name.startswith(("ramp-p", "m", "h", "r7", "r8", "r9", "r10", "r11"))
+
+
+def _inject_pre_seeded_pot(scenario_name: str, env: Dict[str, str]):
+    seed_map = {
+        "s5-small": EVIDENCE_DIR / "seeds" / "seed-v3-small-indep.json",
+        "s5-medium": EVIDENCE_DIR / "seeds" / "seed-v3-medium-indep.json",
+        "s5-large": EVIDENCE_DIR / "seeds" / "seed-v3-large-indep.json",
+        "q7-large": EVIDENCE_DIR / "seeds" / "seed-v3-large-indep.json",
+        "r7-medium": EVIDENCE_DIR / "seeds" / "seed-v3-medium-indep.json",
+    }
+    seed_file = seed_map.get(scenario_name)
+    if not seed_file or not seed_file.exists():
+        return
+    try:
+        with open(seed_file, "r", encoding="utf-8") as f:
+            sdata = json.load(f)
+        proof = sdata.get("materializationProof", [])
+        if not proof or not sdata.get("materialized"):
+            return
+        p = sdata["pots"][0]
+        env["PRE_SEEDED_POT_ID"] = p["potId"]
+        current_v = proof[0]["finalVersion"]
+        q_res = subprocess.run([
+            "docker", "exec", "pocoma-functional-postgres-1",
+            "psql", "-U", "pocoma", "-d", "pocoma_read", "-t", "-c",
+            f"SELECT max(pot_version) FROM v3_read.read_pot_version WHERE pot_id = '{p['potId']}';"
+        ], capture_output=True, text=True)
+        if q_res.returncode == 0 and q_res.stdout.strip():
+            current_v = int(q_res.stdout.strip())
+        env["PRE_SEEDED_VERSION"] = str(current_v)
+        env["PRE_SEEDED_EXPENSES"] = str(proof[0]["expensesCount"])
+        env["PRE_SEEDED_SHAREHOLDERS"] = ",".join(s["id"] for s in p["shareholders"])
+        print(f"  ✓ Using pre-materialized Pot {p['potId']} (v{current_v}, {proof[0]['expensesCount']} expenses)")
+    except Exception as e:
+        print(f"  [Warning] Pre-seeded pot resolution failed ({e}), falling back to inline setup")
+
+
+def _collect_and_plot(collect_script: Path, scenario_name: str, summary_path: Path,
+                      pre_snapshot_path: Path, rid: str, target_evidence_dir: Path,
+                      decoupled_path: Optional[Path]):
+    print(f"\n▶ Step 3: Collecting Diagnostics & Differential Metrology (Run: {rid})...")
+    collect_cmd = [
+        sys.executable, str(collect_script),
+        "--scenario", scenario_name,
+        "--summary-file", str(summary_path),
+        "--pre-snapshot", str(pre_snapshot_path),
+        "--run-id", rid,
+        "--evidence-dir", str(target_evidence_dir),
+    ]
+    if decoupled_path and decoupled_path.exists():
+        collect_cmd.extend(["--decoupled-file", str(decoupled_path)])
+    subprocess.run(collect_cmd)
+
+    print("\n▶ Step 4: Regenerating Performance Charts & CSV Datasets...")
+    plot_script = REPO_ROOT / "scripts" / "performance" / "v3-plot.py"
+    subprocess.run([
+        sys.executable, str(plot_script),
+        "--evidence-dir", str(target_evidence_dir),
+        "--output-dir", str(target_evidence_dir / "charts"),
+    ])
 
 
 def run_scenario(scenario_name: str, duration: Optional[str] = None, rate: Optional[int] = None,
@@ -766,67 +590,11 @@ def run_scenario(scenario_name: str, duration: Optional[str] = None, rate: Optio
                  is_r4: bool = False, is_r5: bool = False, is_r6: bool = False,
                  is_r7: bool = False, is_r8: bool = False, is_r9: bool = False,
                  is_r10: bool = False, is_r11: bool = False, is_final_sla: bool = False) -> bool:
-    is_final_sla_run = is_final_sla or scenario_name.startswith("n")
-    is_r11_run = not is_final_sla_run and (is_r11 or scenario_name.startswith("r11"))
-    is_r10_run = not is_final_sla_run and not is_r11_run and (is_r10 or scenario_name.startswith("r10"))
-    is_r9_run = not is_final_sla_run and not is_r11_run and not is_r10_run and (is_r9 or scenario_name.startswith("r9"))
-    is_r8_run = not is_final_sla_run and not is_r11_run and not is_r10_run and not is_r9_run and (is_r8 or scenario_name.startswith("r8"))
-    is_r7_run = not is_final_sla_run and not is_r11_run and not is_r10_run and not is_r9_run and not is_r8_run and (is_r7 or scenario_name.startswith("r7"))
-    is_r6_run = not is_final_sla_run and not is_r11_run and not is_r10_run and not is_r9_run and not is_r8_run and not is_r7_run and (is_r6 or scenario_name.startswith("h"))
-    is_r5_run = not is_final_sla_run and not is_r11_run and not is_r10_run and not is_r9_run and not is_r8_run and not is_r7_run and not is_r6_run and (is_r5 or scenario_name.startswith("m"))
-    is_r4_run = not is_final_sla_run and not is_r11_run and not is_r10_run and not is_r9_run and not is_r8_run and not is_r7_run and not is_r6_run and not is_r5_run and (is_r4 or scenario_name.startswith("q"))
-
-    if is_final_sla_run:
-        target_evidence_dir = EVIDENCE_DIR_FINAL_SLA
-        target_tracker = BudgetTrackerFinalSla
-        target_budget_limit = GLOBAL_BUDGET_SECONDS_FINAL_SLA
-        prefix = "final-sla"
-    elif is_r11_run:
-        target_evidence_dir = EVIDENCE_DIR_R11
-        target_tracker = BudgetTrackerR11
-        target_budget_limit = GLOBAL_BUDGET_SECONDS_R11
-        prefix = "run-r11"
-    elif is_r10_run:
-        target_evidence_dir = EVIDENCE_DIR_R10
-        target_tracker = BudgetTrackerR10
-        target_budget_limit = GLOBAL_BUDGET_SECONDS_R10
-        prefix = "run-r10"
-    elif is_r9_run:
-        target_evidence_dir = EVIDENCE_DIR_R9
-        target_tracker = BudgetTrackerR9
-        target_budget_limit = GLOBAL_BUDGET_SECONDS_R9
-        prefix = "run-r9"
-    elif is_r8_run:
-        target_evidence_dir = EVIDENCE_DIR_R8
-        target_tracker = BudgetTrackerR8
-        target_budget_limit = GLOBAL_BUDGET_SECONDS_R8
-        prefix = "run-r8"
-    elif is_r7_run:
-        target_evidence_dir = EVIDENCE_DIR_R7
-        target_tracker = BudgetTrackerR7
-        target_budget_limit = GLOBAL_BUDGET_SECONDS_R7
-        prefix = "run-r7"
-    elif is_r6_run:
-        target_evidence_dir = EVIDENCE_DIR_R6
-        target_tracker = BudgetTrackerR6
-        target_budget_limit = GLOBAL_BUDGET_SECONDS_R6
-        prefix = "run-r6"
-    elif is_r5_run:
-        target_evidence_dir = EVIDENCE_DIR_R5
-        target_tracker = BudgetTrackerR5
-        target_budget_limit = GLOBAL_BUDGET_SECONDS_R5
-        prefix = "run-r5"
-    elif is_r4_run:
-        target_evidence_dir = EVIDENCE_DIR_R4
-        target_tracker = BudgetTrackerR4
-        target_budget_limit = GLOBAL_BUDGET_SECONDS_R4
-        prefix = "run-r4"
-    else:
-        target_evidence_dir = EVIDENCE_DIR
-        target_tracker = BudgetTracker
-        target_budget_limit = GLOBAL_BUDGET_SECONDS
-        prefix = "run-r2"
-
+    profile = _resolve_campaign_profile(scenario_name, {
+        "final_sla": is_final_sla, "r11": is_r11, "r10": is_r10, "r9": is_r9,
+        "r8": is_r8, "r7": is_r7, "r6": is_r6, "r5": is_r5, "r4": is_r4,
+    })
+    profile_key, _, _, target_evidence_dir, target_tracker, target_budget_limit, prefix = profile
     rid = run_id or f"{prefix}-{scenario_name}-{int(time.time())}"
     summary_path = target_evidence_dir / f"{rid}_k6_summary.json"
     pre_snapshot_path = target_evidence_dir / f"{rid}_pre_snapshot.txt"
@@ -840,189 +608,72 @@ def run_scenario(scenario_name: str, duration: Optional[str] = None, rate: Optio
     print(f" Pocoma V3 — Orchestrating Scenario [{scenario_name}] (Run: {rid})")
     print("================================================================================")
 
-    # Check budget
     consumed = target_tracker.get_consumed_seconds()
     remaining = target_budget_limit - consumed
     print(f"  Cumulative Time Consumed: {consumed:.1f}s / {target_budget_limit}s ({consumed/60:.1f} / {target_budget_limit/60:.1f} min)")
     print(f"  Remaining Qualification: {remaining:.1f}s ({remaining/60:.1f} min)")
-
     if remaining <= 10.0:
         print("ERROR: Global qualification budget exhausted. Execution strictly aborted.", file=sys.stderr)
         return False
 
-    dur_sec = 20.0
-    if eff_duration.endswith("s"):
-        try:
-            dur_sec = float(eff_duration[:-1])
-        except ValueError:
-            pass
+    dur_sec = _parse_duration_seconds(eff_duration)
     scenario_limit = min(max(SCENARIO_BUDGETS.get(scenario_name, 300), dur_sec + 150), remaining)
     print(f"  Scenario Execution Limit: {scenario_limit:.1f}s")
 
-    # Step 1: Preflight
-    if not skip_preflight:
-        print("\n▶ Step 1: Executing Mandatory Preflight Verification...")
-        preflight_script = REPO_ROOT / "scripts" / "performance" / "v3-preflight.py"
-        pre_res = subprocess.run([sys.executable, str(preflight_script)])
-        if pre_res.returncode != 0:
-            print("ERROR: Preflight failed. Halting campaign.", file=sys.stderr)
-            return False
-        print("  ✓ Preflight passed.")
+    if not skip_preflight and not _run_preflight_gate():
+        return False
 
-    # Step 1b: Take pre-scenario telemetry snapshot for differential computation
     collect_script = REPO_ROOT / "scripts" / "performance" / "v3-collect.py"
     subprocess.run([sys.executable, str(collect_script), "--take-snapshot", str(pre_snapshot_path)],
                    stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
-    # Step 2: Execute Scenario
     start_t = time.time()
     if scenario_name == "oracles":
         print(f"\n▶ Step 2: Executing Internal READ Oracle Probe Journey (Run: {rid})...")
         probe_script = REPO_ROOT / "scripts" / "performance" / "v3-oracle-probe.py"
         out_file = EVIDENCE_DIR / f"{rid}_oracle_probe.json"
         res = subprocess.run([sys.executable, str(probe_script), "journey", "--out", str(out_file)])
-        exec_duration = time.time() - start_t
         success = (res.returncode == 0)
-        BudgetTracker.record_run(scenario_name, exec_duration, rid, success)
+        BudgetTracker.record_run(scenario_name, time.time() - start_t, rid, success)
         return success
 
     print(f"\n▶ Step 2: Spawning k6 Benchmark ({scenario_name} -> {k6_cfg['SCENARIO']}, duration={eff_duration}, rate={eff_rate})...")
-    k6_script = REPO_ROOT / "scripts" / "k6" / "v3-performance.js"
-
-    # Start proactive OIDC Token Manager
     token_mgr = OidcTokenManager()
     token = token_mgr.get_token()
+    binding_token = _resolve_binding_token(token)
 
-    # Automatically resolve bindingToken
-    binding_token = os.environ.get("POCOMA_BINDING_TOKEN")
-    if not binding_token:
-        try:
-            spec = importlib.util.spec_from_file_location(
-                "demo_journey", REPO_ROOT / "scripts" / "operations" / "run-demo-journey.py"
-            )
-            journey_mod = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(journey_mod)
-            st, _, b = journey_mod.http_req("GET", "http://127.0.0.1:8080/api/v3/me/binding", token=token)
-            if st == 200:
-                bind_data = json.loads(b.decode())
-                if bind_data.get("bindingToken"):
-                    binding_token = bind_data["bindingToken"]
-                    print("  ✓ Authenticated OIDC session & active binding token established")
-        except Exception as e:
-            print(f"  [Notice] Binding token auto-resolution skipped ({e})")
-
-    # Initialize realistic workload fixtures and scheduler if in realistic mode
     scheduler = None
     manifest_pots = None
-    if is_final_sla_run:
-        manifest_path = EVIDENCE_DIR_FINAL_SLA / "fixtures_manifest.json"
-        if manifest_path.exists():
-            with open(manifest_path, "r", encoding="utf-8") as f:
-                mdata = json.load(f)
-            manifest_pots = mdata.get("pots", [])
-            try:
-                pot_ids_sql = ",".join(f"'{p['potId']}'" for p in manifest_pots)
-                cmd = [
-                    "docker", "exec", "pocoma-functional-postgres-1",
-                    "psql", "-U", "pocoma", "-d", "pocoma_write", "-t", "-A", "-c",
-                    f"SELECT pot_id, MAX(version) FROM v3_write.v3_pot_version WHERE pot_id IN ({pot_ids_sql}) GROUP BY pot_id;"
-                ]
-                res = subprocess.run(cmd, capture_output=True, text=True, check=True)
-                db_versions = {}
-                for line in res.stdout.strip().splitlines():
-                    if "|" in line:
-                        pid, ver = line.split("|", 1)
-                        db_versions[pid.strip()] = int(ver.strip())
-                for p in manifest_pots:
-                    if p["potId"] in db_versions:
-                        p["version"] = db_versions[p["potId"]]
-                mdata["pots"] = manifest_pots
-                with open(manifest_path, "w", encoding="utf-8") as f:
-                    json.dump(mdata, f, indent=2)
-                print(f"  ✓ Refreshed live versions for {len(manifest_pots)} Pots moyens: {[p['version'] for p in manifest_pots]}")
-            except Exception as e:
-                print(f"  [Warning] Failed to refresh live pot versions from DB: {e}")
-            print(f"  ✓ Loaded {len(manifest_pots)} pre-seeded SPEC-09 Pots moyens from {manifest_path.name}")
-    elif is_r5_run or (is_r6_run and k6_cfg.get("WORKLOAD_MODE") == "realistic") or k6_cfg.get("WORKLOAD_MODE") == "realistic":
-        pot_count = int(k6_cfg.get("POTS", 250))
-        wl_cfg = WorkloadConfig(pot_pool_size=pot_count, random_seed=20261108)
-        manifest_path = target_evidence_dir / "fixtures_manifest.json"
-        pots = prepare_live_fixtures(token, binding_token, wl_cfg, manifest_path=manifest_path)
+    if profile_key == "final_sla":
+        manifest_pots = _refresh_final_sla_pots()
+    elif profile_key == "r5" or k6_cfg.get("WORKLOAD_MODE") == "realistic":
+        wl_cfg = WorkloadConfig(pot_pool_size=int(k6_cfg.get("POTS", 250)), random_seed=20261108)
+        pots = prepare_live_fixtures(token, binding_token, wl_cfg, manifest_path=target_evidence_dir / "fixtures_manifest.json")
         scheduler = RealisticWorkloadScheduler(config=wl_cfg, pots=pots)
 
     token_server = TokenHttpServer(token_mgr, port=18083, scheduler=scheduler)
     token_server.start()
 
-    is_decoupled = (is_final_sla_run or is_r11_run or is_r10_run or is_r9_run or is_r8_run or is_r7_run or is_r6_run or is_r5_run or scenario_name.startswith("ramp-p") or scenario_name in ("q1-smoke", "q2-nominal-5", "q3-ramp-10", "q4-ramp-20", "q5-ramp-50", "q7-large") or k6_cfg.get("SCENARIO") in ("nominal", "sustained", "peak", "ramp") or scenario_name.startswith("m") or scenario_name.startswith("h") or scenario_name.startswith("r7") or scenario_name.startswith("r8") or scenario_name.startswith("r9") or scenario_name.startswith("r10") or scenario_name.startswith("r11"))
+    is_decoupled = _is_decoupled_scenario(profile_key, scenario_name, k6_cfg)
     coordinator = None
     if is_decoupled:
-        max_drain = 120.0 if is_final_sla_run else min(120.0, max(60.0, dur_sec * 0.5))
-        term_workers = 32 if is_final_sla_run else 12
-        read_workers = 32 if is_final_sla_run else 8
+        max_drain = 120.0 if profile_key == "final_sla" else min(120.0, max(60.0, dur_sec * 0.5))
+        workers = 32 if profile_key == "final_sla" else 12
+        read_workers = 32 if profile_key == "final_sla" else 8
         coordinator = DecoupledBenchCoordinator(
             run_id=rid, token_manager=token_mgr, binding_token=binding_token, max_drain_seconds=max_drain,
             evidence_dir=target_evidence_dir, scheduler=scheduler,
-            terminal_workers=term_workers, read_workers=read_workers
+            terminal_workers=workers, read_workers=read_workers,
         )
         coordinator.start()
 
-    env = os.environ.copy()
-    for k, v in k6_cfg.items():
-        if not k.startswith("DEFAULT_"):
-            env[k] = str(v)
-    if is_final_sla_run and manifest_pots:
-        env["PRE_SEEDED_POTS_JSON"] = json.dumps(manifest_pots)
-    env["DURATION"] = str(eff_duration)
-    env["RATE"] = str(eff_rate)
-    env["SUMMARY_PATH"] = str(summary_path)
-    env["POCOMA_TOKEN"] = token
-    env["POCOMA_AUTH_URL"] = token_server.url
-    env["DECOUPLED"] = "true" if is_decoupled else "false"
-    env["POLL_TIMEOUT_MS"] = os.environ.get("POLL_TIMEOUT_MS", "25000")
-    if is_r5_run:
-        env["WORKLOAD_MODE"] = "realistic"
-    if binding_token:
-        env["POCOMA_BINDING_TOKEN"] = binding_token
+    env = _build_k6_env(k6_cfg, eff_duration, eff_rate, summary_path, token, token_server.url,
+                        is_decoupled, profile_key, manifest_pots, binding_token)
+    _inject_pre_seeded_pot(scenario_name, env)
 
-    # For structural scenarios, pass pre-seeded parameters if available
-    if scenario_name in ("s5-small", "s5-medium", "s5-large", "q7-large", "r7-medium"):
-        seed_map = {
-            "s5-small": EVIDENCE_DIR / "seeds" / "seed-v3-small-indep.json",
-            "s5-medium": EVIDENCE_DIR / "seeds" / "seed-v3-medium-indep.json",
-            "s5-large": EVIDENCE_DIR / "seeds" / "seed-v3-large-indep.json",
-            "q7-large": EVIDENCE_DIR / "seeds" / "seed-v3-large-indep.json",
-            "r7-medium": EVIDENCE_DIR / "seeds" / "seed-v3-medium-indep.json",
-        }
-        seed_file = seed_map.get(scenario_name)
-        if seed_file and seed_file.exists():
-            try:
-                with open(seed_file, "r", encoding="utf-8") as f:
-                    sdata = json.load(f)
-                proof = sdata.get("materializationProof", [])
-                if proof and sdata.get("materialized"):
-                    p = sdata["pots"][0]
-                    env["PRE_SEEDED_POT_ID"] = p["potId"]
-                    current_v = proof[0]["finalVersion"]
-                    try:
-                        q_res = subprocess.run([
-                            "docker", "exec", "pocoma-functional-postgres-1",
-                            "psql", "-U", "pocoma", "-d", "pocoma_read", "-t", "-c",
-                            f"SELECT max(pot_version) FROM v3_read.read_pot_version WHERE pot_id = '{p['potId']}';"
-                        ], capture_output=True, text=True)
-                        if q_res.returncode == 0 and q_res.stdout.strip():
-                            current_v = int(q_res.stdout.strip())
-                    except Exception:
-                        pass
-                    env["PRE_SEEDED_VERSION"] = str(current_v)
-                    env["PRE_SEEDED_EXPENSES"] = str(proof[0]["expensesCount"])
-                    env["PRE_SEEDED_SHAREHOLDERS"] = ",".join([s["id"] for s in p["shareholders"]])
-                    print(f"  ✓ Using pre-materialized Pot {p['potId']} (v{current_v}, {proof[0]['expensesCount']} expenses)")
-            except Exception as e:
-                print(f"  [Warning] Pre-seeded pot resolution failed ({e}), falling back to inline setup")
-
-    cmd = ["k6", "run", "--log-format=raw", "--no-usage-report", str(k6_script)]
-
-    proc = subprocess.Popen(cmd, env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+    k6_script = REPO_ROOT / "scripts" / "k6" / "v3-performance.js"
+    proc = subprocess.Popen(["k6", "run", "--log-format=raw", "--no-usage-report", str(k6_script)],
+                            env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
     watchdog = Watchdog(proc, scenario_timeout=scenario_limit, tracker=target_tracker, global_budget=target_budget_limit)
     watchdog.start()
 
@@ -1037,63 +688,61 @@ def run_scenario(scenario_name: str, duration: Optional[str] = None, rate: Optio
     finally:
         watchdog.stop()
 
-    decoupled_path = None
-    if is_decoupled and coordinator:
-        coordinator.mark_injection_ended()
-        drain_res = coordinator.drain()
-        decoupled_report = coordinator.consolidate_metrics(
-            demanded_rate=eff_rate,
-            injection_target_sec=dur_sec,
-        )
-        decoupled_report["drainage"] = drain_res
-        decoupled_report["oidcTelemetry"] = token_mgr.get_telemetry()
-        decoupled_path = target_evidence_dir / f"{rid}_decoupled.json"
-        with open(decoupled_path, "w", encoding="utf-8") as df:
-            json.dump(decoupled_report, df, indent=2)
-
+    decoupled_path = _finalize_coordinator(coordinator, eff_rate, dur_sec, token_mgr, target_evidence_dir, rid) if is_decoupled and coordinator else None
     token_server.stop()
 
     exec_duration = time.time() - start_t
     success = (proc.returncode == 0) and not watchdog.aborted
-
-    # Record budget consumption
     target_tracker.record_run(scenario_name, exec_duration, rid, success)
-
-    # Step 3: Diagnostic & Differential Metrology Collection
-    print(f"\n▶ Step 3: Collecting Diagnostics & Differential Metrology (Run: {rid})...")
-    collect_cmd = [
-        sys.executable, str(collect_script),
-        "--scenario", scenario_name,
-        "--summary-file", str(summary_path),
-        "--pre-snapshot", str(pre_snapshot_path),
-        "--run-id", rid,
-        "--evidence-dir", str(target_evidence_dir),
-    ]
-    if decoupled_path and decoupled_path.exists():
-        collect_cmd.extend(["--decoupled-file", str(decoupled_path)])
-    subprocess.run(collect_cmd)
-
-    # Step 4: Regenerate CSV and SVG charts
-    print("\n▶ Step 4: Regenerating Performance Charts & CSV Datasets...")
-    plot_script = REPO_ROOT / "scripts" / "performance" / "v3-plot.py"
-    subprocess.run([
-        sys.executable, str(plot_script),
-        "--evidence-dir", str(target_evidence_dir),
-        "--output-dir", str(target_evidence_dir / "charts"),
-    ])
+    _collect_and_plot(collect_script, scenario_name, summary_path, pre_snapshot_path, rid, target_evidence_dir, decoupled_path)
 
     print("\n================================================================================")
     if watchdog.aborted:
         print(f" CAMPAIGN ABORTED: {watchdog.abort_reason} [{watchdog.incident_class}]")
         print(" Safe stop executed, diagnostic snapshot preserved.")
         return False
-    elif success:
+    if success:
         print(f" CAMPAIGN PASSED: Scenario {scenario_name} completed cleanly in {exec_duration:.2f}s")
         return True
-    else:
-        print(f" CAMPAIGN COMPLETED WITH NON-ZERO CODE: exit={proc.returncode} in {exec_duration:.2f}s")
-        return False
-        return False
+    print(f" CAMPAIGN COMPLETED WITH NON-ZERO CODE: exit={proc.returncode} in {exec_duration:.2f}s")
+    return False
+
+
+def _build_k6_env(k6_cfg, eff_duration, eff_rate, summary_path, token, auth_url,
+                  is_decoupled, profile_key, manifest_pots, binding_token) -> Dict[str, str]:
+    env = os.environ.copy()
+    for k, v in k6_cfg.items():
+        if not k.startswith("DEFAULT_"):
+            env[k] = str(v)
+    if profile_key == "final_sla" and manifest_pots:
+        env["PRE_SEEDED_POTS_JSON"] = json.dumps(manifest_pots)
+    env["DURATION"] = str(eff_duration)
+    env["RATE"] = str(eff_rate)
+    env["SUMMARY_PATH"] = str(summary_path)
+    env["POCOMA_TOKEN"] = token
+    env["POCOMA_AUTH_URL"] = auth_url
+    env["DECOUPLED"] = "true" if is_decoupled else "false"
+    env["POLL_TIMEOUT_MS"] = os.environ.get("POLL_TIMEOUT_MS", "25000")
+    if profile_key == "r5":
+        env["WORKLOAD_MODE"] = "realistic"
+    if binding_token:
+        env["POCOMA_BINDING_TOKEN"] = binding_token
+    return env
+
+
+def _finalize_coordinator(coordinator, eff_rate, dur_sec, token_mgr, target_evidence_dir, rid) -> Path:
+    coordinator.mark_injection_ended()
+    drain_res = coordinator.drain()
+    decoupled_report = coordinator.consolidate_metrics(
+        demanded_rate=eff_rate,
+        injection_target_sec=dur_sec,
+    )
+    decoupled_report["drainage"] = drain_res
+    decoupled_report["oidcTelemetry"] = token_mgr.get_telemetry()
+    decoupled_path = target_evidence_dir / f"{rid}_decoupled.json"
+    with open(decoupled_path, "w", encoding="utf-8") as df:
+        json.dump(decoupled_report, df, indent=2)
+    return decoupled_path
 
 
 def run_ramp_suite(duration: str = "120s") -> bool:
@@ -1325,109 +974,46 @@ def main():
     args = parser.parse_args()
 
     if args.budget_status:
-        if args.final_sla:
-            consumed = BudgetTrackerFinalSla.get_consumed_seconds()
-            remaining = GLOBAL_BUDGET_SECONDS_FINAL_SLA - consumed
-            print(f"Final SLA Budget: {GLOBAL_BUDGET_SECONDS_FINAL_SLA}s ({GLOBAL_BUDGET_SECONDS_FINAL_SLA/60:.1f} min)")
-            print(f"Consumed So Far:  {consumed:.1f}s ({consumed/60:.1f} min)")
-            print(f"Remaining Budget: {remaining:.1f}s ({remaining/60:.1f} min)")
-        elif args.r11:
-            consumed = BudgetTrackerR11.get_consumed_seconds()
-            remaining = GLOBAL_BUDGET_SECONDS_R11 - consumed
-            print(f"R11 Budget:       {GLOBAL_BUDGET_SECONDS_R11}s ({GLOBAL_BUDGET_SECONDS_R11/60:.1f} min)")
-            print(f"Consumed So Far:  {consumed:.1f}s ({consumed/60:.1f} min)")
-            print(f"Remaining Budget: {remaining:.1f}s ({remaining/60:.1f} min)")
-        elif args.r10:
-            consumed = BudgetTrackerR10.get_consumed_seconds()
-            remaining = GLOBAL_BUDGET_SECONDS_R10 - consumed
-            print(f"R10 Budget:       {GLOBAL_BUDGET_SECONDS_R10}s ({GLOBAL_BUDGET_SECONDS_R10/60:.1f} min)")
-            print(f"Consumed So Far:  {consumed:.1f}s ({consumed/60:.1f} min)")
-            print(f"Remaining Budget: {remaining:.1f}s ({remaining/60:.1f} min)")
-        elif args.r9:
-            consumed = BudgetTrackerR9.get_consumed_seconds()
-            remaining = GLOBAL_BUDGET_SECONDS_R9 - consumed
-            print(f"R9 Budget:        {GLOBAL_BUDGET_SECONDS_R9}s ({GLOBAL_BUDGET_SECONDS_R9/60:.1f} min)")
-            print(f"Consumed So Far:  {consumed:.1f}s ({consumed/60:.1f} min)")
-            print(f"Remaining Budget: {remaining:.1f}s ({remaining/60:.1f} min)")
-        elif args.r8:
-            consumed = BudgetTrackerR8.get_consumed_seconds()
-            remaining = GLOBAL_BUDGET_SECONDS_R8 - consumed
-            print(f"R8 Budget:        {GLOBAL_BUDGET_SECONDS_R8}s ({GLOBAL_BUDGET_SECONDS_R8/60:.1f} min)")
-            print(f"Consumed So Far:  {consumed:.1f}s ({consumed/60:.1f} min)")
-            print(f"Remaining Budget: {remaining:.1f}s ({remaining/60:.1f} min)")
-        elif args.r7:
-            consumed = BudgetTrackerR7.get_consumed_seconds()
-            remaining = GLOBAL_BUDGET_SECONDS_R7 - consumed
-            print(f"R7 Budget:        {GLOBAL_BUDGET_SECONDS_R7}s ({GLOBAL_BUDGET_SECONDS_R7/60:.1f} min)")
-            print(f"Consumed So Far:  {consumed:.1f}s ({consumed/60:.1f} min)")
-            print(f"Remaining Budget: {remaining:.1f}s ({remaining/60:.1f} min)")
-        elif args.r6:
-            consumed = BudgetTrackerR6.get_consumed_seconds()
-            remaining = GLOBAL_BUDGET_SECONDS_R6 - consumed
-            print(f"R6 Budget:        {GLOBAL_BUDGET_SECONDS_R6}s ({GLOBAL_BUDGET_SECONDS_R6/60:.1f} min)")
-            print(f"Consumed So Far:  {consumed:.1f}s ({consumed/60:.1f} min)")
-            print(f"Remaining Budget: {remaining:.1f}s ({remaining/60:.1f} min)")
-        elif args.r5:
-            consumed = BudgetTrackerR5.get_consumed_seconds()
-            remaining = GLOBAL_BUDGET_SECONDS_R5 - consumed
-            print(f"R5 Budget:        {GLOBAL_BUDGET_SECONDS_R5}s ({GLOBAL_BUDGET_SECONDS_R5/60:.1f} min)")
-            print(f"Consumed So Far:  {consumed:.1f}s ({consumed/60:.1f} min)")
-            print(f"Remaining Budget: {remaining:.1f}s ({remaining/60:.1f} min)")
-        elif args.r4:
-            consumed = BudgetTrackerR4.get_consumed_seconds()
-            remaining = GLOBAL_BUDGET_SECONDS_R4 - consumed
-            print(f"R4 Budget:        {GLOBAL_BUDGET_SECONDS_R4}s ({GLOBAL_BUDGET_SECONDS_R4/60:.1f} min)")
-            print(f"Consumed So Far:  {consumed:.1f}s ({consumed/60:.1f} min)")
-            print(f"Remaining Budget: {remaining:.1f}s ({remaining/60:.1f} min)")
-        else:
-            consumed = BudgetTracker.get_consumed_seconds()
-            remaining = GLOBAL_BUDGET_SECONDS - consumed
-            print(f"Global Budget:    {GLOBAL_BUDGET_SECONDS}s ({GLOBAL_BUDGET_SECONDS/60:.1f} min)")
-            print(f"Consumed So Far:  {consumed:.1f}s ({consumed/60:.1f} min)")
-            print(f"Remaining Budget: {remaining:.1f}s ({remaining/60:.1f} min)")
+        profile = _resolve_campaign_profile(flags={
+            "final_sla": args.final_sla, "r11": args.r11, "r10": args.r10, "r9": args.r9,
+            "r8": args.r8, "r7": args.r7, "r6": args.r6, "r5": args.r5, "r4": args.r4,
+        })
+        _, _, label, _, tracker, budget_limit, _ = profile
+        consumed = tracker.get_consumed_seconds()
+        remaining = budget_limit - consumed
+        print(f"{label} {budget_limit}s ({budget_limit/60:.1f} min)")
+        print(f"Consumed So Far:  {consumed:.1f}s ({consumed/60:.1f} min)")
+        print(f"Remaining Budget: {remaining:.1f}s ({remaining/60:.1f} min)")
         sys.exit(0)
 
-    if args.scenario == "r6-suite":
-        ok = run_r6_suite()
-        sys.exit(0 if ok else 1)
+    suite_runners = {
+        "r6-suite": run_r6_suite,
+        "r5-suite": run_r5_suite,
+        "r4-suite": run_r4_suite,
+        "ramp-suite": lambda: run_ramp_suite(duration=args.duration or "120s"),
+    }
+    if args.scenario in suite_runners:
+        sys.exit(0 if suite_runners[args.scenario]() else 1)
 
-    if args.scenario == "r5-suite":
-        ok = run_r5_suite()
-        sys.exit(0 if ok else 1)
-
-    if args.scenario == "r4-suite":
-        ok = run_r4_suite()
-        sys.exit(0 if ok else 1)
-
-    if args.scenario == "ramp-suite":
-        dur = args.duration or "120s"
-        ok = run_ramp_suite(duration=dur)
-        sys.exit(0 if ok else 1)
-
-    is_final_sla = args.final_sla or args.scenario.startswith("n")
-    is_r11 = not is_final_sla and (args.r11 or args.scenario.startswith("r11"))
-    is_r10 = not is_final_sla and not is_r11 and (args.r10 or args.scenario.startswith("r10"))
-    is_r9 = not is_final_sla and not is_r11 and not is_r10 and (args.r9 or args.scenario.startswith("r9"))
-    is_r8 = not is_final_sla and not is_r11 and not is_r10 and not is_r9 and (args.r8 or args.scenario.startswith("r8"))
-    is_r7 = not is_final_sla and not is_r11 and not is_r10 and not is_r9 and not is_r8 and (args.r7 or args.scenario.startswith("r7"))
-    is_r6 = not is_final_sla and not is_r11 and not is_r10 and not is_r9 and not is_r8 and not is_r7 and (args.r6 or args.scenario.startswith("h"))
-    is_r5 = not is_final_sla and not is_r11 and not is_r10 and not is_r9 and not is_r8 and not is_r7 and not is_r6 and (args.r5 or args.scenario.startswith("m"))
-    is_r4 = not is_final_sla and not is_r11 and not is_r10 and not is_r9 and not is_r8 and not is_r7 and not is_r6 and not is_r5 and (args.r4 or args.scenario.startswith("q"))
+    profile_key = _resolve_campaign_profile(args.scenario, {
+        "final_sla": args.final_sla, "r11": args.r11, "r10": args.r10, "r9": args.r9,
+        "r8": args.r8, "r7": args.r7, "r6": args.r6, "r5": args.r5, "r4": args.r4,
+    })[0]
     ok = run_scenario(
         scenario_name=args.scenario,
         duration=args.duration,
         rate=args.rate,
         skip_preflight=args.skip_preflight,
         run_id=args.run_id,
-        is_r4=is_r4,
-        is_r5=is_r5,
-        is_r6=is_r6,
-        is_r7=is_r7,
-        is_r8=is_r8,
-        is_r9=is_r9,
-        is_r10=is_r10,
-        is_r11=is_r11,
-        is_final_sla=is_final_sla,
+        is_r4=(profile_key == "r4"),
+        is_r5=(profile_key == "r5"),
+        is_r6=(profile_key == "r6"),
+        is_r7=(profile_key == "r7"),
+        is_r8=(profile_key == "r8"),
+        is_r9=(profile_key == "r9"),
+        is_r10=(profile_key == "r10"),
+        is_r11=(profile_key == "r11"),
+        is_final_sla=(profile_key == "final_sla"),
     )
     sys.exit(0 if ok else 1)
 

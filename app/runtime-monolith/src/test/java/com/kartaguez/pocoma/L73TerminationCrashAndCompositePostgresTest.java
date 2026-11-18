@@ -22,13 +22,13 @@ import com.kartaguez.pocoma.domain.consumption.ConsumptionId;
 import com.kartaguez.pocoma.domain.consumption.RoutingV1;
 import com.kartaguez.pocoma.domain.identity.BindingToken;
 import com.kartaguez.pocoma.domain.identity.ExternalIdentity;
-import com.kartaguez.pocoma.domain.pot.Amount;
-import com.kartaguez.pocoma.domain.pot.ExpenseDetails;
-import com.kartaguez.pocoma.domain.pot.ExpenseFinancials;
-import com.kartaguez.pocoma.domain.pot.Fraction;
-import com.kartaguez.pocoma.domain.pot.ShareholderDetails;
+import com.kartaguez.pocoma.domain.pot.value.Amount;
+import com.kartaguez.pocoma.domain.pot.expense.ExpenseDetails;
+import com.kartaguez.pocoma.domain.pot.expense.ExpenseFinancials;
+import com.kartaguez.pocoma.domain.pot.value.Fraction;
+import com.kartaguez.pocoma.domain.pot.shareholder.ShareholderDetails;
 import com.kartaguez.pocoma.domain.pot.ShareholderTransitions;
-import com.kartaguez.pocoma.domain.pot.Weight;
+import com.kartaguez.pocoma.domain.pot.value.Weight;
 import com.kartaguez.pocoma.domain.pot.value.Label;
 import com.kartaguez.pocoma.domain.pot.value.Name;
 import com.kartaguez.pocoma.domain.pot.value.UserId;
@@ -38,13 +38,13 @@ import com.kartaguez.pocoma.domain.pot.value.id.ShareholderId;
 import com.kartaguez.pocoma.engine.write.identity.ExecuteIdentityRequest;
 import com.kartaguez.pocoma.engine.write.pot.ExecutePotCommand;
 import com.kartaguez.pocoma.engine.write.pot.port.execution.PotActorAuthority;
-import com.kartaguez.pocoma.infra.postgres.core.JdbcConsumptionSlotStore;
-import com.kartaguez.pocoma.infra.postgres.core.JdbcPartitionOwnershipStore;
-import com.kartaguez.pocoma.infra.postgres.write.JdbcPotCommandObservation;
-import com.kartaguez.pocoma.infra.postgres.write.JdbcPotCommandStore;
-import com.kartaguez.pocoma.infra.postgres.write.JdbcPotHistoryAdapter;
-import com.kartaguez.pocoma.infra.postgres.write.JdbcPotRevisionAdapter;
-import com.kartaguez.pocoma.infra.postgres.write.PotCommandJson;
+import com.kartaguez.pocoma.infra.postgres.core.consumption.JdbcConsumptionSlotStore;
+import com.kartaguez.pocoma.infra.postgres.core.consumption.JdbcPartitionOwnershipStore;
+import com.kartaguez.pocoma.infra.postgres.write.pot.JdbcPotCommandObservation;
+import com.kartaguez.pocoma.infra.postgres.write.pot.JdbcPotCommandStore;
+import com.kartaguez.pocoma.infra.postgres.write.pot.JdbcPotHistoryAdapter;
+import com.kartaguez.pocoma.infra.postgres.write.pot.JdbcPotRevisionAdapter;
+import com.kartaguez.pocoma.infra.postgres.write.pot.PotCommandJson;
 import com.kartaguez.pocoma.infra.postgres.write.identity.IdentityRequestJson;
 import com.kartaguez.pocoma.infra.postgres.write.identity.JdbcIdentityAuthority;
 import com.kartaguez.pocoma.infra.postgres.write.identity.JdbcIdentityRequestObservation;
@@ -223,176 +223,147 @@ class L73TerminationCrashAndCompositePostgresTest {
                                                     new Weight(Fraction.ONE))))));
 
             // 2. Forced rollback followed by retry -> COMMITTED
-            UUID expCmdId = UUID.randomUUID();
-            var expCmd =
-                    new PotCommand(
-                            expCmdId,
-                            actor,
-                            "tok",
-                            potId,
-                            2L,
-                            new CreateExpense(
-                                    new ExpenseDetails(
-                                            potId,
-                                            exp1,
-                                            new Label("Dinner"),
-                                            LocalDate.of(2026, 11, 1)),
-                                    new ExpenseFinancials(
-                                            potId,
-                                            exp1,
-                                            new Amount(new Fraction(100, 1)),
-                                            sh1,
-                                            Map.of(
-                                                    sh1,
-                                                    Optional.empty(),
-                                                    sh2,
-                                                    Optional.empty()))));
-            admitCommand(f.write, expCmd);
-            var failOnce = new AtomicBoolean(false);
-            var rollbackEngine =
-                    new ConsumptionEngine(
-                            cmdDef,
-                            failOnceWriteTx(writeTx, failOnce),
-                            new JdbcConsumptionSlotStore(writeDs),
-                            participant,
-                            new JdbcPartitionOwnershipStore(writeDs),
-                            shortLeaseSettings(),
-                            new WorkerCapacity(2, Map.of(cmdDef.id(), 2)),
-                            fault -> AttemptFailureClassifier.FailureKind.NON_COUNTABLE);
-            int pExp =
-                    RoutingV1.partition(RoutingV1.hash(ConsumableFamily.COMMAND, expCmdId), 4);
-            var leaseExp = acquireLeaseWithRetry(rollbackEngine, pExp);
-            var claim1 = rollbackEngine.acquire(leaseExp, List.of(expCmdId)).claims().getFirst();
-            failOnce.set(true);
-            assertEquals(
-                    ConsumptionProtocol.Status.ROLLED_BACK,
-                    rollbackEngine.execute(claim1).status());
-            assertEquals(
-                    0,
-                    f.write.queryForObject(
-                            "select count(*) from v3_command_result where request_id=?",
-                            Integer.class,
-                            expCmdId));
-
-            // Retry after rollback -> COMMITTED
-            f.write.update(
-                    "update consumption_slot set retry_after=null,claimed_until=null,claim_token=null where consumable_id=?",
-                    expCmdId);
-            var healthyEngine =
-                    new ConsumptionEngine(
-                            cmdDef,
-                            writeTx,
-                            new JdbcConsumptionSlotStore(writeDs),
-                            participant,
-                            new JdbcPartitionOwnershipStore(writeDs),
-                            shortLeaseSettings(),
-                            new WorkerCapacity(2, Map.of(cmdDef.id(), 2)),
-                            fault -> AttemptFailureClassifier.FailureKind.NON_COUNTABLE);
-            var claim2 = healthyEngine.acquire(leaseExp, List.of(expCmdId)).claims().getFirst();
-            assertEquals(
-                    ConsumptionProtocol.Status.COMMITTED, healthyEngine.execute(claim2).status());
+            verifyForcedRollbackAndRetry(f, writeDs, writeTx, cmdDef, participant, actor, potId, exp1, sh1, sh2);
 
             // 3. Stale-claim takeover: Worker 1 pauses after claim, Worker 2 takes over after lease
             // expiry -> Worker 1 gets CLAIM_LOST, Worker 2 COMMITTED
-            UUID updCmdId = UUID.randomUUID();
-            var updCmd =
-                    new PotCommand(
-                            updCmdId,
-                            actor,
-                            "tok",
-                            potId,
-                            3L,
-                            new PotCommand.UpdatePotDetails(new Label("C04K-v4")));
-            admitCommand(f.write, updCmd);
-            int pUpd =
-                    RoutingV1.partition(RoutingV1.hash(ConsumableFamily.COMMAND, updCmdId), 4);
-            var w1Engine =
-                    new ConsumptionEngine(
-                            cmdDef,
-                            writeTx,
-                            new JdbcConsumptionSlotStore(writeDs),
-                            participant,
-                            new JdbcPartitionOwnershipStore(writeDs),
-                            shortLeaseSettings(),
-                            new WorkerCapacity(2, Map.of(cmdDef.id(), 2)),
-                            fault -> AttemptFailureClassifier.FailureKind.NON_COUNTABLE);
-            var w1Lease = acquireLeaseWithRetry(w1Engine, pUpd);
-            var w1Claim = w1Engine.acquire(w1Lease, List.of(updCmdId)).claims().getFirst();
-
-            // Wait for SQL claim TTL (1.5s) to expire, then Worker 2 takes over partition & slot
-            Thread.sleep(1700);
-            var w2Engine =
-                    new ConsumptionEngine(
-                            cmdDef,
-                            writeTx,
-                            new JdbcConsumptionSlotStore(writeDs),
-                            participant,
-                            new JdbcPartitionOwnershipStore(writeDs),
-                            shortLeaseSettings(),
-                            new WorkerCapacity(2, Map.of(cmdDef.id(), 2)),
-                            fault -> AttemptFailureClassifier.FailureKind.NON_COUNTABLE);
-            var w2Lease = acquireLeaseWithRetry(w2Engine, pUpd);
-            var w2Claim = w2Engine.acquire(w2Lease, List.of(updCmdId)).claims().getFirst();
-            assertEquals(ConsumptionProtocol.Status.COMMITTED, w2Engine.execute(w2Claim).status());
-            var w1Res = w1Engine.execute(w1Claim);
-            assertTrue(
-                    w1Res.status() == ConsumptionProtocol.Status.CLAIM_LOST
-                            || w1Res.status() == ConsumptionProtocol.Status.COMMITTED,
-                    () -> "unexpected status " + w1Res);
+            verifyStaleClaimTakeover(f, writeDs, writeTx, cmdDef, participant, actor, potId);
 
             // 4. Mirror committed events into READ probe effects with crash + recovery on READ
-            UUID readConsumable =
-                    f.write.queryForObject(
-                            "select event_id from v3_pot_event limit 1", UUID.class);
-            f.read.update(
-                    "insert into consumption_slot(consumption_id,consumable_id,partition_hash,partition_id) select ?,?,h,((h::bigint%4+4)%4)::int from(select consumption_hash_v1('POT_EVENT',?) h)x",
-                    READ_PROBE_CONSUMPTION_ID,
-                    readConsumable,
-                    readConsumable);
-            var readDef =
-                    new ConsumptionDefinition(
-                            new ConsumptionId(READ_PROBE_CONSUMPTION_ID),
-                            ConsumableFamily.POT_EVENT,
-                            ConsumptionDefinition.Authority.READ);
-            var readEngine =
-                    readEngine(
-                            readDef,
-                            readDs,
-                            readTx,
-                            writeDs,
-                            writeTx,
-                            readProbeParticipant(readDs, readConsumable),
-                            shortLeaseSettings());
-            int pRead =
-                    RoutingV1.partition(RoutingV1.hash(ConsumableFamily.POT_EVENT, readConsumable), 4);
-            var rLease = acquireLeaseWithRetry(readEngine, pRead);
-            var rClaim = readEngine.acquire(rLease, List.of(readConsumable)).claims().getFirst();
-            assertEquals(ConsumptionProtocol.Status.COMMITTED, readEngine.execute(rClaim).status());
-
-            // Exact reconciliation: 4 commands -> 4 results, 4 POT events, 4 completions, 0 slots
-            assertEquals(
-                    4L,
-                    f.write.queryForObject("select count(*) from v3_command_result", Long.class));
-            assertEquals(
-                    4L, f.write.queryForObject("select count(*) from v3_pot_event", Long.class));
-            assertEquals(
-                    4L,
-                    f.write.queryForObject(
-                            "select count(*) from v3_command_completion_event", Long.class));
-            assertEquals(
-                    0L,
-                    f.write.queryForObject(
-                            "select count(*) from consumption_slot", Long.class));
-            assertEquals(
-                    1L,
-                    f.read.queryForObject(
-                            "select count(*) from i5_read_probe_effect where consumable_id=?",
-                            Long.class,
-                            readConsumable));
-            assertEquals(
-                    0L,
-                    f.read.queryForObject("select count(*) from consumption_slot", Long.class));
+            verifyCompositeReadAndReconciliation(f, writeDs, writeTx, readDs, readTx);
         }
+    }
+
+    private static void verifyForcedRollbackAndRetry(
+            WorkerMonolithPostgresTest.Fixture f,
+            DriverManagerDataSource writeDs,
+            SpringAttemptTransactions writeTx,
+            ConsumptionDefinition cmdDef,
+            ExecutePotCommand participant,
+            Eui actor,
+            PotId potId,
+            ExpenseId exp1,
+            ShareholderId sh1,
+            ShareholderId sh2)
+            throws Exception {
+        UUID expCmdId = UUID.randomUUID();
+        var expCmd =
+                new PotCommand(
+                        expCmdId,
+                        actor,
+                        "tok",
+                        potId,
+                        2L,
+                        new CreateExpense(
+                                new ExpenseDetails(
+                                        potId, exp1, new Label("Dinner"), LocalDate.of(2026, 11, 1)),
+                                new ExpenseFinancials(
+                                        potId,
+                                        exp1,
+                                        new Amount(new Fraction(100, 1)),
+                                        sh1,
+                                        Map.of(sh1, Optional.empty(), sh2, Optional.empty()))));
+        admitCommand(f.write, expCmd);
+        var failOnce = new AtomicBoolean(false);
+        var rollbackEngine = writeEngine(cmdDef, failOnceWriteTx(writeTx, failOnce), writeDs, participant, 2);
+        int pExp = RoutingV1.partition(RoutingV1.hash(ConsumableFamily.COMMAND, expCmdId), 4);
+        var leaseExp = acquireLeaseWithRetry(rollbackEngine, pExp);
+        var claim1 = rollbackEngine.acquire(leaseExp, List.of(expCmdId)).claims().getFirst();
+        failOnce.set(true);
+        assertEquals(ConsumptionProtocol.Status.ROLLED_BACK, rollbackEngine.execute(claim1).status());
+        assertEquals(0, f.write.queryForObject("select count(*) from v3_command_result where request_id=?", Integer.class, expCmdId));
+
+        // Retry after rollback -> COMMITTED
+        f.write.update("update consumption_slot set retry_after=null,claimed_until=null,claim_token=null where consumable_id=?", expCmdId);
+        var healthyEngine = writeEngine(cmdDef, writeTx, writeDs, participant, 2);
+        var claim2 = healthyEngine.acquire(leaseExp, List.of(expCmdId)).claims().getFirst();
+        assertEquals(ConsumptionProtocol.Status.COMMITTED, healthyEngine.execute(claim2).status());
+    }
+
+    private static void verifyStaleClaimTakeover(
+            WorkerMonolithPostgresTest.Fixture f,
+            DriverManagerDataSource writeDs,
+            SpringAttemptTransactions writeTx,
+            ConsumptionDefinition cmdDef,
+            ExecutePotCommand participant,
+            Eui actor,
+            PotId potId)
+            throws Exception {
+        UUID updCmdId = UUID.randomUUID();
+        admitCommand(
+                f.write,
+                new PotCommand(
+                        updCmdId, actor, "tok", potId, 3L, new PotCommand.UpdatePotDetails(new Label("C04K-v4"))));
+        int pUpd = RoutingV1.partition(RoutingV1.hash(ConsumableFamily.COMMAND, updCmdId), 4);
+        var w1Engine = writeEngine(cmdDef, writeTx, writeDs, participant, 2);
+        var w1Lease = acquireLeaseWithRetry(w1Engine, pUpd);
+        var w1Claim = w1Engine.acquire(w1Lease, List.of(updCmdId)).claims().getFirst();
+        // Wait for SQL claim TTL (1.5s) to expire, then Worker 2 takes over partition & slot
+        Thread.sleep(1700);
+        var w2Engine = writeEngine(cmdDef, writeTx, writeDs, participant, 2);
+        var w2Lease = acquireLeaseWithRetry(w2Engine, pUpd);
+        var w2Claim = w2Engine.acquire(w2Lease, List.of(updCmdId)).claims().getFirst();
+        assertEquals(ConsumptionProtocol.Status.COMMITTED, w2Engine.execute(w2Claim).status());
+        var w1Res = w1Engine.execute(w1Claim);
+        assertTrue(
+                w1Res.status() == ConsumptionProtocol.Status.CLAIM_LOST
+                        || w1Res.status() == ConsumptionProtocol.Status.COMMITTED,
+                () -> "unexpected status " + w1Res);
+    }
+
+    private static void verifyCompositeReadAndReconciliation(
+            WorkerMonolithPostgresTest.Fixture f,
+            DriverManagerDataSource writeDs,
+            SpringAttemptTransactions writeTx,
+            DriverManagerDataSource readDs,
+            SpringAttemptTransactions readTx)
+            throws Exception {
+        UUID readConsumable = f.write.queryForObject("select event_id from v3_pot_event limit 1", UUID.class);
+        f.read.update(
+                "insert into consumption_slot(consumption_id,consumable_id,partition_hash,partition_id) select ?,?,h,((h::bigint%4+4)%4)::int from(select consumption_hash_v1('POT_EVENT',?) h)x",
+                READ_PROBE_CONSUMPTION_ID,
+                readConsumable,
+                readConsumable);
+        var readDef =
+                new ConsumptionDefinition(
+                        new ConsumptionId(READ_PROBE_CONSUMPTION_ID),
+                        ConsumableFamily.POT_EVENT,
+                        ConsumptionDefinition.Authority.READ);
+        var readEngine =
+                readEngine(
+                        readDef,
+                        new ReadEngineSources(readDs, readTx, writeDs, writeTx),
+                        readProbeParticipant(readDs, readConsumable),
+                        shortLeaseSettings());
+        int pRead = RoutingV1.partition(RoutingV1.hash(ConsumableFamily.POT_EVENT, readConsumable), 4);
+        var rLease = acquireLeaseWithRetry(readEngine, pRead);
+        var rClaim = readEngine.acquire(rLease, List.of(readConsumable)).claims().getFirst();
+        assertEquals(ConsumptionProtocol.Status.COMMITTED, readEngine.execute(rClaim).status());
+        // Exact reconciliation: 4 commands -> 4 results, 4 POT events, 4 completions, 0 slots
+        assertAll(
+                () -> assertEquals(4L, f.write.queryForObject("select count(*) from v3_command_result", Long.class)),
+                () -> assertEquals(4L, f.write.queryForObject("select count(*) from v3_pot_event", Long.class)),
+                () -> assertEquals(4L, f.write.queryForObject("select count(*) from v3_command_completion_event", Long.class)),
+                () -> assertEquals(0L, f.write.queryForObject("select count(*) from consumption_slot", Long.class)),
+                () -> assertEquals(1L, f.read.queryForObject("select count(*) from i5_read_probe_effect where consumable_id=?", Long.class, readConsumable)),
+                () -> assertEquals(0L, f.read.queryForObject("select count(*) from consumption_slot", Long.class)));
+    }
+
+    private static ConsumptionEngine writeEngine(
+            ConsumptionDefinition def,
+            AttemptTransactions tx,
+            DriverManagerDataSource ds,
+            ConsumptionParticipant participant,
+            int limit) {
+        return new ConsumptionEngine(
+                def,
+                tx,
+                new JdbcConsumptionSlotStore(ds),
+                participant,
+                new JdbcPartitionOwnershipStore(ds),
+                shortLeaseSettings(),
+                new WorkerCapacity(limit, Map.of(def.id(), limit)),
+                fault -> AttemptFailureClassifier.FailureKind.NON_COUNTABLE);
     }
 
     /**
@@ -435,7 +406,7 @@ class L73TerminationCrashAndCompositePostgresTest {
                             new JdbcPotHistoryAdapter(writeDs),
                             new JdbcPotRevisionAdapter(writeDs),
                             Clock.systemUTC(),
-                            new com.kartaguez.pocoma.infra.postgres.write.JdbcInvitationStore(
+                            new com.kartaguez.pocoma.infra.postgres.write.pot.JdbcInvitationStore(
                                     writeDs,
                                     new com.kartaguez.pocoma.infra.security.spring
                                             .InvitationCryptography(
@@ -490,503 +461,453 @@ class L73TerminationCrashAndCompositePostgresTest {
             List<Callable<Void>> tasks = new ArrayList<>();
             for (int i = 0; i < 4; i++) {
                 final int idx = i;
-                tasks.add(
-                        () -> {
-                            var ext = new ExternalIdentity("e01h", "user-" + idx);
-                            var reqId = UUID.randomUUID();
-                            var req =
-                                    new IdentityRequest(
-                                            reqId,
-                                            ext,
-                                            new IdentityRequest.Registration(),
-                                            null,
-                                            Instant.EPOCH,
-                                            new IdentityRequest.AdmissionContext(
-                                                    "e01h",
-                                                    "1",
-                                                    ext,
-                                                    ext,
-                                                    reqId.toString(),
-                                                    reqId.toString(),
-                                                    Instant.EPOCH,
-                                                    Map.of(),
-                                                    IdentityRequest.Origin.CONTROLLED_INTERNAL));
-                            f.write.update(
-                                    "with req as (insert into v3_identity_request(request_id,requester_issuer,requester_subject,operation,binding_token,target_issuer,target_subject,admission_context,created_at) values (?,?,?,?,?,?,?,?::jsonb,?) returning request_id), pos as (update v3_request_counter set position=position+1 where family='IDENTITY_REQUEST' returning position) insert into v3_request_position(family,position,request_id) select 'IDENTITY_REQUEST',pos.position,req.request_id from req,pos",
-                                    reqId,
-                                    ext.issuer(),
-                                    ext.subject(),
-                                    IdentityRequestJson.operation(req),
-                                    null,
-                                    ext.issuer(),
-                                    ext.subject(),
-                                    IdentityRequestJson.encode(req.admission()),
-                                    Timestamp.from(Instant.EPOCH));
-                            f.write.update(
-                                    "insert into consumption_slot(consumption_id,consumable_id,partition_hash,partition_id) select ?,?,h,((h::bigint%4+4)%4)::int from(select consumption_hash_v1('IDENTITY_REQUEST',?) h)x",
-                                    IDENTITY_CONSUMPTION_ID,
-                                    reqId,
-                                    reqId);
-                            int part =
-                                    RoutingV1.partition(
-                                            RoutingV1.hash(ConsumableFamily.IDENTITY_REQUEST, reqId),
-                                            4);
-                            var claim = acquireClaimWithRetry(sharedIdEngine, part, reqId);
-                            var execRes = sharedIdEngine.execute(claim);
-                            assertEquals(
-                                    ConsumptionProtocol.Status.COMMITTED,
-                                    execRes.status(),
-                                    () -> "cause=" + execRes.cause());
-                            return null;
-                        });
+                tasks.add(() -> runIdentityRegistrationTask(f, sharedIdEngine, idx));
             }
-
-            // Concurrent Pot UpdatePotDetails + Invitation + forced rollback & retry
-            tasks.add(
-                    () -> {
-                        var cmdId = UUID.randomUUID();
-                        var cmd =
-                                new PotCommand(
-                                        cmdId,
-                                        ownerEui,
-                                        "tok",
-                                        potId,
-                                        0L,
-                                        new PotCommand.CreateInvitation(
-                                                Instant.now()
-                                                        .truncatedTo(
-                                                                java.time.temporal.ChronoUnit.MICROS)
-                                                        .plus(Duration.ofDays(7))));
-                        admitCommand(f.write, cmd);
-                        var failOnce = new AtomicBoolean(false);
-                        var eFail =
-                                new ConsumptionEngine(
-                                        cmdDef,
-                                        failOnceWriteTx(writeTx, failOnce),
-                                        new JdbcConsumptionSlotStore(writeDs),
-                                        potParticipant,
-                                        new JdbcPartitionOwnershipStore(writeDs),
-                                        shortLeaseSettings(),
-                                        new WorkerCapacity(4, Map.of(cmdDef.id(), 4)),
-                                        fault -> AttemptFailureClassifier.FailureKind.NON_COUNTABLE);
-                        int part =
-                                RoutingV1.partition(
-                                        RoutingV1.hash(ConsumableFamily.COMMAND, cmdId), 4);
-                        var lease = acquireLeaseWithRetry(eFail, part);
-                        var c1 = eFail.acquire(lease, List.of(cmdId)).claims().getFirst();
-                        failOnce.set(true);
-                        assertEquals(
-                                ConsumptionProtocol.Status.ROLLED_BACK,
-                                eFail.execute(c1).status());
-
-                        f.write.update(
-                                "update consumption_slot set retry_after=null,claimed_until=null,claim_token=null where consumable_id=?",
-                                cmdId);
-                        var eOk =
-                                new ConsumptionEngine(
-                                        cmdDef,
-                                        writeTx,
-                                        new JdbcConsumptionSlotStore(writeDs),
-                                        potParticipant,
-                                        new JdbcPartitionOwnershipStore(writeDs),
-                                        shortLeaseSettings(),
-                                        new WorkerCapacity(4, Map.of(cmdDef.id(), 4)),
-                                        fault -> AttemptFailureClassifier.FailureKind.NON_COUNTABLE);
-                        var c2 = eOk.acquire(lease, List.of(cmdId)).claims().getFirst();
-                        var eOkRes = eOk.execute(c2);
-                        assertEquals(
-                                ConsumptionProtocol.Status.COMMITTED,
-                                eOkRes.status(),
-                                () -> "eOk cause=" + eOkRes.cause());
-                        return null;
-                    });
+            tasks.add(() -> runInvitationRollbackRetryTask(f, writeDs, writeTx, cmdDef, potParticipant, ownerEui, potId));
 
             List<Future<Void>> futures = pool.invokeAll(tasks);
             for (Future<Void> fut : futures) {
                 fut.get(30, TimeUnit.SECONDS);
             }
-
-            // Reconcile all 5 families: dense 1..N positions, matching v3_event_counter, 0 residual
-            // slots
-            for (String family :
-                    List.of(
-                            "POT",
-                            "COMMAND_COMPLETION",
-                            "INVITATION",
-                            "IDENTITY",
-                            "IDENTITY_COMPLETION")) {
-                var positions =
-                        f.write.queryForList(
-                                "select position from v3_event_position where family=? order by"
-                                        + " position",
-                                Long.class,
-                                family);
-                for (int i = 0; i < positions.size(); i++) {
-                    assertEquals(i + 1L, positions.get(i), "dense gap in " + family);
-                }
-                assertEquals(
-                        (long) positions.size(),
-                        f.write.queryForObject(
-                                "select position from v3_event_counter where family=?",
-                                Long.class,
-                                family),
-                        "counter mismatch in " + family);
-            }
-            assertEquals(1L, f.write.queryForObject("select position from v3_event_counter where family='POT'", Long.class));
-            assertEquals(2L, f.write.queryForObject("select position from v3_event_counter where family='COMMAND_COMPLETION'", Long.class));
-            assertEquals(1L, f.write.queryForObject("select position from v3_event_counter where family='INVITATION'", Long.class));
-            assertEquals(8L, f.write.queryForObject("select position from v3_event_counter where family='IDENTITY'", Long.class));
-            assertEquals(4L, f.write.queryForObject("select position from v3_event_counter where family='IDENTITY_COMPLETION'", Long.class));
-            assertEquals(0L, f.write.queryForObject("select count(*) from consumption_slot", Long.class));
+            verifyDenseFamilyCounters(f.write);
         }
     }
+
+    private static Void runIdentityRegistrationTask(
+            WorkerMonolithPostgresTest.Fixture f, ConsumptionEngine sharedIdEngine, int idx)
+            throws InterruptedException {
+        var ext = new ExternalIdentity("e01h", "user-" + idx);
+        var reqId = UUID.randomUUID();
+        var req =
+                new IdentityRequest(
+                        reqId,
+                        ext,
+                        new IdentityRequest.Registration(),
+                        null,
+                        Instant.EPOCH,
+                        new IdentityRequest.AdmissionContext(
+                                "e01h",
+                                "1",
+                                ext,
+                                ext,
+                                reqId.toString(),
+                                reqId.toString(),
+                                Instant.EPOCH,
+                                Map.of(),
+                                IdentityRequest.Origin.CONTROLLED_INTERNAL));
+        f.write.update(
+                "with req as (insert into v3_identity_request(request_id,requester_issuer,requester_subject,operation,binding_token,target_issuer,target_subject,admission_context,created_at) values (?,?,?,?,?,?,?,?::jsonb,?) returning request_id), pos as (update v3_request_counter set position=position+1 where family='IDENTITY_REQUEST' returning position) insert into v3_request_position(family,position,request_id) select 'IDENTITY_REQUEST',pos.position,req.request_id from req,pos",
+                reqId,
+                ext.issuer(),
+                ext.subject(),
+                IdentityRequestJson.operation(req),
+                null,
+                ext.issuer(),
+                ext.subject(),
+                IdentityRequestJson.encode(req.admission()),
+                Timestamp.from(Instant.EPOCH));
+        f.write.update(
+                "insert into consumption_slot(consumption_id,consumable_id,partition_hash,partition_id) select ?,?,h,((h::bigint%4+4)%4)::int from(select consumption_hash_v1('IDENTITY_REQUEST',?) h)x",
+                IDENTITY_CONSUMPTION_ID,
+                reqId,
+                reqId);
+        int part = RoutingV1.partition(RoutingV1.hash(ConsumableFamily.IDENTITY_REQUEST, reqId), 4);
+        var claim = acquireClaimWithRetry(sharedIdEngine, part, reqId);
+        var execRes = sharedIdEngine.execute(claim);
+        assertEquals(
+                ConsumptionProtocol.Status.COMMITTED,
+                execRes.status(),
+                () -> "cause=" + execRes.cause());
+        return null;
+    }
+
+    private static Void runInvitationRollbackRetryTask(
+            WorkerMonolithPostgresTest.Fixture f,
+            DriverManagerDataSource writeDs,
+            SpringAttemptTransactions writeTx,
+            ConsumptionDefinition cmdDef,
+            ExecutePotCommand potParticipant,
+            Eui ownerEui,
+            PotId potId)
+            throws InterruptedException {
+        var cmdId = UUID.randomUUID();
+        admitCommand(
+                f.write,
+                new PotCommand(
+                        cmdId,
+                        ownerEui,
+                        "tok",
+                        potId,
+                        0L,
+                        new PotCommand.CreateInvitation(
+                                Instant.now()
+                                        .truncatedTo(java.time.temporal.ChronoUnit.MICROS)
+                                        .plus(Duration.ofDays(7)))));
+        var failOnce = new AtomicBoolean(false);
+        var eFail = writeEngine(cmdDef, failOnceWriteTx(writeTx, failOnce), writeDs, potParticipant, 4);
+        int part = RoutingV1.partition(RoutingV1.hash(ConsumableFamily.COMMAND, cmdId), 4);
+        var lease = acquireLeaseWithRetry(eFail, part);
+        var c1 = eFail.acquire(lease, List.of(cmdId)).claims().getFirst();
+        failOnce.set(true);
+        assertEquals(ConsumptionProtocol.Status.ROLLED_BACK, eFail.execute(c1).status());
+
+        f.write.update(
+                "update consumption_slot set retry_after=null,claimed_until=null,claim_token=null where consumable_id=?",
+                cmdId);
+        var eOk = writeEngine(cmdDef, writeTx, writeDs, potParticipant, 4);
+        var c2 = eOk.acquire(lease, List.of(cmdId)).claims().getFirst();
+        var eOkRes = eOk.execute(c2);
+        assertEquals(
+                ConsumptionProtocol.Status.COMMITTED,
+                eOkRes.status(),
+                () -> "eOk cause=" + eOkRes.cause());
+        return null;
+    }
+
+    private static void verifyDenseFamilyCounters(JdbcTemplate write) {
+        // Reconcile all 5 families: dense 1..N positions, matching v3_event_counter, 0 residual slots
+        for (String family :
+                List.of("POT", "COMMAND_COMPLETION", "INVITATION", "IDENTITY", "IDENTITY_COMPLETION")) {
+            var positions =
+                    write.queryForList(
+                            "select position from v3_event_position where family=? order by position",
+                            Long.class,
+                            family);
+            for (int i = 0; i < positions.size(); i++) {
+                assertEquals(i + 1L, positions.get(i), "dense gap in " + family);
+            }
+            assertEquals(
+                    (long) positions.size(),
+                    write.queryForObject("select position from v3_event_counter where family=?", Long.class, family),
+                    "counter mismatch in " + family);
+        }
+        assertAll(
+                () -> assertEquals(1L, write.queryForObject("select position from v3_event_counter where family='POT'", Long.class)),
+                () -> assertEquals(2L, write.queryForObject("select position from v3_event_counter where family='COMMAND_COMPLETION'", Long.class)),
+                () -> assertEquals(1L, write.queryForObject("select position from v3_event_counter where family='INVITATION'", Long.class)),
+                () -> assertEquals(8L, write.queryForObject("select position from v3_event_counter where family='IDENTITY'", Long.class)),
+                () -> assertEquals(4L, write.queryForObject("select position from v3_event_counter where family='IDENTITY_COMPLETION'", Long.class)),
+                () -> assertEquals(0L, write.queryForObject("select count(*) from consumption_slot", Long.class)));
+    }
+
+    private record CrashTarget(
+            boolean writeAuthority,
+            UUID consumptionId,
+            ConsumableFamily family,
+            JdbcTemplate db,
+            String url,
+            String role,
+            UUID consumableId,
+            int partition,
+            boolean inFlightWrite) {}
 
     private void runCrashScenario(
             WorkerMonolithPostgresTest.Fixture f, boolean writeAuthority, boolean inFlightWrite)
             throws Exception {
-        UUID consumableId = UUID.randomUUID();
-        UUID consumptionId = writeAuthority ? COMMAND_CONSUMPTION_ID : READ_PROBE_CONSUMPTION_ID;
-        ConsumableFamily family =
-                writeAuthority ? ConsumableFamily.COMMAND : ConsumableFamily.POT_EVENT;
-        JdbcTemplate db = writeAuthority ? f.write : f.read;
-        String url = writeAuthority ? f.writeUrl : f.readUrl;
-        String role = writeAuthority ? f.writeRole : f.readRole;
-
-        if (writeAuthority) {
-            admitCommand(
-                    f.write,
-                    new PotCommand(
-                            consumableId,
-                            new Eui("crash", "actor"),
-                            "tok",
-                            new PotId(UUID.randomUUID()),
-                            0L,
-                            new CreatePot(new Label("CrashPot"))));
-        } else {
-            // Create a real POT_EVENT on WRITE so READ's RecoverySourcePolicy finds the source event
-            var writeDs = new DriverManagerDataSource(f.writeUrl, f.writeRole, "i5-fixture");
-            var writeTx = tx(writeDs);
-            var cmdDef =
-                    new ConsumptionDefinition(
-                            new ConsumptionId(COMMAND_CONSUMPTION_ID),
-                            ConsumableFamily.COMMAND,
-                            ConsumptionDefinition.Authority.WRITE);
-            var cmdParticipant =
-                    new ExecutePotCommand(
-                            new JdbcPotCommandStore(writeDs, writeTx),
-                            new JdbcPotCommandObservation(writeDs),
-                            new PotActorAuthority() {
-                                @Override
-                                public Witness observe(PotCommand command) {
-                                    return new Witness(1, Optional.of(new UserId(UUID.randomUUID())));
-                                }
-
-                                @Override
-                                public boolean protect(PotCommand command, Witness witness) {
-                                    return true;
-                                }
-                            },
-                            new JdbcPotHistoryAdapter(writeDs),
-                            new JdbcPotRevisionAdapter(writeDs),
-                            Clock.systemUTC());
-            var cmdEngine =
-                    new ConsumptionEngine(
-                            cmdDef,
-                            writeTx,
-                            new JdbcConsumptionSlotStore(writeDs),
-                            cmdParticipant,
-                            new JdbcPartitionOwnershipStore(writeDs),
-                            shortLeaseSettings(),
-                            new WorkerCapacity(1, Map.of(cmdDef.id(), 1)),
-                            fault -> AttemptFailureClassifier.FailureKind.NON_COUNTABLE);
-            UUID cmdId = UUID.randomUUID();
-            admitAndRunWrite(
-                    f.write,
-                    cmdEngine,
-                    cmdDef,
-                    new PotCommand(
-                            cmdId,
-                            new Eui("crash", "actor"),
-                            "tok",
-                            new PotId(UUID.randomUUID()),
-                            0L,
-                            new CreatePot(new Label("CrashPotRead"))));
-            consumableId =
-                    f.write.queryForObject(
-                            "select event_id from v3_pot_event where request_id=?",
-                            UUID.class,
-                            cmdId);
-            f.read.update(
-                    "insert into consumption_slot(consumption_id,consumable_id,partition_hash,partition_id) select ?,?,h,((h::bigint%4+4)%4)::int from(select consumption_hash_v1('POT_EVENT',?) h)x",
-                    consumptionId,
-                    consumableId,
-                    consumableId);
-        }
-
-        int partition = RoutingV1.partition(RoutingV1.hash(family, consumableId), 4);
+        CrashTarget target = buildCrashTarget(f, writeAuthority, inFlightWrite);
         Path tempDir = Files.createTempDirectory("l73-crash-");
         Path log = tempDir.resolve("child.log");
-        String classpath =
-                System.getProperty("surefire.test.class.path", System.getProperty("java.class.path"));
-        Process child =
-                new ProcessBuilder(
-                                Path.of(System.getProperty("java.home"), "bin/java").toString(),
-                                "-cp",
-                                classpath,
-                                CrashChild.class.getName(),
-                                f.writeUrl,
-                                f.writeRole,
-                                url,
-                                role,
-                                "i5-fixture",
-                                writeAuthority ? "WRITE" : "READ",
-                                consumptionId.toString(),
-                                consumableId.toString(),
-                                Integer.toString(partition),
-                                Boolean.toString(inFlightWrite))
-                        .redirectErrorStream(true)
-                        .redirectOutput(log.toFile())
-                        .start();
+        Process child = startCrashChild(f, target, log);
         try {
             String marker = inFlightWrite ? "IN_FLIGHT_WRITE" : "CLAIM_ACQUIRED";
-            long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(25);
-            while (System.nanoTime() < deadline) {
-                if (Files.exists(log) && Files.readString(log).contains(marker)) {
-                    break;
-                }
-                if (!child.isAlive()) {
-                    fail("Child exited early (" + child.exitValue() + "): " + Files.readString(log));
-                }
-                Thread.sleep(25);
-            }
-            assertTrue(
-                    Files.exists(log) && Files.readString(log).contains(marker),
-                    "Child did not reach " + marker + ": " + (Files.exists(log) ? Files.readString(log) : ""));
+            awaitChildMarker(child, log, marker);
 
-            // SIGKILL without ceding
             child.destroyForcibly();
             assertTrue(child.waitFor(10, TimeUnit.SECONDS));
 
-            // Verify attempt_count=0, slot preserved, zero partial business effects
-            var slot =
-                    db.queryForMap(
-                            "select attempt_count,state,claim_token is not null as claimed from consumption_slot where consumption_id=? and consumable_id=?",
-                            consumptionId,
-                            consumableId);
-            assertEquals(0, ((Number) slot.get("attempt_count")).intValue());
-            assertEquals("AVAILABLE", slot.get("state"));
-            assertEquals(Boolean.TRUE, slot.get("claimed"));
-            if (writeAuthority) {
-                assertEquals(
-                        0L,
-                        db.queryForObject(
-                                "select count(*) from v3_command_result where request_id=?",
-                                Long.class,
-                                consumableId));
-            } else {
-                assertEquals(
-                        0L,
-                        db.queryForObject(
-                                "select count(*) from i5_read_probe_effect where consumable_id=?",
-                                Long.class,
-                                consumableId));
-            }
-
-            // Wait for real SQL lease expiration (2s claim TTL)
-            long expiryDeadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(10);
-            while (System.nanoTime() < expiryDeadline) {
-                Boolean expired =
-                        db.queryForObject(
-                                "select claimed_until <= clock_timestamp() from consumption_slot where consumption_id=? and consumable_id=?",
-                                Boolean.class,
-                                consumptionId,
-                                consumableId);
-                if (Boolean.TRUE.equals(expired)) break;
-                Thread.sleep(50);
-            }
-
-            // Recover with a fresh healthy worker
-            var ds = new DriverManagerDataSource(url, role, "i5-fixture");
-            var tx = tx(ds);
-            var def =
-                    new ConsumptionDefinition(
-                            new ConsumptionId(consumptionId),
-                            family,
-                            writeAuthority
-                                    ? ConsumptionDefinition.Authority.WRITE
-                                    : ConsumptionDefinition.Authority.READ);
-            ConsumptionParticipant participant =
-                    writeAuthority
-                            ? new ExecutePotCommand(
-                                    new JdbcPotCommandStore(ds, tx),
-                                    new JdbcPotCommandObservation(ds),
-                                    new PotActorAuthority() {
-                                        @Override
-                                        public Witness observe(PotCommand command) {
-                                            return new Witness(1, Optional.of(new UserId(UUID.randomUUID())));
-                                        }
-
-                                        @Override
-                                        public boolean protect(PotCommand command, Witness witness) {
-                                            return true;
-                                        }
-                                    },
-                                    new JdbcPotHistoryAdapter(ds),
-                                    new JdbcPotRevisionAdapter(ds),
-                                    Clock.systemUTC())
-                            : readProbeParticipant(ds, consumableId);
-            var engine =
-                    writeAuthority
-                            ? new ConsumptionEngine(
-                                    def,
-                                    tx,
-                                    new JdbcConsumptionSlotStore(ds),
-                                    participant,
-                                    new JdbcPartitionOwnershipStore(ds),
-                                    shortLeaseSettings(),
-                                    new WorkerCapacity(1, Map.of(def.id(), 1)),
-                                    fault -> AttemptFailureClassifier.FailureKind.NON_COUNTABLE)
-                            : readEngine(
-                                    def,
-                                    ds,
-                                    tx,
-                                    new DriverManagerDataSource(f.writeUrl, f.writeRole, "i5-fixture"),
-                                    tx(
-                                            new DriverManagerDataSource(
-                                                    f.writeUrl, f.writeRole, "i5-fixture")),
-                                    participant,
-                                    shortLeaseSettings());
-            var lease = acquireLeaseWithRetry(engine, partition);
-            var claim = engine.acquire(lease, List.of(consumableId)).claims().getFirst();
-            var recRes = engine.execute(claim);
-            assertEquals(
-                    ConsumptionProtocol.Status.COMMITTED,
-                    recRes.status(),
-                    () -> "recovery cause=" + recRes.cause());
-
-            // Verify unique completion and zero remaining slot
-            assertEquals(
-                    0L,
-                    db.queryForObject(
-                            "select count(*) from consumption_slot where consumption_id=? and consumable_id=?",
-                            Long.class,
-                            consumptionId,
-                            consumableId));
-            if (writeAuthority) {
-                assertEquals(
-                        1L,
-                        db.queryForObject(
-                                "select count(*) from v3_command_result where request_id=?",
-                                Long.class,
-                                consumableId));
-            } else {
-                assertEquals(
-                        1L,
-                        db.queryForObject(
-                                "select count(*) from i5_read_probe_effect where consumable_id=?",
-                                Long.class,
-                                consumableId));
-            }
+            verifyPreRecoveryCrashState(
+                    target.db(), target.writeAuthority(), target.consumptionId(), target.consumableId());
+            awaitSqlLeaseExpiry(target.db(), target.consumptionId(), target.consumableId());
+            recoverCrashTarget(f, target);
+            verifyPostRecoveryCrashState(
+                    target.db(), target.writeAuthority(), target.consumptionId(), target.consumableId());
         } finally {
-            if (child.isAlive()) child.destroyForcibly();
+            if (child.isAlive()) {
+                child.destroyForcibly();
+            }
             Files.deleteIfExists(log);
             Files.deleteIfExists(tempDir);
         }
     }
 
-    public static final class CrashChild {
-        public static void main(String[] args) throws Exception {
-            String writeUrl = args[0];
-            String writeRole = args[1];
-            String url = args[2];
-            String user = args[3];
-            String password = args[4];
-            boolean write = args[5].equals("WRITE");
-            UUID consumptionId = UUID.fromString(args[6]);
-            UUID consumableId = UUID.fromString(args[7]);
-            int partition = Integer.parseInt(args[8]);
-            boolean inFlightWrite = Boolean.parseBoolean(args[9]);
+    private CrashTarget buildCrashTarget(
+            WorkerMonolithPostgresTest.Fixture f, boolean writeAuthority, boolean inFlightWrite)
+            throws InterruptedException {
+        UUID consumptionId = writeAuthority ? COMMAND_CONSUMPTION_ID : READ_PROBE_CONSUMPTION_ID;
+        ConsumableFamily family =
+                writeAuthority ? ConsumableFamily.COMMAND : ConsumableFamily.POT_EVENT;
+        UUID consumableId =
+                writeAuthority
+                        ? prepareWriteCrashTarget(f.write)
+                        : prepareReadCrashTarget(f, consumptionId);
+        int partition = RoutingV1.partition(RoutingV1.hash(family, consumableId), 4);
+        if (writeAuthority) {
+            return new CrashTarget(
+                    true, consumptionId, family, f.write, f.writeUrl, f.writeRole, consumableId, partition, inFlightWrite);
+        }
+        return new CrashTarget(
+                false, consumptionId, family, f.read, f.readUrl, f.readRole, consumableId, partition, inFlightWrite);
+    }
 
-            var ds = new DriverManagerDataSource(url, user, password);
-            var tm = new DataSourceTransactionManager(ds);
-            tm.setNestedTransactionAllowed(false);
-            var tx = new SpringAttemptTransactions(ds, tm);
+    private UUID prepareWriteCrashTarget(JdbcTemplate writeDb) {
+        UUID consumableId = UUID.randomUUID();
+        admitCommand(
+                writeDb,
+                new PotCommand(
+                        consumableId,
+                        new Eui("crash", "actor"),
+                        "tok",
+                        new PotId(UUID.randomUUID()),
+                        0L,
+                        new CreatePot(new Label("CrashPot"))));
+        return consumableId;
+    }
+
+    private UUID prepareReadCrashTarget(WorkerMonolithPostgresTest.Fixture f, UUID consumptionId)
+            throws InterruptedException {
+        var writeDs = new DriverManagerDataSource(f.writeUrl, f.writeRole, "i5-fixture");
+        var writeTx = tx(writeDs);
+        var cmdDef =
+                new ConsumptionDefinition(
+                        new ConsumptionId(COMMAND_CONSUMPTION_ID),
+                        ConsumableFamily.COMMAND,
+                        ConsumptionDefinition.Authority.WRITE);
+        var cmdEngine =
+                new ConsumptionEngine(
+                        cmdDef,
+                        writeTx,
+                        new JdbcConsumptionSlotStore(writeDs),
+                        potCommandParticipant(writeDs, writeTx),
+                        new JdbcPartitionOwnershipStore(writeDs),
+                        shortLeaseSettings(),
+                        new WorkerCapacity(1, Map.of(cmdDef.id(), 1)),
+                        fault -> AttemptFailureClassifier.FailureKind.NON_COUNTABLE);
+        UUID cmdId = UUID.randomUUID();
+        admitAndRunWrite(
+                f.write,
+                cmdEngine,
+                cmdDef,
+                new PotCommand(
+                        cmdId,
+                        new Eui("crash", "actor"),
+                        "tok",
+                        new PotId(UUID.randomUUID()),
+                        0L,
+                        new CreatePot(new Label("CrashPotRead"))));
+        UUID consumableId =
+                f.write.queryForObject(
+                        "select event_id from v3_pot_event where request_id=?", UUID.class, cmdId);
+        f.read.update(
+                "insert into consumption_slot(consumption_id,consumable_id,partition_hash,partition_id) select ?,?,h,((h::bigint%4+4)%4)::int from(select consumption_hash_v1('POT_EVENT',?) h)x",
+                consumptionId,
+                consumableId,
+                consumableId);
+        return consumableId;
+    }
+
+    private static ExecutePotCommand potCommandParticipant(
+            DriverManagerDataSource ds, SpringAttemptTransactions tx) {
+        return new ExecutePotCommand(
+                new JdbcPotCommandStore(ds, tx),
+                new JdbcPotCommandObservation(ds),
+                new PotActorAuthority() {
+                    @Override
+                    public Witness observe(PotCommand command) {
+                        return new Witness(1, Optional.of(new UserId(UUID.randomUUID())));
+                    }
+
+                    @Override
+                    public boolean protect(PotCommand command, Witness witness) {
+                        return true;
+                    }
+                },
+                new JdbcPotHistoryAdapter(ds),
+                new JdbcPotRevisionAdapter(ds),
+                Clock.systemUTC());
+    }
+
+    private static Process startCrashChild(
+            WorkerMonolithPostgresTest.Fixture f, CrashTarget target, Path log) throws Exception {
+        String classpath =
+                System.getProperty("surefire.test.class.path", System.getProperty("java.class.path"));
+        return new ProcessBuilder(
+                        Path.of(System.getProperty("java.home"), "bin/java").toString(),
+                        "-cp",
+                        classpath,
+                        CrashChild.class.getName(),
+                        f.writeUrl,
+                        f.writeRole,
+                        target.url(),
+                        target.role(),
+                        "i5-fixture",
+                        target.writeAuthority() ? "WRITE" : "READ",
+                        target.consumptionId().toString(),
+                        target.consumableId().toString(),
+                        Integer.toString(target.partition()),
+                        Boolean.toString(target.inFlightWrite()))
+                .redirectErrorStream(true)
+                .redirectOutput(log.toFile())
+                .start();
+    }
+
+    private static void awaitChildMarker(Process child, Path log, String marker) throws Exception {
+        long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(25);
+        while (System.nanoTime() < deadline) {
+            if (Files.exists(log) && Files.readString(log).contains(marker)) {
+                return;
+            }
+            if (!child.isAlive()) {
+                fail("Child exited early (" + child.exitValue() + "): " + Files.readString(log));
+            }
+            Thread.sleep(25);
+        }
+        assertTrue(
+                Files.exists(log) && Files.readString(log).contains(marker),
+                "Child did not reach " + marker + ": " + (Files.exists(log) ? Files.readString(log) : ""));
+    }
+
+    private static void verifyPreRecoveryCrashState(
+            JdbcTemplate db, boolean writeAuthority, UUID consumptionId, UUID consumableId) {
+        var slot =
+                db.queryForMap(
+                        "select attempt_count,state,claim_token is not null as claimed from consumption_slot where consumption_id=? and consumable_id=?",
+                        consumptionId,
+                        consumableId);
+        String effectSql =
+                writeAuthority
+                        ? "select count(*) from v3_command_result where request_id=?"
+                        : "select count(*) from i5_read_probe_effect where consumable_id=?";
+        assertAll(
+                () -> assertEquals(0, ((Number) slot.get("attempt_count")).intValue()),
+                () -> assertEquals("AVAILABLE", slot.get("state")),
+                () -> assertEquals(Boolean.TRUE, slot.get("claimed")),
+                () -> assertEquals(0L, db.queryForObject(effectSql, Long.class, consumableId)));
+    }
+
+    private static void awaitSqlLeaseExpiry(
+            JdbcTemplate db, UUID consumptionId, UUID consumableId) throws InterruptedException {
+        long expiryDeadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(10);
+        while (System.nanoTime() < expiryDeadline) {
+            Boolean expired =
+                    db.queryForObject(
+                            "select claimed_until <= clock_timestamp() from consumption_slot where consumption_id=? and consumable_id=?",
+                            Boolean.class,
+                            consumptionId,
+                            consumableId);
+            if (Boolean.TRUE.equals(expired)) {
+                return;
+            }
+            Thread.sleep(50);
+        }
+    }
+
+    private void recoverCrashTarget(WorkerMonolithPostgresTest.Fixture f, CrashTarget target)
+            throws Exception {
+        var ds = new DriverManagerDataSource(target.url(), target.role(), "i5-fixture");
+        var tx = tx(ds);
+        var def =
+                new ConsumptionDefinition(
+                        new ConsumptionId(target.consumptionId()),
+                        target.family(),
+                        target.writeAuthority()
+                                ? ConsumptionDefinition.Authority.WRITE
+                                : ConsumptionDefinition.Authority.READ);
+        ConsumptionParticipant participant =
+                target.writeAuthority()
+                        ? potCommandParticipant(ds, tx)
+                        : readProbeParticipant(ds, target.consumableId());
+        ConsumptionEngine engine;
+        if (target.writeAuthority()) {
+            engine =
+                    new ConsumptionEngine(
+                            def,
+                            tx,
+                            new JdbcConsumptionSlotStore(ds),
+                            participant,
+                            new JdbcPartitionOwnershipStore(ds),
+                            shortLeaseSettings(),
+                            new WorkerCapacity(1, Map.of(def.id(), 1)),
+                            fault -> AttemptFailureClassifier.FailureKind.NON_COUNTABLE);
+        } else {
+            var writeDs = new DriverManagerDataSource(f.writeUrl, f.writeRole, "i5-fixture");
+            engine =
+                    readEngine(
+                            def,
+                            new ReadEngineSources(ds, tx, writeDs, tx(writeDs)),
+                            participant,
+                            shortLeaseSettings());
+        }
+        var lease = acquireLeaseWithRetry(engine, target.partition());
+        var claim = engine.acquire(lease, List.of(target.consumableId())).claims().getFirst();
+        var recRes = engine.execute(claim);
+        assertEquals(
+                ConsumptionProtocol.Status.COMMITTED,
+                recRes.status(),
+                () -> "recovery cause=" + recRes.cause());
+    }
+
+    private static void verifyPostRecoveryCrashState(
+            JdbcTemplate db, boolean writeAuthority, UUID consumptionId, UUID consumableId) {
+        String effectSql =
+                writeAuthority
+                        ? "select count(*) from v3_command_result where request_id=?"
+                        : "select count(*) from i5_read_probe_effect where consumable_id=?";
+        assertAll(
+                () ->
+                        assertEquals(
+                                0L,
+                                db.queryForObject(
+                                        "select count(*) from consumption_slot where consumption_id=? and consumable_id=?",
+                                        Long.class,
+                                        consumptionId,
+                                        consumableId)),
+                () -> assertEquals(1L, db.queryForObject(effectSql, Long.class, consumableId)));
+    }
+
+    public static final class CrashChild {
+        private record ChildArgs(
+                String writeUrl,
+                String writeRole,
+                String url,
+                String user,
+                String password,
+                boolean write,
+                UUID consumptionId,
+                UUID consumableId,
+                int partition,
+                boolean inFlightWrite) {
+            static ChildArgs parse(String[] args) {
+                return new ChildArgs(
+                        args[0],
+                        args[1],
+                        args[2],
+                        args[3],
+                        args[4],
+                        args[5].equals("WRITE"),
+                        UUID.fromString(args[6]),
+                        UUID.fromString(args[7]),
+                        Integer.parseInt(args[8]),
+                        Boolean.parseBoolean(args[9]));
+            }
+        }
+
+        public static void main(String[] args) throws Exception {
+            var cfg = ChildArgs.parse(args);
+            var ds = new DriverManagerDataSource(cfg.url(), cfg.user(), cfg.password());
+            var tx = tx(ds);
             var def =
                     new ConsumptionDefinition(
-                            new ConsumptionId(consumptionId),
-                            write ? ConsumableFamily.COMMAND : ConsumableFamily.POT_EVENT,
-                            write
+                            new ConsumptionId(cfg.consumptionId()),
+                            cfg.write() ? ConsumableFamily.COMMAND : ConsumableFamily.POT_EVENT,
+                            cfg.write()
                                     ? ConsumptionDefinition.Authority.WRITE
                                     : ConsumptionDefinition.Authority.READ);
-            var settings =
-                    new LifecycleSettings(
-                            1,
-                            Duration.ofSeconds(2),
-                            Duration.ofSeconds(2),
-                            Duration.ofSeconds(1),
-                            Duration.ofSeconds(1),
-                            Duration.ofSeconds(10),
-                            new LifecycleSettings.RetryPolicy(3, Duration.ofMillis(10)));
-            ConsumptionParticipant probe =
-                    new ConsumptionParticipant() {
-                        @Override
-                        public Optional<Prepared> prepare(UUID id, PreparationReads reads) {
-                            return Optional.of(
-                                    new Prepared() {
-                                        @Override
-                                        public void finalizeIn(SlotCompletion completion) {
-                                            if (write) {
-                                                new JdbcTemplate(ds)
-                                                        .update(
-                                                                "insert into"
-                                                                    + " v3_command_result(request_id,outcome,resulting_pot_version,rejection)"
-                                                                    + " values"
-                                                                    + " (?,'CHANGED',1,null)",
-                                                                consumableId);
-                                            } else {
-                                                new JdbcTemplate(ds)
-                                                        .update(
-                                                                "insert into"
-                                                                    + " i5_read_probe_effect(consumption_id,consumable_id,value)"
-                                                                    + " values"
-                                                                    + " (?,?,'technical')",
-                                                                READ_PROBE_EFFECT_ID,
-                                                                consumableId);
-                                            }
-                                            System.out.println("IN_FLIGHT_WRITE");
-                                            System.out.flush();
-                                            try {
-                                                Thread.sleep(60_000);
-                                            } catch (InterruptedException ignored) {
-                                            }
-                                        }
-
-                                        @Override
-                                        public void requireCompletionReady() {}
-                                    });
-                        }
-
-                        @Override
-                        public Recovery prepareRecovery(UUID id, PreparationReads reads) {
-                            return ctx -> EffectEvidence.MISSING;
-                        }
-                    };
-            var writeDs = new DriverManagerDataSource(writeUrl, writeRole, password);
-            var engine =
-                    write
-                            ? new ConsumptionEngine(
-                                    def,
-                                    tx,
-                                    new JdbcConsumptionSlotStore(ds),
-                                    probe,
-                                    new JdbcPartitionOwnershipStore(ds),
-                                    settings,
-                                    new WorkerCapacity(1, Map.of(def.id(), 1)),
-                                    fault -> AttemptFailureClassifier.FailureKind.NON_COUNTABLE)
-                            : readEngine(def, ds, tx, writeDs, tx(writeDs), probe, settings);
-            var lease = engine.acquirePartition(partition).orElseThrow();
-            var claim = engine.acquire(lease, List.of(consumableId)).claims().getFirst();
-            if (!inFlightWrite) {
+            var settings = childSettings();
+            var probe = probeParticipant(ds, cfg.write(), cfg.consumableId());
+            var engine = createEngine(cfg, ds, tx, def, probe, settings);
+            var lease = engine.acquirePartition(cfg.partition()).orElseThrow();
+            var claim = engine.acquire(lease, List.of(cfg.consumableId())).claims().getFirst();
+            if (!cfg.inFlightWrite()) {
                 System.out.println("CLAIM_ACQUIRED");
                 System.out.flush();
                 Thread.sleep(60_000);
@@ -994,14 +915,98 @@ class L73TerminationCrashAndCompositePostgresTest {
                 engine.execute(claim);
             }
         }
+
+        private static LifecycleSettings childSettings() {
+            return new LifecycleSettings(
+                    1,
+                    Duration.ofSeconds(2),
+                    Duration.ofSeconds(2),
+                    Duration.ofSeconds(1),
+                    Duration.ofSeconds(1),
+                    Duration.ofSeconds(10),
+                    new LifecycleSettings.RetryPolicy(3, Duration.ofMillis(10)));
+        }
+
+        private static ConsumptionEngine createEngine(
+                ChildArgs cfg,
+                DriverManagerDataSource ds,
+                SpringAttemptTransactions tx,
+                ConsumptionDefinition def,
+                ConsumptionParticipant probe,
+                LifecycleSettings settings) {
+            if (cfg.write()) {
+                return new ConsumptionEngine(
+                        def,
+                        tx,
+                        new JdbcConsumptionSlotStore(ds),
+                        probe,
+                        new JdbcPartitionOwnershipStore(ds),
+                        settings,
+                        new WorkerCapacity(1, Map.of(def.id(), 1)),
+                        fault -> AttemptFailureClassifier.FailureKind.NON_COUNTABLE);
+            }
+            var writeDs =
+                    new DriverManagerDataSource(cfg.writeUrl(), cfg.writeRole(), cfg.password());
+            return readEngine(
+                    def, new ReadEngineSources(ds, tx, writeDs, tx(writeDs)), probe, settings);
+        }
+
+        private static ConsumptionParticipant probeParticipant(
+                DriverManagerDataSource ds, boolean write, UUID consumableId) {
+            return new ConsumptionParticipant() {
+                @Override
+                public Optional<Prepared> prepare(UUID id, PreparationReads reads) {
+                    return Optional.of(
+                            new Prepared() {
+                                @Override
+                                public void finalizeIn(SlotCompletion completion) {
+                                    insertProbeEffect(ds, write, consumableId);
+                                    System.out.println("IN_FLIGHT_WRITE");
+                                    System.out.flush();
+                                    try {
+                                        Thread.sleep(60_000);
+                                    } catch (InterruptedException ignored) {
+                                    }
+                                }
+
+                                @Override
+                                public void requireCompletionReady() {}
+                            });
+                }
+
+                @Override
+                public Recovery prepareRecovery(UUID id, PreparationReads reads) {
+                    return ctx -> EffectEvidence.MISSING;
+                }
+            };
+        }
+
+        private static void insertProbeEffect(
+                DriverManagerDataSource ds, boolean write, UUID consumableId) {
+            if (write) {
+                new JdbcTemplate(ds)
+                        .update(
+                                "insert into v3_command_result(request_id,outcome,resulting_pot_version,rejection) values (?,'CHANGED',1,null)",
+                                consumableId);
+            } else {
+                new JdbcTemplate(ds)
+                        .update(
+                                "insert into i5_read_probe_effect(consumption_id,consumable_id,value) values (?,?,'technical')",
+                                READ_PROBE_EFFECT_ID,
+                                consumableId);
+            }
+        }
     }
 
-    private static ConsumptionEngine readEngine(
-            ConsumptionDefinition def,
+    private record ReadEngineSources(
             DriverManagerDataSource readDs,
             SpringAttemptTransactions readTx,
             DriverManagerDataSource writeDs,
-            SpringAttemptTransactions writeTx,
+            SpringAttemptTransactions writeTx) {}
+
+    private static ConsumptionEngine readEngine(
+            ConsumptionDefinition def,
+            ReadEngineSources sources,
             ConsumptionParticipant participant,
             LifecycleSettings settings) {
         var discoverySettings =
@@ -1009,19 +1014,19 @@ class L73TerminationCrashAndCompositePostgresTest {
                         100, 100, 100, 1000, Duration.ofSeconds(1), Duration.ofSeconds(10));
         return new ConsumptionEngine(
                 def,
-                readTx,
-                new JdbcConsumptionSlotStore(readDs),
+                sources.readTx(),
+                new JdbcConsumptionSlotStore(sources.readDs()),
                 participant,
-                writeTx,
+                sources.writeTx(),
                 Optional.of(
                         new com.kartaguez.pocoma.infra.postgres.source.JdbcEventDiscoveryReferences(
-                                writeDs, def.family(), discoverySettings)),
+                                sources.writeDs(), def.family(), discoverySettings)),
                 r -> true,
-                new com.kartaguez.pocoma.infra.postgres.core.JdbcDiscoveryAdmissionStore(
-                        readDs, discoverySettings),
-                readTx,
-                new JdbcConsumptionSlotStore(readDs),
-                new JdbcPartitionOwnershipStore(readDs),
+                new com.kartaguez.pocoma.infra.postgres.core.consumption.JdbcDiscoveryAdmissionStore(
+                        sources.readDs(), discoverySettings),
+                sources.readTx(),
+                new JdbcConsumptionSlotStore(sources.readDs()),
+                new JdbcPartitionOwnershipStore(sources.readDs()),
                 settings,
                 new WorkerCapacity(2, Map.of(def.id(), 2)),
                 fault -> AttemptFailureClassifier.FailureKind.NON_COUNTABLE,

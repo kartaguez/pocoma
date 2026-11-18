@@ -176,10 +176,12 @@ where v.eui_id=? and v.version=?
     private void requireProtection(ExternalIdentity key, ExternalUserIdentityId id) {
         ExternalUserIdentity.compareKeys(key, key);
         var locked = protections.get(TransactionSynchronizationManager.getResource(source));
-        if (locked == null
-                || !locked.containsKey(key)
-                || (id != null && !id.equals(locked.get(key))))
+        if (locked == null || !locked.containsKey(key)) {
             throw new IllegalStateException("EUI was not protected by this attempt");
+        }
+        if (id != null && !id.equals(locked.get(key))) {
+            throw new IllegalStateException("EUI was not protected by this attempt");
+        }
     }
 
     private static ExternalUserIdentity state(ResultSet rs) throws SQLException {

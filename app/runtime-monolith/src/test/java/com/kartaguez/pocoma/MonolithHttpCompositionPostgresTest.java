@@ -2,6 +2,7 @@ package com.kartaguez.pocoma;
 import com.kartaguez.pocoma.compose.polling.process.ProcessSettings;
 import com.kartaguez.pocoma.compose.web.read.ReadFacadeComposition;
 import com.kartaguez.pocoma.compose.polling.materialize.MaterializeComposeConfiguration;
+import com.kartaguez.pocoma.compose.polling.materialize.MaterializeResources;
 import com.kartaguez.pocoma.contract.readquery.PotRead;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -47,7 +48,7 @@ class MonolithHttpCompositionPostgresTest {
             try {
                 var services = context.getBean(ReadFacadeComposition.Services.class);
                 assertSame(services, context.getBean(PotRead.Queries.class));
-                var materialize = context.getBean(MaterializeComposeConfiguration.Resources.class);
+                var materialize = context.getBean(MaterializeResources.class);
                 assertTrue(materialize.workerState().isPresent());
                 var queryPool = context.getBean("httpReadPool", HikariDataSource.class);
                 var statusPool = context.getBean("httpReadMaintenancePool", HikariDataSource.class);

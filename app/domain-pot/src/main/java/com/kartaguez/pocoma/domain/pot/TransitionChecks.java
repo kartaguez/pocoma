@@ -1,5 +1,9 @@
 package com.kartaguez.pocoma.domain.pot;
 
+
+import com.kartaguez.pocoma.domain.pot.revision.InconsistentPotFactsException;
+import com.kartaguez.pocoma.domain.pot.revision.Versioned;
+import com.kartaguez.pocoma.domain.pot.shareholder.ShareholderReference;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,8 +23,12 @@ final class TransitionChecks {
             throw new InconsistentPotFactsException("Revision outside working Pot/version");
     }
     static void reference(PotFacts pot, ShareholderId id, ShareholderReference fact) {
-        if (fact == null || !id.equals(fact.shareholderId()) || !pot.potId().equals(fact.potId()) || pot.workingVersion() != fact.workingVersion())
+        if (fact == null || !id.equals(fact.shareholderId())) {
             throw new InconsistentPotFactsException("Missing or mixed reference fact");
+        }
+        if (!pot.potId().equals(fact.potId()) || pot.workingVersion() != fact.workingVersion()) {
+            throw new InconsistentPotFactsException("Missing or mixed reference fact");
+        }
     }
     static TransitionResult.Rejection activeReference(ShareholderReference fact, long observed) {
         if (fact.header().isEmpty()) return TransitionResult.Rejection.NOT_FOUND;

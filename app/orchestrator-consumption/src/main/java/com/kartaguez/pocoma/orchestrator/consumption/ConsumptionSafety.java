@@ -46,22 +46,42 @@ public final class ConsumptionSafety implements ProtocolSafety {
     }
     public synchronized Optional<RenewalPermit> beginRenewal(Authority authority, int lane,
             ConsumptionProtocol.Handle claim) {
-        if (lane < 0 || lane > 2 || (lane == 2) != (claim == null))
-            throw new IllegalArgumentException("Invalid renewal lane/candidate");
-        boolean allocated = protocols.stream().anyMatch(p -> p.definition.authority() == authority
-                && (claim == null || p.owns(claim)));
-        if (!allocated) throw new IllegalArgumentException("Foreign worker scope or renewal candidate");
+        validateRenewalRequest(authority, lane, claim);
         var key = new Lane(authority, lane);
-        if (lanes.containsKey(key) || (claim != null && claims.containsKey(claim))) return Optional.empty();
+        if (isLaneOrClaimBusy(key, claim)) return Optional.empty();
         var permit = new Permit(key, claim);
         lanes.put(key, permit);
         if (claim != null) claims.put(claim, permit);
         return Optional.of(permit);
     }
+
+    private void validateRenewalRequest(
+            Authority authority, int lane, ConsumptionProtocol.Handle claim) {
+        if (lane < 0 || lane > 2) {
+            throw new IllegalArgumentException("Invalid renewal lane/candidate");
+        }
+        if ((lane == 2) != (claim == null)) {
+            throw new IllegalArgumentException("Invalid renewal lane/candidate");
+        }
+        boolean allocated = protocols.stream().anyMatch(p -> ownsRenewalTarget(p, authority, claim));
+        if (!allocated) throw new IllegalArgumentException("Foreign worker scope or renewal candidate");
+    }
+
+    private static boolean ownsRenewalTarget(
+            AbstractConsumptionProtocol protocol,
+            Authority authority,
+            ConsumptionProtocol.Handle claim) {
+        if (protocol.definition.authority() != authority) return false;
+        return claim == null || protocol.owns(claim);
+    }
+
+    private boolean isLaneOrClaimBusy(Lane key, ConsumptionProtocol.Handle claim) {
+        if (lanes.containsKey(key)) return true;
+        return claim != null && claims.containsKey(claim);
+    }
+
     public synchronized PhysicalOutcome finishRenewal(RenewalPermit value, Throwable failure) {
-        if (!(value instanceof ConsumptionSafety.Permit permit) || permit.issuer != this
-                || permit.finished || lanes.get(permit.lane) != permit)
-            throw new IllegalArgumentException("Foreign, fabricated or already used renewal permit");
+        var permit = requireValidPermit(value);
         permit.finished = true;
         var outcome = opportunityOutcome(failure);
         if (outcome.physicallyResolved()) {
@@ -71,25 +91,69 @@ public final class ConsumptionSafety implements ProtocolSafety {
         // UNKNOWN retains the lane and candidate. A local deadline never frees either.
         return outcome;
     }
+
+    private Permit requireValidPermit(RenewalPermit value) {
+        if (!(value instanceof ConsumptionSafety.Permit permit)) {
+            throw new IllegalArgumentException("Foreign, fabricated or already used renewal permit");
+        }
+        if (permit.issuer != this || permit.finished) {
+            throw new IllegalArgumentException("Foreign, fabricated or already used renewal permit");
+        }
+        if (lanes.get(permit.lane) != permit) {
+            throw new IllegalArgumentException("Foreign, fabricated or already used renewal permit");
+        }
+        return permit;
+    }
+
     public LeaseDecision settleLease(ConsumptionProtocol.Partition current,
             List<ConsumptionProtocol.Partition> returned, PhysicalOutcome outcome, boolean running,
             boolean usable, long retryUntil, long retryDue, long due, long callBegan, long renewedAt,
             Duration renewalBudget, Duration renewalInterval, Duration minimumPoll) {
-        if (protocols.stream().noneMatch(p -> p.owns(current)))
+        if (protocols.stream().noneMatch(p -> p.owns(current))) {
             throw new IllegalArgumentException("Foreign partition scope");
-        var renewed = returned.stream().filter(l -> l.sameIncarnation(current)).findFirst();
-        if (renewed.isPresent() && outcome.physicallyResolved() && running)
-            return new LeaseDecision(false, renewed.get(), true, 0, 0, renewedAt, false);
-        if (outcome.physicallyResolved() && running) {
-            long returnedAt = System.nanoTime();
-            if (retryUntil == 0) {
-                retryDue = due;
-                retryUntil = returnedAt + renewalBudget.toNanos();
-            }
-            if (returnedAt - retryUntil < 0)
-                return new LeaseDecision(false, current, false, retryUntil, retryDue,
-                        callBegan - renewalInterval.toNanos() + minimumPoll.toNanos(), usable);
         }
-        return new LeaseDecision(true, current, false, retryUntil, retryDue, renewedAt, false);
+        if (!outcome.physicallyResolved() || !running) {
+            return new LeaseDecision(true, current, false, retryUntil, retryDue, renewedAt, false);
+        }
+        var renewed = returned.stream().filter(l -> l.sameIncarnation(current)).findFirst();
+        if (renewed.isPresent()) {
+            return new LeaseDecision(false, renewed.get(), true, 0, 0, renewedAt, false);
+        }
+        return retryOrExpireLease(
+                current,
+                new RetryWindow(retryUntil, retryDue, due, callBegan, renewedAt),
+                new RetryPolicy(usable, renewalBudget, renewalInterval, minimumPoll));
+    }
+
+    private record RetryWindow(
+            long retryUntil, long retryDue, long due, long callBegan, long renewedAt) {}
+
+    private record RetryPolicy(
+            boolean usable, Duration renewalBudget, Duration renewalInterval, Duration minimumPoll) {}
+
+    private static LeaseDecision retryOrExpireLease(
+            ConsumptionProtocol.Partition current, RetryWindow window, RetryPolicy policy) {
+        long returnedAt = System.nanoTime();
+        long effectiveRetryDue = window.retryUntil() == 0 ? window.due() : window.retryDue();
+        long effectiveRetryUntil =
+                window.retryUntil() == 0
+                        ? returnedAt + policy.renewalBudget().toNanos()
+                        : window.retryUntil();
+        if (returnedAt - effectiveRetryUntil < 0) {
+            long nextDue =
+                    window.callBegan()
+                            - policy.renewalInterval().toNanos()
+                            + policy.minimumPoll().toNanos();
+            return new LeaseDecision(
+                    false,
+                    current,
+                    false,
+                    effectiveRetryUntil,
+                    effectiveRetryDue,
+                    nextDue,
+                    policy.usable());
+        }
+        return new LeaseDecision(
+                true, current, false, effectiveRetryUntil, effectiveRetryDue, window.renewedAt(), false);
     }
 }

@@ -40,33 +40,83 @@ def allocations():
     return rows
 
 
+ALLOCATION_FIELDS = [
+    ('normative_id', 0), ('invariant', 2), ('scenario', 3),
+    ('oracle', 4), ('authority', 5), ('subject', 6),
+    ('allocation', 7), ('gate', 10), ('deferred_to', 11),
+]
+VALID_COMMAND_SUBJECTS = ('Command réel', 'Command Pot réel', 'Command Pot réel adapté')
+
+
+def _validate_pass_row(row, refs, evidence):
+    if not refs:
+        raise ValueError('PASS without a successful bounded observation')
+    if not any(evidence[r]['status'] == 'PASS' for r in refs):
+        raise ValueError('PASS without a successful bounded observation')
+    if row['basis'] != 'EXACT_COMMAND_ALLOCATION':
+        raise ValueError('Unsupported full-allocation PASS')
+    if row['subject'] not in VALID_COMMAND_SUBJECTS:
+        raise ValueError('Mixed or fixture subject cannot receive this Command verdict')
+    if row['normative_id'] in ('R10-08', 'R6-08'):
+        raise ValueError('Availability/closure reserve promoted')
+
+
+def _verify_normative_fields(row, original):
+    for key, index in ALLOCATION_FIELDS:
+        if row[key] != original[index]:
+            raise ValueError('Changed normative allocation: ' + row['proof_id'])
+
+
+def _validate_single_row(row, original, evidence):
+    _verify_normative_fields(row, original)
+    if row['verdict'] not in STATES or not row['reserve']:
+        raise ValueError('Invalid verdict or missing limit')
+    refs = row['evidence'].split(';') if row['evidence'] else []
+    if any(ref not in evidence for ref in refs):
+        raise ValueError('Unresolved evidence')
+    if row['allocation'] == 'reporté' and row['verdict'] != 'NOT APPLICABLE':
+        raise ValueError('Deferred business obligation promoted')
+    if row['verdict'] == 'PASS':
+        _validate_pass_row(row, refs, evidence)
+
+
 def validate_rows(rows, source, evidence):
     if len(rows) != len(source) or {r['proof_id'] for r in rows} != set(source):
         raise ValueError('Missing, extra or duplicate allocation')
     for row in rows:
-        original = source[row['proof_id']]
-        for key, index in [('normative_id', 0), ('invariant', 2), ('scenario', 3),
-                           ('oracle', 4), ('authority', 5), ('subject', 6),
-                           ('allocation', 7), ('gate', 10), ('deferred_to', 11)]:
-            if row[key] != original[index]:
-                raise ValueError('Changed normative allocation: ' + row['proof_id'])
-        if row['verdict'] not in STATES or not row['reserve']:
-            raise ValueError('Invalid verdict or missing limit')
-        refs = row['evidence'].split(';') if row['evidence'] else []
-        if any(ref not in evidence for ref in refs):
-            raise ValueError('Unresolved evidence')
-        if row['allocation'] == 'reporté' and row['verdict'] != 'NOT APPLICABLE':
-            raise ValueError('Deferred business obligation promoted')
-        if row['verdict'] == 'PASS':
-            if not refs or not any(evidence[r]['status'] == 'PASS' for r in refs):
-                raise ValueError('PASS without a successful bounded observation')
-            if row['basis'] != 'EXACT_COMMAND_ALLOCATION':
-                raise ValueError('Unsupported full-allocation PASS')
-            if row['subject'] not in ('Command réel', 'Command Pot réel', 'Command Pot réel adapté'):
-                raise ValueError('Mixed or fixture subject cannot receive this Command verdict')
-        if row['normative_id'] in ('R10-08', 'R6-08') and row['verdict'] == 'PASS':
-            raise ValueError('Availability/closure reserve promoted')
+        _validate_single_row(row, source[row['proof_id']], evidence)
     return len(rows)
+
+
+def _record_xml_cases(data, cases):
+    suite = ET.fromstring(data)
+    for case in suite.iter('testcase'):
+        key = case.get('classname', suite.get('name')) + '#' + case.get('name')
+        if case.find('failure') is not None or case.find('error') is not None:
+            state = 'FAIL'
+        elif case.find('skipped') is not None:
+            state = 'SKIP'
+        else:
+            state = 'PASS'
+        cases.setdefault(key, []).append(state)
+
+
+def _is_json_or_test_xml(name):
+    if name.endswith('.json'):
+        return True
+    return name.endswith('.xml') and '/TEST-' in name
+
+
+def _verify_receipt_artifacts(receipts, members):
+    verified = 0
+    for name, receipt in receipts:
+        prefix = name.removesuffix('result.json')
+        for artifact in receipt.get('artifacts', []):
+            target = prefix + artifact['path']
+            if members.get(target) != artifact['sha256']:
+                raise ValueError('Changed/missing archive member: ' + target)
+            verified += 1
+    return verified
 
 
 def scan_archive(path):
@@ -77,30 +127,17 @@ def scan_archive(path):
             if not member.isfile():
                 continue
             stream = archive.extractfile(member)
-            # JSON/XML are small; stream other members without materializing logs.
-            if member.name.endswith('.json') or (
-                    member.name.endswith('.xml') and '/TEST-' in member.name):
-                data = stream.read()
-                members[member.name] = sha(data)
-                if '/TEST-' in member.name and member.name.endswith('.xml'):
-                    suite = ET.fromstring(data)
-                    for case in suite.iter('testcase'):
-                        key = case.get('classname', suite.get('name')) + '#' + case.get('name')
-                        state = 'FAIL' if case.find('failure') is not None or case.find('error') is not None else 'SKIP' if case.find('skipped') is not None else 'PASS'
-                        cases.setdefault(key, []).append(state)
-                elif member.name.endswith(('result.json', 'gate-receipt.json')):
-                    receipts.append((member.name, json.loads(data)))
-            else:
+            if not _is_json_or_test_xml(member.name):
                 members[member.name] = hashlib.file_digest(stream, 'sha256').hexdigest()
+                continue
+            data = stream.read()
+            members[member.name] = sha(data)
+            if '/TEST-' in member.name and member.name.endswith('.xml'):
+                _record_xml_cases(data, cases)
+            elif member.name.endswith(('result.json', 'gate-receipt.json')):
+                receipts.append((member.name, json.loads(data)))
     # Verify all artifact members listed by result receipts where this format is used.
-    verified = 0
-    for name, receipt in receipts:
-        prefix = name.removesuffix('result.json')
-        for artifact in receipt.get('artifacts', []):
-            target = prefix + artifact['path']
-            if members.get(target) != artifact['sha256']:
-                raise ValueError('Changed/missing archive member: ' + target)
-            verified += 1
+    verified = _verify_receipt_artifacts(receipts, members)
     return cases, members, receipts, verified
 
 
@@ -108,7 +145,9 @@ def source_encoding(path, data, expected):
     if sha(data) == expected:
         return 'RAW'
     # Existing Windows checkout encoding, never accepted for Java/SQL/oracles.
-    if path == 'app/mvnw.cmd' and b'\r' not in data and sha(data.replace(b'\n', b'\r\n')) == expected:
+    if path != 'app/mvnw.cmd' or b'\r' in data:
+        return None
+    if sha(data.replace(b'\n', b'\r\n')) == expected:
         return 'CRLF_WINDOWS_WRAPPER'
     return None
 
@@ -141,59 +180,73 @@ def verify_git_inputs(tested_sha, inputs):
     return checked, encodings
 
 
+def _resolve_archive_path(entry, sources, storage, destination):
+    path = ROOT / entry['path']
+    if path.exists():
+        return path
+    source = sources[entry['path']]
+    if source['sha256'] != entry['sha256']:
+        raise ValueError('Archive locator/receipt mismatch')
+    storage.restore_historical(source, destination)
+    return destination
+
+
+def _verify_archive_receipts(receipts, expected_sha):
+    matched_sha, input_count, encodings = [], 0, []
+    for _, receipt in receipts:
+        tested = receipt.get('sha', receipt.get('tested_sha'))
+        if not tested:
+            continue
+        if tested != expected_sha:
+            raise ValueError('Archive tested SHA mismatch')
+        matched_sha.append(tested)
+        inputs = receipt.get('input_sha256', receipt.get('inputs_sha256', {}))
+        count, representations = verify_git_inputs(tested, inputs)
+        input_count += count
+        encodings.extend(representations)
+    return matched_sha, input_count, encodings
+
+
+def _audit_single_archive(key, entry, restore_cfg):
+    sources, storage, destination = restore_cfg
+    path = _resolve_archive_path(entry, sources, storage, destination)
+    if storage.digest(path) != entry['sha256']:
+        raise ValueError('Archive hash mismatch: ' + key)
+    cases, members, receipts, checked = scan_archive(path)
+    for method, state in entry['required_cases'].items():
+        if cases.get(method) != [state]:
+            raise ValueError('Missing/duplicate/wrong-state historical XML: ' + key + ':' + method)
+    matched_sha, input_count, encodings = _verify_archive_receipts(receipts, entry['tested_sha'])
+    summary = {
+        'archive': key, 'sha256': entry['sha256'],
+        'members': len(members), 'xml_cases': sum(map(len, cases.values())),
+        'required_cases_checked': len(entry['required_cases']),
+        'member_hashes_checked': checked, 'receipt_shas': matched_sha,
+        'historical_source_hashes_checked': input_count,
+        'explicit_checkout_encodings': encodings,
+        'xml_states': {s: sum(v.count(s) for v in cases.values()) for s in ('PASS', 'FAIL', 'SKIP')},
+        'meaning': 'Historical bytes/XML checked; no application execution',
+    }
+    if destination.exists():
+        destination.unlink()
+    return summary
+
+
 def audit_archives(index):
     spec = importlib.util.spec_from_file_location('i6_storage', ROOT / 'scripts/testing/evidence-storage.py')
     storage = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(storage)
     sources = storage.retained_sources(json.loads((ROOT / 'docs/testing/Evidence_Retention.json').read_text()))
-    results = []
     with tempfile.TemporaryDirectory(prefix='pocoma-i6-readonly-') as directory:
         destination = Path(directory) / 'archive'
-        for key, entry in index['archives'].items():
-            path = ROOT / entry['path']
-            if not path.exists():
-                source = sources[entry['path']]
-                if source['sha256'] != entry['sha256']:
-                    raise ValueError('Archive locator/receipt mismatch')
-                storage.restore_historical(source, destination)
-                path = destination
-            if storage.digest(path) != entry['sha256']:
-                raise ValueError('Archive hash mismatch: ' + key)
-            cases, members, receipts, checked = scan_archive(path)
-            for method, state in entry['required_cases'].items():
-                if cases.get(method) != [state]:
-                    raise ValueError('Missing/duplicate/wrong-state historical XML: ' + key + ':' + method)
-            matched_sha = []
-            input_count = 0
-            encodings = []
-            for _, receipt in receipts:
-                tested = receipt.get('sha', receipt.get('tested_sha'))
-                if tested:
-                    if tested != entry['tested_sha']:
-                        raise ValueError('Archive tested SHA mismatch')
-                    matched_sha.append(tested)
-                    inputs = receipt.get('input_sha256', receipt.get('inputs_sha256', {}))
-                    count, representations = verify_git_inputs(tested, inputs)
-                    input_count += count
-                    encodings.extend(representations)
-            results.append({'archive': key, 'sha256': entry['sha256'],
-                            'members': len(members), 'xml_cases': sum(map(len, cases.values())),
-                            'required_cases_checked': len(entry['required_cases']),
-                            'member_hashes_checked': checked, 'receipt_shas': matched_sha,
-                            'historical_source_hashes_checked': input_count,
-                            'explicit_checkout_encodings': encodings,
-                            'xml_states': {s: sum(v.count(s) for v in cases.values()) for s in ('PASS', 'FAIL', 'SKIP')},
-                            'meaning': 'Historical bytes/XML checked; no application execution'})
-            if destination.exists():
-                destination.unlink()
-    return results
+        restore_cfg = (sources, storage, destination)
+        return [
+            _audit_single_archive(key, entry, restore_cfg)
+            for key, entry in index['archives'].items()
+        ]
 
 
-def main():
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--archives', action='store_true')
-    args = parser.parse_args()
-    index = json.loads((FOLDER / 'Proof-index.json').read_text())
+def _verify_index_evidence(index):
     for record in index['evidence'].values():
         archive = index['archives'][record['archive']]
         case = record['class'] + '#' + record['method']
@@ -201,17 +254,37 @@ def main():
             raise ValueError('Observation disagrees with archive attribution: ' + case)
         if record.get('test_source') and not (ROOT / record['test_source']).is_file():
             raise ValueError('Missing implementation of test: ' + case)
-    with (FOLDER / 'Coverage.tsv').open() as stream:
-        rows = list(csv.DictReader(stream, delimiter='\t'))
-    count = validate_rows(rows, allocations(), index['evidence'])
+
+
+def _verify_inputs_sha256(index):
     for path, expected in index['inputs_sha256'].items():
         if sha((ROOT / path).read_bytes()) != expected:
             raise ValueError('Changed documentary input: ' + path)
+
+
+def _verify_application_tree(index):
     for path, expected in index['application_tree'].items():
         if git('rev-parse', 'HEAD:' + path).decode().strip() != expected:
             raise ValueError('Qualification/publication tree changed: ' + path)
         if git('diff', BASELINE, '--', path):
             raise ValueError('Uncommitted application/script change: ' + path)
+
+
+def _verify_inputs_and_tree(index):
+    _verify_inputs_sha256(index)
+    _verify_application_tree(index)
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--archives', action='store_true')
+    args = parser.parse_args()
+    index = json.loads((FOLDER / 'Proof-index.json').read_text())
+    _verify_index_evidence(index)
+    with (FOLDER / 'Coverage.tsv').open() as stream:
+        rows = list(csv.DictReader(stream, delimiter='\t'))
+    count = validate_rows(rows, allocations(), index['evidence'])
+    _verify_inputs_and_tree(index)
     result = {'kind': 'DOCUMENTARY VERIFICATION ONLY', 'checked_sha': git('rev-parse', 'HEAD').decode().strip(),
               'rows': count, 'L2': sum(r['allocation'] == 'obligatoire L2' for r in rows),
               'deferred': sum(r['allocation'] == 'reporté' for r in rows),

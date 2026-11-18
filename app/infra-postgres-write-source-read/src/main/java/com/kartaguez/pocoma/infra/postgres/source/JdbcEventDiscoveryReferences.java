@@ -70,11 +70,7 @@ public final class JdbcEventDiscoveryReferences implements NonBurnableReferences
                 context,
                 () -> {
                     Objects.requireNonNull(eventId);
-                    jdbc.queryForList(
-                            "select set_config('lock_timeout',?,true),"
-                                    + " set_config('statement_timeout',?,true)",
-                            settings.lockTimeout().toMillis() + "ms",
-                            settings.statementTimeout().toMillis() + "ms");
+                    applyTimeouts();
                     var rows =
                             jdbc.query(
                                     "select"
@@ -84,30 +80,7 @@ public final class JdbcEventDiscoveryReferences implements NonBurnableReferences
                                             + table
                                             + " e on e.event_id=q.event_id"
                                             + " left join v3_event_counter c on c.family=?",
-                                    (r, n) -> {
-                                        Long published = r.getObject(6, Long.class);
-                                        if (published == null || published < 0)
-                                            throw new InvalidReference(
-                                                    "Missing or invalid publication counter");
-                                        UUID positioned = r.getObject(3, UUID.class);
-                                        UUID envelope = r.getObject(4, UUID.class);
-                                        if (positioned == null && envelope == null)
-                                            return Optional.<Reference>empty();
-                                        Long position = r.getObject(2, Long.class);
-                                        String subject = r.getString(5);
-                                        if (!eventId.equals(positioned)
-                                                || !eventId.equals(envelope)
-                                                || !sequence.equals(r.getString(1))
-                                                || position == null
-                                                || position < 1
-                                                || position > published
-                                                || subject == null
-                                                || !subjects.contains(subject))
-                                            throw new InvalidReference(
-                                                    "Incompatible exact publication reference");
-                                        return Optional.of(
-                                                new Reference(position, eventId, subject));
-                                    },
+                                    (r, n) -> mapReferenceRow(r, eventId),
                                     eventId,
                                     sequence);
                     if (rows.size() != 1) throw new InvalidReference("Non-unique event reference");
@@ -115,57 +88,98 @@ public final class JdbcEventDiscoveryReferences implements NonBurnableReferences
                 });
     }
 
+    private Optional<Reference> mapReferenceRow(java.sql.ResultSet r, UUID eventId)
+            throws java.sql.SQLException {
+        Long published = r.getObject(6, Long.class);
+        if (published == null || published < 0) {
+            throw new InvalidReference("Missing or invalid publication counter");
+        }
+        UUID positioned = r.getObject(3, UUID.class);
+        UUID envelope = r.getObject(4, UUID.class);
+        if (positioned == null && envelope == null) return Optional.empty();
+        Long position = r.getObject(2, Long.class);
+        String subject = r.getString(5);
+        if (!isValidReference(r.getString(1), positioned, envelope, eventId)
+                || !isValidPositionAndSubject(position, published, subject)) {
+            throw new InvalidReference("Incompatible exact publication reference");
+        }
+        return Optional.of(new Reference(position, eventId, subject));
+    }
+
+    private boolean isValidReference(
+            String rowSequence, UUID positioned, UUID envelope, UUID eventId) {
+        if (!eventId.equals(positioned) || !eventId.equals(envelope)) return false;
+        return sequence.equals(rowSequence);
+    }
+
+    private boolean isValidPositionAndSubject(Long position, Long published, String subject) {
+        if (position == null) return false;
+        if (position < 1 || position > published) return false;
+        return subject != null && subjects.contains(subject);
+    }
+
+    private void applyTimeouts() {
+        jdbc.queryForList(
+                "select set_config('lock_timeout',?,true), set_config('statement_timeout',?,true)",
+                settings.lockTimeout().toMillis() + "ms",
+                settings.statementTimeout().toMillis() + "ms");
+    }
+
     public Window window(long after, int max, RecoveryReadContext context) {
         return SpringAttemptTransactions.observed(
                 source,
                 context,
                 () -> {
-                    if (after < 0 || max < 1 || max > settings.windowSize())
+                    if (after < 0 || max < 1) throw new IllegalArgumentException("invalid window bound");
+                    if (max > settings.windowSize()) {
                         throw new IllegalArgumentException("invalid window bound");
-                    jdbc.queryForList(
-                            "select set_config('lock_timeout',?,true),"
-                                    + " set_config('statement_timeout',?,true)",
-                            settings.lockTimeout().toMillis() + "ms",
-                            settings.statementTimeout().toMillis() + "ms");
+                    }
+                    applyTimeouts();
                     var counters =
                             jdbc.queryForList(
                                     "select position from v3_event_counter where family=?",
                                     Long.class,
                                     sequence);
-                    if (counters.size() != 1 || counters.getFirst() < after)
+                    if (counters.size() != 1 || counters.getFirst() < after) {
                         throw new IllegalStateException("missing or regressed publication counter");
+                    }
                     long high = after + Math.min((long) max, counters.getFirst() - after);
                     if (high == after) return new Window(after, high, List.of());
-                    // LEFT JOIN retains missing envelopes so they cause a fault instead of
-                    // disappearing.
-                    var refs =
-                            jdbc.query(
-                                    "select p.position,p.event_id,e.subject_type from"
-                                            + " v3_event_position p left join "
-                                            + table
-                                            + " e on e.event_id=p.event_id where p.family=? and"
-                                            + " p.position>? and p.position<=? order by p.position",
-                                    (r, n) -> {
-                                        if (!subjects.contains(r.getString(3)))
-                                            throw new IllegalStateException(
-                                                    "missing or incompatible event envelope");
-                                        return new Reference(
-                                                r.getLong(1),
-                                                r.getObject(2, UUID.class),
-                                                r.getString(3));
-                                    },
-                                    sequence,
-                                    after,
-                                    high);
-                    if (refs.size() != high - after)
-                        throw new IllegalStateException("hole in published prefix");
-                    long position = after;
-                    var ids = new HashSet<UUID>();
-                    for (var ref : refs)
-                        if (ref.position() != ++position || !ids.add(ref.eventId()))
-                            throw new IllegalStateException(
-                                    "non-contiguous publication or duplicate identity");
+                    var refs = queryWindowRefs(after, high);
+                    verifyContiguousWindow(after, high, refs);
                     return new Window(after, high, refs);
                 });
+    }
+
+    private List<Reference> queryWindowRefs(long after, long high) {
+        // LEFT JOIN retains missing envelopes so they cause a fault instead of disappearing.
+        return jdbc.query(
+                "select p.position,p.event_id,e.subject_type from v3_event_position p left join "
+                        + table
+                        + " e on e.event_id=p.event_id where p.family=? and p.position>? and"
+                        + " p.position<=? order by p.position",
+                (r, n) -> {
+                    if (!subjects.contains(r.getString(3))) {
+                        throw new IllegalStateException("missing or incompatible event envelope");
+                    }
+                    return new Reference(
+                            r.getLong(1), r.getObject(2, UUID.class), r.getString(3));
+                },
+                sequence,
+                after,
+                high);
+    }
+
+    private static void verifyContiguousWindow(long after, long high, List<Reference> refs) {
+        if (refs.size() != high - after) {
+            throw new IllegalStateException("hole in published prefix");
+        }
+        long position = after;
+        var ids = new HashSet<UUID>();
+        for (var ref : refs) {
+            if (ref.position() != ++position || !ids.add(ref.eventId())) {
+                throw new IllegalStateException("non-contiguous publication or duplicate identity");
+            }
+        }
     }
 }

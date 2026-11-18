@@ -8,7 +8,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import com.kartaguez.pocoma.domain.pot.PotFinancialState;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.engine.materialize.pot.PotBalanceSource;
-import com.kartaguez.pocoma.infra.postgres.core.PostgresPotHistoryReader;
+import com.kartaguez.pocoma.infra.postgres.core.history.PostgresPotHistoryReader;
 import com.kartaguez.pocoma.infra.tx.spring.SpringAttemptTransactions;
 import com.kartaguez.pocoma.port.transaction.RecoveryReadContext;
 public final class JdbcPotBalanceSource implements PotBalanceSource {

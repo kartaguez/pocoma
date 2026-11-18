@@ -97,39 +97,68 @@ class L7ReactorArchitectureTest {
         assertTrue(Files.isDirectory(classes),"missing compiled module "+module);
         var result=new ClassFileImporter().importPath(classes);assertTrue(result.size()>0,"empty implementation module "+module);return result;
     }
-    @Test void domainsAndContractsAreNeutralAndSuprasUseOnlyCapabilities() throws Exception {
-        var cat=catalogue();var neutral=Set.of("C01","C02","C03","C04","C05","C06","C07","C08","C09","C39");
-        for(String id:neutral)for(var cl:compiled(cat.get(id).name()))for(var dependency:cl.getDirectDependenciesFromSelf()) {
-            String target=dependency.getTargetClass().getName();
-            assertFalse(target.matches("(java\\.sql|javax\\.sql|org\\.springframework|jakarta\\.(servlet|persistence)|io\\.micrometer|com\\.zaxxer|com\\.fasterxml|com\\.kartaguez\\.pocoma\\.(engine|orchestrator|infra|compose|runtime|supra))\\..*"),dependency.toString());
-        }
-        for(String id:Set.of("C22","C23","C24"))for(var cl:compiled(cat.get(id).name()))for(var dependency:cl.getDirectDependenciesFromSelf()) {
-            String target=dependency.getTargetClass().getName();
-            assertFalse(target.startsWith(BASE+"engine.")||target.startsWith(BASE+"orchestrator.")||target.startsWith(BASE+"infra."),dependency.toString());
-        }
-        for(String id:Set.of("C11","C12","C13","C14","C15","C16","C17","C18","C19","C20","C43"))
-            for(var cl:compiled(cat.get(id).name()))for(var dependency:cl.getDirectDependenciesFromSelf()) {
-                String target=dependency.getTargetClass().getName();
-                assertFalse(target.startsWith(BASE+"infra.")||target.startsWith(BASE+"runtime.")||target.startsWith(BASE+"compose.")||target.startsWith("org.springframework.")||target.startsWith("java.sql."),dependency.toString());
+    private static void verifyNoDependencyMatching(
+            Map<String, Module> cat, Set<String> ids, java.util.function.Predicate<String> forbidden) {
+        for (String id : ids) {
+            for (var cl : compiled(cat.get(id).name())) {
+                for (var dependency : cl.getDirectDependenciesFromSelf()) {
+                    assertFalse(forbidden.test(dependency.getTargetClass().getName()), dependency.toString());
+                }
             }
+        }
     }
+
+    @Test void domainsAndContractsAreNeutralAndSuprasUseOnlyCapabilities() throws Exception {
+        var cat = catalogue();
+        verifyNoDependencyMatching(
+                cat,
+                Set.of("C01", "C02", "C03", "C04", "C05", "C06", "C07", "C08", "C09", "C39"),
+                target -> target.matches("(java\\.sql|javax\\.sql|org\\.springframework|jakarta\\.(servlet|persistence)|io\\.micrometer|com\\.zaxxer|com\\.fasterxml|com\\.kartaguez\\.pocoma\\.(engine|orchestrator|infra|compose|runtime|supra))\\..*"));
+        verifyNoDependencyMatching(
+                cat,
+                Set.of("C22", "C23", "C24"),
+                target -> target.startsWith(BASE + "engine.") || target.startsWith(BASE + "orchestrator.") || target.startsWith(BASE + "infra."));
+        verifyNoDependencyMatching(
+                cat,
+                Set.of("C11", "C12", "C13", "C14", "C15", "C16", "C17", "C18", "C19", "C20", "C43"),
+                target -> target.startsWith(BASE + "infra.") || target.startsWith(BASE + "runtime.") || target.startsWith(BASE + "compose.") || target.startsWith("org.springframework.") || target.startsWith("java.sql."));
+    }
+
     @Test void sourceAdaptersCannotInvokeMutatorsAndRuntimesOnlyHostCompose() throws Exception {
-        for(var cl:compiled("infra-postgres-write-source-read"))for(var d:cl.getDirectDependenciesFromSelf()) {
-            String type=d.getTargetClass().getName();
-            assertFalse(type.startsWith(BASE+"infra.postgres.write.")||type.startsWith(BASE+"engine.write."),d.toString());
-            if(type.startsWith(BASE+"engine.materialize."))assertTrue(type.endsWith("Source"),d.toString());
-            assertFalse(type.matches(".*\\.(JdbcConsumptionSlotStore|JdbcPartitionOwnershipStore|JdbcDiscoveryAdmissionStore)"),d.toString());
+        verifySourceAdapterDependencies();
+        verifyNoMutatorSqlInSourceAdapters();
+        verifyRuntimesOnlyHostCompose();
+    }
+
+    private static void verifySourceAdapterDependencies() {
+        for (var cl : compiled("infra-postgres-write-source-read")) {
+            for (var d : cl.getDirectDependenciesFromSelf()) {
+                String type = d.getTargetClass().getName();
+                assertFalse(type.startsWith(BASE + "infra.postgres.write.") || type.startsWith(BASE + "engine.write."), d.toString());
+                if (type.startsWith(BASE + "engine.materialize.")) assertTrue(type.endsWith("Source"), d.toString());
+                assertFalse(type.matches(".*\\.(JdbcConsumptionSlotStore|JdbcPartitionOwnershipStore|JdbcDiscoveryAdmissionStore)"), d.toString());
+            }
         }
-        Path source=APP.resolve("infra-postgres-write-source-read/src/main/java");
-        try(var files=Files.walk(source)) {
-            var mutator=Pattern.compile("\\b(insert\\s+into|delete\\s+from|for\\s+update|executeUpdate|batchUpdate)\\b|\\b(?:sql|jdbc|named)\\.update\\(",Pattern.CASE_INSENSITIVE);
-            for(var path:files.filter(p->p.toString().endsWith(".java")).toList())assertFalse(mutator.matcher(Files.readString(path)).find(),path.toString());
+    }
+
+    private static void verifyNoMutatorSqlInSourceAdapters() throws Exception {
+        Path source = APP.resolve("infra-postgres-write-source-read/src/main/java");
+        try (var files = Files.walk(source)) {
+            var mutator = Pattern.compile("\\b(insert\\s+into|delete\\s+from|for\\s+update|executeUpdate|batchUpdate)\\b|\\b(?:sql|jdbc|named)\\.update\\(", Pattern.CASE_INSENSITIVE);
+            for (var path : files.filter(p -> p.toString().endsWith(".java")).toList()) {
+                assertFalse(mutator.matcher(Files.readString(path)).find(), path.toString());
+            }
         }
-        for(String mod:List.of("runtime-web-write","runtime-web-read","runtime-worker-process","runtime-worker-materialize","runtime-monolith")) {
-            var classes=compiled(mod);assertEquals(1,classes.size(),mod+" must be a hosting root only");
-            for(var cl:classes)for(var d:cl.getDirectDependenciesFromSelf()) {
-                String t=d.getTargetClass().getName();
-                if(t.startsWith(BASE)&&!t.equals(cl.getName()))assertTrue(t.startsWith(BASE+"compose."),d.toString());
+    }
+
+    private static void verifyRuntimesOnlyHostCompose() {
+        for (String mod : List.of("runtime-web-write", "runtime-web-read", "runtime-worker-process", "runtime-worker-materialize", "runtime-monolith")) {
+            var classes = compiled(mod);
+            assertEquals(1, classes.size(), mod + " must be a hosting root only");
+            for (var cl : classes) {
+                cl.getDirectDependenciesFromSelf().stream()
+                        .filter(d -> d.getTargetClass().getName().startsWith(BASE) && !d.getTargetClass().getName().equals(cl.getName()))
+                        .forEach(d -> assertTrue(d.getTargetClass().getName().startsWith(BASE + "compose."), d.toString()));
             }
         }
     }

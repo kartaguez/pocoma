@@ -42,6 +42,34 @@ def inputs():
     return result
 
 
+def _inspect_classpath_property(value, jars, classpaths):
+    for entry in value.split(os.pathsep):
+        dependency = Path(entry)
+        if dependency.suffix == '.jar' and dependency.is_file():
+            jars[entry] = L1.digest(dependency.read_bytes())
+        elif entry:
+            resolved = dependency.resolve()
+            valid_target = '/target/' in str(resolved) and str(resolved).endswith(('/classes', '/test-classes'))
+            if not resolved.is_relative_to(ROOT / 'app') or not valid_target:
+                raise RuntimeError('Uninventoried classpath: ' + entry)
+            classpaths.add(entry)
+
+
+def _collect_reports_and_classpaths(output):
+    reports, jars, classpaths = [], {}, set()
+    for path in (ROOT / 'app').glob('*/target/surefire-reports/TEST-*.xml'):
+        content = path.read_bytes()
+        relative = path.relative_to(ROOT)
+        destination = output / relative
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        destination.write_bytes(content)
+        reports.append((str(relative), content, path.stat().st_mtime_ns))
+        for prop in ET.fromstring(content).findall('./properties/property'):
+            if prop.get('name') in ('java.class.path', 'surefire.test.class.path'):
+                _inspect_classpath_property(prop.get('value', ''), jars, classpaths)
+    return reports, jars, classpaths
+
+
 def run(gate):
     expected_manifest = json.loads((ROOT / 'docs/v3/L1_F_Proof_Manifest.json').read_text())
     definition = expected_manifest['gates'][gate]
@@ -71,26 +99,7 @@ def run(gate):
     if after != before or L1.git('rev-parse', 'HEAD').decode().strip() != sha:
         raise RuntimeError('Inputs/HEAD changed during gate')
     (output / 'inputs-after.json').write_text(json.dumps(after, indent=2))
-    reports, jars, classpaths = [], {}, set()
-    for path in (ROOT / 'app').glob('*/target/surefire-reports/TEST-*.xml'):
-        content = path.read_bytes()
-        relative = path.relative_to(ROOT)
-        destination = output / relative
-        destination.parent.mkdir(parents=True, exist_ok=True)
-        destination.write_bytes(content)
-        reports.append((str(relative), content, path.stat().st_mtime_ns))
-        for prop in ET.fromstring(content).findall('./properties/property'):
-            if prop.get('name') not in ('java.class.path', 'surefire.test.class.path'):
-                continue
-            for entry in prop.get('value', '').split(os.pathsep):
-                dependency = Path(entry)
-                if dependency.suffix == '.jar' and dependency.is_file():
-                    jars[entry] = L1.digest(dependency.read_bytes())
-                elif entry:
-                    resolved = dependency.resolve()
-                    if not resolved.is_relative_to(ROOT / 'app') or '/target/' not in str(resolved) or not str(resolved).endswith(('/classes', '/test-classes')):
-                        raise RuntimeError('Uninventoried classpath: ' + entry)
-                    classpaths.add(entry)
+    reports, jars, classpaths = _collect_reports_and_classpaths(output)
     external_after = L1.external_inputs()
     external_verdict = L1.verify_external(external, external_after, jars)
     for name, value in [('external-after', external_after), ('external-verdict', external_verdict), ('dependencies', jars), ('classpaths', sorted(classpaths))]:

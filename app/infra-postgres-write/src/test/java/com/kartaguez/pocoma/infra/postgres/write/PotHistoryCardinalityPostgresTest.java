@@ -1,9 +1,11 @@
 package com.kartaguez.pocoma.infra.postgres.write;
-import com.kartaguez.pocoma.infra.postgres.core.*;
+import com.kartaguez.pocoma.infra.postgres.core.bootstrap.*;
+import com.kartaguez.pocoma.infra.postgres.core.consumption.*;
+import com.kartaguez.pocoma.infra.postgres.core.history.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.kartaguez.pocoma.domain.pot.InconsistentPotFactsException;
+import com.kartaguez.pocoma.domain.pot.revision.InconsistentPotFactsException;
 import com.kartaguez.pocoma.domain.pot.PotHistory.Selection;
 
 import org.junit.jupiter.api.*;

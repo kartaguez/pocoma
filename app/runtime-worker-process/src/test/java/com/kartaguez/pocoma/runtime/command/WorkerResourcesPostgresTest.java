@@ -202,15 +202,15 @@ class WorkerResourcesPostgresTest {
                 replace(
                         com.kartaguez.pocoma.runtime.command.L2TestAccess.engine(binding.engine()),
                         "controlSlots",
-                        new com.kartaguez.pocoma.infra.postgres.core.JdbcConsumptionSlotStore(source));
+                        new com.kartaguez.pocoma.infra.postgres.core.consumption.JdbcConsumptionSlotStore(source));
                 replace(
                         com.kartaguez.pocoma.runtime.command.L2TestAccess.engine(binding.engine()),
                         "ownership",
-                        new com.kartaguez.pocoma.infra.postgres.core.JdbcPartitionOwnershipStore(source));
+                        new com.kartaguez.pocoma.infra.postgres.core.consumption.JdbcPartitionOwnershipStore(source));
                 replace(
                         com.kartaguez.pocoma.runtime.command.L2TestAccess.engine(binding.engine()),
                         "navigation",
-                        new com.kartaguez.pocoma.infra.postgres.core.JdbcSlotKeyNavigation(
+                        new com.kartaguez.pocoma.infra.postgres.core.consumption.JdbcSlotKeyNavigation(
                                 source, (LifecycleSettings) field(com.kartaguez.pocoma.runtime.command.L2TestAccess.engine(binding.engine()), "settings")));
             }
         return source;
@@ -242,18 +242,18 @@ class WorkerResourcesPostgresTest {
                 replace(
                         com.kartaguez.pocoma.runtime.command.L2TestAccess.engine(binding.engine()),
                         "slots",
-                        new com.kartaguez.pocoma.infra.postgres.core.JdbcConsumptionSlotStore(source));
+                        new com.kartaguez.pocoma.infra.postgres.core.consumption.JdbcConsumptionSlotStore(source));
                 ConsumptionParticipant participant =
                         write
                                 ? new com.kartaguez.pocoma.engine.write.pot.ExecutePotCommand(
-                                        new com.kartaguez.pocoma.infra.postgres.write
+                                        new com.kartaguez.pocoma.infra.postgres.write.pot
                                                 .JdbcPotCommandStore(source, owner),
-                                        new com.kartaguez.pocoma.infra.postgres.write
+                                        new com.kartaguez.pocoma.infra.postgres.write.pot
                                                 .JdbcPotCommandObservation(source),
                                         new com.kartaguez.pocoma.compose.polling.process.dev.FixturePotActorAuthority(source),
-                                        new com.kartaguez.pocoma.infra.postgres.write
+                                        new com.kartaguez.pocoma.infra.postgres.write.pot
                                                 .JdbcPotHistoryAdapter(source),
-                                        new com.kartaguez.pocoma.infra.postgres.write
+                                        new com.kartaguez.pocoma.infra.postgres.write.pot
                                                 .JdbcPotRevisionAdapter(source),
                                         Clock.systemUTC())
                                 : new com.kartaguez.pocoma.runtime.consumption.dev
@@ -266,7 +266,7 @@ class WorkerResourcesPostgresTest {
                                             binding.engine()),
                                     "recoveryPolicy"),
                             "admissions",
-                            new com.kartaguez.pocoma.infra.postgres.core.JdbcDiscoveryAdmissionStore(
+                            new com.kartaguez.pocoma.infra.postgres.core.consumption.JdbcDiscoveryAdmissionStore(
                                     source,
                                     (DiscoverySettings)
                                             field(com.kartaguez.pocoma.runtime.command.L2TestAccess.discovery(binding.discovery()), "settings")));
@@ -2091,6 +2091,11 @@ class WorkerResourcesPostgresTest {
             var entry = entryConstructor.newInstance(pair, partition);
 
             var renewalCalls = (Collection<Object>) field(runtime.worker, "renewalCalls");
+            var specClass =
+                    Class.forName(
+                            "com.kartaguez.pocoma.supra.polling.consumption.RenewalService$CallSpec");
+            var specConstructor = specClass.getDeclaredConstructors()[0];
+            specConstructor.setAccessible(true);
             var callClass =
                     Class.forName(
                             "com.kartaguez.pocoma.supra.polling.consumption.RenewalService$Call");
@@ -2102,8 +2107,9 @@ class WorkerResourcesPostgresTest {
             var ownership = (PartitionOwnershipStore) field(engine, "ownership");
             Callable<List<PartitionLease>> renew = () -> {
                 var permit = safety.beginRenewal(def.authority(), 2, null).orElseThrow();
-                var call = callConstructor.newInstance(
-                        def.authority(), 2, null, List.of(entry), System.nanoTime(), permit);
+                var spec = specConstructor.newInstance(
+                        def.authority(), 2, System.nanoTime(), permit);
+                var call = callConstructor.newInstance(spec, null, List.of(entry));
                 renewalCalls.add(call);
                 try {
                     var renewed = controlTx.write(

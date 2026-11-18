@@ -2,7 +2,9 @@ package com.kartaguez.pocoma.runtime.task;
 import com.kartaguez.pocoma.compose.polling.materialize.MaterializeSettings;
 import com.kartaguez.pocoma.PocomaMaterializeWorkerApplication;
 import com.kartaguez.pocoma.compose.web.read.ReadFacadeComposition;
-import com.kartaguez.pocoma.infra.postgres.core.*;
+import com.kartaguez.pocoma.infra.postgres.core.bootstrap.*;
+import com.kartaguez.pocoma.infra.postgres.core.consumption.*;
+import com.kartaguez.pocoma.infra.postgres.core.history.*;
 import com.kartaguez.pocoma.contract.consumption.invocation.WorkerView;
 import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionProtocol;
 import com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant;
@@ -23,8 +25,9 @@ import com.kartaguez.pocoma.domain.identity.BindingToken;
 import com.kartaguez.pocoma.engine.write.identity.ExecuteIdentityRequest;
 import com.kartaguez.pocoma.contract.writeadmission.PotCommand;
 import com.kartaguez.pocoma.engine.write.pot.ExecutePotCommand;
-import com.kartaguez.pocoma.infra.postgres.write.*;
-import com.kartaguez.pocoma.infra.postgres.write.PotCommandJson;
+import com.kartaguez.pocoma.infra.postgres.write.admission.*;
+import com.kartaguez.pocoma.infra.postgres.write.pot.*;
+import com.kartaguez.pocoma.infra.postgres.write.pot.PotCommandJson;
 import com.kartaguez.pocoma.infra.postgres.write.consumption.*;
 import com.kartaguez.pocoma.infra.postgres.write.identity.*;
 import com.kartaguez.pocoma.infra.tx.spring.SpringAttemptTransactions;
@@ -669,7 +672,7 @@ public final class ReadRuntimeI8Fixture implements AutoCloseable {
     }
 
     ReadFacadeComposition.Services services(ConfigurableApplicationContext context) {
-        var resources=context.getBean(com.kartaguez.pocoma.compose.polling.materialize.MaterializeComposeConfiguration.Resources.class);
+        var resources=context.getBean(com.kartaguez.pocoma.compose.polling.materialize.MaterializeResources.class);
         var settings=context.getBean(MaterializeSettings.class);
         return ReadFacadeComposition.create(resources.readBusiness,resources.readEffects,
             new com.kartaguez.pocoma.contract.readquery.ReadLimits(50,20,16_000_000),new HashSet<>(settings.readParticipants()),resources::workerState);

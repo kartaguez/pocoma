@@ -1,6 +1,11 @@
 package com.kartaguez.pocoma.contract.writeadmission;
 
 import com.kartaguez.pocoma.domain.pot.*;
+import com.kartaguez.pocoma.domain.pot.expense.*;
+import com.kartaguez.pocoma.domain.pot.invitation.*;
+import com.kartaguez.pocoma.domain.pot.revision.*;
+import com.kartaguez.pocoma.domain.pot.shareholder.*;
+import com.kartaguez.pocoma.domain.pot.value.*;
 import com.kartaguez.pocoma.domain.pot.value.Label;
 import com.kartaguez.pocoma.domain.pot.value.id.*;
 

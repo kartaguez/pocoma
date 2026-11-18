@@ -234,15 +234,34 @@ class DiscoveryEngineTest {
         assertEquals(0L, emptyReq.checkpoint().orElseThrow());
     }
 
+    private record ExpectedDiscovery(
+            DiscoveryReports.Status status,
+            int examined,
+            int advanced,
+            int committed,
+            long checkpoint) {}
+
+    private static void assertDiscoveryReport(
+            DiscoveryReports.RequestProgress report, ExpectedDiscovery expected) {
+        org.junit.jupiter.api.Assertions.assertAll(
+                () -> {
+                    if (expected.status() != null) {
+                        assertEquals(expected.status(), report.status());
+                    }
+                },
+                () -> assertEquals(expected.examined(), report.examined()),
+                () -> assertEquals(expected.advanced(), report.advanced()),
+                () -> assertEquals(expected.committed(), report.committedAdmissions()),
+                () -> assertEquals(expected.checkpoint(), report.checkpoint().orElseThrow()));
+    }
+
     @Test
     void quarantinedPresenceIsNotNewWork() {
         var h = new Harness(ConsumableFamily.COMMAND);
         h.pending = List.of(u(3), u(9));
         h.slots.add(u(3));
         var result = h.engine(1).discoverRequests(h.lease);
-        assertEquals(2, result.advanced());
-        assertEquals(1, result.committedAdmissions());
-        assertEquals(2L, result.checkpoint().orElseThrow());
+        assertDiscoveryReport(result, new ExpectedDiscovery(null, 2, 2, 1, 2L));
         assertEquals(Set.of(u(3), u(9)), h.slots);
     }
 
@@ -253,22 +272,16 @@ class DiscoveryEngineTest {
         h.terminal.add(u(3));
         h.skipped.add(u(9));
         var first = h.engine(2).discoverRequests(h.lease);
-        assertEquals(DiscoveryReports.Status.COMMITTED, first.status());
-        assertEquals(2, first.examined());
-        assertEquals(1, first.advanced());
-        assertEquals(0, first.committedAdmissions());
-        assertEquals(1L, first.checkpoint().orElseThrow());
+        assertDiscoveryReport(
+                first, new ExpectedDiscovery(DiscoveryReports.Status.COMMITTED, 2, 1, 0, 1L));
         assertEquals(1L, h.k);
         assertTrue(h.slots.isEmpty());
 
         // Once the lock on u(9) is released, the next pass resumes from checkpoint 1 and admits u(9) and u(12)
         h.skipped.remove(u(9));
         var second = h.engine(2).discoverRequests(h.lease);
-        assertEquals(DiscoveryReports.Status.COMMITTED, second.status());
-        assertEquals(2, second.examined());
-        assertEquals(2, second.advanced());
-        assertEquals(2, second.committedAdmissions());
-        assertEquals(3L, second.checkpoint().orElseThrow());
+        assertDiscoveryReport(
+                second, new ExpectedDiscovery(DiscoveryReports.Status.COMMITTED, 2, 2, 2, 3L));
         assertEquals(3L, h.k);
         assertEquals(Set.of(u(9), u(12)), h.slots);
     }
@@ -280,19 +293,15 @@ class DiscoveryEngineTest {
         h.terminal.add(u(9));
         h.slots.add(u(12));
         var result = h.engine(1).discoverRequests(h.lease);
-        assertEquals(DiscoveryReports.Status.CAPACITY, result.status());
-        assertEquals(4, result.examined());
-        assertEquals(3, result.advanced());
-        assertEquals(1, result.committedAdmissions());
-        assertEquals(3L, result.checkpoint().orElseThrow());
+        assertDiscoveryReport(
+                result, new ExpectedDiscovery(DiscoveryReports.Status.CAPACITY, 4, 3, 1, 3L));
         assertEquals(List.of(u(3), u(9), u(12), u(15)), h.protectedIds);
         var full = new Harness(ConsumableFamily.COMMAND);
         full.stock = 1;
         full.pending = h.pending;
         var stopped = full.engine(1).discoverRequests(full.lease);
-        assertEquals(DiscoveryReports.Status.CAPACITY, stopped.status());
-        assertEquals(0L, stopped.checkpoint().orElseThrow());
-        assertEquals(0, stopped.examined());
+        assertDiscoveryReport(
+                stopped, new ExpectedDiscovery(DiscoveryReports.Status.CAPACITY, 0, 0, 0, 0L));
         assertTrue(full.protectedIds.isEmpty());
     }
 
@@ -320,16 +329,7 @@ class DiscoveryEngineTest {
                 () -> h.engine(1).discoverRequests(h.lease));
     }
 
-    @Test
-    void invalidSourceOrWindowRefusedBeforeAdmission() {
-        var h = new Harness(ConsumableFamily.POT_EVENT);
-        h.events = List.of(new NonBurnableReferences.Reference(2, u(2), "POT"));
-        assertThrows(IllegalStateException.class, () -> h.engine(1).discoverEvents(h.lease));
-        assertTrue(h.slots.isEmpty());
-        assertEquals(0, h.k);
-        assertThrows(
-                IllegalStateException.class,
-                () -> h.engine(1).discoverRequests(h.lease));
+    private static void assertInvalidDiscoverySettingsRejected() {
         assertThrows(
                 IllegalArgumentException.class,
                 () -> new DiscoverySettings(0, 1, 1, 1, Duration.ZERO, Duration.ZERO));
@@ -338,7 +338,7 @@ class DiscoveryEngineTest {
                         new int[] {-1, 1, 1, 1},
                         new int[] {1, 0, 1, 1},
                         new int[] {1, 1, 0, 1},
-                        new int[] {1, 1, 1, 0}))
+                        new int[] {1, 1, 1, 0})) {
             assertThrows(
                     IllegalArgumentException.class,
                     () ->
@@ -349,17 +349,17 @@ class DiscoveryEngineTest {
                                     bounds[3],
                                     Duration.ofMillis(1),
                                     Duration.ofMillis(2)));
+        }
         for (var duration :
                 List.of(
                         Duration.ZERO,
                         Duration.ofNanos(1),
                         Duration.ofSeconds(-1),
-                        Duration.ofSeconds(Long.MAX_VALUE)))
+                        Duration.ofSeconds(Long.MAX_VALUE))) {
             assertThrows(
                     IllegalArgumentException.class,
-                    () ->
-                            new DiscoverySettings(
-                                    1, 1, 1, 1, duration, Duration.ofSeconds(2)));
+                    () -> new DiscoverySettings(1, 1, 1, 1, duration, Duration.ofSeconds(2)));
+        }
         assertThrows(
                 NullPointerException.class,
                 () -> new DiscoverySettings(1, 1, 1, 1, null, Duration.ofSeconds(2)));
@@ -368,62 +368,96 @@ class DiscoveryEngineTest {
                 () ->
                         new DiscoverySettings(
                                 1, 1, 1, 1, Duration.ofSeconds(3), Duration.ofSeconds(2)));
-        assertThrows(
-                NullPointerException.class, () -> new NonBurnableReferences.Window(0, 1, null));
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> new NonBurnableReferences.Window(Long.MAX_VALUE, 0, List.of()));
-        assertThrows(
-                NullPointerException.class,
-                () -> new NonBurnableReferences.Reference(1, null, "POT"));
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> new NonBurnableReferences.Reference(1, u(2), " "));
-        assertThrows(
-                NullPointerException.class, () -> new BurnableReferences.Window(0, 1, null));
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> new BurnableReferences.Window(Long.MAX_VALUE, 0, List.of()));
-        assertThrows(
-                NullPointerException.class,
-                () -> new BurnableReferences.Reference(1, null));
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> new BurnableReferences.Reference(0, u(2)));
-        assertThrows(
-                IllegalArgumentException.class,
+    }
+
+    private static void assertInvalidWindowsAndReferencesRejected() {
+        org.junit.jupiter.api.Assertions.assertAll(
                 () ->
-                        h.engine(1)
-                                .discoverEvents(
-                                        new PartitionLease(
-                                                new ConsumptionId(u(200)),
-                                                0,
-                                                u(101),
-                                                Instant.MAX)));
+                        assertThrows(
+                                NullPointerException.class,
+                                () -> new NonBurnableReferences.Window(0, 1, null)),
+                () ->
+                        assertThrows(
+                                IllegalArgumentException.class,
+                                () ->
+                                        new NonBurnableReferences.Window(
+                                                Long.MAX_VALUE, 0, List.of())),
+                () ->
+                        assertThrows(
+                                NullPointerException.class,
+                                () -> new NonBurnableReferences.Reference(1, null, "POT")),
+                () ->
+                        assertThrows(
+                                IllegalArgumentException.class,
+                                () -> new NonBurnableReferences.Reference(1, u(2), " ")),
+                () ->
+                        assertThrows(
+                                NullPointerException.class,
+                                () -> new BurnableReferences.Window(0, 1, null)),
+                () ->
+                        assertThrows(
+                                IllegalArgumentException.class,
+                                () -> new BurnableReferences.Window(Long.MAX_VALUE, 0, List.of())),
+                () ->
+                        assertThrows(
+                                NullPointerException.class,
+                                () -> new BurnableReferences.Reference(1, null)),
+                () ->
+                        assertThrows(
+                                IllegalArgumentException.class,
+                                () -> new BurnableReferences.Reference(0, u(2))));
+    }
+
+    @Test
+    void invalidSourceOrWindowRefusedBeforeAdmission() {
+        var h = new Harness(ConsumableFamily.POT_EVENT);
+        h.events = List.of(new NonBurnableReferences.Reference(2, u(2), "POT"));
+        assertThrows(IllegalStateException.class, () -> h.engine(1).discoverEvents(h.lease));
+        assertTrue(h.slots.isEmpty());
+        assertEquals(0, h.k);
+        assertThrows(IllegalStateException.class, () -> h.engine(1).discoverRequests(h.lease));
+        assertInvalidDiscoverySettingsRejected();
+        assertInvalidWindowsAndReferencesRejected();
+        var expiredLease = new PartitionLease(new ConsumptionId(u(200)), 0, u(101), Instant.MAX);
         var wrong = new Harness(ConsumableFamily.COMMAND);
-        assertThrows(
-                IllegalArgumentException.class,
-                () ->
-                        new DiscoveryEngine(
-                                h.definition,
-                                h,
-                                h,
-                                h,
-                                settings(1),
-                                h,
-                                (NonBurnableReferences) wrong,
-                                r -> true));
-        assertThrows(
-                IllegalArgumentException.class,
-                () ->
-                        new DiscoveryEngine(
-                                h.definition, h, h, h, settings(1), wrong.burnableSource()));
-        assertThrows(
-                IllegalStateException.class, () -> wrong.engine(1).discoverEvents(wrong.lease));
         wrong.requestWindow = List.of(new BurnableReferences.Reference(2, u(9)));
-        assertThrows(
-                IllegalStateException.class,
-                () -> wrong.engine(1).discoverRequests(wrong.lease));
+        org.junit.jupiter.api.Assertions.assertAll(
+                () ->
+                        assertThrows(
+                                IllegalArgumentException.class,
+                                () -> h.engine(1).discoverEvents(expiredLease)),
+                () ->
+                        assertThrows(
+                                IllegalArgumentException.class,
+                                () ->
+                                        new DiscoveryEngine(
+                                                h.definition,
+                                                h,
+                                                h,
+                                                h,
+                                                settings(1),
+                                                h,
+                                                (NonBurnableReferences) wrong,
+                                                r -> true)),
+                () ->
+                        assertThrows(
+                                IllegalArgumentException.class,
+                                () ->
+                                        new DiscoveryEngine(
+                                                h.definition,
+                                                h,
+                                                h,
+                                                h,
+                                                settings(1),
+                                                wrong.burnableSource())),
+                () ->
+                        assertThrows(
+                                IllegalStateException.class,
+                                () -> wrong.engine(1).discoverEvents(wrong.lease)),
+                () ->
+                        assertThrows(
+                                IllegalStateException.class,
+                                () -> wrong.engine(1).discoverRequests(wrong.lease)));
         assertTrue(wrong.slots.isEmpty());
         h.owned = false;
         h.events = List.of();

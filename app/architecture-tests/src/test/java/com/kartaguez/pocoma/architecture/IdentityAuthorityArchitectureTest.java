@@ -6,11 +6,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
+import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.importer.ClassFileImporter;
 import com.tngtech.archunit.core.importer.ImportOption;
 
@@ -53,51 +55,44 @@ class IdentityAuthorityArchitectureTest {
                         ROOT + ".runtime..",
                         ROOT + ".infra.postgres.read..")
                 .check(CLASSES);
-        for (var c :
+        var identityClasses =
                 CLASSES.stream()
-                        .filter(
-                                c ->
-                                        c.getPackageName()
-                                                .startsWith(
-                                                        ROOT
-                                                                + ".infra.postgres.write.identity"))
-                        .toList()) {
+                        .filter(c -> c.getPackageName().startsWith(ROOT + ".infra.postgres.write.identity"))
+                        .toList();
+        verifyIdentityPotDependency(identityClasses);
+        verifyNoForbiddenIdentityCalls(identityClasses);
+    }
+
+    private static void verifyIdentityPotDependency(List<JavaClass> identityClasses) {
+        for (var c : identityClasses) {
             for (var dependency : c.getDirectDependenciesFromSelf()) {
                 if (dependency.getTargetClass().getPackageName().startsWith(ROOT + ".domain.pot")) {
                     assertEquals("JdbcIdentityPotActorAuthority", c.getSimpleName());
-                    assertEquals(
-                            ROOT + ".domain.pot.value.UserId",
-                            dependency.getTargetClass().getName());
+                    assertEquals(ROOT + ".domain.pot.value.UserId", dependency.getTargetClass().getName());
                 }
             }
         }
-        for (var c :
-                CLASSES.stream()
-                        .filter(
-                                c ->
-                                        c.getPackageName()
-                                                .startsWith(
-                                                        ROOT
-                                                                + ".infra.postgres.write.identity"))
-                        .toList()) {
+    }
+
+    private static void verifyNoForbiddenIdentityCalls(List<JavaClass> identityClasses) {
+        var forbidden =
+                Set.of(
+                        "commit",
+                        "rollback",
+                        "getConnection",
+                        "setSavepoint",
+                        "bindResource",
+                        "registerSynchronization",
+                        "write",
+                        "read",
+                        "scheduleAtFixedRate");
+        for (var c : identityClasses) {
             assertFalse(
                     c.getMethodCallsFromSelf().stream()
                             .anyMatch(
                                     call ->
-                                            Set.of(
-                                                                    "commit",
-                                                                    "rollback",
-                                                                    "getConnection",
-                                                                    "setSavepoint",
-                                                                    "bindResource",
-                                                                    "registerSynchronization",
-                                                                    "write",
-                                                                    "read",
-                                                                    "scheduleAtFixedRate")
-                                                            .contains(call.getTarget().getName())
-                                                    && !call.getTargetOwner()
-                                                            .getName()
-                                                            .equals(c.getName())),
+                                            forbidden.contains(call.getTarget().getName())
+                                                    && !call.getTargetOwner().getName().equals(c.getName())),
                     c.getName());
         }
     }

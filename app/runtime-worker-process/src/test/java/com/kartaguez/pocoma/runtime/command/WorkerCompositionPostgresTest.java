@@ -186,7 +186,7 @@ class WorkerCompositionPostgresTest {
             var ctx = f.start();
             assertTrue(ctx.getBeansOfType(HikariDataSource.class).isEmpty());
             var resources = ctx.getBean(
-                    com.kartaguez.pocoma.compose.polling.process.ProcessComposeConfiguration.Resources.class);
+                    com.kartaguez.pocoma.compose.polling.process.ProcessResources.class);
             assertTrue(resources.capacityView().isPresent());
             assertEquals(1, ctx.getBeansOfType(ConsumptionWorker.class).size());
             for (String name : ctx.getBeanDefinitionNames()) {

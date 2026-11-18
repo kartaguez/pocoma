@@ -29,11 +29,22 @@ def digest(path):
         return hashlib.file_digest(stream, 'sha256').hexdigest()
 
 
+def _read_cstring(stream, header):
+    while True:
+        value = stream.read(1)
+        if not value:
+            raise ValueError('Truncated gzip header')
+        header.extend(value)
+        if value == b'\0':
+            return
+
+
 def gzip_parts(path):
     """Preserve the complete original header, including optional gzip fields."""
     with path.open('rb') as stream:
         header = bytearray(stream.read(10))
-        if len(header) != 10 or header[:3] != b'\x1f\x8b\x08' or header[3] & 0xe0:
+        valid_magic = len(header) == 10 and header[:3] == b'\x1f\x8b\x08'
+        if not valid_magic or header[3] & 0xe0:
             raise ValueError('Unsupported gzip header')
         flags = header[3]
         if flags & 4:
@@ -42,13 +53,7 @@ def gzip_parts(path):
             header.extend(stream.read(int.from_bytes(length, 'little')))
         for flag in (8, 16):
             if flags & flag:
-                while True:
-                    value = stream.read(1)
-                    if not value:
-                        raise ValueError('Truncated gzip header')
-                    header.extend(value)
-                    if value == b'\0':
-                        break
+                _read_cstring(stream, header)
         if flags & 2:
             header.extend(stream.read(2))
         stream.seek(-8, 2)
@@ -114,7 +119,8 @@ def historical_bytes(entry, output=None, root=None):
     finally:
         process.stdout.close()
         returncode = process.wait()
-    if returncode or size != entry['bytes'] or digest.hexdigest() != entry['sha256']:
+    mismatch = size != entry['bytes'] or digest.hexdigest() != entry['sha256']
+    if returncode or mismatch:
         raise ValueError('Historical Git bytes unavailable or changed: ' + locator)
 
 
@@ -135,6 +141,49 @@ def retained_sources(retention):
     return historical
 
 
+def _check_all(entries, retention, historical, updates):
+    checked = transcoded = git_blobs = 0
+    for entry in entries:
+        if entry['path'] in historical:
+            historical_bytes(historical[entry['path']])
+            git_blobs += 1
+        elif 'replacement' in entry:
+            historical_gzip(entry)
+            transcoded += 1
+        else:
+            expected_sha = updates.get(entry['path'], entry.get('current_sha256', entry['sha256']))
+            if digest(ROOT / entry['path']) != expected_sha:
+                raise ValueError('Changed retained artifact: ' + entry['path'])
+        checked += 1
+    # Includes the XZ identity independently of its original gzip alias.
+    for row in retention.get('artifacts', []):
+        if row['category'] == 'B':
+            historical_bytes(row['historical'])
+        elif digest(ROOT / row['path']) != updates.get(row['path'], row['sha256']):
+            raise ValueError('Changed HEAD artifact: ' + row['path'])
+    print(f'OK: {checked} baseline artifacts; {git_blobs} historical Git sources; '
+          f'{transcoded} local gzip reconstructions; all retention rows verified; '
+          'no application certification')
+
+
+def _handle_historical(parser, args, source):
+    if args.operation == 'resolve':
+        historical_bytes(source)
+        print('git:' + source['commit'] + ':' + source.get('historical_path', source['path']))
+        return
+    if not args.destination:
+        parser.error('restore requires --destination (new file)')
+    restore_historical(source, args.destination)
+    print(f'OK: {args.destination}; historical SHA-256 {source["sha256"]}')
+
+
+def _normalize_path(raw_path):
+    requested = Path(raw_path)
+    if requested.is_absolute():
+        requested = requested.resolve().relative_to(ROOT.resolve())
+    return requested.as_posix()
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('operation', choices=('check', 'resolve', 'restore'))
@@ -147,53 +196,24 @@ def main():
     updates = retention.get('head_updates', {})
     entries = inventory['artifacts']
     if args.operation == 'check':
-        checked = transcoded = git_blobs = 0
-        for entry in entries:
-            if entry['path'] in historical:
-                historical_bytes(historical[entry['path']])
-                git_blobs += 1
-            elif 'replacement' in entry:
-                historical_gzip(entry)
-                transcoded += 1
-            elif digest(ROOT / entry['path']) != updates.get(entry['path'], entry.get('current_sha256', entry['sha256'])):
-                raise ValueError('Changed retained artifact: ' + entry['path'])
-            checked += 1
-        # Includes the XZ identity independently of its original gzip alias.
-        for row in retention.get('artifacts', []):
-            if row['category'] == 'B':
-                historical_bytes(row['historical'])
-            elif digest(ROOT / row['path']) != updates.get(row['path'], row['sha256']):
-                raise ValueError('Changed HEAD artifact: ' + row['path'])
-        print(f'OK: {checked} baseline artifacts; {git_blobs} historical Git sources; '
-              f'{transcoded} local gzip reconstructions; all retention rows verified; '
-              'no application certification')
+        _check_all(entries, retention, historical, updates)
         return
     if not args.path:
         parser.error('path is required')
-    requested = Path(args.path)
-    if requested.is_absolute():
-        requested = requested.resolve().relative_to(ROOT.resolve())
-    path = requested.as_posix()
-    entry = next((e for e in entries if e['path'] == path), None)
+    path = _normalize_path(args.path)
     if path in historical:
-        source = historical[path]
-        if args.operation == 'resolve':
-            historical_bytes(source)
-            print('git:' + source['commit'] + ':' + source.get('historical_path', source['path']))
-        else:
-            if not args.destination:
-                parser.error('restore requires --destination (new file)')
-            restore_historical(source, args.destination)
-            print(f'OK: {args.destination}; historical SHA-256 {source["sha256"]}')
-    elif entry is None:
+        _handle_historical(parser, args, historical[path])
+        return
+    entry = next((e for e in entries if e['path'] == path), None)
+    if entry is None:
         parser.error('path is not in the inventories')
-    elif args.operation == 'resolve':
+    if args.operation == 'resolve':
         print(ROOT / entry.get('replacement', entry)['path'])
-    else:
-        if not args.destination or 'replacement' not in entry:
-            parser.error('restore requires --destination and a historical/transcoded archive')
-        restore(entry, args.destination)
-        print(f'OK: {args.destination}; historical SHA-256 {entry["sha256"]}')
+        return
+    if not args.destination or 'replacement' not in entry:
+        parser.error('restore requires --destination and a historical/transcoded archive')
+    restore(entry, args.destination)
+    print(f'OK: {args.destination}; historical SHA-256 {entry["sha256"]}')
 
 
 if __name__ == '__main__':

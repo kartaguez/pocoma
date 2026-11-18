@@ -6,7 +6,7 @@ import javax.sql.DataSource;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 
-import com.kartaguez.pocoma.domain.pot.Invitation;
+import com.kartaguez.pocoma.domain.pot.invitation.Invitation;
 import com.kartaguez.pocoma.engine.materialize.pot.InvitationSource;
 import com.kartaguez.pocoma.infra.tx.spring.SpringAttemptTransactions;
 import com.kartaguez.pocoma.port.transaction.RecoveryReadContext;

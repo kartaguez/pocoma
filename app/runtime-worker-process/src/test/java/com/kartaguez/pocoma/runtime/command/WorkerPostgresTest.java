@@ -69,8 +69,8 @@ import com.kartaguez.pocoma.contract.consumption.spi.RecoveryObservation;
 import com.kartaguez.pocoma.contract.writeadmission.PotCommand;
 import com.kartaguez.pocoma.domain.consumption.ConsumptionCatalog;
 import com.kartaguez.pocoma.domain.pot.value.Label;
-import com.kartaguez.pocoma.infra.postgres.core.BootstrapGuard;
-import com.kartaguez.pocoma.infra.postgres.write.PotCommandJson;
+import com.kartaguez.pocoma.infra.postgres.core.bootstrap.BootstrapGuard;
+import com.kartaguez.pocoma.infra.postgres.write.pot.PotCommandJson;
 import com.kartaguez.pocoma.orchestrator.consumption.ConsumptionEngine;
 import com.kartaguez.pocoma.orchestrator.consumption.WorkerCapacity;
 import com.kartaguez.pocoma.port.transaction.AttemptTransactions;
@@ -169,24 +169,29 @@ class WorkerPostgresTest {
                     new JdbcTemplate(
                             new DriverManagerDataSource(
                                     readUrl, pg.getUsername(), pg.getPassword()));
-            for (String role : List.of(writeRole, readRole, reactRole, injectorRole))
+            for (String role : List.of(writeRole, readRole, reactRole, injectorRole)) {
                 write.execute("create role " + role + " login password 'i5-fixture'");
+            }
+            migrateAndGrantSchemas(pg);
+            configureWorkerProperties(pg);
+            trace.add(
+                    "initial expected: nine business contracts plus two technical READ probes; no"
+                            + " slots/K/effects; fresh "
+                            + schema);
+        }
+
+        private void migrateAndGrantSchemas(PostgreSQLContainer pg) throws Exception {
             for (boolean w : List.of(true, false)) {
-                String url = w ? writeUrl : readUrl,
-                        db = w ? pg.getDatabaseName() : "i5_read",
-                        role = w ? writeRole : readRole;
+                String url = w ? writeUrl : readUrl;
+                String db = w ? pg.getDatabaseName() : "i5_read";
+                String role = w ? writeRole : readRole;
+                String location =
+                        w ? "classpath:db/write/migration" : "classpath:db/read/migration";
                 Flyway.configure()
                         .dataSource(url, pg.getUsername(), pg.getPassword())
                         .schemas(schema)
                         .defaultSchema(schema)
-                        .locations(
-                                w
-                                        ? new String[] {
-                                            "classpath:db/write/migration"
-                                        }
-                                        : new String[] {
-                                            "classpath:db/read/migration"
-                                        })
+                        .locations(location)
                         .placeholders(
                                 Map.of(
                                         "expectedDatabase",
@@ -205,8 +210,13 @@ class WorkerPostgresTest {
                                 "grant-l2-lifecycle.sql",
                                 "grant-l2-discovery.sql",
                                 "bootstrap-l2-worker-dev.sql",
-                                "grant-l2-worker-dev.sql")) script(script, w);
+                                "grant-l2-worker-dev.sql")) {
+                    script(script, w);
+                }
             }
+        }
+
+        private void configureWorkerProperties(PostgreSQLContainer pg) {
             String prefix = "pocoma.v3.worker.";
             properties.put(prefix + "enabled", "true");
             properties.put(prefix + "environment", "DEV");
@@ -263,10 +273,6 @@ class WorkerPostgresTest {
                     properties.put(p + "password", "i5-fixture");
                 }
             }
-            trace.add(
-                    "initial expected: nine business contracts plus two technical READ probes; no"
-                            + " slots/K/effects; fresh "
-                            + schema);
         }
 
         void script(String name, boolean w) throws Exception {
@@ -1236,112 +1242,152 @@ class WorkerPostgresTest {
                 f.evidence("i5_w17-H1");
             }
         }
-        for (boolean write : List.of(true, false))
-            for (boolean afterRetire : List.of(false, true))
-                unresolvedPhysical(write, false, false, true, afterRetire);
+        for (boolean write : List.of(true, false)) {
+            for (boolean afterRetire : List.of(false, true)) {
+                unresolvedPhysical(new UnresolvedPhysicalSpec(write, false, false, true, afterRetire));
+            }
+        }
         for (boolean write : List.of(true, false)) {
             lateRenewalAbandon(write);
             lateRenewalNewIncarnation(write);
         }
     }
 
+    private static boolean isPrimaryRenewThread() {
+        String name = Thread.currentThread().getName();
+        return name.startsWith("v3-renew-") && !name.contains("-2-");
+    }
+
+    private static void pauseFirstRenewCommit(
+            Object engine, CountDownLatch committed, CountDownLatch release) throws Exception {
+        var owner = (AttemptTransactions) field(engine, "controlTransactions");
+        var once = new AtomicBoolean(true);
+        replace(
+                engine,
+                "controlTransactions",
+                new ForwardingTransactions(owner) {
+                    public <T> T write(
+                            Supplier<T> action,
+                            com.kartaguez.pocoma.port.transaction.AttemptTransactions.Guard guard) {
+                        var result = owner.write(action, guard);
+                        if (isPrimaryRenewThread() && once.compareAndSet(true, false)) {
+                            committed.countDown();
+                            latch(release);
+                        }
+                        return result;
+                    }
+                });
+    }
+
+    private static void installBlockingExecutor(
+            ConsumptionWorker worker,
+            ConsumptionWorker.Binding target,
+            CountDownLatch accepted,
+            CountDownLatch enter)
+            throws Exception {
+        var executor =
+                new ThreadPoolExecutor(
+                        4,
+                        4,
+                        0,
+                        TimeUnit.MILLISECONDS,
+                        new SynchronousQueue<>(),
+                        Thread.ofPlatform().name("v3-attempt-late-", 0).factory(),
+                        new ThreadPoolExecutor.AbortPolicy()) {
+                    protected void beforeExecute(Thread thread, Runnable task) {
+                        try {
+                            var binding = (ConsumptionWorker.Binding) field(task, "binding");
+                            if (binding == target) {
+                                accepted.countDown();
+                                latch(enter);
+                            }
+                        } catch (Exception e) {
+                            throw new AssertionError(e);
+                        }
+                    }
+                };
+        ((ThreadPoolExecutor) field(worker, "executor")).shutdown();
+        replace(worker, "executor", executor);
+    }
+
+    private static int effectCount(JdbcTemplate sql, boolean write, UUID cid) {
+        return write
+                ? sql.queryForObject("select count(*) from v3_command_result", Integer.class)
+                : sql.queryForObject(
+                        "select count(*) from i5_read_probe_effect where consumption_id=?",
+                        Integer.class,
+                        cid);
+    }
+
+    private static void wrapRollbackOnFirstPrepare(
+            Object engine,
+            CountDownLatch firstPrepared,
+            CountDownLatch rollback,
+            CountDownLatch secondPrepared,
+            CountDownLatch finish)
+            throws Exception {
+        var prepares = new AtomicInteger();
+        var real = (ConsumptionParticipant) field(engine, "participant");
+        replace(
+                engine,
+                "participant",
+                new ConsumptionParticipant() {
+                    public Optional<Prepared> prepare(UUID id, PreparationReads reads) {
+                        var value = real.prepare(id, reads);
+                        if (prepares.incrementAndGet() == 1) {
+                            firstPrepared.countDown();
+                            latch(rollback);
+                            return value.map(WorkerPostgresTest::failOnCompletion);
+                        }
+                        secondPrepared.countDown();
+                        latch(finish);
+                        return value;
+                    }
+
+                    public Recovery prepareRecovery(UUID id, PreparationReads reads) {
+                        return real.prepareRecovery(id, reads);
+                    }
+                });
+    }
+
+    private static ConsumptionParticipant.Prepared failOnCompletion(
+            ConsumptionParticipant.Prepared delegate) {
+        return new ConsumptionParticipant.Prepared() {
+            public void finalizeIn(SlotCompletion completion) {
+                delegate.finalizeIn(
+                        () -> {
+                            completion.complete();
+                            throw new IllegalStateException(
+                                    "rollback after completion before publication");
+                        });
+            }
+
+            public void requireCompletionReady() {
+                delegate.requireCompletionReady();
+            }
+        };
+    }
+
     void lateRenewalAbandon(boolean write) throws Exception {
         try (var f = new Fixture(PG)) {
             f.properties.put("pocoma.v3.worker.lifecycle.renewal-interval-ms", "100");
             try (var runtime = new Runtime(f, ConsumptionObservation.noop())) {
-                int index = write ? 0 : 1;
+                var target = runtime.bindings.get(write ? 0 : 1);
                 if (!write) seedPublications(f, runtime, 1);
-                var target = runtime.bindings.get(index);
                 var accepted = new CountDownLatch(1);
                 var enter = new CountDownLatch(1);
                 var renewCommitted = new CountDownLatch(1);
                 var reply = new CountDownLatch(1);
-                var first = new AtomicBoolean(true);
-                var executor =
-                        new ThreadPoolExecutor(
-                                4,
-                                4,
-                                0,
-                                TimeUnit.MILLISECONDS,
-                                new SynchronousQueue<>(),
-                                Thread.ofPlatform().name("v3-attempt-late-", 0).factory(),
-                                new ThreadPoolExecutor.AbortPolicy()) {
-                            protected void beforeExecute(Thread thread, Runnable task) {
-                                try {
-                                    var binding =
-                                            (ConsumptionWorker.Binding) field(task, "binding");
-                                    if (binding == target) {
-                                        accepted.countDown();
-                                        latch(enter);
-                                    }
-                                } catch (Exception e) {
-                                    throw new AssertionError(e);
-                                }
-                            }
-                        };
-                ((ThreadPoolExecutor) field(runtime.worker, "executor")).shutdown();
-                replace(runtime.worker, "executor", executor);
-                var owner = (AttemptTransactions) field(com.kartaguez.pocoma.runtime.command.L2TestAccess.engine(target.engine()), "controlTransactions");
-                replace(
+                installBlockingExecutor(runtime.worker, target, accepted, enter);
+                pauseFirstRenewCommit(
                         com.kartaguez.pocoma.runtime.command.L2TestAccess.engine(target.engine()),
-                        "controlTransactions",
-                        new ForwardingTransactions(owner) {
-                            public <T> T write(
-                                    java.util.function.Supplier<T> action,
-                                    com.kartaguez.pocoma.port.transaction.AttemptTransactions
-                                                    .Guard
-                                            guard) {
-                                var result = owner.write(action, guard);
-                                if (Thread.currentThread().getName().startsWith("v3-renew-")
-                                        && !Thread.currentThread().getName().contains("-2-")
-                                        && first.compareAndSet(true, false)) {
-                                    renewCommitted.countDown();
-                                    latch(reply);
-                                }
-                                return result;
-                            }
-                        });
+                        renewCommitted,
+                        reply);
                 if (write) f.inject(17200);
                 runtime.worker.start();
                 try {
-                    latch(accepted);
-                    latch(renewCommitted);
-                    runtime.worker.requestDrain();
-                    await(() -> runtime.capacity.snapshot().worker() == 0);
-                    assertEquals(
-                            WorkerView.State.DRAINING, runtime.worker.snapshot().state());
-                    enter.countDown();
-                    await(() -> runtime.worker.snapshot().handles() == 0);
-                    reply.countDown();
-                    await(
-                            () ->
-                                    runtime.worker.snapshot().state()
-                                            == WorkerView.State.STOPPED);
-                    var sql = write ? f.write : f.read;
-                    var cid = target.definition().id().value();
-                    assertEquals(
-                            1,
-                            sql.queryForObject(
-                                    "select count(*) from consumption_slot where consumption_id=?"
-                                            + " and claim_token is not null and attempt_count=0",
-                                    Integer.class,
-                                    cid));
-                    assertEquals(
-                            0,
-                            write
-                                    ? sql.queryForObject(
-                                            "select count(*) from v3_command_result", Integer.class)
-                                    : sql.queryForObject(
-                                            "select count(*) from i5_read_probe_effect where"
-                                                    + " consumption_id=?",
-                                            Integer.class,
-                                            cid));
-                    assertEquals(0, runtime.worker.snapshot().handles());
-                    await(() -> runtime.capacity.snapshot().worker() == 0);
-                    f.trace.add(
-                            "H2: renewal committed before abandoned WAITING handle retired; late"
-                                    + " reply did not reinsert/execute/restore capacity, SQL claim"
-                                    + " remains for expiry");
+                    verifyLateRenewalAbandon(
+                            f, runtime, target, write, accepted, renewCommitted, enter, reply);
                 } finally {
                     enter.countDown();
                     reply.countDown();
@@ -1351,139 +1397,77 @@ class WorkerPostgresTest {
         }
     }
 
+    private static void verifyLateRenewalAbandon(
+            Fixture f,
+            Runtime runtime,
+            ConsumptionWorker.Binding target,
+            boolean write,
+            CountDownLatch accepted,
+            CountDownLatch renewCommitted,
+            CountDownLatch enter,
+            CountDownLatch reply)
+            throws Exception {
+        latch(accepted);
+        latch(renewCommitted);
+        runtime.worker.requestDrain();
+        await(() -> runtime.capacity.snapshot().worker() == 0);
+        assertEquals(WorkerView.State.DRAINING, runtime.worker.snapshot().state());
+        enter.countDown();
+        await(() -> runtime.worker.snapshot().handles() == 0);
+        reply.countDown();
+        await(() -> runtime.worker.snapshot().state() == WorkerView.State.STOPPED);
+        var sql = write ? f.write : f.read;
+        var cid = target.definition().id().value();
+        assertEquals(
+                1,
+                sql.queryForObject(
+                        "select count(*) from consumption_slot where consumption_id=? and"
+                                + " claim_token is not null and attempt_count=0",
+                        Integer.class,
+                        cid));
+        assertEquals(0, effectCount(sql, write, cid));
+        assertEquals(0, runtime.worker.snapshot().handles());
+        await(() -> runtime.capacity.snapshot().worker() == 0);
+        f.trace.add(
+                "H2: renewal committed before abandoned WAITING handle retired; late"
+                        + " reply did not reinsert/execute/restore capacity, SQL claim"
+                        + " remains for expiry");
+    }
+
     void lateRenewalNewIncarnation(boolean write) throws Exception {
         try (var f = new Fixture(PG)) {
             f.properties.put("pocoma.v3.worker.lifecycle.renewal-interval-ms", "100");
             f.properties.put("pocoma.v3.worker.lifecycle.retry-delay-ms", "0");
             try (var runtime = new Runtime(f, ConsumptionObservation.noop())) {
-                int index = write ? 0 : 1;
+                var engine =
+                        com.kartaguez.pocoma.runtime.command.L2TestAccess.engine(
+                                runtime.bindings.get(write ? 0 : 1).engine());
                 if (!write) seedPublications(f, runtime, 1);
-                var engine = com.kartaguez.pocoma.runtime.command.L2TestAccess.engine(runtime.bindings.get(index).engine());
                 var sql = write ? f.write : f.read;
-                var cid = runtime.bindings.get(index).definition().id().value();
+                var cid = runtime.bindings.get(write ? 0 : 1).definition().id().value();
                 var firstPrepared = new CountDownLatch(1);
                 var rollback = new CountDownLatch(1);
                 var secondPrepared = new CountDownLatch(1);
                 var finish = new CountDownLatch(1);
                 var committed = new CountDownLatch(1);
                 var reply = new CountDownLatch(1);
-                var prepares = new AtomicInteger();
-                var once = new AtomicBoolean(true);
-                var real = (ConsumptionParticipant) field(engine, "participant");
-                replace(
-                        engine,
-                        "participant",
-                        new ConsumptionParticipant() {
-                            public Optional<Prepared> prepare(UUID id, PreparationReads reads) {
-                                var value = real.prepare(id, reads);
-                                if (prepares.incrementAndGet() == 1) {
-                                    firstPrepared.countDown();
-                                    latch(rollback);
-                                    return value.map(
-                                            p ->
-                                                    new Prepared() {
-                                                        public void finalizeIn(
-                                                                SlotCompletion completion) {
-                                                            p.finalizeIn(
-                                                                    () -> {
-                                                                        completion.complete();
-                                                                        throw new IllegalStateException(
-                                                                                "rollback after"
-                                                                                    + " completion"
-                                                                                    + " before"
-                                                                                    + " publication");
-                                                                    });
-                                                        }
-
-                                                        public void requireCompletionReady() {
-                                                            p.requireCompletionReady();
-                                                        }
-                                                    });
-                                }
-                                secondPrepared.countDown();
-                                latch(finish);
-                                return value;
-                            }
-
-                            public Recovery prepareRecovery(UUID id, PreparationReads reads) {
-                                return real.prepareRecovery(id, reads);
-                            }
-                        });
-                var owner = (AttemptTransactions) field(engine, "controlTransactions");
-                replace(
-                        engine,
-                        "controlTransactions",
-                        new ForwardingTransactions(owner) {
-                            public <T> T write(
-                                    java.util.function.Supplier<T> action,
-                                    com.kartaguez.pocoma.port.transaction.AttemptTransactions
-                                                    .Guard
-                                            guard) {
-                                var result = owner.write(action, guard);
-                                if (Thread.currentThread().getName().startsWith("v3-renew-")
-                                        && !Thread.currentThread().getName().contains("-2-")
-                                        && once.compareAndSet(true, false)) {
-                                    committed.countDown();
-                                    latch(reply);
-                                }
-                                return result;
-                            }
-                        });
+                wrapRollbackOnFirstPrepare(engine, firstPrepared, rollback, secondPrepared, finish);
+                pauseFirstRenewCommit(engine, committed, reply);
                 if (write) f.inject(17300);
                 runtime.worker.start();
                 try {
-                    latch(firstPrepared);
-                    UUID old =
-                            sql.queryForObject(
-                                    "select claim_token from consumption_slot where"
-                                            + " consumption_id=? and claim_token is not null",
-                                    UUID.class,
-                                    cid);
-                    latch(committed);
-                    rollback.countDown();
-                    latch(secondPrepared);
-                    UUID fresh =
-                            sql.queryForObject(
-                                    "select claim_token from consumption_slot where"
-                                            + " consumption_id=? and claim_token is not null",
-                                    UUID.class,
-                                    cid);
-                    assertNotEquals(old, fresh);
-                    assertEquals(
-                            1,
-                            sql.queryForObject(
-                                    "select attempt_count from consumption_slot where"
-                                            + " consumption_id=?",
-                                    Integer.class,
-                                    cid));
-                    await(() -> runtime.worker.snapshot().handles() == 1);
-                    reply.countDown();
-                    await(() -> runtime.worker.snapshot().renewalCalls() == 0);
-                    assertEquals(1, runtime.worker.snapshot().handles());
-                    assertEquals(1, runtime.capacity.snapshot().worker());
-                    finish.countDown();
-                    await(
-                            () ->
-                                    sql.queryForObject(
-                                                    "select count(*) from consumption_slot where"
-                                                            + " consumption_id=?",
-                                                    Integer.class,
-                                                    cid)
-                                            == 0);
-                    assertEquals(
-                            1,
-                            write
-                                    ? sql.queryForObject(
-                                            "select count(*) from v3_command_result", Integer.class)
-                                    : sql.queryForObject(
-                                            "select count(*) from i5_read_probe_effect where"
-                                                    + " consumption_id=?",
-                                            Integer.class,
-                                            cid));
-                    f.trace.add(
-                            "H3: old claim renewed, real rollback/cession then new same-key"
-                                + " incarnation; old positive reply could not replace B or execute"
-                                + " again; one effect");
+                    verifyLateRenewalNewIncarnation(
+                            f,
+                            runtime,
+                            sql,
+                            cid,
+                            write,
+                            firstPrepared,
+                            committed,
+                            rollback,
+                            secondPrepared,
+                            reply,
+                            finish);
                 } finally {
                     rollback.countDown();
                     finish.countDown();
@@ -1492,6 +1476,63 @@ class WorkerPostgresTest {
                 }
             }
         }
+    }
+
+    private static void verifyLateRenewalNewIncarnation(
+            Fixture f,
+            Runtime runtime,
+            JdbcTemplate sql,
+            UUID cid,
+            boolean write,
+            CountDownLatch firstPrepared,
+            CountDownLatch committed,
+            CountDownLatch rollback,
+            CountDownLatch secondPrepared,
+            CountDownLatch reply,
+            CountDownLatch finish)
+            throws Exception {
+        latch(firstPrepared);
+        UUID old =
+                sql.queryForObject(
+                        "select claim_token from consumption_slot where consumption_id=? and"
+                                + " claim_token is not null",
+                        UUID.class,
+                        cid);
+        latch(committed);
+        rollback.countDown();
+        latch(secondPrepared);
+        UUID fresh =
+                sql.queryForObject(
+                        "select claim_token from consumption_slot where consumption_id=? and"
+                                + " claim_token is not null",
+                        UUID.class,
+                        cid);
+        assertNotEquals(old, fresh);
+        assertEquals(
+                1,
+                sql.queryForObject(
+                        "select attempt_count from consumption_slot where consumption_id=?",
+                        Integer.class,
+                        cid));
+        await(() -> runtime.worker.snapshot().handles() == 1);
+        reply.countDown();
+        await(() -> runtime.worker.snapshot().renewalCalls() == 0);
+        assertEquals(1, runtime.worker.snapshot().handles());
+        assertEquals(1, runtime.capacity.snapshot().worker());
+        finish.countDown();
+        await(
+                () ->
+                        sql.queryForObject(
+                                        "select count(*) from consumption_slot where"
+                                                + " consumption_id=?",
+                                        Integer.class,
+                                        cid)
+                                == 0);
+        assertEquals(1, effectCount(sql, write, cid));
+        f.trace.add(
+                "H3: old claim renewed, real rollback/cession then new same-key"
+                        + " incarnation; old positive reply could not replace B or execute"
+                        + " again; one effect");
     }
 
     static class ForwardingTransactions implements AttemptTransactions {
@@ -1524,91 +1565,113 @@ class WorkerPostgresTest {
 
     @Test
     void i5_w18() throws Exception {
+        verifyI5W18D1();
+        verifyI5W18D4();
+    }
+
+    private void verifyI5W18D1() throws Exception {
         // D1: a confirmed physical acquisition returns only after the drain barrier.
         try (var f = new Fixture(PG);
                 var runtime = new Runtime(f, ConsumptionObservation.noop())) {
             var acquired = new CountDownLatch(1);
             var returned = new CountDownLatch(1);
-            var arm = new AtomicBoolean();
-            var engine = com.kartaguez.pocoma.runtime.command.L2TestAccess.engine(runtime.bindings.getFirst().engine());
-            var realStore = (ConsumptionSlotStore) field(engine, "controlSlots");
-            replace(
-                    engine,
-                    "controlSlots",
-                    java.lang.reflect.Proxy.newProxyInstance(
-                            getClass().getClassLoader(),
-                            new Class[] {ConsumptionSlotStore.class},
-                            (p, m, args) -> {
-                                try {
-                                    var value = m.invoke(realStore, args);
-                                    if (m.getName().equals("acquire")
-                                            && !((List<?>) value).isEmpty()) arm.set(true);
-                                    return value;
-                                } catch (java.lang.reflect.InvocationTargetException e) {
-                                    throw e.getCause();
-                                }
-                            }));
-            var owner = (AttemptTransactions) field(engine, "controlTransactions");
-            replace(
-                    engine,
-                    "controlTransactions",
-                    new ForwardingTransactions(owner) {
-                        public <T> T write(
-                                Supplier<T> action,
-                                com.kartaguez.pocoma.port.transaction.AttemptTransactions.Guard
-                                        guard) {
-                            var result = owner.write(action, guard);
-                            if (Thread.currentThread().getName().startsWith("v3-consumption-")
-                                    && arm.compareAndSet(true, false)) {
-                                acquired.countDown();
-                                latch(returned);
-                            }
-                            return result;
-                        }
-                    });
+            var engine =
+                    com.kartaguez.pocoma.runtime.command.L2TestAccess.engine(
+                            runtime.bindings.getFirst().engine());
+            pauseOnConsumptionAcquire(engine, acquired, returned);
             var id = f.inject(1800);
             runtime.worker.start();
             try {
-                latch(acquired);
-                assertNotNull(
-                        f.write.queryForObject(
-                                "select claim_token from consumption_slot where consumable_id=?",
-                                UUID.class,
-                                id));
-                runtime.worker.requestDrain();
-                // The confirmed Consumption operation is held; independent Discovery may
-                // still be returning from its own L1 unit after L5.
-                int operations = runtime.worker.snapshot().operations();
-                assertTrue(operations >= 1 && operations <= 2);
-                assertEquals(1, runtime.capacity.snapshot().worker());
-                returned.countDown();
-                await(() -> runtime.worker.snapshot().state() == WorkerView.State.STOPPED);
-                assertEquals(0, runtime.worker.snapshot().handles());
-                assertEquals(0, runtime.capacity.snapshot().worker());
-                assertEquals(
-                        "PENDING",
-                        f.write.queryForObject(
-                                "select status from v3_command where request_id=?",
-                                String.class,
-                                id));
-                assertEquals(
-                        0,
-                        f.write.queryForObject(
-                                "select count(*) from v3_command_result", Integer.class));
-                assertEquals(
-                        0,
-                        f.write.queryForObject(
-                                "select attempt_count from consumption_slot where consumable_id=?",
-                                Integer.class,
-                                id));
-                f.trace.add(
-                        "D1: drain before post-acquisition registration => single Engine abandon,"
-                                + " intact durable claim/count0/sourcePENDING");
+                verifyI5W18D1Assertions(f, runtime, id, acquired, returned);
             } finally {
                 returned.countDown();
                 f.evidence("i5_w18-D1");
             }
         }
+    }
+
+    private void pauseOnConsumptionAcquire(
+            Object engine, CountDownLatch acquired, CountDownLatch returned) throws Exception {
+        var arm = new AtomicBoolean();
+        var realStore = (ConsumptionSlotStore) field(engine, "controlSlots");
+        replace(
+                engine,
+                "controlSlots",
+                java.lang.reflect.Proxy.newProxyInstance(
+                        getClass().getClassLoader(),
+                        new Class[] {ConsumptionSlotStore.class},
+                        (p, m, args) -> {
+                            try {
+                                var value = m.invoke(realStore, args);
+                                if (m.getName().equals("acquire") && !((List<?>) value).isEmpty()) {
+                                    arm.set(true);
+                                }
+                                return value;
+                            } catch (java.lang.reflect.InvocationTargetException e) {
+                                throw e.getCause();
+                            }
+                        }));
+        var owner = (AttemptTransactions) field(engine, "controlTransactions");
+        replace(
+                engine,
+                "controlTransactions",
+                new ForwardingTransactions(owner) {
+                    public <T> T write(
+                            Supplier<T> action,
+                            com.kartaguez.pocoma.port.transaction.AttemptTransactions.Guard guard) {
+                        var result = owner.write(action, guard);
+                        if (Thread.currentThread().getName().startsWith("v3-consumption-")
+                                && arm.compareAndSet(true, false)) {
+                            acquired.countDown();
+                            latch(returned);
+                        }
+                        return result;
+                    }
+                });
+    }
+
+    private static void verifyI5W18D1Assertions(
+            Fixture f,
+            Runtime runtime,
+            UUID id,
+            CountDownLatch acquired,
+            CountDownLatch returned)
+            throws Exception {
+        latch(acquired);
+        assertNotNull(
+                f.write.queryForObject(
+                        "select claim_token from consumption_slot where consumable_id=?",
+                        UUID.class,
+                        id));
+        runtime.worker.requestDrain();
+        // The confirmed Consumption operation is held; independent Discovery may
+        // still be returning from its own L1 unit after L5.
+        int operations = runtime.worker.snapshot().operations();
+        assertTrue(operations >= 1 && operations <= 2);
+        assertEquals(1, runtime.capacity.snapshot().worker());
+        returned.countDown();
+        await(() -> runtime.worker.snapshot().state() == WorkerView.State.STOPPED);
+        assertEquals(0, runtime.worker.snapshot().handles());
+        assertEquals(0, runtime.capacity.snapshot().worker());
+        assertEquals(
+                "PENDING",
+                f.write.queryForObject(
+                        "select status from v3_command where request_id=?", String.class, id));
+        assertEquals(
+                0,
+                f.write.queryForObject("select count(*) from v3_command_result", Integer.class));
+        assertEquals(
+                0,
+                f.write.queryForObject(
+                        "select attempt_count from consumption_slot where consumable_id=?",
+                        Integer.class,
+                        id));
+        f.trace.add(
+                "D1: drain before post-acquisition registration => single Engine abandon,"
+                        + " intact durable claim/count0/sourcePENDING");
+    }
+
+    private static void verifyI5W18D4() throws Exception {
         // D4: L4 wins before drain; the first Engine SQL may legitimately occur after L5.
         var started = new CountDownLatch(1);
         var enterEngine = new CountDownLatch(1);
@@ -1654,269 +1717,320 @@ class WorkerPostgresTest {
 
     @Test
     void i5_w10() throws Exception {
-        for (boolean write : List.of(true, false))
-            for (int boundary : List.of(0, 1, 2))
-                try (var f = new Fixture(PG);
-                        var a = new Runtime(f, ConsumptionObservation.noop());
-                        var b = new Runtime(f, ConsumptionObservation.noop())) {
-                    int index = write ? 0 : 1;
-                    var sql = write ? f.write : f.read;
-                    var binding = a.bindings.get(index);
-                    var other = b.bindings.get(index);
-                    if (!write) seedPublications(f, a, 1);
-                    var prepared = new CountDownLatch(1);
-                    var enterFinal = new CountDownLatch(1);
-                    var finalLocked = new CountDownLatch(1);
-                    var finishFinal = new CountDownLatch(1);
-                    var engine = com.kartaguez.pocoma.runtime.command.L2TestAccess.engine(binding.engine());
-                    var real = (ConsumptionParticipant) field(engine, "participant");
-                    replace(
-                            engine,
-                            "participant",
-                            new ConsumptionParticipant() {
-                                public Optional<Prepared> prepare(UUID id, PreparationReads reads) {
-                                    var value = real.prepare(id, reads);
-                                    prepared.countDown();
-                                    latch(enterFinal);
-                                    return value.map(
-                                            p ->
-                                                    new Prepared() {
-                                                        public void finalizeIn(
-                                                                SlotCompletion completion) {
-                                                            finalLocked.countDown();
-                                                            latch(finishFinal);
-                                                            p.finalizeIn(completion);
-                                                        }
-
-                                                        public void requireCompletionReady() {
-                                                            p.requireCompletionReady();
-                                                        }
-                                                    });
-                                }
-
-                                public Recovery prepareRecovery(UUID id, PreparationReads reads) {
-                                    return real.prepareRecovery(id, reads);
-                                }
-                            });
-                    if (write) f.inject(10001 + boundary);
-                    a.worker.start();
-                    try (var blocker =
-                            Objects.requireNonNull(sql.getDataSource()).getConnection()) {
-                        try {
-                            latch(prepared);
-                            var row =
-                                    sql.queryForMap(
-                                            "select consumable_id,claim_token,partition_id from"
-                                                    + " consumption_slot where consumption_id=? and"
-                                                    + " claim_token is not null",
-                                            binding.definition().id().value());
-                            UUID id = (UUID) row.get("consumable_id");
-                            int partition = ((Number) row.get("partition_id")).intValue();
-                            if (boundary == 0) {
-                                sql.update(
-                                        "update consumption_slot set"
-                                            + " claimed_until=clock_timestamp()-interval '1 second'"
-                                            + " where consumption_id=? and consumable_id=?",
-                                        binding.definition().id().value(),
-                                        id);
-                                a.worker.requestDrain();
-                                enterFinal.countDown();
-                                finishFinal.countDown();
-                            } else if (boundary == 1) {
-                                blocker.setAutoCommit(false);
-                                try (var q =
-                                        blocker.prepareStatement(
-                                                "select * from consumption_slot where"
-                                                    + " consumption_id=? and consumable_id=? for"
-                                                    + " update")) {
-                                    q.setObject(1, binding.definition().id().value());
-                                    q.setObject(2, id);
-                                    q.executeQuery().close();
-                                }
-                                enterFinal.countDown();
-                                await(
-                                        () ->
-                                                sql.queryForObject(
-                                                        "select exists(select 1 from"
-                                                            + " pg_stat_activity where"
-                                                            + " application_name=? and"
-                                                            + " cardinality(pg_blocking_pids(pid))>0)",
-                                                        Boolean.class,
-                                                        "i5-test-"
-                                                                + (write ? "write" : "read")
-                                                                + "-business"));
-                                a.worker.requestDrain();
-                                try (var q =
-                                        blocker.prepareStatement(
-                                                "update consumption_slot set"
-                                                    + " claimed_until=clock_timestamp()-interval '1"
-                                                    + " second' where consumption_id=? and"
-                                                    + " consumable_id=?")) {
-                                    q.setObject(1, binding.definition().id().value());
-                                    q.setObject(2, id);
-                                    q.executeUpdate();
-                                }
-                                blocker.commit();
-                                finishFinal.countDown();
-                            } else {
-                                sql.update(
-                                        "update consumption_slot set"
-                                            + " claimed_until=clock_timestamp()+interval '1 second'"
-                                            + " where consumption_id=? and consumable_id=?",
-                                        binding.definition().id().value(),
-                                        id);
-                                Instant deadline =
-                                        sql.queryForObject(
-                                                        "select claimed_until from consumption_slot"
-                                                                + " where consumption_id=? and"
-                                                                + " consumable_id=?",
-                                                        Timestamp.class,
-                                                        binding.definition().id().value(),
-                                                        id)
-                                                .toInstant();
-                                enterFinal.countDown();
-                                latch(finalLocked);
-                                a.worker.requestDrain();
-                                await(
-                                        () ->
-                                                sql.queryForObject(
-                                                                "select clock_timestamp()",
-                                                                Timestamp.class)
-                                                        .toInstant()
-                                                        .isAfter(deadline));
-                                sql.update(
-                                        "update partition_ownership set"
-                                            + " owned_until=clock_timestamp()-interval '1 second'"
-                                            + " where consumption_id=? and partition_id=?",
-                                        binding.definition().id().value(),
-                                        partition);
-                                var takeover =
-                                        com.kartaguez.pocoma.runtime.command.L2TestAccess.engine(other.engine()).acquirePartition(partition).orElseThrow();
-                                assertTrue(
-                                        com.kartaguez.pocoma.runtime.command.L2TestAccess.engine(other.engine())
-                                                .acquire(takeover, List.of(id))
-                                                .claims()
-                                                .isEmpty(),
-                                        "expired claim remains protected by physical final row"
-                                                + " lock");
-                                finishFinal.countDown();
-                            }
-                            await(
-                                    () ->
-                                            a.worker.snapshot().state()
-                                                    == WorkerView.State.STOPPED);
-                            if (boundary < 2) {
-                                assertEquals(
-                                        0,
-                                        write
-                                                ? sql.queryForObject(
-                                                        "select count(*) from v3_command_result"
-                                                                + " where request_id=?",
-                                                        Integer.class,
-                                                        id)
-                                                : sql.queryForObject(
-                                                        "select count(*) from i5_read_probe_effect"
-                                                                + " where consumption_id=? and"
-                                                                + " consumable_id=?",
-                                                        Integer.class,
-                                                        binding.definition().id().value(),
-                                                        id));
-                                assertEquals(
-                                        0,
-                                        sql.queryForObject(
-                                                "select attempt_count from consumption_slot where"
-                                                        + " consumption_id=? and consumable_id=?",
-                                                Integer.class,
-                                                binding.definition().id().value(),
-                                                id));
-                                sql.update(
-                                        "update partition_ownership set"
-                                            + " owned_until=clock_timestamp()-interval '1 second'"
-                                            + " where consumption_id=? and partition_id=?",
-                                        binding.definition().id().value(),
-                                        partition);
-                                var lease =
-                                        com.kartaguez.pocoma.runtime.command.L2TestAccess.engine(other.engine()).acquirePartition(partition).orElseThrow();
-                                var fresh =
-                                        com.kartaguez.pocoma.runtime.command.L2TestAccess.engine(other.engine())
-                                                .acquire(lease, List.of(id))
-                                                .claims()
-                                                .getFirst();
-                                assertNotEquals(row.get("claim_token"), fresh.claim().claimToken());
-                                assertEquals(
-                                        ConsumptionProtocol.Status.COMMITTED,
-                                        com.kartaguez.pocoma.runtime.command.L2TestAccess.engine(other.engine()).execute(fresh).status());
-                            }
-                            assertEquals(
-                                    1,
-                                    write
-                                            ? sql.queryForObject(
-                                                    "select count(*) from v3_command_result where"
-                                                            + " request_id=?",
-                                                    Integer.class,
-                                                    id)
-                                            : sql.queryForObject(
-                                                    "select count(*) from i5_read_probe_effect"
-                                                            + " where consumption_id=? and"
-                                                            + " consumable_id=?",
-                                                    Integer.class,
-                                                    binding.definition().id().value(),
-                                                    id));
-                            assertEquals(
-                                    0,
-                                    sql.queryForObject(
-                                            "select count(*) from consumption_slot where"
-                                                    + " consumption_id=? and consumable_id=?",
-                                            Integer.class,
-                                            binding.definition().id().value(),
-                                            id));
-                            f.trace.add(
-                                    "C03 boundary="
-                                            + boundary
-                                            + " authority="
-                                            + (write ? "WRITE-real" : "READ-technical")
-                                            + ": DB clock after lock; no old-token cession/effect;"
-                                            + " final lock retained beyond expiry or fresh fenced"
-                                            + " takeover");
-                        } finally {
-                            enterFinal.countDown();
-                            finishFinal.countDown();
-                            if (!blocker.getAutoCommit()) blocker.rollback();
-                            f.evidence(
-                                    "i5_w10-"
-                                            + (write ? "WRITE" : "READ")
-                                            + "-boundary"
-                                            + boundary);
-                        }
-                    }
-                }
+        for (boolean write : List.of(true, false)) {
+            for (int boundary : List.of(0, 1, 2)) {
+                runI5W10Boundary(write, boundary);
+            }
+        }
     }
+
+    private void runI5W10Boundary(boolean write, int boundary) throws Exception {
+        try (var f = new Fixture(PG);
+                var a = new Runtime(f, ConsumptionObservation.noop());
+                var b = new Runtime(f, ConsumptionObservation.noop())) {
+            int index = write ? 0 : 1;
+            var sql = write ? f.write : f.read;
+            var binding = a.bindings.get(index);
+            var other = b.bindings.get(index);
+            if (!write) seedPublications(f, a, 1);
+            var prepared = new CountDownLatch(1);
+            var enterFinal = new CountDownLatch(1);
+            var finalLocked = new CountDownLatch(1);
+            var finishFinal = new CountDownLatch(1);
+            pauseParticipantBeforeFinal(
+                    com.kartaguez.pocoma.runtime.command.L2TestAccess.engine(binding.engine()),
+                    prepared,
+                    enterFinal,
+                    finalLocked,
+                    finishFinal);
+            if (write) f.inject(10001 + boundary);
+            a.worker.start();
+            try (var blocker = Objects.requireNonNull(sql.getDataSource()).getConnection()) {
+                try {
+                    executeI5W10BoundaryCase(
+                            f,
+                            a,
+                            binding,
+                            other,
+                            sql,
+                            blocker,
+                            write,
+                            boundary,
+                            prepared,
+                            enterFinal,
+                            finalLocked,
+                            finishFinal);
+                } finally {
+                    enterFinal.countDown();
+                    finishFinal.countDown();
+                    if (!blocker.getAutoCommit()) blocker.rollback();
+                    f.evidence("i5_w10-" + (write ? "WRITE" : "READ") + "-boundary" + boundary);
+                }
+            }
+        }
+    }
+
+    private static void pauseParticipantBeforeFinal(
+            Object engine,
+            CountDownLatch prepared,
+            CountDownLatch enterFinal,
+            CountDownLatch finalLocked,
+            CountDownLatch finishFinal)
+            throws Exception {
+        var real = (ConsumptionParticipant) field(engine, "participant");
+        replace(
+                engine,
+                "participant",
+                new ConsumptionParticipant() {
+                    public Optional<Prepared> prepare(UUID id, PreparationReads reads) {
+                        var value = real.prepare(id, reads);
+                        prepared.countDown();
+                        latch(enterFinal);
+                        return value.map(p -> wrapFinalPause(p, finalLocked, finishFinal));
+                    }
+
+                    public Recovery prepareRecovery(UUID id, PreparationReads reads) {
+                        return real.prepareRecovery(id, reads);
+                    }
+                });
+    }
+
+    private static ConsumptionParticipant.Prepared wrapFinalPause(
+            ConsumptionParticipant.Prepared delegate,
+            CountDownLatch finalLocked,
+            CountDownLatch finishFinal) {
+        return new ConsumptionParticipant.Prepared() {
+            public void finalizeIn(SlotCompletion completion) {
+                finalLocked.countDown();
+                latch(finishFinal);
+                delegate.finalizeIn(completion);
+            }
+
+            public void requireCompletionReady() {
+                delegate.requireCompletionReady();
+            }
+        };
+    }
+
+    private static void executeI5W10BoundaryCase(
+            Fixture f,
+            Runtime a,
+            ConsumptionWorker.Binding binding,
+            ConsumptionWorker.Binding other,
+            JdbcTemplate sql,
+            java.sql.Connection blocker,
+            boolean write,
+            int boundary,
+            CountDownLatch prepared,
+            CountDownLatch enterFinal,
+            CountDownLatch finalLocked,
+            CountDownLatch finishFinal)
+            throws Exception {
+        latch(prepared);
+        var cid = binding.definition().id().value();
+        var row =
+                sql.queryForMap(
+                        "select consumable_id,claim_token,partition_id from consumption_slot"
+                                + " where consumption_id=? and claim_token is not null",
+                        cid);
+        UUID id = (UUID) row.get("consumable_id");
+        int partition = ((Number) row.get("partition_id")).intValue();
+        if (boundary == 0) {
+            sql.update(
+                    "update consumption_slot set claimed_until=clock_timestamp()-interval '1"
+                            + " second' where consumption_id=? and consumable_id=?",
+                    cid,
+                    id);
+            a.worker.requestDrain();
+            enterFinal.countDown();
+            finishFinal.countDown();
+        } else if (boundary == 1) {
+            runBoundaryWithBlockerLock(
+                    a, sql, blocker, cid, id, write, enterFinal, finishFinal);
+        } else {
+            runBoundaryWithFinalRowLock(
+                    a, other, sql, cid, id, partition, enterFinal, finalLocked, finishFinal);
+        }
+        await(() -> a.worker.snapshot().state() == WorkerView.State.STOPPED);
+        if (boundary < 2) {
+            verifyBoundaryTakeover(
+                    other, sql, cid, id, partition, write, (UUID) row.get("claim_token"));
+        }
+        assertEquals(1, consumableEffectCount(sql, write, cid, id));
+        assertEquals(
+                0,
+                sql.queryForObject(
+                        "select count(*) from consumption_slot where consumption_id=? and"
+                                + " consumable_id=?",
+                        Integer.class,
+                        cid,
+                        id));
+        f.trace.add(
+                "C03 boundary="
+                        + boundary
+                        + " authority="
+                        + (write ? "WRITE-real" : "READ-technical")
+                        + ": DB clock after lock; no old-token cession/effect; final lock"
+                        + " retained beyond expiry or fresh fenced takeover");
+    }
+
+    private static void runBoundaryWithBlockerLock(
+            Runtime a,
+            JdbcTemplate sql,
+            java.sql.Connection blocker,
+            UUID cid,
+            UUID id,
+            boolean write,
+            CountDownLatch enterFinal,
+            CountDownLatch finishFinal)
+            throws Exception {
+        blocker.setAutoCommit(false);
+        try (var q =
+                blocker.prepareStatement(
+                        "select * from consumption_slot where consumption_id=? and consumable_id=?"
+                                + " for update")) {
+            q.setObject(1, cid);
+            q.setObject(2, id);
+            q.executeQuery().close();
+        }
+        enterFinal.countDown();
+        await(
+                () ->
+                        sql.queryForObject(
+                                "select exists(select 1 from pg_stat_activity where"
+                                        + " application_name=? and"
+                                        + " cardinality(pg_blocking_pids(pid))>0)",
+                                Boolean.class,
+                                "i5-test-" + (write ? "write" : "read") + "-business"));
+        a.worker.requestDrain();
+        try (var q =
+                blocker.prepareStatement(
+                        "update consumption_slot set claimed_until=clock_timestamp()-interval '1"
+                                + " second' where consumption_id=? and consumable_id=?")) {
+            q.setObject(1, cid);
+            q.setObject(2, id);
+            q.executeUpdate();
+        }
+        blocker.commit();
+        finishFinal.countDown();
+    }
+
+    private static void runBoundaryWithFinalRowLock(
+            Runtime a,
+            ConsumptionWorker.Binding other,
+            JdbcTemplate sql,
+            UUID cid,
+            UUID id,
+            int partition,
+            CountDownLatch enterFinal,
+            CountDownLatch finalLocked,
+            CountDownLatch finishFinal)
+            throws Exception {
+        sql.update(
+                "update consumption_slot set claimed_until=clock_timestamp()+interval '1 second'"
+                        + " where consumption_id=? and consumable_id=?",
+                cid,
+                id);
+        Instant deadline =
+                sql.queryForObject(
+                                "select claimed_until from consumption_slot where consumption_id=?"
+                                        + " and consumable_id=?",
+                                Timestamp.class,
+                                cid,
+                                id)
+                        .toInstant();
+        enterFinal.countDown();
+        latch(finalLocked);
+        a.worker.requestDrain();
+        await(
+                () ->
+                        sql.queryForObject("select clock_timestamp()", Timestamp.class)
+                                .toInstant()
+                                .isAfter(deadline));
+        sql.update(
+                "update partition_ownership set owned_until=clock_timestamp()-interval '1 second'"
+                        + " where consumption_id=? and partition_id=?",
+                cid,
+                partition);
+        var otherEngine = com.kartaguez.pocoma.runtime.command.L2TestAccess.engine(other.engine());
+        var takeover = otherEngine.acquirePartition(partition).orElseThrow();
+        assertTrue(
+                otherEngine.acquire(takeover, List.of(id)).claims().isEmpty(),
+                "expired claim remains protected by physical final row lock");
+        finishFinal.countDown();
+    }
+
+    private static void verifyBoundaryTakeover(
+            ConsumptionWorker.Binding other,
+            JdbcTemplate sql,
+            UUID cid,
+            UUID id,
+            int partition,
+            boolean write,
+            UUID oldClaimToken) {
+        assertEquals(0, consumableEffectCount(sql, write, cid, id));
+        assertEquals(
+                0,
+                sql.queryForObject(
+                        "select attempt_count from consumption_slot where consumption_id=? and"
+                                + " consumable_id=?",
+                        Integer.class,
+                        cid,
+                        id));
+        sql.update(
+                "update partition_ownership set owned_until=clock_timestamp()-interval '1 second'"
+                        + " where consumption_id=? and partition_id=?",
+                cid,
+                partition);
+        var otherEngine = com.kartaguez.pocoma.runtime.command.L2TestAccess.engine(other.engine());
+        var lease = otherEngine.acquirePartition(partition).orElseThrow();
+        var fresh = otherEngine.acquire(lease, List.of(id)).claims().getFirst();
+        assertNotEquals(oldClaimToken, fresh.claim().claimToken());
+        assertEquals(ConsumptionProtocol.Status.COMMITTED, otherEngine.execute(fresh).status());
+    }
+
+    private static int consumableEffectCount(JdbcTemplate sql, boolean write, UUID cid, UUID id) {
+        return write
+                ? sql.queryForObject(
+                        "select count(*) from v3_command_result where request_id=?",
+                        Integer.class,
+                        id)
+                : sql.queryForObject(
+                        "select count(*) from i5_read_probe_effect where consumption_id=? and"
+                                + " consumable_id=?",
+                        Integer.class,
+                        cid,
+                        id);
+    }
+
+    private record UnresolvedPhysicalSpec(
+            boolean write, boolean cession, boolean deadline, boolean lateRenew, boolean afterRetire) {}
+
+    private record TargetEnvelopeRef(Object envelope, ConsumptionEngine.AcquiredClaim handle) {}
 
     void unresolvedPhysical(boolean write, boolean cession, boolean deadline) throws Exception {
-        unresolvedPhysical(write, cession, deadline, false, false);
+        unresolvedPhysical(new UnresolvedPhysicalSpec(write, cession, deadline, false, false));
     }
 
-    void unresolvedPhysical(
-            boolean write,
-            boolean cession,
-            boolean deadline,
-            boolean lateRenew,
-            boolean afterRetire)
-            throws Exception {
+    void unresolvedPhysical(UnresolvedPhysicalSpec spec) throws Exception {
         try (var f = new Fixture(PG)) {
-            if (lateRenew)
+            if (spec.lateRenew()) {
                 f.properties.put("pocoma.v3.worker.lifecycle.renewal-interval-ms", "100");
-            if (deadline) f.properties.put("pocoma.v3.worker.drain-timeout", "250");
+            }
+            if (spec.deadline()) {
+                f.properties.put("pocoma.v3.worker.drain-timeout", "250");
+            }
             var returned = new AtomicInteger();
             ConsumptionObservation observation =
                     (id, phase, outcome, n, d) -> {
-                        if (phase == ConsumptionObservation.Phase.CAPACITY_RETURNED)
+                        if (phase == ConsumptionObservation.Phase.CAPACITY_RETURNED) {
                             returned.addAndGet((int) n);
+                        }
                     };
             try (var runtime = new Runtime(f, observation)) {
-                int index = write ? 0 : 1;
-                var sql = write ? f.write : f.read;
-                if (!write) seedPublications(f, runtime, 1);
+                int index = spec.write() ? 0 : 1;
+                var sql = spec.write() ? f.write : f.read;
+                if (!spec.write()) seedPublications(f, runtime, 1);
                 returned.set(0);
                 var targetThread = new AtomicReference<Thread>();
                 java.util.function.Predicate<String> selected =
@@ -1924,237 +2038,276 @@ class WorkerPostgresTest {
                                 name.startsWith("v3-attempt-")
                                         && Thread.currentThread() == targetThread.get();
                 var fault =
-                        cession
+                        spec.cession()
                                 ? WorkerResourcesPostgresTest.controlFault(
-                                        runtime, write, selected)
+                                        runtime, spec.write(), selected)
                                 : WorkerResourcesPostgresTest.businessFault(
-                                        runtime, write, selected);
-                var engine = com.kartaguez.pocoma.runtime.command.L2TestAccess.engine(runtime.bindings.get(index).engine());
-                var original = (ConsumptionParticipant) field(engine, "participant");
+                                        runtime, spec.write(), selected);
+                var engine =
+                        com.kartaguez.pocoma.runtime.command.L2TestAccess.engine(
+                                runtime.bindings.get(index).engine());
                 var renewalCommitted = new CountDownLatch(1);
                 var returnRenewal = new CountDownLatch(1);
-                var firstRenewal = new AtomicBoolean(true);
-                if (lateRenew) {
-                    var realControl = (AttemptTransactions) field(engine, "controlTransactions");
-                    replace(
-                            engine,
-                            "controlTransactions",
-                            new ForwardingTransactions(realControl) {
-                                public <T> T write(
-                                        java.util.function.Supplier<T> action,
-                                        com.kartaguez.pocoma.port.transaction.AttemptTransactions
-                                                        .Guard
-                                                guard) {
-                                    var result = realControl.write(action, guard);
-                                    if (Thread.currentThread().getName().startsWith("v3-renew-")
-                                            && !Thread.currentThread().getName().contains("-2-")
-                                            && firstRenewal.compareAndSet(true, false)) {
-                                        renewalCommitted.countDown();
-                                        latch(returnRenewal);
-                                    }
-                                    return result;
-                                }
-                            });
+                if (spec.lateRenew()) {
+                    pauseFirstRenewCommit(engine, renewalCommitted, returnRenewal);
                 }
                 var prepared = new CountDownLatch(1);
                 var continueAttempt = new CountDownLatch(1);
-                replace(
-                        engine,
-                        "participant",
-                        new ConsumptionParticipant() {
-                            public Optional<Prepared> prepare(UUID id, PreparationReads reads) {
-                                var value = original.prepare(id, reads);
-                                targetThread.set(Thread.currentThread());
-                                prepared.countDown();
-                                latch(continueAttempt);
-                                if (cession) {
-                                    fault.armed.set(true);
-                                    throw new IllegalStateException(
-                                            "countable rollback before cession");
-                                }
-                                return value.map(
-                                        p ->
-                                                new Prepared() {
-                                                    public void finalizeIn(
-                                                            SlotCompletion completion) {
-                                                        fault.armed.set(true);
-                                                        p.finalizeIn(completion);
-                                                    }
-
-                                                    public void requireCompletionReady() {
-                                                        p.requireCompletionReady();
-                                                    }
-                                                });
-                            }
-
-                            public Recovery prepareRecovery(UUID id, PreparationReads reads) {
-                                return original.prepareRecovery(id, reads);
-                            }
-                        });
-                if (write) f.inject(11000);
+                armFaultParticipant(
+                        engine, fault, spec.cession(), targetThread, prepared, continueAttempt);
+                if (spec.write()) f.inject(11000);
                 runtime.worker.start();
-                var callbacks = new AtomicInteger();
                 try {
-                    latch(prepared);
-                    if (lateRenew) latch(renewalCommitted);
-                    var cid = runtime.bindings.get(index).definition().id().value();
-                    UUID id =
-                            sql.queryForObject(
-                                    "select consumable_id from consumption_slot where"
-                                            + " consumption_id=? and claim_token is not null",
-                                    UUID.class,
-                                    cid);
-                    Object lifecycleMonitor = field(runtime.worker, "monitor");
-                    List<?> registered;
-                    synchronized (lifecycleMonitor) {
-                        registered = List.copyOf((List<?>) field(runtime.worker, "envelopes"));
-                    }
-                    Object found = null;
-                    ConsumptionEngine.AcquiredClaim targetHandle = null;
-                    for (Object envelope : registered) {
-                        var handle = (ConsumptionEngine.AcquiredClaim) field(envelope, "handle");
-                        if (handle.claim().consumableId().equals(id)
-                                && handle.claim().consumptionId().value().equals(cid)) {
-                            found = envelope;
-                            targetHandle = handle;
-                            break;
-                        }
-                    }
-                    assertNotNull(found);
-                    assertNotNull(targetHandle);
-                    Object targetEnvelope = found;
-                    sql.update(
-                            "update consumption_slot set claimed_until=clock_timestamp()+interval"
-                                    + " '1 second' where consumption_id=? and consumable_id=?",
-                            cid,
-                            id);
-                    Instant expires =
-                            sql.queryForObject(
-                                            "select claimed_until from consumption_slot where"
-                                                    + " consumption_id=? and consumable_id=?",
-                                            Timestamp.class,
-                                            cid,
-                                            id)
-                                    .toInstant();
-                    continueAttempt.countDown();
-                    await(
-                            () -> {
-                                if (fault.physical.get() == null) return false;
-                                synchronized (lifecycleMonitor) {
-                                    try {
-                                        return (boolean) field(targetEnvelope, "wrapperExited");
-                                    } catch (Exception error) {
-                                        throw new AssertionError(error);
-                                    }
-                                }
-                            });
-                    assertTrue(
-                            engine.retainsCapacity(targetHandle),
-                            "the target handle, not another Consumption, retains its ticket");
-                    f.trace.add(
-                            "transport fault scoped to target envelope thread; target wrapper"
-                                    + " exited with its own ticket retained");
-                    assertTrue(
-                            sql.queryForObject(
-                                    "select exists(select 1 from pg_stat_activity where pid=? and"
-                                            + " xact_start is not null)",
-                                    Boolean.class,
-                                    fault.pid.get()));
-                    runtime.worker.requestDrain(callbacks::incrementAndGet);
-                    await(
-                            () ->
-                                    sql.queryForObject("select clock_timestamp()", Timestamp.class)
-                                            .toInstant()
-                                            .isAfter(expires));
-                    assertTrue(runtime.capacity.snapshot().worker() >= 1);
-                    assertEquals(0, callbacks.get());
-                    assertEquals(0, engine.settlePending());
-                    assertEquals(0, engine.settlePending());
-                    if (deadline) {
-                        await(() -> runtime.worker.snapshot().deadlineExceeded());
-                        assertEquals(
-                                WorkerView.State.DRAINING,
-                                runtime.worker.snapshot().state());
-                        assertFalse(
-                                runtime.pool(write ? "writeControl" : "readControl").isClosed());
-                    }
-                    assertEquals(
-                            0,
-                            write
-                                    ? sql.queryForObject(
-                                            "select count(*) from v3_command_result where"
-                                                    + " request_id=?",
-                                            Integer.class,
-                                            id)
-                                    : sql.queryForObject(
-                                            "select count(*) from i5_read_probe_effect where"
-                                                    + " consumption_id=? and consumable_id=?",
-                                            Integer.class,
-                                            cid,
-                                            id));
-                    assertEquals(
-                            0,
-                            sql.queryForObject(
-                                    "select attempt_count from consumption_slot where"
-                                            + " consumption_id=? and consumable_id=?",
-                                    Integer.class,
-                                    cid,
-                                    id));
-                    f.trace.add(
-                            "physical active after local UNKNOWN: PID="
-                                    + fault.pid.get()
-                                    + " XID="
-                                    + fault.xid.get()
-                                    + " cession="
-                                    + cession
-                                    + "; expiry/deadline did not release capacity or announce"
-                                    + " STOPPED");
-                    if (lateRenew && !afterRetire) returnRenewal.countDown();
-                    fault.resolveRollback();
-                    if (lateRenew && afterRetire) {
-                        await(
-                                () ->
-                                        runtime.capacity.snapshot().worker() == 0
-                                                && runtime.worker.snapshot().handles() == 0);
-                        assertEquals(0, callbacks.get());
-                        assertEquals(
-                                WorkerView.State.DRAINING,
-                                runtime.worker.snapshot().state());
-                        returnRenewal.countDown();
-                    }
-                    await(
-                            () ->
-                                    runtime.worker.snapshot().state()
-                                                    == WorkerView.State.STOPPED
-                                            && callbacks.get() == 1);
-                    await(() -> runtime.capacity.snapshot().worker() == 0);
-                    assertEquals(0, engine.settlePending());
-                    assertEquals(
-                            0,
-                            sql.queryForObject(
-                                    "select attempt_count from consumption_slot where"
-                                            + " consumption_id=? and consumable_id=?",
-                                    Integer.class,
-                                    cid,
-                                    id));
-                    f.trace.add(
-                            "external physical rollback then Engine inspection released; no"
-                                    + " repeated cession/attempt or business effect");
+                    runUnresolvedPhysicalFlow(
+                            f,
+                            runtime,
+                            engine,
+                            sql,
+                            fault,
+                            spec,
+                            index,
+                            prepared,
+                            renewalCommitted,
+                            continueAttempt,
+                            returnRenewal);
                 } finally {
                     continueAttempt.countDown();
                     returnRenewal.countDown();
                     fault.resolveRollback();
                     f.evidence(
                             "i5_physical-"
-                                    + (write ? "WRITE" : "READ")
+                                    + (spec.write() ? "WRITE" : "READ")
                                     + "-cession"
-                                    + cession
+                                    + spec.cession()
                                     + "-deadline"
-                                    + deadline
-                                    + (lateRenew ? "-H4-afterRetire" + afterRetire : ""));
+                                    + spec.deadline()
+                                    + (spec.lateRenew() ? "-H4-afterRetire" + spec.afterRetire() : ""));
                 }
             }
         }
+    }
+
+    private static void armFaultParticipant(
+            ConsumptionEngine engine,
+            WorkerResourcesPostgresTest.RetainingSource fault,
+            boolean cession,
+            AtomicReference<Thread> targetThread,
+            CountDownLatch prepared,
+            CountDownLatch continueAttempt)
+            throws Exception {
+        var original = (ConsumptionParticipant) field(engine, "participant");
+        replace(
+                engine,
+                "participant",
+                new ConsumptionParticipant() {
+                    public Optional<Prepared> prepare(UUID id, PreparationReads reads) {
+                        var value = original.prepare(id, reads);
+                        targetThread.set(Thread.currentThread());
+                        prepared.countDown();
+                        latch(continueAttempt);
+                        if (cession) {
+                            fault.armed.set(true);
+                            throw new IllegalStateException("countable rollback before cession");
+                        }
+                        return value.map(
+                                p ->
+                                        new Prepared() {
+                                            public void finalizeIn(SlotCompletion completion) {
+                                                fault.armed.set(true);
+                                                p.finalizeIn(completion);
+                                            }
+
+                                            public void requireCompletionReady() {
+                                                p.requireCompletionReady();
+                                            }
+                                        });
+                    }
+
+                    public Recovery prepareRecovery(UUID id, PreparationReads reads) {
+                        return original.prepareRecovery(id, reads);
+                    }
+                });
+    }
+
+    private static void runUnresolvedPhysicalFlow(
+            Fixture f,
+            Runtime runtime,
+            ConsumptionEngine engine,
+            JdbcTemplate sql,
+            WorkerResourcesPostgresTest.RetainingSource fault,
+            UnresolvedPhysicalSpec spec,
+            int index,
+            CountDownLatch prepared,
+            CountDownLatch renewalCommitted,
+            CountDownLatch continueAttempt,
+            CountDownLatch returnRenewal)
+            throws Exception {
+        var callbacks = new AtomicInteger();
+        latch(prepared);
+        if (spec.lateRenew()) latch(renewalCommitted);
+        var cid = runtime.bindings.get(index).definition().id().value();
+        UUID id =
+                sql.queryForObject(
+                        "select consumable_id from consumption_slot where consumption_id=? and"
+                                + " claim_token is not null",
+                        UUID.class,
+                        cid);
+        var targetRef = findTargetEnvelope(runtime.worker, cid, id);
+        sql.update(
+                "update consumption_slot set claimed_until=clock_timestamp()+interval '1 second'"
+                        + " where consumption_id=? and consumable_id=?",
+                cid,
+                id);
+        Instant expires =
+                sql.queryForObject(
+                                "select claimed_until from consumption_slot where consumption_id=?"
+                                        + " and consumable_id=?",
+                                Timestamp.class,
+                                cid,
+                                id)
+                        .toInstant();
+        continueAttempt.countDown();
+        awaitFaultWrapperExit(runtime.worker, targetRef.envelope(), fault);
+        assertTrue(
+                engine.retainsCapacity(targetRef.handle()),
+                "the target handle, not another Consumption, retains its ticket");
+        f.trace.add(
+                "transport fault scoped to target envelope thread; target wrapper exited with its"
+                        + " own ticket retained");
+        verifyPhysicalHoldAcrossExpiry(
+                f, runtime, engine, sql, fault, spec, cid, id, expires, callbacks);
+        resolvePhysicalFaultAndVerify(
+                f, runtime, engine, sql, fault, spec, cid, id, callbacks, returnRenewal);
+    }
+
+    private static TargetEnvelopeRef findTargetEnvelope(
+            ConsumptionWorker worker, UUID cid, UUID id) throws Exception {
+        Object lifecycleMonitor = field(worker, "monitor");
+        List<?> registered;
+        synchronized (lifecycleMonitor) {
+            registered = List.copyOf((List<?>) field(worker, "envelopes"));
+        }
+        for (Object envelope : registered) {
+            var handle = (ConsumptionEngine.AcquiredClaim) field(envelope, "handle");
+            if (handle.claim().consumableId().equals(id)
+                    && handle.claim().consumptionId().value().equals(cid)) {
+                return new TargetEnvelopeRef(envelope, handle);
+            }
+        }
+        throw new AssertionError("target envelope not found for " + cid + " / " + id);
+    }
+
+    private static void awaitFaultWrapperExit(
+            ConsumptionWorker worker,
+            Object targetEnvelope,
+            WorkerResourcesPostgresTest.RetainingSource fault)
+            throws Exception {
+        Object lifecycleMonitor = field(worker, "monitor");
+        await(
+                () -> {
+                    if (fault.physical.get() == null) return false;
+                    synchronized (lifecycleMonitor) {
+                        try {
+                            return (boolean) field(targetEnvelope, "wrapperExited");
+                        } catch (Exception error) {
+                            throw new AssertionError(error);
+                        }
+                    }
+                });
+    }
+
+    private static void verifyPhysicalHoldAcrossExpiry(
+            Fixture f,
+            Runtime runtime,
+            ConsumptionEngine engine,
+            JdbcTemplate sql,
+            WorkerResourcesPostgresTest.RetainingSource fault,
+            UnresolvedPhysicalSpec spec,
+            UUID cid,
+            UUID id,
+            Instant expires,
+            AtomicInteger callbacks)
+            throws Exception {
+        assertTrue(
+                sql.queryForObject(
+                        "select exists(select 1 from pg_stat_activity where pid=? and xact_start"
+                                + " is not null)",
+                        Boolean.class,
+                        fault.pid.get()));
+        runtime.worker.requestDrain(callbacks::incrementAndGet);
+        await(
+                () ->
+                        sql.queryForObject("select clock_timestamp()", Timestamp.class)
+                                .toInstant()
+                                .isAfter(expires));
+        assertTrue(runtime.capacity.snapshot().worker() >= 1);
+        assertEquals(0, callbacks.get());
+        assertEquals(0, engine.settlePending());
+        assertEquals(0, engine.settlePending());
+        if (spec.deadline()) {
+            await(() -> runtime.worker.snapshot().deadlineExceeded());
+            assertEquals(WorkerView.State.DRAINING, runtime.worker.snapshot().state());
+            assertFalse(runtime.pool(spec.write() ? "writeControl" : "readControl").isClosed());
+        }
+        assertEquals(0, consumableEffectCount(sql, spec.write(), cid, id));
+        assertEquals(
+                0,
+                sql.queryForObject(
+                        "select attempt_count from consumption_slot where consumption_id=? and"
+                                + " consumable_id=?",
+                        Integer.class,
+                        cid,
+                        id));
+        f.trace.add(
+                "physical active after local UNKNOWN: PID="
+                        + fault.pid.get()
+                        + " XID="
+                        + fault.xid.get()
+                        + " cession="
+                        + spec.cession()
+                        + "; expiry/deadline did not release capacity or announce STOPPED");
+    }
+
+    private static void resolvePhysicalFaultAndVerify(
+            Fixture f,
+            Runtime runtime,
+            ConsumptionEngine engine,
+            JdbcTemplate sql,
+            WorkerResourcesPostgresTest.RetainingSource fault,
+            UnresolvedPhysicalSpec spec,
+            UUID cid,
+            UUID id,
+            AtomicInteger callbacks,
+            CountDownLatch returnRenewal)
+            throws Exception {
+        if (spec.lateRenew() && !spec.afterRetire()) returnRenewal.countDown();
+        fault.resolveRollback();
+        if (spec.lateRenew() && spec.afterRetire()) {
+            await(
+                    () ->
+                            runtime.capacity.snapshot().worker() == 0
+                                    && runtime.worker.snapshot().handles() == 0);
+            assertEquals(0, callbacks.get());
+            assertEquals(WorkerView.State.DRAINING, runtime.worker.snapshot().state());
+            returnRenewal.countDown();
+        }
+        await(
+                () ->
+                        runtime.worker.snapshot().state() == WorkerView.State.STOPPED
+                                && callbacks.get() == 1);
+        await(() -> runtime.capacity.snapshot().worker() == 0);
+        assertEquals(0, engine.settlePending());
+        assertEquals(
+                0,
+                sql.queryForObject(
+                        "select attempt_count from consumption_slot where consumption_id=? and"
+                                + " consumable_id=?",
+                        Integer.class,
+                        cid,
+                        id));
+        f.trace.add(
+                "external physical rollback then Engine inspection released; no repeated"
+                        + " cession/attempt or business effect");
     }
 
     static final class Child implements AutoCloseable {
@@ -2236,374 +2389,408 @@ class WorkerPostgresTest {
         var values = new LinkedHashMap<String, Object>();
         properties.forEach((k, v) -> values.put(k.toString(), v));
         Path directory = Path.of(args[1]).getParent();
-        if (args[0].startsWith("recovery-unknown-")) {
-            var mode = args[0].split("-", 6);
-            boolean control = mode[2].equals("CONTROL"), write = mode[3].equals("WRITE");
-            int partition = Integer.parseInt(mode[4]);
-            UUID id = UUID.fromString(mode[5]);
-            var runtime = new Runtime(values, ConsumptionObservation.noop());
-            var engine = com.kartaguez.pocoma.runtime.command.L2TestAccess.engine(runtime.bindings.get(write ? 0 : 1).engine());
-            var lease = engine.acquirePartition(partition).orElseThrow();
-            var handle = engine.acquire(lease, List.of(id)).claims().getFirst();
-            var business = (AttemptTransactions) field(engine, "transactions");
-            replace(
-                    engine,
-                    "transactions",
-                    new ForwardingTransactions(business) {
-                        public <T> T write(
-                                java.util.function.Supplier<T> action,
-                                com.kartaguez.pocoma.port.transaction.AttemptTransactions.Guard
-                                        guard) {
-                            T result = business.write(action, guard);
-                            throw new AttemptTransactions.Failure(
-                                    AttemptTransactions.Resolution.UNKNOWN,
-                                    new IllegalStateException(
-                                            "test ACK lost after actual final commit"));
-                        }
-                    });
-            assertEquals(
-                    AttemptTransactions.Resolution.UNKNOWN, engine.execute(handle).resolution());
-            assertEquals(1, runtime.capacity.snapshot().worker());
-            replace(engine, "transactions", business);
-            var fault =
-                    control
-                            ? WorkerResourcesPostgresTest.controlFault(
-                                    runtime, write, name -> name.startsWith("v3-maintenance-"))
-                            : WorkerResourcesPostgresTest.businessFault(
-                                    runtime, write, name -> name.startsWith("v3-maintenance-"));
-            var closes = new AtomicInteger();
-            var stopped = new AtomicInteger();
-            var realClose = (Runnable) field(runtime.worker, "closeResources");
-            replace(
-                    runtime.worker,
-                    "closeResources",
-                    (Runnable)
-                            () -> {
-                                closes.incrementAndGet();
-                                realClose.run();
-                            });
-            fault.armed.set(true);
-            runtime.worker.requestDrain(stopped::incrementAndGet);
-            runtime.worker.start();
-            await(engine::hasUnresolvedRecovery);
-            for (int n = 0; n < 8; n++) {
-                runtime.worker.requestDrain();
-                Thread.sleep(10);
-            }
-            assertEquals(1, runtime.capacity.snapshot().worker());
-            assertEquals(WorkerView.State.DRAINING, runtime.worker.snapshot().state());
-            assertEquals(0, closes.get());
-            assertEquals(0, stopped.get());
-            System.out.println(
-                    "RECOVERY_UNKNOWN pid="
-                            + fault.pid.get()
-                            + " xid="
-                            + fault.xid.get()
-                            + " readOnly="
-                            + fault.readOnly.get()
-                            + " capacity=1 closes=0 stopped=0");
-            System.out.flush();
-            while (!Files.exists(directory.resolve("finish"))) Thread.sleep(10);
-            Thread.sleep(350);
-            for (int n = 0; n < 4; n++) {
-                assertEquals(0, engine.settlePending());
-                runtime.worker.requestDrain();
-            }
-            assertTrue(engine.hasUnresolvedRecovery());
-            assertEquals(1, runtime.capacity.snapshot().worker());
-            assertEquals(0, closes.get());
-            assertEquals(0, stopped.get());
-            System.out.println(
-                    "RECOVERY_PENDING externalRollback=true capacity=1 closes=0 stopped=0"
-                            + " state=DRAINING");
-            System.out.flush();
-            while (true) Thread.sleep(1000);
+        String mode = args[0];
+        if (mode.startsWith("recovery-unknown-")) {
+            runChildRecoveryUnknown(mode, values, directory);
+        } else if (mode.startsWith("control-unknown-")) {
+            runChildControlUnknown(mode, values, directory);
+        } else if (mode.startsWith("preparation-unknown-")) {
+            runChildPreparationUnknown(mode, values, directory);
+        } else if (mode.startsWith("crash-")) {
+            runChildCrash(mode.substring(6), values);
+        } else if (mode.startsWith("renewal-unknown-")) {
+            runChildRenewalUnknown(mode, values, directory);
+        } else {
+            throw new IllegalArgumentException("unknown child mode");
         }
-        if (args[0].startsWith("control-unknown-")) {
-            boolean write = args[0].endsWith("WRITE");
-            var runtime = new Runtime(values, ConsumptionObservation.noop());
-            var fault =
-                    WorkerResourcesPostgresTest.controlFault(
-                            runtime,
-                            write,
-                            name ->
-                                    name.startsWith("v3-discovery-")
-                                            || name.startsWith("v3-consumption-"));
-            var closes = new AtomicInteger();
-            var stopped = new AtomicInteger();
-            var realClose = (Runnable) field(runtime.worker, "closeResources");
-            replace(
-                    runtime.worker,
-                    "closeResources",
-                    (Runnable)
-                            () -> {
-                                closes.incrementAndGet();
-                                realClose.run();
-                            });
-            fault.armed.set(true);
-            runtime.worker.start();
-            await(() -> fault.physical.get() != null);
-            runtime.worker.requestDrain(stopped::incrementAndGet);
-            await(() -> runtime.worker.snapshot().operations() == 1);
-            if (runtime.worker.snapshot().state() != WorkerView.State.DRAINING
-                    || runtime.capacity.snapshot().worker() != 0
-                    || closes.get() != 0)
-                throw new AssertionError("Control UNKNOWN lost L1 or started pool closure");
-            System.out.println(
-                    "CONTROL_OPERATION_UNKNOWN pid="
-                            + fault.pid.get()
-                            + " xid="
-                            + fault.xid.get()
-                            + " state=DRAINING operations=1 capacity=0 closes=0");
-            System.out.flush();
-            while (!Files.exists(directory.resolve("finish"))) Thread.sleep(10);
-            await(() -> runtime.worker.snapshot().deadlineExceeded());
-            for (String pool :
-                    List.of("writeBusiness", "writeControl", "readBusiness", "readControl"))
-                if (runtime.pool(pool).isClosed())
-                    throw new AssertionError("pool closed on unknown L1");
-            if (runtime.worker.snapshot().operations() != 1
-                    || closes.get() != 0
-                    || stopped.get() != 0)
-                throw new AssertionError("external resolution or deadline released L1");
-            System.out.println(
-                    "CONTROL_OPERATION_PENDING externalRollback=true operations=1 capacity=0"
-                            + " closes=0 stopped=0 state="
-                            + runtime.worker.snapshot().state());
-            System.out.flush();
-            while (true) Thread.sleep(1000); // Parent terminates this incomplete drain as CRASH.
-        }
-        if (args[0].startsWith("preparation-unknown-")) {
-            boolean write = args[0].endsWith("WRITE");
-            var runtime = new Runtime(values, ConsumptionObservation.noop());
-            var fault = WorkerResourcesPostgresTest.businessFault(runtime, write);
-            fault.armed.set(true);
-            runtime.worker.start();
-            try {
-                await(
-                        () ->
-                                fault.physical.get() != null
-                                        && runtime.worker.snapshot().localExited() == 1
-                                        && runtime.worker.snapshot().state()
-                                                == WorkerView.State.DRAINING,
-                        Duration.ofSeconds(30));
-            } catch (Throwable failure) {
-                System.out.println(
-                        "READ_PREP_DIAGNOSTIC physical="
-                                + (fault.physical.get() != null)
-                                + " readonly="
-                                + fault.readOnly.get()
-                                + " capacity="
-                                + runtime.capacity.snapshot().worker()
-                                + " snapshot="
-                                + runtime.worker.snapshot());
-                System.out.flush();
-                throw failure;
-            }
-            runtime.worker.requestDrain(() -> System.out.println("READ_PREP_STOPPED"));
-            if (!fault.readOnly.get() || runtime.capacity.snapshot().worker() != 1)
-                throw new AssertionError("physical read-only preparation lost its reservation");
-            for (var binding : runtime.bindings)
-                if (com.kartaguez.pocoma.runtime.command.L2TestAccess.engine(binding.engine()).settlePending() != 0)
-                    throw new AssertionError("read-only unit settled from slot state");
-            System.out.println(
-                    "READ_PREPARATION_UNKNOWN pid="
-                            + fault.pid.get()
-                            + " xid="
-                            + fault.xid.get()
-                            + " readonly=true capacity=1 state=DRAINING");
-            System.out.flush();
-            while (!Files.exists(directory.resolve("finish"))) Thread.sleep(10);
-            for (var binding : runtime.bindings)
-                if (com.kartaguez.pocoma.runtime.command.L2TestAccess.engine(binding.engine()).settlePending() != 0)
-                    throw new AssertionError(
-                            "external observation cannot qualify old read unit through current"
-                                    + " Engine ports");
-            await(() -> runtime.worker.snapshot().deadlineExceeded());
-            if (runtime.capacity.snapshot().worker() != 1
-                    || runtime.worker.snapshot().handles() != 1)
-                throw new AssertionError("unknown preparation released by deadline");
-            System.out.println(
-                    "READ_PREPARATION_STILL_PENDING externalRollback=true capacity=1 handles=1"
-                            + " state=DRAINING");
-            System.out.flush();
-            for (; ; ) Thread.sleep(1000);
-        }
-        if (args[0].startsWith("crash-")) {
-            String boundary = args[0].substring(6);
-            var runtime = new Runtime(values, ConsumptionObservation.noop());
-            var engine = com.kartaguez.pocoma.runtime.command.L2TestAccess.engine(runtime.bindings.getFirst().engine());
-            Runnable stop =
-                    () -> {
-                        System.out.println("CRASH_BOUNDARY " + boundary);
-                        System.out.flush();
-                        for (; ; )
-                            try {
-                                Thread.sleep(1000);
-                            } catch (InterruptedException ignored) {
-                            }
-                    };
-            var control = (AttemptTransactions) field(engine, "controlTransactions");
-            var business = (AttemptTransactions) field(engine, "transactions");
-            if (boundary.equals("acquire"))
-                replace(
-                        engine,
-                        "controlTransactions",
-                        new ForwardingTransactions(control) {
-                            public <T> T write(
-                                    java.util.function.Supplier<T> work,
-                                    com.kartaguez.pocoma.port.transaction.AttemptTransactions
-                                                    .Guard
-                                            guard) {
-                                T result = control.write(work, guard);
-                                if (Thread.currentThread().getName().startsWith("v3-consumption-")
-                                        && result instanceof Optional<?> optional
-                                        && optional.orElse(null) instanceof List<?> claims
-                                        && !claims.isEmpty()) stop.run();
-                                return result;
-                            }
-                        });
-            if (boundary.equals("admission")) {
-                // Discovery holds the pair lock until this callback returns. Stop only after
-                // the effects transaction committed an actual admission for that partition.
-                var discovery = com.kartaguez.pocoma.runtime.command.L2TestAccess.discovery(runtime.bindings.getFirst().discovery());
-                var owner = (AttemptTransactions) field(discovery, "effects");
-                replace(
-                        discovery,
-                        "effects",
-                        new ForwardingTransactions(owner) {
-                            public <T> T write(
-                                    java.util.function.Supplier<T> work,
-                                    com.kartaguez.pocoma.port.transaction.AttemptTransactions
-                                                    .Guard
-                                            guard) {
-                                T result = owner.write(work, guard);
-                                if (result instanceof RequestProgress progress
-                                        && progress.committedAdmissions() == 1) stop.run();
-                                return result;
-                            }
-                        });
-            }
-            var participant = (ConsumptionParticipant) field(engine, "participant");
-            replace(
-                    engine,
-                    "participant",
-                    new ConsumptionParticipant() {
-                        public Optional<Prepared> prepare(UUID id, PreparationReads reads) {
-                            var prepared = participant.prepare(id, reads);
-                            if (boundary.equals("cession"))
-                                throw new IllegalStateException("counted test rollback");
-                            return prepared.map(
-                                    p ->
-                                            new Prepared() {
-                                                public void finalizeIn(SlotCompletion completion) {
-                                                    p.finalizeIn(
-                                                            () -> {
-                                                                completion.complete();
-                                                                if (boundary.equals("delete"))
-                                                                    stop.run();
-                                                            });
-                                                    if (boundary.equals("publication")) stop.run();
-                                                }
+    }
 
-                                                public void requireCompletionReady() {
-                                                    p.requireCompletionReady();
-                                                }
-                                            });
-                        }
-
-                        public Recovery prepareRecovery(UUID id, PreparationReads reads) {
-                            return participant.prepareRecovery(id, reads);
-                        }
-                    });
-            if (boundary.equals("commit"))
-                replace(
-                        engine,
-                        "transactions",
-                        new ForwardingTransactions(business) {
-                            public <T> T write(
-                                    java.util.function.Supplier<T> work,
-                                    com.kartaguez.pocoma.port.transaction.AttemptTransactions
-                                                    .Guard
-                                            guard) {
-                                T result = business.write(work, guard);
-                                if (Thread.currentThread().getName().startsWith("v3-attempt-"))
-                                    stop.run();
-                                return result;
-                            }
-                        });
-            if (boundary.equals("cession"))
-                replace(
-                        engine,
-                        "controlTransactions",
-                        new ForwardingTransactions(control) {
-                            public <T> T write(
-                                    java.util.function.Supplier<T> work,
-                                    com.kartaguez.pocoma.port.transaction.AttemptTransactions
-                                                    .Guard
-                                            guard) {
-                                T result = control.write(work, guard);
-                                if (Thread.currentThread().getName().startsWith("v3-attempt-"))
-                                    stop.run();
-                                return result;
-                            }
-                        });
-            runtime.worker.start();
-            for (; ; ) Thread.sleep(1000);
-        }
-        if (args[0].startsWith("renewal-unknown-")) {
-            boolean write = args[0].endsWith("WRITE");
-            var runtime = new Runtime(values, ConsumptionObservation.noop());
-            var fault =
-                    WorkerResourcesPostgresTest.controlFault(
-                            runtime,
-                            write,
-                            name ->
-                                    name.startsWith(
-                                            "v3-renew-" + (write ? "WRITE" : "READ") + "-0-"));
-            var prepared = new CountDownLatch(4);
-            var finish = new CountDownLatch(1);
-            for (int i = 0; i < 3; i++)
-                runtime.prepareBarrier(
-                        i,
+    private static AtomicInteger instrumentCloseResources(Runtime runtime) throws Exception {
+        var closes = new AtomicInteger();
+        var realClose = (Runnable) field(runtime.worker, "closeResources");
+        replace(
+                runtime.worker,
+                "closeResources",
+                (Runnable)
                         () -> {
-                            prepared.countDown();
-                            latch(finish);
+                            closes.incrementAndGet();
+                            realClose.run();
                         });
-            runtime.worker.start();
-            latch(prepared);
-            System.out.println("P7_ARM_READY");
-            System.out.flush();
-            while (!Files.exists(directory.resolve("arm"))) Thread.sleep(10);
-            fault.armed.set(true);
-            await(() -> runtime.worker.snapshot().unknownRenewals() == 1);
-            runtime.worker.requestDrain(() -> System.out.println("P7_STOPPED"));
-            System.out.println(
-                    "P7_UNKNOWN pid="
-                            + fault.pid.get()
-                            + " xid="
-                            + fault.xid.get()
-                            + " key="
-                            + fault.changedKey.get());
-            System.out.flush();
-            while (!Files.exists(directory.resolve("finish"))) Thread.sleep(10);
-            finish.countDown();
+        return closes;
+    }
+
+    private static void awaitSignalFile(Path path) throws InterruptedException {
+        while (!Files.exists(path)) Thread.sleep(10);
+    }
+
+    private static void sleepForever() throws InterruptedException {
+        while (true) Thread.sleep(1000);
+    }
+
+    private static void runChildRecoveryUnknown(
+            String rawMode, Map<String, Object> values, Path directory) throws Exception {
+        var mode = rawMode.split("-", 6);
+        boolean control = mode[2].equals("CONTROL"), write = mode[3].equals("WRITE");
+        int partition = Integer.parseInt(mode[4]);
+        UUID id = UUID.fromString(mode[5]);
+        var runtime = new Runtime(values, ConsumptionObservation.noop());
+        var engine =
+                com.kartaguez.pocoma.runtime.command.L2TestAccess.engine(
+                        runtime.bindings.get(write ? 0 : 1).engine());
+        var lease = engine.acquirePartition(partition).orElseThrow();
+        var handle = engine.acquire(lease, List.of(id)).claims().getFirst();
+        var business = (AttemptTransactions) field(engine, "transactions");
+        replace(
+                engine,
+                "transactions",
+                new ForwardingTransactions(business) {
+                    public <T> T write(
+                            Supplier<T> action,
+                            com.kartaguez.pocoma.port.transaction.AttemptTransactions.Guard guard) {
+                        business.write(action, guard);
+                        throw new AttemptTransactions.Failure(
+                                AttemptTransactions.Resolution.UNKNOWN,
+                                new IllegalStateException("test ACK lost after actual final commit"));
+                    }
+                });
+        assertEquals(AttemptTransactions.Resolution.UNKNOWN, engine.execute(handle).resolution());
+        assertEquals(1, runtime.capacity.snapshot().worker());
+        replace(engine, "transactions", business);
+        var fault =
+                control
+                        ? WorkerResourcesPostgresTest.controlFault(
+                                runtime, write, name -> name.startsWith("v3-maintenance-"))
+                        : WorkerResourcesPostgresTest.businessFault(
+                                runtime, write, name -> name.startsWith("v3-maintenance-"));
+        var closes = instrumentCloseResources(runtime);
+        var stopped = new AtomicInteger();
+        fault.armed.set(true);
+        runtime.worker.requestDrain(stopped::incrementAndGet);
+        runtime.worker.start();
+        await(engine::hasUnresolvedRecovery);
+        for (int n = 0; n < 8; n++) {
+            runtime.worker.requestDrain();
+            Thread.sleep(10);
+        }
+        assertEquals(1, runtime.capacity.snapshot().worker());
+        assertEquals(WorkerView.State.DRAINING, runtime.worker.snapshot().state());
+        assertEquals(0, closes.get());
+        assertEquals(0, stopped.get());
+        System.out.println(
+                "RECOVERY_UNKNOWN pid="
+                        + fault.pid.get()
+                        + " xid="
+                        + fault.xid.get()
+                        + " readOnly="
+                        + fault.readOnly.get()
+                        + " capacity=1 closes=0 stopped=0");
+        System.out.flush();
+        awaitSignalFile(directory.resolve("finish"));
+        Thread.sleep(350);
+        for (int n = 0; n < 4; n++) {
+            assertEquals(0, engine.settlePending());
+            runtime.worker.requestDrain();
+        }
+        assertTrue(engine.hasUnresolvedRecovery());
+        assertEquals(1, runtime.capacity.snapshot().worker());
+        assertEquals(0, closes.get());
+        assertEquals(0, stopped.get());
+        System.out.println(
+                "RECOVERY_PENDING externalRollback=true capacity=1 closes=0 stopped=0 state=DRAINING");
+        System.out.flush();
+        sleepForever();
+    }
+
+    private static void runChildControlUnknown(
+            String mode, Map<String, Object> values, Path directory) throws Exception {
+        boolean write = mode.endsWith("WRITE");
+        var runtime = new Runtime(values, ConsumptionObservation.noop());
+        var fault =
+                WorkerResourcesPostgresTest.controlFault(
+                        runtime,
+                        write,
+                        name ->
+                                name.startsWith("v3-discovery-")
+                                        || name.startsWith("v3-consumption-"));
+        var closes = instrumentCloseResources(runtime);
+        var stopped = new AtomicInteger();
+        fault.armed.set(true);
+        runtime.worker.start();
+        await(() -> fault.physical.get() != null);
+        runtime.worker.requestDrain(stopped::incrementAndGet);
+        await(() -> runtime.worker.snapshot().operations() == 1);
+        if (runtime.worker.snapshot().state() != WorkerView.State.DRAINING
+                || runtime.capacity.snapshot().worker() != 0
+                || closes.get() != 0) {
+            throw new AssertionError("Control UNKNOWN lost L1 or started pool closure");
+        }
+        System.out.println(
+                "CONTROL_OPERATION_UNKNOWN pid="
+                        + fault.pid.get()
+                        + " xid="
+                        + fault.xid.get()
+                        + " state=DRAINING operations=1 capacity=0 closes=0");
+        System.out.flush();
+        awaitSignalFile(directory.resolve("finish"));
+        await(() -> runtime.worker.snapshot().deadlineExceeded());
+        for (String pool : List.of("writeBusiness", "writeControl", "readBusiness", "readControl")) {
+            if (runtime.pool(pool).isClosed()) throw new AssertionError("pool closed on unknown L1");
+        }
+        if (runtime.worker.snapshot().operations() != 1
+                || closes.get() != 0
+                || stopped.get() != 0) {
+            throw new AssertionError("external resolution or deadline released L1");
+        }
+        System.out.println(
+                "CONTROL_OPERATION_PENDING externalRollback=true operations=1 capacity=0"
+                        + " closes=0 stopped=0 state="
+                        + runtime.worker.snapshot().state());
+        System.out.flush();
+        sleepForever(); // Parent terminates this incomplete drain as CRASH.
+    }
+
+    private static void runChildPreparationUnknown(
+            String mode, Map<String, Object> values, Path directory) throws Exception {
+        boolean write = mode.endsWith("WRITE");
+        var runtime = new Runtime(values, ConsumptionObservation.noop());
+        var fault = WorkerResourcesPostgresTest.businessFault(runtime, write);
+        fault.armed.set(true);
+        runtime.worker.start();
+        try {
             await(
                     () ->
-                            runtime.capacity.snapshot().worker() == 0
-                                    && runtime.worker.snapshot().handles() == 0);
+                            fault.physical.get() != null
+                                    && runtime.worker.snapshot().localExited() == 1
+                                    && runtime.worker.snapshot().state() == WorkerView.State.DRAINING,
+                    Duration.ofSeconds(30));
+        } catch (Throwable failure) {
             System.out.println(
-                    "P7_DRAINED_ATTEMPTS state="
-                            + runtime.worker.snapshot().state()
-                            + " unknown="
-                            + runtime.worker.snapshot().unknownRenewals()
-                            + " capacity=0 handles=0");
+                    "READ_PREP_DIAGNOSTIC physical="
+                            + (fault.physical.get() != null)
+                            + " readonly="
+                            + fault.readOnly.get()
+                            + " capacity="
+                            + runtime.capacity.snapshot().worker()
+                            + " snapshot="
+                            + runtime.worker.snapshot());
             System.out.flush();
-            while (true)
-                Thread.sleep(1000); // No local rearm or false successful stop after external DB
-            // resolution.
+            throw failure;
         }
-        throw new IllegalArgumentException("unknown child mode");
+        runtime.worker.requestDrain(() -> System.out.println("READ_PREP_STOPPED"));
+        if (!fault.readOnly.get() || runtime.capacity.snapshot().worker() != 1) {
+            throw new AssertionError("physical read-only preparation lost its reservation");
+        }
+        assertAllBindingsSettledZero(runtime, "read-only unit settled from slot state");
+        System.out.println(
+                "READ_PREPARATION_UNKNOWN pid="
+                        + fault.pid.get()
+                        + " xid="
+                        + fault.xid.get()
+                        + " readonly=true capacity=1 state=DRAINING");
+        System.out.flush();
+        awaitSignalFile(directory.resolve("finish"));
+        assertAllBindingsSettledZero(
+                runtime, "external observation cannot qualify old read unit through current Engine ports");
+        await(() -> runtime.worker.snapshot().deadlineExceeded());
+        if (runtime.capacity.snapshot().worker() != 1 || runtime.worker.snapshot().handles() != 1) {
+            throw new AssertionError("unknown preparation released by deadline");
+        }
+        System.out.println(
+                "READ_PREPARATION_STILL_PENDING externalRollback=true capacity=1 handles=1"
+                        + " state=DRAINING");
+        System.out.flush();
+        sleepForever();
+    }
+
+    private static void assertAllBindingsSettledZero(Runtime runtime, String message) {
+        for (var binding : runtime.bindings) {
+            if (com.kartaguez.pocoma.runtime.command.L2TestAccess.engine(binding.engine())
+                            .settlePending()
+                    != 0) {
+                throw new AssertionError(message);
+            }
+        }
+    }
+
+    private static void runChildCrash(String boundary, Map<String, Object> values) throws Exception {
+        var runtime = new Runtime(values, ConsumptionObservation.noop());
+        var engine =
+                com.kartaguez.pocoma.runtime.command.L2TestAccess.engine(
+                        runtime.bindings.getFirst().engine());
+        Runnable stop =
+                () -> {
+                    System.out.println("CRASH_BOUNDARY " + boundary);
+                    System.out.flush();
+                    for (; ; ) {
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException ignored) {
+                        }
+                    }
+                };
+        var control = (AttemptTransactions) field(engine, "controlTransactions");
+        var business = (AttemptTransactions) field(engine, "transactions");
+        if (boundary.equals("acquire")) installAcquireCrashHook(engine, control, stop);
+        if (boundary.equals("admission")) installAdmissionCrashHook(runtime, stop);
+        installParticipantCrashHook(engine, boundary, stop);
+        if (boundary.equals("commit")) installAttemptWriteCrashHook(engine, "transactions", business, stop);
+        if (boundary.equals("cession")) {
+            installAttemptWriteCrashHook(engine, "controlTransactions", control, stop);
+        }
+        runtime.worker.start();
+        sleepForever();
+    }
+
+    private static void installAcquireCrashHook(
+            ConsumptionEngine engine, AttemptTransactions control, Runnable stop) throws Exception {
+        replace(
+                engine,
+                "controlTransactions",
+                new ForwardingTransactions(control) {
+                    public <T> T write(
+                            Supplier<T> work,
+                            com.kartaguez.pocoma.port.transaction.AttemptTransactions.Guard guard) {
+                        T result = control.write(work, guard);
+                        if (Thread.currentThread().getName().startsWith("v3-consumption-")
+                                && result instanceof Optional<?> optional
+                                && optional.orElse(null) instanceof List<?> claims
+                                && !claims.isEmpty()) {
+                            stop.run();
+                        }
+                        return result;
+                    }
+                });
+    }
+
+    private static void installAdmissionCrashHook(Runtime runtime, Runnable stop) throws Exception {
+        // Discovery holds the pair lock until this callback returns. Stop only after
+        // the effects transaction committed an actual admission for that partition.
+        var discovery =
+                com.kartaguez.pocoma.runtime.command.L2TestAccess.discovery(
+                        runtime.bindings.getFirst().discovery());
+        var owner = (AttemptTransactions) field(discovery, "effects");
+        replace(
+                discovery,
+                "effects",
+                new ForwardingTransactions(owner) {
+                    public <T> T write(
+                            Supplier<T> work,
+                            com.kartaguez.pocoma.port.transaction.AttemptTransactions.Guard guard) {
+                        T result = owner.write(work, guard);
+                        if (result instanceof RequestProgress progress
+                                && progress.committedAdmissions() == 1) {
+                            stop.run();
+                        }
+                        return result;
+                    }
+                });
+    }
+
+    private static void installParticipantCrashHook(
+            ConsumptionEngine engine, String boundary, Runnable stop) throws Exception {
+        var participant = (ConsumptionParticipant) field(engine, "participant");
+        replace(
+                engine,
+                "participant",
+                new ConsumptionParticipant() {
+                    public Optional<Prepared> prepare(UUID id, PreparationReads reads) {
+                        var prepared = participant.prepare(id, reads);
+                        if (boundary.equals("cession")) {
+                            throw new IllegalStateException("counted test rollback");
+                        }
+                        return prepared.map(
+                                p ->
+                                        new Prepared() {
+                                            public void finalizeIn(SlotCompletion completion) {
+                                                p.finalizeIn(
+                                                        () -> {
+                                                            completion.complete();
+                                                            if (boundary.equals("delete")) stop.run();
+                                                        });
+                                                if (boundary.equals("publication")) stop.run();
+                                            }
+
+                                            public void requireCompletionReady() {
+                                                p.requireCompletionReady();
+                                            }
+                                        });
+                    }
+
+                    public Recovery prepareRecovery(UUID id, PreparationReads reads) {
+                        return participant.prepareRecovery(id, reads);
+                    }
+                });
+    }
+
+    private static void installAttemptWriteCrashHook(
+            ConsumptionEngine engine,
+            String fieldName,
+            AttemptTransactions delegate,
+            Runnable stop)
+            throws Exception {
+        replace(
+                engine,
+                fieldName,
+                new ForwardingTransactions(delegate) {
+                    public <T> T write(
+                            Supplier<T> work,
+                            com.kartaguez.pocoma.port.transaction.AttemptTransactions.Guard guard) {
+                        T result = delegate.write(work, guard);
+                        if (Thread.currentThread().getName().startsWith("v3-attempt-")) stop.run();
+                        return result;
+                    }
+                });
+    }
+
+    private static void runChildRenewalUnknown(
+            String mode, Map<String, Object> values, Path directory) throws Exception {
+        boolean write = mode.endsWith("WRITE");
+        var runtime = new Runtime(values, ConsumptionObservation.noop());
+        var fault =
+                WorkerResourcesPostgresTest.controlFault(
+                        runtime,
+                        write,
+                        name -> name.startsWith("v3-renew-" + (write ? "WRITE" : "READ") + "-0-"));
+        var prepared = new CountDownLatch(4);
+        var finish = new CountDownLatch(1);
+        for (int i = 0; i < 3; i++) {
+            runtime.prepareBarrier(
+                    i,
+                    () -> {
+                        prepared.countDown();
+                        latch(finish);
+                    });
+        }
+        runtime.worker.start();
+        latch(prepared);
+        System.out.println("P7_ARM_READY");
+        System.out.flush();
+        awaitSignalFile(directory.resolve("arm"));
+        fault.armed.set(true);
+        await(() -> runtime.worker.snapshot().unknownRenewals() == 1);
+        runtime.worker.requestDrain(() -> System.out.println("P7_STOPPED"));
+        System.out.println(
+                "P7_UNKNOWN pid="
+                        + fault.pid.get()
+                        + " xid="
+                        + fault.xid.get()
+                        + " key="
+                        + fault.changedKey.get());
+        System.out.flush();
+        awaitSignalFile(directory.resolve("finish"));
+        finish.countDown();
+        await(
+                () ->
+                        runtime.capacity.snapshot().worker() == 0
+                                && runtime.worker.snapshot().handles() == 0);
+        System.out.println(
+                "P7_DRAINED_ATTEMPTS state="
+                        + runtime.worker.snapshot().state()
+                        + " unknown="
+                        + runtime.worker.snapshot().unknownRenewals()
+                        + " capacity=0 handles=0");
+        System.out.flush();
+        sleepForever(); // No local rearm or false successful stop after external DB resolution.
     }
 
     @Test
@@ -3082,202 +3269,217 @@ class WorkerPostgresTest {
             f.properties.put(
                     "pocoma.v3.worker.partitions",
                     "Command=0;I5ReadPotProbe=0|1|2|3;I5ReadCompletionProbe=0|1|2|3");
-            UUID quarantined, extra;
-            try (var runtime = new Runtime(f, ConsumptionObservation.noop())) {
-                var binding = runtime.bindings.getFirst();
-                var engine = com.kartaguez.pocoma.runtime.command.L2TestAccess.engine(binding.engine());
-                var original = (ConsumptionParticipant) field(engine, "participant");
-                quarantined = pendingAtPartitionZero(f, 8000);
-                var lease = engine.acquirePartition(0).orElseThrow();
-                com.kartaguez.pocoma.runtime.command.L2TestAccess.discovery(binding.discovery()).discoverRequests(lease);
-                replace(
-                        engine,
-                        "participant",
-                        new ConsumptionParticipant() {
-                            public Optional<Prepared> prepare(UUID id, PreparationReads reads) {
-                                return reads.source(
-                                        preparationContext -> {
-                                            throw new IllegalStateException(
-                                                    "confirmed countable fixture failure");
-                                        });
-                            }
+            UUID[] ids = prepareQuarantinedAndSaturateCap(f);
+            verifyRestartedQuarantineAndReactivate(f, ids[0], ids[1]);
+        }
+    }
 
-                            public Recovery prepareRecovery(UUID id, PreparationReads reads) {
-                                return original.prepareRecovery(id, reads);
-                            }
-                        });
-                for (int n = 1; n <= 3; n++) {
-                    var handle = engine.acquire(lease, List.of(quarantined)).claims().getFirst();
-                    var result = engine.execute(handle);
-                    assertEquals(
-                            com.kartaguez.pocoma.port.transaction.AttemptTransactions.Resolution
-                                    .ROLLED_BACK,
-                            result.resolution());
-                    assertEquals(n, result.cession().attemptCount());
-                }
-                replace(engine, "participant", original);
-                assertEquals(0, runtime.capacity.snapshot().worker());
-                f.write.update(
-                        "update partition_ownership set owned_until=clock_timestamp()-interval '1"
-                                + " second' where owner_token is not null");
-                long next = 8100;
-                for (int n = 0; n < 64; n++) {
-                    var id = pendingAtPartitionZero(f, next);
-                    next = id.getLeastSignificantBits() + 1;
-                }
-                var prepared = new CountDownLatch(1);
-                var finish = new CountDownLatch(1);
-                runtime.prepareBarrier(
-                        0,
-                        () -> {
-                            prepared.countDown();
-                            latch(finish);
-                        });
-                runtime.worker.start();
-                try {
-                    latch(prepared);
-                    await(
-                            () ->
-                                    f.write.queryForObject(
-                                                    "select count(*) from consumption_slot where"
-                                                            + " state<>'QUARANTINED'",
-                                                    Integer.class)
-                                            == 64);
-                    assertEquals(
-                            65,
-                            f.write.queryForObject(
-                                    "select count(*) from consumption_slot", Integer.class));
-                    extra = pendingAtPartitionZero(f, next);
-                    assertEquals(
-                            0,
-                            f.write.queryForObject(
-                                    "select count(*) from consumption_slot where consumable_id=?",
-                                    Integer.class,
-                                    extra));
-                    assertEquals(
-                            3,
-                            f.write.queryForObject(
-                                    "select attempt_count from consumption_slot where"
-                                            + " consumable_id=? and state='QUARANTINED'",
-                                    Integer.class,
-                                    quarantined));
-                    runtime.worker.requestDrain();
-                    finish.countDown();
-                    await(
-                            () ->
-                                    runtime.worker.snapshot().state()
-                                            == WorkerView.State.STOPPED);
-                    assertEquals(
-                            3,
-                            f.write.queryForObject(
-                                    "select attempt_count from consumption_slot where"
-                                            + " consumable_id=? and state='QUARANTINED'",
-                                    Integer.class,
-                                    quarantined));
-                } finally {
-                    finish.countDown();
-                    f.evidence("i5_w08-before-restart");
-                }
+    private UUID[] prepareQuarantinedAndSaturateCap(Fixture f) throws Exception {
+        UUID quarantined, extra;
+        try (var runtime = new Runtime(f, ConsumptionObservation.noop())) {
+            var binding = runtime.bindings.getFirst();
+            var engine = com.kartaguez.pocoma.runtime.command.L2TestAccess.engine(binding.engine());
+            var original = (ConsumptionParticipant) field(engine, "participant");
+            quarantined = pendingAtPartitionZero(f, 8000);
+            var lease = engine.acquirePartition(0).orElseThrow();
+            com.kartaguez.pocoma.runtime.command.L2TestAccess.discovery(binding.discovery())
+                    .discoverRequests(lease);
+            quarantineSlotWithThreeFailures(engine, original, quarantined, lease);
+            replace(engine, "participant", original);
+            assertEquals(0, runtime.capacity.snapshot().worker());
+            f.write.update(
+                    "update partition_ownership set owned_until=clock_timestamp()-interval '1"
+                            + " second' where owner_token is not null");
+            long next = 8100;
+            for (int n = 0; n < 64; n++) {
+                var id = pendingAtPartitionZero(f, next);
+                next = id.getLeastSignificantBits() + 1;
             }
-            var leaseCalls = new AtomicInteger();
-            ConsumptionObservation observer =
-                    (id, p, o, n, d) -> {
-                        if (p == ConsumptionObservation.Phase.LEASE_ACQUIRE)
-                            leaseCalls.incrementAndGet();
-                    };
-            try (var restarted = new Runtime(f, observer)) {
-                restarted.worker.start();
-                await(() -> leaseCalls.get() > 0);
-                assertEquals(
-                        3,
-                        f.write.queryForObject(
-                                "select attempt_count from consumption_slot where consumable_id=?"
-                                        + " and state='QUARANTINED'",
-                                Integer.class,
-                                quarantined));
-                // Restart neither releases leases nor erases claims/K; wait for ordinary DB expiry.
-                try {
-                    // A watchdog for 65 real Commands and their READ publications, not an
-                    // absolute R10 latency promise. Unused claims keep their ordinary TTL.
-                    f.verify(extra, Duration.ofMinutes(3));
-                } catch (AssertionError failure) {
-                    f.trace.add("restart failure Worker=" + restarted.worker.snapshot());
-                    f.trace.add("restart failure capacity=" + restarted.capacity.snapshot());
-                    f.trace.add(
-                            "restart failure slots="
-                                    + f.write.queryForList(
-                                            "select state,attempt_count,count(*) from"
-                                                    + " consumption_slot group by"
-                                                    + " state,attempt_count"));
-                    f.trace.add(
-                            "restart failure sources="
-                                    + f.write.queryForList(
-                                            "select status,count(*) from v3_command group by"
-                                                    + " status"));
-                    f.trace.add(
-                            "restart failure extra="
-                                    + f.write.queryForList(
-                                            "select state,attempt_count,claimed_until,retry_after"
-                                                + " from consumption_slot where consumable_id=?",
-                                            extra));
-                    f.evidence("i5_w08-restart-failure");
-                    throw failure;
-                }
+            var prepared = new CountDownLatch(1);
+            var finish = new CountDownLatch(1);
+            runtime.prepareBarrier(
+                    0,
+                    () -> {
+                        prepared.countDown();
+                        latch(finish);
+                    });
+            runtime.worker.start();
+            try {
+                latch(prepared);
                 await(
                         () ->
                                 f.write.queryForObject(
-                                                "select count(*) from v3_command where"
-                                                        + " status='PENDING'",
+                                                "select count(*) from consumption_slot where"
+                                                        + " state<>'QUARANTINED'",
                                                 Integer.class)
-                                        == 1,
-                        Duration.ofSeconds(90));
+                                        == 64);
                 assertEquals(
-                        "PENDING",
+                        65,
                         f.write.queryForObject(
-                                "select status from v3_command where request_id=?",
-                                String.class,
-                                quarantined));
-                String file = "/tmp/" + f.schema + "reactivate.sql";
-                PG.copyFileToContainer(
-                        MountableFile.forHostPath(
-                                Path.of("../../scripts/v3/reactivate-l2-slot.sql")
-                                        .toAbsolutePath()),
-                        file);
-                var result =
-                        PG.execInContainer(
-                                "env",
-                                "PGPASSWORD=i5-fixture",
-                                "PGOPTIONS=-c search_path=" + f.schema,
-                                "psql",
-                                "-X",
-                                "-h",
-                                "127.0.0.1",
-                                "-U",
-                                f.reactRole,
-                                "-d",
-                                PG.getDatabaseName(),
-                                "-v",
-                                "expected_database=" + PG.getDatabaseName(),
-                                "-v",
-                                "expected_schema=" + f.schema,
-                                "-v",
-                                "expected_admin=" + f.reactRole,
-                                "-v",
-                                "consumption_id=98f7268d-d340-581c-b83d-010926223e14",
-                                "-v",
-                                "consumable_id=" + quarantined,
-                                "-f",
-                                file);
-                assertEquals(0, result.getExitCode(), result.getStderr());
-                assertTrue(result.getStdout().contains("UPDATE 1"));
-                f.verify(quarantined);
-                f.trace.add(
-                        "Q persisted across drain/restart/time; Q excluded from softCap64 (65 total"
-                            + " slots); only explicit restricted-role CAS reactivated, then normal"
-                            + " real completion; no purge/K reset");
-                f.evidence("i5_w08");
+                                "select count(*) from consumption_slot", Integer.class));
+                extra = pendingAtPartitionZero(f, next);
+                assertEquals(
+                        0,
+                        f.write.queryForObject(
+                                "select count(*) from consumption_slot where consumable_id=?",
+                                Integer.class,
+                                extra));
+                assertQuarantinedAttempts(f, quarantined, 3);
+                runtime.worker.requestDrain();
+                finish.countDown();
+                await(() -> runtime.worker.snapshot().state() == WorkerView.State.STOPPED);
+                assertQuarantinedAttempts(f, quarantined, 3);
+            } finally {
+                finish.countDown();
+                f.evidence("i5_w08-before-restart");
             }
         }
+        return new UUID[] {quarantined, extra};
+    }
+
+    private static void quarantineSlotWithThreeFailures(
+            ConsumptionEngine engine,
+            ConsumptionParticipant original,
+            UUID quarantined,
+            PartitionLease lease)
+            throws Exception {
+        replace(
+                engine,
+                "participant",
+                new ConsumptionParticipant() {
+                    public Optional<Prepared> prepare(UUID id, PreparationReads reads) {
+                        return reads.source(
+                                preparationContext -> {
+                                    throw new IllegalStateException(
+                                            "confirmed countable fixture failure");
+                                });
+                    }
+
+                    public Recovery prepareRecovery(UUID id, PreparationReads reads) {
+                        return original.prepareRecovery(id, reads);
+                    }
+                });
+        for (int n = 1; n <= 3; n++) {
+            var handle = engine.acquire(lease, List.of(quarantined)).claims().getFirst();
+            var result = engine.execute(handle);
+            assertEquals(
+                    com.kartaguez.pocoma.port.transaction.AttemptTransactions.Resolution.ROLLED_BACK,
+                    result.resolution());
+            assertEquals(n, result.cession().attemptCount());
+        }
+    }
+
+    private static void assertQuarantinedAttempts(Fixture f, UUID quarantined, int expected) {
+        assertEquals(
+                expected,
+                f.write.queryForObject(
+                        "select attempt_count from consumption_slot where consumable_id=? and"
+                                + " state='QUARANTINED'",
+                        Integer.class,
+                        quarantined));
+    }
+
+    private void verifyRestartedQuarantineAndReactivate(Fixture f, UUID quarantined, UUID extra)
+            throws Exception {
+        var leaseCalls = new AtomicInteger();
+        ConsumptionObservation observer =
+                (id, p, o, n, d) -> {
+                    if (p == ConsumptionObservation.Phase.LEASE_ACQUIRE) {
+                        leaseCalls.incrementAndGet();
+                    }
+                };
+        try (var restarted = new Runtime(f, observer)) {
+            restarted.worker.start();
+            await(() -> leaseCalls.get() > 0);
+            assertQuarantinedAttempts(f, quarantined, 3);
+            // Restart neither releases leases nor erases claims/K; wait for ordinary DB expiry.
+            try {
+                // A watchdog for 65 real Commands and their READ publications, not an
+                // absolute R10 latency promise. Unused claims keep their ordinary TTL.
+                f.verify(extra, Duration.ofMinutes(3));
+            } catch (AssertionError failure) {
+                recordRestartDiagnostics(f, restarted, extra);
+                throw failure;
+            }
+            await(
+                    () ->
+                            f.write.queryForObject(
+                                            "select count(*) from v3_command where"
+                                                    + " status='PENDING'",
+                                            Integer.class)
+                                    == 1,
+                    Duration.ofSeconds(90));
+            assertEquals(
+                    "PENDING",
+                    f.write.queryForObject(
+                            "select status from v3_command where request_id=?",
+                            String.class,
+                            quarantined));
+            executeSlotReactivationScript(f, quarantined);
+            f.verify(quarantined);
+            f.trace.add(
+                    "Q persisted across drain/restart/time; Q excluded from softCap64 (65 total"
+                        + " slots); only explicit restricted-role CAS reactivated, then normal"
+                        + " real completion; no purge/K reset");
+            f.evidence("i5_w08");
+        }
+    }
+
+    private static void recordRestartDiagnostics(Fixture f, Runtime restarted, UUID extra)
+            throws Exception {
+        f.trace.add("restart failure Worker=" + restarted.worker.snapshot());
+        f.trace.add("restart failure capacity=" + restarted.capacity.snapshot());
+        f.trace.add(
+                "restart failure slots="
+                        + f.write.queryForList(
+                                "select state,attempt_count,count(*) from consumption_slot group by"
+                                        + " state,attempt_count"));
+        f.trace.add(
+                "restart failure sources="
+                        + f.write.queryForList(
+                                "select status,count(*) from v3_command group by status"));
+        f.trace.add(
+                "restart failure extra="
+                        + f.write.queryForList(
+                                "select state,attempt_count,claimed_until,retry_after from"
+                                        + " consumption_slot where consumable_id=?",
+                                extra));
+        f.evidence("i5_w08-restart-failure");
+    }
+
+    private static void executeSlotReactivationScript(Fixture f, UUID quarantined) throws Exception {
+        String file = "/tmp/" + f.schema + "reactivate.sql";
+        PG.copyFileToContainer(
+                MountableFile.forHostPath(
+                        Path.of("../../scripts/v3/reactivate-l2-slot.sql").toAbsolutePath()),
+                file);
+        var result =
+                PG.execInContainer(
+                        "env",
+                        "PGPASSWORD=i5-fixture",
+                        "PGOPTIONS=-c search_path=" + f.schema,
+                        "psql",
+                        "-X",
+                        "-h",
+                        "127.0.0.1",
+                        "-U",
+                        f.reactRole,
+                        "-d",
+                        PG.getDatabaseName(),
+                        "-v",
+                        "expected_database=" + PG.getDatabaseName(),
+                        "-v",
+                        "expected_schema=" + f.schema,
+                        "-v",
+                        "expected_admin=" + f.reactRole,
+                        "-v",
+                        "consumption_id=98f7268d-d340-581c-b83d-010926223e14",
+                        "-v",
+                        "consumable_id=" + quarantined,
+                        "-f",
+                        file);
+        assertEquals(0, result.getExitCode(), result.getStderr());
+        assertTrue(result.getStdout().contains("UPDATE 1"));
     }
 
     @Test
@@ -3380,175 +3582,245 @@ class WorkerPostgresTest {
 
     @Test
     void i5_w19() throws Exception {
-        for (int mw : List.of(1, 4))
-            for (boolean timeout : List.of(false, true))
-                try (var f = new Fixture(PG)) {
-                    f.properties.put("pocoma.v3.worker.worker-limit", Integer.toString(mw));
-                    f.properties.put("pocoma.v3.worker.lifecycle.renewal-interval-ms", "100");
-                    f.properties.put(
-                            "pocoma.v3.worker.partitions",
-                            "Command=0;I5ReadPotProbe=0|1|2|3;I5ReadCompletionProbe=0|1|2|3");
-                    var rotations =
-                            new CopyOnWriteArrayList<
-                                    com.kartaguez.pocoma.domain.consumption.ConsumptionId>();
-                    var durations = new CopyOnWriteArrayList<Duration>();
-                    var discoveries = new AtomicInteger();
-                    var renewals = new AtomicInteger();
-                    var commandConsumption = ConsumptionCatalog.definitions().getFirst().id();
-                    ConsumptionObservation observer =
-                            (id, phase, outcome, n, d) -> {
-                                if (phase == ConsumptionObservation.Phase.CONSUMPTION_ROTATION)
-                                    rotations.add(id);
-                                if (phase == ConsumptionObservation.Phase.OPPORTUNITY
-                                        && id.equals(commandConsumption)) durations.add(d);
-                                if (phase == ConsumptionObservation.Phase.DISCOVERY
-                                        && outcome == ConsumptionObservation.Outcome.CONFIRMED)
-                                    discoveries.incrementAndGet();
-                                if (phase == ConsumptionObservation.Phase.LEASE_RENEW
-                                        && !id.equals(commandConsumption)
-                                        && n > 0
-                                        && outcome == ConsumptionObservation.Outcome.CONFIRMED)
-                                    renewals.incrementAndGet();
-                            };
-                    try (var runtime = new Runtime(f, observer);
-                            var blocker =
-                                    Objects.requireNonNull(f.write.getDataSource())
-                                            .getConnection()) {
-                        seedPublications(f, runtime, 6);
-                        UUID id = timeout ? pendingAtPartitionZero(f, 19000) : null;
-                        if (timeout) admitBeforeStart(f, runtime, id);
-                        f.write.execute(
-                                "create function i5_slow_acquire() returns trigger language plpgsql"
-                                    + " as $$ begin if new.claim_token is not null and"
-                                    + " new.claim_token is distinct from old.claim_token then"
-                                    + " perform pg_advisory_xact_lock(519);end if;return new;end"
-                                    + " $$;create trigger i5_slow_acquire before update of"
-                                    + " claim_token on consumption_slot for each row execute"
-                                    + " function i5_slow_acquire()");
-                        try (var q = blocker.createStatement()) {
-                            q.execute("select pg_advisory_lock(519)");
-                        }
-                        var prepared = new CountDownLatch(1);
-                        var finish = new CountDownLatch(1);
-                        runtime.prepareBarrier(
-                                0,
-                                () -> {
-                                    prepared.countDown();
-                                    latch(finish);
-                                });
-                        runtime.worker.start();
-                        try {
-                            if (!timeout) {
-                                // Start the physical lock window only once the runtime's
-                                // independent discovery and lease renewal have started.
-                                await(() -> discoveries.get() > 0 && renewals.get() > 0);
-                                f.trace.add("discovery and READ lease renewal confirmed before injection"
-                                        + " discoveries=" + discoveries.get()
-                                        + " read renewals=" + renewals.get());
-                                id = pendingAtPartitionZero(f, 19000);
-                            }
-                            var backend = new AtomicReference<Map<String, Object>>();
-                            await(() -> {
-                                var waiters = f.write.queryForList(
-                                        "select pid,backend_xid::text,wait_event,"
-                                                + " pg_blocking_pids(pid)::text blockers"
-                                                + " from pg_stat_activity where"
-                                                + " application_name='i5-test-write-control'"
-                                                + " and wait_event='advisory'");
-                                if (waiters.isEmpty()) return false;
-                                assertEquals(1, waiters.size());
-                                backend.set(waiters.getFirst());
-                                return true;
-                            });
-                            long blockedAt = System.nanoTime();
-                            var atBlock = List.copyOf(rotations);
-                            assertEquals(
-                                    runtime.bindings.getFirst().definition().id(),
-                                    atBlock.getLast());
-                            f.trace.add("actual acquisition wait " + backend.get());
-                            assertEquals(
-                                    atBlock,
+        for (int mw : List.of(1, 4)) {
+            for (boolean timeout : List.of(false, true)) {
+                runI5W19Case(mw, timeout);
+            }
+        }
+    }
+
+    private void runI5W19Case(int mw, boolean timeout) throws Exception {
+        try (var f = new Fixture(PG)) {
+            f.properties.put("pocoma.v3.worker.worker-limit", Integer.toString(mw));
+            f.properties.put("pocoma.v3.worker.lifecycle.renewal-interval-ms", "100");
+            f.properties.put(
+                    "pocoma.v3.worker.partitions",
+                    "Command=0;I5ReadPotProbe=0|1|2|3;I5ReadCompletionProbe=0|1|2|3");
+            var rotations =
+                    new CopyOnWriteArrayList<com.kartaguez.pocoma.domain.consumption.ConsumptionId>();
+            var durations = new CopyOnWriteArrayList<Duration>();
+            var discoveries = new AtomicInteger();
+            var renewals = new AtomicInteger();
+            var commandConsumption = ConsumptionCatalog.definitions().getFirst().id();
+            ConsumptionObservation observer =
+                    (id, phase, outcome, n, d) ->
+                            recordI5W19Observation(
+                                    id,
+                                    phase,
+                                    outcome,
+                                    n,
+                                    d,
+                                    commandConsumption,
                                     rotations,
-                                    "single Consumption loop cannot offer another C during"
-                                            + " synchronous acquire");
-                            if (timeout) {
-                                await(() -> rotations.size() > atBlock.size());
-                                assertEquals(
-                                        runtime.bindings.get(1).definition().id(),
-                                        rotations.get(atBlock.size()));
-                            } else {
-                                int before = renewals.get();
-                                await(() -> renewals.get() > before);
-                                assertTrue(discoveries.get() > 0);
-                            }
-                            long observedDelay = System.nanoTime() - blockedAt;
-                            if (!timeout) {
-                                // Use the already open lock holder connection for the
-                                // last observation and release, inside the original deadline.
-                                try (var q = blocker.prepareStatement(
-                                        "select pg_advisory_unlock(519) from pg_stat_activity"
-                                                + " where pid=? and backend_xid::text=?"
-                                                + " and wait_event='advisory'"
-                                                + " and pg_backend_pid()=any(pg_blocking_pids(pid))")) {
-                                    q.setInt(1, (Integer) backend.get().get("pid"));
-                                    q.setString(2, (String) backend.get().get("backend_xid"));
-                                    try (var result = q.executeQuery()) {
-                                        assertTrue(result.next() && result.getBoolean(1),
-                                                "release variant must still block the same PID/XID"
-                                                        + " before unlock: " + backend.get()
-                                                        + ", observed ns=" + observedDelay);
-                                    }
-                                }
-                                f.trace.add("released live acquisition " + backend.get());
-                            } else {
-                                try (var q = blocker.createStatement()) {
-                                    q.execute("select pg_advisory_unlock_all()");
-                                }
-                            }
-                            latch(prepared);
-                            if (mw == 1) {
-                                int first = rotations.size();
-                                Thread.sleep(30);
-                                assertEquals(
-                                        first,
-                                        rotations.size(),
-                                        "saturation must preserve the next beneficiary");
-                                var loop = field(runtime.worker, "consumption");
-                                var next = loop.getClass().getDeclaredMethod("nextConsumption");
-                                next.setAccessible(true);
-                                assertEquals(1, next.invoke(loop));
-                            }
-                            finish.countDown();
-                            f.verify(id);
-                            long lowerBound =
-                                    timeout
-                                            ? Math.min(
-                                                    observedDelay, Duration.ofMillis(100).toNanos())
-                                            : observedDelay;
-                            assertTrue(durations.stream().anyMatch(d -> d.toNanos() >= lowerBound));
-                            f.trace.add(
-                                    "observed PostgreSQL blocking window lower bound ns="
-                                            + lowerBound);
-                            f.trace.add(
-                                    "I5-O-SLOW MW="
-                                            + mw
-                                            + " timeout="
-                                            + timeout
-                                            + " opportunities="
-                                            + rotations
-                                            + " durations="
-                                            + durations
-                                            + "; no temporal fairness bound under durable"
-                                            + " blocking");
-                        } finally {
-                            try (var q = blocker.createStatement()) {
-                                q.execute("select pg_advisory_unlock_all()");
-                            }
-                            finish.countDown();
-                            f.evidence("i5_w19-MW" + mw + "-timeout" + timeout);
-                        }
+                                    durations,
+                                    discoveries,
+                                    renewals);
+            try (var runtime = new Runtime(f, observer);
+                    var blocker =
+                            Objects.requireNonNull(f.write.getDataSource()).getConnection()) {
+                seedPublications(f, runtime, 6);
+                UUID id = timeout ? pendingAtPartitionZero(f, 19000) : null;
+                if (timeout) admitBeforeStart(f, runtime, id);
+                installSlowAcquireTrigger(f.write, blocker);
+                var prepared = new CountDownLatch(1);
+                var finish = new CountDownLatch(1);
+                runtime.prepareBarrier(
+                        0,
+                        () -> {
+                            prepared.countDown();
+                            latch(finish);
+                        });
+                runtime.worker.start();
+                try {
+                    verifyI5W19Scenario(
+                            f,
+                            runtime,
+                            blocker,
+                            mw,
+                            timeout,
+                            id,
+                            rotations,
+                            durations,
+                            discoveries,
+                            renewals,
+                            prepared,
+                            finish);
+                } finally {
+                    try (var q = blocker.createStatement()) {
+                        q.execute("select pg_advisory_unlock_all()");
                     }
+                    finish.countDown();
+                    f.evidence("i5_w19-MW" + mw + "-timeout" + timeout);
                 }
+            }
+        }
+    }
+
+    private static void recordI5W19Observation(
+            com.kartaguez.pocoma.domain.consumption.ConsumptionId id,
+            ConsumptionObservation.Phase phase,
+            ConsumptionObservation.Outcome outcome,
+            long n,
+            Duration d,
+            com.kartaguez.pocoma.domain.consumption.ConsumptionId commandConsumption,
+            CopyOnWriteArrayList<com.kartaguez.pocoma.domain.consumption.ConsumptionId> rotations,
+            CopyOnWriteArrayList<Duration> durations,
+            AtomicInteger discoveries,
+            AtomicInteger renewals) {
+        if (phase == ConsumptionObservation.Phase.CONSUMPTION_ROTATION) rotations.add(id);
+        if (phase == ConsumptionObservation.Phase.OPPORTUNITY && id.equals(commandConsumption)) {
+            durations.add(d);
+        }
+        if (phase == ConsumptionObservation.Phase.DISCOVERY
+                && outcome == ConsumptionObservation.Outcome.CONFIRMED) {
+            discoveries.incrementAndGet();
+        }
+        boolean isConfirmedReadRenew =
+                phase == ConsumptionObservation.Phase.LEASE_RENEW
+                        && !id.equals(commandConsumption)
+                        && n > 0
+                        && outcome == ConsumptionObservation.Outcome.CONFIRMED;
+        if (isConfirmedReadRenew) renewals.incrementAndGet();
+    }
+
+    private static void installSlowAcquireTrigger(JdbcTemplate write, java.sql.Connection blocker)
+            throws Exception {
+        write.execute(
+                "create function i5_slow_acquire() returns trigger language plpgsql as $$ begin if"
+                        + " new.claim_token is not null and new.claim_token is distinct from"
+                        + " old.claim_token then perform pg_advisory_xact_lock(519);end if;return"
+                        + " new;end $$;create trigger i5_slow_acquire before update of claim_token"
+                        + " on consumption_slot for each row execute function i5_slow_acquire()");
+        try (var q = blocker.createStatement()) {
+            q.execute("select pg_advisory_lock(519)");
+        }
+    }
+
+    private static void verifyI5W19Scenario(
+            Fixture f,
+            Runtime runtime,
+            java.sql.Connection blocker,
+            int mw,
+            boolean timeout,
+            UUID preInjectedId,
+            CopyOnWriteArrayList<com.kartaguez.pocoma.domain.consumption.ConsumptionId> rotations,
+            CopyOnWriteArrayList<Duration> durations,
+            AtomicInteger discoveries,
+            AtomicInteger renewals,
+            CountDownLatch prepared,
+            CountDownLatch finish)
+            throws Exception {
+        UUID id = preInjectedId;
+        if (!timeout) {
+            await(() -> discoveries.get() > 0 && renewals.get() > 0);
+            f.trace.add(
+                    "discovery and READ lease renewal confirmed before injection discoveries="
+                            + discoveries.get()
+                            + " read renewals="
+                            + renewals.get());
+            id = pendingAtPartitionZero(f, 19000);
+        }
+        var backend = awaitSlowAcquireWaiter(f.write);
+        long blockedAt = System.nanoTime();
+        var atBlock = List.copyOf(rotations);
+        assertEquals(runtime.bindings.getFirst().definition().id(), atBlock.getLast());
+        f.trace.add("actual acquisition wait " + backend);
+        assertEquals(
+                atBlock,
+                rotations,
+                "single Consumption loop cannot offer another C during synchronous acquire");
+        if (timeout) {
+            await(() -> rotations.size() > atBlock.size());
+            assertEquals(runtime.bindings.get(1).definition().id(), rotations.get(atBlock.size()));
+        } else {
+            int before = renewals.get();
+            await(() -> renewals.get() > before);
+            assertTrue(discoveries.get() > 0);
+        }
+        long observedDelay = System.nanoTime() - blockedAt;
+        releaseSlowAcquireLock(f, blocker, backend, timeout, observedDelay);
+        latch(prepared);
+        if (mw == 1) verifySaturationNextConsumption(runtime, rotations);
+        finish.countDown();
+        f.verify(id);
+        long lowerBound =
+                timeout ? Math.min(observedDelay, Duration.ofMillis(100).toNanos()) : observedDelay;
+        assertTrue(durations.stream().anyMatch(d -> d.toNanos() >= lowerBound));
+        f.trace.add("observed PostgreSQL blocking window lower bound ns=" + lowerBound);
+        f.trace.add(
+                "I5-O-SLOW MW="
+                        + mw
+                        + " timeout="
+                        + timeout
+                        + " opportunities="
+                        + rotations
+                        + " durations="
+                        + durations
+                        + "; no temporal fairness bound under durable blocking");
+    }
+
+    private static Map<String, Object> awaitSlowAcquireWaiter(JdbcTemplate write) throws Exception {
+        var backend = new AtomicReference<Map<String, Object>>();
+        await(
+                () -> {
+                    var waiters =
+                            write.queryForList(
+                                    "select pid,backend_xid::text,wait_event,"
+                                            + " pg_blocking_pids(pid)::text blockers from"
+                                            + " pg_stat_activity where"
+                                            + " application_name='i5-test-write-control' and"
+                                            + " wait_event='advisory'");
+                    if (waiters.isEmpty()) return false;
+                    assertEquals(1, waiters.size());
+                    backend.set(waiters.getFirst());
+                    return true;
+                });
+        return backend.get();
+    }
+
+    private static void releaseSlowAcquireLock(
+            Fixture f,
+            java.sql.Connection blocker,
+            Map<String, Object> backend,
+            boolean timeout,
+            long observedDelay)
+            throws Exception {
+        if (timeout) {
+            try (var q = blocker.createStatement()) {
+                q.execute("select pg_advisory_unlock_all()");
+            }
+            return;
+        }
+        try (var q =
+                blocker.prepareStatement(
+                        "select pg_advisory_unlock(519) from pg_stat_activity where pid=? and"
+                                + " backend_xid::text=? and wait_event='advisory' and"
+                                + " pg_backend_pid()=any(pg_blocking_pids(pid))")) {
+            q.setInt(1, (Integer) backend.get("pid"));
+            q.setString(2, (String) backend.get("backend_xid"));
+            try (var result = q.executeQuery()) {
+                assertTrue(
+                        result.next() && result.getBoolean(1),
+                        "release variant must still block the same PID/XID before unlock: "
+                                + backend
+                                + ", observed ns="
+                                + observedDelay);
+            }
+        }
+        f.trace.add("released live acquisition " + backend);
+    }
+
+    private static void verifySaturationNextConsumption(
+            Runtime runtime,
+            CopyOnWriteArrayList<com.kartaguez.pocoma.domain.consumption.ConsumptionId> rotations)
+            throws Exception {
+        int first = rotations.size();
+        Thread.sleep(30);
+        assertEquals(first, rotations.size(), "saturation must preserve the next beneficiary");
+        var loop = field(runtime.worker, "consumption");
+        var next = loop.getClass().getDeclaredMethod("nextConsumption");
+        next.setAccessible(true);
+        assertEquals(1, next.invoke(loop));
     }
 
     @Test

@@ -55,7 +55,8 @@ class CallbackReached(Exception):
 
 
 class CaptureCallback(urllib.request.HTTPRedirectHandler):
-    def redirect_request(self, request, fp, code, msg, headers, newurl):
+    def redirect_request(self, *args):
+        request, fp, code, msg, headers, newurl = args
         if newurl.startswith(REDIRECT_URI + "?"):
             raise CallbackReached(newurl)
         return super().redirect_request(request, fp, code, msg, headers, newurl)
@@ -110,33 +111,52 @@ def get_token(username="bruno", password="bruno-local-only"):
         return json.load(resp)["access_token"]
 
 
-def http_req(method, url, token=None, body=None, headers=None):
-    hdrs = headers.copy() if headers else {}
-    if token:
-        hdrs["Authorization"] = f"Bearer {token}"
-    data = None
-    if body is not None:
-        if isinstance(body, (dict, list)):
-            data = json.dumps(body).encode("utf-8")
-            hdrs["Content-Type"] = "application/json"
-        elif isinstance(body, bytes):
-            data = body
-        else:
-            data = str(body).encode("utf-8")
+def _encode_body(body, hdrs):
+    if body is None:
+        return None
+    if isinstance(body, (dict, list)):
+        hdrs["Content-Type"] = "application/json"
+        return json.dumps(body).encode("utf-8")
+    return body if isinstance(body, bytes) else str(body).encode("utf-8")
 
+
+def _send_http(method, url, hdrs, data):
     req = urllib.request.Request(url, data=data, headers=hdrs, method=method)
     try:
         with urllib.request.urlopen(req, timeout=15) as resp:
-            content = resp.read()
-            return resp.status, resp.headers, content
+            return resp.status, resp.headers, resp.read()
     except urllib.error.HTTPError as err:
         return err.code, err.headers, err.read()
+
+
+def http_get(url, token=None, headers=None):
+    hdrs = headers.copy() if headers else {}
+    if token:
+        hdrs["Authorization"] = f"Bearer {token}"
+    return _send_http("GET", url, hdrs, None)
+
+
+def http_post(url, token, body, headers=None):
+    hdrs = headers.copy() if headers else {}
+    if token:
+        hdrs["Authorization"] = f"Bearer {token}"
+    return _send_http("POST", url, hdrs, _encode_body(body, hdrs))
+
+
+def http_req(method, url, *args, **kwargs):
+    token = args[0] if len(args) > 0 else kwargs.get("token")
+    body = args[1] if len(args) > 1 else kwargs.get("body")
+    headers = args[2] if len(args) > 2 else kwargs.get("headers")
+    hdrs = headers.copy() if headers else {}
+    if token:
+        hdrs["Authorization"] = f"Bearer {token}"
+    return _send_http(method, url, hdrs, _encode_body(body, hdrs))
 
 
 def query_prometheus(metric_query):
     url = f"{PROMETHEUS_URL}/api/v1/query?query={urllib.parse.quote(metric_query)}"
     try:
-        status, _, content = http_req("GET", url)
+        status, _, content = http_get(url)
         if status == 200:
             res = json.loads(content.decode())
             data = res.get("data", {}).get("result", [])
@@ -147,9 +167,11 @@ def query_prometheus(metric_query):
     return 0.0
 
 
-def poll_result(url, token, headers=None, max_attempts=40, interval=0.5):
+def poll_result(url, token, headers=None):
+    max_attempts = 40
+    interval = 0.5
     for _ in range(max_attempts):
-        status, resp_headers, content = http_req("GET", url, token=token, headers=headers)
+        status, _, content = http_get(url, token=token, headers=headers)
         if status == 200:
             return json.loads(content.decode("utf-8")) if content else {}
         if status in (404, 503):
@@ -159,85 +181,56 @@ def poll_result(url, token, headers=None, max_attempts=40, interval=0.5):
     raise TimeoutError(f"Exceeded {max_attempts * interval}s waiting for {url}")
 
 
-def run_campaign(base_url, management_url, token, campaign_index=1, run_bruno_cli=True):
-    print(f"\n=======================================================")
-    print(f"▶ Starting Demonstration Campaign #{campaign_index}")
-    print(f"=======================================================")
+def _snapshot_prometheus():
+    return {
+        "admission": query_prometheus("sum(pocoma_v3_admission_requests_total)"),
+        "attempts": query_prometheus("sum(pocoma_v3_attempt_outcomes_total)"),
+        "read": query_prometheus("sum(pocoma_v3_read_query_duration_seconds_count)"),
+        "hikari": query_prometheus("sum(hikaricp_connections_acquire_seconds_count)"),
+    }
 
-    # Prometheus Snapshot Before
-    m_admission_before = query_prometheus("sum(pocoma_v3_admission_requests_total)")
-    m_attempts_before = query_prometheus("sum(pocoma_v3_attempt_outcomes_total)")
-    m_read_before = query_prometheus("sum(pocoma_v3_read_query_duration_seconds_count)")
-    m_hikari_before = query_prometheus("sum(hikaricp_connections_acquire_seconds_count)")
 
-    # 1. Identity Check / Registration
+def _poll_active_binding(base_url, token):
+    for _ in range(30):
+        time.sleep(0.5)
+        status, _, content = http_get(f"{base_url}/api/v3/me/binding", token=token)
+        if status == 200:
+            b_data = json.loads(content.decode())
+            if b_data.get("active"):
+                return b_data.get("bindingToken")
+    raise TimeoutError("Timed out waiting for active binding token after registration")
+
+
+def _ensure_binding(base_url, token):
     print("1. Checking current user binding (/api/v3/me/binding)...")
-    status, _, content = http_req("GET", f"{base_url}/api/v3/me/binding", token=token)
-    binding_token = None
+    status, _, content = http_get(f"{base_url}/api/v3/me/binding", token=token)
     if status == 200:
         data = json.loads(content.decode())
         if data.get("active"):
-            binding_token = data.get("bindingToken")
             print(f"   ✓ Existing binding active (euiVersion: {data.get('euiVersion')})")
+            return data.get("bindingToken")
 
-    if not binding_token:
-        print(f"   → No active binding (HTTP {status}). Requesting registration (/api/v3/identity/requests)...")
-        reg_idem = f"reg-{uuid.uuid4()}"
-        status, _, content = http_req(
-            "POST",
-            f"{base_url}/api/v3/identity/requests",
-            token=token,
-            body={"operation": "Registration"},
-            headers={"Idempotency-Key": reg_idem},
-        )
-        if status != 202:
-            raise RuntimeError(f"Registration admission failed: HTTP {status} {content.decode()}")
-        reg_data = json.loads(content.decode())
-        reg_id = reg_data["requestId"]
-        print(f"   ✓ Registration admitted (202). Polling result for requestId={reg_id}...")
-        res = poll_result(f"{base_url}/api/v3/identity/requests/{reg_id}/result", token=token)
-        if res.get("outcome") != "CHANGED":
-            raise RuntimeError(f"Registration failed with outcome: {res.get('outcome')} rejection: {res.get('rejection')}")
-        print(f"   ✓ Registration completed! Polling binding token...")
-
-        # Poll binding until active
-        for _ in range(30):
-            time.sleep(0.5)
-            s, _, c = http_req("GET", f"{base_url}/api/v3/me/binding", token=token)
-            if s == 200:
-                b_data = json.loads(c.decode())
-                if b_data.get("active"):
-                    binding_token = b_data.get("bindingToken")
-                    break
-        if not binding_token:
-            raise TimeoutError("Timed out waiting for active binding token after registration")
-        print(f"   ✓ Binding token materialized and active!")
-
-    # 2. Command Admission: CreatePot
-    pot_id = str(uuid.uuid4())
-    pot_label = f"Demo Pot #{campaign_index} - {time.strftime('%H:%M:%S')}"
-    cmd_idem = f"cmd-{uuid.uuid4()}"
-    print(f"\n2. Submitting CreatePot command ('{pot_label}', potId={pot_id})...")
-    status, _, content = http_req(
-        "POST",
-        f"{base_url}/api/v3/commands",
+    print(f"   → No active binding (HTTP {status}). Requesting registration (/api/v3/identity/requests)...")
+    status, _, content = http_post(
+        f"{base_url}/api/v3/identity/requests",
         token=token,
-        body={
-            "operation": "CreatePot",
-            "potId": pot_id,
-            "observedVersion": 0,
-            "bindingToken": binding_token,
-            "payload": {"label": pot_label},
-        },
-        headers={"Idempotency-Key": cmd_idem},
+        body={"operation": "Registration"},
+        headers={"Idempotency-Key": f"reg-{uuid.uuid4()}"},
     )
     if status != 202:
-        raise RuntimeError(f"CreatePot admission failed: HTTP {status} {content.decode()}")
-    cmd_data = json.loads(content.decode())
-    cmd_id = cmd_data["requestId"]
-    print(f"   ✓ Command admitted (202, requestId={cmd_id}). Polling result...")
+        raise RuntimeError(f"Registration admission failed: HTTP {status} {content.decode()}")
+    reg_id = json.loads(content.decode())["requestId"]
+    print(f"   ✓ Registration admitted (202). Polling result for requestId={reg_id}...")
+    res = poll_result(f"{base_url}/api/v3/identity/requests/{reg_id}/result", token=token)
+    if res.get("outcome") != "CHANGED":
+        raise RuntimeError(f"Registration failed with outcome: {res.get('outcome')} rejection: {res.get('rejection')}")
+    print("   ✓ Registration completed! Polling binding token...")
+    binding_token = _poll_active_binding(base_url, token)
+    print("   ✓ Binding token materialized and active!")
+    return binding_token
 
-    # 3. Poll Command Result & Strict Oracle
+
+def _poll_command_completion(base_url, token, cmd_id):
     print("\n3. Polling command result and verifying strict business outcome...")
     res = poll_result(f"{base_url}/api/v3/commands/{cmd_id}/result", token=token)
     outcome = res.get("outcome")
@@ -249,13 +242,40 @@ def run_campaign(base_url, management_url, token, campaign_index=1, run_bruno_cl
     if resulting_version < 1:
         raise RuntimeError(f"Invalid resultingPotVersion: {resulting_version} (expected >= 1)")
     print(f"   ✓ Command COMPLETED successfully! outcome={outcome}, resultingPotVersion={resulting_version}")
+    return resulting_version
 
-    # 4. Read Pot via V3 Read Facade & Verify Functional State
+
+def _submit_and_await_pot(base_url, token, binding_token, campaign_index):
+    pot_id = str(uuid.uuid4())
+    pot_label = f"Demo Pot #{campaign_index} - {time.strftime('%H:%M:%S')}"
+    print(f"\n2. Submitting CreatePot command ('{pot_label}', potId={pot_id})...")
+    status, _, content = http_post(
+        f"{base_url}/api/v3/commands",
+        token=token,
+        body={
+            "operation": "CreatePot",
+            "potId": pot_id,
+            "observedVersion": 0,
+            "bindingToken": binding_token,
+            "payload": {"label": pot_label},
+        },
+        headers={"Idempotency-Key": f"cmd-{uuid.uuid4()}"},
+    )
+    if status != 202:
+        raise RuntimeError(f"CreatePot admission failed: HTTP {status} {content.decode()}")
+    cmd_id = json.loads(content.decode())["requestId"]
+    print(f"   ✓ Command admitted (202, requestId={cmd_id}). Polling result...")
+    resulting_version = _poll_command_completion(base_url, token, cmd_id)
+    return pot_id, pot_label, resulting_version
+
+
+def _verify_read_pot(base_url, token, binding_token, expected_pot):
+    pot_id, pot_label, resulting_version = expected_pot
     print(f"\n4. Consulting Pot via V3 Read facade (/api/v3/pots/{pot_id})...")
     pot_res = poll_result(
         f"{base_url}/api/v3/pots/{pot_id}",
         token=token,
-        headers={"X-Pocoma-Binding-Token": binding_token}
+        headers={"X-Pocoma-Binding-Token": binding_token},
     )
     if pot_res.get("id") != pot_id:
         raise RuntimeError(f"Read facade returned mismatched pot ID: {pot_res.get('id')} != {pot_id}")
@@ -265,67 +285,68 @@ def run_campaign(base_url, management_url, token, campaign_index=1, run_bruno_cl
         raise RuntimeError(f"Read facade potVersion {pot_res.get('potVersion')} is older than command version {resulting_version}")
     print(f"   ✓ Pot verified via Read facade! id={pot_res['id']}, label='{pot_res['label']}', potVersion={pot_res['potVersion']}")
 
-    # 5. Bruno CLI Demonstration Execution
-    if run_bruno_cli:
-        repo_root = Path(__file__).resolve().parents[2]
-        bruno_bin = repo_root / "scripts/bruno-v3/node_modules/.bin/bru"
-        bruno_dir = repo_root / "scripts/bruno-v3"
-        if bruno_bin.exists():
-            print(f"\n5. Running Bruno CLI on '05 Observability Demo'...")
-            env = os.environ.copy()
-            env["POCOMA_I2_BASE_URL"] = base_url
-            env["POCOMA_I2_bearerOwner"] = token
-            bruno_pot_id = str(uuid.uuid4())
-            ts = int(time.time())
-            cmd = [
-                str(bruno_bin),
-                "run",
-                "05 Observability Demo",
-                "--env-var", f"baseUrl={base_url}",
-                "--env-var", f"managementUrl={management_url}",
-                "--env-var", f"bearerToken={token}",
-                "--env-var", f"bindingToken={binding_token}",
-                "--env-var", f"potId={bruno_pot_id}",
-                "--env-var", f"timestamp={ts}",
-                "--sandbox", "developer",
-                "--noproxy"
-            ]
-            res = subprocess.run(cmd, cwd=str(bruno_dir), env=env, capture_output=True, text=True)
-            if res.returncode == 0:
-                print("   ✓ Bruno CLI suite PASSED with 0 errors!")
-                for line in res.stdout.splitlines():
-                    if "Requests:" in line or "Tests:" in line or "Passed:" in line:
-                        print(f"     {line.strip()}")
-            else:
-                print(f"   ⚠ Bruno CLI exited with code {res.returncode}: {res.stderr}\n{res.stdout}")
-        else:
-            print("   (Bruno CLI binary not found at default location, skipping CLI execution)")
 
-    # 6. Wait for Prometheus 5s scrape
-    print("\n6. Awaiting Prometheus scrape cycle (6s)...")
-    time.sleep(6)
+def _run_bruno_cli(base_url, management_url, token, binding_token):
+    repo_root = Path(__file__).resolve().parents[2]
+    bruno_bin = repo_root / "scripts/bruno-v3/node_modules/.bin/bru"
+    bruno_dir = repo_root / "scripts/bruno-v3"
+    if not bruno_bin.exists():
+        print("   (Bruno CLI binary not found at default location, skipping CLI execution)")
+        return
+    print("\n5. Running Bruno CLI on '05 Observability Demo'...")
+    env = os.environ.copy()
+    env["POCOMA_I2_BASE_URL"] = base_url
+    env["POCOMA_I2_bearerOwner"] = token
+    cmd = [
+        str(bruno_bin), "run", "05 Observability Demo",
+        "--env-var", f"baseUrl={base_url}",
+        "--env-var", f"managementUrl={management_url}",
+        "--env-var", f"bearerToken={token}",
+        "--env-var", f"bindingToken={binding_token}",
+        "--env-var", f"potId={uuid.uuid4()}",
+        "--env-var", f"timestamp={int(time.time())}",
+        "--sandbox", "developer", "--noproxy",
+    ]
+    res = subprocess.run(cmd, cwd=str(bruno_dir), env=env, capture_output=True, text=True)
+    if res.returncode != 0:
+        print(f"   ⚠ Bruno CLI exited with code {res.returncode}: {res.stderr}\n{res.stdout}")
+        return
+    print("   ✓ Bruno CLI suite PASSED with 0 errors!")
+    for line in res.stdout.splitlines():
+        if any(tag in line for tag in ("Requests:", "Tests:", "Passed:")):
+            print(f"     {line.strip()}")
 
-    # 7. Prometheus Snapshot After & Deltas
-    m_admission_after = query_prometheus("sum(pocoma_v3_admission_requests_total)")
-    m_attempts_after = query_prometheus("sum(pocoma_v3_attempt_outcomes_total)")
-    m_read_after = query_prometheus("sum(pocoma_v3_read_query_duration_seconds_count)")
-    m_hikari_after = query_prometheus("sum(hikaricp_connections_acquire_seconds_count)")
 
-    d_admission = m_admission_after - m_admission_before
-    d_attempts = m_attempts_after - m_attempts_before
-    d_read = m_read_after - m_read_before
-    d_hikari = m_hikari_after - m_hikari_before
-
-    print(f"\n7. Observability Progression Metrics (V3 Genuine):")
-    print(f"   • V3 Admission Requests: {m_admission_before:.0f} → {m_admission_after:.0f}  (Δ +{d_admission:.0f} requests)")
-    print(f"   • V3 Worker Attempts   : {m_attempts_before:.0f} → {m_attempts_after:.0f}  (Δ +{d_attempts:.0f} attempts)")
-    print(f"   • V3 Read Queries      : {m_read_before:.0f} → {m_read_after:.0f}  (Δ +{d_read:.0f} queries)")
-    print(f"   • Hikari CP Acquires   : {m_hikari_before:.0f} → {m_hikari_after:.0f}  (Δ +{d_hikari:.0f} acquires)")
-
+def _verify_prometheus_deltas(before):
+    after = _snapshot_prometheus()
+    d_admission = after["admission"] - before["admission"]
+    d_attempts = after["attempts"] - before["attempts"]
+    d_read = after["read"] - before["read"]
+    d_hikari = after["hikari"] - before["hikari"]
+    print("\n7. Observability Progression Metrics (V3 Genuine):")
+    print(f"   • V3 Admission Requests: {before['admission']:.0f} → {after['admission']:.0f}  (Δ +{d_admission:.0f} requests)")
+    print(f"   • V3 Worker Attempts   : {before['attempts']:.0f} → {after['attempts']:.0f}  (Δ +{d_attempts:.0f} attempts)")
+    print(f"   • V3 Read Queries      : {before['read']:.0f} → {after['read']:.0f}  (Δ +{d_read:.0f} queries)")
+    print(f"   • Hikari CP Acquires   : {before['hikari']:.0f} → {after['hikari']:.0f}  (Δ +{d_hikari:.0f} acquires)")
     if d_admission <= 0 and d_attempts <= 0:
         raise RuntimeError("FAIL: Neither V3 admission nor worker attempt metrics incremented in Prometheus!")
     print("   ✓ Real pocoma_v3_* metrics progression successfully verified in Prometheus!")
 
+
+def run_campaign(base_url, management_url, token, campaign_index=1, run_bruno_cli=True):
+    print("\n=======================================================")
+    print(f"▶ Starting Demonstration Campaign #{campaign_index}")
+    print("=======================================================")
+    before = _snapshot_prometheus()
+    binding_token = _ensure_binding(base_url, token)
+    expected_pot = _submit_and_await_pot(base_url, token, binding_token, campaign_index)
+    pot_id, pot_label, resulting_version = expected_pot
+    _verify_read_pot(base_url, token, binding_token, expected_pot)
+    if run_bruno_cli:
+        _run_bruno_cli(base_url, management_url, token, binding_token)
+    print("\n6. Awaiting Prometheus scrape cycle (6s)...")
+    time.sleep(6)
+    _verify_prometheus_deltas(before)
     print(f"\n✔ Campaign #{campaign_index} completed with SUCCESS!")
     return {
         "campaign": campaign_index,

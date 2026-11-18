@@ -1,5 +1,7 @@
 package com.kartaguez.pocoma.runtime.task;
-import com.kartaguez.pocoma.infra.postgres.core.*;
+import com.kartaguez.pocoma.infra.postgres.core.bootstrap.*;
+import com.kartaguez.pocoma.infra.postgres.core.consumption.*;
+import com.kartaguez.pocoma.infra.postgres.core.history.*;
 import com.kartaguez.pocoma.contract.consumption.spi.DiscoverySettings;
 import com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation;
 import com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant;
@@ -19,6 +21,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.kartaguez.pocoma.domain.consumption.*;
 import com.kartaguez.pocoma.domain.pot.*;
+import com.kartaguez.pocoma.domain.pot.expense.*;
+import com.kartaguez.pocoma.domain.pot.invitation.*;
+import com.kartaguez.pocoma.domain.pot.revision.*;
+import com.kartaguez.pocoma.domain.pot.shareholder.*;
+import com.kartaguez.pocoma.domain.pot.value.*;
 import com.kartaguez.pocoma.domain.pot.value.Label;
 import com.kartaguez.pocoma.domain.pot.value.Name;
 import com.kartaguez.pocoma.domain.pot.value.UserId;

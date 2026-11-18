@@ -186,79 +186,72 @@ class AttemptTransactionsPostgresTest extends PostgresFoundationTestSupport {
         }
     }
 
+    private void persistPrefixWrite(boolean jpaFirst) {
+        guarded(
+                () -> {
+                    if (jpaFirst) {
+                        em().persist(new FoundationEffect(new UUID(0, 1), "JPA"));
+                        em().flush();
+                    } else {
+                        write.jdbc.update(
+                                "insert into foundation_effect values (?,?)", new UUID(0, 2), "JDBC");
+                    }
+                    return null;
+                });
+    }
+
+    private void triggerCaughtFailure(String kind) {
+        switch (kind) {
+            case "application" -> throw new IllegalArgumentException("caught validation");
+            case "jdbc" -> write.jdbc.execute("select 1/0");
+            case "jpa" -> {
+                em().persist(new FoundationEffect(new UUID(0, 3), null));
+                em().flush();
+            }
+            default -> throw new IllegalArgumentException("Unexpected kind: " + kind);
+        }
+    }
+
+    private void verifyCaughtFailureOrder(String kind, boolean jpaFirst) {
+        var failure =
+                assertThrows(
+                        AttemptTransactions.Failure.class,
+                        () ->
+                                owner.write(
+                                        () -> {
+                                            persistPrefixWrite(jpaFirst);
+                                            try {
+                                                guarded(
+                                                        () -> {
+                                                            triggerCaughtFailure(kind);
+                                                            return null;
+                                                        });
+                                            } catch (RuntimeException caught) {
+                                            }
+                                            return null;
+                                        }));
+        assertEquals(
+                AttemptTransactions.Resolution.ROLLED_BACK,
+                failure.resolution(),
+                kind + " " + jpaFirst);
+        if (kind.equals("jdbc")) {
+            Throwable original = failure.getCause();
+            while (original.getCause() != null) {
+                original = original.getCause();
+            }
+            assertInstanceOf(SQLException.class, original);
+            assertEquals("22012", ((SQLException) original).getSQLState());
+        }
+        assertEquals(0, write.observedEffects());
+    }
+
     @Test
     void caughtApplicationJdbcJpaFailuresPoisonBothWriteOrders() {
-        for (String kind : List.of("application", "jdbc", "jpa"))
+        for (String kind : List.of("application", "jdbc", "jpa")) {
             for (boolean jpaFirst : List.of(false, true)) {
-                var failure =
-                        assertThrows(
-                                AttemptTransactions.Failure.class,
-                                () ->
-                                        owner.write(
-                                                () -> {
-                                                    if (jpaFirst)
-                                                        guarded(
-                                                                () -> {
-                                                                    em().persist(
-                                                                                    new FoundationEffect(
-                                                                                            new UUID(
-                                                                                                    0,
-                                                                                                    1),
-                                                                                            "JPA"));
-                                                                    em().flush();
-                                                                    return null;
-                                                                });
-                                                    else
-                                                        guarded(
-                                                                () -> {
-                                                                    write.jdbc.update(
-                                                                            "insert into"
-                                                                                + " foundation_effect"
-                                                                                + " values (?,?)",
-                                                                            new UUID(0, 2),
-                                                                            "JDBC");
-                                                                    return null;
-                                                                });
-                                                    try {
-                                                        guarded(
-                                                                () -> {
-                                                                    switch (kind) {
-                                                                        case "application" ->
-                                                                                throw new IllegalArgumentException(
-                                                                                        "caught"
-                                                                                            + " validation");
-                                                                        case "jdbc" ->
-                                                                                write.jdbc.execute(
-                                                                                        "select"
-                                                                                            + " 1/0");
-                                                                        case "jpa" -> {
-                                                                            em().persist(
-                                                                                            new FoundationEffect(
-                                                                                                    new UUID(
-                                                                                                            0,
-                                                                                                            3),
-                                                                                                    null));
-                                                                            em().flush();
-                                                                        }
-                                                                    }
-                                                                    return null;
-                                                                });
-                                                    } catch (RuntimeException caught) {
-                                                    }
-                                                    return null;
-                                                }));
-                assertEquals(
-                        AttemptTransactions.Resolution.ROLLED_BACK,
-                        failure.resolution(),
-                        kind + " " + jpaFirst);
-                if (kind.equals("jdbc")) {
-                    Throwable original = failure.getCause();
-                    while (original.getCause() != null) original = original.getCause();
-                    assertInstanceOf(SQLException.class, original);
-                    assertEquals("22012", ((SQLException) original).getSQLState());
-                }
-                assertEquals(0, write.observedEffects());
+                verifyCaughtFailureOrder(kind, jpaFirst);
             }
+        }
     }
 
     @Test
@@ -304,83 +297,71 @@ class AttemptTransactionsPostgresTest extends PostgresFoundationTestSupport {
             }
     }
 
+    private PlatformTransactionManager transactionManager(boolean jpa) {
+        if (jpa) {
+            return write.manager;
+        }
+        var jdbc = new DataSourceTransactionManager(write.dataSource);
+        jdbc.setNestedTransactionAllowed(false);
+        return jdbc;
+    }
+
+    private void verifyRequiresNewRefused(boolean jpa, boolean delete) {
+        var manager = transactionManager(jpa);
+        var inner = new TransactionTemplate(manager);
+        inner.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+        var reachedSql = new AtomicBoolean();
+        AttemptTransactions.Failure observed = null;
+        try {
+            owner.write(
+                    () -> {
+                        try {
+                            guarded(
+                                    () ->
+                                            inner.execute(
+                                                    s ->
+                                                            guarded(
+                                                                    () -> {
+                                                                        reachedSql.set(true);
+                                                                        if (delete) {
+                                                                            write.jdbc.update(
+                                                                                    "delete from fixture_owner_slot where id=1");
+                                                                        } else {
+                                                                            write.jdbc.update(
+                                                                                    "insert into foundation_effect values (?,?)",
+                                                                                    new UUID(0, 5),
+                                                                                    "independent");
+                                                                        }
+                                                                        return null;
+                                                                    })));
+                        } catch (RuntimeException caught) {
+                            System.err.println("INNER REFUSED: " + caught);
+                        }
+                        return null;
+                    });
+        } catch (AttemptTransactions.Failure failure) {
+            observed = failure;
+        }
+        var finalObserved = observed;
+        org.junit.jupiter.api.Assertions.assertAll(
+                () -> assertFalse(reachedSql.get()),
+                () -> assertEquals(0, write.observedEffects()),
+                () -> assertNotNull(finalObserved),
+                () ->
+                        assertEquals(
+                                1,
+                                write.jdbc.queryForObject(
+                                        "select count(*) from fixture_owner_slot", Integer.class)));
+    }
+
     @Test
     void requiresNewJpaAndJdbcCannotCommitEffectOrDelete() {
         write.jdbc.update("insert into fixture_owner_slot values (1)");
-        for (boolean jpa : List.of(false, true))
+        for (boolean jpa : List.of(false, true)) {
             for (boolean delete : List.of(false, true)) {
-                PlatformTransactionManager manager;
-                if (jpa) manager = write.manager;
-                else {
-                    var jdbc = new DataSourceTransactionManager(write.dataSource);
-                    jdbc.setNestedTransactionAllowed(false);
-                    manager = jdbc;
-                }
-                var inner = new TransactionTemplate(manager);
-                inner.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
-                var reachedSql = new AtomicBoolean();
-                AttemptTransactions.Failure observed = null;
-                try {
-                    owner.write(
-                            () -> {
-                                try {
-                                    guarded(
-                                            () ->
-                                                    inner.execute(
-                                                            s ->
-                                                                    guarded(
-                                                                            () -> {
-                                                                                reachedSql.set(
-                                                                                        true);
-                                                                                if (delete)
-                                                                                    write.jdbc
-                                                                                            .update(
-                                                                                                    "delete"
-                                                                                                        + " from"
-                                                                                                        + " fixture_owner_slot"
-                                                                                                        + " where"
-                                                                                                        + " id=1");
-                                                                                else
-                                                                                    write.jdbc
-                                                                                            .update(
-                                                                                                    "insert"
-                                                                                                        + " into"
-                                                                                                        + " foundation_effect"
-                                                                                                        + " values"
-                                                                                                        + " (?,?)",
-                                                                                                    new UUID(
-                                                                                                            0,
-                                                                                                            5),
-                                                                                                    "independent");
-                                                                                return null;
-                                                                            })));
-                                } catch (RuntimeException caught) {
-                                    System.err.println("INNER REFUSED: " + caught);
-                                }
-                                return null;
-                            });
-                } catch (AttemptTransactions.Failure failure) {
-                    observed = failure;
-                }
-                System.err.println(
-                        "PROBE "
-                                + manager.getClass().getSimpleName()
-                                + " delete="
-                                + delete
-                                + " reached="
-                                + reachedSql.get()
-                                + " effects="
-                                + write.observedEffects()
-                                + " failure="
-                                + observed);
-                assertFalse(reachedSql.get());
-                assertEquals(0, write.observedEffects());
-                assertNotNull(observed);
-                assertEquals(
-                        1,
-                        write.jdbc.queryForObject(
-                                "select count(*) from fixture_owner_slot", Integer.class));
+                verifyRequiresNewRefused(jpa, delete);
             }
+        }
     }
 
     @Test
@@ -436,38 +417,44 @@ class AttemptTransactionsPostgresTest extends PostgresFoundationTestSupport {
         assertEquals(0, read.observedEffects());
     }
 
+    private void runReadAuthorityWrite(SpringAttemptTransactions readOwner, boolean fail) {
+        java.util.function.Supplier<Void> action =
+                () -> {
+                    SpringAttemptTransactions.guarded(
+                            read.dataSource,
+                            () -> {
+                                read.jdbc.update(
+                                        "insert into foundation_effect values (?,?)",
+                                        new UUID(0, 1),
+                                        "READ technical effect");
+                                assertEquals(
+                                        1,
+                                        read.jdbc.update("delete from fixture_owner_slot where id=1"));
+                                return null;
+                            });
+                    SpringAttemptTransactions.closePublication(read.dataSource);
+                    readOwner.requirePublicationClosed();
+                    if (fail) {
+                        throw new IllegalStateException("after READ delete");
+                    }
+                    return null;
+                };
+        if (fail) {
+            assertThrows(AttemptTransactions.Failure.class, () -> readOwner.write(action));
+            assertEquals(0, read.observedEffects());
+        } else {
+            readOwner.write(action);
+        }
+    }
+
     @Test
     void sameOwnerReadAuthorityAtomicAndContextCannotCrossAuthorityOrLifetime() {
         var manager = new DataSourceTransactionManager(read.dataSource);
         manager.setNestedTransactionAllowed(false);
         var readOwner = new SpringAttemptTransactions(read.dataSource, manager, 20);
         read.jdbc.update("insert into fixture_owner_slot values(1)");
-        for (boolean fail : List.of(true, false)) {
-            java.util.function.Supplier<Void> action =
-                    () -> {
-                        SpringAttemptTransactions.guarded(
-                                read.dataSource,
-                                () -> {
-                                    read.jdbc.update(
-                                            "insert into foundation_effect values (?,?)",
-                                            new UUID(0, 1),
-                                            "READ technical effect");
-                                    assertEquals(
-                                            1,
-                                            read.jdbc.update(
-                                                    "delete from fixture_owner_slot where id=1"));
-                                    return null;
-                                });
-                        SpringAttemptTransactions.closePublication(read.dataSource);
-                        readOwner.requirePublicationClosed();
-                        if (fail) throw new IllegalStateException("after READ delete");
-                        return null;
-                    };
-            if (fail) {
-                assertThrows(AttemptTransactions.Failure.class, () -> readOwner.write(action));
-                assertEquals(0, read.observedEffects());
-            } else readOwner.write(action);
-        }
+        runReadAuthorityWrite(readOwner, true);
+        runReadAuthorityWrite(readOwner, false);
         assertEquals(1, read.observedEffects());
         assertEquals(0, write.observedEffects());
         var saved = new AtomicReference<RecoveryReadContext>();
@@ -497,18 +484,21 @@ class AttemptTransactionsPostgresTest extends PostgresFoundationTestSupport {
                                                                     write.dataSource, context));
                                             return null;
                                         }));
-        assertEquals(AttemptTransactions.Resolution.ROLLED_BACK, refused.resolution());
-        assertEquals(1, read.observedEffects());
-        assertThrows(RuntimeException.class, saved.get()::requireActiveRead);
-        assertThrows(
-                AttemptTransactions.Failure.class,
+        org.junit.jupiter.api.Assertions.assertAll(
+                () -> assertEquals(AttemptTransactions.Resolution.ROLLED_BACK, refused.resolution()),
+                () -> assertEquals(1, read.observedEffects()),
+                () -> assertThrows(RuntimeException.class, saved.get()::requireActiveRead),
                 () ->
-                        readOwner.read(
-                                context -> {
-                                    read.jdbc.execute("delete from foundation_effect");
-                                    return null;
-                                }));
-        assertEquals(1, read.observedEffects());
+                        assertThrows(
+                                AttemptTransactions.Failure.class,
+                                () ->
+                                        readOwner.read(
+                                                context -> {
+                                                    read.jdbc.execute(
+                                                            "delete from foundation_effect");
+                                                    return null;
+                                                })),
+                () -> assertEquals(1, read.observedEffects()));
     }
 
     @Test
@@ -661,157 +651,179 @@ class AttemptTransactionsPostgresTest extends PostgresFoundationTestSupport {
                                             return null;
                                         },
                                         guard));
-        assertEquals(AttemptTransactions.Resolution.ROLLED_BACK, failure.resolution());
-        assertSame(guard.cause.get(), failure.getCause());
-        assertThrows(
-                IllegalTransactionStateException.class,
-                () -> effects.write(() -> fail("no next begin"), guard));
-        assertEquals(0, read.observedEffects());
-        assertEquals(0, write.observedEffects());
+        org.junit.jupiter.api.Assertions.assertAll(
+                () ->
+                        assertEquals(
+                                AttemptTransactions.Resolution.ROLLED_BACK, failure.resolution()),
+                () -> assertSame(guard.cause.get(), failure.getCause()),
+                () ->
+                        assertThrows(
+                                IllegalTransactionStateException.class,
+                                () -> effects.write(() -> fail("no next begin"), guard)),
+                () -> assertEquals(0, read.observedEffects()),
+                () -> assertEquals(0, write.observedEffects()));
+    }
+
+    private AtomicReference<RecoveryReadContext> captureReadContext(SharedGuard guard) {
+        var saved = new AtomicReference<RecoveryReadContext>();
+        owner.read(
+                context -> {
+                    saved.set(context);
+                    return null;
+                },
+                guard);
+        return saved;
+    }
+
+    private SpringAttemptTransactions ownerForAuthority(boolean jpa) {
+        if (jpa) {
+            return owner;
+        }
+        var manager = new DataSourceTransactionManager(read.dataSource);
+        manager.setNestedTransactionAllowed(false);
+        return new SpringAttemptTransactions(read.dataSource, manager, 20);
+    }
+
+    private void verifyLateCallbackCase(boolean jpa, boolean beforeCompletion) {
+        var guard = new SharedGuard();
+        var saved = captureReadContext(guard);
+        var ds = jpa ? write.dataSource : read.dataSource;
+        var jdbc = jpa ? write.jdbc : read.jdbc;
+        var effects = ownerForAuthority(jpa);
+        jdbc.update("insert into fixture_owner_slot values(17)");
+        var failure =
+                assertThrows(
+                        AttemptTransactions.Failure.class,
+                        () ->
+                                effects.write(
+                                        () -> {
+                                            SpringAttemptTransactions.guarded(
+                                                    ds,
+                                                    () -> {
+                                                        jdbc.update(
+                                                                "insert into foundation_effect values (?,?)",
+                                                                new UUID(0, 17),
+                                                                "prefix");
+                                                        jdbc.update(
+                                                                "delete from fixture_owner_slot where id=17");
+                                                        return null;
+                                                    });
+                                            if (jpa) {
+                                                effects.flushBeforePublication();
+                                            }
+                                            SpringAttemptTransactions.closePublication(ds);
+                                            TransactionSynchronizationManager.registerSynchronization(
+                                                    new TransactionSynchronization() {
+                                                        void fault() {
+                                                            assertThrows(
+                                                                    IllegalTransactionStateException.class,
+                                                                    saved.get()::requireActiveRead);
+                                                        }
+
+                                                        public void beforeCommit(boolean readOnly) {
+                                                            if (!beforeCompletion) {
+                                                                fault();
+                                                            }
+                                                        }
+
+                                                        public void beforeCompletion() {
+                                                            if (beforeCompletion) {
+                                                                fault();
+                                                            }
+                                                        }
+                                                    });
+                                            return null;
+                                        },
+                                        guard));
+        // L2 remains conservative once handed to Spring's commit path.
+        org.junit.jupiter.api.Assertions.assertAll(
+                () -> assertEquals(AttemptTransactions.Resolution.UNKNOWN, failure.resolution()),
+                () -> assertSame(guard.cause.get(), failure.getCause()),
+                () ->
+                        assertEquals(
+                                0,
+                                jdbc.queryForObject(
+                                        "select count(*) from foundation_effect where id=?",
+                                        Integer.class,
+                                        new UUID(0, 17))),
+                () ->
+                        assertEquals(
+                                1,
+                                jdbc.queryForObject(
+                                        "select count(*) from fixture_owner_slot where id=17",
+                                        Integer.class)));
+        jdbc.update("delete from fixture_owner_slot where id=17");
     }
 
     @Test
     void i2SharedGuardLateCallbacksPreventJdbcAndJpaPhysicalCommit() {
-        for (boolean jpa : List.of(false, true))
+        for (boolean jpa : List.of(false, true)) {
             for (boolean beforeCompletion : List.of(false, true)) {
-                var guard = new SharedGuard();
-                var saved = new AtomicReference<RecoveryReadContext>();
-                owner.read(
-                        context -> {
-                            saved.set(context);
-                            return null;
-                        },
-                        guard);
-                var ds = jpa ? write.dataSource : read.dataSource;
-                var jdbc = jpa ? write.jdbc : read.jdbc;
-                var manager = new DataSourceTransactionManager(ds);
-                manager.setNestedTransactionAllowed(false);
-                var effects = jpa ? owner : new SpringAttemptTransactions(ds, manager, 20);
-                jdbc.update("insert into fixture_owner_slot values(17)");
-                var failure =
-                        assertThrows(
-                                AttemptTransactions.Failure.class,
-                                () ->
-                                        effects.write(
-                                                () -> {
-                                                    SpringAttemptTransactions.guarded(
-                                                            ds,
-                                                            () -> {
-                                                                jdbc.update(
-                                                                        "insert into"
-                                                                            + " foundation_effect"
-                                                                            + " values (?,?)",
-                                                                        new UUID(0, 17),
-                                                                        "prefix");
-                                                                jdbc.update(
-                                                                        "delete from"
-                                                                            + " fixture_owner_slot"
-                                                                            + " where id=17");
-                                                                return null;
-                                                            });
-                                                    if (jpa) effects.flushBeforePublication();
-                                                    SpringAttemptTransactions.closePublication(ds);
-                                                    TransactionSynchronizationManager
-                                                            .registerSynchronization(
-                                                                    new TransactionSynchronization() {
-                                                                        void fault() {
-                                                                            assertThrows(
-                                                                                    IllegalTransactionStateException
-                                                                                            .class,
-                                                                                    saved.get()
-                                                                                            ::requireActiveRead);
-                                                                        }
-
-                                                                        public void beforeCommit(
-                                                                                boolean readOnly) {
-                                                                            if (!beforeCompletion)
-                                                                                fault();
-                                                                        }
-
-                                                                        public void
-                                                                                beforeCompletion() {
-                                                                            if (beforeCompletion)
-                                                                                fault();
-                                                                        }
-                                                                    });
-                                                    return null;
-                                                },
-                                                guard));
-                // L2 remains conservative once handed to Spring's commit path.
-                assertEquals(AttemptTransactions.Resolution.UNKNOWN, failure.resolution());
-                assertSame(guard.cause.get(), failure.getCause());
-                assertEquals(
-                        0,
-                        jdbc.queryForObject(
-                                "select count(*) from foundation_effect where id=?",
-                                Integer.class,
-                                new UUID(0, 17)));
-                assertEquals(
-                        1,
-                        jdbc.queryForObject(
-                                "select count(*) from fixture_owner_slot where id=17",
-                                Integer.class));
-                jdbc.update("delete from fixture_owner_slot where id=17");
+                verifyLateCallbackCase(jpa, beforeCompletion);
             }
+        }
+    }
+
+    private void verifyPoisonAfterCompletionCase(boolean jpa) {
+        var guard = new SharedGuard();
+        var saved = captureReadContext(guard);
+        var ds = jpa ? write.dataSource : read.dataSource;
+        var jdbc = jpa ? write.jdbc : read.jdbc;
+        var effects = ownerForAuthority(jpa);
+        jdbc.update("insert into fixture_owner_slot values(19)");
+        effects.write(
+                () -> {
+                    SpringAttemptTransactions.guarded(
+                            ds,
+                            () -> {
+                                jdbc.update(
+                                        "insert into foundation_effect values (?,?)",
+                                        new UUID(0, 19),
+                                        "committed");
+                                jdbc.update("delete from fixture_owner_slot where id=19");
+                                return null;
+                            });
+                    if (jpa) {
+                        effects.flushBeforePublication();
+                    }
+                    SpringAttemptTransactions.closePublication(ds);
+                    TransactionSynchronizationManager.registerSynchronization(
+                            new TransactionSynchronization() {
+                                public void afterCompletion(int status) {
+                                    assertEquals(STATUS_COMMITTED, status);
+                                    assertThrows(
+                                            IllegalTransactionStateException.class,
+                                            saved.get()::requireActiveRead);
+                                }
+                            });
+                    return null;
+                },
+                guard);
+        org.junit.jupiter.api.Assertions.assertAll(
+                () -> assertNotNull(guard.cause.get()),
+                () ->
+                        assertEquals(
+                                1,
+                                jdbc.queryForObject(
+                                        "select count(*) from foundation_effect where id=?",
+                                        Integer.class,
+                                        new UUID(0, 19))),
+                () ->
+                        assertEquals(
+                                0,
+                                jdbc.queryForObject(
+                                        "select count(*) from fixture_owner_slot where id=19",
+                                        Integer.class)),
+                () ->
+                        assertThrows(
+                                IllegalTransactionStateException.class,
+                                () -> effects.read(c -> fail("late SQL"), guard)));
     }
 
     @Test
     void i2PoisonAfterCompletionCannotRewriteConfirmedPhysicalCommit() {
         for (boolean jpa : List.of(false, true)) {
-            var guard = new SharedGuard();
-            var saved = new AtomicReference<RecoveryReadContext>();
-            owner.read(
-                    context -> {
-                        saved.set(context);
-                        return null;
-                    },
-                    guard);
-            var ds = jpa ? write.dataSource : read.dataSource;
-            var jdbc = jpa ? write.jdbc : read.jdbc;
-            var manager = new DataSourceTransactionManager(ds);
-            manager.setNestedTransactionAllowed(false);
-            var effects = jpa ? owner : new SpringAttemptTransactions(ds, manager, 20);
-            jdbc.update("insert into fixture_owner_slot values(19)");
-            effects.write(
-                    () -> {
-                        SpringAttemptTransactions.guarded(
-                                ds,
-                                () -> {
-                                    jdbc.update(
-                                            "insert into foundation_effect values (?,?)",
-                                            new UUID(0, 19),
-                                            "committed");
-                                    jdbc.update("delete from fixture_owner_slot where id=19");
-                                    return null;
-                                });
-                        if (jpa) effects.flushBeforePublication();
-                        SpringAttemptTransactions.closePublication(ds);
-                        TransactionSynchronizationManager.registerSynchronization(
-                                new TransactionSynchronization() {
-                                    public void afterCompletion(int status) {
-                                        assertEquals(STATUS_COMMITTED, status);
-                                        assertThrows(
-                                                IllegalTransactionStateException.class,
-                                                saved.get()::requireActiveRead);
-                                    }
-                                });
-                        return null;
-                    },
-                    guard);
-            assertNotNull(guard.cause.get());
-            assertEquals(
-                    1,
-                    jdbc.queryForObject(
-                            "select count(*) from foundation_effect where id=?",
-                            Integer.class,
-                            new UUID(0, 19)));
-            assertEquals(
-                    0,
-                    jdbc.queryForObject(
-                            "select count(*) from fixture_owner_slot where id=19", Integer.class));
-            assertThrows(
-                    IllegalTransactionStateException.class,
-                    () -> effects.read(c -> fail("late SQL"), guard));
+            verifyPoisonAfterCompletionCase(jpa);
         }
     }
 }

@@ -1,5 +1,7 @@
 package com.kartaguez.pocoma.infra.postgres.write;
-import com.kartaguez.pocoma.infra.postgres.core.*;
+import com.kartaguez.pocoma.infra.postgres.core.bootstrap.*;
+import com.kartaguez.pocoma.infra.postgres.core.consumption.*;
+import com.kartaguez.pocoma.infra.postgres.core.history.*;
 import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionNavigation.*;
 import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionNavigation;
 import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionProtocol;
@@ -12,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.kartaguez.pocoma.domain.consumption.ConsumptionId;
 import com.kartaguez.pocoma.domain.consumption.RoutingV1;
-import com.kartaguez.pocoma.infra.postgres.core.JdbcSlotKeyNavigation;
+import com.kartaguez.pocoma.infra.postgres.core.consumption.JdbcSlotKeyNavigation;
 import com.kartaguez.pocoma.port.transaction.AttemptTransactions;
 
 import org.junit.jupiter.api.*;
