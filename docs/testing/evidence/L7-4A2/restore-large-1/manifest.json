@@ -1,0 +1,988 @@
+{
+  "campaign": "large-1",
+  "mode": "RESTORE-RUN",
+  "profile": "large",
+  "profileSpec": {
+    "shareholders": 100,
+    "expenses": 2000,
+    "expectedInitialVersion": 2002
+  },
+  "campaignSpec": {
+    "profile": "large",
+    "potCount": 2,
+    "producers": 2,
+    "rate": 1.0,
+    "warmupCount": 5,
+    "sampleCount": 60,
+    "observationDeadlineMs": 30000,
+    "seedId": "l74a-large-1-v1",
+    "isValidation": false
+  },
+  "startedAt": "2026-11-18T19:58:15.481858+00:00",
+  "project": "pocoma-l74a-2251bd99",
+  "git": {
+    "sha": "b344e44005f660c0d995365a065c54512f2d8ff1",
+    "dirty": "M app/engine-materialize-pot/src/main/java/com/kartaguez/pocoma/engine/materialize/pot/MaterializePotVersion.java\n M app/infra-postgres-read/src/main/java/com/kartaguez/pocoma/infra/postgres/read/JdbcSubobjectVersionStore.java\n M app/port-projection/src/main/java/com/kartaguez/pocoma/port/projection/SubobjectVersionStore.java\n M app/runtime-worker-materialize/src/test/java/com/kartaguez/pocoma/runtime/task/SubobjectStorePostgresTest.java\n?? app/engine-materialize-pot/src/test/\n?? docs/testing/evidence/L7-4A2/"
+  },
+  "runtimeConfig": {
+    "http-write": {
+      "pocoma.v3.http.admission.capacity": "4",
+      "sha256": "e9ec1aa94d8d246039a7beab041396deeded51f29fc814445b4241145ea422f8"
+    },
+    "http-read": {
+      "sha256": "4f79847b940c1f8758f7aa0c055b4346b8f058791368de0b6a5888cbb13bde18"
+    },
+    "command-worker": {
+      "pocoma.v3.worker.min-poll": "2",
+      "pocoma.v3.worker.max-poll": "20",
+      "pocoma.v3.worker.error-poll": "50",
+      "pocoma.v3.worker.quantum": "4",
+      "pocoma.v3.worker.worker-limit": "2",
+      "pocoma.v3.worker.consumption-limits": "Command=2,IdentityRequest=2",
+      "pocoma.v3.worker.partitions": "Command=0|1|2|3;IdentityRequest=0|1|2|3",
+      "pocoma.v3.worker.lifecycle.batch-size": "32",
+      "pocoma.v3.worker.lifecycle.claim-duration-ms": "60000",
+      "pocoma.v3.worker.lifecycle.lease-duration-ms": "30000",
+      "sha256": "c1f0b01aff94337de805f0d6097930b4bc5d05ff1838a9038353e070cb7b81bf"
+    },
+    "results-worker": {
+      "pocoma.v3.worker.min-poll": "2",
+      "pocoma.v3.worker.max-poll": "20",
+      "pocoma.v3.worker.error-poll": "50",
+      "pocoma.v3.worker.quantum": "4",
+      "pocoma.v3.worker.worker-limit": "2",
+      "pocoma.v3.worker.consumption-limits": "MaterializeCommandResult=2,MaterializeIdentityRequestResult=2",
+      "pocoma.v3.worker.partitions": "MaterializeCommandResult=0|1|2|3;MaterializeIdentityRequestResult=0|1|2|3",
+      "pocoma.v3.worker.lifecycle.batch-size": "32",
+      "pocoma.v3.worker.lifecycle.claim-duration-ms": "60000",
+      "pocoma.v3.worker.lifecycle.lease-duration-ms": "30000",
+      "sha256": "afa438df6f77c068751239453710920455bd766bd3801b5f1fd05273e9ce2875"
+    },
+    "business-read-worker": {
+      "pocoma.v3.worker.min-poll": "2",
+      "pocoma.v3.worker.max-poll": "20",
+      "pocoma.v3.worker.error-poll": "50",
+      "pocoma.v3.worker.quantum": "4",
+      "pocoma.v3.worker.worker-limit": "3",
+      "pocoma.v3.worker.consumption-limits": "MaterializePotVersion=2,MaterializePotBalance=2,MaterializePotVisibility=2,MaterializeCurrentBinding=2,MaterializeInvitation=2",
+      "pocoma.v3.worker.partitions": "MaterializePotVersion=0|1|2|3;MaterializePotBalance=0|1|2|3;MaterializePotVisibility=0|1|2|3;MaterializeCurrentBinding=0|1|2|3;MaterializeInvitation=0|1|2|3",
+      "pocoma.v3.worker.lifecycle.batch-size": "32",
+      "pocoma.v3.worker.lifecycle.claim-duration-ms": "60000",
+      "pocoma.v3.worker.lifecycle.lease-duration-ms": "30000",
+      "sha256": "2b97df7784debf83ba34f7c595f64c781d0965d970730ca4822351fdfa507958"
+    }
+  },
+  "topology": {
+    "kind": "LOCAL_DOCKER_SINGLE_HOST",
+    "postgres": {
+      "cpus": 2.0,
+      "memLimit": "2048m",
+      "tmpfsSize": "1536m"
+    },
+    "runtimes": {
+      "http-write": {
+        "module": "runtime-web-write",
+        "profile": "v3-http-admission",
+        "managementPort": 18080,
+        "httpPort": 8080,
+        "cpus": 0.5,
+        "memLimit": "512m"
+      },
+      "http-read": {
+        "module": "runtime-web-read",
+        "profile": "v3-http-read",
+        "managementPort": 18082,
+        "httpPort": 8082,
+        "cpus": 0.5,
+        "memLimit": "768m"
+      },
+      "command-worker": {
+        "module": "runtime-worker-process",
+        "profile": "v3-consumption-worker-dev",
+        "managementPort": 18083,
+        "cpus": 0.5,
+        "memLimit": "512m"
+      },
+      "results-worker": {
+        "module": "runtime-worker-materialize",
+        "profile": "v3-read-worker",
+        "managementPort": 18084,
+        "cpus": 0.5,
+        "memLimit": "512m"
+      },
+      "business-read-worker": {
+        "module": "runtime-worker-materialize",
+        "profile": "v3-read-worker",
+        "managementPort": 18085,
+        "cpus": 2.0,
+        "memLimit": "1024m"
+      }
+    },
+    "javaOptions": "-Xms64m -Xmx512m -XX:+UseSerialGC"
+  },
+  "guardrails": {
+    "minDockerMemBytes": 4294967296,
+    "minDiskFreeBytes": 2147483648,
+    "maxContainerMemPercent": 92.0,
+    "maxOfferLagMs": 100.0,
+    "observationDeadlineMs": 15000,
+    "readPollIntervalMs": 25,
+    "resourceSampleIntervalSeconds": 2
+  },
+  "verdict": "PASS",
+  "safety": "PASS",
+  "docker": {
+    "Name": "docker-desktop",
+    "NCPU": 10,
+    "MemTotal": 8319504384,
+    "ServerVersion": "29.9.2",
+    "Architecture": "aarch64"
+  },
+  "toolVersions": {
+    "python": "3.14.7",
+    "node": "v24.15.0",
+    "docker": "29.9.2"
+  },
+  "restore": {
+    "snapshotDir": "/private/tmp/pocoma-l74a-snapshots/large",
+    "snapshotSha256": "2eb4567b568073c7d4e0c5bbd8db40aadfaeb222ed1c7e504bd6ed91fdab637d",
+    "restoreElapsedSeconds": 12.91,
+    "prepareSeedElapsedSeconds": 1802.9
+  },
+  "initialSnapshot": {
+    "utc": "2026-11-18T19:58:43.115361+00:00",
+    "monotonicNs": 51257301215250,
+    "databases": {
+      "write": {
+        "wal": {
+          "wal_fpi": 9711,
+          "wal_sync": 4003,
+          "wal_bytes": 339067119,
+          "wal_write": 24659,
+          "stats_reset": "2026-11-18T19:58:16.460244+00:00",
+          "wal_records": 322381,
+          "wal_sync_time": 0,
+          "wal_write_time": 0,
+          "wal_buffers_full": 19902
+        },
+        "fsync": "on",
+        "slots": [],
+        "activity": [
+          {
+            "n": 1,
+            "state": "active",
+            "wait_event": null,
+            "wait_event_type": null
+          },
+          {
+            "n": 23,
+            "state": "idle",
+            "wait_event": "ClientRead",
+            "wait_event_type": "Client"
+          },
+          {
+            "n": 2,
+            "state": "idle in transaction",
+            "wait_event": "ClientRead",
+            "wait_event_type": "Client"
+          }
+        ],
+        "blocking": [],
+        "counters": {
+          "POT": 4004,
+          "IDENTITY": 2,
+          "INVITATION": 0,
+          "COMMAND_COMPLETION": 4004,
+          "IDENTITY_COMPLETION": 1
+        },
+        "positions": [
+          {
+            "n": 2,
+            "last": 2,
+            "first": 1,
+            "family": "IDENTITY"
+          },
+          {
+            "n": 4004,
+            "last": 4004,
+            "first": 1,
+            "family": "COMMAND_COMPLETION"
+          },
+          {
+            "n": 1,
+            "last": 1,
+            "first": 1,
+            "family": "IDENTITY_COMPLETION"
+          },
+          {
+            "n": 4004,
+            "last": 4004,
+            "first": 1,
+            "family": "POT"
+          }
+        ],
+        "checkpoints": [
+          {
+            "position": 1,
+            "partition_id": 1,
+            "consumption_id": "2999e75c-272d-5afe-a966-c9364ef021fe"
+          },
+          {
+            "position": 1,
+            "partition_id": 2,
+            "consumption_id": "2999e75c-272d-5afe-a966-c9364ef021fe"
+          },
+          {
+            "position": 1,
+            "partition_id": 3,
+            "consumption_id": "2999e75c-272d-5afe-a966-c9364ef021fe"
+          },
+          {
+            "position": 1,
+            "partition_id": 0,
+            "consumption_id": "2999e75c-272d-5afe-a966-c9364ef021fe"
+          },
+          {
+            "position": 4004,
+            "partition_id": 0,
+            "consumption_id": "98f7268d-d340-581c-b83d-010926223e14"
+          },
+          {
+            "position": 4004,
+            "partition_id": 1,
+            "consumption_id": "98f7268d-d340-581c-b83d-010926223e14"
+          },
+          {
+            "position": 4004,
+            "partition_id": 2,
+            "consumption_id": "98f7268d-d340-581c-b83d-010926223e14"
+          },
+          {
+            "position": 4004,
+            "partition_id": 3,
+            "consumption_id": "98f7268d-d340-581c-b83d-010926223e14"
+          }
+        ],
+        "transactions": {
+          "datname": "pocoma_write",
+          "blks_hit": 236242,
+          "sessions": 28,
+          "blks_read": 3013,
+          "conflicts": 0,
+          "deadlocks": 0,
+          "temp_bytes": 35299328,
+          "temp_files": 6,
+          "active_time": 1388.732,
+          "numbackends": 26,
+          "stats_reset": null,
+          "tup_deleted": 2,
+          "tup_fetched": 70577,
+          "tup_updated": 414,
+          "xact_commit": 13664,
+          "session_time": 27943.295,
+          "tup_inserted": 481484,
+          "tup_returned": 2252770,
+          "blk_read_time": 0,
+          "xact_rollback": 39,
+          "blk_write_time": 0,
+          "sessions_fatal": 0,
+          "sessions_killed": 0,
+          "checksum_failures": null,
+          "sessions_abandoned": 0,
+          "checksum_last_failure": null,
+          "idle_in_transaction_time": 1252.945
+        },
+        "databaseBytes": 116479667,
+        "serverVersion": "17.12",
+        "pendingSources": 0,
+        "synchronousCommit": "on"
+      },
+      "read": {
+        "wal": {
+          "wal_fpi": 9711,
+          "wal_sync": 4003,
+          "wal_bytes": 339067119,
+          "wal_write": 24659,
+          "stats_reset": "2026-11-18T19:58:16.460244+00:00",
+          "wal_records": 322381,
+          "wal_sync_time": 0,
+          "wal_write_time": 0,
+          "wal_buffers_full": 19902
+        },
+        "fsync": "on",
+        "slots": [],
+        "activity": [
+          {
+            "n": 2,
+            "state": "active",
+            "wait_event": null,
+            "wait_event_type": null
+          },
+          {
+            "n": 33,
+            "state": "idle",
+            "wait_event": "ClientRead",
+            "wait_event_type": "Client"
+          },
+          {
+            "n": 1,
+            "state": "idle",
+            "wait_event": null,
+            "wait_event_type": null
+          }
+        ],
+        "blocking": [],
+        "checkpoints": [
+          {
+            "position": 2,
+            "partition_id": 2,
+            "consumption_id": "7b8d2838-bf7a-5117-868a-e5c14b4c0221"
+          },
+          {
+            "position": 2,
+            "partition_id": 3,
+            "consumption_id": "7b8d2838-bf7a-5117-868a-e5c14b4c0221"
+          },
+          {
+            "position": 1,
+            "partition_id": 0,
+            "consumption_id": "1d8ff246-358f-5ddd-a7f5-416efcfd7445"
+          },
+          {
+            "position": 2,
+            "partition_id": 0,
+            "consumption_id": "7b8d2838-bf7a-5117-868a-e5c14b4c0221"
+          },
+          {
+            "position": 1,
+            "partition_id": 1,
+            "consumption_id": "1d8ff246-358f-5ddd-a7f5-416efcfd7445"
+          },
+          {
+            "position": 1,
+            "partition_id": 2,
+            "consumption_id": "1d8ff246-358f-5ddd-a7f5-416efcfd7445"
+          },
+          {
+            "position": 2,
+            "partition_id": 1,
+            "consumption_id": "7b8d2838-bf7a-5117-868a-e5c14b4c0221"
+          },
+          {
+            "position": 1,
+            "partition_id": 3,
+            "consumption_id": "1d8ff246-358f-5ddd-a7f5-416efcfd7445"
+          },
+          {
+            "position": 4004,
+            "partition_id": 2,
+            "consumption_id": "3dec1c8b-6e3e-57e1-82aa-aa0b5f297a4a"
+          },
+          {
+            "position": 4004,
+            "partition_id": 2,
+            "consumption_id": "b4d04cce-b5da-5d1b-9698-5ff9af9a46fa"
+          },
+          {
+            "position": 4004,
+            "partition_id": 1,
+            "consumption_id": "190a93c6-b8af-5ac7-8001-72e2ec53c2df"
+          },
+          {
+            "position": 4004,
+            "partition_id": 3,
+            "consumption_id": "b4d04cce-b5da-5d1b-9698-5ff9af9a46fa"
+          },
+          {
+            "position": 4004,
+            "partition_id": 3,
+            "consumption_id": "3dec1c8b-6e3e-57e1-82aa-aa0b5f297a4a"
+          },
+          {
+            "position": 4004,
+            "partition_id": 3,
+            "consumption_id": "190a93c6-b8af-5ac7-8001-72e2ec53c2df"
+          },
+          {
+            "position": 4004,
+            "partition_id": 0,
+            "consumption_id": "3dec1c8b-6e3e-57e1-82aa-aa0b5f297a4a"
+          },
+          {
+            "position": 4004,
+            "partition_id": 2,
+            "consumption_id": "190a93c6-b8af-5ac7-8001-72e2ec53c2df"
+          },
+          {
+            "position": 4004,
+            "partition_id": 0,
+            "consumption_id": "190a93c6-b8af-5ac7-8001-72e2ec53c2df"
+          },
+          {
+            "position": 4004,
+            "partition_id": 1,
+            "consumption_id": "63664303-d33e-5d42-8cce-c4dae8023311"
+          },
+          {
+            "position": 4004,
+            "partition_id": 2,
+            "consumption_id": "63664303-d33e-5d42-8cce-c4dae8023311"
+          },
+          {
+            "position": 4004,
+            "partition_id": 3,
+            "consumption_id": "63664303-d33e-5d42-8cce-c4dae8023311"
+          },
+          {
+            "position": 4004,
+            "partition_id": 0,
+            "consumption_id": "63664303-d33e-5d42-8cce-c4dae8023311"
+          },
+          {
+            "position": 4004,
+            "partition_id": 0,
+            "consumption_id": "b4d04cce-b5da-5d1b-9698-5ff9af9a46fa"
+          },
+          {
+            "position": 4004,
+            "partition_id": 1,
+            "consumption_id": "b4d04cce-b5da-5d1b-9698-5ff9af9a46fa"
+          },
+          {
+            "position": 4004,
+            "partition_id": 1,
+            "consumption_id": "3dec1c8b-6e3e-57e1-82aa-aa0b5f297a4a"
+          }
+        ],
+        "maintenance": {
+          "id": 1,
+          "phase": "IDLE",
+          "state": "READY",
+          "started_at": null,
+          "updated_at": "2026-11-18T18:26:13.885456+00:00",
+          "operator_id": null,
+          "error_detail": null,
+          "operation_id": null,
+          "target_prefix": null
+        },
+        "transactions": {
+          "datname": "pocoma_read",
+          "blks_hit": 525626,
+          "sessions": 38,
+          "blks_read": 622,
+          "conflicts": 0,
+          "deadlocks": 0,
+          "temp_bytes": 0,
+          "temp_files": 0,
+          "active_time": 10155.991,
+          "numbackends": 36,
+          "stats_reset": null,
+          "tup_deleted": 0,
+          "tup_fetched": 66621,
+          "tup_updated": 141,
+          "xact_commit": 33229,
+          "session_time": 40813.735,
+          "tup_inserted": 139681,
+          "tup_returned": 394701,
+          "blk_read_time": 0,
+          "xact_rollback": 33,
+          "blk_write_time": 0,
+          "sessions_fatal": 0,
+          "sessions_killed": 0,
+          "checksum_failures": null,
+          "sessions_abandoned": 0,
+          "checksum_last_failure": null,
+          "idle_in_transaction_time": 3279.66
+        },
+        "databaseBytes": 242579123,
+        "serverVersion": "17.12",
+        "synchronousCommit": "on"
+      }
+    },
+    "metricFiles": {
+      "metrics-initial-http-write.prom": "531342b83a90eadf9e782a05ae6d685e15e2256555fc6604f2462f6bca2d8b2e",
+      "metrics-initial-http-read.prom": "5c94553f6d875011683212145fd99b4fbdd953e880269b9fb8d0aabd68759555",
+      "metrics-initial-command-worker.prom": "84e509f2af8809b1b7c98807ff561c39994655768ca6849262b93d42f2013c2f",
+      "metrics-initial-results-worker.prom": "25211603c50f6484bb7b71c01d3df08b50c1dd647519c02dbb43111fd91b26fc",
+      "metrics-initial-business-read-worker.prom": "914a2062a84daa0caa4d97234db78a5365a637c8610201e32420fb9bb2e1a08c"
+    },
+    "collectorMs": 114.102375
+  },
+  "finalSnapshot": {
+    "utc": "2026-11-18T19:59:49.744701+00:00",
+    "monotonicNs": 51323930238041,
+    "databases": {
+      "write": {
+        "wal": {
+          "wal_fpi": 9743,
+          "wal_sync": 53054,
+          "wal_bytes": 356345017,
+          "wal_write": 73713,
+          "stats_reset": "2026-11-18T19:58:16.460244+00:00",
+          "wal_records": 496158,
+          "wal_sync_time": 0,
+          "wal_write_time": 0,
+          "wal_buffers_full": 19902
+        },
+        "fsync": "on",
+        "slots": [],
+        "activity": [
+          {
+            "n": 1,
+            "state": "active",
+            "wait_event": null,
+            "wait_event_type": null
+          },
+          {
+            "n": 25,
+            "state": "idle",
+            "wait_event": "ClientRead",
+            "wait_event_type": "Client"
+          }
+        ],
+        "blocking": [],
+        "counters": {
+          "POT": 4068,
+          "IDENTITY": 2,
+          "INVITATION": 0,
+          "COMMAND_COMPLETION": 4068,
+          "IDENTITY_COMPLETION": 1
+        },
+        "positions": [
+          {
+            "n": 2,
+            "last": 2,
+            "first": 1,
+            "family": "IDENTITY"
+          },
+          {
+            "n": 4068,
+            "last": 4068,
+            "first": 1,
+            "family": "COMMAND_COMPLETION"
+          },
+          {
+            "n": 1,
+            "last": 1,
+            "first": 1,
+            "family": "IDENTITY_COMPLETION"
+          },
+          {
+            "n": 4068,
+            "last": 4068,
+            "first": 1,
+            "family": "POT"
+          }
+        ],
+        "checkpoints": [
+          {
+            "position": 1,
+            "partition_id": 1,
+            "consumption_id": "2999e75c-272d-5afe-a966-c9364ef021fe"
+          },
+          {
+            "position": 1,
+            "partition_id": 2,
+            "consumption_id": "2999e75c-272d-5afe-a966-c9364ef021fe"
+          },
+          {
+            "position": 1,
+            "partition_id": 3,
+            "consumption_id": "2999e75c-272d-5afe-a966-c9364ef021fe"
+          },
+          {
+            "position": 1,
+            "partition_id": 0,
+            "consumption_id": "2999e75c-272d-5afe-a966-c9364ef021fe"
+          },
+          {
+            "position": 4068,
+            "partition_id": 2,
+            "consumption_id": "98f7268d-d340-581c-b83d-010926223e14"
+          },
+          {
+            "position": 4068,
+            "partition_id": 3,
+            "consumption_id": "98f7268d-d340-581c-b83d-010926223e14"
+          },
+          {
+            "position": 4068,
+            "partition_id": 0,
+            "consumption_id": "98f7268d-d340-581c-b83d-010926223e14"
+          },
+          {
+            "position": 4068,
+            "partition_id": 1,
+            "consumption_id": "98f7268d-d340-581c-b83d-010926223e14"
+          }
+        ],
+        "transactions": {
+          "datname": "pocoma_write",
+          "blks_hit": 3020283,
+          "sessions": 46,
+          "blks_read": 6115,
+          "conflicts": 0,
+          "deadlocks": 0,
+          "temp_bytes": 35299328,
+          "temp_files": 6,
+          "active_time": 10803.116,
+          "numbackends": 26,
+          "stats_reset": null,
+          "tup_deleted": 254,
+          "tup_fetched": 8061648,
+          "tup_updated": 1103,
+          "xact_commit": 348210,
+          "session_time": 798647.771,
+          "tup_inserted": 489253,
+          "tup_returned": 27699410,
+          "blk_read_time": 0,
+          "xact_rollback": 45,
+          "blk_write_time": 0,
+          "sessions_fatal": 0,
+          "sessions_killed": 0,
+          "checksum_failures": null,
+          "sessions_abandoned": 0,
+          "checksum_last_failure": null,
+          "idle_in_transaction_time": 50622.158
+        },
+        "databaseBytes": 119527091,
+        "serverVersion": "17.12",
+        "pendingSources": 0,
+        "synchronousCommit": "on"
+      },
+      "read": {
+        "wal": {
+          "wal_fpi": 9743,
+          "wal_sync": 53054,
+          "wal_bytes": 356345017,
+          "wal_write": 73713,
+          "stats_reset": "2026-11-18T19:58:16.460244+00:00",
+          "wal_records": 496158,
+          "wal_sync_time": 0,
+          "wal_write_time": 0,
+          "wal_buffers_full": 19902
+        },
+        "fsync": "on",
+        "slots": [],
+        "activity": [
+          {
+            "n": 1,
+            "state": "active",
+            "wait_event": "ClientRead",
+            "wait_event_type": "Client"
+          },
+          {
+            "n": 2,
+            "state": "active",
+            "wait_event": null,
+            "wait_event_type": null
+          },
+          {
+            "n": 33,
+            "state": "idle",
+            "wait_event": "ClientRead",
+            "wait_event_type": "Client"
+          }
+        ],
+        "blocking": [],
+        "checkpoints": [
+          {
+            "position": 2,
+            "partition_id": 2,
+            "consumption_id": "7b8d2838-bf7a-5117-868a-e5c14b4c0221"
+          },
+          {
+            "position": 2,
+            "partition_id": 3,
+            "consumption_id": "7b8d2838-bf7a-5117-868a-e5c14b4c0221"
+          },
+          {
+            "position": 1,
+            "partition_id": 0,
+            "consumption_id": "1d8ff246-358f-5ddd-a7f5-416efcfd7445"
+          },
+          {
+            "position": 2,
+            "partition_id": 0,
+            "consumption_id": "7b8d2838-bf7a-5117-868a-e5c14b4c0221"
+          },
+          {
+            "position": 1,
+            "partition_id": 1,
+            "consumption_id": "1d8ff246-358f-5ddd-a7f5-416efcfd7445"
+          },
+          {
+            "position": 1,
+            "partition_id": 2,
+            "consumption_id": "1d8ff246-358f-5ddd-a7f5-416efcfd7445"
+          },
+          {
+            "position": 2,
+            "partition_id": 1,
+            "consumption_id": "7b8d2838-bf7a-5117-868a-e5c14b4c0221"
+          },
+          {
+            "position": 1,
+            "partition_id": 3,
+            "consumption_id": "1d8ff246-358f-5ddd-a7f5-416efcfd7445"
+          },
+          {
+            "position": 4068,
+            "partition_id": 3,
+            "consumption_id": "b4d04cce-b5da-5d1b-9698-5ff9af9a46fa"
+          },
+          {
+            "position": 4068,
+            "partition_id": 3,
+            "consumption_id": "63664303-d33e-5d42-8cce-c4dae8023311"
+          },
+          {
+            "position": 4068,
+            "partition_id": 0,
+            "consumption_id": "190a93c6-b8af-5ac7-8001-72e2ec53c2df"
+          },
+          {
+            "position": 4068,
+            "partition_id": 0,
+            "consumption_id": "63664303-d33e-5d42-8cce-c4dae8023311"
+          },
+          {
+            "position": 4068,
+            "partition_id": 0,
+            "consumption_id": "3dec1c8b-6e3e-57e1-82aa-aa0b5f297a4a"
+          },
+          {
+            "position": 4068,
+            "partition_id": 1,
+            "consumption_id": "63664303-d33e-5d42-8cce-c4dae8023311"
+          },
+          {
+            "position": 4068,
+            "partition_id": 0,
+            "consumption_id": "b4d04cce-b5da-5d1b-9698-5ff9af9a46fa"
+          },
+          {
+            "position": 4068,
+            "partition_id": 2,
+            "consumption_id": "63664303-d33e-5d42-8cce-c4dae8023311"
+          },
+          {
+            "position": 4068,
+            "partition_id": 1,
+            "consumption_id": "190a93c6-b8af-5ac7-8001-72e2ec53c2df"
+          },
+          {
+            "position": 4068,
+            "partition_id": 1,
+            "consumption_id": "3dec1c8b-6e3e-57e1-82aa-aa0b5f297a4a"
+          },
+          {
+            "position": 4068,
+            "partition_id": 1,
+            "consumption_id": "b4d04cce-b5da-5d1b-9698-5ff9af9a46fa"
+          },
+          {
+            "position": 4068,
+            "partition_id": 2,
+            "consumption_id": "190a93c6-b8af-5ac7-8001-72e2ec53c2df"
+          },
+          {
+            "position": 4068,
+            "partition_id": 2,
+            "consumption_id": "3dec1c8b-6e3e-57e1-82aa-aa0b5f297a4a"
+          },
+          {
+            "position": 4068,
+            "partition_id": 2,
+            "consumption_id": "b4d04cce-b5da-5d1b-9698-5ff9af9a46fa"
+          },
+          {
+            "position": 4068,
+            "partition_id": 3,
+            "consumption_id": "190a93c6-b8af-5ac7-8001-72e2ec53c2df"
+          },
+          {
+            "position": 4068,
+            "partition_id": 3,
+            "consumption_id": "3dec1c8b-6e3e-57e1-82aa-aa0b5f297a4a"
+          }
+        ],
+        "maintenance": {
+          "id": 1,
+          "phase": "IDLE",
+          "state": "READY",
+          "started_at": null,
+          "updated_at": "2026-11-18T18:26:13.885456+00:00",
+          "operator_id": null,
+          "error_detail": null,
+          "operation_id": null,
+          "target_prefix": null
+        },
+        "transactions": {
+          "datname": "pocoma_read",
+          "blks_hit": 4623901,
+          "sessions": 56,
+          "blks_read": 22357,
+          "conflicts": 0,
+          "deadlocks": 0,
+          "temp_bytes": 0,
+          "temp_files": 0,
+          "active_time": 23194.26,
+          "numbackends": 36,
+          "stats_reset": null,
+          "tup_deleted": 250,
+          "tup_fetched": 2161638,
+          "tup_updated": 1774,
+          "xact_commit": 418399,
+          "session_time": 1098914.437,
+          "tup_inserted": 143384,
+          "tup_returned": 10204617,
+          "blk_read_time": 0,
+          "xact_rollback": 36,
+          "blk_write_time": 0,
+          "sessions_fatal": 0,
+          "sessions_killed": 0,
+          "checksum_failures": null,
+          "sessions_abandoned": 0,
+          "checksum_last_failure": null,
+          "idle_in_transaction_time": 76274.18
+        },
+        "databaseBytes": 248288947,
+        "serverVersion": "17.12",
+        "synchronousCommit": "on"
+      }
+    },
+    "metricFiles": {
+      "metrics-final-http-write.prom": "3f31600ae8c098274d70ffe2c01cfbdd2d8687e29f16ffacc0f16eb8399704e9",
+      "metrics-final-http-read.prom": "0134c47647093a24835192d67942b554ee084f5dd478a2cb11381b3f8b824615",
+      "metrics-final-command-worker.prom": "aadb36e06875f424168758d56bedb8ded50ec51e0a1f6eb3c5e912f1a2004afe",
+      "metrics-final-results-worker.prom": "965a15b603398f3670097c36d410e7c192fb599e4151e8610a7627255a8e7cce",
+      "metrics-final-business-read-worker.prom": "752a9d4d7f53b030d93b1ab8919d51036521557252fb419f455328f99e7612aa"
+    },
+    "collectorMs": 70.367625
+  },
+  "reconciliationComplete": true,
+  "restarts": {
+    "postgres": 0,
+    "http-write": 0,
+    "http-read": 0,
+    "command-worker": 0,
+    "results-worker": 0,
+    "business-read-worker": 0
+  },
+  "collectorErrors": [],
+  "commands": {
+    "warmup": 5,
+    "plannedSample": 60,
+    "admittedSample": 60,
+    "observedSample": 60,
+    "droppedOffer": 0,
+    "censored": 0,
+    "invariantViolations": 0,
+    "requestedRate": 1.0,
+    "observedRate": 0.998,
+    "sampleWindowSeconds": 60.142
+  },
+  "latenciesMs": {
+    "offerLagMs": {
+      "n": 60,
+      "p50": 2.218,
+      "p95": 8.813,
+      "p99": 10.516,
+      "max": 10.516
+    },
+    "stage1_admissionMs": {
+      "n": 60,
+      "p50": 8.325,
+      "p95": 11.927,
+      "p99": 13.943,
+      "max": 13.943
+    },
+    "stage2_preDiscoveryWaitMs": "NOT_MEASURABLE (no created_at on v3_command; cross-JVM http-write->command-worker)",
+    "stage2_commandWorker": {
+      "discoveryToSlotMs": {
+        "n": 60,
+        "p50": 0.84,
+        "p95": 1.56,
+        "p99": 5.32,
+        "max": 5.32
+      },
+      "slotAcquisitionWaitMs": {
+        "n": 60,
+        "p50": 2.94,
+        "p95": 6.65,
+        "p99": 16.18,
+        "max": 16.18
+      },
+      "acquisitionToAttemptMs": {
+        "n": 60,
+        "p50": 0.13,
+        "p95": 0.28,
+        "p99": 3.66,
+        "max": 3.66
+      },
+      "commandProcessingMs": {
+        "n": 60,
+        "p50": 26.37,
+        "p95": 40.8,
+        "p99": 61.24,
+        "max": 61.24
+      }
+    },
+    "stage3_preDiscoveryWaitMs": "NOT_MEASURABLE (cross-JVM command-worker->read-worker)",
+    "stage3_projections": {
+      "PotVersion": {
+        "n": 60,
+        "p50": 1031.52,
+        "p95": 1376.17,
+        "p99": 1544.06,
+        "max": 1544.06
+      },
+      "PotBalance": {
+        "n": 60,
+        "p50": 455.51,
+        "p95": 573.08,
+        "p99": 615.43,
+        "max": 615.43
+      },
+      "PotVisibility": {
+        "n": 60,
+        "p50": 3.61,
+        "p95": 45.47,
+        "p99": 174.1,
+        "max": 174.1
+      },
+      "CommandResult": {
+        "n": 60,
+        "p50": 2.18,
+        "p95": 4.5,
+        "p99": 48.37,
+        "max": 48.37
+      }
+    },
+    "stage4_resultE2eMs": {
+      "n": 60,
+      "p50": 98.471,
+      "p95": 199.335,
+      "p99": 231.858,
+      "max": 231.858
+    },
+    "stage4_c03E2eMs": {
+      "n": 60,
+      "p50": 1234.934,
+      "p95": 1549.652,
+      "p99": 1751.597,
+      "max": 1751.597
+    },
+    "stage4_balanceE2eMs": {
+      "n": 60,
+      "p50": 1179.525,
+      "p95": 1536.51,
+      "p99": 1690.284,
+      "max": 1690.284
+    }
+  },
+  "resourceSamplesCount": 16,
+  "cleanup": "REMOVED_OWN_PROJECT",
+  "finishedAt": "2026-11-18T19:59:53.752107+00:00"
+}

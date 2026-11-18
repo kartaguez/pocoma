@@ -17,18 +17,21 @@ public final class MaterializePotVersion implements ConsumptionParticipant {
     }
     public Optional<Prepared> prepare(UUID event, PreparationReads reads) {
         var value=reads.source(c -> source.composition(event,c));
-        var present=reads.effects(c -> subobjects.readAll(value.keys(),c));
-        var missing=value.keys().stream().filter(k -> !present.containsKey(k)).toList();
+        var presentKeys=reads.effects(c -> subobjects.existingKeys(value.keys(),c));
+        var missing=value.keys().stream().filter(k -> !presentKeys.contains(k)).toList();
         var loaded=missing.isEmpty() ? List.<SubobjectVersion>of() : reads.source(c -> source.contents(value,missing,c));
-        var expected=new TreeMap<SubobjectKey,SubobjectVersion>(present);
-        for (var s:loaded) if (expected.putIfAbsent(s.key(),s)!=null) throw new IllegalStateException("Duplicate loaded key");
-        if (!expected.keySet().equals(new TreeSet<>(value.keys()))) throw new IllegalStateException("Incomplete source contents");
-        var all=List.copyOf(expected.values());
+        var expectedKeys=new TreeSet<SubobjectKey>(presentKeys);
+        for (var s:loaded) if (!expectedKeys.add(s.key())) throw new IllegalStateException("Duplicate loaded key");
+        if (!expectedKeys.equals(new TreeSet<>(value.keys()))) throw new IllegalStateException("Incomplete source contents");
         return Optional.of(new Prepared() {
             public void finalizeIn(SlotCompletion completion) {
                 subobjects.insertOrVerifyAll(loaded); versions.insertAndAdvance(value); completion.complete(); versions.closePublication();
             }
-            public void requireCompletionReady() { subobjects.requireStored(all); versions.requireStored(value); }
+            public void requireCompletionReady() {
+                subobjects.requireStored(loaded);
+                subobjects.requireKeysPresent(presentKeys);
+                versions.requireStored(value);
+            }
         });
     }
     public Recovery prepareRecovery(UUID event, PreparationReads reads) {

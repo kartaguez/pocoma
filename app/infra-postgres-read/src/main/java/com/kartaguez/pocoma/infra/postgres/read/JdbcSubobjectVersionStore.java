@@ -35,6 +35,13 @@ public final class JdbcSubobjectVersionStore implements SubobjectVersionStore {
                 });
     }
 
+    @Override public Set<SubobjectKey> existingKeys(Collection<SubobjectKey> keys, RecoveryReadContext context) {
+        return SpringAttemptTransactions.observed(
+                source,
+                context,
+                () -> Set.copyOf(loadExistingKeys(sortedKeys(keys))));
+    }
+
     @Override public void insertOrVerifyAll(Collection<SubobjectVersion> candidates) {
         SpringAttemptTransactions.guarded(
                 source,
@@ -75,6 +82,19 @@ public final class JdbcSubobjectVersionStore implements SubobjectVersionStore {
         });
     }
 
+    @Override public void requireKeysPresent(Collection<SubobjectKey> expectedKeys) {
+        SpringAttemptTransactions.guarded(source, () -> {
+            requireReadCommitted();
+            var sorted = sortedKeys(expectedKeys);
+            if (sorted.isEmpty()) return null;
+            var stored = loadExistingKeys(sorted);
+            for (var key : sorted) {
+                if (!stored.contains(key)) throw new CorruptSubobjectException(key);
+            }
+            return null;
+        });
+    }
+
     @Override public ReadEvidence evidence(Collection<SubobjectVersion> expected, RecoveryReadContext context) {
         return SpringAttemptTransactions.observed(source, context, () -> {
             var sorted=sortedVersions(expected);
@@ -102,6 +122,29 @@ public final class JdbcSubobjectVersionStore implements SubobjectVersionStore {
 
     private Map<SubobjectKey, SubobjectVersion> load(List<SubobjectKey> sorted) {
         var result = new LinkedHashMap<SubobjectKey, SubobjectVersion>();
+        queryChunks(
+                sorted,
+                "pot_id,kind,object_id,local_version,schema_version,payload::text",
+                rs -> {
+                    SubobjectKey key = readKey(rs);
+                    result.put(key, SubobjectJson.decode(key, rs.getInt(5), rs.getString(6)));
+                });
+        return result;
+    }
+
+    private Set<SubobjectKey> loadExistingKeys(List<SubobjectKey> sorted) {
+        var result = new LinkedHashSet<SubobjectKey>();
+        queryChunks(
+                sorted,
+                "pot_id,kind,object_id,local_version",
+                rs -> result.add(readKey(rs)));
+        return result;
+    }
+
+    private void queryChunks(
+            List<SubobjectKey> sorted,
+            String columns,
+            org.springframework.jdbc.core.RowCallbackHandler handler) {
         for (int start = 0; start < sorted.size(); start += CHUNK) {
             var chunk = sorted.subList(start, Math.min(start + CHUNK, sorted.size()));
             var args = new ArrayList<Object>();
@@ -111,27 +154,27 @@ public final class JdbcSubobjectVersionStore implements SubobjectVersionStore {
                 keyArguments(args, key);
             }
             sql.query(
-                    "select pot_id,kind,object_id,local_version,schema_version,payload::text from"
-                        + " read_subobject_version where (pot_id,kind,object_id,local_version) in ("
+                    "select "
+                            + columns
+                            + " from read_subobject_version where"
+                            + " (pot_id,kind,object_id,local_version) in ("
                             + String.join(",", tuples)
                             + ")",
-                    rs -> {
-                        SubobjectKey key;
-                        try {
-                            key =
-                                    new SubobjectKey(
-                                            rs.getObject(1, UUID.class),
-                                            SubobjectKind.valueOf(rs.getString(2)),
-                                            rs.getObject(3, UUID.class),
-                                            rs.getLong(4));
-                        } catch (IllegalArgumentException | NullPointerException invalid) {
-                            throw new CorruptSubobjectException(null);
-                        }
-                        result.put(key, SubobjectJson.decode(key, rs.getInt(5), rs.getString(6)));
-                    },
+                    handler,
                     args.toArray());
         }
-        return result;
+    }
+
+    private static SubobjectKey readKey(java.sql.ResultSet rs) throws java.sql.SQLException {
+        try {
+            return new SubobjectKey(
+                    rs.getObject(1, UUID.class),
+                    SubobjectKind.valueOf(rs.getString(2)),
+                    rs.getObject(3, UUID.class),
+                    rs.getLong(4));
+        } catch (IllegalArgumentException | NullPointerException invalid) {
+            throw new CorruptSubobjectException(null);
+        }
     }
 
     private static void keyArguments(List<Object> args, SubobjectKey key) {
