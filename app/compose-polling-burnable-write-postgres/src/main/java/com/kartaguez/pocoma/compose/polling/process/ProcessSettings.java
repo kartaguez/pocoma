@@ -8,8 +8,6 @@ import com.kartaguez.pocoma.supra.polling.consumption.ConsumptionWorker;
 import org.springframework.core.env.Environment;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
-import java.net.URI;
-import java.sql.*;
 import java.time.Duration;
 import java.util.*;
 
@@ -28,9 +26,7 @@ public record ProcessSettings(
         List<String> readParticipants,
         Map<String, Integer> consumptionLimits,
         Map<String, List<Integer>> partitions,
-        Pool writeBusiness,
-        Pool writeControl,
-        List<DevTarget> allowedTargets,
+        ProcessPoolSettings pools,
         ConsumptionWorker.Settings polling,
         LifecycleSettings lifecycle) {
     public static final String PROFILE = "v3-consumption-worker-dev";
@@ -93,7 +89,18 @@ public record ProcessSettings(
         readParticipants = List.copyOf(readParticipants);
         consumptionLimits = Map.copyOf(consumptionLimits);
         partitions = Map.copyOf(partitions);
-        allowedTargets = List.copyOf(allowedTargets);
+    }
+
+    public Pool writeBusiness() {
+        return pools.writeBusiness();
+    }
+
+    public Pool writeControl() {
+        return pools.writeControl();
+    }
+
+    public List<DevTarget> allowedTargets() {
+        return pools.allowedTargets();
     }
 
     public static List<ConsumptionDefinition> probeDefinitions() { return ConsumptionCatalog.probeDefinitions(); }
@@ -177,12 +184,7 @@ public record ProcessSettings(
         var expected = collectExpectedConsumptions(flags);
         var limits = parseConsumptionLimits(env, expected);
         var partitions = parsePartitions(env, expected);
-        var allowed = parseDevTargets(env);
-        Pool wb = pool(env, "write-business", true, mw);
-        Pool wc = pool(env, "write-control", false, mw);
-        if (!sameAuthority(wb, wc)) {
-            throw new IllegalArgumentException("WRITE Business/Control targets must match");
-        }
+        var pools = ProcessPoolSettings.from(env, mw);
         int batch = requireValidBatchSize(env);
         var life = buildLifecycleSettings(env, batch);
         var settings = buildWorkerSettings(env, batch, life.renewalInterval());
@@ -199,9 +201,7 @@ public record ProcessSettings(
                 List.of(),
                 limits,
                 partitions,
-                wb,
-                wc,
-                allowed,
+                pools,
                 settings,
                 life);
     }
@@ -329,35 +329,6 @@ public record ProcessSettings(
         return values.stream().noneMatch(p -> p < 0 || p >= 4);
     }
 
-    private static List<DevTarget> parseDevTargets(Environment env) {
-        var allowed = new ArrayList<DevTarget>();
-        for (var tuple : env.getRequiredProperty(PREFIX + "dev-targets").split(";")) {
-            allowed.add(parseDevTargetTuple(tuple));
-        }
-        if (allowed.isEmpty() || allowed.size() > 2) {
-            throw new IllegalArgumentException("two exact dev targets required");
-        }
-        if (new HashSet<>(allowed).size() != allowed.size()) {
-            throw new IllegalArgumentException("two exact dev targets required");
-        }
-        return allowed;
-    }
-
-    private static DevTarget parseDevTargetTuple(String tuple) {
-        var v = tuple.split(",", -1);
-        if (v.length != 7) {
-            throw new IllegalArgumentException("dev-target tuple requires seven fields");
-        }
-        return new DevTarget(
-                v[0],
-                Integer.parseInt(v[1]),
-                v[2],
-                v[3],
-                v[4],
-                v[5],
-                Integer.parseInt(v[6]));
-    }
-
     private static int requireValidBatchSize(Environment env) {
         int batch = env.getProperty(PREFIX + "lifecycle.batch-size", Integer.class, 32);
         if (batch < 1 || batch > 32) {
@@ -424,120 +395,8 @@ public record ProcessSettings(
         return Duration.ofMillis(Long.parseLong(env.getProperty(PREFIX + key, Long.toString(ms))));
     }
 
-    private static Pool pool(Environment env, String key, boolean business, int mw) {
-        String p = PREFIX + key + ".";
-        String authority = key.startsWith("write") ? "write" : "read";
-        String db = env.getRequiredProperty("pocoma.v3.pilot." + authority + ".database");
-        String schema = env.getRequiredProperty("pocoma.v3.pilot." + authority + ".schema");
-        String role = resolvePoolRole(env, key, p, authority);
-        if (env.containsProperty(p + "maximum")) {
-            throw new IllegalArgumentException("use maximum-pool-size, not maximum: " + key);
-        }
-        int defaultMax = mw + (business ? 2 : 6);
-        int max = env.getProperty(p + "maximum-pool-size", Integer.class, defaultMax);
-        int minIdle = env.getProperty(p + "minimum-idle", Integer.class, max);
-        var pool =
-                new Pool(
-                        key,
-                        env.getRequiredProperty(p + "url"),
-                        env.getRequiredProperty(p + "username"),
-                        env.getRequiredProperty(p + "password"),
-                        db,
-                        schema,
-                        max,
-                        minIdle,
-                        business);
-        validatePoolSizing(pool, role, defaultMax);
-        validatePoolEndpoint(endpoint(pool), db, schema, role);
-        return pool;
-    }
-
-    private static String resolvePoolRole(
-            Environment env, String key, String prefix, String authority) {
-        if (key.equals("write-source-read")) return env.getRequiredProperty(prefix + "username");
-        return env.getRequiredProperty("pocoma.v3.pilot." + authority + ".username");
-    }
-
-    private static void validatePoolSizing(Pool pool, String role, int defaultMax) {
-        if (!pool.username().equals(role) || pool.maximum() != defaultMax) {
-            throw new IllegalArgumentException("unqualified pool sizing or runtime principal");
-        }
-        if (pool.minimumIdle() != pool.maximum()) {
-            throw new IllegalArgumentException("unqualified pool sizing or runtime principal");
-        }
-    }
-
-    private static void validatePoolEndpoint(
-            URI uri, String db, String schema, String role) {
-        if (!hasValidUriShape(uri, db, schema) || !hasValidIdentifiers(db, schema, role)) {
-            throw new IllegalArgumentException("explicit single TCP target and schema required");
-        }
-    }
-
-    private static boolean hasValidUriShape(URI uri, String db, String schema) {
-        if (uri.getHost() == null || uri.getPort() < 1) return false;
-        if (uri.getUserInfo() != null || uri.getFragment() != null) return false;
-        if (!uri.getPath().equals("/" + db)) return false;
-        return ("currentSchema=" + schema).equals(uri.getQuery());
-    }
-
-    private static boolean hasValidIdentifiers(String db, String schema, String role) {
-        if (schema.equals("public")) return false;
-        return isPgIdentifier(db) && isPgIdentifier(schema) && isPgIdentifier(role);
-    }
-
-    private static boolean isPgIdentifier(String value) {
-        return value.matches("[a-z][a-z0-9_]*");
-    }
-
-    private static URI endpoint(Pool pool) {
-        if (!pool.url().startsWith("jdbc:postgresql://"))
-            throw new IllegalArgumentException("PostgreSQL TCP required");
-        return URI.create(pool.url().substring(5));
-    }
-
-    private static boolean sameAuthority(Pool a, Pool b) {
-        return a.url().equals(b.url())
-                && a.username().equals(b.username())
-                && a.password().equals(b.password());
-    }
-
     public void validateTarget(Pool pool, DataSource source) {
-        var uri = endpoint(pool);
-        try (var c = source.getConnection()) {
-            c.setReadOnly(true);
-            c.setAutoCommit(false);
-            try (var s = c.createStatement();
-                    var rows =
-                            s.executeQuery(
-                                    "select"
-                                        + " current_database(),current_schema(),current_user,inet_server_addr()::text,inet_server_port()")) {
-                if (!rows.next()) throw new IllegalStateException("missing physical identity");
-                var actual =
-                        new DevTarget(
-                                uri.getHost(),
-                                uri.getPort(),
-                                rows.getString(1),
-                                rows.getString(2),
-                                rows.getString(3),
-                                rows.getString(4),
-                                rows.getInt(5));
-                if (!isAllowedDevTarget(pool, actual)) {
-                    throw new IllegalStateException(
-                            "physical authority outside explicit dev allowlist");
-                }
-            } finally {
-                c.rollback();
-            }
-        } catch (SQLException e) {
-            throw new IllegalStateException("I5 target validation failed", e);
-        }
-    }
-
-    private boolean isAllowedDevTarget(Pool pool, DevTarget actual) {
-        if (!allowedTargets.contains(actual)) return false;
-        if (!actual.database().equals(pool.database())) return false;
-        return actual.schema().equals(pool.schema()) && actual.role().equals(pool.username());
+        pools.validateTarget(pool, source);
     }
 
     public Map<ConsumptionId, Integer> capacityLimits() {
