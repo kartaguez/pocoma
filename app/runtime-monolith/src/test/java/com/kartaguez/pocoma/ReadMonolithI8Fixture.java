@@ -1,7 +1,9 @@
 package com.kartaguez.pocoma;
 import com.kartaguez.pocoma.compose.polling.materialize.MaterializeSettings;
 import com.kartaguez.pocoma.compose.web.read.ReadFacadeComposition;
-import com.kartaguez.pocoma.infra.postgres.core.*;
+import com.kartaguez.pocoma.infra.postgres.core.bootstrap.*;
+import com.kartaguez.pocoma.infra.postgres.core.consumption.*;
+import com.kartaguez.pocoma.infra.postgres.core.history.*;
 import com.kartaguez.pocoma.contract.consumption.invocation.WorkerView;
 import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionProtocol;
 import com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant;

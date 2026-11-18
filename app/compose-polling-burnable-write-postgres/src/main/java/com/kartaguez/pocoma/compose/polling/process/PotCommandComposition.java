@@ -10,7 +10,7 @@ import com.kartaguez.pocoma.engine.write.pot.port.execution.PotActorAuthority;
 import com.kartaguez.pocoma.engine.write.pot.ExecutePotCommand;
 import com.kartaguez.pocoma.infra.postgres.write.*;
 import com.kartaguez.pocoma.infra.tx.spring.SpringAttemptTransactions;
-import com.kartaguez.pocoma.infra.postgres.core.BootstrapGuard;
+import com.kartaguez.pocoma.infra.postgres.core.bootstrap.BootstrapGuard;
 
 import org.springframework.transaction.PlatformTransactionManager;
 

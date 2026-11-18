@@ -10,11 +10,11 @@ import com.kartaguez.pocoma.contract.consumption.spi.AttemptFailureClassifier.Fa
 import com.kartaguez.pocoma.contract.consumption.spi.DiscoverySettings;
 import com.kartaguez.pocoma.contract.consumption.spi.LifecycleSettings;
 import com.kartaguez.pocoma.domain.consumption.ConsumptionDefinition;
-import com.kartaguez.pocoma.infra.postgres.core.BootstrapGuard;
-import com.kartaguez.pocoma.infra.postgres.core.JdbcConsumptionSlotStore;
-import com.kartaguez.pocoma.infra.postgres.core.JdbcDiscoveryAdmissionStore;
-import com.kartaguez.pocoma.infra.postgres.core.JdbcPartitionOwnershipStore;
-import com.kartaguez.pocoma.infra.postgres.core.JdbcSlotKeyNavigation;
+import com.kartaguez.pocoma.infra.postgres.core.bootstrap.BootstrapGuard;
+import com.kartaguez.pocoma.infra.postgres.core.consumption.JdbcConsumptionSlotStore;
+import com.kartaguez.pocoma.infra.postgres.core.consumption.JdbcDiscoveryAdmissionStore;
+import com.kartaguez.pocoma.infra.postgres.core.consumption.JdbcPartitionOwnershipStore;
+import com.kartaguez.pocoma.infra.postgres.core.consumption.JdbcSlotKeyNavigation;
 import com.kartaguez.pocoma.infra.postgres.source.JdbcEventDiscoveryReferences;
 import com.kartaguez.pocoma.orchestrator.consumption.ConsumptionEngine;
 import com.kartaguez.pocoma.orchestrator.consumption.WorkerCapacity;

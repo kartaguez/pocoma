@@ -164,11 +164,11 @@ class ReadParticipantsIntegrationPostgresTest {
                 };
                 var definition = f.participants.get(name).definition();
                 var engine = new ConsumptionEngine(definition, f.f.read.tx,
-                        new com.kartaguez.pocoma.infra.postgres.core.JdbcConsumptionSlotStore(f.f.read.source), failing,
+                        new com.kartaguez.pocoma.infra.postgres.core.consumption.JdbcConsumptionSlotStore(f.f.read.source), failing,
                         f.f.sourceOwner,
                         Optional.of(new JdbcEventDiscoveryReferences(f.f.primary, definition.family(), SubobjectPostgresFixture.discoverySettings())),
                         reference -> com.kartaguez.pocoma.compose.polling.materialize.ConsumptionDiscoveryComposition.relevant(definition, reference),
-                        new com.kartaguez.pocoma.infra.postgres.core.JdbcDiscoveryAdmissionStore(f.f.read.source, SubobjectPostgresFixture.discoverySettings()),
+                        new com.kartaguez.pocoma.infra.postgres.core.consumption.JdbcDiscoveryAdmissionStore(f.f.read.source, SubobjectPostgresFixture.discoverySettings()),
                         f.f.read.tx, f.f.read.slots, f.f.read.ownership, f.f.read.settings, f.capacity,
                         cause -> com.kartaguez.pocoma.contract.consumption.spi.AttemptFailureClassifier.FailureKind.TECHNICAL,
                         null, com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation.noop());

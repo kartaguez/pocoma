@@ -1,4 +1,4 @@
-package com.kartaguez.pocoma.infra.postgres.core;
+package com.kartaguez.pocoma.infra.postgres.core.bootstrap;
 
 import com.kartaguez.pocoma.domain.consumption.*;
 import com.kartaguez.pocoma.domain.consumption.ConsumptionDefinition.Authority;

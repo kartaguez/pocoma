@@ -13,7 +13,7 @@ import com.kartaguez.pocoma.domain.pot.value.UserId;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.engine.write.pot.port.execution.PotCommandStore.Outcome;
 import com.kartaguez.pocoma.engine.write.pot.port.execution.PotCommandStore.Result;
-import com.kartaguez.pocoma.infra.postgres.core.JdbcConsumptionSlotStore;
+import com.kartaguez.pocoma.infra.postgres.core.consumption.JdbcConsumptionSlotStore;
 import com.kartaguez.pocoma.infra.postgres.write.CommandExecutionPostgresTest.FixtureAuthority;
 import com.kartaguez.pocoma.infra.postgres.write.L1CommandCompatibilityHarness.RetryPolicy;
 import com.kartaguez.pocoma.infra.postgres.write.L1CommandCompatibilityHarness.Status;

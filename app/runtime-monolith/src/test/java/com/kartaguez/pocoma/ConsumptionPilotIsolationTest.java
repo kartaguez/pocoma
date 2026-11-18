@@ -1,12 +1,12 @@
 package com.kartaguez.pocoma;
 import com.kartaguez.pocoma.compose.polling.process.ConsumptionDiscoveryComposition;
 import com.kartaguez.pocoma.domain.consumption.ConsumptionCatalog;
-import com.kartaguez.pocoma.infra.postgres.core.BootstrapGuard;
+import com.kartaguez.pocoma.infra.postgres.core.bootstrap.BootstrapGuard;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.kartaguez.pocoma.domain.consumption.*;
-import com.kartaguez.pocoma.infra.postgres.core.BootstrapGuard.Target;
+import com.kartaguez.pocoma.infra.postgres.core.bootstrap.BootstrapGuard.Target;
 
 import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.*;

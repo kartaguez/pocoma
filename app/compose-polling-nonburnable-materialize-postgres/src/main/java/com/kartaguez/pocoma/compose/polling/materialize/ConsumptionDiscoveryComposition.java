@@ -1,8 +1,10 @@
 package com.kartaguez.pocoma.compose.polling.materialize;
-import com.kartaguez.pocoma.infra.postgres.core.BootstrapGuard;
+import com.kartaguez.pocoma.infra.postgres.core.bootstrap.BootstrapGuard;
 import com.kartaguez.pocoma.infra.observability.micrometer.StageHandoffTracker;
 import com.kartaguez.pocoma.infra.postgres.source.*;
-import com.kartaguez.pocoma.infra.postgres.core.*;
+import com.kartaguez.pocoma.infra.postgres.core.bootstrap.*;
+import com.kartaguez.pocoma.infra.postgres.core.consumption.*;
+import com.kartaguez.pocoma.infra.postgres.core.history.*;
 import com.kartaguez.pocoma.contract.consumption.spi.DiscoverySettings;
 
 import com.kartaguez.pocoma.domain.consumption.*;

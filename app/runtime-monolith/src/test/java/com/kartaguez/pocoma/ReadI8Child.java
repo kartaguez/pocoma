@@ -1,6 +1,8 @@
 package com.kartaguez.pocoma;
 import com.kartaguez.pocoma.compose.polling.materialize.MaterializeSettings;
-import com.kartaguez.pocoma.infra.postgres.core.*;
+import com.kartaguez.pocoma.infra.postgres.core.bootstrap.*;
+import com.kartaguez.pocoma.infra.postgres.core.consumption.*;
+import com.kartaguez.pocoma.infra.postgres.core.history.*;
 import com.kartaguez.pocoma.contract.consumption.invocation.WorkerView;
 
 import static com.kartaguez.pocoma.ReadMonolithI8Fixture.*;

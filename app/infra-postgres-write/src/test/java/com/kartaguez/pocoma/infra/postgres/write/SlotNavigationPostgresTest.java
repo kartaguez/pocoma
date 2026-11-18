@@ -1,5 +1,7 @@
 package com.kartaguez.pocoma.infra.postgres.write;
-import com.kartaguez.pocoma.infra.postgres.core.*;
+import com.kartaguez.pocoma.infra.postgres.core.bootstrap.*;
+import com.kartaguez.pocoma.infra.postgres.core.consumption.*;
+import com.kartaguez.pocoma.infra.postgres.core.history.*;
 import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionNavigation.*;
 import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionNavigation;
 import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionProtocol;
@@ -121,7 +123,7 @@ class SlotNavigationPostgresTest {
                 r -> true,
                 f.write
                         ? null
-                        : new com.kartaguez.pocoma.infra.postgres.core.JdbcDiscoveryAdmissionStore(
+                        : new com.kartaguez.pocoma.infra.postgres.core.consumption.JdbcDiscoveryAdmissionStore(
                                 f.source, ConsumptionLifecyclePostgresFixture.discoverySettings()),
                 control,
                 f.slots,

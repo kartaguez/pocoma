@@ -1,4 +1,4 @@
-package com.kartaguez.pocoma.infra.postgres.core;
+package com.kartaguez.pocoma.infra.postgres.core.consumption;
 import com.kartaguez.pocoma.contract.consumption.spi.LifecycleSettings;
 import com.kartaguez.pocoma.contract.consumption.spi.PartitionLease;
 

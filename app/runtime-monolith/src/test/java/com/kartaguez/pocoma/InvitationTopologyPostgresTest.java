@@ -2,7 +2,7 @@ package com.kartaguez.pocoma;
 import com.kartaguez.pocoma.compose.polling.materialize.MaterializeSettings;
 import static com.kartaguez.pocoma.ReadMonolithI8Fixture.materialize;
 import static com.kartaguez.pocoma.ReadMonolithI8Fixture.process;
-import com.kartaguez.pocoma.infra.postgres.core.BootstrapGuard;
+import com.kartaguez.pocoma.infra.postgres.core.bootstrap.BootstrapGuard;
 
 import static org.junit.jupiter.api.Assertions.*;
 

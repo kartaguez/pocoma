@@ -1,4 +1,4 @@
-package com.kartaguez.pocoma.infra.postgres.core;
+package com.kartaguez.pocoma.infra.postgres.core.bootstrap;
 import java.sql.*;
 import java.util.*;
 /** Effective authority check; no credential or mutation store is created by this guard. */

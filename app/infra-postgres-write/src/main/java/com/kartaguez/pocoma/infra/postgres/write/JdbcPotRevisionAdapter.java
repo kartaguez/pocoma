@@ -1,7 +1,9 @@
 package com.kartaguez.pocoma.infra.postgres.write;
-import com.kartaguez.pocoma.infra.postgres.core.*;
+import com.kartaguez.pocoma.infra.postgres.core.bootstrap.*;
+import com.kartaguez.pocoma.infra.postgres.core.consumption.*;
+import com.kartaguez.pocoma.infra.postgres.core.history.*;
 
-import static com.kartaguez.pocoma.infra.postgres.core.PotHistoryRows.*;
+import static com.kartaguez.pocoma.infra.postgres.core.history.PotHistoryRows.*;
 
 import com.kartaguez.pocoma.domain.pot.*;
 import com.kartaguez.pocoma.domain.pot.value.id.*;

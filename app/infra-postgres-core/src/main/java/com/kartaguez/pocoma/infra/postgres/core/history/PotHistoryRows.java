@@ -1,4 +1,4 @@
-package com.kartaguez.pocoma.infra.postgres.core;
+package com.kartaguez.pocoma.infra.postgres.core.history;
 
 import com.kartaguez.pocoma.domain.pot.InconsistentPotFactsException;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;

@@ -202,15 +202,15 @@ class WorkerResourcesPostgresTest {
                 replace(
                         com.kartaguez.pocoma.runtime.command.L2TestAccess.engine(binding.engine()),
                         "controlSlots",
-                        new com.kartaguez.pocoma.infra.postgres.core.JdbcConsumptionSlotStore(source));
+                        new com.kartaguez.pocoma.infra.postgres.core.consumption.JdbcConsumptionSlotStore(source));
                 replace(
                         com.kartaguez.pocoma.runtime.command.L2TestAccess.engine(binding.engine()),
                         "ownership",
-                        new com.kartaguez.pocoma.infra.postgres.core.JdbcPartitionOwnershipStore(source));
+                        new com.kartaguez.pocoma.infra.postgres.core.consumption.JdbcPartitionOwnershipStore(source));
                 replace(
                         com.kartaguez.pocoma.runtime.command.L2TestAccess.engine(binding.engine()),
                         "navigation",
-                        new com.kartaguez.pocoma.infra.postgres.core.JdbcSlotKeyNavigation(
+                        new com.kartaguez.pocoma.infra.postgres.core.consumption.JdbcSlotKeyNavigation(
                                 source, (LifecycleSettings) field(com.kartaguez.pocoma.runtime.command.L2TestAccess.engine(binding.engine()), "settings")));
             }
         return source;
@@ -242,7 +242,7 @@ class WorkerResourcesPostgresTest {
                 replace(
                         com.kartaguez.pocoma.runtime.command.L2TestAccess.engine(binding.engine()),
                         "slots",
-                        new com.kartaguez.pocoma.infra.postgres.core.JdbcConsumptionSlotStore(source));
+                        new com.kartaguez.pocoma.infra.postgres.core.consumption.JdbcConsumptionSlotStore(source));
                 ConsumptionParticipant participant =
                         write
                                 ? new com.kartaguez.pocoma.engine.write.pot.ExecutePotCommand(
@@ -266,7 +266,7 @@ class WorkerResourcesPostgresTest {
                                             binding.engine()),
                                     "recoveryPolicy"),
                             "admissions",
-                            new com.kartaguez.pocoma.infra.postgres.core.JdbcDiscoveryAdmissionStore(
+                            new com.kartaguez.pocoma.infra.postgres.core.consumption.JdbcDiscoveryAdmissionStore(
                                     source,
                                     (DiscoverySettings)
                                             field(com.kartaguez.pocoma.runtime.command.L2TestAccess.discovery(binding.discovery()), "settings")));

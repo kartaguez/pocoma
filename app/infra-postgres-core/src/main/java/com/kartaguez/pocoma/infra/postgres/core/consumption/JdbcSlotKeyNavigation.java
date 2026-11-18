@@ -1,4 +1,4 @@
-package com.kartaguez.pocoma.infra.postgres.core;
+package com.kartaguez.pocoma.infra.postgres.core.consumption;
 import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionNavigation.*;
 
 import com.kartaguez.pocoma.domain.consumption.ConsumptionId;

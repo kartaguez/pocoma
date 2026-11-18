@@ -38,8 +38,8 @@ import com.kartaguez.pocoma.domain.pot.value.id.ShareholderId;
 import com.kartaguez.pocoma.engine.write.identity.ExecuteIdentityRequest;
 import com.kartaguez.pocoma.engine.write.pot.ExecutePotCommand;
 import com.kartaguez.pocoma.engine.write.pot.port.execution.PotActorAuthority;
-import com.kartaguez.pocoma.infra.postgres.core.JdbcConsumptionSlotStore;
-import com.kartaguez.pocoma.infra.postgres.core.JdbcPartitionOwnershipStore;
+import com.kartaguez.pocoma.infra.postgres.core.consumption.JdbcConsumptionSlotStore;
+import com.kartaguez.pocoma.infra.postgres.core.consumption.JdbcPartitionOwnershipStore;
 import com.kartaguez.pocoma.infra.postgres.write.JdbcPotCommandObservation;
 import com.kartaguez.pocoma.infra.postgres.write.JdbcPotCommandStore;
 import com.kartaguez.pocoma.infra.postgres.write.JdbcPotHistoryAdapter;
@@ -1022,7 +1022,7 @@ class L73TerminationCrashAndCompositePostgresTest {
                         new com.kartaguez.pocoma.infra.postgres.source.JdbcEventDiscoveryReferences(
                                 sources.writeDs(), def.family(), discoverySettings)),
                 r -> true,
-                new com.kartaguez.pocoma.infra.postgres.core.JdbcDiscoveryAdmissionStore(
+                new com.kartaguez.pocoma.infra.postgres.core.consumption.JdbcDiscoveryAdmissionStore(
                         sources.readDs(), discoverySettings),
                 sources.readTx(),
                 new JdbcConsumptionSlotStore(sources.readDs()),

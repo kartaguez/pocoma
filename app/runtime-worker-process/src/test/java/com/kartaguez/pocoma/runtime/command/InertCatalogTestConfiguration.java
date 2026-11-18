@@ -10,7 +10,7 @@ import org.springframework.core.env.Environment;
 
 import com.kartaguez.pocoma.domain.consumption.ConsumptionCatalog;
 import com.kartaguez.pocoma.domain.consumption.ConsumptionDefinition;
-import com.kartaguez.pocoma.infra.postgres.core.BootstrapGuard;
+import com.kartaguez.pocoma.infra.postgres.core.bootstrap.BootstrapGuard;
 
 /** Explicit opt-in; no worker, transaction owner, seed or migration at runtime. */
 @Configuration(proxyBeanMethods = false)

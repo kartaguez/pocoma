@@ -1,6 +1,6 @@
-package com.kartaguez.pocoma.infra.postgres.core;
+package com.kartaguez.pocoma.infra.postgres.core.history;
 
-import static com.kartaguez.pocoma.infra.postgres.core.PotHistoryRows.*;
+import static com.kartaguez.pocoma.infra.postgres.core.history.PotHistoryRows.*;
 
 import com.kartaguez.pocoma.domain.pot.*;
 import com.kartaguez.pocoma.domain.pot.value.Label;

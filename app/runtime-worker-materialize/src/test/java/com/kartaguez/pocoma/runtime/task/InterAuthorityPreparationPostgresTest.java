@@ -1,6 +1,8 @@
 package com.kartaguez.pocoma.runtime.task;
 import com.kartaguez.pocoma.infra.postgres.source.*;
-import com.kartaguez.pocoma.infra.postgres.core.*;
+import com.kartaguez.pocoma.infra.postgres.core.bootstrap.*;
+import com.kartaguez.pocoma.infra.postgres.core.consumption.*;
+import com.kartaguez.pocoma.infra.postgres.core.history.*;
 import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionProtocol;
 import com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant;
 import com.kartaguez.pocoma.contract.consumption.participation.PreparationReads;
@@ -823,9 +825,9 @@ class InterAuthorityPreparationPostgresTest {
                     new ConsumptionEngine(
                             definition,
                             f.sourceOwner,
-                            new com.kartaguez.pocoma.infra.postgres.core.JdbcConsumptionSlotStore(f.primary),
+                            new com.kartaguez.pocoma.infra.postgres.core.consumption.JdbcConsumptionSlotStore(f.primary),
                             participant,
-                            new com.kartaguez.pocoma.infra.postgres.core.JdbcPartitionOwnershipStore(f.primary),
+                            new com.kartaguez.pocoma.infra.postgres.core.consumption.JdbcPartitionOwnershipStore(f.primary),
                             f.read.settings,
                             new WorkerCapacity(1, Map.of(definition.id(), 1)),
                             fault -> AttemptFailureClassifier.FailureKind.NON_COUNTABLE);

@@ -58,7 +58,7 @@ import com.kartaguez.pocoma.domain.consumption.ConsumptionId;
 import com.kartaguez.pocoma.domain.pot.value.Label;
 import com.kartaguez.pocoma.engine.write.pot.ExecutePotCommand;
 import com.kartaguez.pocoma.engine.write.pot.port.execution.PotCommandStore;
-import com.kartaguez.pocoma.infra.postgres.core.JdbcConsumptionSlotStore;
+import com.kartaguez.pocoma.infra.postgres.core.consumption.JdbcConsumptionSlotStore;
 import com.kartaguez.pocoma.infra.tx.spring.SpringAttemptTransactions;
 import com.kartaguez.pocoma.orchestrator.consumption.I2ReservedClaimFixture;
 import com.kartaguez.pocoma.port.transaction.AttemptTransactions;

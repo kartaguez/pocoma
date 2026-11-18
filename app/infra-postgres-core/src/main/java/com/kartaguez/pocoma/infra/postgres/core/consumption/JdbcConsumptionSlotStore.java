@@ -1,4 +1,4 @@
-package com.kartaguez.pocoma.infra.postgres.core;
+package com.kartaguez.pocoma.infra.postgres.core.consumption;
 import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.Instant;

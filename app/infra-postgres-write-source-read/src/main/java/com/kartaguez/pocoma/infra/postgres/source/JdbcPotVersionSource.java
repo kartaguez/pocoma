@@ -1,7 +1,7 @@
 package com.kartaguez.pocoma.infra.postgres.source;
-import static com.kartaguez.pocoma.infra.postgres.core.PotHistoryRows.bad;
-import static com.kartaguez.pocoma.infra.postgres.core.PotHistoryRows.number;
-import static com.kartaguez.pocoma.infra.postgres.core.PotHistoryRows.uuid;
+import static com.kartaguez.pocoma.infra.postgres.core.history.PotHistoryRows.bad;
+import static com.kartaguez.pocoma.infra.postgres.core.history.PotHistoryRows.number;
+import static com.kartaguez.pocoma.infra.postgres.core.history.PotHistoryRows.uuid;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -49,8 +49,8 @@ import com.kartaguez.pocoma.domain.projection.SubobjectKey;
 import com.kartaguez.pocoma.domain.projection.SubobjectKind;
 import com.kartaguez.pocoma.domain.projection.SubobjectVersion;
 import com.kartaguez.pocoma.engine.materialize.pot.PotVersionSource;
-import com.kartaguez.pocoma.infra.postgres.core.PostgresPotHistoryReader;
-import com.kartaguez.pocoma.infra.postgres.core.PotHistoryRows;
+import com.kartaguez.pocoma.infra.postgres.core.history.PostgresPotHistoryReader;
+import com.kartaguez.pocoma.infra.postgres.core.history.PotHistoryRows;
 import com.kartaguez.pocoma.infra.tx.spring.SpringAttemptTransactions;
 import com.kartaguez.pocoma.port.transaction.RecoveryReadContext;
 

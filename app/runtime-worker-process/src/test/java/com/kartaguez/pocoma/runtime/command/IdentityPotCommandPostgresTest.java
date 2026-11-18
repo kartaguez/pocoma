@@ -1,7 +1,7 @@
 package com.kartaguez.pocoma.runtime.command;
 import com.kartaguez.pocoma.compose.polling.process.ProcessSettings;
 import com.kartaguez.pocoma.compose.polling.process.PotCommandComposition;
-import com.kartaguez.pocoma.infra.postgres.core.BootstrapGuard;
+import com.kartaguez.pocoma.infra.postgres.core.bootstrap.BootstrapGuard;
 import com.kartaguez.pocoma.contract.consumption.spi.DiscoverySettings;
 import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionProtocol;
 import com.kartaguez.pocoma.contract.consumption.spi.AttemptFailureClassifier;
