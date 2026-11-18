@@ -14,6 +14,12 @@ public interface PotVersionStore {
 
     Optional<PotVersion> read(UUID pot, long version, RecoveryReadContext context);
 
+    Optional<PotVersion> readLatestBefore(
+            UUID pot,
+            long beforeVersionExclusive,
+            long minVersionInclusive,
+            RecoveryReadContext context);
+
     ReadEvidence evidence(PotVersion expected, RecoveryReadContext context);
 
     /** Close the existing READ publication after L2 complete, without committing. */

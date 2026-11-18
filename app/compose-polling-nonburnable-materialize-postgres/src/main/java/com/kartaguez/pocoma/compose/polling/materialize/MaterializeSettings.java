@@ -28,7 +28,8 @@ public record MaterializeSettings(
         Map<String, List<Integer>> partitions,
         MaterializePoolSettings pools,
         ConsumptionWorker.Settings polling,
-        LifecycleSettings lifecycle) {
+        LifecycleSettings lifecycle,
+        long potVersionMaxDeltaDistance) {
     public static final String PROFILE = "v3-consumption-worker-dev";
     public static final String READ_PROFILE = "v3-read-worker";
     public static final List<String> READ_NAMES =
@@ -196,6 +197,15 @@ public record MaterializeSettings(
         int batch = requireValidBatchSize(env);
         var life = buildLifecycleSettings(env, batch);
         var settings = buildWorkerSettings(env, batch, life.renewalInterval());
+        long maxDeltaDistance =
+                env.getProperty(
+                        PREFIX + "pot-version.max-delta-distance",
+                        Long.class,
+                        com.kartaguez.pocoma.engine.materialize.pot.MaterializePotVersion
+                                .DEFAULT_MAX_DELTA_DISTANCE);
+        if (maxDeltaDistance < 0) {
+            throw new IllegalArgumentException("non-negative pot-version.max-delta-distance required");
+        }
         verifyTimingBounds(life, settings, partitions, ctx.mw());
         return new MaterializeSettings(
                 ctx.name(),
@@ -211,7 +221,8 @@ public record MaterializeSettings(
                 partitions,
                 pools,
                 settings,
-                life);
+                life,
+                maxDeltaDistance);
     }
 
     private static String requireValidWorkerName(Environment env) {

@@ -51,9 +51,17 @@ public class MaterializeComposeConfiguration {
         var capacity=new WorkerCapacity(settings.workerLimit(),settings.capacityLimits(),observation);
         if(observation instanceof MicrometerConsumptionObservation metrics)metrics.bindCapacity(capacity,settings.capacityLimits());
         var discoverySettings=new DiscoverySettings(128,settings.lifecycle().batchSize(),settings.lifecycle().batchSize(),64,settings.lifecycle().lockTimeout(),settings.lifecycle().statementTimeout());
+        var potVersionObservation =
+                registry.<com.kartaguez.pocoma.engine.materialize.pot.PotVersionObservation>map(
+                                meterRegistry ->
+                                        new MicrometerPotVersionObservation(
+                                                meterRegistry, observationTags))
+                        .orElse(
+                                com.kartaguez.pocoma.engine.materialize.pot.PotVersionObservation
+                                        .NOOP);
         var bindings=new ArrayList<ConsumptionWorker.Binding>();
         for(String name:new TreeSet<>(settings.consumptionLimits().keySet())) {
-            var selected=ReadParticipants.select(name,resources.writeSourceRead,resources.sourceReads,resources.readBusiness,resources.readEffects);
+            var selected=ReadParticipants.select(name,resources.writeSourceRead,resources.sourceReads,resources.readBusiness,resources.readEffects,settings.potVersionMaxDeltaDistance(),potVersionObservation);
             var definition=selected.definition();
             var engine=ConsumptionLifecycleComposition.assemble(resources.guard,definition,resources.readBusiness,resources.readEffects,selected.participant(),resources.readControl,resources.readTechnical,
                 resources.writeSourceRead,resources.sourceReads,discoverySettings,settings.lifecycle(),capacity,ConsumptionFailureClassifier::classify,observation);

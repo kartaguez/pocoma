@@ -53,6 +53,43 @@ public final class JdbcPotVersionStore implements PotVersionStore {
         return db.read(context, () -> load(pot, version));
     }
 
+    @Override
+    public Optional<PotVersion> readLatestBefore(
+            UUID pot,
+            long beforeVersionExclusive,
+            long minVersionInclusive,
+            RecoveryReadContext context) {
+        return db.read(
+                context,
+                () -> {
+                    Objects.requireNonNull(pot);
+                    if (beforeVersionExclusive <= 1
+                            || minVersionInclusive >= beforeVersionExclusive) {
+                        return Optional.empty();
+                    }
+                    long minBound = Math.max(1L, minVersionInclusive);
+                    return db
+                            .sql
+                            .query(
+                                    "select pot_version,schema_version,payload::text from"
+                                        + " read_pot_version where pot_id=? and pot_version<? and"
+                                        + " pot_version>=? order by pot_version desc limit 1",
+                                    (r, n) -> {
+                                        long version = r.getLong(1);
+                                        var v = PotVersionJson.decode(r.getInt(2), r.getString(3));
+                                        if (!pot.equals(v.potId()) || version != v.version()) {
+                                            throw new IllegalStateException("Mixed PotVersion key");
+                                        }
+                                        return v;
+                                    },
+                                    pot,
+                                    beforeVersionExclusive,
+                                    minBound)
+                            .stream()
+                            .findFirst();
+                });
+    }
+
     public ReadEvidence evidence(PotVersion expected, RecoveryReadContext context) {
         return db.read(
                 context,

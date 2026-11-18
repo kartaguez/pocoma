@@ -50,4 +50,29 @@ class PotVersionReadStorePostgresTest {
         assertThrows(RuntimeException.class,() -> s.insertAndAdvance(value(p,2,false)));
         f.evidence("migration privileges FK owner",f.oracle.queryForList("select version from flyway_schema_history where success"));
     }
+
+    @Test void readLatestBeforeRespectsBoundsAndIgnoresCurrentPot() throws Exception {
+        var f = new ReadStoreFixture(PG);
+        var s = new JdbcPotVersionStore(f.source, f.tx);
+        var p = UUID.randomUUID();
+        var other = UUID.randomUUID();
+        for (long v : new long[] {1, 10, 5}) {
+            f.write(() -> s.insertAndAdvance(value(p, v, false)));
+        }
+        f.write(() -> s.insertAndAdvance(value(other, 9, false)));
+        long current = f.tx.<Long>read(c -> s.currentVersion(p, c).orElseThrow());
+        assertEquals(10L, current);
+
+        var kFor8 = f.tx.read(c -> s.readLatestBefore(p, 8L, 1L, c));
+        assertTrue(kFor8.isPresent());
+        assertEquals(5L, kFor8.get().version());
+
+        assertTrue(f.tx.read(c -> s.readLatestBefore(p, 8L, 6L, c)).isEmpty());
+
+        var kFor5 = f.tx.read(c -> s.readLatestBefore(p, 5L, 1L, c));
+        assertTrue(kFor5.isPresent());
+        assertEquals(1L, kFor5.get().version());
+
+        assertTrue(f.tx.read(c -> s.readLatestBefore(p, 1L, 1L, c)).isEmpty());
+    }
 }

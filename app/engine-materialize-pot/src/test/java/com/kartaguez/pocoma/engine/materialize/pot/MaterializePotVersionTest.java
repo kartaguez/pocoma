@@ -90,6 +90,20 @@ class MaterializePotVersionTest {
         PotVersionSource source =
                 new PotVersionSource() {
                     @Override
+                    public EventRef eventRef(UUID eventId, RecoveryReadContext context) {
+                        return new EventRef(POT_ID, pv.version());
+                    }
+
+                    @Override
+                    public StateDelta stateDelta(
+                            UUID potId,
+                            long afterVersionExclusive,
+                            long targetVersionInclusive,
+                            RecoveryReadContext context) {
+                        throw new AssertionError("No reference K exists; stateDelta must not be called");
+                    }
+
+                    @Override
                     public PotVersion composition(UUID eventId, RecoveryReadContext context) {
                         return pv;
                     }
@@ -161,6 +175,15 @@ class MaterializePotVersionTest {
                     @Override
                     public Optional<PotVersion> read(
                             UUID pot, long version, RecoveryReadContext context) {
+                        return Optional.empty();
+                    }
+
+                    @Override
+                    public Optional<PotVersion> readLatestBefore(
+                            UUID pot,
+                            long beforeVersionExclusive,
+                            long minVersionInclusive,
+                            RecoveryReadContext context) {
                         return Optional.empty();
                     }
 

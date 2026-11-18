@@ -1,0 +1,1154 @@
+[
+  {
+    "utc": "2026-11-18T23:41:16.138588+00:00",
+    "stats": [
+      {
+        "BlockIO": "0B / 8.19kB",
+        "CPUPerc": "79.62%",
+        "Container": "pocoma-l74a-c7490606-postgres-1",
+        "ID": "11d2dd87bb03",
+        "MemPerc": "47.96%",
+        "MemUsage": "982.2MiB / 2GiB",
+        "Name": "pocoma-l74a-c7490606-postgres-1",
+        "NetIO": "33.6MB / 82.6MB",
+        "PIDs": "66"
+      },
+      {
+        "BlockIO": "0B / 0B",
+        "CPUPerc": "3.00%",
+        "Container": "pocoma-l74a-c7490606-http-write-1",
+        "ID": "adf1e95726cc",
+        "MemPerc": "35.37%",
+        "MemUsage": "181.1MiB / 512MiB",
+        "Name": "pocoma-l74a-c7490606-http-write-1",
+        "NetIO": "66kB / 140kB",
+        "PIDs": "42"
+      },
+      {
+        "BlockIO": "0B / 0B",
+        "CPUPerc": "46.35%",
+        "Container": "pocoma-l74a-c7490606-http-read-1",
+        "ID": "6f55d96f744a",
+        "MemPerc": "26.31%",
+        "MemUsage": "202.1MiB / 768MiB",
+        "Name": "pocoma-l74a-c7490606-http-read-1",
+        "NetIO": "10.3MB / 1.82MB",
+        "PIDs": "44"
+      },
+      {
+        "BlockIO": "0B / 0B",
+        "CPUPerc": "49.01%",
+        "Container": "pocoma-l74a-c7490606-command-worker-1",
+        "ID": "c03909494bd8",
+        "MemPerc": "37.02%",
+        "MemUsage": "189.5MiB / 512MiB",
+        "Name": "pocoma-l74a-c7490606-command-worker-1",
+        "NetIO": "3.12MB / 3.92MB",
+        "PIDs": "56"
+      },
+      {
+        "BlockIO": "0B / 0B",
+        "CPUPerc": "44.06%",
+        "Container": "pocoma-l74a-c7490606-results-worker-1",
+        "ID": "0a5c44111131",
+        "MemPerc": "36.51%",
+        "MemUsage": "186.9MiB / 512MiB",
+        "Name": "pocoma-l74a-c7490606-results-worker-1",
+        "NetIO": "5.58MB / 7.06MB",
+        "PIDs": "57"
+      },
+      {
+        "BlockIO": "0B / 0B",
+        "CPUPerc": "142.02%",
+        "Container": "pocoma-l74a-c7490606-business-read-worker-1",
+        "ID": "5422e3b628dd",
+        "MemPerc": "56.88%",
+        "MemUsage": "582.5MiB / 1GiB",
+        "Name": "pocoma-l74a-c7490606-business-read-worker-1",
+        "NetIO": "63.7MB / 23.9MB",
+        "PIDs": "58"
+      }
+    ],
+    "collectorMs": 118.162458
+  },
+  {
+    "utc": "2026-11-18T23:41:20.311820+00:00",
+    "stats": [
+      {
+        "BlockIO": "0B / 8.19kB",
+        "CPUPerc": "89.07%",
+        "Container": "pocoma-l74a-c7490606-postgres-1",
+        "ID": "11d2dd87bb03",
+        "MemPerc": "48.38%",
+        "MemUsage": "990.8MiB / 2GiB",
+        "Name": "pocoma-l74a-c7490606-postgres-1",
+        "NetIO": "52.4MB / 219MB",
+        "PIDs": "66"
+      },
+      {
+        "BlockIO": "0B / 0B",
+        "CPUPerc": "2.66%",
+        "Container": "pocoma-l74a-c7490606-http-write-1",
+        "ID": "adf1e95726cc",
+        "MemPerc": "35.70%",
+        "MemUsage": "182.8MiB / 512MiB",
+        "Name": "pocoma-l74a-c7490606-http-write-1",
+        "NetIO": "107kB / 224kB",
+        "PIDs": "42"
+      },
+      {
+        "BlockIO": "0B / 0B",
+        "CPUPerc": "36.57%",
+        "Container": "pocoma-l74a-c7490606-http-read-1",
+        "ID": "6f55d96f744a",
+        "MemPerc": "27.74%",
+        "MemUsage": "213.1MiB / 768MiB",
+        "Name": "pocoma-l74a-c7490606-http-read-1",
+        "NetIO": "28.8MB / 4.01MB",
+        "PIDs": "44"
+      },
+      {
+        "BlockIO": "0B / 0B",
+        "CPUPerc": "41.00%",
+        "Container": "pocoma-l74a-c7490606-command-worker-1",
+        "ID": "c03909494bd8",
+        "MemPerc": "37.99%",
+        "MemUsage": "194.5MiB / 512MiB",
+        "Name": "pocoma-l74a-c7490606-command-worker-1",
+        "NetIO": "6.95MB / 8.44MB",
+        "PIDs": "56"
+      },
+      {
+        "BlockIO": "0B / 0B",
+        "CPUPerc": "35.38%",
+        "Container": "pocoma-l74a-c7490606-results-worker-1",
+        "ID": "0a5c44111131",
+        "MemPerc": "36.65%",
+        "MemUsage": "187.7MiB / 512MiB",
+        "Name": "pocoma-l74a-c7490606-results-worker-1",
+        "NetIO": "8.22MB / 10.4MB",
+        "PIDs": "57"
+      },
+      {
+        "BlockIO": "0B / 0B",
+        "CPUPerc": "104.43%",
+        "Container": "pocoma-l74a-c7490606-business-read-worker-1",
+        "ID": "5422e3b628dd",
+        "MemPerc": "62.65%",
+        "MemUsage": "641.5MiB / 1GiB",
+        "Name": "pocoma-l74a-c7490606-business-read-worker-1",
+        "NetIO": "175MB / 33.6MB",
+        "PIDs": "58"
+      }
+    ],
+    "collectorMs": 127.242542
+  },
+  {
+    "utc": "2026-11-18T23:41:24.493615+00:00",
+    "stats": [
+      {
+        "BlockIO": "0B / 8.19kB",
+        "CPUPerc": "89.22%",
+        "Container": "pocoma-l74a-c7490606-postgres-1",
+        "ID": "11d2dd87bb03",
+        "MemPerc": "48.61%",
+        "MemUsage": "995.5MiB / 2GiB",
+        "Name": "pocoma-l74a-c7490606-postgres-1",
+        "NetIO": "72.8MB / 315MB",
+        "PIDs": "67"
+      },
+      {
+        "BlockIO": "0B / 0B",
+        "CPUPerc": "2.30%",
+        "Container": "pocoma-l74a-c7490606-http-write-1",
+        "ID": "adf1e95726cc",
+        "MemPerc": "35.80%",
+        "MemUsage": "183.3MiB / 512MiB",
+        "Name": "pocoma-l74a-c7490606-http-write-1",
+        "NetIO": "147kB / 306kB",
+        "PIDs": "42"
+      },
+      {
+        "BlockIO": "0B / 0B",
+        "CPUPerc": "26.90%",
+        "Container": "pocoma-l74a-c7490606-http-read-1",
+        "ID": "6f55d96f744a",
+        "MemPerc": "29.30%",
+        "MemUsage": "225MiB / 768MiB",
+        "Name": "pocoma-l74a-c7490606-http-read-1",
+        "NetIO": "48.6MB / 6.41MB",
+        "PIDs": "43"
+      },
+      {
+        "BlockIO": "0B / 0B",
+        "CPUPerc": "26.54%",
+        "Container": "pocoma-l74a-c7490606-command-worker-1",
+        "ID": "c03909494bd8",
+        "MemPerc": "38.59%",
+        "MemUsage": "197.6MiB / 512MiB",
+        "Name": "pocoma-l74a-c7490606-command-worker-1",
+        "NetIO": "11.1MB / 13.4MB",
+        "PIDs": "56"
+      },
+      {
+        "BlockIO": "0B / 0B",
+        "CPUPerc": "25.08%",
+        "Container": "pocoma-l74a-c7490606-results-worker-1",
+        "ID": "0a5c44111131",
+        "MemPerc": "36.84%",
+        "MemUsage": "188.6MiB / 512MiB",
+        "Name": "pocoma-l74a-c7490606-results-worker-1",
+        "NetIO": "12.2MB / 15.2MB",
+        "PIDs": "57"
+      },
+      {
+        "BlockIO": "0B / 0B",
+        "CPUPerc": "71.51%",
+        "Container": "pocoma-l74a-c7490606-business-read-worker-1",
+        "ID": "5422e3b628dd",
+        "MemPerc": "62.67%",
+        "MemUsage": "641.8MiB / 1GiB",
+        "Name": "pocoma-l74a-c7490606-business-read-worker-1",
+        "NetIO": "242MB / 44.2MB",
+        "PIDs": "58"
+      }
+    ],
+    "collectorMs": 126.807167
+  },
+  {
+    "utc": "2026-11-18T23:41:28.646771+00:00",
+    "stats": [
+      {
+        "BlockIO": "0B / 8.19kB",
+        "CPUPerc": "94.55%",
+        "Container": "pocoma-l74a-c7490606-postgres-1",
+        "ID": "11d2dd87bb03",
+        "MemPerc": "48.63%",
+        "MemUsage": "995.9MiB / 2GiB",
+        "Name": "pocoma-l74a-c7490606-postgres-1",
+        "NetIO": "92.3MB / 413MB",
+        "PIDs": "67"
+      },
+      {
+        "BlockIO": "0B / 0B",
+        "CPUPerc": "3.11%",
+        "Container": "pocoma-l74a-c7490606-http-write-1",
+        "ID": "adf1e95726cc",
+        "MemPerc": "35.90%",
+        "MemUsage": "183.8MiB / 512MiB",
+        "Name": "pocoma-l74a-c7490606-http-write-1",
+        "NetIO": "187kB / 388kB",
+        "PIDs": "41"
+      },
+      {
+        "BlockIO": "0B / 0B",
+        "CPUPerc": "24.74%",
+        "Container": "pocoma-l74a-c7490606-http-read-1",
+        "ID": "6f55d96f744a",
+        "MemPerc": "30.24%",
+        "MemUsage": "232.2MiB / 768MiB",
+        "Name": "pocoma-l74a-c7490606-http-read-1",
+        "NetIO": "71.7MB / 8.63MB",
+        "PIDs": "43"
+      },
+      {
+        "BlockIO": "0B / 0B",
+        "CPUPerc": "29.14%",
+        "Container": "pocoma-l74a-c7490606-command-worker-1",
+        "ID": "c03909494bd8",
+        "MemPerc": "39.22%",
+        "MemUsage": "200.8MiB / 512MiB",
+        "Name": "pocoma-l74a-c7490606-command-worker-1",
+        "NetIO": "15.1MB / 18.1MB",
+        "PIDs": "56"
+      },
+      {
+        "BlockIO": "0B / 0B",
+        "CPUPerc": "23.68%",
+        "Container": "pocoma-l74a-c7490606-results-worker-1",
+        "ID": "0a5c44111131",
+        "MemPerc": "36.89%",
+        "MemUsage": "188.9MiB / 512MiB",
+        "Name": "pocoma-l74a-c7490606-results-worker-1",
+        "NetIO": "16.2MB / 20.2MB",
+        "PIDs": "57"
+      },
+      {
+        "BlockIO": "0B / 0B",
+        "CPUPerc": "72.50%",
+        "Container": "pocoma-l74a-c7490606-business-read-worker-1",
+        "ID": "5422e3b628dd",
+        "MemPerc": "53.03%",
+        "MemUsage": "543.1MiB / 1GiB",
+        "Name": "pocoma-l74a-c7490606-business-read-worker-1",
+        "NetIO": "309MB / 54MB",
+        "PIDs": "58"
+      }
+    ],
+    "collectorMs": 112.297542
+  },
+  {
+    "utc": "2026-11-18T23:41:32.778598+00:00",
+    "stats": [
+      {
+        "BlockIO": "0B / 8.19kB",
+        "CPUPerc": "82.94%",
+        "Container": "pocoma-l74a-c7490606-postgres-1",
+        "ID": "11d2dd87bb03",
+        "MemPerc": "48.62%",
+        "MemUsage": "995.8MiB / 2GiB",
+        "Name": "pocoma-l74a-c7490606-postgres-1",
+        "NetIO": "113MB / 515MB",
+        "PIDs": "66"
+      },
+      {
+        "BlockIO": "0B / 32.8kB",
+        "CPUPerc": "1.27%",
+        "Container": "pocoma-l74a-c7490606-http-write-1",
+        "ID": "adf1e95726cc",
+        "MemPerc": "35.94%",
+        "MemUsage": "184MiB / 512MiB",
+        "Name": "pocoma-l74a-c7490606-http-write-1",
+        "NetIO": "227kB / 470kB",
+        "PIDs": "41"
+      },
+      {
+        "BlockIO": "0B / 32.8kB",
+        "CPUPerc": "18.46%",
+        "Container": "pocoma-l74a-c7490606-http-read-1",
+        "ID": "6f55d96f744a",
+        "MemPerc": "30.56%",
+        "MemUsage": "234.7MiB / 768MiB",
+        "Name": "pocoma-l74a-c7490606-http-read-1",
+        "NetIO": "98MB / 11MB",
+        "PIDs": "43"
+      },
+      {
+        "BlockIO": "0B / 32.8kB",
+        "CPUPerc": "23.10%",
+        "Container": "pocoma-l74a-c7490606-command-worker-1",
+        "ID": "c03909494bd8",
+        "MemPerc": "38.74%",
+        "MemUsage": "198.4MiB / 512MiB",
+        "Name": "pocoma-l74a-c7490606-command-worker-1",
+        "NetIO": "19.5MB / 23.4MB",
+        "PIDs": "56"
+      },
+      {
+        "BlockIO": "0B / 32.8kB",
+        "CPUPerc": "28.24%",
+        "Container": "pocoma-l74a-c7490606-results-worker-1",
+        "ID": "0a5c44111131",
+        "MemPerc": "37.35%",
+        "MemUsage": "191.2MiB / 512MiB",
+        "Name": "pocoma-l74a-c7490606-results-worker-1",
+        "NetIO": "21.1MB / 26.2MB",
+        "PIDs": "57"
+      },
+      {
+        "BlockIO": "0B / 32.8kB",
+        "CPUPerc": "74.71%",
+        "Container": "pocoma-l74a-c7490606-business-read-worker-1",
+        "ID": "5422e3b628dd",
+        "MemPerc": "53.55%",
+        "MemUsage": "548.4MiB / 1GiB",
+        "Name": "pocoma-l74a-c7490606-business-read-worker-1",
+        "NetIO": "360MB / 61.8MB",
+        "PIDs": "58"
+      }
+    ],
+    "collectorMs": 94.597625
+  },
+  {
+    "utc": "2026-11-18T23:41:36.154341+00:00",
+    "stats": [
+      {
+        "BlockIO": "0B / 8.19kB",
+        "CPUPerc": "81.81%",
+        "Container": "pocoma-l74a-c7490606-postgres-1",
+        "ID": "11d2dd87bb03",
+        "MemPerc": "48.76%",
+        "MemUsage": "998.6MiB / 2GiB",
+        "Name": "pocoma-l74a-c7490606-postgres-1",
+        "NetIO": "130MB / 608MB",
+        "PIDs": "66"
+      },
+      {
+        "BlockIO": "0B / 32.8kB",
+        "CPUPerc": "1.09%",
+        "Container": "pocoma-l74a-c7490606-http-write-1",
+        "ID": "adf1e95726cc",
+        "MemPerc": "36.13%",
+        "MemUsage": "185MiB / 512MiB",
+        "Name": "pocoma-l74a-c7490606-http-write-1",
+        "NetIO": "267kB / 553kB",
+        "PIDs": "41"
+      },
+      {
+        "BlockIO": "0B / 32.8kB",
+        "CPUPerc": "12.51%",
+        "Container": "pocoma-l74a-c7490606-http-read-1",
+        "ID": "6f55d96f744a",
+        "MemPerc": "30.85%",
+        "MemUsage": "236.9MiB / 768MiB",
+        "Name": "pocoma-l74a-c7490606-http-read-1",
+        "NetIO": "118MB / 12.9MB",
+        "PIDs": "43"
+      },
+      {
+        "BlockIO": "0B / 32.8kB",
+        "CPUPerc": "32.97%",
+        "Container": "pocoma-l74a-c7490606-command-worker-1",
+        "ID": "c03909494bd8",
+        "MemPerc": "38.89%",
+        "MemUsage": "199.1MiB / 512MiB",
+        "Name": "pocoma-l74a-c7490606-command-worker-1",
+        "NetIO": "23.2MB / 27.7MB",
+        "PIDs": "56"
+      },
+      {
+        "BlockIO": "0B / 32.8kB",
+        "CPUPerc": "24.52%",
+        "Container": "pocoma-l74a-c7490606-results-worker-1",
+        "ID": "0a5c44111131",
+        "MemPerc": "37.47%",
+        "MemUsage": "191.9MiB / 512MiB",
+        "Name": "pocoma-l74a-c7490606-results-worker-1",
+        "NetIO": "24.4MB / 30.2MB",
+        "PIDs": "57"
+      },
+      {
+        "BlockIO": "0B / 32.8kB",
+        "CPUPerc": "62.02%",
+        "Container": "pocoma-l74a-c7490606-business-read-worker-1",
+        "ID": "5422e3b628dd",
+        "MemPerc": "64.48%",
+        "MemUsage": "660.3MiB / 1GiB",
+        "Name": "pocoma-l74a-c7490606-business-read-worker-1",
+        "NetIO": "443MB / 73MB",
+        "PIDs": "58"
+      }
+    ],
+    "collectorMs": 109.075125
+  },
+  {
+    "utc": "2026-11-18T23:41:40.304551+00:00",
+    "stats": [
+      {
+        "BlockIO": "0B / 8.19kB",
+        "CPUPerc": "82.14%",
+        "Container": "pocoma-l74a-c7490606-postgres-1",
+        "ID": "11d2dd87bb03",
+        "MemPerc": "48.75%",
+        "MemUsage": "998.5MiB / 2GiB",
+        "Name": "pocoma-l74a-c7490606-postgres-1",
+        "NetIO": "146MB / 683MB",
+        "PIDs": "66"
+      },
+      {
+        "BlockIO": "0B / 32.8kB",
+        "CPUPerc": "1.34%",
+        "Container": "pocoma-l74a-c7490606-http-write-1",
+        "ID": "adf1e95726cc",
+        "MemPerc": "36.18%",
+        "MemUsage": "185.2MiB / 512MiB",
+        "Name": "pocoma-l74a-c7490606-http-write-1",
+        "NetIO": "297kB / 625kB",
+        "PIDs": "41"
+      },
+      {
+        "BlockIO": "0B / 32.8kB",
+        "CPUPerc": "16.53%",
+        "Container": "pocoma-l74a-c7490606-http-read-1",
+        "ID": "6f55d96f744a",
+        "MemPerc": "30.99%",
+        "MemUsage": "238MiB / 768MiB",
+        "Name": "pocoma-l74a-c7490606-http-read-1",
+        "NetIO": "136MB / 14.6MB",
+        "PIDs": "43"
+      },
+      {
+        "BlockIO": "0B / 32.8kB",
+        "CPUPerc": "23.58%",
+        "Container": "pocoma-l74a-c7490606-command-worker-1",
+        "ID": "c03909494bd8",
+        "MemPerc": "38.91%",
+        "MemUsage": "199.2MiB / 512MiB",
+        "Name": "pocoma-l74a-c7490606-command-worker-1",
+        "NetIO": "27.5MB / 32.8MB",
+        "PIDs": "56"
+      },
+      {
+        "BlockIO": "0B / 32.8kB",
+        "CPUPerc": "23.61%",
+        "Container": "pocoma-l74a-c7490606-results-worker-1",
+        "ID": "0a5c44111131",
+        "MemPerc": "37.55%",
+        "MemUsage": "192.2MiB / 512MiB",
+        "Name": "pocoma-l74a-c7490606-results-worker-1",
+        "NetIO": "28.5MB / 35.3MB",
+        "PIDs": "57"
+      },
+      {
+        "BlockIO": "0B / 32.8kB",
+        "CPUPerc": "57.27%",
+        "Container": "pocoma-l74a-c7490606-business-read-worker-1",
+        "ID": "5422e3b628dd",
+        "MemPerc": "56.50%",
+        "MemUsage": "578.6MiB / 1GiB",
+        "Name": "pocoma-l74a-c7490606-business-read-worker-1",
+        "NetIO": "511MB / 83.5MB",
+        "PIDs": "58"
+      }
+    ],
+    "collectorMs": 104.773625
+  },
+  {
+    "utc": "2026-11-18T23:41:44.470250+00:00",
+    "stats": [
+      {
+        "BlockIO": "0B / 8.19kB",
+        "CPUPerc": "89.33%",
+        "Container": "pocoma-l74a-c7490606-postgres-1",
+        "ID": "11d2dd87bb03",
+        "MemPerc": "48.77%",
+        "MemUsage": "998.8MiB / 2GiB",
+        "Name": "pocoma-l74a-c7490606-postgres-1",
+        "NetIO": "171MB / 811MB",
+        "PIDs": "66"
+      },
+      {
+        "BlockIO": "0B / 32.8kB",
+        "CPUPerc": "1.04%",
+        "Container": "pocoma-l74a-c7490606-http-write-1",
+        "ID": "adf1e95726cc",
+        "MemPerc": "36.32%",
+        "MemUsage": "186MiB / 512MiB",
+        "Name": "pocoma-l74a-c7490606-http-write-1",
+        "NetIO": "337kB / 707kB",
+        "PIDs": "41"
+      },
+      {
+        "BlockIO": "0B / 32.8kB",
+        "CPUPerc": "21.63%",
+        "Container": "pocoma-l74a-c7490606-http-read-1",
+        "ID": "6f55d96f744a",
+        "MemPerc": "31.10%",
+        "MemUsage": "238.8MiB / 768MiB",
+        "Name": "pocoma-l74a-c7490606-http-read-1",
+        "NetIO": "169MB / 17.6MB",
+        "PIDs": "43"
+      },
+      {
+        "BlockIO": "0B / 32.8kB",
+        "CPUPerc": "23.42%",
+        "Container": "pocoma-l74a-c7490606-command-worker-1",
+        "ID": "c03909494bd8",
+        "MemPerc": "39.08%",
+        "MemUsage": "200.1MiB / 512MiB",
+        "Name": "pocoma-l74a-c7490606-command-worker-1",
+        "NetIO": "31.9MB / 38MB",
+        "PIDs": "56"
+      },
+      {
+        "BlockIO": "0B / 32.8kB",
+        "CPUPerc": "22.83%",
+        "Container": "pocoma-l74a-c7490606-results-worker-1",
+        "ID": "0a5c44111131",
+        "MemPerc": "37.58%",
+        "MemUsage": "192.4MiB / 512MiB",
+        "Name": "pocoma-l74a-c7490606-results-worker-1",
+        "NetIO": "32.6MB / 40.2MB",
+        "PIDs": "57"
+      },
+      {
+        "BlockIO": "0B / 32.8kB",
+        "CPUPerc": "78.32%",
+        "Container": "pocoma-l74a-c7490606-business-read-worker-1",
+        "ID": "5422e3b628dd",
+        "MemPerc": "54.59%",
+        "MemUsage": "559MiB / 1GiB",
+        "Name": "pocoma-l74a-c7490606-business-read-worker-1",
+        "NetIO": "578MB / 93.2MB",
+        "PIDs": "58"
+      }
+    ],
+    "collectorMs": 120.336291
+  },
+  {
+    "utc": "2026-11-18T23:41:48.607643+00:00",
+    "stats": [
+      {
+        "BlockIO": "0B / 8.19kB",
+        "CPUPerc": "83.99%",
+        "Container": "pocoma-l74a-c7490606-postgres-1",
+        "ID": "11d2dd87bb03",
+        "MemPerc": "48.80%",
+        "MemUsage": "999.4MiB / 2GiB",
+        "Name": "pocoma-l74a-c7490606-postgres-1",
+        "NetIO": "192MB / 914MB",
+        "PIDs": "66"
+      },
+      {
+        "BlockIO": "0B / 36.9kB",
+        "CPUPerc": "0.93%",
+        "Container": "pocoma-l74a-c7490606-http-write-1",
+        "ID": "adf1e95726cc",
+        "MemPerc": "36.36%",
+        "MemUsage": "186.2MiB / 512MiB",
+        "Name": "pocoma-l74a-c7490606-http-write-1",
+        "NetIO": "387kB / 799kB",
+        "PIDs": "41"
+      },
+      {
+        "BlockIO": "0B / 32.8kB",
+        "CPUPerc": "21.79%",
+        "Container": "pocoma-l74a-c7490606-http-read-1",
+        "ID": "6f55d96f744a",
+        "MemPerc": "31.20%",
+        "MemUsage": "239.6MiB / 768MiB",
+        "Name": "pocoma-l74a-c7490606-http-read-1",
+        "NetIO": "196MB / 20.3MB",
+        "PIDs": "43"
+      },
+      {
+        "BlockIO": "0B / 69.6kB",
+        "CPUPerc": "23.25%",
+        "Container": "pocoma-l74a-c7490606-command-worker-1",
+        "ID": "c03909494bd8",
+        "MemPerc": "39.12%",
+        "MemUsage": "200.3MiB / 512MiB",
+        "Name": "pocoma-l74a-c7490606-command-worker-1",
+        "NetIO": "36.4MB / 43.4MB",
+        "PIDs": "56"
+      },
+      {
+        "BlockIO": "0B / 41kB",
+        "CPUPerc": "22.57%",
+        "Container": "pocoma-l74a-c7490606-results-worker-1",
+        "ID": "0a5c44111131",
+        "MemPerc": "37.55%",
+        "MemUsage": "192.3MiB / 512MiB",
+        "Name": "pocoma-l74a-c7490606-results-worker-1",
+        "NetIO": "36.8MB / 45.4MB",
+        "PIDs": "57"
+      },
+      {
+        "BlockIO": "0B / 57.3kB",
+        "CPUPerc": "71.54%",
+        "Container": "pocoma-l74a-c7490606-business-read-worker-1",
+        "ID": "5422e3b628dd",
+        "MemPerc": "54.61%",
+        "MemUsage": "559.2MiB / 1GiB",
+        "Name": "pocoma-l74a-c7490606-business-read-worker-1",
+        "NetIO": "629MB / 101MB",
+        "PIDs": "58"
+      }
+    ],
+    "collectorMs": 98.149042
+  },
+  {
+    "utc": "2026-11-18T23:41:52.760965+00:00",
+    "stats": [
+      {
+        "BlockIO": "0B / 8.19kB",
+        "CPUPerc": "94.64%",
+        "Container": "pocoma-l74a-c7490606-postgres-1",
+        "ID": "11d2dd87bb03",
+        "MemPerc": "49.63%",
+        "MemUsage": "1016MiB / 2GiB",
+        "Name": "pocoma-l74a-c7490606-postgres-1",
+        "NetIO": "212MB / 1.02GB",
+        "PIDs": "66"
+      },
+      {
+        "BlockIO": "0B / 36.9kB",
+        "CPUPerc": "0.68%",
+        "Container": "pocoma-l74a-c7490606-http-write-1",
+        "ID": "adf1e95726cc",
+        "MemPerc": "36.46%",
+        "MemUsage": "186.7MiB / 512MiB",
+        "Name": "pocoma-l74a-c7490606-http-write-1",
+        "NetIO": "427kB / 881kB",
+        "PIDs": "41"
+      },
+      {
+        "BlockIO": "0B / 32.8kB",
+        "CPUPerc": "16.19%",
+        "Container": "pocoma-l74a-c7490606-http-read-1",
+        "ID": "6f55d96f744a",
+        "MemPerc": "31.29%",
+        "MemUsage": "240.3MiB / 768MiB",
+        "Name": "pocoma-l74a-c7490606-http-read-1",
+        "NetIO": "224MB / 22.7MB",
+        "PIDs": "43"
+      },
+      {
+        "BlockIO": "0B / 69.6kB",
+        "CPUPerc": "25.00%",
+        "Container": "pocoma-l74a-c7490606-command-worker-1",
+        "ID": "c03909494bd8",
+        "MemPerc": "39.10%",
+        "MemUsage": "200.2MiB / 512MiB",
+        "Name": "pocoma-l74a-c7490606-command-worker-1",
+        "NetIO": "40.8MB / 48.5MB",
+        "PIDs": "56"
+      },
+      {
+        "BlockIO": "0B / 41kB",
+        "CPUPerc": "25.81%",
+        "Container": "pocoma-l74a-c7490606-results-worker-1",
+        "ID": "0a5c44111131",
+        "MemPerc": "37.63%",
+        "MemUsage": "192.7MiB / 512MiB",
+        "Name": "pocoma-l74a-c7490606-results-worker-1",
+        "NetIO": "40.8MB / 50.4MB",
+        "PIDs": "57"
+      },
+      {
+        "BlockIO": "0B / 57.3kB",
+        "CPUPerc": "77.92%",
+        "Container": "pocoma-l74a-c7490606-business-read-worker-1",
+        "ID": "5422e3b628dd",
+        "MemPerc": "58.72%",
+        "MemUsage": "601.3MiB / 1GiB",
+        "Name": "pocoma-l74a-c7490606-business-read-worker-1",
+        "NetIO": "697MB / 111MB",
+        "PIDs": "58"
+      }
+    ],
+    "collectorMs": 108.821667
+  },
+  {
+    "utc": "2026-11-18T23:41:56.151129+00:00",
+    "stats": [
+      {
+        "BlockIO": "0B / 8.19kB",
+        "CPUPerc": "90.66%",
+        "Container": "pocoma-l74a-c7490606-postgres-1",
+        "ID": "11d2dd87bb03",
+        "MemPerc": "49.67%",
+        "MemUsage": "1017MiB / 2GiB",
+        "Name": "pocoma-l74a-c7490606-postgres-1",
+        "NetIO": "230MB / 1.11GB",
+        "PIDs": "66"
+      },
+      {
+        "BlockIO": "0B / 36.9kB",
+        "CPUPerc": "1.26%",
+        "Container": "pocoma-l74a-c7490606-http-write-1",
+        "ID": "adf1e95726cc",
+        "MemPerc": "36.50%",
+        "MemUsage": "186.9MiB / 512MiB",
+        "Name": "pocoma-l74a-c7490606-http-write-1",
+        "NetIO": "467kB / 964kB",
+        "PIDs": "41"
+      },
+      {
+        "BlockIO": "0B / 32.8kB",
+        "CPUPerc": "17.76%",
+        "Container": "pocoma-l74a-c7490606-http-read-1",
+        "ID": "6f55d96f744a",
+        "MemPerc": "31.68%",
+        "MemUsage": "243.3MiB / 768MiB",
+        "Name": "pocoma-l74a-c7490606-http-read-1",
+        "NetIO": "242MB / 24.5MB",
+        "PIDs": "43"
+      },
+      {
+        "BlockIO": "0B / 69.6kB",
+        "CPUPerc": "26.75%",
+        "Container": "pocoma-l74a-c7490606-command-worker-1",
+        "ID": "c03909494bd8",
+        "MemPerc": "39.08%",
+        "MemUsage": "200.1MiB / 512MiB",
+        "Name": "pocoma-l74a-c7490606-command-worker-1",
+        "NetIO": "44.5MB / 53MB",
+        "PIDs": "56"
+      },
+      {
+        "BlockIO": "0B / 41kB",
+        "CPUPerc": "26.61%",
+        "Container": "pocoma-l74a-c7490606-results-worker-1",
+        "ID": "0a5c44111131",
+        "MemPerc": "37.69%",
+        "MemUsage": "192.9MiB / 512MiB",
+        "Name": "pocoma-l74a-c7490606-results-worker-1",
+        "NetIO": "44.2MB / 54.6MB",
+        "PIDs": "57"
+      },
+      {
+        "BlockIO": "0B / 57.3kB",
+        "CPUPerc": "67.74%",
+        "Container": "pocoma-l74a-c7490606-business-read-worker-1",
+        "ID": "5422e3b628dd",
+        "MemPerc": "59.57%",
+        "MemUsage": "610MiB / 1GiB",
+        "Name": "pocoma-l74a-c7490606-business-read-worker-1",
+        "NetIO": "780MB / 122MB",
+        "PIDs": "58"
+      }
+    ],
+    "collectorMs": 94.856167
+  },
+  {
+    "utc": "2026-11-18T23:42:00.349812+00:00",
+    "stats": [
+      {
+        "BlockIO": "0B / 8.19kB",
+        "CPUPerc": "83.31%",
+        "Container": "pocoma-l74a-c7490606-postgres-1",
+        "ID": "11d2dd87bb03",
+        "MemPerc": "49.78%",
+        "MemUsage": "1019MiB / 2GiB",
+        "Name": "pocoma-l74a-c7490606-postgres-1",
+        "NetIO": "251MB / 1.21GB",
+        "PIDs": "66"
+      },
+      {
+        "BlockIO": "0B / 36.9kB",
+        "CPUPerc": "0.86%",
+        "Container": "pocoma-l74a-c7490606-http-write-1",
+        "ID": "adf1e95726cc",
+        "MemPerc": "36.54%",
+        "MemUsage": "187.1MiB / 512MiB",
+        "Name": "pocoma-l74a-c7490606-http-write-1",
+        "NetIO": "507kB / 1.05MB",
+        "PIDs": "41"
+      },
+      {
+        "BlockIO": "0B / 45.1kB",
+        "CPUPerc": "13.89%",
+        "Container": "pocoma-l74a-c7490606-http-read-1",
+        "ID": "6f55d96f744a",
+        "MemPerc": "31.64%",
+        "MemUsage": "243MiB / 768MiB",
+        "Name": "pocoma-l74a-c7490606-http-read-1",
+        "NetIO": "270MB / 27MB",
+        "PIDs": "43"
+      },
+      {
+        "BlockIO": "0B / 69.6kB",
+        "CPUPerc": "26.72%",
+        "Container": "pocoma-l74a-c7490606-command-worker-1",
+        "ID": "c03909494bd8",
+        "MemPerc": "39.21%",
+        "MemUsage": "200.8MiB / 512MiB",
+        "Name": "pocoma-l74a-c7490606-command-worker-1",
+        "NetIO": "49MB / 58.2MB",
+        "PIDs": "56"
+      },
+      {
+        "BlockIO": "0B / 53.2kB",
+        "CPUPerc": "27.57%",
+        "Container": "pocoma-l74a-c7490606-results-worker-1",
+        "ID": "0a5c44111131",
+        "MemPerc": "37.66%",
+        "MemUsage": "192.8MiB / 512MiB",
+        "Name": "pocoma-l74a-c7490606-results-worker-1",
+        "NetIO": "48.3MB / 59.6MB",
+        "PIDs": "57"
+      },
+      {
+        "BlockIO": "0B / 57.3kB",
+        "CPUPerc": "79.04%",
+        "Container": "pocoma-l74a-c7490606-business-read-worker-1",
+        "ID": "5422e3b628dd",
+        "MemPerc": "57.15%",
+        "MemUsage": "585.2MiB / 1GiB",
+        "Name": "pocoma-l74a-c7490606-business-read-worker-1",
+        "NetIO": "831MB / 130MB",
+        "PIDs": "58"
+      }
+    ],
+    "collectorMs": 154.82375
+  },
+  {
+    "utc": "2026-11-18T23:42:04.475508+00:00",
+    "stats": [
+      {
+        "BlockIO": "0B / 8.19kB",
+        "CPUPerc": "86.51%",
+        "Container": "pocoma-l74a-c7490606-postgres-1",
+        "ID": "11d2dd87bb03",
+        "MemPerc": "49.95%",
+        "MemUsage": "1023MiB / 2GiB",
+        "Name": "pocoma-l74a-c7490606-postgres-1",
+        "NetIO": "272MB / 1.32GB",
+        "PIDs": "66"
+      },
+      {
+        "BlockIO": "0B / 49.2kB",
+        "CPUPerc": "2.62%",
+        "Container": "pocoma-l74a-c7490606-http-write-1",
+        "ID": "adf1e95726cc",
+        "MemPerc": "36.59%",
+        "MemUsage": "187.3MiB / 512MiB",
+        "Name": "pocoma-l74a-c7490606-http-write-1",
+        "NetIO": "547kB / 1.13MB",
+        "PIDs": "41"
+      },
+      {
+        "BlockIO": "0B / 45.1kB",
+        "CPUPerc": "15.42%",
+        "Container": "pocoma-l74a-c7490606-http-read-1",
+        "ID": "6f55d96f744a",
+        "MemPerc": "31.66%",
+        "MemUsage": "243.2MiB / 768MiB",
+        "Name": "pocoma-l74a-c7490606-http-read-1",
+        "NetIO": "297MB / 29.4MB",
+        "PIDs": "43"
+      },
+      {
+        "BlockIO": "0B / 81.9kB",
+        "CPUPerc": "23.71%",
+        "Container": "pocoma-l74a-c7490606-command-worker-1",
+        "ID": "c03909494bd8",
+        "MemPerc": "39.25%",
+        "MemUsage": "201MiB / 512MiB",
+        "Name": "pocoma-l74a-c7490606-command-worker-1",
+        "NetIO": "53.4MB / 63.5MB",
+        "PIDs": "56"
+      },
+      {
+        "BlockIO": "0B / 53.2kB",
+        "CPUPerc": "22.42%",
+        "Container": "pocoma-l74a-c7490606-results-worker-1",
+        "ID": "0a5c44111131",
+        "MemPerc": "37.78%",
+        "MemUsage": "193.4MiB / 512MiB",
+        "Name": "pocoma-l74a-c7490606-results-worker-1",
+        "NetIO": "51.5MB / 63.6MB",
+        "PIDs": "57"
+      },
+      {
+        "BlockIO": "0B / 69.6kB",
+        "CPUPerc": "74.73%",
+        "Container": "pocoma-l74a-c7490606-business-read-worker-1",
+        "ID": "5422e3b628dd",
+        "MemPerc": "57.19%",
+        "MemUsage": "585.6MiB / 1GiB",
+        "Name": "pocoma-l74a-c7490606-business-read-worker-1",
+        "NetIO": "899MB / 140MB",
+        "PIDs": "58"
+      }
+    ],
+    "collectorMs": 93.839416
+  },
+  {
+    "utc": "2026-11-18T23:42:08.588040+00:00",
+    "stats": [
+      {
+        "BlockIO": "0B / 8.19kB",
+        "CPUPerc": "91.85%",
+        "Container": "pocoma-l74a-c7490606-postgres-1",
+        "ID": "11d2dd87bb03",
+        "MemPerc": "49.75%",
+        "MemUsage": "1019MiB / 2GiB",
+        "Name": "pocoma-l74a-c7490606-postgres-1",
+        "NetIO": "292MB / 1.42GB",
+        "PIDs": "66"
+      },
+      {
+        "BlockIO": "0B / 49.2kB",
+        "CPUPerc": "1.74%",
+        "Container": "pocoma-l74a-c7490606-http-write-1",
+        "ID": "adf1e95726cc",
+        "MemPerc": "36.73%",
+        "MemUsage": "188.1MiB / 512MiB",
+        "Name": "pocoma-l74a-c7490606-http-write-1",
+        "NetIO": "587kB / 1.21MB",
+        "PIDs": "41"
+      },
+      {
+        "BlockIO": "0B / 45.1kB",
+        "CPUPerc": "11.93%",
+        "Container": "pocoma-l74a-c7490606-http-read-1",
+        "ID": "6f55d96f744a",
+        "MemPerc": "31.63%",
+        "MemUsage": "242.9MiB / 768MiB",
+        "Name": "pocoma-l74a-c7490606-http-read-1",
+        "NetIO": "320MB / 32MB",
+        "PIDs": "43"
+      },
+      {
+        "BlockIO": "0B / 81.9kB",
+        "CPUPerc": "23.61%",
+        "Container": "pocoma-l74a-c7490606-command-worker-1",
+        "ID": "c03909494bd8",
+        "MemPerc": "39.27%",
+        "MemUsage": "201.1MiB / 512MiB",
+        "Name": "pocoma-l74a-c7490606-command-worker-1",
+        "NetIO": "56.8MB / 67.6MB",
+        "PIDs": "56"
+      },
+      {
+        "BlockIO": "0B / 53.2kB",
+        "CPUPerc": "23.11%",
+        "Container": "pocoma-l74a-c7490606-results-worker-1",
+        "ID": "0a5c44111131",
+        "MemPerc": "37.79%",
+        "MemUsage": "193.5MiB / 512MiB",
+        "Name": "pocoma-l74a-c7490606-results-worker-1",
+        "NetIO": "55.5MB / 68.6MB",
+        "PIDs": "57"
+      },
+      {
+        "BlockIO": "0B / 69.6kB",
+        "CPUPerc": "77.03%",
+        "Container": "pocoma-l74a-c7490606-business-read-worker-1",
+        "ID": "5422e3b628dd",
+        "MemPerc": "59.49%",
+        "MemUsage": "609.2MiB / 1GiB",
+        "Name": "pocoma-l74a-c7490606-business-read-worker-1",
+        "NetIO": "984MB / 153MB",
+        "PIDs": "58"
+      }
+    ],
+    "collectorMs": 76.991917
+  },
+  {
+    "utc": "2026-11-18T23:42:12.708385+00:00",
+    "stats": [
+      {
+        "BlockIO": "0B / 8.19kB",
+        "CPUPerc": "82.38%",
+        "Container": "pocoma-l74a-c7490606-postgres-1",
+        "ID": "11d2dd87bb03",
+        "MemPerc": "49.76%",
+        "MemUsage": "1019MiB / 2GiB",
+        "Name": "pocoma-l74a-c7490606-postgres-1",
+        "NetIO": "313MB / 1.52GB",
+        "PIDs": "66"
+      },
+      {
+        "BlockIO": "0B / 49.2kB",
+        "CPUPerc": "1.00%",
+        "Container": "pocoma-l74a-c7490606-http-write-1",
+        "ID": "adf1e95726cc",
+        "MemPerc": "36.78%",
+        "MemUsage": "188.3MiB / 512MiB",
+        "Name": "pocoma-l74a-c7490606-http-write-1",
+        "NetIO": "618kB / 1.28MB",
+        "PIDs": "41"
+      },
+      {
+        "BlockIO": "0B / 45.1kB",
+        "CPUPerc": "9.57%",
+        "Container": "pocoma-l74a-c7490606-http-read-1",
+        "ID": "6f55d96f744a",
+        "MemPerc": "31.69%",
+        "MemUsage": "243.3MiB / 768MiB",
+        "Name": "pocoma-l74a-c7490606-http-read-1",
+        "NetIO": "343MB / 34.2MB",
+        "PIDs": "43"
+      },
+      {
+        "BlockIO": "0B / 81.9kB",
+        "CPUPerc": "23.29%",
+        "Container": "pocoma-l74a-c7490606-command-worker-1",
+        "ID": "c03909494bd8",
+        "MemPerc": "39.37%",
+        "MemUsage": "201.6MiB / 512MiB",
+        "Name": "pocoma-l74a-c7490606-command-worker-1",
+        "NetIO": "62.2MB / 74MB",
+        "PIDs": "56"
+      },
+      {
+        "BlockIO": "0B / 53.2kB",
+        "CPUPerc": "22.40%",
+        "Container": "pocoma-l74a-c7490606-results-worker-1",
+        "ID": "0a5c44111131",
+        "MemPerc": "37.82%",
+        "MemUsage": "193.6MiB / 512MiB",
+        "Name": "pocoma-l74a-c7490606-results-worker-1",
+        "NetIO": "60.6MB / 74.7MB",
+        "PIDs": "57"
+      },
+      {
+        "BlockIO": "0B / 69.6kB",
+        "CPUPerc": "61.32%",
+        "Container": "pocoma-l74a-c7490606-business-read-worker-1",
+        "ID": "5422e3b628dd",
+        "MemPerc": "59.50%",
+        "MemUsage": "609.2MiB / 1GiB",
+        "Name": "pocoma-l74a-c7490606-business-read-worker-1",
+        "NetIO": "1.05GB / 164MB",
+        "PIDs": "58"
+      }
+    ],
+    "collectorMs": 80.198042
+  },
+  {
+    "utc": "2026-11-18T23:42:16.150873+00:00",
+    "stats": [
+      {
+        "BlockIO": "0B / 8.19kB",
+        "CPUPerc": "83.00%",
+        "Container": "pocoma-l74a-c7490606-postgres-1",
+        "ID": "11d2dd87bb03",
+        "MemPerc": "49.78%",
+        "MemUsage": "1019MiB / 2GiB",
+        "Name": "pocoma-l74a-c7490606-postgres-1",
+        "NetIO": "331MB / 1.61GB",
+        "PIDs": "66"
+      },
+      {
+        "BlockIO": "0B / 49.2kB",
+        "CPUPerc": "1.51%",
+        "Container": "pocoma-l74a-c7490606-http-write-1",
+        "ID": "adf1e95726cc",
+        "MemPerc": "36.82%",
+        "MemUsage": "188.5MiB / 512MiB",
+        "Name": "pocoma-l74a-c7490606-http-write-1",
+        "NetIO": "667kB / 1.37MB",
+        "PIDs": "41"
+      },
+      {
+        "BlockIO": "0B / 45.1kB",
+        "CPUPerc": "9.44%",
+        "Container": "pocoma-l74a-c7490606-http-read-1",
+        "ID": "6f55d96f744a",
+        "MemPerc": "32.23%",
+        "MemUsage": "247.5MiB / 768MiB",
+        "Name": "pocoma-l74a-c7490606-http-read-1",
+        "NetIO": "362MB / 36MB",
+        "PIDs": "43"
+      },
+      {
+        "BlockIO": "0B / 81.9kB",
+        "CPUPerc": "23.12%",
+        "Container": "pocoma-l74a-c7490606-command-worker-1",
+        "ID": "c03909494bd8",
+        "MemPerc": "39.35%",
+        "MemUsage": "201.5MiB / 512MiB",
+        "Name": "pocoma-l74a-c7490606-command-worker-1",
+        "NetIO": "66MB / 78.5MB",
+        "PIDs": "56"
+      },
+      {
+        "BlockIO": "0B / 65.5kB",
+        "CPUPerc": "22.43%",
+        "Container": "pocoma-l74a-c7490606-results-worker-1",
+        "ID": "0a5c44111131",
+        "MemPerc": "37.89%",
+        "MemUsage": "194MiB / 512MiB",
+        "Name": "pocoma-l74a-c7490606-results-worker-1",
+        "NetIO": "64.1MB / 79.1MB",
+        "PIDs": "57"
+      },
+      {
+        "BlockIO": "0B / 69.6kB",
+        "CPUPerc": "63.07%",
+        "Container": "pocoma-l74a-c7490606-business-read-worker-1",
+        "ID": "5422e3b628dd",
+        "MemPerc": "59.46%",
+        "MemUsage": "608.9MiB / 1GiB",
+        "Name": "pocoma-l74a-c7490606-business-read-worker-1",
+        "NetIO": "1.12GB / 173MB",
+        "PIDs": "58"
+      }
+    ],
+    "collectorMs": 80.315834
+  }
+]
