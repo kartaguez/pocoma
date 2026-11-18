@@ -1,0 +1,50 @@
+{
+  "createdAt": "2026-11-18T18:56:46.105733+00:00",
+  "gitSha": "1c5140fec30cb9b6c01057875c9c45c1654b3a76",
+  "profile": "large",
+  "profileSpec": {
+    "shareholders": 100,
+    "expenses": 2000,
+    "expectedInitialVersion": 2002
+  },
+  "potCount": 2,
+  "seedId": "l74a-large-1-v1",
+  "tokenSubject": "l74a-snapshot-user",
+  "seedElapsedSeconds": 1802.9,
+  "snapshotElapsedSeconds": 13.74,
+  "snapshotSha256": "2eb4567b568073c7d4e0c5bbd8db40aadfaeb222ed1c7e504bd6ed91fdab637d",
+  "snapshotBytes": 111468231,
+  "writeState": {
+    "slots": 0,
+    "leases": 8,
+    "pending": 0
+  },
+  "readState": {
+    "slots": 0,
+    "leases": 28,
+    "maintenance": "READY"
+  },
+  "writeCounters": {
+    "POT": 4004,
+    "IDENTITY": 2,
+    "INVITATION": 0,
+    "COMMAND_COMPLETION": 4004,
+    "IDENTITY_COMPLETION": 1
+  },
+  "writeCheckpointsCount": 8,
+  "readCheckpointsCount": 24,
+  "pots": [
+    {
+      "potId": "86791328-0a7c-4f80-a9cf-675fd549ea6d",
+      "version": 2002,
+      "expenses": 2000,
+      "shareholdersCount": 100
+    },
+    {
+      "potId": "175cb246-bac3-4d45-a824-fe5562021f43",
+      "version": 2002,
+      "expenses": 2000,
+      "shareholdersCount": 100
+    }
+  ]
+}
