@@ -76,8 +76,9 @@ EXPECTED_CHECKPOINTS_COUNT = len(CANONICAL_READ_CONSUMPTIONS) * 4  # 28
 CANONICAL_MIGRATION_TABLES = (
     "consumption_routing_contract", "partition_ownership", "discovery_checkpoint", "consumption_slot",
     "read_subobject_version", "read_pot_version", "read_current_pot", "read_pot_balance",
-    "read_pot_visibility_state", "read_user_pot", "read_current_binding", "read_command_result",
-    "read_identity_request_result", "read_current_invitation",
+    "read_pot_balance_aggregate", "read_pot_visibility_state", "read_user_pot",
+    "read_current_binding", "read_command_result", "read_identity_request_result",
+    "read_current_invitation",
 )
 
 

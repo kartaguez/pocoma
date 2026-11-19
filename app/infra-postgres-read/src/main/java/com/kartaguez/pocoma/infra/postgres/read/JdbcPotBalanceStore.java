@@ -58,5 +58,104 @@ public final class JdbcPotBalanceStore implements PotBalanceStore {
         db.sql.update("insert into read_pot_balance(pot_id,pot_version,schema_version,payload) values (?,?,1,?::jsonb) on conflict do nothing",b.potId(),b.version(),encode(b)); ReadJdbc.same(b,load(b.potId(),b.version()).orElse(null)); return null;
     }); }
     public void requireStored(UUID p,long v,Optional<PotBalance> expected) { db.write(() -> { ReadJdbc.same(expected,load(p,v)); return null; }); }
+
+    private Optional<PotBalanceAggregate> loadAggregate(UUID pot, long version) {
+        return db.sql
+                .query(
+                        "select schema_version,bucket_count,payload::text from"
+                            + " read_pot_balance_aggregate where pot_id=? and pot_version=?",
+                        (r, n) -> {
+                            int schemaVersion = r.getInt(1);
+                            int bucketCount = r.getInt(2);
+                            var agg =
+                                    PotBalanceAggregateJson.decode(
+                                            pot, version, schemaVersion, r.getString(3));
+                            if (agg.bucketCount() != bucketCount) {
+                                throw new IllegalStateException("Corrupt PotBalanceAggregate");
+                            }
+                            return agg;
+                        },
+                        pot,
+                        version)
+                .stream()
+                .findFirst();
+    }
+
+    @Override
+    public Optional<PotBalanceAggregate> readLatestAggregateBefore(
+            UUID pot,
+            long beforeVersionExclusive,
+            long minVersionInclusive,
+            RecoveryReadContext context) {
+        return db.read(
+                context,
+                () -> {
+                    Objects.requireNonNull(pot);
+                    if (beforeVersionExclusive <= 1
+                            || minVersionInclusive >= beforeVersionExclusive) {
+                        return Optional.empty();
+                    }
+                    long minBound = Math.max(1L, minVersionInclusive);
+                    return db.sql
+                            .query(
+                                    "select pot_version,schema_version,bucket_count,payload::text"
+                                        + " from read_pot_balance_aggregate where pot_id=? and"
+                                        + " pot_version<? and pot_version>=? order by pot_version"
+                                        + " desc limit 1",
+                                    (r, n) -> {
+                                        long version = r.getLong(1);
+                                        int schemaVersion = r.getInt(2);
+                                        int bucketCount = r.getInt(3);
+                                        var agg =
+                                                PotBalanceAggregateJson.decode(
+                                                        pot,
+                                                        version,
+                                                        schemaVersion,
+                                                        r.getString(4));
+                                        if (agg.bucketCount() != bucketCount) {
+                                            throw new IllegalStateException(
+                                                    "Corrupt PotBalanceAggregate");
+                                        }
+                                        return agg;
+                                    },
+                                    pot,
+                                    beforeVersionExclusive,
+                                    minBound)
+                            .stream()
+                            .findFirst();
+                });
+    }
+
+    @Override
+    public void insertOrVerifyAggregate(PotBalanceAggregate aggregate) {
+        db.write(
+                () -> {
+                    db.sql.update(
+                            "insert into"
+                                + " read_pot_balance_aggregate(pot_id,pot_version,schema_version,bucket_count,payload)"
+                                + " values (?,?,?,?,?::jsonb) on conflict do nothing",
+                            aggregate.potId(),
+                            aggregate.version(),
+                            PotBalanceAggregateJson.SCHEMA_VERSION,
+                            aggregate.bucketCount(),
+                            PotBalanceAggregateJson.encode(aggregate));
+                    ReadJdbc.same(
+                            aggregate,
+                            loadAggregate(aggregate.potId(), aggregate.version()).orElse(null));
+                    return null;
+                });
+    }
+
+    @Override
+    public void requireAggregateStored(PotBalanceAggregate expected) {
+        db.write(
+                () -> {
+                    ReadJdbc.same(
+                            expected,
+                            loadAggregate(expected.potId(), expected.version()).orElse(null));
+                    return null;
+                });
+    }
+
     public void closePublication() { SpringAttemptTransactions.closePublication(db.source); }
 }

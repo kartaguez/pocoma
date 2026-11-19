@@ -51,6 +51,26 @@ public final class ReadParticipants {
             SpringAttemptTransactions effects,
             long potVersionMaxDeltaDistance,
             PotVersionObservation potVersionObservation) {
+        return create(
+                write,
+                source,
+                read,
+                effects,
+                potVersionMaxDeltaDistance,
+                potVersionObservation,
+                MaterializePotBalance.Settings.DEFAULT,
+                PotBalanceObservation.NOOP);
+    }
+
+    public static Map<Name, Inert> create(
+            DataSource write,
+            SpringAttemptTransactions source,
+            DataSource read,
+            SpringAttemptTransactions effects,
+            long potVersionMaxDeltaDistance,
+            PotVersionObservation potVersionObservation,
+            MaterializePotBalance.Settings potBalanceSettings,
+            PotBalanceObservation potBalanceObservation) {
         source.requireSource(write);
         effects.requireSource(read);
         if (write == read || source == effects)
@@ -74,7 +94,9 @@ public final class ReadParticipants {
                         ConsumableFamily.POT_EVENT,
                         new MaterializePotBalance(
                                 new JdbcPotBalanceSource(write),
-                                new JdbcPotBalanceStore(read, effects))));
+                                new JdbcPotBalanceStore(read, effects),
+                                potBalanceSettings,
+                                potBalanceObservation)));
         result.put(
                 Name.POT_VISIBILITY,
                 inert(
@@ -143,6 +165,28 @@ public final class ReadParticipants {
             SpringAttemptTransactions effects,
             long potVersionMaxDeltaDistance,
             PotVersionObservation potVersionObservation) {
+        return select(
+                name,
+                write,
+                source,
+                read,
+                effects,
+                potVersionMaxDeltaDistance,
+                potVersionObservation,
+                MaterializePotBalance.Settings.DEFAULT,
+                PotBalanceObservation.NOOP);
+    }
+
+    public static Inert select(
+            String name,
+            DataSource write,
+            SpringAttemptTransactions source,
+            DataSource read,
+            SpringAttemptTransactions effects,
+            long potVersionMaxDeltaDistance,
+            PotVersionObservation potVersionObservation,
+            MaterializePotBalance.Settings potBalanceSettings,
+            PotBalanceObservation potBalanceObservation) {
         if ("MaterializeInvitation".equals(name)) {
             source.requireSource(write);
             effects.requireSource(read);
@@ -161,7 +205,9 @@ public final class ReadParticipants {
                         read,
                         effects,
                         potVersionMaxDeltaDistance,
-                        potVersionObservation)
+                        potVersionObservation,
+                        potBalanceSettings,
+                        potBalanceObservation)
                 .get(key);
     }
 

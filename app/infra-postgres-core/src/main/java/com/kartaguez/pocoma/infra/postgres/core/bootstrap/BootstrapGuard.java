@@ -148,27 +148,18 @@ public final class BootstrapGuard {
     }
 
     private static final Map<String, Set<String>> READ_UPDATES =
-            Map.of(
-                    "read_subobject_version",
-                    Set.of(),
-                    "read_pot_version",
-                    Set.of(),
-                    "read_current_pot",
-                    Set.of("pot_version"),
-                    "read_pot_balance",
-                    Set.of(),
-                    "read_pot_visibility_state",
-                    Set.of("materialized_version"),
-                    "read_user_pot",
-                    Set.of("pot_version", "visible"),
-                    "read_current_binding",
-                    Set.of("eui_version", "user_id", "binding_token"),
-                    "read_command_result",
-                    Set.of(),
-                    "read_identity_request_result",
-                    Set.of(),
-                    "read_current_invitation",
-                    Set.of("version", "expires_at", "protected_link"));
+            Map.ofEntries(
+                    Map.entry("read_subobject_version", Set.of()),
+                    Map.entry("read_pot_version", Set.of()),
+                    Map.entry("read_current_pot", Set.of("pot_version")),
+                    Map.entry("read_pot_balance", Set.of()),
+                    Map.entry("read_pot_balance_aggregate", Set.of()),
+                    Map.entry("read_pot_visibility_state", Set.of("materialized_version")),
+                    Map.entry("read_user_pot", Set.of("pot_version", "visible")),
+                    Map.entry("read_current_binding", Set.of("eui_version", "user_id", "binding_token")),
+                    Map.entry("read_command_result", Set.of()),
+                    Map.entry("read_identity_request_result", Set.of()),
+                    Map.entry("read_current_invitation", Set.of("version", "expires_at", "protected_link")));
 
     private record TableRightsSpec(
             boolean allowInsert, boolean allowDelete, String ownerQuery) {}
