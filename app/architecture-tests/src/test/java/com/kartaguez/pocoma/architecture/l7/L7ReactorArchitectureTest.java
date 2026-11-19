@@ -135,7 +135,7 @@ class L7ReactorArchitectureTest {
             for (var d : cl.getDirectDependenciesFromSelf()) {
                 String type = d.getTargetClass().getName();
                 assertFalse(type.startsWith(BASE + "infra.postgres.write.") || type.startsWith(BASE + "engine.write."), d.toString());
-                if (type.startsWith(BASE + "engine.materialize.")) assertTrue(type.endsWith("Source"), d.toString());
+                if (type.startsWith(BASE + "engine.materialize.")) assertTrue(type.endsWith("Source") || type.contains("Source$"), d.toString());
                 assertFalse(type.matches(".*\\.(JdbcConsumptionSlotStore|JdbcPartitionOwnershipStore|JdbcDiscoveryAdmissionStore)"), d.toString());
             }
         }
@@ -188,7 +188,11 @@ class L7ReactorArchitectureTest {
         try(var files=Files.walk(APP.resolve("infra-postgres-read/src/main/resources"))) {
             readMainSql=files.filter(p->p.toString().endsWith(".sql")).map(p->APP.relativize(p).toString()).sorted().toList();
         }
-        assertEquals(List.of("infra-postgres-read/src/main/resources/db/read/migration/V1__initial_schema.sql"),readMainSql);
+        assertEquals(
+                List.of(
+                        "infra-postgres-read/src/main/resources/db/read/migration/V1__initial_schema.sql",
+                        "infra-postgres-read/src/main/resources/db/read/migration/V2__pot_balance_aggregate.sql"),
+                readMainSql);
         var resources=new HashSet<String>();
         try(var files=Files.walk(APP)) {
             for(var p:files.filter(p->p.toString().contains("/src/main/resources/") && p.toString().endsWith(".sql")).toList())
