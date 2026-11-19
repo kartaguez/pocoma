@@ -38,6 +38,9 @@ public interface PotVersionStore {
     Optional<PotShareholdersView> readShareholders(
             UUID pot, long version, RecoveryReadContext context);
 
+    Optional<PotExpensesView> readExpenses(
+            UUID pot, long version, Collection<UUID> expenseIds, RecoveryReadContext context);
+
     Map<UUID, PotVersion.Shareholder> readShareholdersByIds(
             UUID pot, long version, Collection<UUID> ids, RecoveryReadContext context);
 

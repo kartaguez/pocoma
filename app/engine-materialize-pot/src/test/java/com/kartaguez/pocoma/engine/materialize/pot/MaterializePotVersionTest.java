@@ -213,6 +213,12 @@ class MaterializePotVersionTest {
                     }
 
                     @Override
+                    public Optional<PotExpensesView> readExpenses(
+                            UUID pot, long version, Collection<UUID> expenseIds, RecoveryReadContext context) {
+                        return Optional.empty();
+                    }
+
+                    @Override
                     public Map<UUID, PotVersion.Shareholder> readShareholdersByIds(
                             UUID pot, long version, Collection<UUID> ids, RecoveryReadContext context) {
                         return Map.of();

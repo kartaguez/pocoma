@@ -310,6 +310,12 @@ class MaterializePotVersionIncrementalTest {
                     }
 
                     @Override
+                    public Optional<PotExpensesView> readExpenses(
+                            UUID pot, long version, Collection<UUID> expenseIds, RecoveryReadContext context) {
+                        return Optional.empty();
+                    }
+
+                    @Override
                     public Map<UUID, PotVersion.Shareholder> readShareholdersByIds(
                             UUID pot, long version, Collection<UUID> ids, RecoveryReadContext context) {
                         var map = new HashMap<UUID, PotVersion.Shareholder>();
@@ -509,6 +515,12 @@ class MaterializePotVersionIncrementalTest {
                     }
 
                     @Override
+                    public Optional<PotExpensesView> readExpenses(
+                            UUID pot, long version, Collection<UUID> expenseIds, RecoveryReadContext context) {
+                        return Optional.empty();
+                    }
+
+                    @Override
                     public Map<UUID, PotVersion.Shareholder> readShareholdersByIds(
                             UUID pot, long version, Collection<UUID> ids, RecoveryReadContext context) {
                         var map = new HashMap<UUID, PotVersion.Shareholder>();
@@ -649,6 +661,12 @@ class MaterializePotVersionIncrementalTest {
                     }
 
                     @Override
+                    public Optional<PotExpensesView> readExpenses(
+                            UUID pot, long version, Collection<UUID> expenseIds, RecoveryReadContext context) {
+                        return Optional.empty();
+                    }
+
+                    @Override
                     public Map<UUID, PotVersion.Shareholder> readShareholdersByIds(
                             UUID pot, long version, Collection<UUID> ids, RecoveryReadContext context) {
                         return Map.of();
@@ -783,6 +801,12 @@ class MaterializePotVersionIncrementalTest {
                     @Override
                     public Optional<PotShareholdersView> readShareholders(
                             UUID pot, long version, RecoveryReadContext context) {
+                        return Optional.empty();
+                    }
+
+                    @Override
+                    public Optional<PotExpensesView> readExpenses(
+                            UUID pot, long version, Collection<UUID> expenseIds, RecoveryReadContext context) {
                         return Optional.empty();
                     }
 

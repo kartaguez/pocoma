@@ -78,7 +78,7 @@ public final class ReadPot {
         verifyMainViewHeaderAndBalance(pot, version, p, values.get(keys.get(0)), balance.get());
         var details = (PotDetailsContent) values.get(keys.get(1)).content();
         var shareholders = buildShareholderViews(pot, p, values);
-        verifyBalanceKeys(balance.get(), p);
+        verifyBalanceKeys(balance.get(), p.shareholders());
         var view =
                 new Pot(
                         pot,
@@ -151,9 +151,9 @@ public final class ReadPot {
         return shareholders;
     }
 
-    private static void verifyBalanceKeys(PotBalance balance, PotVersion state) {
+    private static void verifyBalanceKeys(PotBalance balance, List<PotVersion.Shareholder> shareholders) {
         var expected = new HashSet<UUID>();
-        state.shareholders().forEach(s -> expected.add(s.id()));
+        shareholders.forEach(s -> expected.add(s.id()));
         if (!balance.values().keySet().equals(expected)) {
             throw new IllegalStateException("incomplete Balance vector");
         }
@@ -164,11 +164,12 @@ public final class ReadPot {
         if (!input(eui, token, pot) || version < 1) return new InvalidInput<>();
         var user = user(eui, token, c);
         if (user.isEmpty()) return new NotFound<>();
-        var state = authorized(pot, version, user.get(), c);
+        var state = pots.readShareholders(pot, version, c)
+                .filter(v -> !v.deleted() && v.authorizedUserIds().contains(user.get()));
         if (state.isEmpty()) return new NotFound<>();
         var value = balances.read(pot, version, c);
         if (value.isEmpty()) return new NotReady<>();
-        verifyBalanceKeys(value.get(), state.get());
+        verifyBalanceKeys(value.get(), state.get().shareholders());
         return fits(value.get()) ? new Available<>(value.get(), version) : new Unavailable<>();
     }
 
@@ -183,22 +184,24 @@ public final class ReadPot {
             return new InvalidInput<>();
         }
         requested = List.copyOf(requested);
-        var state = loadAuthorizedVersion(eui, token, pot, version, c);
+        var user = user(eui, token, c);
+        if (user.isEmpty()) return new NotFound<>();
+        var expenseIds = requested.stream().map(ExpenseRef::id).distinct().toList();
+        var state = pots.readExpenses(pot, version, expenseIds, c)
+                .filter(v -> !v.deleted() && v.authorizedUserIds().contains(user.get()));
         if (state.isEmpty()) return new NotFound<>();
-        var manifest = new HashSet<>(state.get().expenses().stream().map(ReadPot::ref).toList());
-        if (!manifest.containsAll(requested)) return new NotFound<>();
+        var found = state.get().found();
+        for (var req : requested) {
+            var actual = found.get(req.id());
+            if (actual == null || !ref(actual).equals(req)) {
+                return new NotFound<>();
+            }
+        }
         var keys = collectExpenseKeys(pot, requested);
         var values = objects.readAll(keys, c);
         if (!values.keySet().containsAll(keys)) return new NotReady<>();
         var view = requested.stream().map(e -> buildExpenseView(pot, e, values)).toList();
         return fits(view) ? new Available<>(view, version) : new Unavailable<>();
-    }
-
-    private Optional<PotVersion> loadAuthorizedVersion(
-            ExternalIdentity eui, String token, UUID pot, long version, RecoveryReadContext c) {
-        var user = user(eui, token, c);
-        if (user.isEmpty()) return Optional.empty();
-        return authorized(pot, version, user.get(), c);
     }
 
     private static List<SubobjectKey> collectExpenseKeys(UUID pot, List<ExpenseRef> requested) {
@@ -261,12 +264,6 @@ public final class ReadPot {
         return b.filter(ExternalUserIdentity::isBound)
                 .filter(v -> v.bindingToken().value().equals(token))
                 .map(v -> v.userId().value());
-    }
-
-    private Optional<PotVersion> authorized(
-            UUID pot, long version, UUID user, RecoveryReadContext c) {
-        return pots.read(pot, version, c)
-                .filter(v -> !v.deleted() && v.authorizedUserIds().contains(user));
     }
 
     static boolean input(ExternalIdentity eui, String token, UUID pot) {

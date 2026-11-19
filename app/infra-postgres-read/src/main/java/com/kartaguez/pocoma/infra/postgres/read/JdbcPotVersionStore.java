@@ -112,6 +112,22 @@ public final class JdbcPotVersionStore implements PotVersionStore {
             from tree t
             """;
 
+    private static final String MANIFEST_WITH_EXPENSES_ROOT_SQL = """
+            select pv.pot_id, pv.pot_version, pv.schema_version, pv.header_version, pv.details_version,
+                   pv.deleted, pv.shareholders_count, pv.expenses_count,
+                   pv.shareholders_root, pv.expenses_root,
+                   pv.authorized_users_hash, pv.attached_active_users_hash,
+                   au.user_ids as authorized_user_ids,
+                   atu.user_ids as attached_active_user_ids,
+                   rn.node_hash, rn.schema_version, rn.node_kind, rn.tree_kind,
+                   rn.entry_count, rn.prefix, rn.child_hashes, rn.payload
+            from read_pot_version pv
+            left join read_pot_user_set au on au.set_hash = pv.authorized_users_hash
+            left join read_pot_user_set atu on atu.set_hash = pv.attached_active_users_hash
+            left join read_pot_version_node rn on rn.node_hash = pv.expenses_root
+            where pv.pot_id = ? and pv.pot_version = ?
+            """;
+
     private static final String MANIFEST_SELECT_COLUMNS = """
             select pv.pot_id, pv.pot_version, pv.schema_version, pv.header_version, pv.details_version,
                    pv.deleted, pv.shareholders_count, pv.expenses_count,
@@ -250,6 +266,61 @@ public final class JdbcPotVersionStore implements PotVersionStore {
                                     manifest.authorizedUserIds(),
                                     manifest.attachedActiveUserIds(),
                                     shareholders));
+                });
+    }
+
+    @Override
+    public Optional<PotExpensesView> readExpenses(
+            UUID pot, long version, Collection<UUID> expenseIds, RecoveryReadContext context) {
+        return db.read(
+                context,
+                () -> {
+                    Objects.requireNonNull(pot);
+                    var rowOpt = db.sql.query(
+                                    MANIFEST_WITH_EXPENSES_ROOT_SQL,
+                                    (rs, n) -> {
+                                        PotVersionManifest manifest = mapManifest(rs, 1);
+                                        Radix16Node rootNode = rs.getBytes(15) == null ? null : mapNode(rs, 15);
+                                        return new ManifestAndRoot(manifest, rootNode);
+                                    },
+                                    pot,
+                                    version)
+                            .stream()
+                            .findFirst();
+                    if (rowOpt.isEmpty()) {
+                        return Optional.empty();
+                    }
+                    PotVersionManifest manifest = rowOpt.get().manifest();
+                    if (!pot.equals(manifest.potId()) || version != manifest.version()) {
+                        throw new IllegalStateException("Mixed PotVersion key");
+                    }
+                    Radix16Node rootNode = rowOpt.get().rootNode();
+                    if (manifest.expensesRoot() != null && rootNode == null) {
+                        throw new IllegalStateException("Missing expenses root node: " + manifest.expensesRoot());
+                    }
+                    if (manifest.deleted() || rootNode == null || expenseIds == null || expenseIds.isEmpty()) {
+                        return Optional.of(
+                                new PotExpensesView(
+                                        manifest.potId(),
+                                        manifest.version(),
+                                        manifest.deleted(),
+                                        manifest.authorizedUserIds(),
+                                        Map.of()));
+                    }
+                    Map<UUID, Radix16Node> reachedLeaves =
+                            descendToLeavesFromRootNode(rootNode, Radix16Codec.TREE_EXPENSES, expenseIds);
+                    Map<UUID, PotVersion.Expense> found = new HashMap<>(reachedLeaves.size() * 2);
+                    for (Map.Entry<UUID, Radix16Node> entry : reachedLeaves.entrySet()) {
+                        Radix16Codec.findExpenseInLeaf(entry.getValue(), entry.getKey())
+                                .ifPresent(e -> found.put(entry.getKey(), e));
+                    }
+                    return Optional.of(
+                            new PotExpensesView(
+                                    manifest.potId(),
+                                    manifest.version(),
+                                    manifest.deleted(),
+                                    manifest.authorizedUserIds(),
+                                    found));
                 });
     }
 
@@ -627,7 +698,40 @@ public final class JdbcPotVersionStore implements PotVersionStore {
         return ContentHash.of(rows.getFirst());
     }
 
+    private record ManifestAndRoot(PotVersionManifest manifest, Radix16Node rootNode) {}
+
     private record DescentTarget(UUID id, int depth) {}
+
+    private Map<UUID, Radix16Node> descendToLeavesFromRootNode(
+            Radix16Node rootNode, char expectedTreeKind, Collection<UUID> ids) {
+        if (rootNode.treeKind() != expectedTreeKind) {
+            throw new IllegalStateException("Cross-tree root node during descent: " + rootNode.treeKind());
+        }
+        Set<UUID> uniqueIds = new HashSet<>(ids);
+        Map<UUID, Radix16Node> reachedLeaves = new HashMap<>(uniqueIds.size() * 2);
+        if (rootNode.isLeaf()) {
+            for (UUID id : uniqueIds) {
+                reachedLeaves.put(Objects.requireNonNull(id), rootNode);
+            }
+            return reachedLeaves;
+        }
+        Map<ContentHash, List<DescentTarget>> frontier = new LinkedHashMap<>();
+        String prefix = rootNode.prefix();
+        int prefixLen = prefix.length();
+        for (UUID id : uniqueIds) {
+            Objects.requireNonNull(id);
+            if (Radix16Tree.firstDivergence(id, 0, prefix) == prefixLen) {
+                int nib = Radix16Codec.uuidNibble(id, prefixLen);
+                int childIdx = rootNode.childIndexForNibble(nib);
+                if (childIdx >= 0) {
+                    ContentHash childHash = rootNode.childHashes().get(childIdx);
+                    frontier.computeIfAbsent(childHash, k -> new ArrayList<>())
+                            .add(new DescentTarget(id, prefixLen + 1));
+                }
+            }
+        }
+        return descendFrontier(frontier, expectedTreeKind, reachedLeaves);
+    }
 
     private Map<UUID, Radix16Node> descendToLeaves(
             ContentHash rootHash, char expectedTreeKind, Collection<UUID> ids) {
@@ -638,8 +742,13 @@ public final class JdbcPotVersionStore implements PotVersionStore {
             initial.add(new DescentTarget(Objects.requireNonNull(id), 0));
         }
         frontier.put(rootHash, initial);
+        return descendFrontier(frontier, expectedTreeKind, new HashMap<>(uniqueIds.size() * 2));
+    }
 
-        Map<UUID, Radix16Node> reachedLeaves = new HashMap<>(uniqueIds.size() * 2);
+    private Map<UUID, Radix16Node> descendFrontier(
+            Map<ContentHash, List<DescentTarget>> frontier,
+            char expectedTreeKind,
+            Map<UUID, Radix16Node> reachedLeaves) {
         int rounds = 0;
         while (!frontier.isEmpty()) {
             if (++rounds > Radix16Tree.MAX_DEPTH + 1) {
