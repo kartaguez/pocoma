@@ -1,0 +1,315 @@
+package com.kartaguez.pocoma.domain.projection.balance;
+
+import com.kartaguez.pocoma.domain.pot.value.Fraction;
+import com.kartaguez.pocoma.domain.projection.PotBalance;
+import com.kartaguez.pocoma.domain.projection.SubobjectKey;
+import com.kartaguez.pocoma.domain.projection.radix.ContentHash;
+
+import java.io.ByteArrayOutputStream;
+import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.*;
+
+/**
+ * Versioned canonical binary codec and domain-separated SHA-256 hashing for {@link PotBalance}.
+ *
+ * <p>Binary format ({@code schema_version = 1}):
+ * <ul>
+ *   <li>{@code int32_be(shareholdersCount)}</li>
+ *   <li>For each entry in strict {@link SubobjectKey#compareUuid} order:
+ *       {@code int64_be(msb) || int64_be(lsb) || encodeFraction(value)}</li>
+ * </ul>
+ * Hash: {@code SHA-256("pocoma-bal-v1\0" || uint8(1) || payload)}.
+ */
+public final class PotBalanceBinaryCodec {
+    public static final int SCHEMA_VERSION = 1;
+    private static final byte[] HASH_DOMAIN = "pocoma-bal-v1\0".getBytes(StandardCharsets.US_ASCII);
+
+    private PotBalanceBinaryCodec() {}
+
+    public static PotBalanceContent encode(PotBalance balance) {
+        Objects.requireNonNull(balance, "balance required");
+        return encodeCanonicalValues(balance.values());
+    }
+
+    public static PotBalanceContent encode(Map<UUID, Fraction> values) {
+        Objects.requireNonNull(values, "values required");
+        var sorted = new TreeMap<UUID, Fraction>(SubobjectKey::compareUuid);
+        for (var entry : values.entrySet()) {
+            UUID id = Objects.requireNonNull(entry.getKey(), "shareholder id required");
+            Fraction value = Objects.requireNonNull(entry.getValue(), "balance fraction required");
+            sorted.put(id, value);
+        }
+        Fraction sum = Fraction.ZERO;
+        for (Fraction f : sorted.values()) {
+            sum = sum.add(f);
+        }
+        if (!sum.equals(Fraction.ZERO)) {
+            throw new IllegalArgumentException("Unbalanced vector: sum=" + sum);
+        }
+        return encodeCanonicalValues(sorted);
+    }
+
+    private static PotBalanceContent encodeCanonicalValues(Map<UUID, Fraction> sortedValues) {
+        int count = sortedValues.size();
+        var out = new ByteArrayOutputStream(4 + count * 28);
+        writeInt32(out, count);
+        for (var entry : sortedValues.entrySet()) {
+            writeUuid(out, entry.getKey());
+            encodeFraction(out, entry.getValue());
+        }
+        byte[] payload = out.toByteArray();
+        ContentHash hash = computeHash(SCHEMA_VERSION, payload);
+        return new PotBalanceContent(hash, SCHEMA_VERSION, count, payload);
+    }
+
+    public static ContentHash computeHash(int schemaVersion, byte[] payload) {
+        if (schemaVersion != SCHEMA_VERSION) {
+            throw new IllegalArgumentException("Unsupported PotBalance schema version: " + schemaVersion);
+        }
+        Objects.requireNonNull(payload, "payload required");
+        return sha256(HASH_DOMAIN, schemaVersion, payload);
+    }
+
+    public static PotBalance decode(UUID potId, long version, PotBalanceContent content) {
+        Objects.requireNonNull(content, "content required");
+        return decode(
+                potId,
+                version,
+                content.schemaVersion(),
+                content.shareholdersCount(),
+                content.rawPayload(),
+                content.hash());
+    }
+
+    public static PotBalance decode(
+            UUID potId,
+            long version,
+            int schemaVersion,
+            int expectedShareholdersCount,
+            byte[] payload,
+            ContentHash expectedHash) {
+        Objects.requireNonNull(potId, "potId required");
+        if (version < 1) {
+            throw new IllegalArgumentException("Positive version required");
+        }
+        if (schemaVersion != SCHEMA_VERSION) {
+            throw new IllegalArgumentException("Unsupported PotBalance schema version: " + schemaVersion);
+        }
+        if (expectedShareholdersCount < 0) {
+            throw new IllegalArgumentException("Negative shareholdersCount: " + expectedShareholdersCount);
+        }
+        Objects.requireNonNull(payload, "payload required");
+        if (payload.length < 4) {
+            throw new IllegalArgumentException("PotBalance payload too short: " + payload.length);
+        }
+        if (expectedHash != null) {
+            ContentHash actualHash = computeHash(schemaVersion, payload);
+            if (!actualHash.equals(expectedHash)) {
+                throw new IllegalArgumentException(
+                        "PotBalance content hash mismatch: expected=" + expectedHash + ", actual=" + actualHash);
+            }
+        }
+
+        var reader = new Reader(payload);
+        int count = reader.readInt32();
+        if (count != expectedShareholdersCount) {
+            throw new IllegalArgumentException(
+                    "PotBalance shareholdersCount mismatch: header=" + count
+                            + ", expected=" + expectedShareholdersCount);
+        }
+        var values = new LinkedHashMap<UUID, Fraction>(Math.max(16, count * 2));
+        UUID previous = null;
+        for (int i = 0; i < count; i++) {
+            UUID id = reader.readUuid();
+            if (previous != null && SubobjectKey.compareUuid(previous, id) >= 0) {
+                throw new IllegalArgumentException(
+                        "PotBalance UUIDs must be strictly ascending: " + previous + " >= " + id);
+            }
+            previous = id;
+            Fraction fraction = reader.readFraction();
+            values.put(id, fraction);
+        }
+        if (reader.remaining() != 0) {
+            throw new IllegalArgumentException(
+                    "Trailing bytes in PotBalance payload: " + reader.remaining());
+        }
+        return new PotBalance(potId, version, values);
+    }
+
+    // -------------------------------------------------------------------------
+    // Shared package-private canonical binary I/O helpers (used by both codecs)
+    // -------------------------------------------------------------------------
+
+    static ContentHash sha256(byte[] domain, int schemaVersion, byte[] payload) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            md.update(domain);
+            md.update((byte) schemaVersion);
+            md.update(payload);
+            return ContentHash.of(md.digest());
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException("SHA-256 unavailable", e);
+        }
+    }
+
+    static void writeInt32(ByteArrayOutputStream out, int value) {
+        out.write((value >>> 24) & 0xFF);
+        out.write((value >>> 16) & 0xFF);
+        out.write((value >>> 8) & 0xFF);
+        out.write(value & 0xFF);
+    }
+
+    static void writeInt64(ByteArrayOutputStream out, long value) {
+        out.write((int) ((value >>> 56) & 0xFF));
+        out.write((int) ((value >>> 48) & 0xFF));
+        out.write((int) ((value >>> 40) & 0xFF));
+        out.write((int) ((value >>> 32) & 0xFF));
+        out.write((int) ((value >>> 24) & 0xFF));
+        out.write((int) ((value >>> 16) & 0xFF));
+        out.write((int) ((value >>> 8) & 0xFF));
+        out.write((int) (value & 0xFF));
+    }
+
+    static void writeUuid(ByteArrayOutputStream out, UUID id) {
+        writeInt64(out, id.getMostSignificantBits());
+        writeInt64(out, id.getLeastSignificantBits());
+    }
+
+    static void writeVarInt32(ByteArrayOutputStream out, int value) {
+        if (value < 0) {
+            throw new IllegalArgumentException("Negative varint32 value: " + value);
+        }
+        int v = value;
+        while ((v & ~0x7F) != 0) {
+            out.write((v & 0x7F) | 0x80);
+            v >>>= 7;
+        }
+        out.write(v);
+    }
+
+    static void encodeFraction(ByteArrayOutputStream out, Fraction value) {
+        byte[] numBytes = value.numerator().toByteArray();
+        byte[] denBytes = value.denominator().toByteArray();
+        writeVarInt32(out, numBytes.length);
+        out.write(numBytes, 0, numBytes.length);
+        writeVarInt32(out, denBytes.length);
+        out.write(denBytes, 0, denBytes.length);
+    }
+
+    static final class Reader {
+        private final byte[] buf;
+        private int pos;
+
+        Reader(byte[] buf) {
+            this.buf = buf;
+            this.pos = 0;
+        }
+
+        int remaining() {
+            return buf.length - pos;
+        }
+
+        int readUint8() {
+            requireRemaining(1);
+            return buf[pos++] & 0xFF;
+        }
+
+        int readInt32() {
+            requireRemaining(4);
+            int v = ((buf[pos] & 0xFF) << 24)
+                    | ((buf[pos + 1] & 0xFF) << 16)
+                    | ((buf[pos + 2] & 0xFF) << 8)
+                    | (buf[pos + 3] & 0xFF);
+            pos += 4;
+            return v;
+        }
+
+        long readInt64() {
+            requireRemaining(8);
+            long v = ((long) (buf[pos] & 0xFF) << 56)
+                    | ((long) (buf[pos + 1] & 0xFF) << 48)
+                    | ((long) (buf[pos + 2] & 0xFF) << 40)
+                    | ((long) (buf[pos + 3] & 0xFF) << 32)
+                    | ((long) (buf[pos + 4] & 0xFF) << 24)
+                    | ((long) (buf[pos + 5] & 0xFF) << 16)
+                    | ((long) (buf[pos + 6] & 0xFF) << 8)
+                    | ((long) (buf[pos + 7] & 0xFF));
+            pos += 8;
+            return v;
+        }
+
+        UUID readUuid() {
+            return new UUID(readInt64(), readInt64());
+        }
+
+        int readVarInt32() {
+            int result = 0;
+            int shift = 0;
+            int bytesRead = 0;
+            while (true) {
+                if (pos >= buf.length) {
+                    throw new IllegalArgumentException("Truncated varint32");
+                }
+                int b = buf[pos++] & 0xFF;
+                bytesRead++;
+                if (shift == 28 && (b & 0xF8) != 0) {
+                    throw new IllegalArgumentException("Varint32 overflow");
+                }
+                result |= (b & 0x7F) << shift;
+                if ((b & 0x80) == 0) {
+                    if (bytesRead > 1 && b == 0) {
+                        throw new IllegalArgumentException("Non-minimal varint32 encoding");
+                    }
+                    return result;
+                }
+                shift += 7;
+                if (shift > 28) {
+                    throw new IllegalArgumentException("Varint32 exceeds 5 bytes");
+                }
+            }
+        }
+
+        Fraction readFraction() {
+            BigInteger num = readMinimalBigInteger();
+            BigInteger den = readMinimalBigInteger();
+            if (den.signum() <= 0) {
+                throw new IllegalArgumentException("Non-positive fraction denominator: " + den);
+            }
+            Fraction fraction = new Fraction(num, den);
+            if (!fraction.numerator().equals(num) || !fraction.denominator().equals(den)) {
+                throw new IllegalArgumentException(
+                        "Non-canonical fraction encoding: " + num + "/" + den
+                                + " != " + fraction.numerator() + "/" + fraction.denominator());
+            }
+            return fraction;
+        }
+
+        private BigInteger readMinimalBigInteger() {
+            int len = readVarInt32();
+            if (len <= 0) {
+                throw new IllegalArgumentException("BigInteger byte length must be positive: " + len);
+            }
+            requireRemaining(len);
+            if (len > 1) {
+                byte b0 = buf[pos];
+                byte b1 = buf[pos + 1];
+                if ((b0 == 0x00 && (b1 & 0x80) == 0) || (b0 == (byte) 0xFF && (b1 & 0x80) != 0)) {
+                    throw new IllegalArgumentException("Non-minimal BigInteger two's-complement encoding");
+                }
+            }
+            byte[] slice = Arrays.copyOfRange(buf, pos, pos + len);
+            pos += len;
+            return new BigInteger(slice);
+        }
+
+        private void requireRemaining(int needed) {
+            if (needed < 0 || remaining() < needed) {
+                throw new IllegalArgumentException(
+                        "Truncated binary payload: need " + needed + " bytes, remaining=" + remaining());
+            }
+        }
+    }
+}
