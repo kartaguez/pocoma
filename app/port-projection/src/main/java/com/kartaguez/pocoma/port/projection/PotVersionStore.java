@@ -1,6 +1,8 @@
 package com.kartaguez.pocoma.port.projection;
 
 import com.kartaguez.pocoma.domain.projection.PotVersion;
+import com.kartaguez.pocoma.domain.projection.radix.ContentHash;
+import com.kartaguez.pocoma.domain.projection.radix.Radix16Node;
 import com.kartaguez.pocoma.port.transaction.RecoveryReadContext;
 
 import java.util.*;
@@ -24,4 +26,28 @@ public interface PotVersionStore {
 
     /** Close the existing READ publication after L2 complete, without committing. */
     void closePublication();
+
+    // --- Radix-16 incremental & targeted operations (L7-C2-B1) ---
+
+    Optional<PotVersionManifest> readManifestLatestBefore(
+            UUID pot,
+            long beforeVersionExclusive,
+            long minVersionInclusive,
+            RecoveryReadContext context);
+
+    Optional<PotShareholdersView> readShareholders(
+            UUID pot, long version, RecoveryReadContext context);
+
+    Map<UUID, PotVersion.Shareholder> readShareholdersByIds(
+            UUID pot, long version, Collection<UUID> ids, RecoveryReadContext context);
+
+    Map<UUID, PotVersion.Expense> readExpensesByIds(
+            UUID pot, long version, Collection<UUID> ids, RecoveryReadContext context);
+
+    Map<ContentHash, Radix16Node> loadNodes(
+            Collection<ContentHash> hashes, RecoveryReadContext context);
+
+    void publishPrepared(PotVersionWritePlan plan);
+
+    void requireManifestStored(PotVersionManifest expected);
 }

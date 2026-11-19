@@ -15,6 +15,7 @@ import com.kartaguez.pocoma.domain.pot.value.*;
 import com.kartaguez.pocoma.domain.pot.value.id.*;
 import com.kartaguez.pocoma.domain.projection.*;
 import com.kartaguez.pocoma.domain.projection.SubobjectContent.*;
+import com.kartaguez.pocoma.domain.projection.radix.*;
 import com.kartaguez.pocoma.engine.materialize.pot.PotVersionObservation.*;
 import com.kartaguez.pocoma.engine.materialize.pot.PotVersionSource.*;
 import com.kartaguez.pocoma.port.projection.*;
@@ -252,6 +253,12 @@ class MaterializePotVersionIncrementalTest {
                     }
                 };
 
+        PotVersionWritePlan refPlan = PotVersionWritePlan.fromFull(refK);
+        Map<ContentHash, Radix16Node> inMemNodes = new HashMap<>();
+        for (List<Radix16Node> lvl : refPlan.nodeLevelsBottomUp()) {
+            for (Radix16Node n : lvl) inMemNodes.put(n.hash(), n);
+        }
+
         PotVersionStore versions =
                 new PotVersionStore() {
                     @Override
@@ -275,8 +282,6 @@ class MaterializePotVersionIncrementalTest {
                     @Override
                     public Optional<PotVersion> readLatestBefore(
                             UUID pot, long beforeExclusive, long minInclusive, RecoveryReadContext context) {
-                        assertEquals(8L, beforeExclusive);
-                        assertEquals(1L, minInclusive);
                         return Optional.of(refK);
                     }
 
@@ -287,6 +292,65 @@ class MaterializePotVersionIncrementalTest {
 
                     @Override
                     public void closePublication() {}
+
+                    @Override
+                    public Optional<PotVersionManifest> readManifestLatestBefore(
+                            UUID pot, long beforeExclusive, long minInclusive, RecoveryReadContext context) {
+                        assertEquals(8L, beforeExclusive);
+                        assertEquals(1L, minInclusive);
+                        return Optional.of(refPlan.manifest());
+                    }
+
+                    @Override
+                    public Optional<PotShareholdersView> readShareholders(
+                            UUID pot, long version, RecoveryReadContext context) {
+                        return Optional.of(new PotShareholdersView(
+                                refK.potId(), refK.version(), refK.deleted(),
+                                refK.authorizedUserIds(), refK.attachedActiveUserIds(), refK.shareholders()));
+                    }
+
+                    @Override
+                    public Map<UUID, PotVersion.Shareholder> readShareholdersByIds(
+                            UUID pot, long version, Collection<UUID> ids, RecoveryReadContext context) {
+                        var map = new HashMap<UUID, PotVersion.Shareholder>();
+                        for (var s : refK.shareholders()) if (ids.contains(s.id())) map.put(s.id(), s);
+                        return map;
+                    }
+
+                    @Override
+                    public Map<UUID, PotVersion.Expense> readExpensesByIds(
+                            UUID pot, long version, Collection<UUID> ids, RecoveryReadContext context) {
+                        var map = new HashMap<UUID, PotVersion.Expense>();
+                        for (var e : refK.expenses()) if (ids.contains(e.id())) map.put(e.id(), e);
+                        return map;
+                    }
+
+                    @Override
+                    public Map<ContentHash, Radix16Node> loadNodes(
+                            Collection<ContentHash> hashes, RecoveryReadContext context) {
+                        var map = new HashMap<ContentHash, Radix16Node>();
+                        for (var h : hashes) {
+                            var n = inMemNodes.get(h);
+                            if (n != null) map.put(h, n);
+                        }
+                        return map;
+                    }
+
+                    @Override
+                    public void publishPrepared(PotVersionWritePlan plan) {
+                        for (List<Radix16Node> lvl : plan.nodeLevelsBottomUp()) {
+                            for (Radix16Node n : lvl) inMemNodes.put(n.hash(), n);
+                        }
+                        var m = plan.manifest();
+                        storedVersion.add(new PotVersion(
+                                m.potId(), m.version(), m.headerVersion(), m.detailsVersion(), m.deleted(),
+                                Radix16Tree.reconstructShareholders(m.shareholdersRoot(), inMemNodes),
+                                Radix16Tree.reconstructExpenses(m.expensesRoot(), inMemNodes),
+                                m.authorizedUserIds(), m.attachedActiveUserIds()));
+                    }
+
+                    @Override
+                    public void requireManifestStored(PotVersionManifest expected) {}
                 };
 
         var participant = new MaterializePotVersion(source, subobjects, versions, 64L, obs);
@@ -394,6 +458,8 @@ class MaterializePotVersionIncrementalTest {
                     }
                 };
 
+        PotVersionWritePlan refPlan = PotVersionWritePlan.fromFull(refK);
+        PotVersionWritePlan expectedFullPlan = PotVersionWritePlan.fromFull(expectedFull);
         PotVersionStore versions =
                 new PotVersionStore() {
                     @Override
@@ -427,6 +493,48 @@ class MaterializePotVersionIncrementalTest {
 
                     @Override
                     public void closePublication() {}
+
+                    @Override
+                    public Optional<PotVersionManifest> readManifestLatestBefore(
+                            UUID pot, long beforeExclusive, long minInclusive, RecoveryReadContext context) {
+                        return Optional.of(refPlan.manifest());
+                    }
+
+                    @Override
+                    public Optional<PotShareholdersView> readShareholders(
+                            UUID pot, long version, RecoveryReadContext context) {
+                        return Optional.of(new PotShareholdersView(
+                                refK.potId(), refK.version(), refK.deleted(),
+                                refK.authorizedUserIds(), refK.attachedActiveUserIds(), refK.shareholders()));
+                    }
+
+                    @Override
+                    public Map<UUID, PotVersion.Shareholder> readShareholdersByIds(
+                            UUID pot, long version, Collection<UUID> ids, RecoveryReadContext context) {
+                        var map = new HashMap<UUID, PotVersion.Shareholder>();
+                        for (var s : refK.shareholders()) if (ids.contains(s.id())) map.put(s.id(), s);
+                        return map;
+                    }
+
+                    @Override
+                    public Map<UUID, PotVersion.Expense> readExpensesByIds(
+                            UUID pot, long version, Collection<UUID> ids, RecoveryReadContext context) {
+                        return Map.of();
+                    }
+
+                    @Override
+                    public Map<ContentHash, Radix16Node> loadNodes(
+                            Collection<ContentHash> hashes, RecoveryReadContext context) {
+                        return Map.of();
+                    }
+
+                    @Override
+                    public void publishPrepared(PotVersionWritePlan plan) {
+                        assertEquals(expectedFullPlan.manifest(), plan.manifest());
+                    }
+
+                    @Override
+                    public void requireManifestStored(PotVersionManifest expected) {}
                 };
 
         var participant = new MaterializePotVersion(source, subobjects, versions, 64L, obs);
@@ -527,6 +635,42 @@ class MaterializePotVersionIncrementalTest {
 
                     @Override
                     public void closePublication() {}
+
+                    @Override
+                    public Optional<PotVersionManifest> readManifestLatestBefore(
+                            UUID pot, long beforeExclusive, long minInclusive, RecoveryReadContext context) {
+                        throw new IllegalStateException("Corrupt PotVersion");
+                    }
+
+                    @Override
+                    public Optional<PotShareholdersView> readShareholders(
+                            UUID pot, long version, RecoveryReadContext context) {
+                        return Optional.empty();
+                    }
+
+                    @Override
+                    public Map<UUID, PotVersion.Shareholder> readShareholdersByIds(
+                            UUID pot, long version, Collection<UUID> ids, RecoveryReadContext context) {
+                        return Map.of();
+                    }
+
+                    @Override
+                    public Map<UUID, PotVersion.Expense> readExpensesByIds(
+                            UUID pot, long version, Collection<UUID> ids, RecoveryReadContext context) {
+                        return Map.of();
+                    }
+
+                    @Override
+                    public Map<ContentHash, Radix16Node> loadNodes(
+                            Collection<ContentHash> hashes, RecoveryReadContext context) {
+                        return Map.of();
+                    }
+
+                    @Override
+                    public void publishPrepared(PotVersionWritePlan plan) {}
+
+                    @Override
+                    public void requireManifestStored(PotVersionManifest expected) {}
                 };
 
         var participant = new MaterializePotVersion(source, subobjects, versions, 64L, obs);
@@ -618,7 +762,6 @@ class MaterializePotVersionIncrementalTest {
                     @Override
                     public Optional<PotVersion> readLatestBefore(
                             UUID pot, long beforeExclusive, long minInclusive, RecoveryReadContext context) {
-                        capturedBounds.add(new long[] {beforeExclusive, minInclusive});
                         return Optional.empty();
                     }
 
@@ -629,6 +772,43 @@ class MaterializePotVersionIncrementalTest {
 
                     @Override
                     public void closePublication() {}
+
+                    @Override
+                    public Optional<PotVersionManifest> readManifestLatestBefore(
+                            UUID pot, long beforeExclusive, long minInclusive, RecoveryReadContext context) {
+                        capturedBounds.add(new long[] {beforeExclusive, minInclusive});
+                        return Optional.empty();
+                    }
+
+                    @Override
+                    public Optional<PotShareholdersView> readShareholders(
+                            UUID pot, long version, RecoveryReadContext context) {
+                        return Optional.empty();
+                    }
+
+                    @Override
+                    public Map<UUID, PotVersion.Shareholder> readShareholdersByIds(
+                            UUID pot, long version, Collection<UUID> ids, RecoveryReadContext context) {
+                        return Map.of();
+                    }
+
+                    @Override
+                    public Map<UUID, PotVersion.Expense> readExpensesByIds(
+                            UUID pot, long version, Collection<UUID> ids, RecoveryReadContext context) {
+                        return Map.of();
+                    }
+
+                    @Override
+                    public Map<ContentHash, Radix16Node> loadNodes(
+                            Collection<ContentHash> hashes, RecoveryReadContext context) {
+                        return Map.of();
+                    }
+
+                    @Override
+                    public void publishPrepared(PotVersionWritePlan plan) {}
+
+                    @Override
+                    public void requireManifestStored(PotVersionManifest expected) {}
                 };
 
         var participant = new MaterializePotVersion(source, subobjects, versions, 64L, obs);

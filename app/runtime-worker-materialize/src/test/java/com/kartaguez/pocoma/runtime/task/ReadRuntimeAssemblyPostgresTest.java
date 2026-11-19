@@ -469,8 +469,7 @@ class ReadRuntimeAssemblyPostgresTest {
                     () ->
                             f.read.queryForObject(
                                             "select count(*) from read_pot_version where pot_id=?"
-                                                    + " and pot_version=? and"
-                                                    + " (payload->>'deleted')::boolean",
+                                                    + " and pot_version=? and deleted",
                                             Integer.class,
                                             pot.value(),
                                             terminal)

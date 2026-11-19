@@ -685,6 +685,8 @@ class PotVersionAndBalanceJointIncrementalPostgresTest {
                         "read_pot_balance",
                         "read_current_pot",
                         "read_pot_version",
+                        "read_pot_version_node",
+                        "read_pot_user_set",
                         "read_subobject_version")) {
             f.read.oracle.execute("alter table " + table + " disable trigger user");
             f.read.oracle.execute("delete from " + table);

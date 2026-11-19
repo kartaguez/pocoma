@@ -17,6 +17,8 @@ import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.domain.pot.value.id.ShareholderId;
 import com.kartaguez.pocoma.domain.projection.*;
 import com.kartaguez.pocoma.domain.projection.SubobjectContent.*;
+import com.kartaguez.pocoma.domain.projection.radix.ContentHash;
+import com.kartaguez.pocoma.domain.projection.radix.Radix16Node;
 import com.kartaguez.pocoma.port.projection.*;
 import com.kartaguez.pocoma.port.transaction.RecoveryReadContext;
 
@@ -194,6 +196,45 @@ class MaterializePotVersionTest {
 
                     @Override
                     public void closePublication() {}
+
+                    @Override
+                    public Optional<PotVersionManifest> readManifestLatestBefore(
+                            UUID pot,
+                            long beforeVersionExclusive,
+                            long minVersionInclusive,
+                            RecoveryReadContext context) {
+                        return Optional.empty();
+                    }
+
+                    @Override
+                    public Optional<PotShareholdersView> readShareholders(
+                            UUID pot, long version, RecoveryReadContext context) {
+                        return Optional.empty();
+                    }
+
+                    @Override
+                    public Map<UUID, PotVersion.Shareholder> readShareholdersByIds(
+                            UUID pot, long version, Collection<UUID> ids, RecoveryReadContext context) {
+                        return Map.of();
+                    }
+
+                    @Override
+                    public Map<UUID, PotVersion.Expense> readExpensesByIds(
+                            UUID pot, long version, Collection<UUID> ids, RecoveryReadContext context) {
+                        return Map.of();
+                    }
+
+                    @Override
+                    public Map<ContentHash, Radix16Node> loadNodes(
+                            Collection<ContentHash> hashes, RecoveryReadContext context) {
+                        return Map.of();
+                    }
+
+                    @Override
+                    public void publishPrepared(PotVersionWritePlan plan) {}
+
+                    @Override
+                    public void requireManifestStored(PotVersionManifest expected) {}
                 };
 
         PreparationReads reads =

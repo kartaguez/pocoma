@@ -277,10 +277,11 @@ class ReadParticipantsIntegrationPostgresTest {
                 f.tamper(name);
                 assertEquals(RecoveryObservation.INCONSISTENT,engine.observe(acquired.claim()),participant+" divergent full business content");
                 if(name==Name.POT_VERSION) {
-                    f.f.read.oracle.update("update read_pot_version set payload='{}'::jsonb");
-                    assertEquals(RecoveryObservation.INCONSISTENT,engine.observe(acquired.claim()),"malformed JSON is positive corruption, not SQL unavailability");
+                    f.f.read.oracle.execute("alter table read_pot_version drop constraint read_pot_version_schema_version_check");
+                    f.f.read.oracle.update("update read_pot_version set schema_version=99");
+                    assertEquals(RecoveryObservation.INCONSISTENT,engine.observe(acquired.claim()),"malformed schema_version is positive corruption, not SQL unavailability");
                     var expected=f.f.sourceOwner.read(c -> new com.kartaguez.pocoma.infra.postgres.source.JdbcPotVersionSource(f.f.primary).composition(event,c));
-                    f.f.read.oracle.update("update read_pot_version set payload=?::jsonb",PotVersionJson.encode(expected));
+                    f.f.read.oracle.update("update read_pot_version set schema_version=1, deleted=?",expected.deleted());
                     f.f.read.oracle.execute("alter table read_subobject_version disable trigger user");
                     f.f.read.oracle.update("update read_subobject_version set payload=jsonb_set(payload,'{label}','\"\"') where kind='POT_DETAILS'");
                     assertEquals(RecoveryObservation.INCONSISTENT,engine.observe(acquired.claim()),"malformed subobject proof cannot become unavailable/satisfied");
@@ -323,18 +324,18 @@ class ReadParticipantsIntegrationPostgresTest {
             var v3=f.mutatePot(new PotCommand.UpdatePotDetails(new Label("V3")),2);
             f.enroll();
             for(var event:List.of(f.pot.event(),v2,v3)) f.execute(name,event);
-            var original=f.f.read.oracle.queryForObject("select payload::text from read_pot_version where pot_version=3",String.class);
             f.f.read.oracle.execute("alter table read_pot_version disable trigger user");
+            f.f.read.oracle.execute("alter table read_pot_version drop constraint read_pot_version_schema_version_check");
             // All corruptions below are administrative fault injections, never production writes.
             assertAll(List.of("absent","lower","equal","higher","malformed-target","mixed-target","invalid-reference").stream().map(state -> (org.junit.jupiter.api.function.Executable) () -> {
-                f.f.read.oracle.update("update read_pot_version set payload=?::jsonb where pot_version=3",original);
+                f.f.read.oracle.update("update read_pot_version set schema_version=1 where pot_version=3");
                 f.f.read.oracle.update("delete from read_current_pot");
                 if(!state.equals("absent")) {
                     long pointer=state.equals("lower")?1:state.equals("equal")?2:3;
                     f.f.read.oracle.update("insert into read_current_pot values (?,?)",f.pot.pot(),pointer);
                 }
-                if(state.equals("malformed-target")) f.f.read.oracle.update("update read_pot_version set payload='{}'::jsonb where pot_version=3");
-                if(state.equals("mixed-target")) f.f.read.oracle.update("update read_pot_version set payload=jsonb_set(payload,'{version}','2') where pot_version=3");
+                if(state.equals("malformed-target")) f.f.read.oracle.update("update read_pot_version set schema_version=99 where pot_version=3");
+                if(state.equals("mixed-target")) f.f.read.oracle.update("update read_pot_version set schema_version=2 where pot_version=3");
                 if(state.equals("invalid-reference")) {
                     assertThrows(org.springframework.dao.DataIntegrityViolationException.class,() -> f.f.read.oracle.update("update read_current_pot set pot_version=99"),"FK normally excludes a dangling pointer");
                     f.f.read.oracle.execute("alter table read_current_pot drop constraint read_current_pot_pot_id_pot_version_fkey");
@@ -346,12 +347,22 @@ class ReadParticipantsIntegrationPostgresTest {
                     () -> { setRecoverySlot(f,name,v2,false); recoveryObservation(f,name,v2,state+"/absent",valid?RecoveryObservation.COMPLETED:RecoveryObservation.INCONSISTENT); });
             }));
             // A coherent higher pointer cannot replace the exact historical root or subobjects.
-            f.f.read.oracle.update("update read_pot_version set payload=?::jsonb where pot_version=3",original);
+            f.f.read.oracle.update("update read_pot_version set schema_version=1 where pot_version=3");
             f.f.read.oracle.update("update read_current_pot set pot_version=3");
-            var historical=f.f.read.oracle.queryForObject("select payload::text from read_pot_version where pot_version=2",String.class);
+            var historical=f.f.read.oracle.queryForMap("select * from read_pot_version where pot_version=2");
             f.f.read.oracle.update("delete from read_pot_version where pot_version=2");
             recoveryObservation(f,name,v2,"higher/missing-historical-root",RecoveryObservation.INCONSISTENT);
-            f.f.read.oracle.update("insert into read_pot_version values (?,2,1,?::jsonb)",f.pot.pot(),historical);
+            f.f.read.oracle.update("""
+                    insert into read_pot_version(
+                      pot_id,pot_version,schema_version,header_version,details_version,deleted,
+                      shareholders_count,expenses_count,shareholders_root,expenses_root,
+                      authorized_users_hash,attached_active_users_hash)
+                    values (?,?,?,?,?,?,?,?,?,?,?,?)""",
+                    historical.get("pot_id"),historical.get("pot_version"),historical.get("schema_version"),
+                    historical.get("header_version"),historical.get("details_version"),historical.get("deleted"),
+                    historical.get("shareholders_count"),historical.get("expenses_count"),
+                    historical.get("shareholders_root"),historical.get("expenses_root"),
+                    historical.get("authorized_users_hash"),historical.get("attached_active_users_hash"));
             f.f.read.oracle.execute("alter table read_subobject_version disable trigger user");
             f.f.read.oracle.update("delete from read_subobject_version where kind='POT_DETAILS' and local_version=2");
             recoveryObservation(f,name,v2,"higher/missing-historical-subobject",RecoveryObservation.INCONSISTENT);

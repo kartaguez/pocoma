@@ -242,7 +242,7 @@ class ReadQuotaPostgresTest {
         String normalized=query.replaceAll("\\s+", " ").trim().toLowerCase(Locale.ROOT);
         // Keep every business SELECT visible; exclude only the exact maintenance gate probe.
         if(normalized.equals("select state, phase, target_prefix::text as target_prefix_text, operator_id, operation_id, started_at, updated_at, error_detail from public.read_maintenance_state where id = $1")) return false;
-        return normalized.startsWith("select") && normalized.contains("read_");
+        return (normalized.startsWith("select") || normalized.startsWith("with ")) && normalized.contains("read_");
     }
     long businessCalls() { return f.sqlStats().stream().filter(s -> isBusinessQuery(s.get("query").toString())).mapToLong(s -> ((Number) s.get("calls")).longValue()).sum(); }
     @Test void jdbcCountsAndCosts() throws Exception {

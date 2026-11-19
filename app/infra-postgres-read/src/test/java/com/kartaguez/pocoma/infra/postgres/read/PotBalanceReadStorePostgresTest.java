@@ -39,9 +39,15 @@ class PotBalanceReadStorePostgresTest {
         f.evidence("P02-I concurrent immutable",v.values());
     }
     @Test void migrationAndPrivileges() throws Exception {
-        var f=ReadStoreFixture.historical(PG,"3"); var p=UUID.randomUUID(); var pv=new JdbcPotVersionStore(f.source,f.tx);
-        var old=new PotVersion(p,1,1,1,false,List.of(),List.of(),Set.of(a),Set.of()); f.write(() -> pv.insertAndAdvance(old));
-        assertEquals(1,f.migrate("4")); assertEquals(old,f.tx.read(c -> pv.read(p,1,c).orElseThrow()));
+        var f=ReadStoreFixture.historical(PG,"3"); var p=UUID.randomUUID();
+        var old=new PotVersion(p,1,1,1,false,List.of(),List.of(),Set.of(a),Set.of());
+        String encoded=PotVersionJson.encode(old);
+        f.write(() -> {
+            f.sql.update("insert into read_pot_version(pot_id,pot_version,schema_version,payload) values (?,1,1,?::jsonb)",p,encoded);
+            f.sql.update("insert into read_current_pot(pot_id,pot_version) values (?,1)",p);
+        });
+        assertEquals(1,f.migrate("4"));
+        assertEquals(old,PotVersionJson.decode(1,f.sql.queryForObject("select payload::text from read_pot_version where pot_id=? and pot_version=1",String.class,p)));
         assertFalse(f.oracle.queryForObject("select has_table_privilege(?,'read_pot_balance','UPDATE,DELETE,TRUNCATE')",Boolean.class,f.runtimeRole));
         var s=new JdbcPotBalanceStore(f.source,f.tx); var unrelated=UUID.randomUUID(); f.write(() -> s.insertOrVerify(value(unrelated,1,Fraction.ONE)));
         assertThrows(RuntimeException.class,() -> f.oracle.execute("truncate read_pot_balance"));

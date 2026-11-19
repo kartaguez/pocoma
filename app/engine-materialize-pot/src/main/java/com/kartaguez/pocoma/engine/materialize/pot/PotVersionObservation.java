@@ -29,6 +29,7 @@ public interface PotVersionObservation {
         REFERENCE_LOOKUP,
         DELTA_RESOLUTION,
         COMPOSE,
+        TREE_BUILD,
         PERSIST_PUBLISH
     }
 
@@ -55,6 +56,9 @@ public interface PotVersionObservation {
     void deltaResolved(int changedSubobjects, Duration duration);
 
     void composed(Duration duration);
+
+    default void treeBuilt(
+            Path path, Duration duration, int nodesInserted, int nodesLoaded, int nodesReused) {}
 
     void pathSelected(Path path, Reason reason);
 

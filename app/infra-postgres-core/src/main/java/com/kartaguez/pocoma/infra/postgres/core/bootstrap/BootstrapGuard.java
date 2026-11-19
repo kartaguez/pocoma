@@ -150,6 +150,8 @@ public final class BootstrapGuard {
     private static final Map<String, Set<String>> READ_UPDATES =
             Map.ofEntries(
                     Map.entry("read_subobject_version", Set.of()),
+                    Map.entry("read_pot_user_set", Set.of()),
+                    Map.entry("read_pot_version_node", Set.of()),
                     Map.entry("read_pot_version", Set.of()),
                     Map.entry("read_current_pot", Set.of("pot_version")),
                     Map.entry("read_pot_balance", Set.of()),

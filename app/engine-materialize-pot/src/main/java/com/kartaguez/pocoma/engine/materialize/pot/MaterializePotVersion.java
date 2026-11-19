@@ -4,6 +4,7 @@ import com.kartaguez.pocoma.contract.consumption.participation.ConsumptionPartic
 import com.kartaguez.pocoma.contract.consumption.participation.PreparationReads;
 import com.kartaguez.pocoma.contract.consumption.participation.SlotCompletion;
 import com.kartaguez.pocoma.domain.projection.*;
+import com.kartaguez.pocoma.domain.projection.radix.*;
 import com.kartaguez.pocoma.engine.materialize.pot.PotVersionObservation.*;
 import com.kartaguez.pocoma.port.projection.*;
 import java.time.Duration;
@@ -60,17 +61,15 @@ public final class MaterializePotVersion implements ConsumptionParticipant {
         return prepareIncrementalOrFallback(event, eventRef, reference.get(), reads);
     }
 
-    private Optional<PotVersion> lookupReference(
+    private Optional<PotVersionManifest> lookupReference(
             PotVersionSource.EventRef eventRef, PreparationReads reads) {
         long minVersion = Math.max(1L, eventRef.version() - maxDeltaDistance);
         long start = System.nanoTime();
-        final Optional<PotVersion> refOpt;
+        final Optional<PotVersionManifest> refOpt;
         try {
-            refOpt =
-                    reads.effects(
-                            c ->
-                                    versions.readLatestBefore(
-                                            eventRef.potId(), eventRef.version(), minVersion, c));
+            refOpt = reads.effects(
+                    c -> versions.readManifestLatestBefore(
+                            eventRef.potId(), eventRef.version(), minVersion, c));
         } catch (RuntimeException | Error fault) {
             if (fault instanceof IllegalStateException) {
                 observation.referenceLookup(
@@ -83,13 +82,13 @@ public final class MaterializePotVersion implements ConsumptionParticipant {
             observation.referenceLookup(LookupOutcome.MISS, 0L, elapsed);
             return Optional.empty();
         }
-        PotVersion previous = refOpt.get();
+        PotVersionManifest previous = refOpt.get();
         long distance = eventRef.version() - previous.version();
         if (!eventRef.potId().equals(previous.potId())
                 || distance < 1
                 || distance > maxDeltaDistance) {
             observation.referenceLookup(LookupOutcome.CORRUPT, 0L, elapsed);
-            throw new IllegalStateException("Incompatible reference PotVersion");
+            throw new IllegalStateException("Incompatible reference PotVersion manifest");
         }
         observation.referenceLookup(LookupOutcome.HIT, distance, elapsed);
         return Optional.of(previous);
@@ -98,17 +97,12 @@ public final class MaterializePotVersion implements ConsumptionParticipant {
     private Optional<Prepared> prepareIncrementalOrFallback(
             UUID event,
             PotVersionSource.EventRef eventRef,
-            PotVersion previous,
+            PotVersionManifest previous,
             PreparationReads reads) {
         long deltaStart = System.nanoTime();
-        var delta =
-                reads.source(
-                        c ->
-                                source.stateDelta(
-                                        eventRef.potId(),
-                                        previous.version(),
-                                        eventRef.version(),
-                                        c));
+        var delta = reads.source(
+                c -> source.stateDelta(
+                        eventRef.potId(), previous.version(), eventRef.version(), c));
         observation.deltaResolved(
                 delta.changedSubobjectCount(), Duration.ofNanos(System.nanoTime() - deltaStart));
         if (delta.isEmpty()) {
@@ -119,33 +113,168 @@ public final class MaterializePotVersion implements ConsumptionParticipant {
             observation.pathSelected(Path.FULL, Reason.DELTA_TOO_LARGE);
             return prepareFull(event, reads);
         }
+
         long composeStart = System.nanoTime();
-        var composedOpt = PotVersionDeltaComposer.compose(previous, eventRef.version(), delta);
+        Set<UUID> affectedShIds = PotVersionDeltaComposer.affectedShareholderIds(delta);
+        Set<UUID> affectedExIds = PotVersionDeltaComposer.affectedExpenseIds(delta);
+        Map<UUID, PotVersion.Shareholder> prevShareholders = affectedShIds.isEmpty()
+                ? Map.of()
+                : reads.effects(
+                        c -> versions.readShareholdersByIds(
+                                eventRef.potId(), previous.version(), affectedShIds, c));
+        Map<UUID, PotVersion.Expense> prevExpenses = affectedExIds.isEmpty()
+                ? Map.of()
+                : reads.effects(
+                        c -> versions.readExpensesByIds(
+                                eventRef.potId(), previous.version(), affectedExIds, c));
+
+        var composedOpt = PotVersionDeltaComposer.composeDelta(
+                previous, eventRef.version(), prevShareholders, prevExpenses, delta);
         observation.composed(Duration.ofNanos(System.nanoTime() - composeStart));
         if (composedOpt.isEmpty()) {
             observation.pathSelected(Path.FULL, Reason.GLOBAL_SHAREHOLDER_EFFECT);
             return prepareFull(event, reads);
         }
+
         var composed = composedOpt.get();
-        var value = composed.value();
         var changedKeys = composed.changedKeys();
         // D1: Unchanged keys from committed immutable read_pot_version(K) are guaranteed present
         // in immutable read_subobject_version; only changed/new keys require presence checks.
         var presentChangedKeys = reads.effects(c -> subobjects.existingKeys(changedKeys, c));
         var missing = changedKeys.stream().filter(k -> !presentChangedKeys.contains(k)).toList();
-        var loaded =
-                missing.isEmpty()
-                        ? List.<SubobjectVersion>of()
-                        : reads.source(c -> source.contents(value, missing, c));
+        PotVersion contentShell = composed.contentShell();
+        if (missing.stream().anyMatch(k -> k.kind() == SubobjectKind.EXPENSE_FINANCIALS)) {
+            contentShell = enrichShellWithAllShareholders(previous, eventRef.version(), composed, reads);
+        }
+        PotVersion finalContentShell = contentShell;
+        var loaded = missing.isEmpty()
+                ? List.<SubobjectVersion>of()
+                : reads.source(c -> source.contents(finalContentShell, missing, c));
         verifyLoadedKeys(changedKeys, presentChangedKeys, loaded);
+
+        long treeStart = System.nanoTime();
+        PotVersionWritePlan plan = buildIncrementalWritePlan(previous, eventRef.version(), composed, reads);
+        observation.treeBuilt(
+                Path.INCREMENTAL,
+                Duration.ofNanos(System.nanoTime() - treeStart),
+                plan.newNodeCount(),
+                plan.nodesLoaded(),
+                plan.nodesReused());
+
         observation.pathSelected(Path.INCREMENTAL, Reason.INCREMENTAL_HIT);
-        return buildPrepared(value, loaded, presentChangedKeys, Path.INCREMENTAL);
+        return buildPrepared(plan, loaded, presentChangedKeys, Path.INCREMENTAL);
     }
 
-    private static boolean isDeltaTooLarge(PotVersion previous, PotVersionSource.StateDelta delta) {
+    private PotVersion enrichShellWithAllShareholders(
+            PotVersionManifest previous,
+            long targetVersion,
+            PotVersionDeltaComposer.ComposedDelta composed,
+            PreparationReads reads) {
+        var prevView = reads.effects(
+                c -> versions.readShareholders(previous.potId(), previous.version(), c))
+                .orElseThrow(() -> new IllegalStateException("Missing reference shareholders at version " + previous.version()));
+        Map<UUID, PotVersion.Shareholder> merged = new LinkedHashMap<>();
+        for (PotVersion.Shareholder s : prevView.shareholders()) {
+            merged.put(s.id(), s);
+        }
+        merged.putAll(composed.shareholderUpserts());
+        return new PotVersion(
+                previous.potId(),
+                targetVersion,
+                composed.nextHeaderVersion(),
+                composed.nextDetailsVersion(),
+                composed.nextDeleted(),
+                List.copyOf(merged.values()),
+                List.copyOf(composed.expenseUpserts().values()),
+                composed.nextAuthorizedUsers(),
+                composed.nextAttachedUsers());
+    }
+
+    private PotVersionWritePlan buildIncrementalWritePlan(
+            PotVersionManifest previous,
+            long targetVersion,
+            PotVersionDeltaComposer.ComposedDelta composed,
+            PreparationReads reads) {
+        Radix16Tree.NodeLoader loader = hashes -> reads.effects(c -> versions.loadNodes(hashes, c));
+
+        Radix16Tree.BuildResult shResult;
+        if (composed.shareholderUpserts().isEmpty()) {
+            shResult = new Radix16Tree.BuildResult(
+                    previous.shareholdersRoot(), Map.of(), 0, previous.shareholdersRoot() == null ? 0 : 1);
+        } else {
+            Map<UUID, Radix16Codec.EncodedEntry> encodedSh = new HashMap<>(composed.shareholderUpserts().size() * 2);
+            for (var e : composed.shareholderUpserts().entrySet()) {
+                encodedSh.put(e.getKey(), Radix16Codec.encodeShareholder(e.getValue()));
+            }
+            shResult = Radix16Tree.applyIncremental(
+                    Radix16Codec.TREE_SHAREHOLDERS, previous.shareholdersRoot(), encodedSh, Set.of(), loader);
+        }
+
+        Radix16Tree.BuildResult exResult;
+        if (composed.expenseUpserts().isEmpty()) {
+            exResult = new Radix16Tree.BuildResult(
+                    previous.expensesRoot(), Map.of(), 0, previous.expensesRoot() == null ? 0 : 1);
+        } else {
+            Map<UUID, Radix16Codec.EncodedEntry> encodedEx = new HashMap<>(composed.expenseUpserts().size() * 2);
+            for (var e : composed.expenseUpserts().entrySet()) {
+                encodedEx.put(e.getKey(), Radix16Codec.encodeExpense(e.getValue()));
+            }
+            exResult = Radix16Tree.applyIncremental(
+                    Radix16Codec.TREE_EXPENSES, previous.expensesRoot(), encodedEx, Set.of(), loader);
+        }
+
+        List<PotUserSet> userSetsToInsert = new ArrayList<>(2);
+        ContentHash nextAuthHash;
+        if (composed.nextAuthorizedUsers().equals(previous.authorizedUserIds())) {
+            nextAuthHash = previous.authorizedUsersHash();
+        } else {
+            Optional<PotUserSet> authSet = PotUserSet.of(composed.nextAuthorizedUsers());
+            authSet.ifPresent(userSetsToInsert::add);
+            nextAuthHash = authSet.map(PotUserSet::hash).orElse(null);
+        }
+
+        ContentHash nextAttachedHash;
+        if (composed.nextAttachedUsers().equals(previous.attachedActiveUserIds())) {
+            nextAttachedHash = previous.attachedActiveUsersHash();
+        } else {
+            Optional<PotUserSet> attachedSet = PotUserSet.of(composed.nextAttachedUsers());
+            attachedSet.ifPresent(userSetsToInsert::add);
+            nextAttachedHash = attachedSet.map(PotUserSet::hash).orElse(null);
+        }
+
+        List<Radix16Node> newNodes = new ArrayList<>(shResult.newNodes().size() + exResult.newNodes().size());
+        newNodes.addAll(shResult.newNodes().values());
+        newNodes.addAll(exResult.newNodes().values());
+        List<List<Radix16Node>> levels = Radix16Tree.groupBottomUpByDepth(newNodes);
+
+        PotVersionManifest manifest = new PotVersionManifest(
+                previous.potId(),
+                targetVersion,
+                Radix16Codec.SCHEMA_VERSION,
+                composed.nextHeaderVersion(),
+                composed.nextDetailsVersion(),
+                composed.nextDeleted(),
+                composed.nextShareholdersCount(),
+                composed.nextExpensesCount(),
+                shResult.rootHash(),
+                exResult.rootHash(),
+                nextAuthHash,
+                nextAttachedHash,
+                composed.nextAuthorizedUsers(),
+                composed.nextAttachedUsers());
+
+        return new PotVersionWritePlan(
+                manifest,
+                userSetsToInsert,
+                levels,
+                shResult.nodesLoaded() + exResult.nodesLoaded(),
+                shResult.nodesReused() + exResult.nodesReused());
+    }
+
+    private static boolean isDeltaTooLarge(PotVersionManifest previous, PotVersionSource.StateDelta delta) {
         int changed = delta.changedSubobjectCount();
         if (changed <= MIN_DELTA_VOLUME_FALLBACK) return false;
-        int previousTotal = 2 + previous.shareholders().size() * 3 + previous.expenses().size() * 3;
+        int previousTotal = 2 + previous.shareholdersCount() * 3 + previous.expensesCount() * 3;
         return changed * 2 > previousTotal;
     }
 
@@ -154,12 +283,20 @@ public final class MaterializePotVersion implements ConsumptionParticipant {
         var allKeys = value.keys();
         var presentKeys = reads.effects(c -> subobjects.existingKeys(allKeys, c));
         var missing = allKeys.stream().filter(k -> !presentKeys.contains(k)).toList();
-        var loaded =
-                missing.isEmpty()
-                        ? List.<SubobjectVersion>of()
-                        : reads.source(c -> source.contents(value, missing, c));
+        var loaded = missing.isEmpty()
+                ? List.<SubobjectVersion>of()
+                : reads.source(c -> source.contents(value, missing, c));
         verifyLoadedKeys(allKeys, presentKeys, loaded);
-        return buildPrepared(value, loaded, presentKeys, Path.FULL);
+
+        long treeStart = System.nanoTime();
+        PotVersionWritePlan plan = PotVersionWritePlan.fromFull(value);
+        observation.treeBuilt(
+                Path.FULL,
+                Duration.ofNanos(System.nanoTime() - treeStart),
+                plan.newNodeCount(),
+                0,
+                0);
+        return buildPrepared(plan, loaded, presentKeys, Path.FULL);
     }
 
     private static void verifyLoadedKeys(
@@ -176,7 +313,7 @@ public final class MaterializePotVersion implements ConsumptionParticipant {
     }
 
     private Optional<Prepared> buildPrepared(
-            PotVersion value,
+            PotVersionWritePlan plan,
             List<SubobjectVersion> loaded,
             Set<SubobjectKey> presentKeysToVerify,
             Path path) {
@@ -186,7 +323,7 @@ public final class MaterializePotVersion implements ConsumptionParticipant {
                     public void finalizeIn(SlotCompletion completion) {
                         long start = System.nanoTime();
                         subobjects.insertOrVerifyAll(loaded);
-                        versions.insertAndAdvance(value);
+                        versions.publishPrepared(plan);
                         completion.complete();
                         versions.closePublication();
                         observation.persistedAndPublished(
@@ -197,7 +334,7 @@ public final class MaterializePotVersion implements ConsumptionParticipant {
                     public void requireCompletionReady() {
                         subobjects.requireStored(loaded);
                         subobjects.requireKeysPresent(presentKeysToVerify);
-                        versions.requireStored(value);
+                        versions.requireManifestStored(plan.manifest());
                     }
                 });
     }

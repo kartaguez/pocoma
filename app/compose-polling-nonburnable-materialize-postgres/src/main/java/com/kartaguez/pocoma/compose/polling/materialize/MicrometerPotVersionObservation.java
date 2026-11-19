@@ -31,9 +31,13 @@ public final class MicrometerPotVersionObservation implements PotVersionObservat
     private final Map<Path, Map<Reason, Counter>> pathCounters = new EnumMap<>(Path.class);
     private final DistributionSummary referenceDistance;
     private final DistributionSummary deltaSubobjects;
+    private final DistributionSummary nodesInserted;
+    private final DistributionSummary nodesLoaded;
+    private final DistributionSummary nodesReused;
     private final Timer referenceLookupTimer;
     private final Timer deltaResolutionTimer;
     private final Timer composeTimer;
+    private final Map<Path, Timer> treeBuildTimers = new EnumMap<>(Path.class);
     private final Map<Path, Timer> persistPublishTimers = new EnumMap<>(Path.class);
 
     public MicrometerPotVersionObservation(MeterRegistry registry, Tags scope) {
@@ -59,6 +63,14 @@ public final class MicrometerPotVersionObservation implements PotVersionObservat
                                 .register(registry));
             }
             pathCounters.put(path, byReason);
+            treeBuildTimers.put(
+                    path,
+                    Timer.builder("pocoma.v3.potversion.stage.duration")
+                            .tags(scope)
+                            .tag("stage", label(Stage.TREE_BUILD))
+                            .tag("path", label(path))
+                            .serviceLevelObjectives(BUCKETS)
+                            .register(registry));
             persistPublishTimers.put(
                     path,
                     Timer.builder("pocoma.v3.potversion.stage.duration")
@@ -77,6 +89,21 @@ public final class MicrometerPotVersionObservation implements PotVersionObservat
                 DistributionSummary.builder("pocoma.v3.potversion.delta.subobjects")
                         .tags(scope)
                         .serviceLevelObjectives(1, 3, 10, 32, 64, 256, 1024)
+                        .register(registry);
+        this.nodesInserted =
+                DistributionSummary.builder("pocoma.v3.potversion.nodes.inserted")
+                        .tags(scope)
+                        .serviceLevelObjectives(1, 2, 4, 8, 16, 64, 256)
+                        .register(registry);
+        this.nodesLoaded =
+                DistributionSummary.builder("pocoma.v3.potversion.nodes.loaded")
+                        .tags(scope)
+                        .serviceLevelObjectives(1, 2, 4, 8, 16, 64, 256)
+                        .register(registry);
+        this.nodesReused =
+                DistributionSummary.builder("pocoma.v3.potversion.nodes.reused")
+                        .tags(scope)
+                        .serviceLevelObjectives(1, 4, 16, 64, 256, 1024)
                         .register(registry);
         this.referenceLookupTimer = stageTimer(registry, scope, Stage.REFERENCE_LOOKUP);
         this.deltaResolutionTimer = stageTimer(registry, scope, Stage.DELTA_RESOLUTION);
@@ -114,6 +141,15 @@ public final class MicrometerPotVersionObservation implements PotVersionObservat
     @Override
     public void composed(Duration duration) {
         composeTimer.record(duration);
+    }
+
+    @Override
+    public void treeBuilt(
+            Path path, Duration duration, int inserted, int loaded, int reused) {
+        treeBuildTimers.get(path).record(duration);
+        nodesInserted.record(inserted);
+        nodesLoaded.record(loaded);
+        nodesReused.record(reused);
     }
 
     @Override

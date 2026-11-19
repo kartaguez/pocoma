@@ -313,7 +313,7 @@ class ReadReconstructionPostgresTest {
             assertEquals(4, f.read.queryForObject("select count(*) from read_pot_version", Integer.class));
             assertEquals(3, f.read.queryForObject("select count(*) from read_pot_balance", Integer.class));
             assertEquals(Boolean.TRUE, f.read.queryForObject("""
-                    select (pv.payload->>'deleted')::boolean
+                    select pv.deleted
                     from read_current_pot cp join read_pot_version pv using (pot_id,pot_version)
                     where pot_id=?
                     """, Boolean.class, removed.value()));
@@ -440,7 +440,8 @@ class ReadReconstructionPostgresTest {
 
     private Map<String, String> readContent(JdbcTemplate read) {
         Map<String, String> content = new TreeMap<>();
-        for (String table : List.of("read_current_pot", "read_pot_version", "read_subobject_version",
+        for (String table : List.of("read_current_pot", "read_pot_version", "read_pot_version_node",
+                "read_pot_user_set", "read_subobject_version",
                 "read_pot_balance", "read_pot_visibility_state", "read_user_pot",
                 "read_current_binding", "read_command_result", "read_identity_request_result",
                 "read_current_invitation")) {
@@ -527,7 +528,8 @@ class ReadReconstructionPostgresTest {
             // Inject integrity violation: insert dangling current pot entry without balance/visibility
             UUID fakePotId = UUID.randomUUID();
             f.read.update(
-                    "INSERT INTO read_pot_version(pot_id, pot_version, schema_version, payload) VALUES (?, 1, 1, '{\"test\":1}'::jsonb)",
+                    "INSERT INTO read_pot_version(pot_id, pot_version, schema_version, header_version, details_version, deleted, shareholders_count, expenses_count) "
+                            + "VALUES (?, 1, 1, 1, 1, false, 0, 0)",
                     fakePotId);
             f.read.update(
                     "INSERT INTO read_current_pot(pot_id, pot_version) VALUES (?, 1)",

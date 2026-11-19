@@ -606,6 +606,8 @@ public final class ReadMonolithI8Fixture implements AutoCloseable {
         for (var table :
                 List.of(
                         "read_subobject_version",
+                        "read_pot_user_set",
+                        "read_pot_version_node",
                         "read_pot_version",
                         "read_current_pot",
                         "read_pot_balance",
