@@ -75,10 +75,10 @@ EXPECTED_CHECKPOINTS_COUNT = len(CANONICAL_READ_CONSUMPTIONS) * 4  # 28
 
 CANONICAL_MIGRATION_TABLES = (
     "consumption_routing_contract", "partition_ownership", "discovery_checkpoint", "consumption_slot",
-    "read_subobject_version", "read_pot_version", "read_current_pot", "read_pot_balance",
-    "read_pot_balance_aggregate", "read_pot_visibility_state", "read_user_pot",
-    "read_current_binding", "read_command_result", "read_identity_request_result",
-    "read_current_invitation",
+    "read_subobject_version", "read_pot_user_set", "read_pot_version_node", "read_pot_version",
+    "read_current_pot", "read_pot_balance", "read_pot_balance_aggregate",
+    "read_pot_visibility_state", "read_user_pot", "read_current_binding",
+    "read_command_result", "read_identity_request_result", "read_current_invitation",
 )
 
 
@@ -349,10 +349,21 @@ def _evaluate_integrity():
          "WHERE pv.pot_id IS NULL;", "dangling current_pot references"),
         (f"SELECT count(*) FROM {READ_SCHEMA}.read_pot_version pv "
          f"LEFT JOIN {READ_SCHEMA}.read_pot_balance pb USING (pot_id, pot_version) "
-         "WHERE jsonb_typeof(pv.payload->'deleted') IS DISTINCT FROM 'boolean' "
-         "OR (pv.payload->'deleted' = 'false'::jsonb AND pb.pot_id IS NULL) "
-         "OR (pv.payload->'deleted' = 'true'::jsonb AND pb.pot_id IS NOT NULL);",
-         "Pot versions with missing balance rows, unexpected terminal balances or invalid deletion flags"),
+         "WHERE (NOT pv.deleted AND pb.pot_id IS NULL) "
+         "OR (pv.deleted AND pb.pot_id IS NOT NULL);",
+         "Pot versions with missing balance rows or unexpected terminal balances"),
+        (f"SELECT count(*) FROM {READ_SCHEMA}.read_pot_version pv "
+         f"LEFT JOIN {READ_SCHEMA}.read_pot_version_node sh ON sh.node_hash = pv.shareholders_root "
+         f"LEFT JOIN {READ_SCHEMA}.read_pot_version_node ex ON ex.node_hash = pv.expenses_root "
+         "WHERE (pv.shareholders_root IS NOT NULL "
+         "       AND (sh.node_hash IS NULL OR sh.tree_kind <> 'S' OR sh.entry_count <> pv.shareholders_count)) "
+         "OR (pv.expenses_root IS NOT NULL "
+         "       AND (ex.node_hash IS NULL OR ex.tree_kind <> 'E' OR ex.entry_count <> pv.expenses_count)) "
+         f"OR (pv.authorized_users_hash IS NOT NULL "
+         f"       AND NOT EXISTS (SELECT 1 FROM {READ_SCHEMA}.read_pot_user_set u WHERE u.set_hash = pv.authorized_users_hash)) "
+         f"OR (pv.attached_active_users_hash IS NOT NULL "
+         f"       AND NOT EXISTS (SELECT 1 FROM {READ_SCHEMA}.read_pot_user_set u WHERE u.set_hash = pv.attached_active_users_hash));",
+         "Pot versions with inconsistent Radix-16 roots or user sets"),
         ("SELECT count(*) FROM v3_read.read_current_pot cp "
          "LEFT JOIN v3_read.read_pot_visibility_state vs ON cp.pot_id = vs.pot_id AND cp.pot_version <= vs.materialized_version "
          "WHERE vs.pot_id IS NULL;", "missing pot visibility rows"),
@@ -506,10 +517,11 @@ def _recreate_and_migrate_schema(operation_id, operator_id):
     transition("MAINTENANCE", "MAINTENANCE/SCHEMA_CREATED", (operation_id, operator_id))
     print("   ✓ Clean schema v3_read created and verified (phase: SCHEMA_CREATED).")
 
-    print("8. Applying canonical READ DDL (V1__initial_schema.sql + V2__pot_balance_aggregate.sql)...")
+    print("8. Applying canonical READ DDL (V1__initial_schema.sql + V2__pot_balance_aggregate.sql + V3__pot_version_radix16.sql)...")
     read_migrations = [
         "app/infra-postgres-read/src/main/resources/db/read/migration/V1__initial_schema.sql",
         "app/infra-postgres-read/src/main/resources/db/read/migration/V2__pot_balance_aggregate.sql",
+        "app/infra-postgres-read/src/main/resources/db/read/migration/V3__pot_version_radix16.sql",
     ]
     apply_migrations((READ_DB, READ_SCHEMA, POSTGRES_ADMIN_USER, READ_ROLE), read_migrations)
     if not check_tables_exist(CANONICAL_MIGRATION_TABLES):
@@ -791,7 +803,7 @@ def _inspect_physical_state(target_b):
     cp_count = int(psql_admin(READ_DB, f"SELECT count(*) FROM {READ_SCHEMA}.discovery_checkpoint;", check=False) or 0) if tables_exist else 0
     print("• Physical state inspection:")
     print(f"  Schema {READ_SCHEMA} exists:      {schema_exists}")
-    print(f"  Migration tables exist:    {tables_exist} (14/14)")
+    print(f"  Migration tables exist:    {tables_exist} ({len(CANONICAL_MIGRATION_TABLES)}/{len(CANONICAL_MIGRATION_TABLES)})")
     print(f"  Routing contracts:         {routing_count}/7")
     print(f"  Discovery checkpoints:     {cp_count}/{EXPECTED_CHECKPOINTS_COUNT}")
     print(f"  Target Prefix B:           {json.dumps(target_b) if target_b else '(not set)'}")

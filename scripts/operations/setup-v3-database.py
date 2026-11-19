@@ -198,8 +198,26 @@ def initialize_v3_read():
                 ["app/infra-postgres-read/src/main/resources/db/read/migration/V2__pot_balance_aggregate.sql"],
             )
             print("  ✓ Additive READ migration V2 applied.")
+        radix_reg = psql("pocoma_read", "SELECT to_regclass('v3_read.read_pot_version_node')::text;")
+        if not radix_reg:
+            existing_versions = psql("pocoma_read", "SELECT count(*) FROM v3_read.read_pot_version;")
+            if existing_versions and int(existing_versions) > 0:
+                raise RuntimeError(
+                    "INCOMPATIBLE-V2-READ-SCHEMA: v3_read.read_pot_version is still on V1/V2 JSONB format "
+                    f"with {existing_versions} row(s). Run 'python3 scripts/operations/v3-rebuild-read.py "
+                    "--confirm-destructive=RESET_READ_DATA' to rebuild READ from authoritative WRITE events."
+                )
+            print("▶ Applying READ migration V3__pot_version_radix16.sql on empty READ tables...")
+            apply_migrations(
+                "pocoma_read",
+                "v3_read",
+                "pocoma",
+                "pocoma_read",
+                ["app/infra-postgres-read/src/main/resources/db/read/migration/V3__pot_version_radix16.sql"],
+            )
+            print("  ✓ READ migration V3 (Radix-16) applied.")
         else:
-            print("  ✓ Schema v3_read and public maintenance authority already initialized.")
+            print("  ✓ Schema v3_read (V3 Radix-16) and public maintenance authority already initialized.")
         return
 
     print("▶ Initializing schema v3_read in database pocoma_read...")
@@ -208,6 +226,7 @@ def initialize_v3_read():
     read_migrations = [
         "app/infra-postgres-read/src/main/resources/db/read/migration/V1__initial_schema.sql",
         "app/infra-postgres-read/src/main/resources/db/read/migration/V2__pot_balance_aggregate.sql",
+        "app/infra-postgres-read/src/main/resources/db/read/migration/V3__pot_version_radix16.sql",
     ]
     apply_migrations("pocoma_read", "v3_read", "pocoma", "pocoma_read", read_migrations)
 

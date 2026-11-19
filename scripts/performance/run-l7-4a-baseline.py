@@ -578,43 +578,127 @@ def restore_snapshot_into_pg(pg, dump_path, out):
         capture_output=True,
         timeout=30,
     )
-    # Ensure additive READ migrations introduced after snapshot capture are applied (e.g. V2__pot_balance_aggregate.sql)
-    agg_check = subprocess.run(
+    # Check whether the restored READ schema is already on V3 (Radix-16).
+    # Legacy V1/V2 snapshots must rebuild READ from authoritative WRITE events (arbitrage F5).
+    radix_check = subprocess.run(
         [
             "docker", "exec", "-i", pg, "psql", "-X", "-U", "pocoma", "-d", "pocoma_read",
             "-v", "ON_ERROR_STOP=1", "-tAc",
-            "SELECT to_regclass('v3_read.read_pot_balance_aggregate')::text;",
+            "SELECT to_regclass('v3_read.read_pot_version_node')::text;",
         ],
         check=True,
         capture_output=True,
         text=True,
         timeout=30,
     )
-    if not agg_check.stdout.strip():
-        v2_sql = (
-            ROOT / "app/infra-postgres-read/src/main/resources/db/read/migration/V2__pot_balance_aggregate.sql"
-        ).read_text(encoding="utf-8")
-        v2_sql = (
-            v2_sql.replace("${expectedDatabase}", "pocoma_read")
-            .replace("${expectedSchema}", "v3_read")
-            .replace("${expectedAdmin}", "pocoma")
-            .replace("${expectedRuntime}", "pocoma_read")
+    needs_rebuild = not bool(radix_check.stdout.strip())
+    if needs_rebuild:
+        def _psql_read(sql_cmd, schema="v3_read"):
+            subprocess.run(
+                [
+                    "docker", "exec", "-i", "-e", f"PGOPTIONS=-c search_path={schema},public", pg,
+                    "psql", "-X", "-U", "pocoma", "-d", "pocoma_read", "-v", "ON_ERROR_STOP=1", "-c", sql_cmd,
+                ],
+                check=True, capture_output=True, text=True, timeout=60,
+            )
+
+        def _psql_read_file(sql_text, schema="v3_read", variables=None):
+            vars_args = []
+            for k, v in (variables or {}).items():
+                vars_args.extend(["-v", f"{k}={v}"])
+            subprocess.run(
+                [
+                    "docker", "exec", "-i", "-e", f"PGOPTIONS=-c search_path={schema},public", pg,
+                    "psql", "-X", "-U", "pocoma", "-d", "pocoma_read", "-v", "ON_ERROR_STOP=1", *vars_args, "-f", "-",
+                ],
+                input=sql_text, check=True, capture_output=True, text=True, timeout=60,
+            )
+
+        _psql_read("DROP SCHEMA IF EXISTS v3_read CASCADE;", schema="public")
+        _psql_read("CREATE SCHEMA v3_read AUTHORIZATION pocoma;", schema="public")
+        _psql_read("GRANT USAGE ON SCHEMA v3_read TO pocoma_read;", schema="public")
+        for mig in (
+            "app/infra-postgres-read/src/main/resources/db/read/migration/V1__initial_schema.sql",
+            "app/infra-postgres-read/src/main/resources/db/read/migration/V2__pot_balance_aggregate.sql",
+            "app/infra-postgres-read/src/main/resources/db/read/migration/V3__pot_version_radix16.sql",
+        ):
+            sql = (ROOT / mig).read_text(encoding="utf-8")
+            sql = (
+                sql.replace("${expectedDatabase}", "pocoma_read")
+                .replace("${expectedSchema}", "v3_read")
+                .replace("${expectedAdmin}", "pocoma")
+                .replace("${expectedRuntime}", "pocoma_read")
+            )
+            _psql_read_file(sql)
+        for script_file, variables in (
+            ("scripts/v3/bootstrap-l2-routing.sql", {
+                "expected_database": "pocoma_read", "expected_schema": "v3_read",
+                "expected_admin": "pocoma", "authority": "READ",
+            }),
+            ("scripts/v3/grant-l2-lifecycle.sql", {
+                "expected_database": "pocoma_read", "expected_schema": "v3_read",
+                "expected_admin": "pocoma", "runtime_role": "pocoma_read",
+                "reactivation_role": "pocoma_react", "identity_authority": "real", "identity_read_role": "pocoma_read",
+            }),
+            ("scripts/v3/grant-l2-discovery.sql", {
+                "expected_database": "pocoma_read", "expected_schema": "v3_read",
+                "expected_admin": "pocoma", "runtime_role": "pocoma_read",
+                "reactivation_role": "pocoma_react", "identity_authority": "real", "identity_read_role": "pocoma_read",
+            }),
+            ("scripts/v3/grant-l7-http-read.sql", {
+                "read_database": "pocoma_read", "read_schema": "v3_read",
+                "query_role": "pocoma_read_http", "status_role": "pocoma_read_status",
+            }),
+        ):
+            _psql_read_file((ROOT / script_file).read_text(encoding="utf-8"), variables=variables)
+        _psql_read(
+            "INSERT INTO v3_read.discovery_checkpoint (consumption_id, partition_id, position) "
+            "SELECT consumption_id, p, 0 FROM v3_read.consumption_routing_contract "
+            "CROSS JOIN generate_series(0, 3) p ON CONFLICT (consumption_id, partition_id) DO NOTHING;"
         )
-        subprocess.run(
-            [
-                "docker", "exec", "-i", "-e", "PGOPTIONS=-c search_path=v3_read,public", pg,
-                "psql", "-X", "-U", "pocoma", "-d", "pocoma_read", "-v", "ON_ERROR_STOP=1", "-f", "-",
-            ],
-            input=v2_sql,
-            check=True,
-            capture_output=True,
-            text=True,
-            timeout=30,
-        )
-    return round(time.monotonic() - t0, 2)
+    return round(time.monotonic() - t0, 2), needs_rebuild
 
 
-def verify_restored_state(pg, meta, pot_count, token, out, metrics_urls):
+def await_read_rebuild_from_write(pg, expected_write_counters, timeout_s=600):
+    t0 = time.monotonic()
+    deadline = t0 + timeout_s
+    while time.monotonic() < deadline:
+        cp_rows = bench.sql(
+            pg,
+            "pocoma_read",
+            "SELECT coalesce(jsonb_agg(jsonb_build_object('family', crc.family, 'pos', dc.position)), '[]'::jsonb) "
+            "FROM v3_read.discovery_checkpoint dc "
+            "JOIN v3_read.consumption_routing_contract crc ON dc.consumption_id = crc.consumption_id "
+            "WHERE crc.partition_count = 4",
+        )
+        slots = bench.sql(
+            pg,
+            "pocoma_read",
+            "SELECT jsonb_build_object('total', count(*), 'quarantined', count(*) FILTER (WHERE upper(state) = 'QUARANTINED')) "
+            "FROM v3_read.consumption_slot",
+        )
+        integrity = bench.sql(
+            pg,
+            "pocoma_read",
+            "SELECT jsonb_build_object("
+            "'danglingCurrent', (SELECT count(*) FROM v3_read.read_current_pot cp LEFT JOIN v3_read.read_pot_version pv USING (pot_id, pot_version) WHERE pv.pot_id IS NULL),"
+            "'balanceMismatch', (SELECT count(*) FROM v3_read.read_pot_version pv LEFT JOIN v3_read.read_pot_balance pb USING (pot_id, pot_version) WHERE (NOT pv.deleted AND pb.pot_id IS NULL) OR (pv.deleted AND pb.pot_id IS NOT NULL)),"
+            "'radixMismatch', (SELECT count(*) FROM v3_read.read_pot_version pv LEFT JOIN v3_read.read_pot_version_node sh ON sh.node_hash = pv.shareholders_root LEFT JOIN v3_read.read_pot_version_node ex ON ex.node_hash = pv.expenses_root WHERE (pv.shareholders_root IS NOT NULL AND (sh.node_hash IS NULL OR sh.tree_kind <> 'S' OR sh.entry_count <> pv.shareholders_count)) OR (pv.expenses_root IS NOT NULL AND (ex.node_hash IS NULL OR ex.tree_kind <> 'E' OR ex.entry_count <> pv.expenses_count))),"
+            "'missingVis', (SELECT count(*) FROM v3_read.read_current_pot cp LEFT JOIN v3_read.read_pot_visibility_state vs ON cp.pot_id = vs.pot_id AND cp.pot_version <= vs.materialized_version WHERE vs.pot_id IS NULL))",
+        )
+        cp_ok = len(cp_rows) == 28 and all(
+            row["pos"] >= expected_write_counters.get(row["family"].removesuffix("_EVENT"), 0)
+            for row in cp_rows
+        )
+        slots_ok = slots["total"] == 0 and slots["quarantined"] == 0
+        integrity_ok = all(v == 0 for v in integrity.values())
+        if cp_ok and slots_ok and integrity_ok:
+            return round(time.monotonic() - t0, 2)
+        time.sleep(0.5)
+    raise TimeoutError(f"READ rebuild from WRITE did not converge within {timeout_s}s")
+
+
+def verify_restored_state(pg, meta, pot_count, token, out, metrics_urls, rebuilt=False):
     snap = bench.snapshot(pg, metrics_urls, out, "initial")
     bench.validate_progress(snap, snap)
     write_db = snap["databases"]["write"]
@@ -623,7 +707,10 @@ def verify_restored_state(pg, meta, pot_count, token, out, metrics_urls):
         raise AssertionError("Restored write counters mismatch snapshot metadata")
     if len(write_db["checkpoints"]) != meta["writeCheckpointsCount"]:
         raise AssertionError("Restored write checkpoints count mismatch")
-    if len(read_db["checkpoints"]) != meta["readCheckpointsCount"]:
+    if rebuilt:
+        if len(read_db["checkpoints"]) < meta["readCheckpointsCount"]:
+            raise AssertionError("Rebuilt read checkpoints count below snapshot metadata")
+    elif len(read_db["checkpoints"]) != meta["readCheckpointsCount"]:
         raise AssertionError("Restored read checkpoints count mismatch")
 
     code, binding_resp = oracle.request("GET", "http://127.0.0.1:28002/api/v3/me/binding", token)
@@ -765,14 +852,16 @@ def run_campaign(args, cfg, campaign_name, out):
         wait_for(lambda: bench.command(["docker", "exec", pg, "pg_isready", "-h", "127.0.0.1", "-U", "pocoma"]) != "")
         ip = next(iter(bench.owned(pg)["NetworkSettings"]["Networks"].values()))["IPAddress"]
 
+        rebuilt_read = False
         if mode == "restore-run":
             print(f"[{campaign_name}] Restoring snapshot from {args.snapshot_dir}...")
-            restore_elapsed = restore_snapshot_into_pg(pg, snap_dump_path, out)
+            restore_elapsed, rebuilt_read = restore_snapshot_into_pg(pg, snap_dump_path, out)
             manifest["restore"] = {
                 "snapshotDir": str(Path(args.snapshot_dir).resolve()),
                 "snapshotSha256": snap_meta_pre["snapshotSha256"],
                 "restoreElapsedSeconds": restore_elapsed,
                 "prepareSeedElapsedSeconds": snap_meta_pre["seedElapsedSeconds"],
+                "readRebuiltFromWrite": rebuilt_read,
             }
             subject = snap_meta_pre["tokenSubject"]
         else:
@@ -825,8 +914,13 @@ def run_campaign(args, cfg, campaign_name, out):
 
         token = next(iter(json.loads((work / "tokens.json").read_text()).values()))
         if mode == "restore-run":
+            if rebuilt_read:
+                print(f"[{campaign_name}] Legacy V1/V2 READ snapshot detected — rebuilding READ V3 Radix-16 from WRITE...")
+                rebuild_elapsed = await_read_rebuild_from_write(pg, snap_meta_pre["writeCounters"], timeout_s=900)
+                manifest["restore"]["readRebuildElapsedSeconds"] = rebuild_elapsed
+                print(f"[{campaign_name}] READ V3 Radix-16 rebuilt from WRITE in {rebuild_elapsed}s.")
             initial_snap, binding, states = verify_restored_state(
-                pg, snap_meta_pre, camp["potCount"], token, out, metrics_urls
+                pg, snap_meta_pre, camp["potCount"], token, out, metrics_urls, rebuilt=rebuilt_read
             )
             os.environ.update(POCOMA_TOKEN=token, POCOMA_BINDING_TOKEN=binding)
             manifest["initialSnapshot"] = initial_snap

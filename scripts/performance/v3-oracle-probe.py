@@ -53,7 +53,7 @@ def _uuid(value):
 
 def current_pot_state(pot_id):
     out = sql_read_only(READ_DB, (
-        "select c.pot_version, coalesce((v.payload->>'deleted')::boolean,false) "
+        "select c.pot_version, v.deleted "
         "from v3_read.read_current_pot c join v3_read.read_pot_version v "
         "on v.pot_id=c.pot_id and v.pot_version=c.pot_version "
         f"where c.pot_id='{_uuid(pot_id)}'"))

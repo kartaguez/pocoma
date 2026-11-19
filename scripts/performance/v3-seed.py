@@ -382,7 +382,7 @@ def verify_materialized_pot(pot_id: str, expected_version: int, expected_expense
     expected_expenses = int(expected_expenses)
     sql_pot_ver = run_psql(READ_DB, f"SELECT pot_version FROM v3_read.read_current_pot WHERE pot_id='{pot_id}';")
     sql_bal = run_psql(READ_DB, f"SELECT count(*) FROM v3_read.read_pot_balance WHERE pot_id='{pot_id}' AND pot_version={expected_version};")
-    sql_exp_count = run_psql(READ_DB, f"SELECT jsonb_array_length(payload->'expenses') FROM v3_read.read_pot_version WHERE pot_id='{pot_id}' AND pot_version={expected_version};")
+    sql_exp_count = run_psql(READ_DB, f"SELECT expenses_count FROM v3_read.read_pot_version WHERE pot_id='{pot_id}' AND pot_version={expected_version};")
     return sql_pot_ver == str(expected_version) and sql_bal == "1" and sql_exp_count == str(expected_expenses)
 
 

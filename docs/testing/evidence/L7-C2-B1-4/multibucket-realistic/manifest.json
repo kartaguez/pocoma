@@ -1,0 +1,192 @@
+{
+  "scenario": "multibucket-realistic",
+  "startedAt": "2026-11-19T20:10:04.248486+00:00",
+  "javaImage": "eclipse-temurin@sha256:66bb900643426ad01996d25bada7d56751913f9cec3b827fcb715d2ec9a0fbfc",
+  "postgresImage": "postgres@sha256:a77aa70e641402a21411b92b721c58d10f23b50ae5fdd2333efd22d166e1e5f7",
+  "verdict": "PASS",
+  "potId": "a904d32f-aaae-4433-ae58-fb9a83c5e0ba",
+  "shareholderCount": 100,
+  "seed": {
+    "expenseCount": 2000,
+    "elapsedSeconds": 122.16,
+    "finalVersion": 2002,
+    "bucketCount": 60,
+    "bucketEntries": 1110
+  },
+  "phases": [
+    {
+      "phase": "realistic-60",
+      "versionRange": [
+        2003,
+        2062
+      ],
+      "commandCount": 60,
+      "operationCounts": {
+        "UpdateExpenseFinancials": 15,
+        "DeleteExpense": 10,
+        "UpdateShareholderWeights": 15,
+        "CreateExpense_existing": 12,
+        "CreateExpense_new_bucket": 4,
+        "CreateExpense_specific": 4
+      },
+      "exactOracleVerified": true,
+      "exactOracleDivergences": 0,
+      "finalOracleBucketCount": 62,
+      "finalOracleBucketEntries": 1162,
+      "e2eReadC03Ms": {
+        "n": 60,
+        "p50": 148.297,
+        "p95": 193.419,
+        "p99": 221.705,
+        "max": 221.705
+      },
+      "projections": {
+        "PotVersion": {
+          "n": 0,
+          "p50": null,
+          "p95": null,
+          "p99": null,
+          "max": null
+        },
+        "PotBalance": {
+          "n": 0,
+          "p50": null,
+          "p95": null,
+          "p99": null,
+          "max": null
+        },
+        "PotVisibility": {
+          "n": 0,
+          "p50": null,
+          "p95": null,
+          "p99": null,
+          "max": null
+        },
+        "CommandResult": {
+          "n": 0,
+          "p50": null,
+          "p95": null,
+          "p99": null,
+          "max": null
+        }
+      },
+      "weightUpdateProjections": {
+        "PotVersion": {
+          "n": 0,
+          "p50": null,
+          "p95": null,
+          "p99": null,
+          "max": null
+        },
+        "PotBalance": {
+          "n": 0,
+          "p50": null,
+          "p95": null,
+          "p99": null,
+          "max": null
+        },
+        "PotVisibility": {
+          "n": 0,
+          "p50": null,
+          "p95": null,
+          "p99": null,
+          "max": null
+        },
+        "CommandResult": {
+          "n": 0,
+          "p50": null,
+          "p95": null,
+          "p99": null,
+          "max": null
+        }
+      },
+      "aggregateStorage": {
+        "rowCount": 60,
+        "avgEntries": 1144.2,
+        "maxEntries": 1162,
+        "avgTextBytes": 21496,
+        "maxTextBytes": 21617,
+        "avgBucketCount": 61.32,
+        "avgColumnBytes": 10146,
+        "maxBucketCount": 62,
+        "maxColumnBytes": 10219,
+        "minBucketCount": 60
+      },
+      "micrometer": {
+        "potBalance": {
+          "paths": {
+            "incremental:incremental_hit": 60
+          },
+          "total": 60,
+          "incrementalCount": 60,
+          "incrementalRate": 1.0,
+          "lookupAndDeserialize": {
+            "count": 60,
+            "totalMs": 76.938,
+            "avgMs": 1.282
+          },
+          "deltaResolution": {
+            "count": 60,
+            "totalMs": 94.413,
+            "avgMs": 1.574
+          },
+          "deltaExpenses": {
+            "count": 60,
+            "sum": 45.0,
+            "avg": 0.75
+          },
+          "compose": {
+            "count": 60,
+            "totalMs": 19.438,
+            "avgMs": 0.324
+          },
+          "evaluateIncremental": {
+            "count": 60,
+            "totalMs": 96.56,
+            "avgMs": 1.609
+          },
+          "evaluateFull": {
+            "count": 0,
+            "totalMs": 0.0,
+            "avgMs": 0.0
+          },
+          "persistBalance": {
+            "count": 60,
+            "totalMs": 101.187,
+            "avgMs": 1.686
+          },
+          "persistAggregate": {
+            "count": 60,
+            "totalMs": 134.028,
+            "avgMs": 2.234
+          },
+          "aggregateBuckets": {
+            "count": 60,
+            "sum": 3679.0,
+            "avg": 61.317
+          },
+          "aggregateEntries": {
+            "count": 60,
+            "sum": 68654.0,
+            "avg": 1144.233
+          },
+          "referenceDistance": {
+            "count": 60,
+            "sum": 60.0,
+            "avg": 1.0
+          }
+        },
+        "potVersion": {
+          "paths": {
+            "incremental:incremental_hit": 60
+          },
+          "total": 60,
+          "incrementalCount": 60,
+          "incrementalRate": 1.0
+        }
+      }
+    }
+  ],
+  "cleanup": "REMOVED_OWN_PROJECT",
+  "finishedAt": "2026-11-19T20:12:39.570140+00:00"
+}
