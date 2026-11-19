@@ -1,0 +1,65 @@
+{
+  "scenario": "out-of-order-nm-large",
+  "snapshotDir": "/private/tmp/pocoma-l74a-snapshots/large",
+  "snapshotSha256": "2eb4567b568073c7d4e0c5bbd8db40aadfaeb222ed1c7e504bd6ed91fdab637d",
+  "startedAt": "2026-11-19T08:18:03.055793+00:00",
+  "verdict": "PASS",
+  "restoreElapsedSeconds": 13.12,
+  "safety": "PASS",
+  "queuedEvents": 20,
+  "incrementalHits": 18,
+  "fullNoReference": 0,
+  "referenceDistanceMax": 5.0,
+  "referenceDistanceBuckets": {
+    "1.0": 8,
+    "2.0": 14,
+    "4.0": 17,
+    "8.0": 18,
+    "16.0": 18,
+    "32.0": 18,
+    "64.0": 18,
+    "128.0": 18,
+    "+Inf": 18
+  },
+  "projections": {
+    "PotVersion": {
+      "n": 0,
+      "p50": null,
+      "p95": null,
+      "p99": null,
+      "max": null
+    },
+    "PotBalance": {
+      "n": 0,
+      "p50": null,
+      "p95": null,
+      "p99": null,
+      "max": null
+    },
+    "PotVisibility": {
+      "n": 0,
+      "p50": null,
+      "p95": null,
+      "p99": null,
+      "max": null
+    },
+    "CommandResult": {
+      "n": 0,
+      "p50": null,
+      "p95": null,
+      "p99": null,
+      "max": null
+    }
+  },
+  "aggregateStorage": {
+    "rowCount": 20,
+    "avgBuckets": 1.0,
+    "maxBuckets": 1,
+    "avgTextBytes": 11676,
+    "maxTextBytes": 11677,
+    "avgColumnBytes": 5512,
+    "maxColumnBytes": 5572
+  },
+  "cleanup": "REMOVED_OWN_PROJECT",
+  "finishedAt": "2026-11-19T08:19:08.334825+00:00"
+}

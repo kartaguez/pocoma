@@ -578,6 +578,39 @@ def restore_snapshot_into_pg(pg, dump_path, out):
         capture_output=True,
         timeout=30,
     )
+    # Ensure additive READ migrations introduced after snapshot capture are applied (e.g. V2__pot_balance_aggregate.sql)
+    agg_check = subprocess.run(
+        [
+            "docker", "exec", "-i", pg, "psql", "-X", "-U", "pocoma", "-d", "pocoma_read",
+            "-v", "ON_ERROR_STOP=1", "-tAc",
+            "SELECT to_regclass('v3_read.read_pot_balance_aggregate')::text;",
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+        timeout=30,
+    )
+    if not agg_check.stdout.strip():
+        v2_sql = (
+            ROOT / "app/infra-postgres-read/src/main/resources/db/read/migration/V2__pot_balance_aggregate.sql"
+        ).read_text(encoding="utf-8")
+        v2_sql = (
+            v2_sql.replace("${expectedDatabase}", "pocoma_read")
+            .replace("${expectedSchema}", "v3_read")
+            .replace("${expectedAdmin}", "pocoma")
+            .replace("${expectedRuntime}", "pocoma_read")
+        )
+        subprocess.run(
+            [
+                "docker", "exec", "-i", "-e", "PGOPTIONS=-c search_path=v3_read,public", pg,
+                "psql", "-X", "-U", "pocoma", "-d", "pocoma_read", "-v", "ON_ERROR_STOP=1", "-f", "-",
+            ],
+            input=v2_sql,
+            check=True,
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
     return round(time.monotonic() - t0, 2)
 
 

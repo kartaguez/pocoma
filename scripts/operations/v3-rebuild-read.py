@@ -506,14 +506,17 @@ def _recreate_and_migrate_schema(operation_id, operator_id):
     transition("MAINTENANCE", "MAINTENANCE/SCHEMA_CREATED", (operation_id, operator_id))
     print("   ✓ Clean schema v3_read created and verified (phase: SCHEMA_CREATED).")
 
-    print("8. Applying canonical READ baseline DDL (V1__initial_schema.sql)...")
-    read_migrations = ["app/infra-postgres-read/src/main/resources/db/read/migration/V1__initial_schema.sql"]
+    print("8. Applying canonical READ DDL (V1__initial_schema.sql + V2__pot_balance_aggregate.sql)...")
+    read_migrations = [
+        "app/infra-postgres-read/src/main/resources/db/read/migration/V1__initial_schema.sql",
+        "app/infra-postgres-read/src/main/resources/db/read/migration/V2__pot_balance_aggregate.sql",
+    ]
     apply_migrations((READ_DB, READ_SCHEMA, POSTGRES_ADMIN_USER, READ_ROLE), read_migrations)
     if not check_tables_exist(CANONICAL_MIGRATION_TABLES):
         print("FATAL: Postcondition failed: Not all canonical migration tables were created!", file=sys.stderr)
         return False
     transition("MAINTENANCE", "MAINTENANCE/MIGRATED", (operation_id, operator_id))
-    print("   ✓ Baseline V1__initial_schema.sql applied and 14 tables verified (phase: MIGRATED).")
+    print(f"   ✓ READ migrations applied and {len(CANONICAL_MIGRATION_TABLES)} tables verified (phase: MIGRATED).")
     return True
 
 

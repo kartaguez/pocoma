@@ -187,7 +187,19 @@ def initialize_v3_read():
 
     reg = psql("pocoma_read", "SELECT to_regclass('v3_read.read_current_pot')::text;")
     if reg and reg != "":
-        print("  ✓ Schema v3_read and public maintenance authority already initialized.")
+        agg_reg = psql("pocoma_read", "SELECT to_regclass('v3_read.read_pot_balance_aggregate')::text;")
+        if not agg_reg:
+            print("▶ Applying additive READ migration V2__pot_balance_aggregate.sql...")
+            apply_migrations(
+                "pocoma_read",
+                "v3_read",
+                "pocoma",
+                "pocoma_read",
+                ["app/infra-postgres-read/src/main/resources/db/read/migration/V2__pot_balance_aggregate.sql"],
+            )
+            print("  ✓ Additive READ migration V2 applied.")
+        else:
+            print("  ✓ Schema v3_read and public maintenance authority already initialized.")
         return
 
     print("▶ Initializing schema v3_read in database pocoma_read...")
@@ -195,6 +207,7 @@ def initialize_v3_read():
 
     read_migrations = [
         "app/infra-postgres-read/src/main/resources/db/read/migration/V1__initial_schema.sql",
+        "app/infra-postgres-read/src/main/resources/db/read/migration/V2__pot_balance_aggregate.sql",
     ]
     apply_migrations("pocoma_read", "v3_read", "pocoma", "pocoma_read", read_migrations)
 
