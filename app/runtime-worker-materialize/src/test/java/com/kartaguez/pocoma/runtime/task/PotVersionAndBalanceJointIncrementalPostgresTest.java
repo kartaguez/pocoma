@@ -682,7 +682,9 @@ class PotVersionAndBalanceJointIncrementalPostgresTest {
         for (String table :
                 List.of(
                         "read_pot_balance_aggregate",
+                        "read_pot_balance_aggregate_content",
                         "read_pot_balance",
+                        "read_pot_balance_content",
                         "read_current_pot",
                         "read_pot_version",
                         "read_pot_version_node",

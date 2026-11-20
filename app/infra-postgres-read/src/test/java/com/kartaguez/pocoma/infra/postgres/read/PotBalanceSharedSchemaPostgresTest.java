@@ -66,7 +66,7 @@ class PotBalanceSharedSchemaPostgresTest {
                     .schemas(schema)
                     .defaultSchema(schema)
                     .createSchemas(false)
-                    .locations("classpath:db/read/migration", "classpath:db/read-candidate/migration")
+                    .locations("classpath:db/read/migration")
                     .target(target)
                     .placeholders(Map.of(
                             "expectedDatabase", PG.getDatabaseName(),

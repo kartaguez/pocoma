@@ -48,7 +48,7 @@ final class ReadParticipantsFixture implements AutoCloseable {
     final WorkerCapacity capacity;
     final Map<Name,ConsumptionEngine> engines=new EnumMap<>(Name.class);
     final Map<String,PartitionLease> leases=new HashMap<>();
-    final List<String> businessTables=List.of("read_subobject_version","read_pot_user_set","read_pot_version_node","read_pot_version","read_current_pot","read_pot_balance","read_pot_visibility_state","read_user_pot","read_current_binding","read_command_result","read_identity_request_result");
+    final List<String> businessTables=List.of("read_subobject_version","read_pot_user_set","read_pot_version_node","read_pot_version","read_current_pot","read_pot_balance_content","read_pot_balance","read_pot_visibility_state","read_user_pot","read_current_binding","read_command_result","read_identity_request_result");
 
     ReadParticipantsFixture(PostgreSQLContainer pg,String scenario) throws Exception { this(pg,scenario,8); }
     ReadParticipantsFixture(PostgreSQLContainer pg,String scenario,int workerLimit) throws Exception {
@@ -145,7 +145,12 @@ final class ReadParticipantsFixture implements AutoCloseable {
     void tamper(Name name) {
         switch(name) {
             case POT_VERSION -> { f.read.oracle.execute("alter table read_pot_version disable trigger user"); f.read.oracle.update("update read_pot_version set deleted=true"); }
-            case POT_BALANCE -> { f.read.oracle.execute("alter table read_pot_balance disable trigger user"); f.read.oracle.update("update read_pot_balance set payload=?::jsonb","[{\"id\":\"00000000-0000-0000-0000-000000000099\",\"n\":\"0\",\"d\":\"1\"}]"); }
+            case POT_BALANCE -> {
+                var alt=com.kartaguez.pocoma.domain.projection.balance.PotBalanceBinaryCodec.encode(Map.of(UUID.fromString("00000000-0000-0000-0000-000000000099"),com.kartaguez.pocoma.domain.pot.value.Fraction.ZERO));
+                f.read.oracle.update("insert into read_pot_balance_content(content_hash,schema_version,shareholders_count,payload) values (?,?,?,?) on conflict do nothing",alt.hash().bytes(),alt.schemaVersion(),alt.shareholdersCount(),alt.payload());
+                f.read.oracle.execute("alter table read_pot_balance disable trigger user");
+                f.read.oracle.update("update read_pot_balance set content_hash=?",alt.hash().bytes());
+            }
             case POT_VISIBILITY -> f.read.oracle.update("insert into read_user_pot values (?,?,1,true)",UUID.randomUUID(),pot.pot());
             case CURRENT_BINDING -> f.read.oracle.update("update read_current_binding set binding_token=?","different-fixture-token");
             case COMMAND_RESULT -> { f.read.oracle.execute("alter table read_command_result disable trigger user"); f.read.oracle.update("update read_command_result set resulting_pot_version=9"); }

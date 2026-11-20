@@ -372,6 +372,24 @@ public final class ReadinessOracle {
         addIfPositive(
                 readJdbc,
                 """
+                select count(*) from read_pot_balance pb
+                left join read_pot_balance_content bc on bc.content_hash = pb.content_hash
+                where bc.content_hash is null
+                """,
+                "read_pot_balance has %d dangling content_hash references",
+                integrityErrors);
+        addIfPositive(
+                readJdbc,
+                """
+                select count(*) from read_pot_balance_aggregate pba
+                left join read_pot_balance_aggregate_content bac on bac.content_hash = pba.content_hash
+                where bac.content_hash is null
+                """,
+                "read_pot_balance_aggregate has %d dangling content_hash references",
+                integrityErrors);
+        addIfPositive(
+                readJdbc,
+                """
                 select count(*) from read_pot_version pv
                 left join read_pot_version_node sh on sh.node_hash = pv.shareholders_root
                 left join read_pot_version_node ex on ex.node_hash = pv.expenses_root

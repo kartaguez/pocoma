@@ -286,7 +286,8 @@ class ReadParticipantsIntegrationPostgresTest {
                     f.f.read.oracle.update("update read_subobject_version set payload=jsonb_set(payload,'{label}','\"\"') where kind='POT_DETAILS'");
                     assertEquals(RecoveryObservation.INCONSISTENT,engine.observe(acquired.claim()),"malformed subobject proof cannot become unavailable/satisfied");
                 } else if(name==Name.POT_BALANCE) {
-                    f.f.read.oracle.update("update read_pot_balance set payload='[{}]'::jsonb");
+                    f.f.read.oracle.execute("alter table read_pot_balance_content disable trigger user");
+                    f.f.read.oracle.update("update read_pot_balance_content set payload=decode('deadbeef','hex')");
                     assertEquals(RecoveryObservation.INCONSISTENT,engine.observe(acquired.claim()),"malformed balance proof");
                 }
                 f.f.read.trace.add(participant+" physical PID/XID="+witness);

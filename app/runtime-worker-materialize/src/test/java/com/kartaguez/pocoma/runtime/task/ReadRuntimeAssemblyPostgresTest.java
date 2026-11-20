@@ -106,6 +106,12 @@ class ReadRuntimeAssemblyPostgresTest {
             f.read.execute("grant delete on read_pot_user_set to " + f.readRole);
             refused(f, Map.of());
             f.read.execute("revoke delete on read_pot_user_set from " + f.readRole);
+            f.read.execute("grant update on read_pot_balance_content to " + f.readRole);
+            refused(f, Map.of());
+            f.read.execute("revoke update on read_pot_balance_content from " + f.readRole);
+            f.read.execute("grant delete on read_pot_balance_aggregate_content to " + f.readRole);
+            refused(f, Map.of());
+            f.read.execute("revoke delete on read_pot_balance_aggregate_content from " + f.readRole);
             f.read.execute("grant select on read_current_binding to public");
             refused(f, Map.of());
             f.read.execute("revoke select on read_current_binding from public");

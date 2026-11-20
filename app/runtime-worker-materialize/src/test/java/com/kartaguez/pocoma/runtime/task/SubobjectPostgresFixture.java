@@ -248,7 +248,7 @@ final class SubobjectPostgresFixture implements AutoCloseable {
         admin = datasource(adminRole);
         oracle = new JdbcTemplate(admin);
         if (currentBaseline) {
-            assertEquals(3, migrateCurrentBaseline());
+            assertEquals(4, migrateCurrentBaseline());
         } else {
             assertEquals(business ? 2 : 1, migrate(business));
         }
