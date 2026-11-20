@@ -1,4 +1,5 @@
--- V4 READ migration introducing immutable content-addressed PotBalance & PotBalanceAggregate storage (L7-C2-B2).
+-- V4 READ migration introducing immutable content-addressed PotBalance, PotBalanceAggregate,
+-- and shared PotShareholderSet storage (L7-C2-B2, ARB-1b).
 -- Mandatory Flyway placeholders, no defaults. Requires empty read_pot_balance and read_pot_balance_aggregate.
 do $$
 begin
@@ -22,19 +23,28 @@ begin
   end if;
 end $$;
 
-create table read_pot_balance_content (
-  content_hash       bytea   primary key check (octet_length(content_hash) = 32),
+create table read_pot_shareholder_set (
+  set_hash           bytea   primary key check (octet_length(set_hash) = 32),
   schema_version     integer not null    check (schema_version = 1),
   shareholders_count integer not null    check (shareholders_count >= 0),
-  payload            bytea   not null    check (octet_length(payload) >= 4)
+  payload            bytea   not null    check (octet_length(payload) = 4 + shareholders_count * 16)
+);
+
+create table read_pot_balance_content (
+  content_hash         bytea   primary key check (octet_length(content_hash) = 32),
+  schema_version       integer not null    check (schema_version = 1),
+  shareholders_count   integer not null    check (shareholders_count >= 0),
+  shareholder_set_hash bytea   not null    references read_pot_shareholder_set(set_hash),
+  payload              bytea   not null    check (octet_length(payload) >= 4)
 );
 
 create table read_pot_balance_aggregate_content (
-  content_hash       bytea   primary key check (octet_length(content_hash) = 32),
-  schema_version     integer not null    check (schema_version = 1),
-  shareholders_count integer not null    check (shareholders_count >= 0),
-  bucket_count       integer not null    check (bucket_count >= 0),
-  payload            bytea   not null    check (octet_length(payload) >= 8)
+  content_hash         bytea   primary key check (octet_length(content_hash) = 32),
+  schema_version       integer not null    check (schema_version = 1),
+  shareholders_count   integer not null    check (shareholders_count >= 0),
+  bucket_count         integer not null    check (bucket_count >= 0),
+  shareholder_set_hash bytea   not null    references read_pot_shareholder_set(set_hash),
+  payload              bytea   not null    check (octet_length(payload) >= 8)
 );
 
 drop table read_pot_balance_aggregate;
@@ -58,6 +68,15 @@ create table read_pot_balance_aggregate (
 -- ============================================================================
 -- Effective immutability triggers (ENABLE ALWAYS)
 -- ============================================================================
+create trigger read_pot_shareholder_set_immutable
+  before update or delete on read_pot_shareholder_set
+  for each row execute function read_subobject_immutable();
+create trigger read_pot_shareholder_set_no_truncate
+  before truncate on read_pot_shareholder_set
+  for each statement execute function read_subobject_immutable();
+alter table read_pot_shareholder_set enable always trigger read_pot_shareholder_set_immutable;
+alter table read_pot_shareholder_set enable always trigger read_pot_shareholder_set_no_truncate;
+
 create trigger read_pot_balance_content_immutable
   before update or delete on read_pot_balance_content
   for each row execute function read_subobject_immutable();
@@ -97,9 +116,9 @@ alter table read_pot_balance_aggregate enable always trigger read_pot_balance_ag
 -- ============================================================================
 -- Minimal runtime privileges & ACL assertions
 -- ============================================================================
-revoke all on read_pot_balance_content, read_pot_balance_aggregate_content, read_pot_balance, read_pot_balance_aggregate
+revoke all on read_pot_shareholder_set, read_pot_balance_content, read_pot_balance_aggregate_content, read_pot_balance, read_pot_balance_aggregate
   from public, "${expectedRuntime}";
-grant select, insert on read_pot_balance_content, read_pot_balance_aggregate_content, read_pot_balance, read_pot_balance_aggregate
+grant select, insert on read_pot_shareholder_set, read_pot_balance_content, read_pot_balance_aggregate_content, read_pot_balance, read_pot_balance_aggregate
   to "${expectedRuntime}";
 
 do $$
@@ -107,6 +126,7 @@ declare
   v_table text;
 begin
   foreach v_table in array array[
+    'read_pot_shareholder_set',
     'read_pot_balance_content',
     'read_pot_balance_aggregate_content',
     'read_pot_balance',

@@ -154,6 +154,7 @@ public final class BootstrapGuard {
                     Map.entry("read_pot_version_node", Set.of()),
                     Map.entry("read_pot_version", Set.of()),
                     Map.entry("read_current_pot", Set.of("pot_version")),
+                    Map.entry("read_pot_shareholder_set", Set.of()),
                     Map.entry("read_pot_balance_content", Set.of()),
                     Map.entry("read_pot_balance_aggregate_content", Set.of()),
                     Map.entry("read_pot_balance", Set.of()),

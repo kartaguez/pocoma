@@ -1,0 +1,278 @@
+{
+  "shareholders": 500,
+  "sitDVersions": 100,
+  "sitAVersions": 50,
+  "baselineA": {
+    "sitDWriteMs": {
+      "n": 100,
+      "p50": 7.435,
+      "p95": 12.543,
+      "p99": 18.445,
+      "max": 53.751
+    },
+    "sitDWalBytes": 4595368,
+    "sitDWalPerVerBytes": 45954,
+    "storageAfterSitD": {
+      "read_pot_shareholder_set": null,
+      "read_pot_balance": {
+        "rows": 100,
+        "heapBytes": 8192,
+        "indexBytes": 16384,
+        "toastBytes": 2236416,
+        "totalBytes": 2260992
+      },
+      "read_pot_balance_content": null,
+      "read_pot_balance_aggregate": {
+        "rows": 100,
+        "heapBytes": 16384,
+        "indexBytes": 16384,
+        "toastBytes": 2555904,
+        "totalBytes": 2588672
+      },
+      "read_pot_balance_aggregate_content": null
+    },
+    "readCurrentMs": {
+      "n": 30,
+      "p50": 2.051,
+      "p95": 2.483,
+      "p99": 3.239,
+      "max": 3.239
+    },
+    "readMidMs": {
+      "n": 30,
+      "p50": 2.002,
+      "p95": 3.294,
+      "p99": 3.847,
+      "max": 3.847
+    },
+    "readV1Ms": {
+      "n": 30,
+      "p50": 2.078,
+      "p95": 3.572,
+      "p99": 6.031,
+      "max": 6.031
+    },
+    "sitAWriteMs": {
+      "n": 50,
+      "p50": 5.967,
+      "p95": 7.003,
+      "p99": 9.558,
+      "max": 9.558
+    },
+    "sitAWalBytes": 2314440,
+    "sitAWalPerVerBytes": 46289,
+    "storageAfterSitA": {
+      "read_pot_shareholder_set": null,
+      "read_pot_balance": {
+        "rows": 150,
+        "heapBytes": 16384,
+        "indexBytes": 16384,
+        "toastBytes": 3366912,
+        "totalBytes": 3399680
+      },
+      "read_pot_balance_content": null,
+      "read_pot_balance_aggregate": {
+        "rows": 150,
+        "heapBytes": 16384,
+        "indexBytes": 16384,
+        "toastBytes": 3792896,
+        "totalBytes": 3825664
+      },
+      "read_pot_balance_aggregate_content": null
+    }
+  },
+  "candidateV4": {
+    "sitDWriteMs": {
+      "n": 100,
+      "p50": 2.751,
+      "p95": 5.659,
+      "p99": 9.286,
+      "max": 25.438
+    },
+    "sitDWalBytes": 444288,
+    "sitDWalPerVerBytes": 4443,
+    "storageAfterSitD": {
+      "read_pot_shareholder_set": {
+        "rows": 1,
+        "heapBytes": 8192,
+        "indexBytes": 16384,
+        "toastBytes": 57344,
+        "totalBytes": 81920
+      },
+      "read_pot_balance": {
+        "rows": 100,
+        "heapBytes": 16384,
+        "indexBytes": 16384,
+        "toastBytes": 32768,
+        "totalBytes": 65536
+      },
+      "read_pot_balance_content": {
+        "rows": 100,
+        "heapBytes": 40960,
+        "indexBytes": 16384,
+        "toastBytes": 32768,
+        "totalBytes": 90112
+      },
+      "read_pot_balance_aggregate": {
+        "rows": 100,
+        "heapBytes": 16384,
+        "indexBytes": 16384,
+        "toastBytes": 32768,
+        "totalBytes": 65536
+      },
+      "read_pot_balance_aggregate_content": {
+        "rows": 100,
+        "heapBytes": 16384,
+        "indexBytes": 16384,
+        "toastBytes": 344064,
+        "totalBytes": 376832
+      }
+    },
+    "readCurrentMs": {
+      "n": 30,
+      "p50": 1.534,
+      "p95": 1.989,
+      "p99": 2.101,
+      "max": 2.101
+    },
+    "readMidMs": {
+      "n": 30,
+      "p50": 1.536,
+      "p95": 2.045,
+      "p99": 2.047,
+      "max": 2.047
+    },
+    "readV1Ms": {
+      "n": 30,
+      "p50": 1.556,
+      "p95": 1.885,
+      "p99": 2.334,
+      "max": 2.334
+    },
+    "sitAWriteMs": {
+      "n": 50,
+      "p50": 2.388,
+      "p95": 14.352,
+      "p99": 20.013,
+      "max": 20.013
+    },
+    "sitAWalBytes": 34496,
+    "sitAWalPerVerBytes": 690,
+    "storageAfterSitA": {
+      "read_pot_shareholder_set": {
+        "rows": 1,
+        "heapBytes": 8192,
+        "indexBytes": 16384,
+        "toastBytes": 57344,
+        "totalBytes": 81920
+      },
+      "read_pot_balance": {
+        "rows": 150,
+        "heapBytes": 16384,
+        "indexBytes": 16384,
+        "toastBytes": 32768,
+        "totalBytes": 65536
+      },
+      "read_pot_balance_content": {
+        "rows": 100,
+        "heapBytes": 40960,
+        "indexBytes": 16384,
+        "toastBytes": 32768,
+        "totalBytes": 90112
+      },
+      "read_pot_balance_aggregate": {
+        "rows": 150,
+        "heapBytes": 16384,
+        "indexBytes": 16384,
+        "toastBytes": 32768,
+        "totalBytes": 65536
+      },
+      "read_pot_balance_aggregate_content": {
+        "rows": 100,
+        "heapBytes": 16384,
+        "indexBytes": 16384,
+        "toastBytes": 344064,
+        "totalBytes": 376832
+      }
+    },
+    "f4Diagnostic": {
+      "balanceContents": {
+        "content_heap_bytes": 40960,
+        "version_heap_bytes": 16384,
+        "content_index_bytes": 16384,
+        "content_toast_bytes": 32768,
+        "content_total_bytes": 90112,
+        "total_content_count": 100,
+        "version_index_bytes": 16384,
+        "version_total_bytes": 65536,
+        "reachable_content_count": 100,
+        "total_content_row_bytes": 36053,
+        "unreachable_content_bytes": 0,
+        "unreachable_content_count": 0,
+        "published_balance_versions": 150,
+        "reachable_content_row_bytes": 36053
+      },
+      "shareholderSets": {
+        "set_heap_bytes": 8192,
+        "set_index_bytes": 16384,
+        "set_toast_bytes": 57344,
+        "set_total_bytes": 81920,
+        "total_set_count": 1,
+        "reachable_set_count": 1,
+        "total_set_row_bytes": 8076,
+        "unreachable_set_bytes": 0,
+        "unreachable_set_count": 0,
+        "reachable_set_row_bytes": 8076
+      },
+      "aggregateContents": {
+        "content_heap_bytes": 16384,
+        "version_heap_bytes": 16384,
+        "content_index_bytes": 16384,
+        "content_toast_bytes": 344064,
+        "content_total_bytes": 376832,
+        "total_content_count": 100,
+        "version_index_bytes": 16384,
+        "version_total_bytes": 65536,
+        "reachable_content_count": 100,
+        "total_content_row_bytes": 259248,
+        "unreachable_content_bytes": 0,
+        "unreachable_content_count": 0,
+        "reachable_content_row_bytes": 259248,
+        "published_aggregate_versions": 150
+      },
+      "publishedVersions": 0
+    }
+  },
+  "granularityAnalysis": [
+    {
+      "shareholders": 100,
+      "buckets": 1,
+      "shareholderSetBytes": 1604,
+      "totalBytes": 1326,
+      "shareholdersBytes": 905,
+      "bucketsBytes": 421,
+      "shareholdersPct": 68.25,
+      "bucketsPct": 31.75
+    },
+    {
+      "shareholders": 100,
+      "buckets": 61,
+      "shareholderSetBytes": 1604,
+      "totalBytes": 6501,
+      "shareholdersBytes": 965,
+      "bucketsBytes": 5536,
+      "shareholdersPct": 14.84,
+      "bucketsPct": 85.16
+    },
+    {
+      "shareholders": 100,
+      "buckets": 240,
+      "shareholderSetBytes": 1604,
+      "totalBytes": 21851,
+      "shareholdersBytes": 1004,
+      "bucketsBytes": 20847,
+      "shareholdersPct": 4.59,
+      "bucketsPct": 95.41
+    }
+  ]
+}

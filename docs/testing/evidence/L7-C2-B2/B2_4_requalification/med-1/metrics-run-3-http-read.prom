@@ -1,0 +1,1852 @@
+# HELP application_ready_time_seconds Time taken for the application to be ready to service requests
+# TYPE application_ready_time_seconds gauge
+application_ready_time_seconds{main_application_class="com.kartaguez.pocoma.PocomaWebReadApplication"} 8.806
+# HELP application_started_time_seconds Time taken to start the application
+# TYPE application_started_time_seconds gauge
+application_started_time_seconds{main_application_class="com.kartaguez.pocoma.PocomaWebReadApplication"} 8.596
+# HELP disk_free_bytes Usable space for path
+# TYPE disk_free_bytes gauge
+disk_free_bytes{path="/."} 5.4172471296E10
+# HELP disk_total_bytes Total space for path
+# TYPE disk_total_bytes gauge
+disk_total_bytes{path="/."} 6.7296079872E10
+# HELP executor_active_threads The approximate number of threads that are actively executing tasks
+# TYPE executor_active_threads gauge
+executor_active_threads{name="applicationTaskExecutor"} 0.0
+# HELP executor_completed_tasks_total The approximate total number of tasks that have completed execution
+# TYPE executor_completed_tasks_total counter
+executor_completed_tasks_total{name="applicationTaskExecutor"} 0.0
+# HELP executor_pool_core_threads The core number of threads for the pool
+# TYPE executor_pool_core_threads gauge
+executor_pool_core_threads{name="applicationTaskExecutor"} 8.0
+# HELP executor_pool_max_threads The maximum allowed number of threads in the pool
+# TYPE executor_pool_max_threads gauge
+executor_pool_max_threads{name="applicationTaskExecutor"} 2.147483647E9
+# HELP executor_pool_size_threads The current number of threads in the pool
+# TYPE executor_pool_size_threads gauge
+executor_pool_size_threads{name="applicationTaskExecutor"} 0.0
+# HELP executor_queue_remaining_tasks The number of additional elements that this queue can ideally accept without blocking
+# TYPE executor_queue_remaining_tasks gauge
+executor_queue_remaining_tasks{name="applicationTaskExecutor"} 2.147483647E9
+# HELP executor_queued_tasks The approximate number of tasks that are queued for execution
+# TYPE executor_queued_tasks gauge
+executor_queued_tasks{name="applicationTaskExecutor"} 0.0
+# HELP hikaricp_connections Total connections
+# TYPE hikaricp_connections gauge
+hikaricp_connections{pool="v3-http-read"} 8.0
+hikaricp_connections{pool="v3-http-read-maintenance"} 1.0
+# HELP hikaricp_connections_acquire_seconds Connection acquire time
+# TYPE hikaricp_connections_acquire_seconds summary
+hikaricp_connections_acquire_seconds_count{pool="v3-http-read"} 4921
+hikaricp_connections_acquire_seconds_sum{pool="v3-http-read"} 0.073620386
+hikaricp_connections_acquire_seconds_count{pool="v3-http-read-maintenance"} 152
+hikaricp_connections_acquire_seconds_sum{pool="v3-http-read-maintenance"} 0.044048621
+# HELP hikaricp_connections_acquire_seconds_max Connection acquire time
+# TYPE hikaricp_connections_acquire_seconds_max gauge
+hikaricp_connections_acquire_seconds_max{pool="v3-http-read"} 0.053895125
+hikaricp_connections_acquire_seconds_max{pool="v3-http-read-maintenance"} 0.003266958
+# HELP hikaricp_connections_active Active connections
+# TYPE hikaricp_connections_active gauge
+hikaricp_connections_active{pool="v3-http-read"} 0.0
+hikaricp_connections_active{pool="v3-http-read-maintenance"} 0.0
+# HELP hikaricp_connections_creation_seconds Connection creation time
+# TYPE hikaricp_connections_creation_seconds summary
+hikaricp_connections_creation_seconds_count{pool="v3-http-read"} 7
+hikaricp_connections_creation_seconds_sum{pool="v3-http-read"} 0.457
+hikaricp_connections_creation_seconds_count{pool="v3-http-read-maintenance"} 0
+hikaricp_connections_creation_seconds_sum{pool="v3-http-read-maintenance"} 0.0
+# HELP hikaricp_connections_creation_seconds_max Connection creation time
+# TYPE hikaricp_connections_creation_seconds_max gauge
+hikaricp_connections_creation_seconds_max{pool="v3-http-read"} 0.108
+hikaricp_connections_creation_seconds_max{pool="v3-http-read-maintenance"} 0.0
+# HELP hikaricp_connections_idle Idle connections
+# TYPE hikaricp_connections_idle gauge
+hikaricp_connections_idle{pool="v3-http-read"} 8.0
+hikaricp_connections_idle{pool="v3-http-read-maintenance"} 1.0
+# HELP hikaricp_connections_max Max connections
+# TYPE hikaricp_connections_max gauge
+hikaricp_connections_max{pool="v3-http-read"} 8.0
+hikaricp_connections_max{pool="v3-http-read-maintenance"} 1.0
+# HELP hikaricp_connections_min Min connections
+# TYPE hikaricp_connections_min gauge
+hikaricp_connections_min{pool="v3-http-read"} 8.0
+hikaricp_connections_min{pool="v3-http-read-maintenance"} 1.0
+# HELP hikaricp_connections_pending Pending threads
+# TYPE hikaricp_connections_pending gauge
+hikaricp_connections_pending{pool="v3-http-read"} 0.0
+hikaricp_connections_pending{pool="v3-http-read-maintenance"} 0.0
+# HELP hikaricp_connections_timeout_total Connection timeout total count
+# TYPE hikaricp_connections_timeout_total counter
+hikaricp_connections_timeout_total{pool="v3-http-read"} 0.0
+hikaricp_connections_timeout_total{pool="v3-http-read-maintenance"} 0.0
+# HELP hikaricp_connections_usage_seconds Connection usage time
+# TYPE hikaricp_connections_usage_seconds summary
+hikaricp_connections_usage_seconds_count{pool="v3-http-read"} 4921
+hikaricp_connections_usage_seconds_sum{pool="v3-http-read"} 6.024
+hikaricp_connections_usage_seconds_count{pool="v3-http-read-maintenance"} 152
+hikaricp_connections_usage_seconds_sum{pool="v3-http-read-maintenance"} 0.01
+# HELP hikaricp_connections_usage_seconds_max Connection usage time
+# TYPE hikaricp_connections_usage_seconds_max gauge
+hikaricp_connections_usage_seconds_max{pool="v3-http-read"} 0.126
+hikaricp_connections_usage_seconds_max{pool="v3-http-read-maintenance"} 0.008
+# HELP http_server_requests_active_seconds  
+# TYPE http_server_requests_active_seconds summary
+http_server_requests_active_seconds_count{exception="none",method="GET",outcome="SUCCESS",status="200",uri="UNKNOWN"} 0
+http_server_requests_active_seconds_sum{exception="none",method="GET",outcome="SUCCESS",status="200",uri="UNKNOWN"} 0.0
+# HELP http_server_requests_active_seconds_max  
+# TYPE http_server_requests_active_seconds_max gauge
+http_server_requests_active_seconds_max{exception="none",method="GET",outcome="SUCCESS",status="200",uri="UNKNOWN"} 0.0
+# HELP http_server_requests_seconds  
+# TYPE http_server_requests_seconds summary
+http_server_requests_seconds_count{error="none",exception="none",method="GET",outcome="CLIENT_ERROR",status="404",uri="/api/v3/commands/{requestId}/result"} 3770
+http_server_requests_seconds_sum{error="none",exception="none",method="GET",outcome="CLIENT_ERROR",status="404",uri="/api/v3/commands/{requestId}/result"} 12.614149425
+http_server_requests_seconds_count{error="none",exception="none",method="GET",outcome="CLIENT_ERROR",status="404",uri="/api/v3/me/binding"} 2
+http_server_requests_seconds_sum{error="none",exception="none",method="GET",outcome="CLIENT_ERROR",status="404",uri="/api/v3/me/binding"} 0.345234291
+http_server_requests_seconds_count{error="none",exception="none",method="GET",outcome="CLIENT_ERROR",status="404",uri="/api/v3/pots/{potId}/versions/{version}/balance"} 39
+http_server_requests_seconds_sum{error="none",exception="none",method="GET",outcome="CLIENT_ERROR",status="404",uri="/api/v3/pots/{potId}/versions/{version}/balance"} 0.161935168
+http_server_requests_seconds_count{error="none",exception="none",method="GET",outcome="SERVER_ERROR",status="503",uri="/api/v3/pots/{potId}"} 45
+http_server_requests_seconds_sum{error="none",exception="none",method="GET",outcome="SERVER_ERROR",status="503",uri="/api/v3/pots/{potId}"} 0.212411624
+http_server_requests_seconds_count{error="none",exception="none",method="GET",outcome="SUCCESS",status="200",uri="/api/v3/commands/{requestId}/result"} 1024
+http_server_requests_seconds_sum{error="none",exception="none",method="GET",outcome="SUCCESS",status="200",uri="/api/v3/commands/{requestId}/result"} 4.279104822
+http_server_requests_seconds_count{error="none",exception="none",method="GET",outcome="SUCCESS",status="200",uri="/api/v3/me/binding"} 2
+http_server_requests_seconds_sum{error="none",exception="none",method="GET",outcome="SUCCESS",status="200",uri="/api/v3/me/binding"} 0.092976541
+http_server_requests_seconds_count{error="none",exception="none",method="GET",outcome="SUCCESS",status="200",uri="/api/v3/me/pots"} 1
+http_server_requests_seconds_sum{error="none",exception="none",method="GET",outcome="SUCCESS",status="200",uri="/api/v3/me/pots"} 0.013186959
+http_server_requests_seconds_count{error="none",exception="none",method="GET",outcome="SUCCESS",status="200",uri="/api/v3/pots/{potId}"} 24
+http_server_requests_seconds_sum{error="none",exception="none",method="GET",outcome="SUCCESS",status="200",uri="/api/v3/pots/{potId}"} 0.384039416
+http_server_requests_seconds_count{error="none",exception="none",method="GET",outcome="SUCCESS",status="200",uri="/api/v3/pots/{potId}/versions/{version}/balance"} 14
+http_server_requests_seconds_sum{error="none",exception="none",method="GET",outcome="SUCCESS",status="200",uri="/api/v3/pots/{potId}/versions/{version}/balance"} 0.047991209
+# HELP http_server_requests_seconds_max  
+# TYPE http_server_requests_seconds_max gauge
+http_server_requests_seconds_max{error="none",exception="none",method="GET",outcome="CLIENT_ERROR",status="404",uri="/api/v3/commands/{requestId}/result"} 0.083973708
+http_server_requests_seconds_max{error="none",exception="none",method="GET",outcome="CLIENT_ERROR",status="404",uri="/api/v3/me/binding"} 0.2836085
+http_server_requests_seconds_max{error="none",exception="none",method="GET",outcome="CLIENT_ERROR",status="404",uri="/api/v3/pots/{potId}/versions/{version}/balance"} 0.056731209
+http_server_requests_seconds_max{error="none",exception="none",method="GET",outcome="SERVER_ERROR",status="503",uri="/api/v3/pots/{potId}"} 0.058548708
+http_server_requests_seconds_max{error="none",exception="none",method="GET",outcome="SUCCESS",status="200",uri="/api/v3/commands/{requestId}/result"} 0.081123083
+http_server_requests_seconds_max{error="none",exception="none",method="GET",outcome="SUCCESS",status="200",uri="/api/v3/me/binding"} 0.087954083
+http_server_requests_seconds_max{error="none",exception="none",method="GET",outcome="SUCCESS",status="200",uri="/api/v3/me/pots"} 0.013186959
+http_server_requests_seconds_max{error="none",exception="none",method="GET",outcome="SUCCESS",status="200",uri="/api/v3/pots/{potId}"} 0.1381725
+http_server_requests_seconds_max{error="none",exception="none",method="GET",outcome="SUCCESS",status="200",uri="/api/v3/pots/{potId}/versions/{version}/balance"} 0.0114955
+# HELP jvm_info JVM version info
+# TYPE jvm_info gauge
+jvm_info{runtime="OpenJDK Runtime Environment",vendor="Eclipse Adoptium",version="21.0.8+9-LTS"} 1
+# HELP jvm_buffer_count_buffers An estimate of the number of buffers in the pool
+# TYPE jvm_buffer_count_buffers gauge
+jvm_buffer_count_buffers{id="direct"} 11.0
+jvm_buffer_count_buffers{id="mapped"} 0.0
+jvm_buffer_count_buffers{id="mapped - 'non-volatile memory'"} 0.0
+# HELP jvm_buffer_memory_used_bytes An estimate of the memory that the Java virtual machine is using for this buffer pool
+# TYPE jvm_buffer_memory_used_bytes gauge
+jvm_buffer_memory_used_bytes{id="direct"} 92160.0
+jvm_buffer_memory_used_bytes{id="mapped"} 0.0
+jvm_buffer_memory_used_bytes{id="mapped - 'non-volatile memory'"} 0.0
+# HELP jvm_buffer_total_capacity_bytes An estimate of the total capacity of the buffers in this pool
+# TYPE jvm_buffer_total_capacity_bytes gauge
+jvm_buffer_total_capacity_bytes{id="direct"} 92160.0
+jvm_buffer_total_capacity_bytes{id="mapped"} 0.0
+jvm_buffer_total_capacity_bytes{id="mapped - 'non-volatile memory'"} 0.0
+# HELP jvm_classes_loaded_classes The number of classes that are currently loaded in the Java virtual machine
+# TYPE jvm_classes_loaded_classes gauge
+jvm_classes_loaded_classes 11314.0
+# HELP jvm_classes_loaded_count_classes_total The number of classes loaded in the Java virtual machine
+# TYPE jvm_classes_loaded_count_classes_total counter
+jvm_classes_loaded_count_classes_total 11314.0
+# HELP jvm_classes_unloaded_classes_total The number of classes unloaded in the Java virtual machine
+# TYPE jvm_classes_unloaded_classes_total counter
+jvm_classes_unloaded_classes_total 0.0
+# HELP jvm_compilation_time_ms_total The approximate accumulated elapsed time spent in compilation
+# TYPE jvm_compilation_time_ms_total counter
+jvm_compilation_time_ms_total{compiler="HotSpot 64-Bit Tiered Compilers"} 21902.0
+# HELP jvm_gc_live_data_size_bytes Size of long-lived heap memory pool after reclamation
+# TYPE jvm_gc_live_data_size_bytes gauge
+jvm_gc_live_data_size_bytes 0.0
+# HELP jvm_gc_max_data_size_bytes Max size of long-lived heap memory pool
+# TYPE jvm_gc_max_data_size_bytes gauge
+jvm_gc_max_data_size_bytes 3.57957632E8
+# HELP jvm_gc_memory_allocated_bytes_total Incremented for an increase in the size of the (young) heap memory pool after one GC to before the next
+# TYPE jvm_gc_memory_allocated_bytes_total counter
+jvm_gc_memory_allocated_bytes_total 9.33727296E8
+# HELP jvm_gc_memory_promoted_bytes_total Count of positive increases in the size of the old generation memory pool before GC to after GC
+# TYPE jvm_gc_memory_promoted_bytes_total counter
+jvm_gc_memory_promoted_bytes_total 5648720.0
+# HELP jvm_gc_overhead An approximation of the percent of CPU time used by GC activities over the last lookback period or since monitoring began, whichever is shorter, in the range [0..1]
+# TYPE jvm_gc_overhead gauge
+jvm_gc_overhead 0.0037365945689141183
+# HELP jvm_gc_pause_seconds Time spent in GC pause
+# TYPE jvm_gc_pause_seconds summary
+jvm_gc_pause_seconds_count{action="end of minor GC",cause="Allocation Failure",gc="Copy"} 52
+jvm_gc_pause_seconds_sum{action="end of minor GC",cause="Allocation Failure",gc="Copy"} 0.221
+# HELP jvm_gc_pause_seconds_max Time spent in GC pause
+# TYPE jvm_gc_pause_seconds_max gauge
+jvm_gc_pause_seconds_max{action="end of minor GC",cause="Allocation Failure",gc="Copy"} 0.057
+# HELP jvm_memory_committed_bytes The amount of memory in bytes that is committed for the Java virtual machine to use
+# TYPE jvm_memory_committed_bytes gauge
+jvm_memory_committed_bytes{area="heap",id="Eden Space"} 1.7956864E7
+jvm_memory_committed_bytes{area="heap",id="Survivor Space"} 2228224.0
+jvm_memory_committed_bytes{area="heap",id="Tenured Gen"} 4.4761088E7
+jvm_memory_committed_bytes{area="nonheap",id="CodeHeap 'non-nmethods'"} 2555904.0
+jvm_memory_committed_bytes{area="nonheap",id="CodeHeap 'non-profiled nmethods'"} 8585216.0
+jvm_memory_committed_bytes{area="nonheap",id="CodeHeap 'profiled nmethods'"} 2.5821184E7
+jvm_memory_committed_bytes{area="nonheap",id="Compressed Class Space"} 7274496.0
+jvm_memory_committed_bytes{area="nonheap",id="Metaspace"} 5.7737216E7
+# HELP jvm_memory_max_bytes The maximum amount of memory in bytes that can be used for memory management
+# TYPE jvm_memory_max_bytes gauge
+jvm_memory_max_bytes{area="heap",id="Eden Space"} 1.43130624E8
+jvm_memory_max_bytes{area="heap",id="Survivor Space"} 1.7891328E7
+jvm_memory_max_bytes{area="heap",id="Tenured Gen"} 3.57957632E8
+jvm_memory_max_bytes{area="nonheap",id="CodeHeap 'non-nmethods'"} 5828608.0
+jvm_memory_max_bytes{area="nonheap",id="CodeHeap 'non-profiled nmethods'"} 1.22916864E8
+jvm_memory_max_bytes{area="nonheap",id="CodeHeap 'profiled nmethods'"} 1.22912768E8
+jvm_memory_max_bytes{area="nonheap",id="Compressed Class Space"} 1.073741824E9
+jvm_memory_max_bytes{area="nonheap",id="Metaspace"} -1.0
+# HELP jvm_memory_usage_after_gc The percentage of long-lived heap pool used after the last GC event, in the range [0..1]
+# TYPE jvm_memory_usage_after_gc gauge
+jvm_memory_usage_after_gc{area="heap",pool="long-lived"} 0.07090412308906993
+# HELP jvm_memory_used_bytes The amount of used memory
+# TYPE jvm_memory_used_bytes gauge
+jvm_memory_used_bytes{area="heap",id="Eden Space"} 9855336.0
+jvm_memory_used_bytes{area="heap",id="Survivor Space"} 497984.0
+jvm_memory_used_bytes{area="heap",id="Tenured Gen"} 2.5380672E7
+jvm_memory_used_bytes{area="nonheap",id="CodeHeap 'non-nmethods'"} 1468544.0
+jvm_memory_used_bytes{area="nonheap",id="CodeHeap 'non-profiled nmethods'"} 8546432.0
+jvm_memory_used_bytes{area="nonheap",id="CodeHeap 'profiled nmethods'"} 2.5780992E7
+jvm_memory_used_bytes{area="nonheap",id="Compressed Class Space"} 6886088.0
+jvm_memory_used_bytes{area="nonheap",id="Metaspace"} 5.6877648E7
+# HELP jvm_threads_daemon_threads The current number of live daemon threads
+# TYPE jvm_threads_daemon_threads gauge
+jvm_threads_daemon_threads 29.0
+# HELP jvm_threads_live_threads The current number of live threads including both daemon and non-daemon threads
+# TYPE jvm_threads_live_threads gauge
+jvm_threads_live_threads 36.0
+# HELP jvm_threads_peak_threads The peak live thread count since the Java virtual machine started or peak was reset
+# TYPE jvm_threads_peak_threads gauge
+jvm_threads_peak_threads 38.0
+# HELP jvm_threads_started_threads_total The total number of application threads started in the JVM
+# TYPE jvm_threads_started_threads_total counter
+jvm_threads_started_threads_total 40.0
+# HELP jvm_threads_states_threads The current number of threads
+# TYPE jvm_threads_states_threads gauge
+jvm_threads_states_threads{state="blocked"} 0.0
+jvm_threads_states_threads{state="new"} 0.0
+jvm_threads_states_threads{state="runnable"} 9.0
+jvm_threads_states_threads{state="terminated"} 0.0
+jvm_threads_states_threads{state="timed-waiting"} 11.0
+jvm_threads_states_threads{state="waiting"} 16.0
+# HELP logback_events_total Number of log events that were enabled by the effective log level
+# TYPE logback_events_total counter
+logback_events_total{level="debug"} 0.0
+logback_events_total{level="error"} 0.0
+logback_events_total{level="info"} 14.0
+logback_events_total{level="trace"} 0.0
+logback_events_total{level="warn"} 0.0
+# HELP pocoma_v3_read_http_duration_seconds  
+# TYPE pocoma_v3_read_http_duration_seconds histogram
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="200",le="0.001"} 0
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="200",le="0.001048576"} 0
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="200",le="0.001398101"} 0
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="200",le="0.001747626"} 3
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="200",le="0.002097151"} 8
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="200",le="0.002446676"} 10
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="200",le="0.002796201"} 11
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="200",le="0.003145726"} 11
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="200",le="0.003495251"} 11
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="200",le="0.003844776"} 11
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="200",le="0.004194304"} 11
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="200",le="0.005"} 12
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="200",le="0.005592405"} 13
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="200",le="0.006990506"} 13
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="200",le="0.008388607"} 13
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="200",le="0.009786708"} 13
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="200",le="0.01"} 13
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="200",le="0.011184809"} 14
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="200",le="0.01258291"} 14
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="200",le="0.013981011"} 14
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="200",le="0.015379112"} 14
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="200",le="0.016777216"} 14
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="200",le="0.022369621"} 14
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="200",le="0.027962026"} 14
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="200",le="0.033554431"} 14
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="200",le="0.039146836"} 14
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="200",le="0.044739241"} 14
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="200",le="0.05"} 14
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="200",le="0.050331646"} 14
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="200",le="0.055924051"} 14
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="200",le="0.061516456"} 14
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="200",le="0.067108864"} 14
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="200",le="0.089478485"} 14
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="200",le="0.1"} 14
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="200",le="0.111848106"} 14
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="200",le="0.134217727"} 14
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="200",le="0.156587348"} 14
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="200",le="0.178956969"} 14
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="200",le="0.20132659"} 14
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="200",le="0.223696211"} 14
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="200",le="0.246065832"} 14
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="200",le="0.268435456"} 14
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="200",le="0.357913941"} 14
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="200",le="0.447392426"} 14
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="200",le="0.5"} 14
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="200",le="0.536870911"} 14
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="200",le="0.626349396"} 14
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="200",le="0.715827881"} 14
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="200",le="0.805306366"} 14
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="200",le="0.894784851"} 14
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="200",le="0.984263336"} 14
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="200",le="1.0"} 14
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="200",le="1.073741824"} 14
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="200",le="1.431655765"} 14
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="200",le="1.789569706"} 14
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="200",le="2.0"} 14
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="200",le="2.147483647"} 14
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="200",le="2.505397588"} 14
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="200",le="2.863311529"} 14
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="200",le="3.22122547"} 14
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="200",le="3.579139411"} 14
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="200",le="3.937053352"} 14
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="200",le="4.294967296"} 14
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="200",le="5.0"} 14
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="200",le="5.726623061"} 14
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="200",le="7.158278826"} 14
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="200",le="8.589934591"} 14
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="200",le="10.021590356"} 14
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="200",le="11.453246121"} 14
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="200",le="12.884901886"} 14
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="200",le="14.316557651"} 14
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="200",le="15.748213416"} 14
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="200",le="17.179869184"} 14
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="200",le="22.906492245"} 14
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="200",le="28.633115306"} 14
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="200",le="30.0"} 14
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="200",le="60.0"} 14
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="200",le="120.0"} 14
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="200",le="+Inf"} 14
+pocoma_v3_read_http_duration_seconds_count{endpoint="balance",status="200"} 14
+pocoma_v3_read_http_duration_seconds_sum{endpoint="balance",status="200"} 0.042204835
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="404",le="0.001"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="404",le="0.001048576"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="404",le="0.001398101"} 9
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="404",le="0.001747626"} 16
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="404",le="0.002097151"} 26
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="404",le="0.002446676"} 31
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="404",le="0.002796201"} 34
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="404",le="0.003145726"} 34
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="404",le="0.003495251"} 34
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="404",le="0.003844776"} 36
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="404",le="0.004194304"} 36
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="404",le="0.005"} 36
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="404",le="0.005592405"} 36
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="404",le="0.006990506"} 37
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="404",le="0.008388607"} 38
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="404",le="0.009786708"} 38
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="404",le="0.01"} 38
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="404",le="0.011184809"} 38
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="404",le="0.01258291"} 38
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="404",le="0.013981011"} 38
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="404",le="0.015379112"} 38
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="404",le="0.016777216"} 38
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="404",le="0.022369621"} 38
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="404",le="0.027962026"} 38
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="404",le="0.033554431"} 38
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="404",le="0.039146836"} 38
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="404",le="0.044739241"} 38
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="404",le="0.05"} 38
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="404",le="0.050331646"} 38
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="404",le="0.055924051"} 39
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="404",le="0.061516456"} 39
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="404",le="0.067108864"} 39
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="404",le="0.089478485"} 39
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="404",le="0.1"} 39
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="404",le="0.111848106"} 39
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="404",le="0.134217727"} 39
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="404",le="0.156587348"} 39
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="404",le="0.178956969"} 39
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="404",le="0.20132659"} 39
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="404",le="0.223696211"} 39
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="404",le="0.246065832"} 39
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="404",le="0.268435456"} 39
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="404",le="0.357913941"} 39
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="404",le="0.447392426"} 39
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="404",le="0.5"} 39
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="404",le="0.536870911"} 39
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="404",le="0.626349396"} 39
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="404",le="0.715827881"} 39
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="404",le="0.805306366"} 39
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="404",le="0.894784851"} 39
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="404",le="0.984263336"} 39
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="404",le="1.0"} 39
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="404",le="1.073741824"} 39
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="404",le="1.431655765"} 39
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="404",le="1.789569706"} 39
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="404",le="2.0"} 39
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="404",le="2.147483647"} 39
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="404",le="2.505397588"} 39
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="404",le="2.863311529"} 39
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="404",le="3.22122547"} 39
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="404",le="3.579139411"} 39
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="404",le="3.937053352"} 39
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="404",le="4.294967296"} 39
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="404",le="5.0"} 39
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="404",le="5.726623061"} 39
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="404",le="7.158278826"} 39
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="404",le="8.589934591"} 39
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="404",le="10.021590356"} 39
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="404",le="11.453246121"} 39
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="404",le="12.884901886"} 39
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="404",le="14.316557651"} 39
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="404",le="15.748213416"} 39
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="404",le="17.179869184"} 39
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="404",le="22.906492245"} 39
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="404",le="28.633115306"} 39
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="404",le="30.0"} 39
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="404",le="60.0"} 39
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="404",le="120.0"} 39
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="balance",status="404",le="+Inf"} 39
+pocoma_v3_read_http_duration_seconds_count{endpoint="balance",status="404"} 39
+pocoma_v3_read_http_duration_seconds_sum{endpoint="balance",status="404"} 0.136130166
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="200",le="0.001"} 0
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="200",le="0.001048576"} 0
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="200",le="0.001398101"} 0
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="200",le="0.001747626"} 0
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="200",le="0.002097151"} 0
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="200",le="0.002446676"} 0
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="200",le="0.002796201"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="200",le="0.003145726"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="200",le="0.003495251"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="200",le="0.003844776"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="200",le="0.004194304"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="200",le="0.005"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="200",le="0.005592405"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="200",le="0.006990506"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="200",le="0.008388607"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="200",le="0.009786708"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="200",le="0.01"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="200",le="0.011184809"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="200",le="0.01258291"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="200",le="0.013981011"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="200",le="0.015379112"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="200",le="0.016777216"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="200",le="0.022369621"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="200",le="0.027962026"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="200",le="0.033554431"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="200",le="0.039146836"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="200",le="0.044739241"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="200",le="0.05"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="200",le="0.050331646"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="200",le="0.055924051"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="200",le="0.061516456"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="200",le="0.067108864"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="200",le="0.089478485"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="200",le="0.1"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="200",le="0.111848106"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="200",le="0.134217727"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="200",le="0.156587348"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="200",le="0.178956969"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="200",le="0.20132659"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="200",le="0.223696211"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="200",le="0.246065832"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="200",le="0.268435456"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="200",le="0.357913941"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="200",le="0.447392426"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="200",le="0.5"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="200",le="0.536870911"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="200",le="0.626349396"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="200",le="0.715827881"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="200",le="0.805306366"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="200",le="0.894784851"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="200",le="0.984263336"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="200",le="1.0"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="200",le="1.073741824"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="200",le="1.431655765"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="200",le="1.789569706"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="200",le="2.0"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="200",le="2.147483647"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="200",le="2.505397588"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="200",le="2.863311529"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="200",le="3.22122547"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="200",le="3.579139411"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="200",le="3.937053352"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="200",le="4.294967296"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="200",le="5.0"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="200",le="5.726623061"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="200",le="7.158278826"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="200",le="8.589934591"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="200",le="10.021590356"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="200",le="11.453246121"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="200",le="12.884901886"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="200",le="14.316557651"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="200",le="15.748213416"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="200",le="17.179869184"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="200",le="22.906492245"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="200",le="28.633115306"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="200",le="30.0"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="200",le="60.0"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="200",le="120.0"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="200",le="+Inf"} 2
+pocoma_v3_read_http_duration_seconds_count{endpoint="binding",status="200"} 2
+pocoma_v3_read_http_duration_seconds_sum{endpoint="binding",status="200"} 0.026484042
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="404",le="0.001"} 0
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="404",le="0.001048576"} 0
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="404",le="0.001398101"} 0
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="404",le="0.001747626"} 0
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="404",le="0.002097151"} 0
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="404",le="0.002446676"} 0
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="404",le="0.002796201"} 0
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="404",le="0.003145726"} 0
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="404",le="0.003495251"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="404",le="0.003844776"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="404",le="0.004194304"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="404",le="0.005"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="404",le="0.005592405"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="404",le="0.006990506"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="404",le="0.008388607"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="404",le="0.009786708"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="404",le="0.01"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="404",le="0.011184809"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="404",le="0.01258291"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="404",le="0.013981011"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="404",le="0.015379112"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="404",le="0.016777216"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="404",le="0.022369621"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="404",le="0.027962026"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="404",le="0.033554431"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="404",le="0.039146836"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="404",le="0.044739241"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="404",le="0.05"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="404",le="0.050331646"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="404",le="0.055924051"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="404",le="0.061516456"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="404",le="0.067108864"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="404",le="0.089478485"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="404",le="0.1"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="404",le="0.111848106"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="404",le="0.134217727"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="404",le="0.156587348"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="404",le="0.178956969"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="404",le="0.20132659"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="404",le="0.223696211"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="404",le="0.246065832"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="404",le="0.268435456"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="404",le="0.357913941"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="404",le="0.447392426"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="404",le="0.5"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="404",le="0.536870911"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="404",le="0.626349396"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="404",le="0.715827881"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="404",le="0.805306366"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="404",le="0.894784851"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="404",le="0.984263336"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="404",le="1.0"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="404",le="1.073741824"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="404",le="1.431655765"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="404",le="1.789569706"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="404",le="2.0"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="404",le="2.147483647"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="404",le="2.505397588"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="404",le="2.863311529"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="404",le="3.22122547"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="404",le="3.579139411"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="404",le="3.937053352"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="404",le="4.294967296"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="404",le="5.0"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="404",le="5.726623061"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="404",le="7.158278826"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="404",le="8.589934591"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="404",le="10.021590356"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="404",le="11.453246121"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="404",le="12.884901886"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="404",le="14.316557651"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="404",le="15.748213416"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="404",le="17.179869184"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="404",le="22.906492245"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="404",le="28.633115306"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="404",le="30.0"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="404",le="60.0"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="404",le="120.0"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="binding",status="404",le="+Inf"} 2
+pocoma_v3_read_http_duration_seconds_count{endpoint="binding",status="404"} 2
+pocoma_v3_read_http_duration_seconds_sum{endpoint="binding",status="404"} 0.101769251
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="200",le="0.001"} 342
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="200",le="0.001048576"} 431
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="200",le="0.001398101"} 766
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="200",le="0.001747626"} 864
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="200",le="0.002097151"} 908
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="200",le="0.002446676"} 939
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="200",le="0.002796201"} 954
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="200",le="0.003145726"} 960
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="200",le="0.003495251"} 963
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="200",le="0.003844776"} 970
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="200",le="0.004194304"} 973
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="200",le="0.005"} 980
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="200",le="0.005592405"} 982
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="200",le="0.006990506"} 985
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="200",le="0.008388607"} 986
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="200",le="0.009786708"} 986
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="200",le="0.01"} 986
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="200",le="0.011184809"} 987
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="200",le="0.01258291"} 987
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="200",le="0.013981011"} 988
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="200",le="0.015379112"} 990
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="200",le="0.016777216"} 991
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="200",le="0.022369621"} 993
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="200",le="0.027962026"} 998
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="200",le="0.033554431"} 1000
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="200",le="0.039146836"} 1002
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="200",le="0.044739241"} 1005
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="200",le="0.05"} 1011
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="200",le="0.050331646"} 1011
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="200",le="0.055924051"} 1012
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="200",le="0.061516456"} 1014
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="200",le="0.067108864"} 1015
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="200",le="0.089478485"} 1024
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="200",le="0.1"} 1024
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="200",le="0.111848106"} 1024
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="200",le="0.134217727"} 1024
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="200",le="0.156587348"} 1024
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="200",le="0.178956969"} 1024
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="200",le="0.20132659"} 1024
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="200",le="0.223696211"} 1024
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="200",le="0.246065832"} 1024
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="200",le="0.268435456"} 1024
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="200",le="0.357913941"} 1024
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="200",le="0.447392426"} 1024
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="200",le="0.5"} 1024
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="200",le="0.536870911"} 1024
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="200",le="0.626349396"} 1024
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="200",le="0.715827881"} 1024
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="200",le="0.805306366"} 1024
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="200",le="0.894784851"} 1024
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="200",le="0.984263336"} 1024
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="200",le="1.0"} 1024
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="200",le="1.073741824"} 1024
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="200",le="1.431655765"} 1024
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="200",le="1.789569706"} 1024
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="200",le="2.0"} 1024
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="200",le="2.147483647"} 1024
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="200",le="2.505397588"} 1024
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="200",le="2.863311529"} 1024
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="200",le="3.22122547"} 1024
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="200",le="3.579139411"} 1024
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="200",le="3.937053352"} 1024
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="200",le="4.294967296"} 1024
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="200",le="5.0"} 1024
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="200",le="5.726623061"} 1024
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="200",le="7.158278826"} 1024
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="200",le="8.589934591"} 1024
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="200",le="10.021590356"} 1024
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="200",le="11.453246121"} 1024
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="200",le="12.884901886"} 1024
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="200",le="14.316557651"} 1024
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="200",le="15.748213416"} 1024
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="200",le="17.179869184"} 1024
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="200",le="22.906492245"} 1024
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="200",le="28.633115306"} 1024
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="200",le="30.0"} 1024
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="200",le="60.0"} 1024
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="200",le="120.0"} 1024
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="200",le="+Inf"} 1024
+pocoma_v3_read_http_duration_seconds_count{endpoint="command_result",status="200"} 1024
+pocoma_v3_read_http_duration_seconds_sum{endpoint="command_result",status="200"} 2.946695285
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="404",le="0.001"} 1117
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="404",le="0.001048576"} 1385
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="404",le="0.001398101"} 2757
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="404",le="0.001747626"} 3224
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="404",le="0.002097151"} 3410
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="404",le="0.002446676"} 3509
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="404",le="0.002796201"} 3572
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="404",le="0.003145726"} 3602
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="404",le="0.003495251"} 3619
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="404",le="0.003844776"} 3630
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="404",le="0.004194304"} 3639
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="404",le="0.005"} 3655
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="404",le="0.005592405"} 3665
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="404",le="0.006990506"} 3677
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="404",le="0.008388607"} 3682
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="404",le="0.009786708"} 3683
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="404",le="0.01"} 3683
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="404",le="0.011184809"} 3687
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="404",le="0.01258291"} 3688
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="404",le="0.013981011"} 3688
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="404",le="0.015379112"} 3690
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="404",le="0.016777216"} 3693
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="404",le="0.022369621"} 3696
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="404",le="0.027962026"} 3700
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="404",le="0.033554431"} 3708
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="404",le="0.039146836"} 3717
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="404",le="0.044739241"} 3727
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="404",le="0.05"} 3731
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="404",le="0.050331646"} 3731
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="404",le="0.055924051"} 3732
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="404",le="0.061516456"} 3739
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="404",le="0.067108864"} 3748
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="404",le="0.089478485"} 3770
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="404",le="0.1"} 3770
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="404",le="0.111848106"} 3770
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="404",le="0.134217727"} 3770
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="404",le="0.156587348"} 3770
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="404",le="0.178956969"} 3770
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="404",le="0.20132659"} 3770
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="404",le="0.223696211"} 3770
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="404",le="0.246065832"} 3770
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="404",le="0.268435456"} 3770
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="404",le="0.357913941"} 3770
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="404",le="0.447392426"} 3770
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="404",le="0.5"} 3770
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="404",le="0.536870911"} 3770
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="404",le="0.626349396"} 3770
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="404",le="0.715827881"} 3770
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="404",le="0.805306366"} 3770
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="404",le="0.894784851"} 3770
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="404",le="0.984263336"} 3770
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="404",le="1.0"} 3770
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="404",le="1.073741824"} 3770
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="404",le="1.431655765"} 3770
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="404",le="1.789569706"} 3770
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="404",le="2.0"} 3770
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="404",le="2.147483647"} 3770
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="404",le="2.505397588"} 3770
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="404",le="2.863311529"} 3770
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="404",le="3.22122547"} 3770
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="404",le="3.579139411"} 3770
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="404",le="3.937053352"} 3770
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="404",le="4.294967296"} 3770
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="404",le="5.0"} 3770
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="404",le="5.726623061"} 3770
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="404",le="7.158278826"} 3770
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="404",le="8.589934591"} 3770
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="404",le="10.021590356"} 3770
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="404",le="11.453246121"} 3770
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="404",le="12.884901886"} 3770
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="404",le="14.316557651"} 3770
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="404",le="15.748213416"} 3770
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="404",le="17.179869184"} 3770
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="404",le="22.906492245"} 3770
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="404",le="28.633115306"} 3770
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="404",le="30.0"} 3770
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="404",le="60.0"} 3770
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="404",le="120.0"} 3770
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="command_result",status="404",le="+Inf"} 3770
+pocoma_v3_read_http_duration_seconds_count{endpoint="command_result",status="404"} 3770
+pocoma_v3_read_http_duration_seconds_sum{endpoint="command_result",status="404"} 8.945697543
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="200",le="0.001"} 0
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="200",le="0.001048576"} 0
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="200",le="0.001398101"} 0
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="200",le="0.001747626"} 0
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="200",le="0.002097151"} 0
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="200",le="0.002446676"} 0
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="200",le="0.002796201"} 0
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="200",le="0.003145726"} 2
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="200",le="0.003495251"} 3
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="200",le="0.003844776"} 5
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="200",le="0.004194304"} 8
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="200",le="0.005"} 11
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="200",le="0.005592405"} 13
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="200",le="0.006990506"} 17
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="200",le="0.008388607"} 20
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="200",le="0.009786708"} 20
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="200",le="0.01"} 20
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="200",le="0.011184809"} 21
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="200",le="0.01258291"} 21
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="200",le="0.013981011"} 21
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="200",le="0.015379112"} 21
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="200",le="0.016777216"} 21
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="200",le="0.022369621"} 21
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="200",le="0.027962026"} 21
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="200",le="0.033554431"} 22
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="200",le="0.039146836"} 22
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="200",le="0.044739241"} 22
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="200",le="0.05"} 22
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="200",le="0.050331646"} 22
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="200",le="0.055924051"} 22
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="200",le="0.061516456"} 22
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="200",le="0.067108864"} 22
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="200",le="0.089478485"} 22
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="200",le="0.1"} 23
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="200",le="0.111848106"} 23
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="200",le="0.134217727"} 23
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="200",le="0.156587348"} 24
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="200",le="0.178956969"} 24
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="200",le="0.20132659"} 24
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="200",le="0.223696211"} 24
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="200",le="0.246065832"} 24
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="200",le="0.268435456"} 24
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="200",le="0.357913941"} 24
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="200",le="0.447392426"} 24
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="200",le="0.5"} 24
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="200",le="0.536870911"} 24
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="200",le="0.626349396"} 24
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="200",le="0.715827881"} 24
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="200",le="0.805306366"} 24
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="200",le="0.894784851"} 24
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="200",le="0.984263336"} 24
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="200",le="1.0"} 24
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="200",le="1.073741824"} 24
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="200",le="1.431655765"} 24
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="200",le="1.789569706"} 24
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="200",le="2.0"} 24
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="200",le="2.147483647"} 24
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="200",le="2.505397588"} 24
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="200",le="2.863311529"} 24
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="200",le="3.22122547"} 24
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="200",le="3.579139411"} 24
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="200",le="3.937053352"} 24
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="200",le="4.294967296"} 24
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="200",le="5.0"} 24
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="200",le="5.726623061"} 24
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="200",le="7.158278826"} 24
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="200",le="8.589934591"} 24
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="200",le="10.021590356"} 24
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="200",le="11.453246121"} 24
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="200",le="12.884901886"} 24
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="200",le="14.316557651"} 24
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="200",le="15.748213416"} 24
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="200",le="17.179869184"} 24
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="200",le="22.906492245"} 24
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="200",le="28.633115306"} 24
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="200",le="30.0"} 24
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="200",le="60.0"} 24
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="200",le="120.0"} 24
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="200",le="+Inf"} 24
+pocoma_v3_read_http_duration_seconds_count{endpoint="pot_current",status="200"} 24
+pocoma_v3_read_http_duration_seconds_sum{endpoint="pot_current",status="200"} 0.373297079
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="503",le="0.001"} 0
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="503",le="0.001048576"} 0
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="503",le="0.001398101"} 5
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="503",le="0.001747626"} 14
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="503",le="0.002097151"} 24
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="503",le="0.002446676"} 29
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="503",le="0.002796201"} 33
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="503",le="0.003145726"} 35
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="503",le="0.003495251"} 36
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="503",le="0.003844776"} 38
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="503",le="0.004194304"} 40
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="503",le="0.005"} 40
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="503",le="0.005592405"} 40
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="503",le="0.006990506"} 42
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="503",le="0.008388607"} 43
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="503",le="0.009786708"} 43
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="503",le="0.01"} 43
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="503",le="0.011184809"} 43
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="503",le="0.01258291"} 43
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="503",le="0.013981011"} 43
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="503",le="0.015379112"} 43
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="503",le="0.016777216"} 43
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="503",le="0.022369621"} 44
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="503",le="0.027962026"} 44
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="503",le="0.033554431"} 44
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="503",le="0.039146836"} 44
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="503",le="0.044739241"} 44
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="503",le="0.05"} 44
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="503",le="0.050331646"} 44
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="503",le="0.055924051"} 44
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="503",le="0.061516456"} 45
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="503",le="0.067108864"} 45
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="503",le="0.089478485"} 45
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="503",le="0.1"} 45
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="503",le="0.111848106"} 45
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="503",le="0.134217727"} 45
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="503",le="0.156587348"} 45
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="503",le="0.178956969"} 45
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="503",le="0.20132659"} 45
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="503",le="0.223696211"} 45
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="503",le="0.246065832"} 45
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="503",le="0.268435456"} 45
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="503",le="0.357913941"} 45
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="503",le="0.447392426"} 45
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="503",le="0.5"} 45
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="503",le="0.536870911"} 45
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="503",le="0.626349396"} 45
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="503",le="0.715827881"} 45
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="503",le="0.805306366"} 45
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="503",le="0.894784851"} 45
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="503",le="0.984263336"} 45
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="503",le="1.0"} 45
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="503",le="1.073741824"} 45
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="503",le="1.431655765"} 45
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="503",le="1.789569706"} 45
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="503",le="2.0"} 45
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="503",le="2.147483647"} 45
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="503",le="2.505397588"} 45
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="503",le="2.863311529"} 45
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="503",le="3.22122547"} 45
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="503",le="3.579139411"} 45
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="503",le="3.937053352"} 45
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="503",le="4.294967296"} 45
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="503",le="5.0"} 45
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="503",le="5.726623061"} 45
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="503",le="7.158278826"} 45
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="503",le="8.589934591"} 45
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="503",le="10.021590356"} 45
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="503",le="11.453246121"} 45
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="503",le="12.884901886"} 45
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="503",le="14.316557651"} 45
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="503",le="15.748213416"} 45
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="503",le="17.179869184"} 45
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="503",le="22.906492245"} 45
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="503",le="28.633115306"} 45
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="503",le="30.0"} 45
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="503",le="60.0"} 45
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="503",le="120.0"} 45
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pot_current",status="503",le="+Inf"} 45
+pocoma_v3_read_http_duration_seconds_count{endpoint="pot_current",status="503"} 45
+pocoma_v3_read_http_duration_seconds_sum{endpoint="pot_current",status="503"} 0.182714588
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pots_visible",status="200",le="0.001"} 0
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pots_visible",status="200",le="0.001048576"} 0
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pots_visible",status="200",le="0.001398101"} 0
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pots_visible",status="200",le="0.001747626"} 0
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pots_visible",status="200",le="0.002097151"} 0
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pots_visible",status="200",le="0.002446676"} 0
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pots_visible",status="200",le="0.002796201"} 0
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pots_visible",status="200",le="0.003145726"} 0
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pots_visible",status="200",le="0.003495251"} 0
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pots_visible",status="200",le="0.003844776"} 0
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pots_visible",status="200",le="0.004194304"} 0
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pots_visible",status="200",le="0.005"} 0
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pots_visible",status="200",le="0.005592405"} 0
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pots_visible",status="200",le="0.006990506"} 0
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pots_visible",status="200",le="0.008388607"} 0
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pots_visible",status="200",le="0.009786708"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pots_visible",status="200",le="0.01"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pots_visible",status="200",le="0.011184809"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pots_visible",status="200",le="0.01258291"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pots_visible",status="200",le="0.013981011"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pots_visible",status="200",le="0.015379112"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pots_visible",status="200",le="0.016777216"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pots_visible",status="200",le="0.022369621"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pots_visible",status="200",le="0.027962026"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pots_visible",status="200",le="0.033554431"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pots_visible",status="200",le="0.039146836"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pots_visible",status="200",le="0.044739241"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pots_visible",status="200",le="0.05"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pots_visible",status="200",le="0.050331646"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pots_visible",status="200",le="0.055924051"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pots_visible",status="200",le="0.061516456"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pots_visible",status="200",le="0.067108864"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pots_visible",status="200",le="0.089478485"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pots_visible",status="200",le="0.1"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pots_visible",status="200",le="0.111848106"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pots_visible",status="200",le="0.134217727"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pots_visible",status="200",le="0.156587348"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pots_visible",status="200",le="0.178956969"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pots_visible",status="200",le="0.20132659"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pots_visible",status="200",le="0.223696211"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pots_visible",status="200",le="0.246065832"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pots_visible",status="200",le="0.268435456"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pots_visible",status="200",le="0.357913941"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pots_visible",status="200",le="0.447392426"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pots_visible",status="200",le="0.5"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pots_visible",status="200",le="0.536870911"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pots_visible",status="200",le="0.626349396"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pots_visible",status="200",le="0.715827881"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pots_visible",status="200",le="0.805306366"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pots_visible",status="200",le="0.894784851"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pots_visible",status="200",le="0.984263336"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pots_visible",status="200",le="1.0"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pots_visible",status="200",le="1.073741824"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pots_visible",status="200",le="1.431655765"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pots_visible",status="200",le="1.789569706"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pots_visible",status="200",le="2.0"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pots_visible",status="200",le="2.147483647"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pots_visible",status="200",le="2.505397588"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pots_visible",status="200",le="2.863311529"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pots_visible",status="200",le="3.22122547"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pots_visible",status="200",le="3.579139411"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pots_visible",status="200",le="3.937053352"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pots_visible",status="200",le="4.294967296"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pots_visible",status="200",le="5.0"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pots_visible",status="200",le="5.726623061"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pots_visible",status="200",le="7.158278826"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pots_visible",status="200",le="8.589934591"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pots_visible",status="200",le="10.021590356"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pots_visible",status="200",le="11.453246121"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pots_visible",status="200",le="12.884901886"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pots_visible",status="200",le="14.316557651"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pots_visible",status="200",le="15.748213416"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pots_visible",status="200",le="17.179869184"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pots_visible",status="200",le="22.906492245"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pots_visible",status="200",le="28.633115306"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pots_visible",status="200",le="30.0"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pots_visible",status="200",le="60.0"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pots_visible",status="200",le="120.0"} 1
+pocoma_v3_read_http_duration_seconds_bucket{endpoint="pots_visible",status="200",le="+Inf"} 1
+pocoma_v3_read_http_duration_seconds_count{endpoint="pots_visible",status="200"} 1
+pocoma_v3_read_http_duration_seconds_sum{endpoint="pots_visible",status="200"} 0.008980209
+# HELP pocoma_v3_read_http_duration_seconds_max  
+# TYPE pocoma_v3_read_http_duration_seconds_max gauge
+pocoma_v3_read_http_duration_seconds_max{endpoint="balance",status="200"} 0.010924
+pocoma_v3_read_http_duration_seconds_max{endpoint="balance",status="404"} 0.055762042
+pocoma_v3_read_http_duration_seconds_max{endpoint="binding",status="200"} 0.023773833
+pocoma_v3_read_http_duration_seconds_max{endpoint="binding",status="404"} 0.098619584
+pocoma_v3_read_http_duration_seconds_max{endpoint="command_result",status="200"} 0.079564958
+pocoma_v3_read_http_duration_seconds_max{endpoint="command_result",status="404"} 0.082445583
+pocoma_v3_read_http_duration_seconds_max{endpoint="pot_current",status="200"} 0.137450708
+pocoma_v3_read_http_duration_seconds_max{endpoint="pot_current",status="503"} 0.056837084
+pocoma_v3_read_http_duration_seconds_max{endpoint="pots_visible",status="200"} 0.008980209
+# HELP pocoma_v3_read_query_duration_seconds  
+# TYPE pocoma_v3_read_query_duration_seconds histogram
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="available",le="0.001"} 0
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="available",le="0.001048576"} 0
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="available",le="0.001398101"} 4
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="available",le="0.001747626"} 7
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="available",le="0.002097151"} 10
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="available",le="0.002446676"} 11
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="available",le="0.002796201"} 12
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="available",le="0.003145726"} 12
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="available",le="0.003495251"} 12
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="available",le="0.003844776"} 12
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="available",le="0.004194304"} 12
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="available",le="0.005"} 13
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="available",le="0.005592405"} 13
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="available",le="0.006990506"} 14
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="available",le="0.008388607"} 14
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="available",le="0.009786708"} 14
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="available",le="0.01"} 14
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="available",le="0.011184809"} 14
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="available",le="0.01258291"} 14
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="available",le="0.013981011"} 14
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="available",le="0.015379112"} 14
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="available",le="0.016777216"} 14
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="available",le="0.022369621"} 14
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="available",le="0.027962026"} 14
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="available",le="0.033554431"} 14
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="available",le="0.039146836"} 14
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="available",le="0.044739241"} 14
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="available",le="0.05"} 14
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="available",le="0.050331646"} 14
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="available",le="0.055924051"} 14
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="available",le="0.061516456"} 14
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="available",le="0.067108864"} 14
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="available",le="0.089478485"} 14
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="available",le="0.1"} 14
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="available",le="0.111848106"} 14
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="available",le="0.134217727"} 14
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="available",le="0.156587348"} 14
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="available",le="0.178956969"} 14
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="available",le="0.20132659"} 14
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="available",le="0.223696211"} 14
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="available",le="0.246065832"} 14
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="available",le="0.268435456"} 14
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="available",le="0.357913941"} 14
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="available",le="0.447392426"} 14
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="available",le="0.5"} 14
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="available",le="0.536870911"} 14
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="available",le="0.626349396"} 14
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="available",le="0.715827881"} 14
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="available",le="0.805306366"} 14
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="available",le="0.894784851"} 14
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="available",le="0.984263336"} 14
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="available",le="1.0"} 14
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="available",le="1.073741824"} 14
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="available",le="1.431655765"} 14
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="available",le="1.789569706"} 14
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="available",le="2.0"} 14
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="available",le="2.147483647"} 14
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="available",le="2.505397588"} 14
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="available",le="2.863311529"} 14
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="available",le="3.22122547"} 14
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="available",le="3.579139411"} 14
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="available",le="3.937053352"} 14
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="available",le="4.294967296"} 14
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="available",le="5.0"} 14
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="available",le="5.726623061"} 14
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="available",le="7.158278826"} 14
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="available",le="8.589934591"} 14
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="available",le="10.021590356"} 14
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="available",le="11.453246121"} 14
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="available",le="12.884901886"} 14
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="available",le="14.316557651"} 14
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="available",le="15.748213416"} 14
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="available",le="17.179869184"} 14
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="available",le="22.906492245"} 14
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="available",le="28.633115306"} 14
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="available",le="30.0"} 14
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="available",le="60.0"} 14
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="available",le="120.0"} 14
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="available",le="+Inf"} 14
+pocoma_v3_read_query_duration_seconds_count{operation="balance",outcome="available"} 14
+pocoma_v3_read_query_duration_seconds_sum{operation="balance",outcome="available"} 0.032024085
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="other",le="0.001"} 4
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="other",le="0.001048576"} 8
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="other",le="0.001398101"} 19
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="other",le="0.001747626"} 28
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="other",le="0.002097151"} 33
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="other",le="0.002446676"} 34
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="other",le="0.002796201"} 35
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="other",le="0.003145726"} 35
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="other",le="0.003495251"} 37
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="other",le="0.003844776"} 37
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="other",le="0.004194304"} 37
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="other",le="0.005"} 38
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="other",le="0.005592405"} 38
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="other",le="0.006990506"} 38
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="other",le="0.008388607"} 38
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="other",le="0.009786708"} 38
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="other",le="0.01"} 38
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="other",le="0.011184809"} 38
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="other",le="0.01258291"} 38
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="other",le="0.013981011"} 38
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="other",le="0.015379112"} 38
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="other",le="0.016777216"} 38
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="other",le="0.022369621"} 38
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="other",le="0.027962026"} 38
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="other",le="0.033554431"} 38
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="other",le="0.039146836"} 38
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="other",le="0.044739241"} 38
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="other",le="0.05"} 38
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="other",le="0.050331646"} 38
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="other",le="0.055924051"} 39
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="other",le="0.061516456"} 39
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="other",le="0.067108864"} 39
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="other",le="0.089478485"} 39
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="other",le="0.1"} 39
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="other",le="0.111848106"} 39
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="other",le="0.134217727"} 39
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="other",le="0.156587348"} 39
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="other",le="0.178956969"} 39
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="other",le="0.20132659"} 39
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="other",le="0.223696211"} 39
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="other",le="0.246065832"} 39
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="other",le="0.268435456"} 39
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="other",le="0.357913941"} 39
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="other",le="0.447392426"} 39
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="other",le="0.5"} 39
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="other",le="0.536870911"} 39
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="other",le="0.626349396"} 39
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="other",le="0.715827881"} 39
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="other",le="0.805306366"} 39
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="other",le="0.894784851"} 39
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="other",le="0.984263336"} 39
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="other",le="1.0"} 39
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="other",le="1.073741824"} 39
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="other",le="1.431655765"} 39
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="other",le="1.789569706"} 39
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="other",le="2.0"} 39
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="other",le="2.147483647"} 39
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="other",le="2.505397588"} 39
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="other",le="2.863311529"} 39
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="other",le="3.22122547"} 39
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="other",le="3.579139411"} 39
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="other",le="3.937053352"} 39
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="other",le="4.294967296"} 39
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="other",le="5.0"} 39
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="other",le="5.726623061"} 39
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="other",le="7.158278826"} 39
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="other",le="8.589934591"} 39
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="other",le="10.021590356"} 39
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="other",le="11.453246121"} 39
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="other",le="12.884901886"} 39
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="other",le="14.316557651"} 39
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="other",le="15.748213416"} 39
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="other",le="17.179869184"} 39
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="other",le="22.906492245"} 39
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="other",le="28.633115306"} 39
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="other",le="30.0"} 39
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="other",le="60.0"} 39
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="other",le="120.0"} 39
+pocoma_v3_read_query_duration_seconds_bucket{operation="balance",outcome="other",le="+Inf"} 39
+pocoma_v3_read_query_duration_seconds_count{operation="balance",outcome="other"} 39
+pocoma_v3_read_query_duration_seconds_sum{operation="balance",outcome="other"} 0.115624754
+pocoma_v3_read_query_duration_seconds_bucket{operation="binding",outcome="available",le="0.001"} 0
+pocoma_v3_read_query_duration_seconds_bucket{operation="binding",outcome="available",le="0.001048576"} 0
+pocoma_v3_read_query_duration_seconds_bucket{operation="binding",outcome="available",le="0.001398101"} 0
+pocoma_v3_read_query_duration_seconds_bucket{operation="binding",outcome="available",le="0.001747626"} 0
+pocoma_v3_read_query_duration_seconds_bucket{operation="binding",outcome="available",le="0.002097151"} 1
+pocoma_v3_read_query_duration_seconds_bucket{operation="binding",outcome="available",le="0.002446676"} 2
+pocoma_v3_read_query_duration_seconds_bucket{operation="binding",outcome="available",le="0.002796201"} 2
+pocoma_v3_read_query_duration_seconds_bucket{operation="binding",outcome="available",le="0.003145726"} 3
+pocoma_v3_read_query_duration_seconds_bucket{operation="binding",outcome="available",le="0.003495251"} 3
+pocoma_v3_read_query_duration_seconds_bucket{operation="binding",outcome="available",le="0.003844776"} 3
+pocoma_v3_read_query_duration_seconds_bucket{operation="binding",outcome="available",le="0.004194304"} 3
+pocoma_v3_read_query_duration_seconds_bucket{operation="binding",outcome="available",le="0.005"} 3
+pocoma_v3_read_query_duration_seconds_bucket{operation="binding",outcome="available",le="0.005592405"} 3
+pocoma_v3_read_query_duration_seconds_bucket{operation="binding",outcome="available",le="0.006990506"} 3
+pocoma_v3_read_query_duration_seconds_bucket{operation="binding",outcome="available",le="0.008388607"} 3
+pocoma_v3_read_query_duration_seconds_bucket{operation="binding",outcome="available",le="0.009786708"} 3
+pocoma_v3_read_query_duration_seconds_bucket{operation="binding",outcome="available",le="0.01"} 3
+pocoma_v3_read_query_duration_seconds_bucket{operation="binding",outcome="available",le="0.011184809"} 3
+pocoma_v3_read_query_duration_seconds_bucket{operation="binding",outcome="available",le="0.01258291"} 3
+pocoma_v3_read_query_duration_seconds_bucket{operation="binding",outcome="available",le="0.013981011"} 3
+pocoma_v3_read_query_duration_seconds_bucket{operation="binding",outcome="available",le="0.015379112"} 3
+pocoma_v3_read_query_duration_seconds_bucket{operation="binding",outcome="available",le="0.016777216"} 3
+pocoma_v3_read_query_duration_seconds_bucket{operation="binding",outcome="available",le="0.022369621"} 3
+pocoma_v3_read_query_duration_seconds_bucket{operation="binding",outcome="available",le="0.027962026"} 3
+pocoma_v3_read_query_duration_seconds_bucket{operation="binding",outcome="available",le="0.033554431"} 3
+pocoma_v3_read_query_duration_seconds_bucket{operation="binding",outcome="available",le="0.039146836"} 3
+pocoma_v3_read_query_duration_seconds_bucket{operation="binding",outcome="available",le="0.044739241"} 3
+pocoma_v3_read_query_duration_seconds_bucket{operation="binding",outcome="available",le="0.05"} 3
+pocoma_v3_read_query_duration_seconds_bucket{operation="binding",outcome="available",le="0.050331646"} 3
+pocoma_v3_read_query_duration_seconds_bucket{operation="binding",outcome="available",le="0.055924051"} 3
+pocoma_v3_read_query_duration_seconds_bucket{operation="binding",outcome="available",le="0.061516456"} 3
+pocoma_v3_read_query_duration_seconds_bucket{operation="binding",outcome="available",le="0.067108864"} 3
+pocoma_v3_read_query_duration_seconds_bucket{operation="binding",outcome="available",le="0.089478485"} 3
+pocoma_v3_read_query_duration_seconds_bucket{operation="binding",outcome="available",le="0.1"} 4
+pocoma_v3_read_query_duration_seconds_bucket{operation="binding",outcome="available",le="0.111848106"} 4
+pocoma_v3_read_query_duration_seconds_bucket{operation="binding",outcome="available",le="0.134217727"} 4
+pocoma_v3_read_query_duration_seconds_bucket{operation="binding",outcome="available",le="0.156587348"} 4
+pocoma_v3_read_query_duration_seconds_bucket{operation="binding",outcome="available",le="0.178956969"} 4
+pocoma_v3_read_query_duration_seconds_bucket{operation="binding",outcome="available",le="0.20132659"} 4
+pocoma_v3_read_query_duration_seconds_bucket{operation="binding",outcome="available",le="0.223696211"} 4
+pocoma_v3_read_query_duration_seconds_bucket{operation="binding",outcome="available",le="0.246065832"} 4
+pocoma_v3_read_query_duration_seconds_bucket{operation="binding",outcome="available",le="0.268435456"} 4
+pocoma_v3_read_query_duration_seconds_bucket{operation="binding",outcome="available",le="0.357913941"} 4
+pocoma_v3_read_query_duration_seconds_bucket{operation="binding",outcome="available",le="0.447392426"} 4
+pocoma_v3_read_query_duration_seconds_bucket{operation="binding",outcome="available",le="0.5"} 4
+pocoma_v3_read_query_duration_seconds_bucket{operation="binding",outcome="available",le="0.536870911"} 4
+pocoma_v3_read_query_duration_seconds_bucket{operation="binding",outcome="available",le="0.626349396"} 4
+pocoma_v3_read_query_duration_seconds_bucket{operation="binding",outcome="available",le="0.715827881"} 4
+pocoma_v3_read_query_duration_seconds_bucket{operation="binding",outcome="available",le="0.805306366"} 4
+pocoma_v3_read_query_duration_seconds_bucket{operation="binding",outcome="available",le="0.894784851"} 4
+pocoma_v3_read_query_duration_seconds_bucket{operation="binding",outcome="available",le="0.984263336"} 4
+pocoma_v3_read_query_duration_seconds_bucket{operation="binding",outcome="available",le="1.0"} 4
+pocoma_v3_read_query_duration_seconds_bucket{operation="binding",outcome="available",le="1.073741824"} 4
+pocoma_v3_read_query_duration_seconds_bucket{operation="binding",outcome="available",le="1.431655765"} 4
+pocoma_v3_read_query_duration_seconds_bucket{operation="binding",outcome="available",le="1.789569706"} 4
+pocoma_v3_read_query_duration_seconds_bucket{operation="binding",outcome="available",le="2.0"} 4
+pocoma_v3_read_query_duration_seconds_bucket{operation="binding",outcome="available",le="2.147483647"} 4
+pocoma_v3_read_query_duration_seconds_bucket{operation="binding",outcome="available",le="2.505397588"} 4
+pocoma_v3_read_query_duration_seconds_bucket{operation="binding",outcome="available",le="2.863311529"} 4
+pocoma_v3_read_query_duration_seconds_bucket{operation="binding",outcome="available",le="3.22122547"} 4
+pocoma_v3_read_query_duration_seconds_bucket{operation="binding",outcome="available",le="3.579139411"} 4
+pocoma_v3_read_query_duration_seconds_bucket{operation="binding",outcome="available",le="3.937053352"} 4
+pocoma_v3_read_query_duration_seconds_bucket{operation="binding",outcome="available",le="4.294967296"} 4
+pocoma_v3_read_query_duration_seconds_bucket{operation="binding",outcome="available",le="5.0"} 4
+pocoma_v3_read_query_duration_seconds_bucket{operation="binding",outcome="available",le="5.726623061"} 4
+pocoma_v3_read_query_duration_seconds_bucket{operation="binding",outcome="available",le="7.158278826"} 4
+pocoma_v3_read_query_duration_seconds_bucket{operation="binding",outcome="available",le="8.589934591"} 4
+pocoma_v3_read_query_duration_seconds_bucket{operation="binding",outcome="available",le="10.021590356"} 4
+pocoma_v3_read_query_duration_seconds_bucket{operation="binding",outcome="available",le="11.453246121"} 4
+pocoma_v3_read_query_duration_seconds_bucket{operation="binding",outcome="available",le="12.884901886"} 4
+pocoma_v3_read_query_duration_seconds_bucket{operation="binding",outcome="available",le="14.316557651"} 4
+pocoma_v3_read_query_duration_seconds_bucket{operation="binding",outcome="available",le="15.748213416"} 4
+pocoma_v3_read_query_duration_seconds_bucket{operation="binding",outcome="available",le="17.179869184"} 4
+pocoma_v3_read_query_duration_seconds_bucket{operation="binding",outcome="available",le="22.906492245"} 4
+pocoma_v3_read_query_duration_seconds_bucket{operation="binding",outcome="available",le="28.633115306"} 4
+pocoma_v3_read_query_duration_seconds_bucket{operation="binding",outcome="available",le="30.0"} 4
+pocoma_v3_read_query_duration_seconds_bucket{operation="binding",outcome="available",le="60.0"} 4
+pocoma_v3_read_query_duration_seconds_bucket{operation="binding",outcome="available",le="120.0"} 4
+pocoma_v3_read_query_duration_seconds_bucket{operation="binding",outcome="available",le="+Inf"} 4
+pocoma_v3_read_query_duration_seconds_count{operation="binding",outcome="available"} 4
+pocoma_v3_read_query_duration_seconds_sum{operation="binding",outcome="available"} 0.097807251
+pocoma_v3_read_query_duration_seconds_bucket{operation="command_result",outcome="available",le="0.001"} 3380
+pocoma_v3_read_query_duration_seconds_bucket{operation="command_result",outcome="available",le="0.001048576"} 3584
+pocoma_v3_read_query_duration_seconds_bucket{operation="command_result",outcome="available",le="0.001398101"} 4256
+pocoma_v3_read_query_duration_seconds_bucket{operation="command_result",outcome="available",le="0.001747626"} 4457
+pocoma_v3_read_query_duration_seconds_bucket{operation="command_result",outcome="available",le="0.002097151"} 4561
+pocoma_v3_read_query_duration_seconds_bucket{operation="command_result",outcome="available",le="0.002446676"} 4604
+pocoma_v3_read_query_duration_seconds_bucket{operation="command_result",outcome="available",le="0.002796201"} 4621
+pocoma_v3_read_query_duration_seconds_bucket{operation="command_result",outcome="available",le="0.003145726"} 4638
+pocoma_v3_read_query_duration_seconds_bucket{operation="command_result",outcome="available",le="0.003495251"} 4651
+pocoma_v3_read_query_duration_seconds_bucket{operation="command_result",outcome="available",le="0.003844776"} 4661
+pocoma_v3_read_query_duration_seconds_bucket{operation="command_result",outcome="available",le="0.004194304"} 4670
+pocoma_v3_read_query_duration_seconds_bucket{operation="command_result",outcome="available",le="0.005"} 4686
+pocoma_v3_read_query_duration_seconds_bucket{operation="command_result",outcome="available",le="0.005592405"} 4689
+pocoma_v3_read_query_duration_seconds_bucket{operation="command_result",outcome="available",le="0.006990506"} 4699
+pocoma_v3_read_query_duration_seconds_bucket{operation="command_result",outcome="available",le="0.008388607"} 4703
+pocoma_v3_read_query_duration_seconds_bucket{operation="command_result",outcome="available",le="0.009786708"} 4707
+pocoma_v3_read_query_duration_seconds_bucket{operation="command_result",outcome="available",le="0.01"} 4707
+pocoma_v3_read_query_duration_seconds_bucket{operation="command_result",outcome="available",le="0.011184809"} 4709
+pocoma_v3_read_query_duration_seconds_bucket{operation="command_result",outcome="available",le="0.01258291"} 4710
+pocoma_v3_read_query_duration_seconds_bucket{operation="command_result",outcome="available",le="0.013981011"} 4711
+pocoma_v3_read_query_duration_seconds_bucket{operation="command_result",outcome="available",le="0.015379112"} 4713
+pocoma_v3_read_query_duration_seconds_bucket{operation="command_result",outcome="available",le="0.016777216"} 4714
+pocoma_v3_read_query_duration_seconds_bucket{operation="command_result",outcome="available",le="0.022369621"} 4719
+pocoma_v3_read_query_duration_seconds_bucket{operation="command_result",outcome="available",le="0.027962026"} 4725
+pocoma_v3_read_query_duration_seconds_bucket{operation="command_result",outcome="available",le="0.033554431"} 4731
+pocoma_v3_read_query_duration_seconds_bucket{operation="command_result",outcome="available",le="0.039146836"} 4741
+pocoma_v3_read_query_duration_seconds_bucket{operation="command_result",outcome="available",le="0.044739241"} 4752
+pocoma_v3_read_query_duration_seconds_bucket{operation="command_result",outcome="available",le="0.05"} 4757
+pocoma_v3_read_query_duration_seconds_bucket{operation="command_result",outcome="available",le="0.050331646"} 4757
+pocoma_v3_read_query_duration_seconds_bucket{operation="command_result",outcome="available",le="0.055924051"} 4761
+pocoma_v3_read_query_duration_seconds_bucket{operation="command_result",outcome="available",le="0.061516456"} 4765
+pocoma_v3_read_query_duration_seconds_bucket{operation="command_result",outcome="available",le="0.067108864"} 4771
+pocoma_v3_read_query_duration_seconds_bucket{operation="command_result",outcome="available",le="0.089478485"} 4794
+pocoma_v3_read_query_duration_seconds_bucket{operation="command_result",outcome="available",le="0.1"} 4794
+pocoma_v3_read_query_duration_seconds_bucket{operation="command_result",outcome="available",le="0.111848106"} 4794
+pocoma_v3_read_query_duration_seconds_bucket{operation="command_result",outcome="available",le="0.134217727"} 4794
+pocoma_v3_read_query_duration_seconds_bucket{operation="command_result",outcome="available",le="0.156587348"} 4794
+pocoma_v3_read_query_duration_seconds_bucket{operation="command_result",outcome="available",le="0.178956969"} 4794
+pocoma_v3_read_query_duration_seconds_bucket{operation="command_result",outcome="available",le="0.20132659"} 4794
+pocoma_v3_read_query_duration_seconds_bucket{operation="command_result",outcome="available",le="0.223696211"} 4794
+pocoma_v3_read_query_duration_seconds_bucket{operation="command_result",outcome="available",le="0.246065832"} 4794
+pocoma_v3_read_query_duration_seconds_bucket{operation="command_result",outcome="available",le="0.268435456"} 4794
+pocoma_v3_read_query_duration_seconds_bucket{operation="command_result",outcome="available",le="0.357913941"} 4794
+pocoma_v3_read_query_duration_seconds_bucket{operation="command_result",outcome="available",le="0.447392426"} 4794
+pocoma_v3_read_query_duration_seconds_bucket{operation="command_result",outcome="available",le="0.5"} 4794
+pocoma_v3_read_query_duration_seconds_bucket{operation="command_result",outcome="available",le="0.536870911"} 4794
+pocoma_v3_read_query_duration_seconds_bucket{operation="command_result",outcome="available",le="0.626349396"} 4794
+pocoma_v3_read_query_duration_seconds_bucket{operation="command_result",outcome="available",le="0.715827881"} 4794
+pocoma_v3_read_query_duration_seconds_bucket{operation="command_result",outcome="available",le="0.805306366"} 4794
+pocoma_v3_read_query_duration_seconds_bucket{operation="command_result",outcome="available",le="0.894784851"} 4794
+pocoma_v3_read_query_duration_seconds_bucket{operation="command_result",outcome="available",le="0.984263336"} 4794
+pocoma_v3_read_query_duration_seconds_bucket{operation="command_result",outcome="available",le="1.0"} 4794
+pocoma_v3_read_query_duration_seconds_bucket{operation="command_result",outcome="available",le="1.073741824"} 4794
+pocoma_v3_read_query_duration_seconds_bucket{operation="command_result",outcome="available",le="1.431655765"} 4794
+pocoma_v3_read_query_duration_seconds_bucket{operation="command_result",outcome="available",le="1.789569706"} 4794
+pocoma_v3_read_query_duration_seconds_bucket{operation="command_result",outcome="available",le="2.0"} 4794
+pocoma_v3_read_query_duration_seconds_bucket{operation="command_result",outcome="available",le="2.147483647"} 4794
+pocoma_v3_read_query_duration_seconds_bucket{operation="command_result",outcome="available",le="2.505397588"} 4794
+pocoma_v3_read_query_duration_seconds_bucket{operation="command_result",outcome="available",le="2.863311529"} 4794
+pocoma_v3_read_query_duration_seconds_bucket{operation="command_result",outcome="available",le="3.22122547"} 4794
+pocoma_v3_read_query_duration_seconds_bucket{operation="command_result",outcome="available",le="3.579139411"} 4794
+pocoma_v3_read_query_duration_seconds_bucket{operation="command_result",outcome="available",le="3.937053352"} 4794
+pocoma_v3_read_query_duration_seconds_bucket{operation="command_result",outcome="available",le="4.294967296"} 4794
+pocoma_v3_read_query_duration_seconds_bucket{operation="command_result",outcome="available",le="5.0"} 4794
+pocoma_v3_read_query_duration_seconds_bucket{operation="command_result",outcome="available",le="5.726623061"} 4794
+pocoma_v3_read_query_duration_seconds_bucket{operation="command_result",outcome="available",le="7.158278826"} 4794
+pocoma_v3_read_query_duration_seconds_bucket{operation="command_result",outcome="available",le="8.589934591"} 4794
+pocoma_v3_read_query_duration_seconds_bucket{operation="command_result",outcome="available",le="10.021590356"} 4794
+pocoma_v3_read_query_duration_seconds_bucket{operation="command_result",outcome="available",le="11.453246121"} 4794
+pocoma_v3_read_query_duration_seconds_bucket{operation="command_result",outcome="available",le="12.884901886"} 4794
+pocoma_v3_read_query_duration_seconds_bucket{operation="command_result",outcome="available",le="14.316557651"} 4794
+pocoma_v3_read_query_duration_seconds_bucket{operation="command_result",outcome="available",le="15.748213416"} 4794
+pocoma_v3_read_query_duration_seconds_bucket{operation="command_result",outcome="available",le="17.179869184"} 4794
+pocoma_v3_read_query_duration_seconds_bucket{operation="command_result",outcome="available",le="22.906492245"} 4794
+pocoma_v3_read_query_duration_seconds_bucket{operation="command_result",outcome="available",le="28.633115306"} 4794
+pocoma_v3_read_query_duration_seconds_bucket{operation="command_result",outcome="available",le="30.0"} 4794
+pocoma_v3_read_query_duration_seconds_bucket{operation="command_result",outcome="available",le="60.0"} 4794
+pocoma_v3_read_query_duration_seconds_bucket{operation="command_result",outcome="available",le="120.0"} 4794
+pocoma_v3_read_query_duration_seconds_bucket{operation="command_result",outcome="available",le="+Inf"} 4794
+pocoma_v3_read_query_duration_seconds_count{operation="command_result",outcome="available"} 4794
+pocoma_v3_read_query_duration_seconds_sum{operation="command_result",outcome="available"} 8.699942612
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="available",le="0.001"} 0
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="available",le="0.001048576"} 0
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="available",le="0.001398101"} 0
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="available",le="0.001747626"} 0
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="available",le="0.002097151"} 0
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="available",le="0.002446676"} 0
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="available",le="0.002796201"} 1
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="available",le="0.003145726"} 5
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="available",le="0.003495251"} 8
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="available",le="0.003844776"} 9
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="available",le="0.004194304"} 11
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="available",le="0.005"} 15
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="available",le="0.005592405"} 16
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="available",le="0.006990506"} 20
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="available",le="0.008388607"} 20
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="available",le="0.009786708"} 20
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="available",le="0.01"} 21
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="available",le="0.011184809"} 21
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="available",le="0.01258291"} 21
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="available",le="0.013981011"} 21
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="available",le="0.015379112"} 21
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="available",le="0.016777216"} 21
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="available",le="0.022369621"} 21
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="available",le="0.027962026"} 21
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="available",le="0.033554431"} 22
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="available",le="0.039146836"} 22
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="available",le="0.044739241"} 22
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="available",le="0.05"} 22
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="available",le="0.050331646"} 22
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="available",le="0.055924051"} 22
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="available",le="0.061516456"} 22
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="available",le="0.067108864"} 22
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="available",le="0.089478485"} 23
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="available",le="0.1"} 23
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="available",le="0.111848106"} 23
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="available",le="0.134217727"} 24
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="available",le="0.156587348"} 24
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="available",le="0.178956969"} 24
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="available",le="0.20132659"} 24
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="available",le="0.223696211"} 24
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="available",le="0.246065832"} 24
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="available",le="0.268435456"} 24
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="available",le="0.357913941"} 24
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="available",le="0.447392426"} 24
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="available",le="0.5"} 24
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="available",le="0.536870911"} 24
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="available",le="0.626349396"} 24
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="available",le="0.715827881"} 24
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="available",le="0.805306366"} 24
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="available",le="0.894784851"} 24
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="available",le="0.984263336"} 24
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="available",le="1.0"} 24
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="available",le="1.073741824"} 24
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="available",le="1.431655765"} 24
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="available",le="1.789569706"} 24
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="available",le="2.0"} 24
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="available",le="2.147483647"} 24
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="available",le="2.505397588"} 24
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="available",le="2.863311529"} 24
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="available",le="3.22122547"} 24
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="available",le="3.579139411"} 24
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="available",le="3.937053352"} 24
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="available",le="4.294967296"} 24
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="available",le="5.0"} 24
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="available",le="5.726623061"} 24
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="available",le="7.158278826"} 24
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="available",le="8.589934591"} 24
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="available",le="10.021590356"} 24
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="available",le="11.453246121"} 24
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="available",le="12.884901886"} 24
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="available",le="14.316557651"} 24
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="available",le="15.748213416"} 24
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="available",le="17.179869184"} 24
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="available",le="22.906492245"} 24
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="available",le="28.633115306"} 24
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="available",le="30.0"} 24
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="available",le="60.0"} 24
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="available",le="120.0"} 24
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="available",le="+Inf"} 24
+pocoma_v3_read_query_duration_seconds_count{operation="current",outcome="available"} 24
+pocoma_v3_read_query_duration_seconds_sum{operation="current",outcome="available"} 0.343113374
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="other",le="0.001"} 0
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="other",le="0.001048576"} 1
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="other",le="0.001398101"} 13
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="other",le="0.001747626"} 25
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="other",le="0.002097151"} 30
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="other",le="0.002446676"} 34
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="other",le="0.002796201"} 35
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="other",le="0.003145726"} 37
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="other",le="0.003495251"} 39
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="other",le="0.003844776"} 40
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="other",le="0.004194304"} 40
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="other",le="0.005"} 40
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="other",le="0.005592405"} 40
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="other",le="0.006990506"} 43
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="other",le="0.008388607"} 43
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="other",le="0.009786708"} 43
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="other",le="0.01"} 43
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="other",le="0.011184809"} 43
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="other",le="0.01258291"} 43
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="other",le="0.013981011"} 43
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="other",le="0.015379112"} 43
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="other",le="0.016777216"} 44
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="other",le="0.022369621"} 44
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="other",le="0.027962026"} 44
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="other",le="0.033554431"} 44
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="other",le="0.039146836"} 44
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="other",le="0.044739241"} 44
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="other",le="0.05"} 44
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="other",le="0.050331646"} 44
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="other",le="0.055924051"} 44
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="other",le="0.061516456"} 45
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="other",le="0.067108864"} 45
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="other",le="0.089478485"} 45
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="other",le="0.1"} 45
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="other",le="0.111848106"} 45
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="other",le="0.134217727"} 45
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="other",le="0.156587348"} 45
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="other",le="0.178956969"} 45
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="other",le="0.20132659"} 45
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="other",le="0.223696211"} 45
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="other",le="0.246065832"} 45
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="other",le="0.268435456"} 45
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="other",le="0.357913941"} 45
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="other",le="0.447392426"} 45
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="other",le="0.5"} 45
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="other",le="0.536870911"} 45
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="other",le="0.626349396"} 45
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="other",le="0.715827881"} 45
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="other",le="0.805306366"} 45
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="other",le="0.894784851"} 45
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="other",le="0.984263336"} 45
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="other",le="1.0"} 45
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="other",le="1.073741824"} 45
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="other",le="1.431655765"} 45
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="other",le="1.789569706"} 45
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="other",le="2.0"} 45
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="other",le="2.147483647"} 45
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="other",le="2.505397588"} 45
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="other",le="2.863311529"} 45
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="other",le="3.22122547"} 45
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="other",le="3.579139411"} 45
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="other",le="3.937053352"} 45
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="other",le="4.294967296"} 45
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="other",le="5.0"} 45
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="other",le="5.726623061"} 45
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="other",le="7.158278826"} 45
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="other",le="8.589934591"} 45
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="other",le="10.021590356"} 45
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="other",le="11.453246121"} 45
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="other",le="12.884901886"} 45
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="other",le="14.316557651"} 45
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="other",le="15.748213416"} 45
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="other",le="17.179869184"} 45
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="other",le="22.906492245"} 45
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="other",le="28.633115306"} 45
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="other",le="30.0"} 45
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="other",le="60.0"} 45
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="other",le="120.0"} 45
+pocoma_v3_read_query_duration_seconds_bucket{operation="current",outcome="other",le="+Inf"} 45
+pocoma_v3_read_query_duration_seconds_count{operation="current",outcome="other"} 45
+pocoma_v3_read_query_duration_seconds_sum{operation="current",outcome="other"} 0.162213124
+pocoma_v3_read_query_duration_seconds_bucket{operation="visible",outcome="available",le="0.001"} 0
+pocoma_v3_read_query_duration_seconds_bucket{operation="visible",outcome="available",le="0.001048576"} 0
+pocoma_v3_read_query_duration_seconds_bucket{operation="visible",outcome="available",le="0.001398101"} 0
+pocoma_v3_read_query_duration_seconds_bucket{operation="visible",outcome="available",le="0.001747626"} 0
+pocoma_v3_read_query_duration_seconds_bucket{operation="visible",outcome="available",le="0.002097151"} 0
+pocoma_v3_read_query_duration_seconds_bucket{operation="visible",outcome="available",le="0.002446676"} 0
+pocoma_v3_read_query_duration_seconds_bucket{operation="visible",outcome="available",le="0.002796201"} 0
+pocoma_v3_read_query_duration_seconds_bucket{operation="visible",outcome="available",le="0.003145726"} 0
+pocoma_v3_read_query_duration_seconds_bucket{operation="visible",outcome="available",le="0.003495251"} 1
+pocoma_v3_read_query_duration_seconds_bucket{operation="visible",outcome="available",le="0.003844776"} 1
+pocoma_v3_read_query_duration_seconds_bucket{operation="visible",outcome="available",le="0.004194304"} 1
+pocoma_v3_read_query_duration_seconds_bucket{operation="visible",outcome="available",le="0.005"} 1
+pocoma_v3_read_query_duration_seconds_bucket{operation="visible",outcome="available",le="0.005592405"} 1
+pocoma_v3_read_query_duration_seconds_bucket{operation="visible",outcome="available",le="0.006990506"} 1
+pocoma_v3_read_query_duration_seconds_bucket{operation="visible",outcome="available",le="0.008388607"} 1
+pocoma_v3_read_query_duration_seconds_bucket{operation="visible",outcome="available",le="0.009786708"} 1
+pocoma_v3_read_query_duration_seconds_bucket{operation="visible",outcome="available",le="0.01"} 1
+pocoma_v3_read_query_duration_seconds_bucket{operation="visible",outcome="available",le="0.011184809"} 1
+pocoma_v3_read_query_duration_seconds_bucket{operation="visible",outcome="available",le="0.01258291"} 1
+pocoma_v3_read_query_duration_seconds_bucket{operation="visible",outcome="available",le="0.013981011"} 1
+pocoma_v3_read_query_duration_seconds_bucket{operation="visible",outcome="available",le="0.015379112"} 1
+pocoma_v3_read_query_duration_seconds_bucket{operation="visible",outcome="available",le="0.016777216"} 1
+pocoma_v3_read_query_duration_seconds_bucket{operation="visible",outcome="available",le="0.022369621"} 1
+pocoma_v3_read_query_duration_seconds_bucket{operation="visible",outcome="available",le="0.027962026"} 1
+pocoma_v3_read_query_duration_seconds_bucket{operation="visible",outcome="available",le="0.033554431"} 1
+pocoma_v3_read_query_duration_seconds_bucket{operation="visible",outcome="available",le="0.039146836"} 1
+pocoma_v3_read_query_duration_seconds_bucket{operation="visible",outcome="available",le="0.044739241"} 1
+pocoma_v3_read_query_duration_seconds_bucket{operation="visible",outcome="available",le="0.05"} 1
+pocoma_v3_read_query_duration_seconds_bucket{operation="visible",outcome="available",le="0.050331646"} 1
+pocoma_v3_read_query_duration_seconds_bucket{operation="visible",outcome="available",le="0.055924051"} 1
+pocoma_v3_read_query_duration_seconds_bucket{operation="visible",outcome="available",le="0.061516456"} 1
+pocoma_v3_read_query_duration_seconds_bucket{operation="visible",outcome="available",le="0.067108864"} 1
+pocoma_v3_read_query_duration_seconds_bucket{operation="visible",outcome="available",le="0.089478485"} 1
+pocoma_v3_read_query_duration_seconds_bucket{operation="visible",outcome="available",le="0.1"} 1
+pocoma_v3_read_query_duration_seconds_bucket{operation="visible",outcome="available",le="0.111848106"} 1
+pocoma_v3_read_query_duration_seconds_bucket{operation="visible",outcome="available",le="0.134217727"} 1
+pocoma_v3_read_query_duration_seconds_bucket{operation="visible",outcome="available",le="0.156587348"} 1
+pocoma_v3_read_query_duration_seconds_bucket{operation="visible",outcome="available",le="0.178956969"} 1
+pocoma_v3_read_query_duration_seconds_bucket{operation="visible",outcome="available",le="0.20132659"} 1
+pocoma_v3_read_query_duration_seconds_bucket{operation="visible",outcome="available",le="0.223696211"} 1
+pocoma_v3_read_query_duration_seconds_bucket{operation="visible",outcome="available",le="0.246065832"} 1
+pocoma_v3_read_query_duration_seconds_bucket{operation="visible",outcome="available",le="0.268435456"} 1
+pocoma_v3_read_query_duration_seconds_bucket{operation="visible",outcome="available",le="0.357913941"} 1
+pocoma_v3_read_query_duration_seconds_bucket{operation="visible",outcome="available",le="0.447392426"} 1
+pocoma_v3_read_query_duration_seconds_bucket{operation="visible",outcome="available",le="0.5"} 1
+pocoma_v3_read_query_duration_seconds_bucket{operation="visible",outcome="available",le="0.536870911"} 1
+pocoma_v3_read_query_duration_seconds_bucket{operation="visible",outcome="available",le="0.626349396"} 1
+pocoma_v3_read_query_duration_seconds_bucket{operation="visible",outcome="available",le="0.715827881"} 1
+pocoma_v3_read_query_duration_seconds_bucket{operation="visible",outcome="available",le="0.805306366"} 1
+pocoma_v3_read_query_duration_seconds_bucket{operation="visible",outcome="available",le="0.894784851"} 1
+pocoma_v3_read_query_duration_seconds_bucket{operation="visible",outcome="available",le="0.984263336"} 1
+pocoma_v3_read_query_duration_seconds_bucket{operation="visible",outcome="available",le="1.0"} 1
+pocoma_v3_read_query_duration_seconds_bucket{operation="visible",outcome="available",le="1.073741824"} 1
+pocoma_v3_read_query_duration_seconds_bucket{operation="visible",outcome="available",le="1.431655765"} 1
+pocoma_v3_read_query_duration_seconds_bucket{operation="visible",outcome="available",le="1.789569706"} 1
+pocoma_v3_read_query_duration_seconds_bucket{operation="visible",outcome="available",le="2.0"} 1
+pocoma_v3_read_query_duration_seconds_bucket{operation="visible",outcome="available",le="2.147483647"} 1
+pocoma_v3_read_query_duration_seconds_bucket{operation="visible",outcome="available",le="2.505397588"} 1
+pocoma_v3_read_query_duration_seconds_bucket{operation="visible",outcome="available",le="2.863311529"} 1
+pocoma_v3_read_query_duration_seconds_bucket{operation="visible",outcome="available",le="3.22122547"} 1
+pocoma_v3_read_query_duration_seconds_bucket{operation="visible",outcome="available",le="3.579139411"} 1
+pocoma_v3_read_query_duration_seconds_bucket{operation="visible",outcome="available",le="3.937053352"} 1
+pocoma_v3_read_query_duration_seconds_bucket{operation="visible",outcome="available",le="4.294967296"} 1
+pocoma_v3_read_query_duration_seconds_bucket{operation="visible",outcome="available",le="5.0"} 1
+pocoma_v3_read_query_duration_seconds_bucket{operation="visible",outcome="available",le="5.726623061"} 1
+pocoma_v3_read_query_duration_seconds_bucket{operation="visible",outcome="available",le="7.158278826"} 1
+pocoma_v3_read_query_duration_seconds_bucket{operation="visible",outcome="available",le="8.589934591"} 1
+pocoma_v3_read_query_duration_seconds_bucket{operation="visible",outcome="available",le="10.021590356"} 1
+pocoma_v3_read_query_duration_seconds_bucket{operation="visible",outcome="available",le="11.453246121"} 1
+pocoma_v3_read_query_duration_seconds_bucket{operation="visible",outcome="available",le="12.884901886"} 1
+pocoma_v3_read_query_duration_seconds_bucket{operation="visible",outcome="available",le="14.316557651"} 1
+pocoma_v3_read_query_duration_seconds_bucket{operation="visible",outcome="available",le="15.748213416"} 1
+pocoma_v3_read_query_duration_seconds_bucket{operation="visible",outcome="available",le="17.179869184"} 1
+pocoma_v3_read_query_duration_seconds_bucket{operation="visible",outcome="available",le="22.906492245"} 1
+pocoma_v3_read_query_duration_seconds_bucket{operation="visible",outcome="available",le="28.633115306"} 1
+pocoma_v3_read_query_duration_seconds_bucket{operation="visible",outcome="available",le="30.0"} 1
+pocoma_v3_read_query_duration_seconds_bucket{operation="visible",outcome="available",le="60.0"} 1
+pocoma_v3_read_query_duration_seconds_bucket{operation="visible",outcome="available",le="120.0"} 1
+pocoma_v3_read_query_duration_seconds_bucket{operation="visible",outcome="available",le="+Inf"} 1
+pocoma_v3_read_query_duration_seconds_count{operation="visible",outcome="available"} 1
+pocoma_v3_read_query_duration_seconds_sum{operation="visible",outcome="available"} 0.003489417
+# HELP pocoma_v3_read_query_duration_seconds_max  
+# TYPE pocoma_v3_read_query_duration_seconds_max gauge
+pocoma_v3_read_query_duration_seconds_max{operation="balance",outcome="available"} 0.006664459
+pocoma_v3_read_query_duration_seconds_max{operation="balance",outcome="other"} 0.055198459
+pocoma_v3_read_query_duration_seconds_max{operation="binding",outcome="available"} 0.090697709
+pocoma_v3_read_query_duration_seconds_max{operation="command_result",outcome="available"} 0.081661625
+pocoma_v3_read_query_duration_seconds_max{operation="current",outcome="available"} 0.126670083
+pocoma_v3_read_query_duration_seconds_max{operation="current",outcome="other"} 0.056260458
+pocoma_v3_read_query_duration_seconds_max{operation="visible",outcome="available"} 0.003489417
+# HELP pocoma_v3_read_quota_permits  
+# TYPE pocoma_v3_read_quota_permits gauge
+pocoma_v3_read_quota_permits{scope="sql"} 8.0
+# HELP pocoma_v3_read_quota_rejections_total  
+# TYPE pocoma_v3_read_quota_rejections_total counter
+pocoma_v3_read_quota_rejections_total{scope="sql"} 0.0
+# HELP pocoma_v3_read_rebuild_checkpoints_satisfied Number of satisfied consumption checkpoints towards target prefix B (out of 28)
+# TYPE pocoma_v3_read_rebuild_checkpoints_satisfied gauge
+pocoma_v3_read_rebuild_checkpoints_satisfied 28.0
+# HELP pocoma_v3_read_rebuild_duration_seconds Duration of the active READ reconstruction operation in seconds
+# TYPE pocoma_v3_read_rebuild_duration_seconds gauge
+pocoma_v3_read_rebuild_duration_seconds 0.0
+# HELP pocoma_v3_read_rebuild_errors_total Total number of errors encountered during READ reconstruction
+# TYPE pocoma_v3_read_rebuild_errors_total counter
+pocoma_v3_read_rebuild_errors_total 0.0
+# HELP pocoma_v3_read_rebuild_operation_duration_seconds Total elapsed time of completed READ reconstruction operations
+# TYPE pocoma_v3_read_rebuild_operation_duration_seconds histogram
+pocoma_v3_read_rebuild_operation_duration_seconds_bucket{le="0.001"} 0
+pocoma_v3_read_rebuild_operation_duration_seconds_bucket{le="0.001048576"} 0
+pocoma_v3_read_rebuild_operation_duration_seconds_bucket{le="0.001398101"} 0
+pocoma_v3_read_rebuild_operation_duration_seconds_bucket{le="0.001747626"} 0
+pocoma_v3_read_rebuild_operation_duration_seconds_bucket{le="0.002097151"} 0
+pocoma_v3_read_rebuild_operation_duration_seconds_bucket{le="0.002446676"} 0
+pocoma_v3_read_rebuild_operation_duration_seconds_bucket{le="0.002796201"} 0
+pocoma_v3_read_rebuild_operation_duration_seconds_bucket{le="0.003145726"} 0
+pocoma_v3_read_rebuild_operation_duration_seconds_bucket{le="0.003495251"} 0
+pocoma_v3_read_rebuild_operation_duration_seconds_bucket{le="0.003844776"} 0
+pocoma_v3_read_rebuild_operation_duration_seconds_bucket{le="0.004194304"} 0
+pocoma_v3_read_rebuild_operation_duration_seconds_bucket{le="0.005592405"} 0
+pocoma_v3_read_rebuild_operation_duration_seconds_bucket{le="0.006990506"} 0
+pocoma_v3_read_rebuild_operation_duration_seconds_bucket{le="0.008388607"} 0
+pocoma_v3_read_rebuild_operation_duration_seconds_bucket{le="0.009786708"} 0
+pocoma_v3_read_rebuild_operation_duration_seconds_bucket{le="0.011184809"} 0
+pocoma_v3_read_rebuild_operation_duration_seconds_bucket{le="0.01258291"} 0
+pocoma_v3_read_rebuild_operation_duration_seconds_bucket{le="0.013981011"} 0
+pocoma_v3_read_rebuild_operation_duration_seconds_bucket{le="0.015379112"} 0
+pocoma_v3_read_rebuild_operation_duration_seconds_bucket{le="0.016777216"} 0
+pocoma_v3_read_rebuild_operation_duration_seconds_bucket{le="0.022369621"} 0
+pocoma_v3_read_rebuild_operation_duration_seconds_bucket{le="0.027962026"} 0
+pocoma_v3_read_rebuild_operation_duration_seconds_bucket{le="0.033554431"} 0
+pocoma_v3_read_rebuild_operation_duration_seconds_bucket{le="0.039146836"} 0
+pocoma_v3_read_rebuild_operation_duration_seconds_bucket{le="0.044739241"} 0
+pocoma_v3_read_rebuild_operation_duration_seconds_bucket{le="0.050331646"} 0
+pocoma_v3_read_rebuild_operation_duration_seconds_bucket{le="0.055924051"} 0
+pocoma_v3_read_rebuild_operation_duration_seconds_bucket{le="0.061516456"} 0
+pocoma_v3_read_rebuild_operation_duration_seconds_bucket{le="0.067108864"} 0
+pocoma_v3_read_rebuild_operation_duration_seconds_bucket{le="0.089478485"} 0
+pocoma_v3_read_rebuild_operation_duration_seconds_bucket{le="0.111848106"} 0
+pocoma_v3_read_rebuild_operation_duration_seconds_bucket{le="0.134217727"} 0
+pocoma_v3_read_rebuild_operation_duration_seconds_bucket{le="0.156587348"} 0
+pocoma_v3_read_rebuild_operation_duration_seconds_bucket{le="0.178956969"} 0
+pocoma_v3_read_rebuild_operation_duration_seconds_bucket{le="0.20132659"} 0
+pocoma_v3_read_rebuild_operation_duration_seconds_bucket{le="0.223696211"} 0
+pocoma_v3_read_rebuild_operation_duration_seconds_bucket{le="0.246065832"} 0
+pocoma_v3_read_rebuild_operation_duration_seconds_bucket{le="0.268435456"} 0
+pocoma_v3_read_rebuild_operation_duration_seconds_bucket{le="0.357913941"} 0
+pocoma_v3_read_rebuild_operation_duration_seconds_bucket{le="0.447392426"} 0
+pocoma_v3_read_rebuild_operation_duration_seconds_bucket{le="0.536870911"} 0
+pocoma_v3_read_rebuild_operation_duration_seconds_bucket{le="0.626349396"} 0
+pocoma_v3_read_rebuild_operation_duration_seconds_bucket{le="0.715827881"} 0
+pocoma_v3_read_rebuild_operation_duration_seconds_bucket{le="0.805306366"} 0
+pocoma_v3_read_rebuild_operation_duration_seconds_bucket{le="0.894784851"} 0
+pocoma_v3_read_rebuild_operation_duration_seconds_bucket{le="0.984263336"} 0
+pocoma_v3_read_rebuild_operation_duration_seconds_bucket{le="1.073741824"} 0
+pocoma_v3_read_rebuild_operation_duration_seconds_bucket{le="1.431655765"} 0
+pocoma_v3_read_rebuild_operation_duration_seconds_bucket{le="1.789569706"} 0
+pocoma_v3_read_rebuild_operation_duration_seconds_bucket{le="2.147483647"} 0
+pocoma_v3_read_rebuild_operation_duration_seconds_bucket{le="2.505397588"} 0
+pocoma_v3_read_rebuild_operation_duration_seconds_bucket{le="2.863311529"} 0
+pocoma_v3_read_rebuild_operation_duration_seconds_bucket{le="3.22122547"} 0
+pocoma_v3_read_rebuild_operation_duration_seconds_bucket{le="3.579139411"} 0
+pocoma_v3_read_rebuild_operation_duration_seconds_bucket{le="3.937053352"} 0
+pocoma_v3_read_rebuild_operation_duration_seconds_bucket{le="4.294967296"} 0
+pocoma_v3_read_rebuild_operation_duration_seconds_bucket{le="5.726623061"} 0
+pocoma_v3_read_rebuild_operation_duration_seconds_bucket{le="7.158278826"} 0
+pocoma_v3_read_rebuild_operation_duration_seconds_bucket{le="8.589934591"} 0
+pocoma_v3_read_rebuild_operation_duration_seconds_bucket{le="10.021590356"} 0
+pocoma_v3_read_rebuild_operation_duration_seconds_bucket{le="11.453246121"} 0
+pocoma_v3_read_rebuild_operation_duration_seconds_bucket{le="12.884901886"} 0
+pocoma_v3_read_rebuild_operation_duration_seconds_bucket{le="14.316557651"} 0
+pocoma_v3_read_rebuild_operation_duration_seconds_bucket{le="15.748213416"} 0
+pocoma_v3_read_rebuild_operation_duration_seconds_bucket{le="17.179869184"} 0
+pocoma_v3_read_rebuild_operation_duration_seconds_bucket{le="22.906492245"} 0
+pocoma_v3_read_rebuild_operation_duration_seconds_bucket{le="28.633115306"} 0
+pocoma_v3_read_rebuild_operation_duration_seconds_bucket{le="30.0"} 0
+pocoma_v3_read_rebuild_operation_duration_seconds_bucket{le="+Inf"} 0
+pocoma_v3_read_rebuild_operation_duration_seconds_count 0
+pocoma_v3_read_rebuild_operation_duration_seconds_sum 0.0
+# HELP pocoma_v3_read_rebuild_operation_duration_seconds_max Total elapsed time of completed READ reconstruction operations
+# TYPE pocoma_v3_read_rebuild_operation_duration_seconds_max gauge
+pocoma_v3_read_rebuild_operation_duration_seconds_max 0.0
+# HELP pocoma_v3_read_rebuild_slots_remaining Number of residual consumption slots less than or equal to target prefix B
+# TYPE pocoma_v3_read_rebuild_slots_remaining gauge
+pocoma_v3_read_rebuild_slots_remaining 0.0
+# HELP pocoma_v3_read_rebuild_state Current READ rebuild state (0=READY, 1=MAINTENANCE, 2=REBUILDING, 3=FAILED)
+# TYPE pocoma_v3_read_rebuild_state gauge
+pocoma_v3_read_rebuild_state 0.0
+# HELP process_cpu_time_ns_total The "cpu time" used by the Java Virtual Machine process
+# TYPE process_cpu_time_ns_total counter
+process_cpu_time_ns_total 1.924E10
+# HELP process_cpu_usage The "recent cpu usage" for the Java Virtual Machine process
+# TYPE process_cpu_usage gauge
+process_cpu_usage 0.2571428571428571
+# HELP process_files_max_files The maximum file descriptor count
+# TYPE process_files_max_files gauge
+process_files_max_files 1048576.0
+# HELP process_files_open_files The open file descriptor count
+# TYPE process_files_open_files gauge
+process_files_open_files 27.0
+# HELP process_start_time_seconds Start time of the process since unix epoch.
+# TYPE process_start_time_seconds gauge
+process_start_time_seconds 1.795174569206E9
+# HELP process_uptime_seconds The uptime of the Java virtual machine
+# TYPE process_uptime_seconds gauge
+process_uptime_seconds 68.69
+# HELP spring_security_authentications_active_seconds  
+# TYPE spring_security_authentications_active_seconds summary
+spring_security_authentications_active_seconds_count{authentication_failure_type="n/a",authentication_method="ProviderManager",authentication_request_type="BearerTokenAuthenticationToken",authentication_result_type="n/a"} 0
+spring_security_authentications_active_seconds_sum{authentication_failure_type="n/a",authentication_method="ProviderManager",authentication_request_type="BearerTokenAuthenticationToken",authentication_result_type="n/a"} 0.0
+# HELP spring_security_authentications_active_seconds_max  
+# TYPE spring_security_authentications_active_seconds_max gauge
+spring_security_authentications_active_seconds_max{authentication_failure_type="n/a",authentication_method="ProviderManager",authentication_request_type="BearerTokenAuthenticationToken",authentication_result_type="n/a"} 0.0
+# HELP spring_security_authentications_seconds  
+# TYPE spring_security_authentications_seconds summary
+spring_security_authentications_seconds_count{authentication_failure_type="n/a",authentication_method="ProviderManager",authentication_request_type="BearerTokenAuthenticationToken",authentication_result_type="JwtAuthenticationToken",error="none"} 4921
+spring_security_authentications_seconds_sum{authentication_failure_type="n/a",authentication_method="ProviderManager",authentication_request_type="BearerTokenAuthenticationToken",authentication_result_type="JwtAuthenticationToken",error="none"} 2.993359714
+# HELP spring_security_authentications_seconds_max  
+# TYPE spring_security_authentications_seconds_max gauge
+spring_security_authentications_seconds_max{authentication_failure_type="n/a",authentication_method="ProviderManager",authentication_request_type="BearerTokenAuthenticationToken",authentication_result_type="JwtAuthenticationToken",error="none"} 0.172328541
+# HELP spring_security_authorizations_active_seconds  
+# TYPE spring_security_authorizations_active_seconds summary
+spring_security_authorizations_active_seconds_count{spring_security_authentication_type="n/a",spring_security_authorization_decision="unknown",spring_security_object="request"} 0
+spring_security_authorizations_active_seconds_sum{spring_security_authentication_type="n/a",spring_security_authorization_decision="unknown",spring_security_object="request"} 0.0
+# HELP spring_security_authorizations_active_seconds_max  
+# TYPE spring_security_authorizations_active_seconds_max gauge
+spring_security_authorizations_active_seconds_max{spring_security_authentication_type="n/a",spring_security_authorization_decision="unknown",spring_security_object="request"} 0.0
+# HELP spring_security_authorizations_seconds  
+# TYPE spring_security_authorizations_seconds summary
+spring_security_authorizations_seconds_count{error="none",spring_security_authentication_type="JwtAuthenticationToken",spring_security_authorization_decision="true",spring_security_object="request"} 4921
+spring_security_authorizations_seconds_sum{error="none",spring_security_authentication_type="JwtAuthenticationToken",spring_security_authorization_decision="true",spring_security_object="request"} 0.331540429
+spring_security_authorizations_seconds_count{error="none",spring_security_authentication_type="n/a",spring_security_authorization_decision="true",spring_security_object="request"} 6
+spring_security_authorizations_seconds_sum{error="none",spring_security_authentication_type="n/a",spring_security_authorization_decision="true",spring_security_object="request"} 0.001085417
+# HELP spring_security_authorizations_seconds_max  
+# TYPE spring_security_authorizations_seconds_max gauge
+spring_security_authorizations_seconds_max{error="none",spring_security_authentication_type="JwtAuthenticationToken",spring_security_authorization_decision="true",spring_security_object="request"} 0.071966917
+spring_security_authorizations_seconds_max{error="none",spring_security_authentication_type="n/a",spring_security_authorization_decision="true",spring_security_object="request"} 9.78375E-4
+# HELP spring_security_filterchains_AuthenticationFilter_after_total  
+# TYPE spring_security_filterchains_AuthenticationFilter_after_total counter
+spring_security_filterchains_AuthenticationFilter_after_total{spring_security_filterchain_position="0",spring_security_filterchain_size="0",spring_security_reached_filter_name="none",spring_security_reached_filter_section="after"} 4926.0
+# HELP spring_security_filterchains_AuthenticationFilter_before_total  
+# TYPE spring_security_filterchains_AuthenticationFilter_before_total counter
+spring_security_filterchains_AuthenticationFilter_before_total{spring_security_filterchain_position="0",spring_security_filterchain_size="0",spring_security_reached_filter_name="none",spring_security_reached_filter_section="before"} 4927.0
+# HELP spring_security_filterchains_OAuth2ProtectedResourceMetadataFilter_after_total  
+# TYPE spring_security_filterchains_OAuth2ProtectedResourceMetadataFilter_after_total counter
+spring_security_filterchains_OAuth2ProtectedResourceMetadataFilter_after_total{spring_security_filterchain_position="0",spring_security_filterchain_size="0",spring_security_reached_filter_name="none",spring_security_reached_filter_section="after"} 4926.0
+# HELP spring_security_filterchains_OAuth2ProtectedResourceMetadataFilter_before_total  
+# TYPE spring_security_filterchains_OAuth2ProtectedResourceMetadataFilter_before_total counter
+spring_security_filterchains_OAuth2ProtectedResourceMetadataFilter_before_total{spring_security_filterchain_position="0",spring_security_filterchain_size="0",spring_security_reached_filter_name="none",spring_security_reached_filter_section="before"} 4927.0
+# HELP spring_security_filterchains_access_exceptions_after_total  
+# TYPE spring_security_filterchains_access_exceptions_after_total counter
+spring_security_filterchains_access_exceptions_after_total{spring_security_filterchain_position="0",spring_security_filterchain_size="0",spring_security_reached_filter_name="none",spring_security_reached_filter_section="after"} 4926.0
+# HELP spring_security_filterchains_access_exceptions_before_total  
+# TYPE spring_security_filterchains_access_exceptions_before_total counter
+spring_security_filterchains_access_exceptions_before_total{spring_security_filterchain_position="0",spring_security_filterchain_size="0",spring_security_reached_filter_name="none",spring_security_reached_filter_section="before"} 4927.0
+# HELP spring_security_filterchains_active_seconds  
+# TYPE spring_security_filterchains_active_seconds summary
+spring_security_filterchains_active_seconds_count{spring_security_filterchain_position="0",spring_security_filterchain_size="0",spring_security_reached_filter_name="none",spring_security_reached_filter_section="after"} 0
+spring_security_filterchains_active_seconds_sum{spring_security_filterchain_position="0",spring_security_filterchain_size="0",spring_security_reached_filter_name="none",spring_security_reached_filter_section="after"} 0.0
+spring_security_filterchains_active_seconds_count{spring_security_filterchain_position="0",spring_security_filterchain_size="0",spring_security_reached_filter_name="none",spring_security_reached_filter_section="before"} 0
+spring_security_filterchains_active_seconds_sum{spring_security_filterchain_position="0",spring_security_filterchain_size="0",spring_security_reached_filter_name="none",spring_security_reached_filter_section="before"} 0.0
+# HELP spring_security_filterchains_active_seconds_max  
+# TYPE spring_security_filterchains_active_seconds_max gauge
+spring_security_filterchains_active_seconds_max{spring_security_filterchain_position="0",spring_security_filterchain_size="0",spring_security_reached_filter_name="none",spring_security_reached_filter_section="after"} 0.0
+spring_security_filterchains_active_seconds_max{spring_security_filterchain_position="0",spring_security_filterchain_size="0",spring_security_reached_filter_name="none",spring_security_reached_filter_section="before"} 0.0
+# HELP spring_security_filterchains_authentication_anonymous_after_total  
+# TYPE spring_security_filterchains_authentication_anonymous_after_total counter
+spring_security_filterchains_authentication_anonymous_after_total{spring_security_filterchain_position="0",spring_security_filterchain_size="0",spring_security_reached_filter_name="none",spring_security_reached_filter_section="after"} 4926.0
+# HELP spring_security_filterchains_authentication_anonymous_before_total  
+# TYPE spring_security_filterchains_authentication_anonymous_before_total counter
+spring_security_filterchains_authentication_anonymous_before_total{spring_security_filterchain_position="0",spring_security_filterchain_size="0",spring_security_reached_filter_name="none",spring_security_reached_filter_section="before"} 4927.0
+# HELP spring_security_filterchains_authentication_bearer_after_total  
+# TYPE spring_security_filterchains_authentication_bearer_after_total counter
+spring_security_filterchains_authentication_bearer_after_total{spring_security_filterchain_position="0",spring_security_filterchain_size="0",spring_security_reached_filter_name="none",spring_security_reached_filter_section="after"} 4926.0
+# HELP spring_security_filterchains_authentication_bearer_before_total  
+# TYPE spring_security_filterchains_authentication_bearer_before_total counter
+spring_security_filterchains_authentication_bearer_before_total{spring_security_filterchain_position="0",spring_security_filterchain_size="0",spring_security_reached_filter_name="none",spring_security_reached_filter_section="before"} 4927.0
+# HELP spring_security_filterchains_authorization_after_total  
+# TYPE spring_security_filterchains_authorization_after_total counter
+spring_security_filterchains_authorization_after_total{spring_security_filterchain_position="0",spring_security_filterchain_size="0",spring_security_reached_filter_name="none",spring_security_reached_filter_section="after"} 4926.0
+# HELP spring_security_filterchains_authorization_before_total  
+# TYPE spring_security_filterchains_authorization_before_total counter
+spring_security_filterchains_authorization_before_total{spring_security_filterchain_position="0",spring_security_filterchain_size="0",spring_security_reached_filter_name="none",spring_security_reached_filter_section="before"} 4927.0
+# HELP spring_security_filterchains_context_async_after_total  
+# TYPE spring_security_filterchains_context_async_after_total counter
+spring_security_filterchains_context_async_after_total{spring_security_filterchain_position="0",spring_security_filterchain_size="0",spring_security_reached_filter_name="none",spring_security_reached_filter_section="after"} 4926.0
+# HELP spring_security_filterchains_context_async_before_total  
+# TYPE spring_security_filterchains_context_async_before_total counter
+spring_security_filterchains_context_async_before_total{spring_security_filterchain_position="0",spring_security_filterchain_size="0",spring_security_reached_filter_name="none",spring_security_reached_filter_section="before"} 4927.0
+# HELP spring_security_filterchains_context_holder_after_total  
+# TYPE spring_security_filterchains_context_holder_after_total counter
+spring_security_filterchains_context_holder_after_total{spring_security_filterchain_position="0",spring_security_filterchain_size="0",spring_security_reached_filter_name="none",spring_security_reached_filter_section="after"} 4926.0
+# HELP spring_security_filterchains_context_holder_before_total  
+# TYPE spring_security_filterchains_context_holder_before_total counter
+spring_security_filterchains_context_holder_before_total{spring_security_filterchain_position="0",spring_security_filterchain_size="0",spring_security_reached_filter_name="none",spring_security_reached_filter_section="before"} 4927.0
+# HELP spring_security_filterchains_context_servlet_after_total  
+# TYPE spring_security_filterchains_context_servlet_after_total counter
+spring_security_filterchains_context_servlet_after_total{spring_security_filterchain_position="0",spring_security_filterchain_size="0",spring_security_reached_filter_name="none",spring_security_reached_filter_section="after"} 4926.0
+# HELP spring_security_filterchains_context_servlet_before_total  
+# TYPE spring_security_filterchains_context_servlet_before_total counter
+spring_security_filterchains_context_servlet_before_total{spring_security_filterchain_position="0",spring_security_filterchain_size="0",spring_security_reached_filter_name="none",spring_security_reached_filter_section="before"} 4927.0
+# HELP spring_security_filterchains_header_after_total  
+# TYPE spring_security_filterchains_header_after_total counter
+spring_security_filterchains_header_after_total{spring_security_filterchain_position="0",spring_security_filterchain_size="0",spring_security_reached_filter_name="none",spring_security_reached_filter_section="after"} 4926.0
+# HELP spring_security_filterchains_header_before_total  
+# TYPE spring_security_filterchains_header_before_total counter
+spring_security_filterchains_header_before_total{spring_security_filterchain_position="0",spring_security_filterchain_size="0",spring_security_reached_filter_name="none",spring_security_reached_filter_section="before"} 4927.0
+# HELP spring_security_filterchains_logout_after_total  
+# TYPE spring_security_filterchains_logout_after_total counter
+spring_security_filterchains_logout_after_total{spring_security_filterchain_position="0",spring_security_filterchain_size="0",spring_security_reached_filter_name="none",spring_security_reached_filter_section="after"} 4926.0
+# HELP spring_security_filterchains_logout_before_total  
+# TYPE spring_security_filterchains_logout_before_total counter
+spring_security_filterchains_logout_before_total{spring_security_filterchain_position="0",spring_security_filterchain_size="0",spring_security_reached_filter_name="none",spring_security_reached_filter_section="before"} 4927.0
+# HELP spring_security_filterchains_requestcache_after_total  
+# TYPE spring_security_filterchains_requestcache_after_total counter
+spring_security_filterchains_requestcache_after_total{spring_security_filterchain_position="0",spring_security_filterchain_size="0",spring_security_reached_filter_name="none",spring_security_reached_filter_section="after"} 4926.0
+# HELP spring_security_filterchains_requestcache_before_total  
+# TYPE spring_security_filterchains_requestcache_before_total counter
+spring_security_filterchains_requestcache_before_total{spring_security_filterchain_position="0",spring_security_filterchain_size="0",spring_security_reached_filter_name="none",spring_security_reached_filter_section="before"} 4927.0
+# HELP spring_security_filterchains_seconds  
+# TYPE spring_security_filterchains_seconds summary
+spring_security_filterchains_seconds_count{error="none",spring_security_filterchain_position="14",spring_security_filterchain_size="14",spring_security_reached_filter_name="AuthorizationFilter",spring_security_reached_filter_section="before"} 4927
+spring_security_filterchains_seconds_sum{error="none",spring_security_filterchain_position="14",spring_security_filterchain_size="14",spring_security_reached_filter_name="AuthorizationFilter",spring_security_reached_filter_section="before"} 4.171837254
+spring_security_filterchains_seconds_count{error="none",spring_security_filterchain_position="14",spring_security_filterchain_size="14",spring_security_reached_filter_name="DisableEncodeUrlFilter",spring_security_reached_filter_section="after"} 4926
+spring_security_filterchains_seconds_sum{error="none",spring_security_filterchain_position="14",spring_security_filterchain_size="14",spring_security_reached_filter_name="DisableEncodeUrlFilter",spring_security_reached_filter_section="after"} 0.093670772
+# HELP spring_security_filterchains_seconds_max  
+# TYPE spring_security_filterchains_seconds_max gauge
+spring_security_filterchains_seconds_max{error="none",spring_security_filterchain_position="14",spring_security_filterchain_size="14",spring_security_reached_filter_name="AuthorizationFilter",spring_security_reached_filter_section="before"} 0.174067209
+spring_security_filterchains_seconds_max{error="none",spring_security_filterchain_position="14",spring_security_filterchain_size="14",spring_security_reached_filter_name="DisableEncodeUrlFilter",spring_security_reached_filter_section="after"} 0.003886583
+# HELP spring_security_filterchains_session_management_after_total  
+# TYPE spring_security_filterchains_session_management_after_total counter
+spring_security_filterchains_session_management_after_total{spring_security_filterchain_position="0",spring_security_filterchain_size="0",spring_security_reached_filter_name="none",spring_security_reached_filter_section="after"} 4926.0
+# HELP spring_security_filterchains_session_management_before_total  
+# TYPE spring_security_filterchains_session_management_before_total counter
+spring_security_filterchains_session_management_before_total{spring_security_filterchain_position="0",spring_security_filterchain_size="0",spring_security_reached_filter_name="none",spring_security_reached_filter_section="before"} 4927.0
+# HELP spring_security_filterchains_session_urlencoding_after_total  
+# TYPE spring_security_filterchains_session_urlencoding_after_total counter
+spring_security_filterchains_session_urlencoding_after_total{spring_security_filterchain_position="0",spring_security_filterchain_size="0",spring_security_reached_filter_name="none",spring_security_reached_filter_section="after"} 4926.0
+# HELP spring_security_filterchains_session_urlencoding_before_total  
+# TYPE spring_security_filterchains_session_urlencoding_before_total counter
+spring_security_filterchains_session_urlencoding_before_total{spring_security_filterchain_position="0",spring_security_filterchain_size="0",spring_security_reached_filter_name="none",spring_security_reached_filter_section="before"} 4927.0
+# HELP spring_security_http_secured_requests_active_seconds  
+# TYPE spring_security_http_secured_requests_active_seconds summary
+spring_security_http_secured_requests_active_seconds_count 1
+spring_security_http_secured_requests_active_seconds_sum 0.002057833
+# HELP spring_security_http_secured_requests_active_seconds_max  
+# TYPE spring_security_http_secured_requests_active_seconds_max gauge
+spring_security_http_secured_requests_active_seconds_max 0.002060791
+# HELP spring_security_http_secured_requests_seconds  
+# TYPE spring_security_http_secured_requests_seconds summary
+spring_security_http_secured_requests_seconds_count{error="none"} 4926
+spring_security_http_secured_requests_seconds_sum{error="none"} 13.596374637
+# HELP spring_security_http_secured_requests_seconds_max  
+# TYPE spring_security_http_secured_requests_seconds_max gauge
+spring_security_http_secured_requests_seconds_max{error="none"} 0.194587375
+# HELP system_cpu_count The number of processors available to the Java virtual machine
+# TYPE system_cpu_count gauge
+system_cpu_count 1.0
+# HELP system_cpu_usage The "recent cpu usage" of the system the application is running in
+# TYPE system_cpu_usage gauge
+system_cpu_usage 0.25215571428571426
+# HELP system_load_average_1m The sum of the number of runnable entities queued to available processors and the number of runnable entities running on the available processors averaged over a period of time
+# TYPE system_load_average_1m gauge
+system_load_average_1m 5.89208984375
+# HELP tomcat_sessions_active_current_sessions  
+# TYPE tomcat_sessions_active_current_sessions gauge
+tomcat_sessions_active_current_sessions 0.0
+# HELP tomcat_sessions_active_max_sessions  
+# TYPE tomcat_sessions_active_max_sessions gauge
+tomcat_sessions_active_max_sessions 0.0
+# HELP tomcat_sessions_alive_max_seconds  
+# TYPE tomcat_sessions_alive_max_seconds gauge
+tomcat_sessions_alive_max_seconds 0.0
+# HELP tomcat_sessions_created_sessions_total  
+# TYPE tomcat_sessions_created_sessions_total counter
+tomcat_sessions_created_sessions_total 0.0
+# HELP tomcat_sessions_expired_sessions_total  
+# TYPE tomcat_sessions_expired_sessions_total counter
+tomcat_sessions_expired_sessions_total 0.0
+# HELP tomcat_sessions_rejected_sessions_total  
+# TYPE tomcat_sessions_rejected_sessions_total counter
+tomcat_sessions_rejected_sessions_total 0.0

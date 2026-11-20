@@ -1,0 +1,247 @@
+{
+  "shareholders": 500,
+  "sitDVersions": 100,
+  "sitAVersions": 50,
+  "baselineA": {
+    "sitDWriteMs": {
+      "n": 100,
+      "p50": 7.377,
+      "p95": 12.941,
+      "p99": 17.154,
+      "max": 58.99
+    },
+    "sitDWalBytes": 4595368,
+    "sitDWalPerVerBytes": 45954,
+    "storageAfterSitD": {
+      "read_pot_balance": {
+        "rows": 100,
+        "heapBytes": 8192,
+        "indexBytes": 16384,
+        "toastBytes": 2236416,
+        "totalBytes": 2260992
+      },
+      "read_pot_balance_content": null,
+      "read_pot_balance_aggregate": {
+        "rows": 100,
+        "heapBytes": 16384,
+        "indexBytes": 16384,
+        "toastBytes": 2555904,
+        "totalBytes": 2588672
+      },
+      "read_pot_balance_aggregate_content": null
+    },
+    "readCurrentMs": {
+      "n": 30,
+      "p50": 1.985,
+      "p95": 2.417,
+      "p99": 2.727,
+      "max": 2.727
+    },
+    "readMidMs": {
+      "n": 30,
+      "p50": 1.99,
+      "p95": 2.936,
+      "p99": 3.511,
+      "max": 3.511
+    },
+    "readV1Ms": {
+      "n": 30,
+      "p50": 2.022,
+      "p95": 2.304,
+      "p99": 2.381,
+      "max": 2.381
+    },
+    "sitAWriteMs": {
+      "n": 50,
+      "p50": 5.89,
+      "p95": 7.893,
+      "p99": 12.801,
+      "max": 12.801
+    },
+    "sitAWalBytes": 2314440,
+    "sitAWalPerVerBytes": 46289,
+    "storageAfterSitA": {
+      "read_pot_balance": {
+        "rows": 150,
+        "heapBytes": 16384,
+        "indexBytes": 16384,
+        "toastBytes": 3366912,
+        "totalBytes": 3399680
+      },
+      "read_pot_balance_content": null,
+      "read_pot_balance_aggregate": {
+        "rows": 150,
+        "heapBytes": 16384,
+        "indexBytes": 16384,
+        "toastBytes": 3792896,
+        "totalBytes": 3825664
+      },
+      "read_pot_balance_aggregate_content": null
+    }
+  },
+  "candidateV4": {
+    "sitDWriteMs": {
+      "n": 100,
+      "p50": 2.458,
+      "p95": 4.65,
+      "p99": 6.386,
+      "max": 22.014
+    },
+    "sitDWalBytes": 2845232,
+    "sitDWalPerVerBytes": 28452,
+    "storageAfterSitD": {
+      "read_pot_balance": {
+        "rows": 100,
+        "heapBytes": 16384,
+        "indexBytes": 16384,
+        "toastBytes": 32768,
+        "totalBytes": 65536
+      },
+      "read_pot_balance_content": {
+        "rows": 100,
+        "heapBytes": 16384,
+        "indexBytes": 16384,
+        "toastBytes": 1310720,
+        "totalBytes": 1343488
+      },
+      "read_pot_balance_aggregate": {
+        "rows": 100,
+        "heapBytes": 16384,
+        "indexBytes": 16384,
+        "toastBytes": 32768,
+        "totalBytes": 65536
+      },
+      "read_pot_balance_aggregate_content": {
+        "rows": 100,
+        "heapBytes": 16384,
+        "indexBytes": 16384,
+        "toastBytes": 1728512,
+        "totalBytes": 1761280
+      }
+    },
+    "readCurrentMs": {
+      "n": 30,
+      "p50": 1.544,
+      "p95": 2.343,
+      "p99": 5.796,
+      "max": 5.796
+    },
+    "readMidMs": {
+      "n": 30,
+      "p50": 1.518,
+      "p95": 3.323,
+      "p99": 7.189,
+      "max": 7.189
+    },
+    "readV1Ms": {
+      "n": 30,
+      "p50": 1.522,
+      "p95": 2.249,
+      "p99": 3.188,
+      "max": 3.188
+    },
+    "sitAWriteMs": {
+      "n": 50,
+      "p50": 2.037,
+      "p95": 2.83,
+      "p99": 3.939,
+      "max": 3.939
+    },
+    "sitAWalBytes": 34520,
+    "sitAWalPerVerBytes": 690,
+    "storageAfterSitA": {
+      "read_pot_balance": {
+        "rows": 150,
+        "heapBytes": 16384,
+        "indexBytes": 16384,
+        "toastBytes": 32768,
+        "totalBytes": 65536
+      },
+      "read_pot_balance_content": {
+        "rows": 100,
+        "heapBytes": 16384,
+        "indexBytes": 16384,
+        "toastBytes": 1310720,
+        "totalBytes": 1343488
+      },
+      "read_pot_balance_aggregate": {
+        "rows": 150,
+        "heapBytes": 16384,
+        "indexBytes": 16384,
+        "toastBytes": 32768,
+        "totalBytes": 65536
+      },
+      "read_pot_balance_aggregate_content": {
+        "rows": 100,
+        "heapBytes": 16384,
+        "indexBytes": 16384,
+        "toastBytes": 1728512,
+        "totalBytes": 1761280
+      }
+    },
+    "f4Diagnostic": {
+      "balanceContents": {
+        "content_heap_bytes": 16384,
+        "version_heap_bytes": 16384,
+        "content_index_bytes": 16384,
+        "content_toast_bytes": 1310720,
+        "content_total_bytes": 1343488,
+        "total_content_count": 100,
+        "version_index_bytes": 16384,
+        "version_total_bytes": 65536,
+        "reachable_content_count": 100,
+        "total_content_row_bytes": 1078384,
+        "unreachable_content_bytes": 0,
+        "unreachable_content_count": 0,
+        "published_balance_versions": 150,
+        "reachable_content_row_bytes": 1078384
+      },
+      "aggregateContents": {
+        "content_heap_bytes": 16384,
+        "version_heap_bytes": 16384,
+        "content_index_bytes": 16384,
+        "content_toast_bytes": 1728512,
+        "content_total_bytes": 1761280,
+        "total_content_count": 100,
+        "version_index_bytes": 16384,
+        "version_total_bytes": 65536,
+        "reachable_content_count": 100,
+        "total_content_row_bytes": 1462800,
+        "unreachable_content_bytes": 0,
+        "unreachable_content_count": 0,
+        "reachable_content_row_bytes": 1462800,
+        "published_aggregate_versions": 150
+      },
+      "publishedVersions": 0
+    }
+  },
+  "granularityAnalysis": [
+    {
+      "shareholders": 100,
+      "buckets": 1,
+      "totalBytes": 2926,
+      "shareholdersBytes": 2505,
+      "bucketsBytes": 421,
+      "shareholdersPct": 85.61,
+      "bucketsPct": 14.39
+    },
+    {
+      "shareholders": 100,
+      "buckets": 61,
+      "totalBytes": 8101,
+      "shareholdersBytes": 2565,
+      "bucketsBytes": 5536,
+      "shareholdersPct": 31.66,
+      "bucketsPct": 68.34
+    },
+    {
+      "shareholders": 100,
+      "buckets": 240,
+      "totalBytes": 23451,
+      "shareholdersBytes": 2604,
+      "bucketsBytes": 20847,
+      "shareholdersPct": 11.1,
+      "bucketsPct": 88.9
+    }
+  ]
+}

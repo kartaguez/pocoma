@@ -539,147 +539,31 @@ class MaterializePotBalanceIncrementalTest {
         public void closePublication() {}
 
         @Override
-        public Optional<AggregateRef> readLatestAggregateRefBefore(
+        public void requireHashesStored(
                 UUID pot,
-                long beforeVersionExclusive,
-                long minVersionInclusive,
-                RecoveryReadContext context) {
-            if (corruptNextLookup) {
-                corruptNextLookup = false;
-                throw new IllegalStateException("Corrupt PotBalanceAggregate");
-            }
-            var entry = aggregates.lowerEntry(beforeVersionExclusive);
-            if (entry == null || entry.getKey() < minVersionInclusive) {
-                return Optional.empty();
-            }
-            long version = entry.getKey();
-            var bal = balances.get(version);
-            if (bal == null) {
-                throw new IllegalStateException("Missing balance for aggregate version " + version);
-            }
-            return Optional.of(
-                    new AggregateRef(
-                            version,
-                            PotBalanceBinaryCodec.encode(bal).hash(),
-                            PotBalanceAggregateBinaryCodec.encode(entry.getValue()).hash()));
-        }
-
-        @Override
-        public Optional<PotBalanceAggregate> readAggregateByHash(
-                UUID pot, long version, ContentHash hash, RecoveryReadContext context) {
-            var agg = aggregates.get(version);
-            if (agg == null) {
-                return Optional.empty();
-            }
-            return Optional.of(agg);
-        }
-
-        @Override
-        public void linkExistingVersion(
-                UUID pot, long version, ContentHash balanceHash, ContentHash aggregateHash) {
-            PotBalance matchedBal =
-                    balances.values().stream()
-                            .filter(b -> PotBalanceBinaryCodec.encode(b).hash().equals(balanceHash))
-                            .findFirst()
-                            .orElseThrow(() -> new IllegalStateException("Missing balance content " + balanceHash));
-            PotBalanceAggregate matchedAgg =
-                    aggregates.values().stream()
-                            .filter(a -> PotBalanceAggregateBinaryCodec.encode(a).hash().equals(aggregateHash))
-                            .findFirst()
-                            .orElseThrow(() -> new IllegalStateException("Missing aggregate content " + aggregateHash));
-            insertOrVerify(new PotBalance(pot, version, matchedBal.values()));
-            insertOrVerifyAggregate(
-                    new PotBalanceAggregate(pot, version, matchedAgg.shareholders(), matchedAgg.buckets()));
-        }
-
-        @Override
-        public void requireVersionHashesStored(
-                UUID pot, long version, ContentHash balanceHash, ContentHash aggregateHash) {
+                long version,
+                Optional<ContentHash> expectedBalanceHash,
+                Optional<ContentHash> expectedAggregateHash) {
             var bal = balances.get(version);
             var agg = aggregates.get(version);
+            if (expectedBalanceHash.isEmpty()) {
+                assertNull(bal, "Unexpected balance at deleted version " + version);
+                assertNull(agg, "Unexpected aggregate at deleted version " + version);
+                return;
+            }
             assertNotNull(bal, "Balance missing at version " + version);
-            assertNotNull(agg, "Aggregate missing at version " + version);
-            assertEquals(balanceHash, PotBalanceBinaryCodec.encode(bal).hash());
-            assertEquals(aggregateHash, PotBalanceAggregateBinaryCodec.encode(agg).hash());
+            assertEquals(
+                    expectedBalanceHash.get(),
+                    PotBalanceBinaryCodec.encode(bal).content().hash());
+            if (expectedAggregateHash.isEmpty()) {
+                assertNull(agg, "Unexpected aggregate at version " + version);
+            } else {
+                assertNotNull(agg, "Aggregate missing at version " + version);
+                assertEquals(
+                        expectedAggregateHash.get(),
+                        PotBalanceAggregateBinaryCodec.encode(agg).content().hash());
+            }
         }
-    }
-
-    @Test
-    void emptyDeltaReuseTriggersOnlyOnProvenEmptyDeltaAndCanBeDisabled() {
-        var potId = new PotId(UUID.randomUUID());
-        var sh1 = new ShareholderId(new UUID(0, 1));
-        var sh2 = new ShareholderId(new UUID(0, 2));
-        var exp1 = new ExpenseId(new UUID(1, 1));
-        var e1 =
-                new ExpenseFinancials(
-                        potId,
-                        exp1,
-                        new Amount(new Fraction(40, 1)),
-                        sh1,
-                        Map.of(sh1, Optional.empty(), sh2, Optional.empty()));
-
-        var states = new TreeMap<Long, PotFinancialState>();
-        states.put(
-                1L,
-                state(
-                        potId,
-                        1L,
-                        false,
-                        Map.of(sh1, w(1, 1), sh2, w(1, 1)),
-                        Set.of(),
-                        Map.of(exp1, new ExpSpec(false, e1))));
-        // v2: non-financial metadata change (identical financial state)
-        states.put(
-                2L,
-                state(
-                        potId,
-                        2L,
-                        false,
-                        Map.of(sh1, w(1, 1), sh2, w(1, 1)),
-                        Set.of(),
-                        Map.of(exp1, new ExpSpec(false, e1))));
-        // v3: another non-financial metadata change (for N-m reuse with m=2)
-        states.put(
-                3L,
-                state(
-                        potId,
-                        3L,
-                        false,
-                        Map.of(sh1, w(1, 1), sh2, w(1, 1)),
-                        Set.of(),
-                        Map.of(exp1, new ExpSpec(false, e1))));
-
-        var source = new InMemorySource(states);
-        var store = new InMemoryStore();
-        var obs = new RecordingObservation();
-        var participant =
-                new MaterializePotBalance(source, store, MaterializePotBalance.Settings.DEFAULT, obs);
-
-        execute(participant, source.eventFor(1L));
-        assertEquals(Path.FULL, obs.lastPath);
-
-        // N-m reuse (v3 from v1, distance=2)
-        execute(participant, source.eventFor(3L));
-        assertEquals(Path.REUSE, obs.lastPath);
-        assertEquals(Reason.EMPTY_DELTA_REUSE, obs.lastReason);
-        assertEquals(2L, obs.lastDistance);
-        assertEquals(oracleBalance(states.get(3L)), Optional.ofNullable(store.balances.get(3L)));
-
-        // Consecutive reuse (v2 from v1, distance=1)
-        execute(participant, source.eventFor(2L));
-        assertEquals(Path.REUSE, obs.lastPath);
-        assertEquals(Reason.EMPTY_DELTA_REUSE, obs.lastReason);
-        assertEquals(oracleBalance(states.get(2L)), Optional.ofNullable(store.balances.get(2L)));
-
-        // Disabled fast path falls back to normal INCREMENTAL
-        store.clear();
-        var disabledSettings = new MaterializePotBalance.Settings(64L, 64, 256, 10_000, false);
-        var disabledParticipant = new MaterializePotBalance(source, store, disabledSettings, obs);
-        execute(disabledParticipant, source.eventFor(1L));
-        execute(disabledParticipant, source.eventFor(2L));
-        assertEquals(Path.INCREMENTAL, obs.lastPath);
-        assertEquals(Reason.INCREMENTAL_HIT, obs.lastReason);
-        assertEquals(oracleBalance(states.get(2L)), Optional.ofNullable(store.balances.get(2L)));
     }
 
     private static final class RecordingObservation implements PotBalanceObservation {

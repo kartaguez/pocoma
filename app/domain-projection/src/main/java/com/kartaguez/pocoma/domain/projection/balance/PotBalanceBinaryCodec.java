@@ -15,26 +15,43 @@ import java.util.*;
 /**
  * Versioned canonical binary codec and domain-separated SHA-256 hashing for {@link PotBalance}.
  *
- * <p>Binary format ({@code schema_version = 1}):
+ * <p>Binary format ({@code schema_version = 1}, referencing {@link PotShareholderSet} for UUIDs):
  * <ul>
  *   <li>{@code int32_be(shareholdersCount)}</li>
- *   <li>For each entry in strict {@link SubobjectKey#compareUuid} order:
- *       {@code int64_be(msb) || int64_be(lsb) || encodeFraction(value)}</li>
+ *   <li>For each entry in strict {@link SubobjectKey#compareUuid} order (matching {@link PotShareholderSet}):
+ *       {@code encodeFraction(value)}</li>
  * </ul>
- * Hash: {@code SHA-256("pocoma-bal-v1\0" || uint8(1) || payload)}.
+ * Hash: {@code SHA-256("pocoma-bal-v1\0" || uint8(1) || shareholderSetHash(32B) || payload)}.
  */
 public final class PotBalanceBinaryCodec {
     public static final int SCHEMA_VERSION = 1;
     private static final byte[] HASH_DOMAIN = "pocoma-bal-v1\0".getBytes(StandardCharsets.US_ASCII);
 
-    private PotBalanceBinaryCodec() {}
-
-    public static PotBalanceContent encode(PotBalance balance) {
-        Objects.requireNonNull(balance, "balance required");
-        return encodeCanonicalValues(balance.values());
+    public record EncodedBalance(PotShareholderSet shareholderSet, PotBalanceContent content) {
+        public EncodedBalance {
+            Objects.requireNonNull(shareholderSet, "shareholderSet required");
+            Objects.requireNonNull(content, "content required");
+            if (!shareholderSet.hash().equals(content.shareholderSetHash())) {
+                throw new IllegalArgumentException("Shareholder set hash mismatch");
+            }
+        }
     }
 
-    public static PotBalanceContent encode(Map<UUID, Fraction> values) {
+    private PotBalanceBinaryCodec() {}
+
+    public static EncodedBalance encode(PotBalance balance) {
+        Objects.requireNonNull(balance, "balance required");
+        return encodeCanonicalValues(balance.values(), null);
+    }
+
+    public static EncodedBalance encodeWithShareholderSet(
+            PotBalance balance, PotShareholderSet knownSet) {
+        Objects.requireNonNull(balance, "balance required");
+        Objects.requireNonNull(knownSet, "knownSet required");
+        return encodeCanonicalValues(balance.values(), knownSet);
+    }
+
+    public static EncodedBalance encode(Map<UUID, Fraction> values) {
         Objects.requireNonNull(values, "values required");
         var sorted = new TreeMap<UUID, Fraction>(SubobjectKey::compareUuid);
         for (var entry : values.entrySet()) {
@@ -49,35 +66,69 @@ public final class PotBalanceBinaryCodec {
         if (!sum.equals(Fraction.ZERO)) {
             throw new IllegalArgumentException("Unbalanced vector: sum=" + sum);
         }
-        return encodeCanonicalValues(sorted);
+        return encodeCanonicalValues(sorted, null);
     }
 
-    private static PotBalanceContent encodeCanonicalValues(Map<UUID, Fraction> sortedValues) {
+    private static EncodedBalance encodeCanonicalValues(
+            Map<UUID, Fraction> sortedValues, PotShareholderSet knownSet) {
         int count = sortedValues.size();
-        var out = new ByteArrayOutputStream(4 + count * 28);
+        PotShareholderSet shareholderSet = resolveShareholderSet(sortedValues, knownSet);
+        var out = new ByteArrayOutputStream(4 + count * 6);
         writeInt32(out, count);
-        for (var entry : sortedValues.entrySet()) {
-            writeUuid(out, entry.getKey());
-            encodeFraction(out, entry.getValue());
+        for (Fraction value : sortedValues.values()) {
+            encodeFraction(out, value);
         }
         byte[] payload = out.toByteArray();
-        ContentHash hash = computeHash(SCHEMA_VERSION, payload);
-        return new PotBalanceContent(hash, SCHEMA_VERSION, count, payload);
+        ContentHash hash = computeHash(SCHEMA_VERSION, shareholderSet.hash(), payload);
+        return new EncodedBalance(
+                shareholderSet,
+                new PotBalanceContent(hash, SCHEMA_VERSION, count, shareholderSet.hash(), payload));
     }
 
-    public static ContentHash computeHash(int schemaVersion, byte[] payload) {
+    private static PotShareholderSet resolveShareholderSet(
+            Map<UUID, Fraction> sortedValues, PotShareholderSet knownSet) {
+        if (knownSet != null && matchesOrderedKeys(sortedValues.keySet(), knownSet.shareholderIds())) {
+            return knownSet;
+        }
+        return PotShareholderSetBinaryCodec.encodeCanonical(List.copyOf(sortedValues.keySet()));
+    }
+
+    private static boolean matchesOrderedKeys(Set<UUID> keys, List<UUID> canonicalIds) {
+        if (keys.size() != canonicalIds.size()) {
+            return false;
+        }
+        int i = 0;
+        for (UUID key : keys) {
+            if (!key.equals(canonicalIds.get(i++))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static ContentHash computeHash(
+            int schemaVersion, ContentHash shareholderSetHash, byte[] payload) {
         if (schemaVersion != SCHEMA_VERSION) {
             throw new IllegalArgumentException("Unsupported PotBalance schema version: " + schemaVersion);
         }
+        Objects.requireNonNull(shareholderSetHash, "shareholderSetHash required");
         Objects.requireNonNull(payload, "payload required");
-        return sha256(HASH_DOMAIN, schemaVersion, payload);
+        return sha256(HASH_DOMAIN, schemaVersion, shareholderSetHash.bytes(), payload);
     }
 
-    public static PotBalance decode(UUID potId, long version, PotBalanceContent content) {
+    public static PotBalance decode(
+            UUID potId, long version, PotShareholderSet shareholderSet, PotBalanceContent content) {
+        Objects.requireNonNull(shareholderSet, "shareholderSet required");
         Objects.requireNonNull(content, "content required");
+        if (!shareholderSet.hash().equals(content.shareholderSetHash())) {
+            throw new IllegalArgumentException(
+                    "PotBalance shareholderSetHash mismatch: set=" + shareholderSet.hash()
+                            + ", content=" + content.shareholderSetHash());
+        }
         return decode(
                 potId,
                 version,
+                shareholderSet,
                 content.schemaVersion(),
                 content.shareholdersCount(),
                 content.rawPayload(),
@@ -87,11 +138,13 @@ public final class PotBalanceBinaryCodec {
     public static PotBalance decode(
             UUID potId,
             long version,
+            PotShareholderSet shareholderSet,
             int schemaVersion,
             int expectedShareholdersCount,
             byte[] payload,
             ContentHash expectedHash) {
         Objects.requireNonNull(potId, "potId required");
+        Objects.requireNonNull(shareholderSet, "shareholderSet required");
         if (version < 1) {
             throw new IllegalArgumentException("Positive version required");
         }
@@ -101,12 +154,17 @@ public final class PotBalanceBinaryCodec {
         if (expectedShareholdersCount < 0) {
             throw new IllegalArgumentException("Negative shareholdersCount: " + expectedShareholdersCount);
         }
+        if (shareholderSet.shareholdersCount() != expectedShareholdersCount) {
+            throw new IllegalArgumentException(
+                    "PotBalance shareholder set count mismatch: set=" + shareholderSet.shareholdersCount()
+                            + ", expected=" + expectedShareholdersCount);
+        }
         Objects.requireNonNull(payload, "payload required");
         if (payload.length < 4) {
             throw new IllegalArgumentException("PotBalance payload too short: " + payload.length);
         }
         if (expectedHash != null) {
-            ContentHash actualHash = computeHash(schemaVersion, payload);
+            ContentHash actualHash = computeHash(schemaVersion, shareholderSet.hash(), payload);
             if (!actualHash.equals(expectedHash)) {
                 throw new IllegalArgumentException(
                         "PotBalance content hash mismatch: expected=" + expectedHash + ", actual=" + actualHash);
@@ -120,15 +178,10 @@ public final class PotBalanceBinaryCodec {
                     "PotBalance shareholdersCount mismatch: header=" + count
                             + ", expected=" + expectedShareholdersCount);
         }
+        List<UUID> shareholderIds = shareholderSet.shareholderIds();
         var values = new LinkedHashMap<UUID, Fraction>(Math.max(16, count * 2));
-        UUID previous = null;
         for (int i = 0; i < count; i++) {
-            UUID id = reader.readUuid();
-            if (previous != null && SubobjectKey.compareUuid(previous, id) >= 0) {
-                throw new IllegalArgumentException(
-                        "PotBalance UUIDs must be strictly ascending: " + previous + " >= " + id);
-            }
-            previous = id;
+            UUID id = shareholderIds.get(i);
             Fraction fraction = reader.readFraction();
             values.put(id, fraction);
         }
@@ -140,14 +193,22 @@ public final class PotBalanceBinaryCodec {
     }
 
     // -------------------------------------------------------------------------
-    // Shared package-private canonical binary I/O helpers (used by both codecs)
+    // Shared package-private canonical binary I/O helpers (used by all balance codecs)
     // -------------------------------------------------------------------------
 
     static ContentHash sha256(byte[] domain, int schemaVersion, byte[] payload) {
+        return sha256(domain, schemaVersion, null, payload);
+    }
+
+    static ContentHash sha256(
+            byte[] domain, int schemaVersion, byte[] referencedSetHash, byte[] payload) {
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-256");
             md.update(domain);
             md.update((byte) schemaVersion);
+            if (referencedSetHash != null) {
+                md.update(referencedSetHash);
+            }
             md.update(payload);
             return ContentHash.of(md.digest());
         } catch (NoSuchAlgorithmException e) {

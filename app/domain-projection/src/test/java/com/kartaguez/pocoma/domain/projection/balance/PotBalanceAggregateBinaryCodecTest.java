@@ -5,6 +5,7 @@ import com.kartaguez.pocoma.domain.projection.PotBalanceAggregate;
 import com.kartaguez.pocoma.domain.projection.PotBalanceAggregate.BucketKey;
 import com.kartaguez.pocoma.domain.projection.PotBalanceAggregate.BucketValue;
 import com.kartaguez.pocoma.domain.projection.PotBalanceAggregate.ShareholderEntry;
+import com.kartaguez.pocoma.domain.projection.radix.ContentHash;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
@@ -21,12 +22,14 @@ class PotBalanceAggregateBinaryCodecTest {
 
         // Empty aggregate (0 shareholders, 0 buckets)
         PotBalanceAggregate empty = new PotBalanceAggregate(potId, 1L, List.of(), Map.of());
-        PotBalanceAggregateContent emptyContent = PotBalanceAggregateBinaryCodec.encode(empty);
+        PotBalanceAggregateBinaryCodec.EncodedAggregate emptyEnc = PotBalanceAggregateBinaryCodec.encode(empty);
+        PotBalanceAggregateContent emptyContent = emptyEnc.content();
         assertEquals(1, emptyContent.schemaVersion());
         assertEquals(0, emptyContent.shareholdersCount());
         assertEquals(0, emptyContent.bucketCount());
         assertEquals(8, emptyContent.payload().length);
-        assertEquals(empty, PotBalanceAggregateBinaryCodec.decode(potId, 1L, emptyContent));
+        assertEquals(empty, PotBalanceAggregateBinaryCodec.decode(
+                potId, 1L, emptyEnc.shareholderSet(), emptyContent));
 
         // Complex multi-bucket aggregate: default bucket + mixed bucket + deleted shareholder + huge fractions
         UUID u0 = new UUID(0x0000000000000001L, 0x0000000000000001L);
@@ -57,39 +60,60 @@ class PotBalanceAggregateBinaryCodecTest {
         buckets.put(defaultBucketKey, defaultBucketVal);
 
         PotBalanceAggregate agg = new PotBalanceAggregate(potId, 12L, shareholders, buckets);
-        PotBalanceAggregateContent content = PotBalanceAggregateBinaryCodec.encode(agg);
+        PotBalanceAggregateBinaryCodec.EncodedAggregate encoded = PotBalanceAggregateBinaryCodec.encode(agg);
+        PotBalanceAggregateContent content = encoded.content();
         assertEquals(4, content.shareholdersCount());
         assertEquals(2, content.bucketCount());
+        assertEquals(encoded.shareholderSet().hash(), content.shareholderSetHash());
 
-        PotBalanceAggregate decoded = PotBalanceAggregateBinaryCodec.decode(potId, 12L, content);
+        PotBalanceAggregate decoded = PotBalanceAggregateBinaryCodec.decode(
+                potId, 12L, encoded.shareholderSet(), content);
         assertEquals(agg, decoded);
 
-        PotBalanceAggregateContent reEncoded = PotBalanceAggregateBinaryCodec.encode(decoded);
-        assertEquals(content, reEncoded);
-        assertArrayEquals(content.payload(), reEncoded.payload());
-        assertEquals(content.hash(), reEncoded.hash());
+        PotBalanceAggregateBinaryCodec.EncodedAggregate reEncoded =
+                PotBalanceAggregateBinaryCodec.encodeWithShareholderSet(decoded, encoded.shareholderSet());
+        assertSame(encoded.shareholderSet(), reEncoded.shareholderSet());
+        assertEquals(content, reEncoded.content());
+        assertArrayEquals(content.payload(), reEncoded.content().payload());
+        assertEquals(content.hash(), reEncoded.content().hash());
         assertEquals(totalBuckets, decoded.shareholders().stream()
                 .map(ShareholderEntry::fixedNet).reduce(Fraction.ZERO, Fraction::add));
     }
 
     @Test
-    void exactContentEqualsAndHashVerificationDetectDivergence() {
+    void exactContentEqualsAndHashVerificationDetectDivergenceAndDistinctShareholderSets() {
         UUID potId = UUID.randomUUID();
         UUID u0 = UUID.fromString("00000000-0000-0000-0000-000000000001");
+        UUID uOther = UUID.fromString("00000000-0000-0000-0000-000000000002");
         PotBalanceAggregate agg = new PotBalanceAggregate(
                 potId, 1L,
                 List.of(new ShareholderEntry(u0, Fraction.ONE, false, Fraction.ZERO)),
                 Map.of());
-        PotBalanceAggregateContent content = PotBalanceAggregateBinaryCodec.encode(agg);
+        PotBalanceAggregateBinaryCodec.EncodedAggregate encoded = PotBalanceAggregateBinaryCodec.encode(agg);
+        PotBalanceAggregateContent content = encoded.content();
+
+        PotBalanceAggregate aggOtherSet = new PotBalanceAggregate(
+                potId, 1L,
+                List.of(new ShareholderEntry(uOther, Fraction.ONE, false, Fraction.ZERO)),
+                Map.of());
+        PotBalanceAggregateBinaryCodec.EncodedAggregate encodedOther = PotBalanceAggregateBinaryCodec.encode(aggOtherSet);
+        assertArrayEquals(content.payload(), encodedOther.content().payload());
+        assertNotEquals(content.hash(), encodedOther.content().hash());
+        assertFalse(content.exactContentEquals(encodedOther.content()));
+        assertThrows(IllegalArgumentException.class, () ->
+                PotBalanceAggregateBinaryCodec.decode(potId, 1L, encodedOther.shareholderSet(), content));
 
         byte[] mutated = content.payload();
         mutated[mutated.length - 1] ^= 0x01;
-        assertFalse(content.exactContentEquals(1, 1, 0, mutated));
-        assertFalse(content.exactContentEquals(1, 1, 1, content.payload()));
-        assertFalse(content.exactContentEquals(2, 1, 0, content.payload()));
+        ContentHash otherSetHash = encodedOther.shareholderSet().hash();
+        assertFalse(content.exactContentEquals(1, 1, 0, content.shareholderSetHash(), mutated));
+        assertFalse(content.exactContentEquals(1, 1, 0, otherSetHash, content.payload()));
+        assertFalse(content.exactContentEquals(1, 1, 1, content.shareholderSetHash(), content.payload()));
+        assertFalse(content.exactContentEquals(2, 1, 0, content.shareholderSetHash(), content.payload()));
 
         assertThrows(IllegalArgumentException.class, () ->
-                PotBalanceAggregateBinaryCodec.decode(potId, 1L, 1, 1, 0, mutated, content.hash()));
+                PotBalanceAggregateBinaryCodec.decode(
+                        potId, 1L, encoded.shareholderSet(), 1, 1, 0, mutated, content.hash()));
     }
 
     @Test
@@ -97,72 +121,65 @@ class PotBalanceAggregateBinaryCodecTest {
         UUID potId = UUID.randomUUID();
         UUID u0 = UUID.fromString("00000000-0000-0000-0000-000000000001");
         UUID u1 = UUID.fromString("00000000-0000-0000-0000-000000000002");
+        PotShareholderSet set1 = PotShareholderSetBinaryCodec.encode(List.of(u0));
+        PotShareholderSet set2 = PotShareholderSetBinaryCodec.encode(List.of(u0, u1));
 
         // 1. Invalid deleted flag byte (2)
         byte[] badDeletedFlag = buildRawAggregate(
-                List.of(new RawSh(u0, 2, Fraction.ONE, Fraction.ZERO)),
+                List.of(new RawSh(2, Fraction.ONE, Fraction.ZERO)),
                 List.of());
         assertThrows(IllegalArgumentException.class, () ->
-                PotBalanceAggregateBinaryCodec.decode(potId, 1L, 1, 1, 0, badDeletedFlag, null));
+                PotBalanceAggregateBinaryCodec.decode(potId, 1L, set1, 1, 1, 0, badDeletedFlag, null));
 
-        // 2. Reversed shareholder UUID order
-        byte[] badShOrder = buildRawAggregate(
-                List.of(
-                        new RawSh(u1, 0, Fraction.ONE, Fraction.ZERO),
-                        new RawSh(u0, 0, Fraction.ONE, Fraction.ZERO)),
-                List.of());
-        assertThrows(IllegalArgumentException.class, () ->
-                PotBalanceAggregateBinaryCodec.decode(potId, 1L, 1, 2, 0, badShOrder, null));
-
-        // 3. Bucket default index out of bounds (index 2 when shareholdersCount = 2)
+        // 2. Bucket default index out of bounds (index 2 when shareholdersCount = 2)
         byte[] outOfBoundsIdx = buildRawAggregate(
                 List.of(
-                        new RawSh(u0, 0, Fraction.ONE, new Fraction(10, 1)),
-                        new RawSh(u1, 0, Fraction.ONE, Fraction.ZERO)),
+                        new RawSh(0, Fraction.ONE, new Fraction(10, 1)),
+                        new RawSh(0, Fraction.ONE, Fraction.ZERO)),
                 List.of(new RawBucket(List.of(0, 2), Fraction.ZERO, new Fraction(10, 1), List.of())));
         assertThrows(IllegalArgumentException.class, () ->
-                PotBalanceAggregateBinaryCodec.decode(potId, 1L, 1, 2, 1, outOfBoundsIdx, null));
+                PotBalanceAggregateBinaryCodec.decode(potId, 1L, set2, 1, 2, 1, outOfBoundsIdx, null));
 
-        // 4. Non-ascending default indices ([1, 0])
+        // 3. Non-ascending default indices ([1, 0])
         byte[] unsortedDefaultIdx = buildRawAggregate(
                 List.of(
-                        new RawSh(u0, 0, Fraction.ONE, new Fraction(10, 1)),
-                        new RawSh(u1, 0, Fraction.ONE, Fraction.ZERO)),
+                        new RawSh(0, Fraction.ONE, new Fraction(10, 1)),
+                        new RawSh(0, Fraction.ONE, Fraction.ZERO)),
                 List.of(new RawBucket(List.of(1, 0), Fraction.ZERO, new Fraction(10, 1), List.of())));
         assertThrows(IllegalArgumentException.class, () ->
-                PotBalanceAggregateBinaryCodec.decode(potId, 1L, 1, 2, 1, unsortedDefaultIdx, null));
+                PotBalanceAggregateBinaryCodec.decode(potId, 1L, set2, 1, 2, 1, unsortedDefaultIdx, null));
 
-        // 5. Out-of-order buckets
+        // 4. Out-of-order buckets
         byte[] reversedBuckets = buildRawAggregate(
                 List.of(
-                        new RawSh(u0, 0, Fraction.ONE, new Fraction(20, 1)),
-                        new RawSh(u1, 0, Fraction.ONE, Fraction.ZERO)),
+                        new RawSh(0, Fraction.ONE, new Fraction(20, 1)),
+                        new RawSh(0, Fraction.ONE, Fraction.ZERO)),
                 List.of(
                         new RawBucket(List.of(1), Fraction.ZERO, new Fraction(10, 1), List.of()),
                         new RawBucket(List.of(0), Fraction.ZERO, new Fraction(10, 1), List.of())));
         assertThrows(IllegalArgumentException.class, () ->
-                PotBalanceAggregateBinaryCodec.decode(potId, 1L, 1, 2, 2, reversedBuckets, null));
+                PotBalanceAggregateBinaryCodec.decode(potId, 1L, set2, 1, 2, 2, reversedBuckets, null));
 
-        // 6. Conservation violation (sum(fixedNet) != sum(bucketAmounts))
+        // 5. Conservation violation (sum(fixedNet) != sum(bucketAmounts))
         byte[] badConservation = buildRawAggregate(
                 List.of(
-                        new RawSh(u0, 0, Fraction.ONE, new Fraction(10, 1)),
-                        new RawSh(u1, 0, Fraction.ONE, Fraction.ZERO)),
+                        new RawSh(0, Fraction.ONE, new Fraction(10, 1)),
+                        new RawSh(0, Fraction.ONE, Fraction.ZERO)),
                 List.of(new RawBucket(List.of(0, 1), Fraction.ZERO, new Fraction(9, 1), List.of())));
         assertThrows(IllegalArgumentException.class, () ->
-                PotBalanceAggregateBinaryCodec.decode(potId, 1L, 1, 2, 1, badConservation, null));
+                PotBalanceAggregateBinaryCodec.decode(potId, 1L, set2, 1, 2, 1, badConservation, null));
 
-        // 7. Trailing bytes
-        PotBalanceAggregateContent valid = PotBalanceAggregateBinaryCodec.encode(
+        // 6. Trailing bytes
+        PotBalanceAggregateBinaryCodec.EncodedAggregate valid = PotBalanceAggregateBinaryCodec.encode(
                 new PotBalanceAggregate(potId, 1L,
                         List.of(new ShareholderEntry(u0, Fraction.ONE, false, Fraction.ZERO)),
                         Map.of()));
-        byte[] trailing = Arrays.copyOf(valid.payload(), valid.payload().length + 1);
+        byte[] trailing = Arrays.copyOf(valid.content().payload(), valid.content().payload().length + 1);
         assertThrows(IllegalArgumentException.class, () ->
-                PotBalanceAggregateBinaryCodec.decode(potId, 1L, 1, 1, 0, trailing, null));
+                PotBalanceAggregateBinaryCodec.decode(potId, 1L, valid.shareholderSet(), 1, 1, 0, trailing, null));
     }
 
-    private record RawSh(UUID id, int deletedByte, Fraction weight, Fraction fixedNet) {}
+    private record RawSh(int deletedByte, Fraction weight, Fraction fixedNet) {}
     private record RawSpec(int idx, Fraction amount) {}
     private record RawBucket(List<Integer> defaultIndices, Fraction specWeightTotal, Fraction totalAmount, List<RawSpec> specs) {}
 
@@ -170,7 +187,6 @@ class PotBalanceAggregateBinaryCodecTest {
         var out = new ByteArrayOutputStream();
         PotBalanceBinaryCodec.writeInt32(out, shareholders.size());
         for (RawSh sh : shareholders) {
-            PotBalanceBinaryCodec.writeUuid(out, sh.id);
             out.write(sh.deletedByte);
             PotBalanceBinaryCodec.encodeFraction(out, sh.weight);
             PotBalanceBinaryCodec.encodeFraction(out, sh.fixedNet);

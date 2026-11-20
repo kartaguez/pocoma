@@ -48,7 +48,7 @@ final class ReadParticipantsFixture implements AutoCloseable {
     final WorkerCapacity capacity;
     final Map<Name,ConsumptionEngine> engines=new EnumMap<>(Name.class);
     final Map<String,PartitionLease> leases=new HashMap<>();
-    final List<String> businessTables=List.of("read_subobject_version","read_pot_user_set","read_pot_version_node","read_pot_version","read_current_pot","read_pot_balance_content","read_pot_balance","read_pot_visibility_state","read_user_pot","read_current_binding","read_command_result","read_identity_request_result");
+    final List<String> businessTables=List.of("read_subobject_version","read_pot_user_set","read_pot_version_node","read_pot_version","read_current_pot","read_pot_shareholder_set","read_pot_balance_content","read_pot_balance","read_pot_visibility_state","read_user_pot","read_current_binding","read_command_result","read_identity_request_result");
 
     ReadParticipantsFixture(PostgreSQLContainer pg,String scenario) throws Exception { this(pg,scenario,8); }
     ReadParticipantsFixture(PostgreSQLContainer pg,String scenario,int workerLimit) throws Exception {
@@ -146,8 +146,11 @@ final class ReadParticipantsFixture implements AutoCloseable {
         switch(name) {
             case POT_VERSION -> { f.read.oracle.execute("alter table read_pot_version disable trigger user"); f.read.oracle.update("update read_pot_version set deleted=true"); }
             case POT_BALANCE -> {
-                var alt=com.kartaguez.pocoma.domain.projection.balance.PotBalanceBinaryCodec.encode(Map.of(UUID.fromString("00000000-0000-0000-0000-000000000099"),com.kartaguez.pocoma.domain.pot.value.Fraction.ZERO));
-                f.read.oracle.update("insert into read_pot_balance_content(content_hash,schema_version,shareholders_count,payload) values (?,?,?,?) on conflict do nothing",alt.hash().bytes(),alt.schemaVersion(),alt.shareholdersCount(),alt.payload());
+                var enc=com.kartaguez.pocoma.domain.projection.balance.PotBalanceBinaryCodec.encode(Map.of(UUID.fromString("00000000-0000-0000-0000-000000000099"),com.kartaguez.pocoma.domain.pot.value.Fraction.ZERO));
+                var shSet=enc.shareholderSet();
+                var alt=enc.content();
+                f.read.oracle.update("insert into read_pot_shareholder_set(set_hash,schema_version,shareholders_count,payload) values (?,?,?,?) on conflict do nothing",shSet.hash().bytes(),shSet.schemaVersion(),shSet.shareholdersCount(),shSet.payload());
+                f.read.oracle.update("insert into read_pot_balance_content(content_hash,schema_version,shareholders_count,shareholder_set_hash,payload) values (?,?,?,?,?) on conflict do nothing",alt.hash().bytes(),alt.schemaVersion(),alt.shareholdersCount(),alt.shareholderSetHash().bytes(),alt.payload());
                 f.read.oracle.execute("alter table read_pot_balance disable trigger user");
                 f.read.oracle.update("update read_pot_balance set content_hash=?",alt.hash().bytes());
             }

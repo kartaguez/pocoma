@@ -390,6 +390,24 @@ public final class ReadinessOracle {
         addIfPositive(
                 readJdbc,
                 """
+                select count(*) from read_pot_balance_content bc
+                left join read_pot_shareholder_set ss on ss.set_hash = bc.shareholder_set_hash
+                where ss.set_hash is null or ss.shareholders_count <> bc.shareholders_count
+                """,
+                "read_pot_balance_content has %d inconsistent shareholder_set_hash references",
+                integrityErrors);
+        addIfPositive(
+                readJdbc,
+                """
+                select count(*) from read_pot_balance_aggregate_content bac
+                left join read_pot_shareholder_set ss on ss.set_hash = bac.shareholder_set_hash
+                where ss.set_hash is null or ss.shareholders_count <> bac.shareholders_count
+                """,
+                "read_pot_balance_aggregate_content has %d inconsistent shareholder_set_hash references",
+                integrityErrors);
+        addIfPositive(
+                readJdbc,
+                """
                 select count(*) from read_pot_version pv
                 left join read_pot_version_node sh on sh.node_hash = pv.shareholders_root
                 left join read_pot_version_node ex on ex.node_hash = pv.expenses_root

@@ -283,6 +283,26 @@ def wait_e2e_c03_and_verify_oracle(pot_id, version, expected_balances, sharehold
 
 
 def query_aggregate_window_stats(pg, pot_id, min_version, max_version):
+    has_v4 = bench.sql(pg, "pocoma_read", "SELECT to_jsonb(to_regclass('v3_read.read_pot_balance_aggregate_content') IS NOT NULL)")
+    if has_v4:
+        return bench.sql(
+            pg,
+            "pocoma_read",
+            f"SELECT jsonb_build_object("
+            f"'rowCount', count(*),"
+            f"'distinctContents', count(DISTINCT pba.content_hash),"
+            f"'distinctShareholderSets', count(DISTINCT bac.shareholder_set_hash),"
+            f"'minBucketCount', coalesce(min(bac.bucket_count), 0),"
+            f"'avgBucketCount', coalesce(round(avg(bac.bucket_count), 2), 0),"
+            f"'maxBucketCount', coalesce(max(bac.bucket_count), 0),"
+            f"'avgPayloadBytes', coalesce(round(avg(octet_length(bac.payload))), 0),"
+            f"'maxPayloadBytes', coalesce(max(octet_length(bac.payload)), 0),"
+            f"'avgColumnBytes', coalesce(round(avg(pg_column_size(bac.payload))), 0),"
+            f"'maxColumnBytes', coalesce(max(pg_column_size(bac.payload)), 0)"
+            f") FROM v3_read.read_pot_balance_aggregate pba "
+            f"JOIN v3_read.read_pot_balance_aggregate_content bac USING (content_hash) "
+            f"WHERE pba.pot_id = '{pot_id}'::uuid AND pba.pot_version >= {min_version} AND pba.pot_version <= {max_version}",
+        )
     return bench.sql(
         pg,
         "pocoma_read",

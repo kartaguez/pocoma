@@ -469,8 +469,8 @@ class PotBalanceIncrementalPostgresTest {
     }
 
     @Test
-    void emptyDeltaReuseProofNoFalsePositivesAndMicrometerObservability() throws Exception {
-        try (var f = new InterAuthorityPostgresFixture(PG, "potbalance-arb3", true)) {
+    void nonFinancialAndZeroDeltaPhysicalDedupAndMicrometerObservability() throws Exception {
+        try (var f = new InterAuthorityPostgresFixture(PG, "potbalance-dedup", true)) {
             var potId = new PotId(UUID.randomUUID());
             var creator = new UserId(UUID.randomUUID());
             var sh1 = new ShareholderId(UUID.randomUUID());
@@ -482,7 +482,7 @@ class PotBalanceIncrementalPostgresTest {
 
             var events = new TreeMap<Long, UUID>();
             // v1: CreatePot
-            events.put(1L, executeWrite(f, creator, potId, 0, "CreatePot", new CreatePot(new Label("ARB-3 Pot"))));
+            events.put(1L, executeWrite(f, creator, potId, 0, "CreatePot", new CreatePot(new Label("Dedup Pot"))));
             // v2: AddShareholders (sh1=1, sh2=2, sh3=1)
             events.put(2L, executeWrite(f, creator, potId, 1, "AddShareholders",
                     new AddShareholders(List.of(
@@ -495,100 +495,92 @@ class PotBalanceIncrementalPostgresTest {
                             new ExpenseDetails(potId, exp1, new Label("Lunch"), LocalDate.of(2026, 4, 1)),
                             new ExpenseFinancials(potId, exp1, new Amount(new Fraction(60, 1)), sh1,
                                     Map.of(sh1, Optional.empty(), sh2, Optional.empty())))));
-            // v4: UpdatePotDetails (non-financial -> eligible for EMPTY_DELTA_REUSE)
+            // v4: UpdatePotDetails (non-financial -> physical dedup in store)
             events.put(4L, executeWrite(f, creator, potId, 3, "UpdatePotDetails",
-                    new UpdatePotDetails(new Label("ARB-3 Renamed"))));
-            // v5: UpdateShareholderDetails (non-financial -> eligible for EMPTY_DELTA_REUSE, N-m from v3 or v4)
+                    new UpdatePotDetails(new Label("Dedup Renamed"))));
+            // v5: UpdateShareholderDetails (non-financial -> N-m incremental + physical dedup)
             events.put(5L, executeWrite(f, creator, potId, 4, "UpdateShareholderDetails",
                     new UpdateShareholderDetails(List.of(
                             new ShareholderTransitions.DetailsIntent(sh2, new Name("Bob Renamed"), Optional.empty())))));
-            // v6: UpdateExpenseDetails (non-financial -> eligible for EMPTY_DELTA_REUSE)
+            // v6: UpdateExpenseDetails (non-financial -> physical dedup)
             events.put(6L, executeWrite(f, creator, potId, 5, "UpdateExpenseDetails",
                     new UpdateExpenseDetails(exp1, new Label("Lunch Updated"), LocalDate.of(2026, 4, 2))));
-            // v7: Weight changed (1 -> 5) then v8: Weight reverted (5 -> 1) -> MUST NOT trigger EMPTY_DELTA_REUSE across (6, 8]!
+            // v7: Weight changed (1 -> 5) then v8: Weight reverted (5 -> 1)
             events.put(7L, executeWrite(f, creator, potId, 6, "UpdateShareholderWeights",
                     new UpdateShareholderWeights(List.of(new ShareholderTransitions.WeightIntent(sh1, w(5, 1))))));
             events.put(8L, executeWrite(f, creator, potId, 7, "UpdateShareholderWeights",
                     new UpdateShareholderWeights(List.of(new ShareholderTransitions.WeightIntent(sh1, w(1, 1))))));
-            // v9: Create zero-amount expense -> MUST NOT trigger EMPTY_DELTA_REUSE (changedExpenseCount > 0), MUST deduplicate in store!
+            // v9: Create zero-amount expense -> incremental + 100% physical dedup in store
             events.put(9L, executeWrite(f, creator, potId, 8, "CreateExpense",
                     new CreateExpense(
                             new ExpenseDetails(potId, expZero, new Label("Zero"), LocalDate.of(2026, 4, 3)),
                             new ExpenseFinancials(potId, expZero, new Amount(Fraction.ZERO), sh1,
                                     Map.of(sh1, Optional.empty(), sh2, Optional.empty())))));
-            // v10: Create temp expense then v11: Delete temp expense -> MUST NOT trigger EMPTY_DELTA_REUSE across (9, 11]!
+            // v10: Create temp expense then v11: Delete temp expense -> N-m incremental + physical dedup
             events.put(10L, executeWrite(f, creator, potId, 9, "CreateExpense",
                     new CreateExpense(
                             new ExpenseDetails(potId, expTemp, new Label("Temp"), LocalDate.of(2026, 4, 4)),
                             new ExpenseFinancials(potId, expTemp, new Amount(new Fraction(30, 1)), sh2,
                                     Map.of(sh1, Optional.empty(), sh2, Optional.empty())))));
             events.put(11L, executeWrite(f, creator, potId, 10, "DeleteExpense", new DeleteExpense(expTemp)));
-            // v12: DeleteShareholder sh3 (unused) -> MUST trigger FULL/SHAREHOLDER_DELETED, balance reused, aggregate inserted!
+            // v12: DeleteShareholder sh3 (unused) -> FULL/SHAREHOLDER_DELETED; balance reused, aggregate inserted!
             events.put(12L, executeWrite(f, creator, potId, 11, "DeleteShareholder", new DeleteShareholder(sh3)));
 
             var source = new JdbcPotBalanceSource(f.primary);
             var store = new JdbcPotBalanceStore(f.read.source, f.read.tx);
             var registry = new SimpleMeterRegistry();
-            var observation = new MicrometerPotBalanceObservation(registry, Tags.of("test", "arb3"));
+            var observation = new MicrometerPotBalanceObservation(registry, Tags.of("test", "dedup"));
             var participant = new MaterializePotBalance(source, store, MaterializePotBalance.Settings.DEFAULT, observation);
 
             // Materialize v1, v2, v3 (baseline financial state)
             materialize(f, participant, events.get(1L));
             materialize(f, participant, events.get(2L));
             materialize(f, participant, events.get(3L));
+            int shSetsAfterV3 = f.read.oracle.queryForObject("select count(*) from read_pot_shareholder_set", Integer.class);
             int balContentsAfterV3 = f.read.oracle.queryForObject("select count(*) from read_pot_balance_content", Integer.class);
             int aggContentsAfterV3 = f.read.oracle.queryForObject("select count(*) from read_pot_balance_aggregate_content", Integer.class);
+            double incAfterV3 = registry.counter("pocoma.v3.potbalance.materialize.path",
+                    "test", "dedup", "path", "incremental", "reason", "incremental_hit").count();
 
-            // 1. N-m EMPTY_DELTA_REUSE: materialize v6 directly from v3 (distance = 3, covering UpdatePotDetails + UpdateShareholderDetails + UpdateExpenseDetails)
+            // 1. N-m incremental across non-financial changes (v6 directly from v3, distance = 3; then v4, v5)
             materialize(f, participant, events.get(6L));
-            assertEquals(1.0, registry.counter("pocoma.v3.potbalance.materialize.path",
-                    "test", "arb3", "path", "reuse", "reason", "empty_delta_reuse").count());
-            // Consecutive EMPTY_DELTA_REUSE: v4 and v5
             materialize(f, participant, events.get(4L));
             materialize(f, participant, events.get(5L));
-            assertEquals(3.0, registry.counter("pocoma.v3.potbalance.materialize.path",
-                    "test", "arb3", "path", "reuse", "reason", "empty_delta_reuse").count());
-            // Zero new physical content rows created for v4, v5, v6!
+            assertEquals(incAfterV3 + 3.0, registry.counter("pocoma.v3.potbalance.materialize.path",
+                    "test", "dedup", "path", "incremental", "reason", "incremental_hit").count());
+            // Zero new physical content or shareholder set rows created for v4, v5, v6!
+            assertEquals(shSetsAfterV3, f.read.oracle.queryForObject("select count(*) from read_pot_shareholder_set", Integer.class));
             assertEquals(balContentsAfterV3, f.read.oracle.queryForObject("select count(*) from read_pot_balance_content", Integer.class));
             assertEquals(aggContentsAfterV3, f.read.oracle.queryForObject("select count(*) from read_pot_balance_aggregate_content", Integer.class));
 
             // 2. Weight modified (v7) then reverted (v8): materialize v8 directly from v6 (skipping v7)
-            // MUST NOT trigger EMPTY_DELTA_REUSE! Must take INCREMENTAL and deduplicate physically in store!
-            double reuseBefore = registry.counter("pocoma.v3.potbalance.materialize.path",
-                    "test", "arb3", "path", "reuse", "reason", "empty_delta_reuse").count();
             double incBefore = registry.counter("pocoma.v3.potbalance.materialize.path",
-                    "test", "arb3", "path", "incremental", "reason", "incremental_hit").count();
+                    "test", "dedup", "path", "incremental", "reason", "incremental_hit").count();
             materialize(f, participant, events.get(8L));
-            assertEquals(reuseBefore, registry.counter("pocoma.v3.potbalance.materialize.path",
-                    "test", "arb3", "path", "reuse", "reason", "empty_delta_reuse").count(), "Reverted weight in (6,8] must NOT trigger EMPTY_DELTA_REUSE");
             assertEquals(incBefore + 1.0, registry.counter("pocoma.v3.potbalance.materialize.path",
-                    "test", "arb3", "path", "incremental", "reason", "incremental_hit").count());
+                    "test", "dedup", "path", "incremental", "reason", "incremental_hit").count());
             assertEquals(balContentsAfterV3, f.read.oracle.queryForObject("select count(*) from read_pot_balance_content", Integer.class), "Physical dedup reuses balance");
             assertEquals(aggContentsAfterV3, f.read.oracle.queryForObject("select count(*) from read_pot_balance_aggregate_content", Integer.class), "Physical dedup reuses aggregate");
 
-            // 3. Zero-amount expense (v9): MUST NOT trigger EMPTY_DELTA_REUSE, MUST deduplicate in store!
+            // 3. Zero-amount expense (v9): incremental + physical dedup in store
             materialize(f, participant, events.get(9L));
-            assertEquals(reuseBefore, registry.counter("pocoma.v3.potbalance.materialize.path",
-                    "test", "arb3", "path", "reuse", "reason", "empty_delta_reuse").count(), "Zero-amount expense must NOT trigger EMPTY_DELTA_REUSE");
             assertEquals(incBefore + 2.0, registry.counter("pocoma.v3.potbalance.materialize.path",
-                    "test", "arb3", "path", "incremental", "reason", "incremental_hit").count());
+                    "test", "dedup", "path", "incremental", "reason", "incremental_hit").count());
             assertEquals(balContentsAfterV3, f.read.oracle.queryForObject("select count(*) from read_pot_balance_content", Integer.class));
             assertEquals(aggContentsAfterV3, f.read.oracle.queryForObject("select count(*) from read_pot_balance_aggregate_content", Integer.class));
 
             // 4. Expense created (v10) then deleted (v11): materialize v11 directly from v9 (skipping v10)
-            // MUST NOT trigger EMPTY_DELTA_REUSE! Must take INCREMENTAL and deduplicate physically!
             materialize(f, participant, events.get(11L));
-            assertEquals(reuseBefore, registry.counter("pocoma.v3.potbalance.materialize.path",
-                    "test", "arb3", "path", "reuse", "reason", "empty_delta_reuse").count(), "Created+deleted expense in (9,11] must NOT trigger EMPTY_DELTA_REUSE");
             assertEquals(incBefore + 3.0, registry.counter("pocoma.v3.potbalance.materialize.path",
-                    "test", "arb3", "path", "incremental", "reason", "incremental_hit").count());
+                    "test", "dedup", "path", "incremental", "reason", "incremental_hit").count());
             assertEquals(balContentsAfterV3, f.read.oracle.queryForObject("select count(*) from read_pot_balance_content", Integer.class));
             assertEquals(aggContentsAfterV3, f.read.oracle.queryForObject("select count(*) from read_pot_balance_aggregate_content", Integer.class));
 
-            // 5. DeleteShareholder (v12): FULL/SHAREHOLDER_DELETED; balance reused, aggregate inserted!
+            // 5. DeleteShareholder (v12): FULL/SHAREHOLDER_DELETED; balance & shareholder set reused, aggregate inserted!
             materialize(f, participant, events.get(12L));
             assertEquals(1.0, registry.counter("pocoma.v3.potbalance.materialize.path",
-                    "test", "arb3", "path", "full", "reason", "shareholder_deleted").count());
+                    "test", "dedup", "path", "full", "reason", "shareholder_deleted").count());
+            assertEquals(shSetsAfterV3, f.read.oracle.queryForObject("select count(*) from read_pot_shareholder_set", Integer.class));
             assertEquals(balContentsAfterV3, f.read.oracle.queryForObject("select count(*) from read_pot_balance_content", Integer.class));
             assertEquals(aggContentsAfterV3 + 1, f.read.oracle.queryForObject("select count(*) from read_pot_balance_aggregate_content", Integer.class));
 
@@ -597,17 +589,17 @@ class PotBalanceIncrementalPostgresTest {
             materialize(f, participant, events.get(10L));
             materialize(f, participant, events.get(6L));
 
-            // Verify Micrometer content write & encode metrics are populated
+            // Verify Micrometer content write, encode & persist metrics are populated
             assertTrue(registry.counter("pocoma.v3.potbalance.content.write",
-                    "test", "arb3", "target", "balance", "outcome", "inserted").count() > 0);
+                    "test", "dedup", "target", "balance", "outcome", "inserted").count() > 0);
             assertTrue(registry.counter("pocoma.v3.potbalance.content.write",
-                    "test", "arb3", "target", "balance", "outcome", "reused").count() >= 7.0);
+                    "test", "dedup", "target", "balance", "outcome", "reused").count() >= 7.0);
             assertTrue(registry.counter("pocoma.v3.potbalance.content.write",
-                    "test", "arb3", "target", "aggregate", "outcome", "reused").count() >= 6.0);
+                    "test", "dedup", "target", "aggregate", "outcome", "reused").count() >= 6.0);
             assertTrue(registry.timer("pocoma.v3.potbalance.encode.duration",
-                    "test", "arb3", "target", "balance").count() > 0);
+                    "test", "dedup", "target", "balance").count() > 0);
             assertTrue(registry.timer("pocoma.v3.potbalance.persist.duration",
-                    "test", "arb3", "target", "balance").count() > 0);
+                    "test", "dedup", "target", "balance").count() > 0);
 
             // Exact equivalence against full PotBalanceCalculator oracle for all 12 versions!
             for (long v = 1L; v <= 12L; v++) {

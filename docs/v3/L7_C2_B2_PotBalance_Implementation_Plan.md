@@ -460,14 +460,19 @@ Aucun sous-lot qualifié ne laisse le réacteur dans un état incompatible :
 - **Interdit** : ne pas relâcher la preuve d'identité ARB-3 ni modifier `PotVersion` / `ReadPot` / `WRITE`.
 - **Vérification** : `./mvnw -pl runtime-worker-materialize,runtime-web-read -am test`. Commit atomique `feat(l7-c2-b2.3): ...`.
 
-### Mandat séparé B2.4 — Outillage `V4`, reconstruction READ, diagnostic F4, qualification A/B & Full Reactor
-- **Périmètre** : `grant-l7-http-read.sql`, `diagnose-pot-balance-unreachable.sql` (ARB-5), `v3-rebuild-read.py`, `setup-v3-database.py`, scripts de performance + `run-l7-c2-b2-qualification.py`, double rebuild READ depuis WRITE (`medium`, `large`), qualification A/B vs baseline `e25cd84b` (3 régimes de charge + `XLARGE` + `multibucket` + mesure ARB-2 + mesure ARB-3), gate `architecture-tests`, Full Reactor (42 modules) et rapport `docs/v3/L7_C2_B2_PotBalance_Qualification_Report.md`.
-- **Vérification** : `./mvnw -pl architecture-tests -am test`, `./mvnw --batch-mode --no-transfer-progress test`, tests Python, campagnes A/B et double rebuild `v3-rebuild-read.py`. Commit atomique `feat(l7-c2-b2.4): ...`.
+### Mandat séparé B2.4 & Requalification corrective — Outillage `V4`, reconstruction READ, diagnostic F4, qualification A/B & Full Reactor
+- **Périmètre** : `grant-l7-http-read.sql`, `diagnose-pot-balance-unreachable.sql` (ARB-5), `v3-rebuild-read.py`, `setup-v3-database.py`, scripts de performance + `run-l7-c2-b2-qualification.py`, double rebuild READ depuis WRITE (`medium`, `large`), qualification A/B vs baseline `e25cd84b`, gate `architecture-tests`, Full Reactor (42 modules) et rapport `docs/v3/L7_C2_B2_4_PotBalance_Qualification_Report.md`.
+- **Vérification** : `./mvnw -pl architecture-tests -am test`, `./mvnw --batch-mode --no-transfer-progress test`, tests Python, campagnes A/B et double rebuild `v3-rebuild-read.py`.
+
+#### Révisions correctives approuvées post-B2.4 initial (sans relâchement des seuils P1–P9 du §6.2)
+À la suite du verdict initial `L7_C2_B2_4_NOT_QUALIFIED` ([`L7_C2_B2_4_Performance_Corrective_Analysis.md`](L7_C2_B2_4_Performance_Corrective_Analysis.md)), les décisions suivantes ont été appliquées en préservant intégralement les seuils figés P1–P9 (§6.2) et la stratégie de migration propre `V4` :
+- **ARB-1b (Mutualisation des shareholders)** : introduction de `read_pot_shareholder_set` (SHA-256 `pocoma-shset-v1\0`), référencée par `shareholder_set_hash` dans `read_pot_balance_content` et `read_pot_balance_aggregate_content`, avec omission des UUID dupliqués dans les payloads binaires et inclusion dans `grant-l7-http-read.sql`, `diagnose-pot-balance-unreachable.sql`, `BootstrapGuard`, `ReadinessOracle`, `setup-v3-database.py` et `v3-rebuild-read.py`.
+- **ARB-3b (Suppression d'`EMPTY_DELTA_REUSE`)** : retrait complet du chemin rapide `EMPTY_DELTA_REUSE`, de `emptyDeltaReuseEnabled` (`MaterializeSettings`), des méthodes supplémentaires de `PotBalanceStore` et des métriques/tests dédiés, restaurant un chemin unique `readLatestAggregateBefore` vers A4 + déduplication physique.
+- **Optimisation SQL de persistance (`JdbcPotBalanceStore`)** : insertion CTE atomique groupée `balance_content` + `aggregate_content` + pointeurs, partage de `PotShareholderSet`, conservation de la vérification octet à octet sur tout conflit d'empreinte, et remplacement de la relecture/décodage complète lors de la complétion par `requireHashesStored`.
+- **ARB-6 (Protocole P8 corrigé)** : fenêtre commune de mesure `workers opérationnels → ReadinessOracle = READY` (séparant `bootstrapSeconds` et `effectiveRebuildSeconds`) et exécution entrelacée `A → B → A → B` sur `large`.
 
 ---
 
 ## Verdict
 
-**`L7_C2_B2_PLAN_APPROVED`**
-
-Les cinq arbitrages **ARB-1 à ARB-5** et le découpage **B2.1 à B2.4** sont approuvés, l'exigence stricte sur `EMPTY_DELTA_REUSE` est figée sans aucun assouplissement d'invariant, et la continuité des gates du réacteur est garantie sur toutes les transitions **B2.1 → B2.2 → B2.3 → B2.4**. Aucune implémentation B2.1 n'est engagée sans mandat dédié.
+**`L7_C2_B2_PLAN_APPROVED`** *(incluant la révision corrective ARB-1b / ARB-3b / ARB-6 / optimisation SQL ; seuils P1–P9 §6.2 inchangés)*

@@ -442,6 +442,7 @@ class ReadReconstructionPostgresTest {
         Map<String, String> content = new TreeMap<>();
         for (String table : List.of("read_current_pot", "read_pot_version", "read_pot_version_node",
                 "read_pot_user_set", "read_subobject_version",
+                "read_pot_shareholder_set",
                 "read_pot_balance_content", "read_pot_balance",
                 "read_pot_balance_aggregate_content", "read_pot_balance_aggregate",
                 "read_pot_visibility_state", "read_user_pot",

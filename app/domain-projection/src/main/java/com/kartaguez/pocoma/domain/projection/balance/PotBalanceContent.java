@@ -7,15 +7,22 @@ import java.util.Objects;
 
 /**
  * Immutable canonical binary representation of a {@link com.kartaguez.pocoma.domain.projection.PotBalance}
- * content, addressed by domain-separated SHA-256 hash independent of {@code (pot_id, pot_version)}.
+ * content, referencing a shared {@link PotShareholderSet} and addressed by domain-separated SHA-256 hash
+ * independent of {@code (pot_id, pot_version)}.
  */
 public final class PotBalanceContent {
     private final ContentHash hash;
     private final int schemaVersion;
     private final int shareholdersCount;
+    private final ContentHash shareholderSetHash;
     private final byte[] payload;
 
-    PotBalanceContent(ContentHash hash, int schemaVersion, int shareholdersCount, byte[] ownedPayload) {
+    PotBalanceContent(
+            ContentHash hash,
+            int schemaVersion,
+            int shareholdersCount,
+            ContentHash shareholderSetHash,
+            byte[] ownedPayload) {
         this.hash = Objects.requireNonNull(hash, "hash required");
         if (schemaVersion != PotBalanceBinaryCodec.SCHEMA_VERSION) {
             throw new IllegalArgumentException("Unsupported PotBalance schema version: " + schemaVersion);
@@ -23,6 +30,7 @@ public final class PotBalanceContent {
         if (shareholdersCount < 0) {
             throw new IllegalArgumentException("Negative shareholdersCount: " + shareholdersCount);
         }
+        this.shareholderSetHash = Objects.requireNonNull(shareholderSetHash, "shareholderSetHash required");
         Objects.requireNonNull(ownedPayload, "payload required");
         if (ownedPayload.length < 4) {
             throw new IllegalArgumentException("PotBalance payload too short: " + ownedPayload.length);
@@ -33,9 +41,14 @@ public final class PotBalanceContent {
     }
 
     public static PotBalanceContent of(
-            ContentHash hash, int schemaVersion, int shareholdersCount, byte[] payload) {
+            ContentHash hash,
+            int schemaVersion,
+            int shareholdersCount,
+            ContentHash shareholderSetHash,
+            byte[] payload) {
         Objects.requireNonNull(payload, "payload required");
-        return new PotBalanceContent(hash, schemaVersion, shareholdersCount, payload.clone());
+        return new PotBalanceContent(
+                hash, schemaVersion, shareholdersCount, shareholderSetHash, payload.clone());
     }
 
     public ContentHash hash() {
@@ -48,6 +61,10 @@ public final class PotBalanceContent {
 
     public int shareholdersCount() {
         return shareholdersCount;
+    }
+
+    public ContentHash shareholderSetHash() {
+        return shareholderSetHash;
     }
 
     public byte[] payload() {
@@ -65,13 +82,20 @@ public final class PotBalanceContent {
         return other != null
                 && schemaVersion == other.schemaVersion
                 && shareholdersCount == other.shareholdersCount
+                && shareholderSetHash.equals(other.shareholderSetHash)
                 && Arrays.equals(payload, other.payload);
     }
 
-    public boolean exactContentEquals(int otherSchemaVersion, int otherShareholdersCount, byte[] otherPayload) {
+    public boolean exactContentEquals(
+            int otherSchemaVersion,
+            int otherShareholdersCount,
+            ContentHash otherShareholderSetHash,
+            byte[] otherPayload) {
         return otherPayload != null
+                && otherShareholderSetHash != null
                 && schemaVersion == otherSchemaVersion
                 && shareholdersCount == otherShareholdersCount
+                && shareholderSetHash.equals(otherShareholderSetHash)
                 && Arrays.equals(payload, otherPayload);
     }
 
@@ -88,6 +112,7 @@ public final class PotBalanceContent {
         int result = hash.hashCode();
         result = 31 * result + schemaVersion;
         result = 31 * result + shareholdersCount;
+        result = 31 * result + shareholderSetHash.hashCode();
         result = 31 * result + Arrays.hashCode(payload);
         return result;
     }
@@ -97,6 +122,7 @@ public final class PotBalanceContent {
         return "PotBalanceContent[hash=" + hash
                 + ", schemaVersion=" + schemaVersion
                 + ", shareholdersCount=" + shareholdersCount
+                + ", shareholderSetHash=" + shareholderSetHash
                 + ", payloadBytes=" + payload.length + "]";
     }
 }

@@ -557,8 +557,31 @@ Les **5 arbitrages** ci-dessous ont été **validés** et intégrés comme déci
 
 ---
 
+## J. Évolutions correctives approuvées après l'échec B2.4 initial
+
+À la suite de l'échec quantitatif initial de B2.4 sur P1, P2, P4 (Situation D) et P8 ([`L7_C2_B2_4_Performance_Corrective_Analysis.md`](L7_C2_B2_4_Performance_Corrective_Analysis.md)), la conception physique et applicative V4 intègre les décisions correctives suivantes tout en conservant le schéma cible `V4__pot_balance_shared_storage.sql` (sans double format permanent) :
+
+1. **ARB-1b — Mutualisation physique des ensembles de shareholders (`read_pot_shareholder_set`)** :
+   - **Table immuable globale** : `read_pot_shareholder_set (content_hash bytea PK, schema_version int = 1, shareholders_count int >= 0, payload bytea)`, protégée par `ENABLE ALWAYS TRIGGER` (`read_subobject_immutable`, `no_truncate`), avec droits `SELECT` pour `pocoma_read_http` (`grant-l7-http-read.sql`).
+   - **Identité et séparation de domaine** : `PotShareholderSetBinaryCodec` encode `[schema_version=1][shareholders_count][uuid_msb_0, uuid_lsb_0, ...]` dans l'ordre canonique `SubobjectKey.compareUuid` et hache en SHA-256 avec préfixe **`pocoma-shset-v1\0`**.
+   - **Référencement et suppression des UUID dupliqués** :
+     - `read_pot_balance_content` et `read_pot_balance_aggregate_content` portent chacune `shareholder_set_hash bytea NOT NULL REFERENCES read_pot_shareholder_set(content_hash)` (cohérence `shareholders_count` vérifiée par `ReadinessOracle`).
+     - Les payloads binaires de `PotBalanceBinaryCodec` (`pocoma-bal-v1\0`) et `PotBalanceAggregateBinaryCodec` (`pocoma-bagg-v1\0`) **intègrent les 32 octets `shareholderSetHash` dans leur calcul SHA-256** et **omettent les UUID 16 octets par shareholder** (puisque ceux-ci sont référencés à l'indice positionnel via `read_pot_shareholder_set`). L'ensemble des 5 tables vérifie les FKs, l'immutabilité, l'idempotence et la bijection exacte.
+     - Élimine ~`32 octets/version` d'UUID bruts incompressibles par paire (balance + agrégat) sur chaque version financière (`100–500` shareholders), levant le plafond TOAST/pglz identifié en B2.4 initial.
+
+2. **ARB-3b — Suppression intégrale du chemin rapide `EMPTY_DELTA_REUSE`** :
+   - La comparaison 3-way initiale ayant établi que **100 % des gains stockage/WAL** proviennent de la déduplication physique SHA-256 côté store (tandis que `EMPTY_DELTA_REUSE` n'apportait qu'~`16 µs/cmd` au prix d'une seconde requête SQL `lookupReference` en cas de miss et d'une complexité de garde dans `MaterializePotBalance`), le chemin rapide `EMPTY_DELTA_REUSE`, le paramètre `emptyDeltaReuseEnabled`, `Path.REUSE`, `Reason.EMPTY_DELTA_REUSE`, `AggregateRef` et les méthodes associées de `PotBalanceStore` / `JdbcPotBalanceStore` sont **intégralement supprimés**.
+   - `MaterializePotBalance` retrouve un chemin unique `readLatestAggregateBefore` vers le calcul incrémental A4 (avec fallback intégral conservé) suivi de la déduplication physique V4.
+
+3. **Optimisations SQL de persistance PostgreSQL (`JdbcPotBalanceStore`)** :
+   - **`insertOrVerifyVersionWithResult`** : résolution/insertion partagée unique du `PotShareholderSet`, puis **insertion CTE atomique groupée** de `read_pot_balance_content`, `read_pot_balance_aggregate_content`, `read_pot_balance` et `read_pot_balance_aggregate` en un seul aller-retour JDBC lorsqu'un agrégat est présent.
+   - **Vérification exacte préservée sur conflit** : chaque `ON CONFLICT` conserve une comparaison octet à octet (`Arrays.equals`) entre payload entrant et payload stocké (aucune confiance *hash-only* autorisée), avec rollback complet en cas de divergence.
+   - **`requireHashesStored`** : remplace la relecture et le décodage complets TOAST de `requireCompletionReady()` lors de la complétion par une requête légère vérifiant les pointeurs `(pot_id, pot_version)` et l'existence des empreintes SHA-256 stockées.
+
+---
+
 ## Verdict final
 
-**`L7_C2_B2_PLAN_APPROVED`** *(audit clos et arbitrages ARB-1 à ARB-5 approuvés)*
+**`L7_C2_B2_PLAN_APPROVED`** *(audit initial ARB-1..ARB-5 puis décisions correctives ARB-1b, ARB-3b et optimisation SQL intégrées)*
 
 L'audit complet du code, du schéma SQL, des privilèges, des dépendances runtime et des preuves L7.4-A4 / L7-C2-B1 a conduit à l'approbation d'**Option A-BIN** (tables de contenus immuables adressés par SHA-256 en binaire canonique `bytea`, mutualisation indépendante des balances et des agrégats, sans modification de `PotVersion` ni des composants Radix-16) et du plan exécutable [`docs/v3/L7_C2_B2_PotBalance_Implementation_Plan.md`](L7_C2_B2_PotBalance_Implementation_Plan.md) (B2.1 à B2.4).

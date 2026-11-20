@@ -610,6 +610,7 @@ public final class ReadMonolithI8Fixture implements AutoCloseable {
                         "read_pot_version_node",
                         "read_pot_version",
                         "read_current_pot",
+                        "read_pot_shareholder_set",
                         "read_pot_balance_content",
                         "read_pot_balance",
                         "read_pot_balance_aggregate_content",

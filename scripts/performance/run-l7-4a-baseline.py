@@ -578,20 +578,22 @@ def restore_snapshot_into_pg(pg, dump_path, out):
         capture_output=True,
         timeout=30,
     )
-    # Check whether the restored READ schema is already on V3 (Radix-16).
-    # Legacy V1/V2 snapshots must rebuild READ from authoritative WRITE events (arbitrage F5).
-    radix_check = subprocess.run(
+    # Check whether the restored READ schema is already on the target version (V4 if present, else V3).
+    # Legacy snapshots must rebuild READ from authoritative WRITE events.
+    v4_mig = ROOT / "app/infra-postgres-read/src/main/resources/db/read/migration/V4__pot_balance_shared_storage.sql"
+    target_table = "v3_read.read_pot_shareholder_set" if v4_mig.exists() else "v3_read.read_pot_version_node"
+    schema_check = subprocess.run(
         [
             "docker", "exec", "-i", pg, "psql", "-X", "-U", "pocoma", "-d", "pocoma_read",
             "-v", "ON_ERROR_STOP=1", "-tAc",
-            "SELECT to_regclass('v3_read.read_pot_version_node')::text;",
+            f"SELECT to_regclass('{target_table}')::text;",
         ],
         check=True,
         capture_output=True,
         text=True,
         timeout=30,
     )
-    needs_rebuild = not bool(radix_check.stdout.strip())
+    needs_rebuild = not bool(schema_check.stdout.strip())
     if needs_rebuild:
         def _psql_read(sql_cmd, schema="v3_read"):
             subprocess.run(
@@ -617,11 +619,14 @@ def restore_snapshot_into_pg(pg, dump_path, out):
         _psql_read("DROP SCHEMA IF EXISTS v3_read CASCADE;", schema="public")
         _psql_read("CREATE SCHEMA v3_read AUTHORIZATION pocoma;", schema="public")
         _psql_read("GRANT USAGE ON SCHEMA v3_read TO pocoma_read;", schema="public")
-        for mig in (
+        migs = [
             "app/infra-postgres-read/src/main/resources/db/read/migration/V1__initial_schema.sql",
             "app/infra-postgres-read/src/main/resources/db/read/migration/V2__pot_balance_aggregate.sql",
             "app/infra-postgres-read/src/main/resources/db/read/migration/V3__pot_version_radix16.sql",
-        ):
+        ]
+        if v4_mig.exists():
+            migs.append("app/infra-postgres-read/src/main/resources/db/read/migration/V4__pot_balance_shared_storage.sql")
+        for mig in migs:
             sql = (ROOT / mig).read_text(encoding="utf-8")
             sql = (
                 sql.replace("${expectedDatabase}", "pocoma_read")

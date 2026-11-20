@@ -2,6 +2,8 @@ package com.kartaguez.pocoma.port.projection;
 
 import com.kartaguez.pocoma.domain.projection.PotBalance;
 import com.kartaguez.pocoma.domain.projection.PotBalanceAggregate;
+import com.kartaguez.pocoma.domain.projection.balance.PotBalanceAggregateBinaryCodec;
+import com.kartaguez.pocoma.domain.projection.balance.PotBalanceBinaryCodec;
 import com.kartaguez.pocoma.domain.projection.radix.ContentHash;
 import com.kartaguez.pocoma.port.transaction.RecoveryReadContext;
 
@@ -11,16 +13,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface PotBalanceStore {
-    record AggregateRef(long version, ContentHash balanceHash, ContentHash aggregateHash) {
-        public AggregateRef {
-            if (version < 1) {
-                throw new IllegalArgumentException("Positive version required");
-            }
-            Objects.requireNonNull(balanceHash, "balanceHash");
-            Objects.requireNonNull(aggregateHash, "aggregateHash");
-        }
-    }
-
     enum ContentWriteOutcome {
         INSERTED,
         REUSED
@@ -30,6 +22,23 @@ public interface PotBalanceStore {
         public WriteResult {
             Objects.requireNonNull(outcome, "outcome");
             Objects.requireNonNull(encodeDuration, "encodeDuration");
+        }
+    }
+
+    record PersistVersionResult(
+            ContentHash balanceHash,
+            WriteResult balanceWrite,
+            Optional<ContentHash> aggregateHash,
+            Optional<WriteResult> aggregateWrite) {
+        public PersistVersionResult {
+            Objects.requireNonNull(balanceHash, "balanceHash");
+            Objects.requireNonNull(balanceWrite, "balanceWrite");
+            Objects.requireNonNull(aggregateHash, "aggregateHash");
+            Objects.requireNonNull(aggregateWrite, "aggregateWrite");
+            if (aggregateHash.isPresent() != aggregateWrite.isPresent()) {
+                throw new IllegalArgumentException(
+                        "aggregateHash and aggregateWrite presence must match");
+            }
         }
     }
 
@@ -55,30 +64,6 @@ public interface PotBalanceStore {
     /** Close the existing READ publication after L2 complete, without committing. */
     void closePublication();
 
-    default Optional<AggregateRef> readLatestAggregateRefBefore(
-            UUID pot,
-            long beforeVersionExclusive,
-            long minVersionInclusive,
-            RecoveryReadContext context) {
-        return Optional.empty();
-    }
-
-    default Optional<PotBalanceAggregate> readAggregateByHash(
-            UUID pot, long version, ContentHash hash, RecoveryReadContext context) {
-        return Optional.empty();
-    }
-
-    default void linkExistingVersion(
-            UUID pot, long version, ContentHash balanceHash, ContentHash aggregateHash) {
-        throw new UnsupportedOperationException("linkExistingVersion not supported by this store");
-    }
-
-    default void requireVersionHashesStored(
-            UUID pot, long version, ContentHash balanceHash, ContentHash aggregateHash) {
-        throw new UnsupportedOperationException(
-                "requireVersionHashesStored not supported by this store");
-    }
-
     default WriteResult insertOrVerifyWithResult(PotBalance balance) {
         insertOrVerify(balance);
         return new WriteResult(ContentWriteOutcome.INSERTED, Duration.ZERO);
@@ -87,5 +72,30 @@ public interface PotBalanceStore {
     default WriteResult insertOrVerifyAggregateWithResult(PotBalanceAggregate aggregate) {
         insertOrVerifyAggregate(aggregate);
         return new WriteResult(ContentWriteOutcome.INSERTED, Duration.ZERO);
+    }
+
+    default PersistVersionResult insertOrVerifyVersionWithResult(
+            PotBalance balance, Optional<PotBalanceAggregate> aggregate) {
+        Objects.requireNonNull(balance, "balance");
+        Objects.requireNonNull(aggregate, "aggregate");
+        WriteResult balWrite = insertOrVerifyWithResult(balance);
+        ContentHash balHash = PotBalanceBinaryCodec.encode(balance).content().hash();
+        Optional<ContentHash> aggHash = Optional.empty();
+        Optional<WriteResult> aggWrite = Optional.empty();
+        if (aggregate.isPresent()) {
+            aggWrite = Optional.of(insertOrVerifyAggregateWithResult(aggregate.get()));
+            aggHash = Optional.of(
+                    PotBalanceAggregateBinaryCodec.encode(aggregate.get()).content().hash());
+        }
+        return new PersistVersionResult(balHash, balWrite, aggHash, aggWrite);
+    }
+
+    default void requireHashesStored(
+            UUID pot,
+            long version,
+            Optional<ContentHash> expectedBalanceHash,
+            Optional<ContentHash> expectedAggregateHash) {
+        throw new UnsupportedOperationException(
+                "requireHashesStored not supported by this store");
     }
 }

@@ -76,7 +76,8 @@ EXPECTED_CHECKPOINTS_COUNT = len(CANONICAL_READ_CONSUMPTIONS) * 4  # 28
 CANONICAL_MIGRATION_TABLES = (
     "consumption_routing_contract", "partition_ownership", "discovery_checkpoint", "consumption_slot",
     "read_subobject_version", "read_pot_user_set", "read_pot_version_node", "read_pot_version",
-    "read_current_pot", "read_pot_balance", "read_pot_balance_aggregate",
+    "read_current_pot", "read_pot_shareholder_set", "read_pot_balance_content", "read_pot_balance",
+    "read_pot_balance_aggregate_content", "read_pot_balance_aggregate",
     "read_pot_visibility_state", "read_user_pot", "read_current_binding",
     "read_command_result", "read_identity_request_result", "read_current_invitation",
 )
@@ -352,6 +353,22 @@ def _evaluate_integrity():
          "WHERE (NOT pv.deleted AND pb.pot_id IS NULL) "
          "OR (pv.deleted AND pb.pot_id IS NOT NULL);",
          "Pot versions with missing balance rows or unexpected terminal balances"),
+        (f"SELECT count(*) FROM {READ_SCHEMA}.read_pot_balance pb "
+         f"LEFT JOIN {READ_SCHEMA}.read_pot_balance_content bc ON bc.content_hash = pb.content_hash "
+         "WHERE bc.content_hash IS NULL;",
+         "read_pot_balance rows with dangling content_hash references"),
+        (f"SELECT count(*) FROM {READ_SCHEMA}.read_pot_balance_aggregate pba "
+         f"LEFT JOIN {READ_SCHEMA}.read_pot_balance_aggregate_content bac ON bac.content_hash = pba.content_hash "
+         "WHERE bac.content_hash IS NULL;",
+         "read_pot_balance_aggregate rows with dangling content_hash references"),
+        (f"SELECT count(*) FROM {READ_SCHEMA}.read_pot_balance_content bc "
+         f"LEFT JOIN {READ_SCHEMA}.read_pot_shareholder_set ss ON ss.set_hash = bc.shareholder_set_hash "
+         "WHERE ss.set_hash IS NULL OR ss.shareholders_count <> bc.shareholders_count;",
+         "read_pot_balance_content rows with inconsistent shareholder_set_hash references"),
+        (f"SELECT count(*) FROM {READ_SCHEMA}.read_pot_balance_aggregate_content bac "
+         f"LEFT JOIN {READ_SCHEMA}.read_pot_shareholder_set ss ON ss.set_hash = bac.shareholder_set_hash "
+         "WHERE ss.set_hash IS NULL OR ss.shareholders_count <> bac.shareholders_count;",
+         "read_pot_balance_aggregate_content rows with inconsistent shareholder_set_hash references"),
         (f"SELECT count(*) FROM {READ_SCHEMA}.read_pot_version pv "
          f"LEFT JOIN {READ_SCHEMA}.read_pot_version_node sh ON sh.node_hash = pv.shareholders_root "
          f"LEFT JOIN {READ_SCHEMA}.read_pot_version_node ex ON ex.node_hash = pv.expenses_root "
@@ -517,11 +534,12 @@ def _recreate_and_migrate_schema(operation_id, operator_id):
     transition("MAINTENANCE", "MAINTENANCE/SCHEMA_CREATED", (operation_id, operator_id))
     print("   ✓ Clean schema v3_read created and verified (phase: SCHEMA_CREATED).")
 
-    print("8. Applying canonical READ DDL (V1__initial_schema.sql + V2__pot_balance_aggregate.sql + V3__pot_version_radix16.sql)...")
+    print("8. Applying canonical READ DDL (V1 + V2 + V3 + V4)...")
     read_migrations = [
         "app/infra-postgres-read/src/main/resources/db/read/migration/V1__initial_schema.sql",
         "app/infra-postgres-read/src/main/resources/db/read/migration/V2__pot_balance_aggregate.sql",
         "app/infra-postgres-read/src/main/resources/db/read/migration/V3__pot_version_radix16.sql",
+        "app/infra-postgres-read/src/main/resources/db/read/migration/V4__pot_balance_shared_storage.sql",
     ]
     apply_migrations((READ_DB, READ_SCHEMA, POSTGRES_ADMIN_USER, READ_ROLE), read_migrations)
     if not check_tables_exist(CANONICAL_MIGRATION_TABLES):

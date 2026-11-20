@@ -328,13 +328,7 @@ class PotVersionAndBalanceJointIncrementalPostgresTest {
                 assertTrue(fBal.get(30, TimeUnit.SECONDS));
             }
 
-            // Prove independent fallback on v9: A3 falls back (global_shareholder_effect), A4 stays incremental (0 expenses read)
-            double balReuseBeforeV9 =
-                    registry.get("pocoma.v3.potbalance.materialize.path")
-                            .tag("path", "reuse")
-                            .tag("reason", "empty_delta_reuse")
-                            .counter()
-                            .count();
+            // Prove independent fallback on v9: A3 falls back (global_shareholder_effect), A4 stays incremental (0 expenses read, 100% physical dedup)
             double balExpensesBeforeV9 =
                     registry.get("pocoma.v3.potbalance.delta.expenses").summary().totalAmount();
             double balIncBeforeV9 =
@@ -343,6 +337,9 @@ class PotVersionAndBalanceJointIncrementalPostgresTest {
                             .tag("reason", "incremental_hit")
                             .counter()
                             .count();
+            int shSetsBeforeV9 = f.read.oracle.queryForObject("select count(*) from read_pot_shareholder_set", Integer.class);
+            int balContentsBeforeV9 = f.read.oracle.queryForObject("select count(*) from read_pot_balance_content", Integer.class);
+            int aggContentsBeforeV9 = f.read.oracle.queryForObject("select count(*) from read_pot_balance_aggregate_content", Integer.class);
             double verGlobalBeforeV9 =
                     registry.get("pocoma.v3.potversion.materialize.path")
                             .tag("path", "full")
@@ -362,13 +359,25 @@ class PotVersionAndBalanceJointIncrementalPostgresTest {
                             .count(),
                     "A3 must fall back on UpdateShareholderDetails of attached shareholder");
             assertEquals(
-                    balReuseBeforeV9 + 1.0,
+                    balIncBeforeV9 + 1.0,
                     registry.get("pocoma.v3.potbalance.materialize.path")
-                            .tag("path", "reuse")
-                            .tag("reason", "empty_delta_reuse")
+                            .tag("path", "incremental")
+                            .tag("reason", "incremental_hit")
                             .counter()
                             .count(),
-                    "A4 must take EMPTY_DELTA_REUSE fast path on UpdateShareholderDetails");
+                    "A4 must remain incremental on UpdateShareholderDetails");
+            assertEquals(
+                    shSetsBeforeV9,
+                    f.read.oracle.queryForObject("select count(*) from read_pot_shareholder_set", Integer.class),
+                    "V4 must reuse shareholder set on UpdateShareholderDetails");
+            assertEquals(
+                    balContentsBeforeV9,
+                    f.read.oracle.queryForObject("select count(*) from read_pot_balance_content", Integer.class),
+                    "V4 must physically deduplicate balance content on UpdateShareholderDetails");
+            assertEquals(
+                    aggContentsBeforeV9,
+                    f.read.oracle.queryForObject("select count(*) from read_pot_balance_aggregate_content", Integer.class),
+                    "V4 must physically deduplicate aggregate content on UpdateShareholderDetails");
             assertEquals(
                     balExpensesBeforeV9,
                     registry.get("pocoma.v3.potbalance.delta.expenses").summary().totalAmount(),
@@ -691,6 +700,7 @@ class PotVersionAndBalanceJointIncrementalPostgresTest {
                         "read_pot_balance_aggregate_content",
                         "read_pot_balance",
                         "read_pot_balance_content",
+                        "read_pot_shareholder_set",
                         "read_current_pot",
                         "read_pot_version",
                         "read_pot_version_node",

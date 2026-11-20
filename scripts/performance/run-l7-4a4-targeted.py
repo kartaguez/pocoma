@@ -59,6 +59,23 @@ def parse_distance_histogram(prom_text):
 
 
 def query_aggregate_stats(pg):
+    has_v4 = bench.sql(pg, "pocoma_read", "SELECT to_jsonb(to_regclass('v3_read.read_pot_balance_aggregate_content') IS NOT NULL)")
+    if has_v4:
+        return bench.sql(
+            pg,
+            "pocoma_read",
+            "SELECT jsonb_build_object("
+            "'rowCount', count(*),"
+            "'distinctContents', count(DISTINCT pba.content_hash),"
+            "'avgPayloadBytes', round(avg(octet_length(bac.payload))),"
+            "'maxPayloadBytes', max(octet_length(bac.payload)),"
+            "'avgColumnBytes', round(avg(pg_column_size(bac.payload))),"
+            "'maxColumnBytes', max(pg_column_size(bac.payload)),"
+            "'avgBuckets', round(avg(bac.bucket_count), 2),"
+            "'maxBuckets', max(bac.bucket_count)"
+            ") FROM v3_read.read_pot_balance_aggregate pba "
+            "JOIN v3_read.read_pot_balance_aggregate_content bac USING (content_hash)",
+        )
     return bench.sql(
         pg,
         "pocoma_read",

@@ -11,13 +11,11 @@ public interface PotBalanceObservation {
     }
 
     enum Path {
-        REUSE,
         INCREMENTAL,
         FULL
     }
 
     enum Reason {
-        EMPTY_DELTA_REUSE,
         INCREMENTAL_HIT,
         TERMINAL_DELETED,
         INITIAL_VERSION,

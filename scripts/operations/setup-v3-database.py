@@ -217,7 +217,30 @@ def initialize_v3_read():
             )
             print("  ✓ READ migration V3 (Radix-16) applied.")
         else:
-            print("  ✓ Schema v3_read (V3 Radix-16) and public maintenance authority already initialized.")
+            print("  ✓ Schema v3_read (V3 Radix-16) already initialized.")
+        sh_set_reg = psql("pocoma_read", "SELECT to_regclass('v3_read.read_pot_shareholder_set')::text;")
+        bal_content_reg = psql("pocoma_read", "SELECT to_regclass('v3_read.read_pot_balance_content')::text;")
+        if not bal_content_reg or not sh_set_reg:
+            existing_balances = psql("pocoma_read", "SELECT count(*) FROM v3_read.read_pot_balance;")
+            existing_aggs = psql("pocoma_read", "SELECT count(*) FROM v3_read.read_pot_balance_aggregate;")
+            if (existing_balances and int(existing_balances) > 0) or (existing_aggs and int(existing_aggs) > 0):
+                raise RuntimeError(
+                    "INCOMPATIBLE-V3-READ-SCHEMA: v3_read.read_pot_balance / read_pot_balance_aggregate "
+                    f"is still on V1/V2/V3 JSONB format with {existing_balances} balance row(s) and "
+                    f"{existing_aggs} aggregate row(s). Run 'python3 scripts/operations/v3-rebuild-read.py "
+                    "--confirm-destructive=RESET_READ_DATA' to rebuild READ from authoritative WRITE events."
+                )
+            print("▶ Applying READ migration V4__pot_balance_shared_storage.sql on empty READ tables...")
+            apply_migrations(
+                "pocoma_read",
+                "v3_read",
+                "pocoma",
+                "pocoma_read",
+                ["app/infra-postgres-read/src/main/resources/db/read/migration/V4__pot_balance_shared_storage.sql"],
+            )
+            print("  ✓ READ migration V4 (PotBalance shared storage) applied.")
+        else:
+            print("  ✓ Schema v3_read (V4 PotBalance shared storage) and public maintenance authority already initialized.")
         return
 
     print("▶ Initializing schema v3_read in database pocoma_read...")
@@ -227,6 +250,7 @@ def initialize_v3_read():
         "app/infra-postgres-read/src/main/resources/db/read/migration/V1__initial_schema.sql",
         "app/infra-postgres-read/src/main/resources/db/read/migration/V2__pot_balance_aggregate.sql",
         "app/infra-postgres-read/src/main/resources/db/read/migration/V3__pot_version_radix16.sql",
+        "app/infra-postgres-read/src/main/resources/db/read/migration/V4__pot_balance_shared_storage.sql",
     ]
     apply_migrations("pocoma_read", "v3_read", "pocoma", "pocoma_read", read_migrations)
 

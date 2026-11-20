@@ -16,7 +16,7 @@ SELECT format('GRANT USAGE ON SCHEMA %I TO %I', :'read_schema', :'query_role') \
 SELECT format('GRANT SELECT ON TABLE %I.%I TO %I', :'read_schema', rel, :'query_role')
 FROM unnest(ARRAY['read_current_binding','read_current_pot','read_pot_version',
     'read_pot_version_node','read_pot_user_set',
-    'read_subobject_version','read_pot_balance','read_user_pot',
+    'read_subobject_version','read_pot_shareholder_set','read_pot_balance','read_pot_balance_content','read_user_pot',
     'read_command_result','read_identity_request_result','read_current_invitation']) AS tables(rel)
 WHERE rel <> 'read_current_invitation' OR to_regclass(format('%I.%I', :'read_schema', rel)) IS NOT NULL \gexec
 SELECT format('GRANT USAGE ON SCHEMA public TO %I', :'status_role') \gexec
