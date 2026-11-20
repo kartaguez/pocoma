@@ -13,6 +13,7 @@ import com.kartaguez.pocoma.port.projection.ReadEvidence;
 import com.kartaguez.pocoma.port.transaction.RecoveryReadContext;
 
 import javax.sql.DataSource;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
@@ -137,16 +138,23 @@ public final class JdbcPotBalanceStore implements PotBalanceStore {
 
     @Override
     public void insertOrVerify(PotBalance balance) {
-        db.write(
+        insertOrVerifyWithResult(balance);
+    }
+
+    @Override
+    public WriteResult insertOrVerifyWithResult(PotBalance balance) {
+        return db.write(
                 () -> {
+                    long encodeStart = System.nanoTime();
                     PotBalanceContent content = PotBalanceBinaryCodec.encode(balance);
-                    insertOrVerifyBalanceContent(content);
+                    Duration encodeElapsed = Duration.ofNanos(System.nanoTime() - encodeStart);
+                    ContentWriteOutcome outcome = insertOrVerifyBalanceContent(content);
                     insertOrVerifyBalancePointer(balance.potId(), balance.version(), content.hash());
-                    return null;
+                    return new WriteResult(outcome, encodeElapsed);
                 });
     }
 
-    private void insertOrVerifyBalanceContent(PotBalanceContent content) {
+    private ContentWriteOutcome insertOrVerifyBalanceContent(PotBalanceContent content) {
         byte[] hashBytes = content.hash().bytes();
         var inserted =
                 db.sql.query(
@@ -163,7 +171,7 @@ public final class JdbcPotBalanceStore implements PotBalanceStore {
                         content.shareholdersCount(),
                         content.payload());
         if (!inserted.isEmpty()) {
-            return;
+            return ContentWriteOutcome.INSERTED;
         }
         var existing =
                 db.sql.query(
@@ -180,6 +188,7 @@ public final class JdbcPotBalanceStore implements PotBalanceStore {
             throw new IllegalStateException(
                     "Divergent read_pot_balance_content for hash " + content.hash());
         }
+        return ContentWriteOutcome.REUSED;
     }
 
     private void insertOrVerifyBalancePointer(UUID potId, long version, ContentHash expectedHash) {
@@ -263,19 +272,140 @@ public final class JdbcPotBalanceStore implements PotBalanceStore {
     }
 
     @Override
-    public void insertOrVerifyAggregate(PotBalanceAggregate aggregate) {
+    public Optional<AggregateRef> readLatestAggregateRefBefore(
+            UUID potId,
+            long beforeVersionExclusive,
+            long minVersionInclusive,
+            RecoveryReadContext context) {
+        return db.read(
+                context,
+                () -> {
+                    Objects.requireNonNull(potId);
+                    if (beforeVersionExclusive <= 1
+                            || minVersionInclusive >= beforeVersionExclusive) {
+                        return Optional.empty();
+                    }
+                    long minBound = Math.max(1L, minVersionInclusive);
+                    return db.sql
+                            .query(
+                                    """
+                                    select a.pot_version, b.content_hash, a.content_hash
+                                    from read_pot_balance_aggregate a
+                                    join read_pot_balance b
+                                      on b.pot_id = a.pot_id and b.pot_version = a.pot_version
+                                    where a.pot_id = ? and a.pot_version < ? and a.pot_version >= ?
+                                    order by a.pot_version desc
+                                    limit 1
+                                    """,
+                                    (rs, n) -> new AggregateRef(
+                                            rs.getLong(1),
+                                            ContentHash.of(rs.getBytes(2)),
+                                            ContentHash.of(rs.getBytes(3))),
+                                    potId,
+                                    beforeVersionExclusive,
+                                    minBound)
+                            .stream()
+                            .findFirst();
+                });
+    }
+
+    @Override
+    public Optional<PotBalanceAggregate> readAggregateByHash(
+            UUID potId, long version, ContentHash hash, RecoveryReadContext context) {
+        return db.read(
+                context,
+                () -> {
+                    Objects.requireNonNull(potId);
+                    Objects.requireNonNull(hash);
+                    byte[] hashBytes = hash.bytes();
+                    return db.sql
+                            .query(
+                                    """
+                                    select schema_version, shareholders_count, bucket_count, payload
+                                    from read_pot_balance_aggregate_content
+                                    where content_hash = ?
+                                    """,
+                                    (rs, n) -> decodeAggregate(
+                                            potId,
+                                            version,
+                                            hashBytes,
+                                            rs.getInt(1),
+                                            rs.getInt(2),
+                                            rs.getInt(3),
+                                            rs.getBytes(4)),
+                                    hashBytes)
+                            .stream()
+                            .findFirst();
+                });
+    }
+
+    @Override
+    public void linkExistingVersion(
+            UUID potId, long version, ContentHash balanceHash, ContentHash aggregateHash) {
+        Objects.requireNonNull(potId);
+        Objects.requireNonNull(balanceHash);
+        Objects.requireNonNull(aggregateHash);
         db.write(
                 () -> {
-                    PotBalanceAggregateContent content =
-                            PotBalanceAggregateBinaryCodec.encode(aggregate);
-                    insertOrVerifyAggregateContent(content);
-                    insertOrVerifyAggregatePointer(
-                            aggregate.potId(), aggregate.version(), content.hash());
+                    insertOrVerifyBalancePointer(potId, version, balanceHash);
+                    insertOrVerifyAggregatePointer(potId, version, aggregateHash);
                     return null;
                 });
     }
 
-    private void insertOrVerifyAggregateContent(PotBalanceAggregateContent content) {
+    @Override
+    public void requireVersionHashesStored(
+            UUID potId, long version, ContentHash balanceHash, ContentHash aggregateHash) {
+        Objects.requireNonNull(potId);
+        Objects.requireNonNull(balanceHash);
+        Objects.requireNonNull(aggregateHash);
+        db.write(
+                () -> {
+                    var balActual =
+                            db.sql.query(
+                                    "select content_hash from read_pot_balance where pot_id = ? and pot_version = ?",
+                                    (rs, n) -> rs.getBytes(1),
+                                    potId,
+                                    version);
+                    if (balActual.isEmpty() || !Arrays.equals(balActual.getFirst(), balanceHash.bytes())) {
+                        throw new IllegalStateException(
+                                "Missing or divergent read_pot_balance hash for pot=" + potId + " version=" + version);
+                    }
+                    var aggActual =
+                            db.sql.query(
+                                    "select content_hash from read_pot_balance_aggregate where pot_id = ? and pot_version = ?",
+                                    (rs, n) -> rs.getBytes(1),
+                                    potId,
+                                    version);
+                    if (aggActual.isEmpty() || !Arrays.equals(aggActual.getFirst(), aggregateHash.bytes())) {
+                        throw new IllegalStateException(
+                                "Missing or divergent read_pot_balance_aggregate hash for pot=" + potId + " version=" + version);
+                    }
+                    return null;
+                });
+    }
+
+    @Override
+    public void insertOrVerifyAggregate(PotBalanceAggregate aggregate) {
+        insertOrVerifyAggregateWithResult(aggregate);
+    }
+
+    @Override
+    public WriteResult insertOrVerifyAggregateWithResult(PotBalanceAggregate aggregate) {
+        return db.write(
+                () -> {
+                    long encodeStart = System.nanoTime();
+                    PotBalanceAggregateContent content =
+                            PotBalanceAggregateBinaryCodec.encode(aggregate);
+                    Duration encodeElapsed = Duration.ofNanos(System.nanoTime() - encodeStart);
+                    ContentWriteOutcome outcome = insertOrVerifyAggregateContent(content);
+                    insertOrVerifyAggregatePointer(
+                            aggregate.potId(), aggregate.version(), content.hash());
+                    return new WriteResult(outcome, encodeElapsed);
+                });
+    }
+
+    private ContentWriteOutcome insertOrVerifyAggregateContent(PotBalanceAggregateContent content) {
         byte[] hashBytes = content.hash().bytes();
         var inserted =
                 db.sql.query(
@@ -293,7 +423,7 @@ public final class JdbcPotBalanceStore implements PotBalanceStore {
                         content.bucketCount(),
                         content.payload());
         if (!inserted.isEmpty()) {
-            return;
+            return ContentWriteOutcome.INSERTED;
         }
         var existing =
                 db.sql.query(
@@ -313,6 +443,7 @@ public final class JdbcPotBalanceStore implements PotBalanceStore {
             throw new IllegalStateException(
                     "Divergent read_pot_balance_aggregate_content for hash " + content.hash());
         }
+        return ContentWriteOutcome.REUSED;
     }
 
     private void insertOrVerifyAggregatePointer(

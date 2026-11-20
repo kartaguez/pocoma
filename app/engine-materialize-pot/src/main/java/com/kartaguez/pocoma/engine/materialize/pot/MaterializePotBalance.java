@@ -9,11 +9,15 @@ import com.kartaguez.pocoma.domain.pot.value.Fraction;
 import com.kartaguez.pocoma.domain.projection.PotBalance;
 import com.kartaguez.pocoma.domain.projection.PotBalanceAggregate;
 import com.kartaguez.pocoma.domain.projection.PotBalanceAggregateCalculator;
+import com.kartaguez.pocoma.domain.projection.radix.ContentHash;
+import com.kartaguez.pocoma.engine.materialize.pot.PotBalanceObservation.ContentOutcome;
 import com.kartaguez.pocoma.engine.materialize.pot.PotBalanceObservation.LookupOutcome;
 import com.kartaguez.pocoma.engine.materialize.pot.PotBalanceObservation.Path;
 import com.kartaguez.pocoma.engine.materialize.pot.PotBalanceObservation.PersistTarget;
 import com.kartaguez.pocoma.engine.materialize.pot.PotBalanceObservation.Reason;
 import com.kartaguez.pocoma.port.projection.PotBalanceStore;
+import com.kartaguez.pocoma.port.projection.PotBalanceStore.AggregateRef;
+import com.kartaguez.pocoma.port.projection.PotBalanceStore.ContentWriteOutcome;
 import java.time.Duration;
 import java.util.*;
 
@@ -27,13 +31,28 @@ public final class MaterializePotBalance implements ConsumptionParticipant {
             long maxDeltaDistance,
             int maxChangedExpenses,
             int maxAggregateBuckets,
-            int maxAggregateBucketEntries) {
+            int maxAggregateBucketEntries,
+            boolean emptyDeltaReuseEnabled) {
         public static final Settings DEFAULT =
                 new Settings(
                         DEFAULT_MAX_DELTA_DISTANCE,
                         DEFAULT_MAX_CHANGED_EXPENSES,
                         DEFAULT_MAX_AGGREGATE_BUCKETS,
-                        DEFAULT_MAX_AGGREGATE_BUCKET_ENTRIES);
+                        DEFAULT_MAX_AGGREGATE_BUCKET_ENTRIES,
+                        true);
+
+        public Settings(
+                long maxDeltaDistance,
+                int maxChangedExpenses,
+                int maxAggregateBuckets,
+                int maxAggregateBucketEntries) {
+            this(
+                    maxDeltaDistance,
+                    maxChangedExpenses,
+                    maxAggregateBuckets,
+                    maxAggregateBucketEntries,
+                    true);
+        }
 
         public Settings {
             if (maxDeltaDistance < 0) {
@@ -107,24 +126,24 @@ public final class MaterializePotBalance implements ConsumptionParticipant {
             observation.pathSelected(Path.FULL, Reason.INITIAL_VERSION);
             return prepareFull(id, reads);
         }
-        var reference = lookupReference(eventRef, reads);
-        if (reference.isEmpty()) {
+        var refOpt = lookupReferenceRef(eventRef, reads);
+        if (refOpt.isEmpty()) {
             observation.pathSelected(Path.FULL, Reason.NO_REFERENCE);
             return prepareFull(id, reads);
         }
-        return prepareIncrementalOrFallback(id, eventRef, reference.get(), reads);
+        return prepareReuseIncrementalOrFallback(id, eventRef, refOpt.get(), reads);
     }
 
-    private Optional<PotBalanceAggregate> lookupReference(
+    private Optional<AggregateRef> lookupReferenceRef(
             PotBalanceSource.EventRef eventRef, PreparationReads reads) {
         long minVersion = Math.max(1L, eventRef.version() - settings.maxDeltaDistance());
         long start = System.nanoTime();
-        final Optional<PotBalanceAggregate> refOpt;
+        final Optional<AggregateRef> refOpt;
         try {
             refOpt =
                     reads.effects(
                             c ->
-                                    store.readLatestAggregateBefore(
+                                    store.readLatestAggregateRefBefore(
                                             eventRef.potId(),
                                             eventRef.version(),
                                             minVersion,
@@ -141,22 +160,36 @@ public final class MaterializePotBalance implements ConsumptionParticipant {
             observation.aggregateLookup(LookupOutcome.MISS, 0L, elapsed);
             return Optional.empty();
         }
-        PotBalanceAggregate previous = refOpt.get();
-        long distance = eventRef.version() - previous.version();
-        if (!eventRef.potId().equals(previous.potId())
-                || distance < 1
-                || distance > settings.maxDeltaDistance()) {
+        AggregateRef ref = refOpt.get();
+        long distance = eventRef.version() - ref.version();
+        if (distance < 1 || distance > settings.maxDeltaDistance()) {
             observation.aggregateLookup(LookupOutcome.CORRUPT, 0L, elapsed);
-            throw new IllegalStateException("Incompatible reference PotBalanceAggregate");
+            throw new IllegalStateException("Incompatible reference PotBalanceAggregateRef");
         }
         observation.aggregateLookup(LookupOutcome.HIT, distance, elapsed);
-        return Optional.of(previous);
+        return Optional.of(ref);
     }
 
-    private Optional<Prepared> prepareIncrementalOrFallback(
+    /**
+     * Formal ARB-3 empty-delta identity proof on {@code (K, N]}:
+     * all financial revision tables ({@code v3_shareholder_header} deletions,
+     * {@code v3_shareholder_weight}, {@code v3_expense_header}, {@code v3_expense_financials})
+     * had zero revisions becoming active in {@code (K, N]}. Any intermediate change or
+     * change-and-revert in {@code (K, N]} produces a revision with {@code active_from in (K, N]}
+     * and therefore fails this predicate, falling back to normal A4 incremental calculation.
+     */
+    private static boolean isProvenEmptyFinancialDelta(PotBalanceSource.FinancialDelta delta) {
+        return !delta.shareholderDeleted()
+                && delta.updatedOrAddedWeights().isEmpty()
+                && delta.changedExpenseCount() == 0
+                && delta.removedExpenses().isEmpty()
+                && delta.addedExpenses().isEmpty();
+    }
+
+    private Optional<Prepared> prepareReuseIncrementalOrFallback(
             UUID eventId,
             PotBalanceSource.EventRef eventRef,
-            PotBalanceAggregate previous,
+            AggregateRef ref,
             PreparationReads reads) {
         long deltaStart = System.nanoTime();
         var delta =
@@ -164,12 +197,17 @@ public final class MaterializePotBalance implements ConsumptionParticipant {
                         c ->
                                 source.financialDelta(
                                         eventRef.potId(),
-                                        previous.version(),
+                                        ref.version(),
                                         eventRef.version(),
                                         settings.maxChangedExpenses(),
                                         c));
         observation.deltaResolved(
                 delta.changedExpenseCount(), Duration.ofNanos(System.nanoTime() - deltaStart));
+        if (settings.emptyDeltaReuseEnabled() && isProvenEmptyFinancialDelta(delta)) {
+            observation.pathSelected(Path.REUSE, Reason.EMPTY_DELTA_REUSE);
+            return buildReusePrepared(
+                    eventRef.potId(), eventRef.version(), ref.balanceHash(), ref.aggregateHash());
+        }
         if (delta.shareholderDeleted()) {
             observation.pathSelected(Path.FULL, Reason.SHAREHOLDER_DELETED);
             return prepareFull(eventId, reads);
@@ -178,6 +216,7 @@ public final class MaterializePotBalance implements ConsumptionParticipant {
             observation.pathSelected(Path.FULL, Reason.DELTA_TOO_LARGE);
             return prepareFull(eventId, reads);
         }
+        PotBalanceAggregate previous = loadAggregatePayload(eventRef.potId(), ref, reads);
         long composeStart = System.nanoTime();
         PotBalanceAggregate composed =
                 aggregateCalculator.applyDelta(
@@ -200,6 +239,36 @@ public final class MaterializePotBalance implements ConsumptionParticipant {
         observation.pathSelected(Path.INCREMENTAL, Reason.INCREMENTAL_HIT);
         return buildPrepared(
                 eventRef.potId(), eventRef.version(), Optional.of(balance), Optional.of(composed));
+    }
+
+    private PotBalanceAggregate loadAggregatePayload(
+            UUID potId, AggregateRef ref, PreparationReads reads) {
+        long start = System.nanoTime();
+        final Optional<PotBalanceAggregate> loaded;
+        try {
+            loaded =
+                    reads.effects(
+                            c -> store.readAggregateByHash(potId, ref.version(), ref.aggregateHash(), c));
+        } catch (RuntimeException | Error fault) {
+            if (fault instanceof IllegalStateException) {
+                observation.aggregateLookup(
+                        LookupOutcome.CORRUPT, 0L, Duration.ofNanos(System.nanoTime() - start));
+            }
+            throw fault;
+        }
+        if (loaded.isEmpty()) {
+            observation.aggregateLookup(
+                    LookupOutcome.CORRUPT, 0L, Duration.ofNanos(System.nanoTime() - start));
+            throw new IllegalStateException(
+                    "Missing PotBalanceAggregate content for hash " + ref.aggregateHash());
+        }
+        PotBalanceAggregate previous = loaded.get();
+        if (!potId.equals(previous.potId()) || previous.version() != ref.version()) {
+            observation.aggregateLookup(
+                    LookupOutcome.CORRUPT, 0L, Duration.ofNanos(System.nanoTime() - start));
+            throw new IllegalStateException("Incompatible reference PotBalanceAggregate");
+        }
+        return previous;
     }
 
     private Optional<Prepared> prepareFull(UUID eventId, PreparationReads reads) {
@@ -228,6 +297,29 @@ public final class MaterializePotBalance implements ConsumptionParticipant {
                 persistAggregate ? Optional.of(agg) : Optional.empty());
     }
 
+    private Optional<Prepared> buildReusePrepared(
+            UUID potId, long version, ContentHash balanceHash, ContentHash aggregateHash) {
+        return Optional.of(
+                new Prepared() {
+                    @Override
+                    public void finalizeIn(SlotCompletion completion) {
+                        long start = System.nanoTime();
+                        store.linkExistingVersion(potId, version, balanceHash, aggregateHash);
+                        Duration elapsed = Duration.ofNanos(System.nanoTime() - start);
+                        observation.persisted(PersistTarget.BALANCE, elapsed);
+                        observation.contentWritten(PersistTarget.BALANCE, ContentOutcome.REUSED);
+                        observation.contentWritten(PersistTarget.AGGREGATE, ContentOutcome.REUSED);
+                        completion.complete();
+                        store.closePublication();
+                    }
+
+                    @Override
+                    public void requireCompletionReady() {
+                        store.requireVersionHashesStored(potId, version, balanceHash, aggregateHash);
+                    }
+                });
+    }
+
     private Optional<Prepared> buildPrepared(
             UUID potId,
             long version,
@@ -239,16 +331,27 @@ public final class MaterializePotBalance implements ConsumptionParticipant {
                     public void finalizeIn(SlotCompletion completion) {
                         if (balance.isPresent()) {
                             long balStart = System.nanoTime();
-                            store.insertOrVerify(balance.get());
+                            var balResult = store.insertOrVerifyWithResult(balance.get());
                             observation.persisted(
                                     PersistTarget.BALANCE,
                                     Duration.ofNanos(System.nanoTime() - balStart));
+                            observation.contentEncoded(
+                                    PersistTarget.BALANCE, balResult.encodeDuration());
+                            observation.contentWritten(
+                                    PersistTarget.BALANCE, toContentOutcome(balResult.outcome()));
                             if (aggregateToPersist.isPresent()) {
                                 long aggStart = System.nanoTime();
-                                store.insertOrVerifyAggregate(aggregateToPersist.get());
+                                var aggResult =
+                                        store.insertOrVerifyAggregateWithResult(
+                                                aggregateToPersist.get());
                                 observation.persisted(
                                         PersistTarget.AGGREGATE,
                                         Duration.ofNanos(System.nanoTime() - aggStart));
+                                observation.contentEncoded(
+                                        PersistTarget.AGGREGATE, aggResult.encodeDuration());
+                                observation.contentWritten(
+                                        PersistTarget.AGGREGATE,
+                                        toContentOutcome(aggResult.outcome()));
                             }
                         }
                         completion.complete();
@@ -261,6 +364,12 @@ public final class MaterializePotBalance implements ConsumptionParticipant {
                         aggregateToPersist.ifPresent(store::requireAggregateStored);
                     }
                 });
+    }
+
+    private static ContentOutcome toContentOutcome(ContentWriteOutcome outcome) {
+        return outcome == ContentWriteOutcome.REUSED
+                ? ContentOutcome.REUSED
+                : ContentOutcome.INSERTED;
     }
 
     @Override

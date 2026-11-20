@@ -468,6 +468,166 @@ class PotBalanceIncrementalPostgresTest {
                         });
     }
 
+    @Test
+    void emptyDeltaReuseProofNoFalsePositivesAndMicrometerObservability() throws Exception {
+        try (var f = new InterAuthorityPostgresFixture(PG, "potbalance-arb3", true)) {
+            var potId = new PotId(UUID.randomUUID());
+            var creator = new UserId(UUID.randomUUID());
+            var sh1 = new ShareholderId(UUID.randomUUID());
+            var sh2 = new ShareholderId(UUID.randomUUID());
+            var sh3 = new ShareholderId(UUID.randomUUID());
+            var exp1 = new ExpenseId(UUID.randomUUID());
+            var expZero = new ExpenseId(UUID.randomUUID());
+            var expTemp = new ExpenseId(UUID.randomUUID());
+
+            var events = new TreeMap<Long, UUID>();
+            // v1: CreatePot
+            events.put(1L, executeWrite(f, creator, potId, 0, "CreatePot", new CreatePot(new Label("ARB-3 Pot"))));
+            // v2: AddShareholders (sh1=1, sh2=2, sh3=1)
+            events.put(2L, executeWrite(f, creator, potId, 1, "AddShareholders",
+                    new AddShareholders(List.of(
+                            new ShareholderTransitions.Creation(sh1, new Name("Alice"), Optional.of(creator), w(1, 1)),
+                            new ShareholderTransitions.Creation(sh2, new Name("Bob"), Optional.empty(), w(2, 1)),
+                            new ShareholderTransitions.Creation(sh3, new Name("Carol"), Optional.empty(), w(1, 1))))));
+            // v3: CreateExpense exp1 (60)
+            events.put(3L, executeWrite(f, creator, potId, 2, "CreateExpense",
+                    new CreateExpense(
+                            new ExpenseDetails(potId, exp1, new Label("Lunch"), LocalDate.of(2026, 4, 1)),
+                            new ExpenseFinancials(potId, exp1, new Amount(new Fraction(60, 1)), sh1,
+                                    Map.of(sh1, Optional.empty(), sh2, Optional.empty())))));
+            // v4: UpdatePotDetails (non-financial -> eligible for EMPTY_DELTA_REUSE)
+            events.put(4L, executeWrite(f, creator, potId, 3, "UpdatePotDetails",
+                    new UpdatePotDetails(new Label("ARB-3 Renamed"))));
+            // v5: UpdateShareholderDetails (non-financial -> eligible for EMPTY_DELTA_REUSE, N-m from v3 or v4)
+            events.put(5L, executeWrite(f, creator, potId, 4, "UpdateShareholderDetails",
+                    new UpdateShareholderDetails(List.of(
+                            new ShareholderTransitions.DetailsIntent(sh2, new Name("Bob Renamed"), Optional.empty())))));
+            // v6: UpdateExpenseDetails (non-financial -> eligible for EMPTY_DELTA_REUSE)
+            events.put(6L, executeWrite(f, creator, potId, 5, "UpdateExpenseDetails",
+                    new UpdateExpenseDetails(exp1, new Label("Lunch Updated"), LocalDate.of(2026, 4, 2))));
+            // v7: Weight changed (1 -> 5) then v8: Weight reverted (5 -> 1) -> MUST NOT trigger EMPTY_DELTA_REUSE across (6, 8]!
+            events.put(7L, executeWrite(f, creator, potId, 6, "UpdateShareholderWeights",
+                    new UpdateShareholderWeights(List.of(new ShareholderTransitions.WeightIntent(sh1, w(5, 1))))));
+            events.put(8L, executeWrite(f, creator, potId, 7, "UpdateShareholderWeights",
+                    new UpdateShareholderWeights(List.of(new ShareholderTransitions.WeightIntent(sh1, w(1, 1))))));
+            // v9: Create zero-amount expense -> MUST NOT trigger EMPTY_DELTA_REUSE (changedExpenseCount > 0), MUST deduplicate in store!
+            events.put(9L, executeWrite(f, creator, potId, 8, "CreateExpense",
+                    new CreateExpense(
+                            new ExpenseDetails(potId, expZero, new Label("Zero"), LocalDate.of(2026, 4, 3)),
+                            new ExpenseFinancials(potId, expZero, new Amount(Fraction.ZERO), sh1,
+                                    Map.of(sh1, Optional.empty(), sh2, Optional.empty())))));
+            // v10: Create temp expense then v11: Delete temp expense -> MUST NOT trigger EMPTY_DELTA_REUSE across (9, 11]!
+            events.put(10L, executeWrite(f, creator, potId, 9, "CreateExpense",
+                    new CreateExpense(
+                            new ExpenseDetails(potId, expTemp, new Label("Temp"), LocalDate.of(2026, 4, 4)),
+                            new ExpenseFinancials(potId, expTemp, new Amount(new Fraction(30, 1)), sh2,
+                                    Map.of(sh1, Optional.empty(), sh2, Optional.empty())))));
+            events.put(11L, executeWrite(f, creator, potId, 10, "DeleteExpense", new DeleteExpense(expTemp)));
+            // v12: DeleteShareholder sh3 (unused) -> MUST trigger FULL/SHAREHOLDER_DELETED, balance reused, aggregate inserted!
+            events.put(12L, executeWrite(f, creator, potId, 11, "DeleteShareholder", new DeleteShareholder(sh3)));
+
+            var source = new JdbcPotBalanceSource(f.primary);
+            var store = new JdbcPotBalanceStore(f.read.source, f.read.tx);
+            var registry = new SimpleMeterRegistry();
+            var observation = new MicrometerPotBalanceObservation(registry, Tags.of("test", "arb3"));
+            var participant = new MaterializePotBalance(source, store, MaterializePotBalance.Settings.DEFAULT, observation);
+
+            // Materialize v1, v2, v3 (baseline financial state)
+            materialize(f, participant, events.get(1L));
+            materialize(f, participant, events.get(2L));
+            materialize(f, participant, events.get(3L));
+            int balContentsAfterV3 = f.read.oracle.queryForObject("select count(*) from read_pot_balance_content", Integer.class);
+            int aggContentsAfterV3 = f.read.oracle.queryForObject("select count(*) from read_pot_balance_aggregate_content", Integer.class);
+
+            // 1. N-m EMPTY_DELTA_REUSE: materialize v6 directly from v3 (distance = 3, covering UpdatePotDetails + UpdateShareholderDetails + UpdateExpenseDetails)
+            materialize(f, participant, events.get(6L));
+            assertEquals(1.0, registry.counter("pocoma.v3.potbalance.materialize.path",
+                    "test", "arb3", "path", "reuse", "reason", "empty_delta_reuse").count());
+            // Consecutive EMPTY_DELTA_REUSE: v4 and v5
+            materialize(f, participant, events.get(4L));
+            materialize(f, participant, events.get(5L));
+            assertEquals(3.0, registry.counter("pocoma.v3.potbalance.materialize.path",
+                    "test", "arb3", "path", "reuse", "reason", "empty_delta_reuse").count());
+            // Zero new physical content rows created for v4, v5, v6!
+            assertEquals(balContentsAfterV3, f.read.oracle.queryForObject("select count(*) from read_pot_balance_content", Integer.class));
+            assertEquals(aggContentsAfterV3, f.read.oracle.queryForObject("select count(*) from read_pot_balance_aggregate_content", Integer.class));
+
+            // 2. Weight modified (v7) then reverted (v8): materialize v8 directly from v6 (skipping v7)
+            // MUST NOT trigger EMPTY_DELTA_REUSE! Must take INCREMENTAL and deduplicate physically in store!
+            double reuseBefore = registry.counter("pocoma.v3.potbalance.materialize.path",
+                    "test", "arb3", "path", "reuse", "reason", "empty_delta_reuse").count();
+            double incBefore = registry.counter("pocoma.v3.potbalance.materialize.path",
+                    "test", "arb3", "path", "incremental", "reason", "incremental_hit").count();
+            materialize(f, participant, events.get(8L));
+            assertEquals(reuseBefore, registry.counter("pocoma.v3.potbalance.materialize.path",
+                    "test", "arb3", "path", "reuse", "reason", "empty_delta_reuse").count(), "Reverted weight in (6,8] must NOT trigger EMPTY_DELTA_REUSE");
+            assertEquals(incBefore + 1.0, registry.counter("pocoma.v3.potbalance.materialize.path",
+                    "test", "arb3", "path", "incremental", "reason", "incremental_hit").count());
+            assertEquals(balContentsAfterV3, f.read.oracle.queryForObject("select count(*) from read_pot_balance_content", Integer.class), "Physical dedup reuses balance");
+            assertEquals(aggContentsAfterV3, f.read.oracle.queryForObject("select count(*) from read_pot_balance_aggregate_content", Integer.class), "Physical dedup reuses aggregate");
+
+            // 3. Zero-amount expense (v9): MUST NOT trigger EMPTY_DELTA_REUSE, MUST deduplicate in store!
+            materialize(f, participant, events.get(9L));
+            assertEquals(reuseBefore, registry.counter("pocoma.v3.potbalance.materialize.path",
+                    "test", "arb3", "path", "reuse", "reason", "empty_delta_reuse").count(), "Zero-amount expense must NOT trigger EMPTY_DELTA_REUSE");
+            assertEquals(incBefore + 2.0, registry.counter("pocoma.v3.potbalance.materialize.path",
+                    "test", "arb3", "path", "incremental", "reason", "incremental_hit").count());
+            assertEquals(balContentsAfterV3, f.read.oracle.queryForObject("select count(*) from read_pot_balance_content", Integer.class));
+            assertEquals(aggContentsAfterV3, f.read.oracle.queryForObject("select count(*) from read_pot_balance_aggregate_content", Integer.class));
+
+            // 4. Expense created (v10) then deleted (v11): materialize v11 directly from v9 (skipping v10)
+            // MUST NOT trigger EMPTY_DELTA_REUSE! Must take INCREMENTAL and deduplicate physically!
+            materialize(f, participant, events.get(11L));
+            assertEquals(reuseBefore, registry.counter("pocoma.v3.potbalance.materialize.path",
+                    "test", "arb3", "path", "reuse", "reason", "empty_delta_reuse").count(), "Created+deleted expense in (9,11] must NOT trigger EMPTY_DELTA_REUSE");
+            assertEquals(incBefore + 3.0, registry.counter("pocoma.v3.potbalance.materialize.path",
+                    "test", "arb3", "path", "incremental", "reason", "incremental_hit").count());
+            assertEquals(balContentsAfterV3, f.read.oracle.queryForObject("select count(*) from read_pot_balance_content", Integer.class));
+            assertEquals(aggContentsAfterV3, f.read.oracle.queryForObject("select count(*) from read_pot_balance_aggregate_content", Integer.class));
+
+            // 5. DeleteShareholder (v12): FULL/SHAREHOLDER_DELETED; balance reused, aggregate inserted!
+            materialize(f, participant, events.get(12L));
+            assertEquals(1.0, registry.counter("pocoma.v3.potbalance.materialize.path",
+                    "test", "arb3", "path", "full", "reason", "shareholder_deleted").count());
+            assertEquals(balContentsAfterV3, f.read.oracle.queryForObject("select count(*) from read_pot_balance_content", Integer.class));
+            assertEquals(aggContentsAfterV3 + 1, f.read.oracle.queryForObject("select count(*) from read_pot_balance_aggregate_content", Integer.class));
+
+            // Materialize remaining out-of-order versions (v7, v10) and replay v6 idempotently
+            materialize(f, participant, events.get(7L));
+            materialize(f, participant, events.get(10L));
+            materialize(f, participant, events.get(6L));
+
+            // Verify Micrometer content write & encode metrics are populated
+            assertTrue(registry.counter("pocoma.v3.potbalance.content.write",
+                    "test", "arb3", "target", "balance", "outcome", "inserted").count() > 0);
+            assertTrue(registry.counter("pocoma.v3.potbalance.content.write",
+                    "test", "arb3", "target", "balance", "outcome", "reused").count() >= 7.0);
+            assertTrue(registry.counter("pocoma.v3.potbalance.content.write",
+                    "test", "arb3", "target", "aggregate", "outcome", "reused").count() >= 6.0);
+            assertTrue(registry.timer("pocoma.v3.potbalance.encode.duration",
+                    "test", "arb3", "target", "balance").count() > 0);
+            assertTrue(registry.timer("pocoma.v3.potbalance.persist.duration",
+                    "test", "arb3", "target", "balance").count() > 0);
+
+            // Exact equivalence against full PotBalanceCalculator oracle for all 12 versions!
+            for (long v = 1L; v <= 12L; v++) {
+                long version = v;
+                UUID eventId = events.get(version);
+                var state = f.sourceOwner.read(c -> source.load(eventId, c));
+                var expected = ORACLE.calculate(state).map(b -> {
+                    var values = new HashMap<UUID, Fraction>(b.values().size() * 2);
+                    b.values().forEach((k, val) -> values.put(k.value(), val));
+                    return new PotBalance(b.potId().value(), b.version(), values);
+                });
+                var actual = f.read.tx.read(c -> store.read(potId.value(), version, c));
+                assertEquals(expected, actual, "Oracle mismatch at v=" + version);
+                var recovery = participant.prepareRecovery(eventId, prepReads(f));
+                assertEquals(ConsumptionParticipant.EffectEvidence.SATISFIED,
+                        f.read.tx.read(recovery::observe), "Recovery mismatch at v=" + version);
+            }
+        }
+    }
+
     private static PreparationReads prepReads(InterAuthorityPostgresFixture f) {
         return new PreparationReads() {
             @Override

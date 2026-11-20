@@ -29,6 +29,8 @@ public final class MicrometerPotBalanceObservation implements PotBalanceObservat
 
     private final Map<LookupOutcome, Counter> lookupCounters = new EnumMap<>(LookupOutcome.class);
     private final Map<Path, Map<Reason, Counter>> pathCounters = new EnumMap<>(Path.class);
+    private final Map<PersistTarget, Map<ContentOutcome, Counter>> contentWriteCounters =
+            new EnumMap<>(PersistTarget.class);
     private final DistributionSummary referenceDistance;
     private final DistributionSummary deltaExpenses;
     private final DistributionSummary aggregateBuckets;
@@ -38,6 +40,7 @@ public final class MicrometerPotBalanceObservation implements PotBalanceObservat
     private final Timer composeTimer;
     private final Map<Path, Timer> evaluateTimers = new EnumMap<>(Path.class);
     private final Map<PersistTarget, Timer> persistTimers = new EnumMap<>(PersistTarget.class);
+    private final Map<PersistTarget, Timer> encodeTimers = new EnumMap<>(PersistTarget.class);
 
     public MicrometerPotBalanceObservation(MeterRegistry registry, Tags scope) {
         Objects.requireNonNull(registry);
@@ -78,6 +81,24 @@ public final class MicrometerPotBalanceObservation implements PotBalanceObservat
                             .tag("target", label(target))
                             .serviceLevelObjectives(BUCKETS)
                             .register(registry));
+            encodeTimers.put(
+                    target,
+                    Timer.builder("pocoma.v3.potbalance.encode.duration")
+                            .tags(scope)
+                            .tag("target", label(target))
+                            .serviceLevelObjectives(BUCKETS)
+                            .register(registry));
+            var byOutcome = new EnumMap<ContentOutcome, Counter>(ContentOutcome.class);
+            for (var outcome : ContentOutcome.values()) {
+                byOutcome.put(
+                        outcome,
+                        Counter.builder("pocoma.v3.potbalance.content.write")
+                                .tags(scope)
+                                .tag("target", label(target))
+                                .tag("outcome", label(outcome))
+                                .register(registry));
+            }
+            contentWriteCounters.put(target, byOutcome);
         }
         this.referenceDistance =
                 DistributionSummary.builder("pocoma.v3.potbalance.reference.distance")
@@ -155,5 +176,15 @@ public final class MicrometerPotBalanceObservation implements PotBalanceObservat
     @Override
     public void pathSelected(Path path, Reason reason) {
         pathCounters.get(path).get(reason).increment();
+    }
+
+    @Override
+    public void contentWritten(PersistTarget target, ContentOutcome outcome) {
+        contentWriteCounters.get(target).get(outcome).increment();
+    }
+
+    @Override
+    public void contentEncoded(PersistTarget target, Duration duration) {
+        encodeTimers.get(target).record(duration);
     }
 }

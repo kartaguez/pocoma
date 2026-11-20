@@ -11,11 +11,13 @@ public interface PotBalanceObservation {
     }
 
     enum Path {
+        REUSE,
         INCREMENTAL,
         FULL
     }
 
     enum Reason {
+        EMPTY_DELTA_REUSE,
         INCREMENTAL_HIT,
         TERMINAL_DELETED,
         INITIAL_VERSION,
@@ -29,6 +31,11 @@ public interface PotBalanceObservation {
     enum PersistTarget {
         BALANCE,
         AGGREGATE
+    }
+
+    enum ContentOutcome {
+        INSERTED,
+        REUSED
     }
 
     PotBalanceObservation NOOP =
@@ -65,4 +72,8 @@ public interface PotBalanceObservation {
     void persisted(PersistTarget target, Duration duration);
 
     void pathSelected(Path path, Reason reason);
+
+    default void contentWritten(PersistTarget target, ContentOutcome outcome) {}
+
+    default void contentEncoded(PersistTarget target, Duration duration) {}
 }

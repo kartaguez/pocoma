@@ -329,6 +329,12 @@ class PotVersionAndBalanceJointIncrementalPostgresTest {
             }
 
             // Prove independent fallback on v9: A3 falls back (global_shareholder_effect), A4 stays incremental (0 expenses read)
+            double balReuseBeforeV9 =
+                    registry.get("pocoma.v3.potbalance.materialize.path")
+                            .tag("path", "reuse")
+                            .tag("reason", "empty_delta_reuse")
+                            .counter()
+                            .count();
             double balExpensesBeforeV9 =
                     registry.get("pocoma.v3.potbalance.delta.expenses").summary().totalAmount();
             double balIncBeforeV9 =
@@ -356,13 +362,13 @@ class PotVersionAndBalanceJointIncrementalPostgresTest {
                             .count(),
                     "A3 must fall back on UpdateShareholderDetails of attached shareholder");
             assertEquals(
-                    balIncBeforeV9 + 1.0,
+                    balReuseBeforeV9 + 1.0,
                     registry.get("pocoma.v3.potbalance.materialize.path")
-                            .tag("path", "incremental")
-                            .tag("reason", "incremental_hit")
+                            .tag("path", "reuse")
+                            .tag("reason", "empty_delta_reuse")
                             .counter()
                             .count(),
-                    "A4 must remain incremental on UpdateShareholderDetails");
+                    "A4 must take EMPTY_DELTA_REUSE fast path on UpdateShareholderDetails");
             assertEquals(
                     balExpensesBeforeV9,
                     registry.get("pocoma.v3.potbalance.delta.expenses").summary().totalAmount(),
