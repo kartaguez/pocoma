@@ -642,6 +642,242 @@ class PotVersionAndBalanceJointIncrementalPostgresTest {
         }
     }
 
+    @Test
+    void jointLeaseRevocationAndInterruptionPreserveAtomicityAndIndependence() throws Exception {
+        try (var f = new InterAuthorityPostgresFixture(PG, "joint-lease-revocation", true)) {
+            var potId = new PotId(UUID.randomUUID());
+            var creator = new UserId(UUID.randomUUID());
+            var sh1 = new ShareholderId(UUID.randomUUID());
+            var sh2 = new ShareholderId(UUID.randomUUID());
+            var exp1 = new ExpenseId(UUID.randomUUID());
+
+            var events = new TreeMap<Long, UUID>();
+            events.put(
+                    1L,
+                    executeWrite(
+                            f, creator, potId, 0, "CreatePot", new CreatePot(new Label("Lease Revocation"))));
+            events.put(
+                    2L,
+                    executeWrite(
+                            f,
+                            creator,
+                            potId,
+                            1,
+                            "AddShareholders",
+                            new AddShareholders(
+                                    List.of(
+                                            new ShareholderTransitions.Creation(
+                                                    sh1, new Name("Alice"), Optional.of(creator), w(1, 1)),
+                                            new ShareholderTransitions.Creation(
+                                                    sh2, new Name("Bob"), Optional.empty(), w(2, 1))))));
+            events.put(
+                    3L,
+                    executeWrite(
+                            f,
+                            creator,
+                            potId,
+                            2,
+                            "CreateExpense",
+                            new CreateExpense(
+                                    new ExpenseDetails(potId, exp1, new Label("Train"), LocalDate.of(2026, 11, 20)),
+                                    new ExpenseFinancials(
+                                            potId,
+                                            exp1,
+                                            new Amount(new Fraction(90, 1)),
+                                            sh1,
+                                            Map.of(sh1, Optional.empty(), sh2, Optional.empty())))));
+            events.put(
+                    4L,
+                    executeWrite(
+                            f,
+                            creator,
+                            potId,
+                            3,
+                            "UpdateExpenseFinancials",
+                            new UpdateExpenseFinancials(
+                                    new ExpenseFinancials(
+                                            potId,
+                                            exp1,
+                                            new Amount(new Fraction(120, 1)),
+                                            sh2,
+                                            Map.of(sh1, Optional.empty(), sh2, Optional.empty())))));
+
+            var verSource = new JdbcPotVersionSource(f.primary);
+            var subobjects = new JdbcSubobjectVersionStore(f.read.source, f.read.tx);
+            var verStore = new JdbcPotVersionStore(f.read.source, f.read.tx);
+            var balSource = new JdbcPotBalanceSource(f.primary);
+            var balStore = new JdbcPotBalanceStore(f.read.source, f.read.tx);
+            var registry = new SimpleMeterRegistry();
+            var potVersion =
+                    new MaterializePotVersion(
+                            verSource,
+                            subobjects,
+                            verStore,
+                            MaterializePotVersion.DEFAULT_MAX_DELTA_DISTANCE,
+                            new MicrometerPotVersionObservation(registry, Tags.empty()));
+            var potBalance =
+                    new MaterializePotBalance(
+                            balSource,
+                            balStore,
+                            MaterializePotBalance.Settings.DEFAULT,
+                            new MicrometerPotBalanceObservation(registry, Tags.empty()));
+
+            var verDef =
+                    new ConsumptionDefinition(
+                            new ConsumptionId(UUID.fromString("11111111-1111-5111-8111-111111111111")),
+                            ConsumableFamily.POT_EVENT,
+                            ConsumptionDefinition.Authority.READ);
+            var balDef =
+                    new ConsumptionDefinition(
+                            new ConsumptionId(UUID.fromString("22222222-2222-5222-8222-222222222222")),
+                            ConsumableFamily.POT_EVENT,
+                            ConsumptionDefinition.Authority.READ);
+            for (var def : List.of(verDef, balDef)) {
+                f.read.oracle.update(
+                        "insert into consumption_routing_contract(consumption_id,family,routing_version,partition_count) values (?,?,'sha256-v1',4)",
+                        def.id().value(),
+                        def.family().name());
+                for (int p = 0; p < 4; p++) {
+                    f.read.oracle.update(
+                            "insert into partition_ownership(consumption_id,partition_id) values (?,?)",
+                            def.id().value(),
+                            p);
+                }
+                for (UUID ev : events.values()) {
+                    f.read.oracle.update(
+                            "insert into consumption_slot(consumption_id,consumable_id,partition_hash,partition_id)"
+                                + " select ?,?,h,((h::bigint%4+4)%4)::int from (select"
+                                + " consumption_hash_v1('POT_EVENT',?) h)x",
+                            def.id().value(),
+                            ev,
+                            ev);
+                }
+            }
+
+            var verEngine =
+                    new ConsumptionEngine(
+                            verDef,
+                            f.read.tx,
+                            f.read.slots,
+                            potVersion,
+                            f.sourceOwner,
+                            Optional.of(f.references),
+                            r -> true,
+                            f.admissions,
+                            f.read.tx,
+                            f.read.slots,
+                            f.read.ownership,
+                            f.read.settings,
+                            new WorkerCapacity(4, Map.of(verDef.id(), 4)),
+                            c -> AttemptFailureClassifier.FailureKind.NON_COUNTABLE,
+                            null,
+                            com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation.noop());
+            var balEngine1 =
+                    new ConsumptionEngine(
+                            balDef,
+                            f.read.tx,
+                            f.read.slots,
+                            potBalance,
+                            f.sourceOwner,
+                            Optional.of(f.references),
+                            r -> true,
+                            f.admissions,
+                            f.read.tx,
+                            f.read.slots,
+                            f.read.ownership,
+                            f.read.settings,
+                            new WorkerCapacity(4, Map.of(balDef.id(), 4)),
+                            c -> AttemptFailureClassifier.FailureKind.NON_COUNTABLE,
+                            null,
+                            com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation.noop());
+            var balEngine2 =
+                    new ConsumptionEngine(
+                            balDef,
+                            f.read.tx,
+                            f.read.slots,
+                            potBalance,
+                            f.sourceOwner,
+                            Optional.of(f.references),
+                            r -> true,
+                            f.admissions,
+                            f.read.tx,
+                            f.read.slots,
+                            f.read.ownership,
+                            f.read.settings,
+                            new WorkerCapacity(4, Map.of(balDef.id(), 4)),
+                            c -> AttemptFailureClassifier.FailureKind.NON_COUNTABLE,
+                            null,
+                            com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation.noop());
+
+            // Both projections materialize v1
+            var verLeases = new HashMap<Integer, com.kartaguez.pocoma.contract.consumption.spi.PartitionLease>();
+            var bal1Leases = new HashMap<Integer, com.kartaguez.pocoma.contract.consumption.spi.PartitionLease>();
+            int p1 = RoutingV1.partition(RoutingV1.hash(ConsumableFamily.POT_EVENT, events.get(1L)), 4);
+            var verLease1 = verEngine.acquirePartition(p1).orElseThrow();
+            verLeases.put(p1, verLease1);
+            assertEquals(
+                    ConsumptionProtocol.Status.COMMITTED,
+                    verEngine.execute(verEngine.acquire(verLease1, List.of(events.get(1L))).claims().getFirst()).status());
+            var bal1Lease1 = balEngine1.acquirePartition(p1).orElseThrow();
+            bal1Leases.put(p1, bal1Lease1);
+            assertEquals(
+                    ConsumptionProtocol.Status.COMMITTED,
+                    balEngine1.execute(balEngine1.acquire(bal1Lease1, List.of(events.get(1L))).claims().getFirst()).status());
+
+            // Worker 1 acquires claim on PotBalance v2, then its lease & slot claim expire and Worker 2 takes over
+            int p2 = RoutingV1.partition(RoutingV1.hash(ConsumableFamily.POT_EVENT, events.get(2L)), 4);
+            var staleLease = bal1Leases.computeIfAbsent(p2, k -> balEngine1.acquirePartition(k).orElseThrow());
+            var staleClaim = balEngine1.acquire(staleLease, List.of(events.get(2L))).claims().getFirst();
+
+            f.read.oracle.update(
+                    "update partition_ownership set owner_token = null, owned_until = null where consumption_id=? and partition_id=?",
+                    balDef.id().value(),
+                    p2);
+            f.read.oracle.update(
+                    "update consumption_slot set claimed_until = now() - interval '1 second' where consumption_id=? and consumable_id=?",
+                    balDef.id().value(),
+                    events.get(2L));
+            var bal2Leases = new HashMap<Integer, com.kartaguez.pocoma.contract.consumption.spi.PartitionLease>();
+            var newLease = balEngine2.acquirePartition(p2).orElseThrow();
+            bal2Leases.put(p2, newLease);
+            assertNotEquals(staleLease.ownerToken(), newLease.ownerToken());
+            var newClaim2 = balEngine2.acquire(newLease, List.of(events.get(2L))).claims().getFirst();
+
+            // Meanwhile, PotVersion advances independently through v2, v3, v4
+            for (long v : new long[] {2L, 3L, 4L}) {
+                int pv = RoutingV1.partition(RoutingV1.hash(ConsumableFamily.POT_EVENT, events.get(v)), 4);
+                var vLease = verLeases.computeIfAbsent(pv, k -> verEngine.acquirePartition(k).orElseThrow());
+                var vRes = verEngine.execute(verEngine.acquire(vLease, List.of(events.get(v))).claims().getFirst());
+                assertEquals(ConsumptionProtocol.Status.COMMITTED, vRes.status());
+            }
+
+            // Stale PotBalance worker attempts to execute v2 -> must be fenced and expose 0 partial rows
+            var staleResult = balEngine1.execute(staleClaim);
+            assertNotEquals(ConsumptionProtocol.Status.COMMITTED, staleResult.status());
+            assertTrue(
+                    f.read.tx.read(c -> balStore.read(potId.value(), 2L, c)).isEmpty(),
+                    "Fenced PotBalance worker must not expose partial balance for v2");
+            assertEquals(
+                    0,
+                    f.read.oracle.queryForObject(
+                            "select count(*) from read_pot_balance where pot_id=? and pot_version=2",
+                            Integer.class,
+                            potId.value()));
+
+            // Worker 2 with valid lease & claim executes v2, then completes v3, v4 cleanly
+            assertEquals(ConsumptionProtocol.Status.COMMITTED, balEngine2.execute(newClaim2).status());
+            for (long v : new long[] {3L, 4L}) {
+                int pb = RoutingV1.partition(RoutingV1.hash(ConsumableFamily.POT_EVENT, events.get(v)), 4);
+                var bLease = bal2Leases.computeIfAbsent(pb, k -> balEngine2.acquirePartition(k).orElseThrow());
+                var bRes = balEngine2.execute(balEngine2.acquire(bLease, List.of(events.get(v))).claims().getFirst());
+                assertEquals(ConsumptionProtocol.Status.COMMITTED, bRes.status());
+            }
+
+            verifyAllVersionsAgainstOracles(
+                    f, potId, events, verSource, subobjects, verStore, balSource, balStore, potVersion, potBalance);
+        }
+    }
+
     private static void verifyAllVersionsAgainstOracles(
             InterAuthorityPostgresFixture f,
             PotId potId,

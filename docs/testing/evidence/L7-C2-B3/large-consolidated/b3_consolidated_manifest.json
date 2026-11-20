@@ -1,0 +1,696 @@
+{
+  "campaign": "L7-C2-B3-large-consolidated",
+  "gitSha": "d25309256aae47f3608629901184de8c316828c6",
+  "result": {
+    "label": "candidate-v4-b3",
+    "profile": "large",
+    "isV4": true,
+    "restoreSeconds": 13.0,
+    "snapshotSha256": "2eb4567b568073c7d4e0c5bbd8db40aadfaeb222ed1c7e504bd6ed91fdab637d",
+    "rebuild1": {
+      "bootstrapSeconds": 10.22,
+      "effectiveRebuildSeconds": 45.27,
+      "totalWallSeconds": 55.49,
+      "elapsedSeconds": 45.27,
+      "digest": {
+        "potVersion": {
+          "versionCount": 4004,
+          "sha256": "838fdeebb675687baae185346bb3c344168fe18e46ecf66777dadc7f8e09dc86"
+        },
+        "shareholderSets": {
+          "count": 3,
+          "sha256": "252303c4c1539f71cbffe3de7e2ab2a3c3cabcb00fc7bc78e47cc6f0b121c268"
+        },
+        "balancePointers": {
+          "count": 4004,
+          "sha256": "570bb513c55928a66efd89aaf924c77b98d0b71d56864f56a7c847553c964691"
+        },
+        "balanceContents": {
+          "count": 4003,
+          "sha256": "4525682e175d608bb165ed39292ef37c9000c2d0d7bdff1b1d3f64f0d8804d65"
+        },
+        "aggregatePointers": {
+          "count": 4004,
+          "sha256": "7176c30943107436ab45a882272de248e80c7e84c1945349e706b2d4e5df807c"
+        },
+        "aggregateContents": {
+          "count": 4003,
+          "sha256": "f1b798a761ea62a643491fc995c6ae12a195a9793fce8723f0f3d7532e0d259e"
+        }
+      },
+      "f4Balance": {
+        "balanceContents": {
+          "content_heap_bytes": 3571712,
+          "version_heap_bytes": 409600,
+          "content_index_bytes": 303104,
+          "content_toast_bytes": 32768,
+          "content_total_bytes": 3907584,
+          "total_content_count": 4003,
+          "version_index_bytes": 278528,
+          "version_total_bytes": 720896,
+          "reachable_content_count": 4003,
+          "total_content_row_bytes": 3277394,
+          "unreachable_content_bytes": 0,
+          "unreachable_content_count": 0,
+          "published_balance_versions": 4004,
+          "reachable_content_row_bytes": 3277394
+        },
+        "shareholderSets": {
+          "set_heap_bytes": 8192,
+          "set_index_bytes": 16384,
+          "set_toast_bytes": 8192,
+          "set_total_bytes": 32768,
+          "total_set_count": 3,
+          "reachable_set_count": 3,
+          "total_set_row_bytes": 3425,
+          "unreachable_set_bytes": 0,
+          "unreachable_set_count": 0,
+          "reachable_set_row_bytes": 3425
+        },
+        "aggregateContents": {
+          "content_heap_bytes": 7323648,
+          "version_heap_bytes": 409600,
+          "content_index_bytes": 319488,
+          "content_toast_bytes": 32768,
+          "content_total_bytes": 7675904,
+          "total_content_count": 4003,
+          "version_index_bytes": 278528,
+          "version_total_bytes": 720896,
+          "reachable_content_count": 4003,
+          "total_content_row_bytes": 6433390,
+          "unreachable_content_bytes": 0,
+          "unreachable_content_count": 0,
+          "reachable_content_row_bytes": 6433390,
+          "published_aggregate_versions": 4004
+        },
+        "publishedVersions": 4004
+      },
+      "f4Version": {
+        "nodes": {
+          "node_heap_bytes": 7815168,
+          "node_index_bytes": 794624,
+          "node_toast_bytes": 32768,
+          "node_total_bytes": 8642560,
+          "total_node_count": 10354,
+          "reachable_node_count": 10354,
+          "total_node_row_bytes": 7549314,
+          "unreachable_node_bytes": 0,
+          "unreachable_node_count": 0
+        },
+        "userSets": {
+          "user_set_heap_bytes": 8192,
+          "total_user_set_count": 1,
+          "user_set_index_bytes": 16384,
+          "user_set_toast_bytes": 8192,
+          "user_set_total_bytes": 32768,
+          "reachable_user_set_count": 1,
+          "total_user_set_row_bytes": 102,
+          "unreachable_user_set_bytes": 0,
+          "unreachable_user_set_count": 0
+        },
+        "publishedVersions": 4004
+      }
+    },
+    "httpPrivileges": {
+      "shareholderSet": true,
+      "balance": true,
+      "balanceContent": true,
+      "aggregateDenied": true,
+      "aggregateContentDenied": true
+    },
+    "storagePostRestore": {
+      "read_pot_shareholder_set": {
+        "rows": 3,
+        "heapBytes": 8192,
+        "indexBytes": 16384,
+        "toastBytes": 8192,
+        "totalBytes": 32768
+      },
+      "read_pot_balance": {
+        "rows": 4004,
+        "heapBytes": 409600,
+        "indexBytes": 278528,
+        "toastBytes": 32768,
+        "totalBytes": 720896
+      },
+      "read_pot_balance_content": {
+        "rows": 4003,
+        "heapBytes": 3571712,
+        "indexBytes": 303104,
+        "toastBytes": 32768,
+        "totalBytes": 3907584
+      },
+      "read_pot_balance_aggregate": {
+        "rows": 4004,
+        "heapBytes": 409600,
+        "indexBytes": 278528,
+        "toastBytes": 32768,
+        "totalBytes": 720896
+      },
+      "read_pot_balance_aggregate_content": {
+        "rows": 4003,
+        "heapBytes": 7323648,
+        "indexBytes": 319488,
+        "toastBytes": 32768,
+        "totalBytes": 7675904
+      },
+      "read_pot_version": {
+        "rows": 4004,
+        "heapBytes": 901120,
+        "indexBytes": 278528,
+        "toastBytes": 32768,
+        "totalBytes": 1212416
+      },
+      "read_pot_version_node": {
+        "rows": 10354,
+        "heapBytes": 7815168,
+        "indexBytes": 794624,
+        "toastBytes": 32768,
+        "totalBytes": 8642560
+      },
+      "read_pot_user_set": {
+        "rows": 1,
+        "heapBytes": 8192,
+        "indexBytes": 16384,
+        "toastBytes": 8192,
+        "totalBytes": 32768
+      },
+      "read_subobject_version": {
+        "rows": 12604,
+        "heapBytes": 1572864,
+        "indexBytes": 1359872,
+        "toastBytes": 22192128,
+        "totalBytes": 25124864
+      },
+      "read_current_pot": {
+        "rows": 2,
+        "heapBytes": 8192,
+        "indexBytes": 16384,
+        "toastBytes": 0,
+        "totalBytes": 24576
+      }
+    },
+    "metricsPostRestore": {
+      "contentWrite": {
+        "outcome=\"inserted\",target=\"aggregate\"": 4003,
+        "outcome=\"inserted\",target=\"balance\"": 4003,
+        "outcome=\"reused\",target=\"aggregate\"": 1,
+        "outcome=\"reused\",target=\"balance\"": 1
+      },
+      "materializePath": {
+        "path=\"full\",reason=\"bucket_cap\"": 0,
+        "path=\"full\",reason=\"delta_too_large\"": 0,
+        "path=\"full\",reason=\"incremental_disabled\"": 0,
+        "path=\"full\",reason=\"incremental_hit\"": 0,
+        "path=\"full\",reason=\"initial_version\"": 2,
+        "path=\"full\",reason=\"no_reference\"": 9,
+        "path=\"full\",reason=\"shareholder_deleted\"": 0,
+        "path=\"full\",reason=\"terminal_deleted\"": 0,
+        "path=\"incremental\",reason=\"bucket_cap\"": 0,
+        "path=\"incremental\",reason=\"delta_too_large\"": 0,
+        "path=\"incremental\",reason=\"incremental_disabled\"": 0,
+        "path=\"incremental\",reason=\"incremental_hit\"": 3993,
+        "path=\"incremental\",reason=\"initial_version\"": 0,
+        "path=\"incremental\",reason=\"no_reference\"": 0,
+        "path=\"incremental\",reason=\"shareholder_deleted\"": 0,
+        "path=\"incremental\",reason=\"terminal_deleted\"": 0
+      },
+      "encodeDuration": {
+        "target=\"aggregate\"": {
+          "count": 4004.0,
+          "sum": 0.066122018,
+          "max": 0.00178025
+        },
+        "target=\"balance\"": {
+          "count": 4004.0,
+          "sum": 0.101082575,
+          "max": 0.001944042
+        }
+      },
+      "persistDuration": {
+        "target=\"aggregate\"": {
+          "count": 4004.0,
+          "sum": 3.350392722,
+          "max": 0.033058667
+        },
+        "target=\"balance\"": {
+          "count": 4004.0,
+          "sum": 3.350392722,
+          "max": 0.033058667
+        }
+      },
+      "lookupDuration": {}
+    },
+    "readLatencies": {
+      "currentFull": {
+        "n": 30,
+        "p50": 79.432,
+        "p95": 90.424,
+        "p99": 100.653,
+        "max": 100.653
+      },
+      "historicalMidFull": {
+        "n": 30,
+        "p50": 13.21,
+        "p95": 83.998,
+        "p99": 86.091,
+        "max": 86.091
+      },
+      "balanceAtVersion": {
+        "n": 30,
+        "p50": 3.857,
+        "p95": 79.532,
+        "p99": 79.59,
+        "max": 79.59
+      },
+      "targetedExpense1": {
+        "n": 30,
+        "p50": 4.388,
+        "p95": 81.502,
+        "p99": 87.313,
+        "max": 87.313
+      },
+      "targetedExpense50": {
+        "n": 30,
+        "p50": 17.913,
+        "p95": 82.954,
+        "p99": 85.288,
+        "max": 85.288
+      }
+    },
+    "mixedMutations": {
+      "commandCount": 20,
+      "finalVersion": 2022,
+      "walTotalBytes": 1904920,
+      "walBytesPerVersion": 95246.0,
+      "e2e": {
+        "admissionMs": {
+          "n": 20,
+          "p50": 8.774,
+          "p95": 14.583,
+          "p99": 488.905,
+          "max": 488.905
+        },
+        "resultE2eMs": {
+          "n": 20,
+          "p50": 103.155,
+          "p95": 274.867,
+          "p99": 1127.411,
+          "max": 1127.411
+        },
+        "c03E2eMs": {
+          "n": 20,
+          "p50": 173.283,
+          "p95": 287.336,
+          "p99": 1201.212,
+          "max": 1201.212
+        },
+        "balanceE2eMs": {
+          "n": 20,
+          "p50": 153.057,
+          "p95": 291.412,
+          "p99": 1206.53,
+          "max": 1206.53
+        }
+      },
+      "potVersionPaths": {
+        "incremental:incremental_hit": 20
+      },
+      "potBalancePaths": {
+        "incremental:incremental_hit": 20
+      },
+      "potVersionStages": {
+        "reference_lookup": {
+          "count": 20,
+          "totalMs": 14.062,
+          "avgMs": 0.703
+        },
+        "delta_resolution": {
+          "count": 20,
+          "totalMs": 31.323,
+          "avgMs": 1.566
+        },
+        "compose": {
+          "count": 20,
+          "totalMs": 19.007,
+          "avgMs": 0.95
+        },
+        "tree_build": {
+          "count": 20,
+          "totalMs": 22.735,
+          "avgMs": 1.137
+        },
+        "persist_publish": {
+          "count": 20,
+          "totalMs": 42.916,
+          "avgMs": 2.146
+        },
+        "full_source_read": {
+          "count": 0,
+          "totalMs": 0.0,
+          "avgMs": 0.0
+        }
+      },
+      "potVersionNodes": {
+        "inserted": {
+          "count": 20,
+          "sum": 50.0,
+          "avg": 2.5
+        },
+        "loaded": {
+          "count": 20,
+          "sum": 50.0,
+          "avg": 2.5
+        },
+        "reused": {
+          "count": 20,
+          "sum": 502.0,
+          "avg": 25.1
+        }
+      },
+      "storageBefore": {
+        "read_pot_version": {
+          "rows": 4004,
+          "heapBytes": 901120,
+          "indexBytes": 278528,
+          "toastBytes": 32768,
+          "totalBytes": 1212416
+        },
+        "read_pot_version_node": {
+          "rows": 10354,
+          "heapBytes": 7815168,
+          "indexBytes": 794624,
+          "toastBytes": 32768,
+          "totalBytes": 8642560
+        },
+        "read_pot_user_set": {
+          "rows": 1,
+          "heapBytes": 8192,
+          "indexBytes": 16384,
+          "toastBytes": 8192,
+          "totalBytes": 32768
+        },
+        "read_subobject_version": {
+          "rows": 12604,
+          "heapBytes": 1572864,
+          "indexBytes": 1359872,
+          "toastBytes": 22192128,
+          "totalBytes": 25124864
+        },
+        "read_current_pot": {
+          "rows": 2,
+          "heapBytes": 8192,
+          "indexBytes": 16384,
+          "toastBytes": 0,
+          "totalBytes": 24576
+        },
+        "read_pot_balance": {
+          "rows": 4004,
+          "heapBytes": 409600,
+          "indexBytes": 278528,
+          "toastBytes": 32768,
+          "totalBytes": 720896
+        },
+        "read_pot_balance_aggregate": {
+          "rows": 4004,
+          "heapBytes": 409600,
+          "indexBytes": 278528,
+          "toastBytes": 32768,
+          "totalBytes": 720896
+        }
+      },
+      "storageAfter": {
+        "read_pot_version": {
+          "rows": 4024,
+          "heapBytes": 901120,
+          "indexBytes": 278528,
+          "toastBytes": 40960,
+          "totalBytes": 1220608
+        },
+        "read_pot_version_node": {
+          "rows": 10404,
+          "heapBytes": 7831552,
+          "indexBytes": 794624,
+          "toastBytes": 40960,
+          "totalBytes": 8667136
+        },
+        "read_pot_user_set": {
+          "rows": 1,
+          "heapBytes": 8192,
+          "indexBytes": 16384,
+          "toastBytes": 8192,
+          "totalBytes": 32768
+        },
+        "read_subobject_version": {
+          "rows": 12636,
+          "heapBytes": 1589248,
+          "indexBytes": 1368064,
+          "toastBytes": 22200320,
+          "totalBytes": 25157632
+        },
+        "read_current_pot": {
+          "rows": 2,
+          "heapBytes": 8192,
+          "indexBytes": 16384,
+          "toastBytes": 32768,
+          "totalBytes": 57344
+        },
+        "read_pot_balance": {
+          "rows": 4024,
+          "heapBytes": 409600,
+          "indexBytes": 278528,
+          "toastBytes": 40960,
+          "totalBytes": 729088
+        },
+        "read_pot_balance_aggregate": {
+          "rows": 4024,
+          "heapBytes": 409600,
+          "indexBytes": 278528,
+          "toastBytes": 40960,
+          "totalBytes": 729088
+        }
+      },
+      "potBalanceMetricsBefore": {
+        "contentWrite": {
+          "outcome=\"inserted\",target=\"aggregate\"": 4003,
+          "outcome=\"inserted\",target=\"balance\"": 4003,
+          "outcome=\"reused\",target=\"aggregate\"": 1,
+          "outcome=\"reused\",target=\"balance\"": 1
+        },
+        "materializePath": {
+          "path=\"full\",reason=\"bucket_cap\"": 0,
+          "path=\"full\",reason=\"delta_too_large\"": 0,
+          "path=\"full\",reason=\"incremental_disabled\"": 0,
+          "path=\"full\",reason=\"incremental_hit\"": 0,
+          "path=\"full\",reason=\"initial_version\"": 2,
+          "path=\"full\",reason=\"no_reference\"": 9,
+          "path=\"full\",reason=\"shareholder_deleted\"": 0,
+          "path=\"full\",reason=\"terminal_deleted\"": 0,
+          "path=\"incremental\",reason=\"bucket_cap\"": 0,
+          "path=\"incremental\",reason=\"delta_too_large\"": 0,
+          "path=\"incremental\",reason=\"incremental_disabled\"": 0,
+          "path=\"incremental\",reason=\"incremental_hit\"": 3993,
+          "path=\"incremental\",reason=\"initial_version\"": 0,
+          "path=\"incremental\",reason=\"no_reference\"": 0,
+          "path=\"incremental\",reason=\"shareholder_deleted\"": 0,
+          "path=\"incremental\",reason=\"terminal_deleted\"": 0
+        },
+        "encodeDuration": {
+          "target=\"aggregate\"": {
+            "count": 4004.0,
+            "sum": 0.066122018,
+            "max": 0.00178025
+          },
+          "target=\"balance\"": {
+            "count": 4004.0,
+            "sum": 0.101082575,
+            "max": 0.001944042
+          }
+        },
+        "persistDuration": {
+          "target=\"aggregate\"": {
+            "count": 4004.0,
+            "sum": 3.350392722,
+            "max": 0.033058667
+          },
+          "target=\"balance\"": {
+            "count": 4004.0,
+            "sum": 3.350392722,
+            "max": 0.033058667
+          }
+        },
+        "lookupDuration": {}
+      },
+      "potBalanceMetricsAfter": {
+        "contentWrite": {
+          "outcome=\"inserted\",target=\"aggregate\"": 4016,
+          "outcome=\"inserted\",target=\"balance\"": 4016,
+          "outcome=\"reused\",target=\"aggregate\"": 8,
+          "outcome=\"reused\",target=\"balance\"": 8
+        },
+        "materializePath": {
+          "path=\"full\",reason=\"bucket_cap\"": 0,
+          "path=\"full\",reason=\"delta_too_large\"": 0,
+          "path=\"full\",reason=\"incremental_disabled\"": 0,
+          "path=\"full\",reason=\"incremental_hit\"": 0,
+          "path=\"full\",reason=\"initial_version\"": 2,
+          "path=\"full\",reason=\"no_reference\"": 9,
+          "path=\"full\",reason=\"shareholder_deleted\"": 0,
+          "path=\"full\",reason=\"terminal_deleted\"": 0,
+          "path=\"incremental\",reason=\"bucket_cap\"": 0,
+          "path=\"incremental\",reason=\"delta_too_large\"": 0,
+          "path=\"incremental\",reason=\"incremental_disabled\"": 0,
+          "path=\"incremental\",reason=\"incremental_hit\"": 4013,
+          "path=\"incremental\",reason=\"initial_version\"": 0,
+          "path=\"incremental\",reason=\"no_reference\"": 0,
+          "path=\"incremental\",reason=\"shareholder_deleted\"": 0,
+          "path=\"incremental\",reason=\"terminal_deleted\"": 0
+        },
+        "encodeDuration": {
+          "target=\"aggregate\"": {
+            "count": 4024.0,
+            "sum": 0.066505225,
+            "max": 0.00178025
+          },
+          "target=\"balance\"": {
+            "count": 4024.0,
+            "sum": 0.101755492,
+            "max": 0.001944042
+          }
+        },
+        "persistDuration": {
+          "target=\"aggregate\"": {
+            "count": 4024.0,
+            "sum": 3.373764848,
+            "max": 0.033058667
+          },
+          "target=\"balance\"": {
+            "count": 4024.0,
+            "sum": 3.373764848,
+            "max": 0.033058667
+          }
+        },
+        "lookupDuration": {}
+      },
+      "potBalanceStorageAfter": {
+        "read_pot_shareholder_set": {
+          "rows": 3,
+          "heapBytes": 8192,
+          "indexBytes": 16384,
+          "toastBytes": 8192,
+          "totalBytes": 32768
+        },
+        "read_pot_balance": {
+          "rows": 4024,
+          "heapBytes": 409600,
+          "indexBytes": 278528,
+          "toastBytes": 40960,
+          "totalBytes": 729088
+        },
+        "read_pot_balance_content": {
+          "rows": 4016,
+          "heapBytes": 3571712,
+          "indexBytes": 303104,
+          "toastBytes": 40960,
+          "totalBytes": 3915776
+        },
+        "read_pot_balance_aggregate": {
+          "rows": 4024,
+          "heapBytes": 409600,
+          "indexBytes": 278528,
+          "toastBytes": 40960,
+          "totalBytes": 729088
+        },
+        "read_pot_balance_aggregate_content": {
+          "rows": 4016,
+          "heapBytes": 7340032,
+          "indexBytes": 319488,
+          "toastBytes": 40960,
+          "totalBytes": 7700480
+        },
+        "read_pot_version": {
+          "rows": 4024,
+          "heapBytes": 901120,
+          "indexBytes": 278528,
+          "toastBytes": 40960,
+          "totalBytes": 1220608
+        },
+        "read_pot_version_node": {
+          "rows": 10404,
+          "heapBytes": 7831552,
+          "indexBytes": 794624,
+          "toastBytes": 40960,
+          "totalBytes": 8667136
+        },
+        "read_pot_user_set": {
+          "rows": 1,
+          "heapBytes": 8192,
+          "indexBytes": 16384,
+          "toastBytes": 8192,
+          "totalBytes": 32768
+        },
+        "read_subobject_version": {
+          "rows": 12636,
+          "heapBytes": 1589248,
+          "indexBytes": 1368064,
+          "toastBytes": 22200320,
+          "totalBytes": 25157632
+        },
+        "read_current_pot": {
+          "rows": 2,
+          "heapBytes": 8192,
+          "indexBytes": 16384,
+          "toastBytes": 32768,
+          "totalBytes": 57344
+        }
+      }
+    },
+    "f4AfterMutations": {
+      "balanceContents": {
+        "content_heap_bytes": 3571712,
+        "version_heap_bytes": 409600,
+        "content_index_bytes": 303104,
+        "content_toast_bytes": 40960,
+        "content_total_bytes": 3915776,
+        "total_content_count": 4016,
+        "version_index_bytes": 278528,
+        "version_total_bytes": 729088,
+        "reachable_content_count": 4016,
+        "total_content_row_bytes": 3287888,
+        "unreachable_content_bytes": 0,
+        "unreachable_content_count": 0,
+        "published_balance_versions": 4024,
+        "reachable_content_row_bytes": 3287888
+      },
+      "shareholderSets": {
+        "set_heap_bytes": 8192,
+        "set_index_bytes": 16384,
+        "set_toast_bytes": 8192,
+        "set_total_bytes": 32768,
+        "total_set_count": 3,
+        "reachable_set_count": 3,
+        "total_set_row_bytes": 3425,
+        "unreachable_set_bytes": 0,
+        "unreachable_set_count": 0,
+        "reachable_set_row_bytes": 3425
+      },
+      "aggregateContents": {
+        "content_heap_bytes": 7340032,
+        "version_heap_bytes": 409600,
+        "content_index_bytes": 319488,
+        "content_toast_bytes": 40960,
+        "content_total_bytes": 7700480,
+        "total_content_count": 4016,
+        "version_index_bytes": 278528,
+        "version_total_bytes": 729088,
+        "reachable_content_count": 4016,
+        "total_content_row_bytes": 6455815,
+        "unreachable_content_bytes": 0,
+        "unreachable_content_count": 0,
+        "reachable_content_row_bytes": 6455815,
+        "published_aggregate_versions": 4024
+      },
+      "publishedVersions": 4024
+    }
+  }
+}

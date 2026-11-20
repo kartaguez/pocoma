@@ -1,0 +1,1937 @@
+{
+  "L7-4A4_restore-large-1": {
+    "runDir": "docs/testing/evidence/L7-4A4/restore-large-1",
+    "git": {
+      "sha": "317854c8c176bd9802e4bb0da28da513e60b136b",
+      "dirty": "M scripts/operations/setup-v3-database.py\n M scripts/operations/v3-rebuild-read.py\n M scripts/performance/run-l7-4a-baseline.py"
+    },
+    "profile": "large",
+    "latenciesMs": {
+      "offerLagMs": {
+        "n": 60,
+        "p50": 4.177,
+        "p95": 10.217,
+        "p99": 10.759,
+        "max": 10.759
+      },
+      "stage1_admissionMs": {
+        "n": 60,
+        "p50": 7.728,
+        "p95": 12.829,
+        "p99": 19.186,
+        "max": 19.186
+      },
+      "stage2_preDiscoveryWaitMs": "NOT_MEASURABLE (no created_at on v3_command; cross-JVM http-write->command-worker)",
+      "stage2_commandWorker": {
+        "discoveryToSlotMs": {
+          "n": 60,
+          "p50": 0.76,
+          "p95": 1.6,
+          "p99": 2.87,
+          "max": 2.87
+        },
+        "slotAcquisitionWaitMs": {
+          "n": 60,
+          "p50": 2.72,
+          "p95": 8.86,
+          "p99": 15.23,
+          "max": 15.23
+        },
+        "acquisitionToAttemptMs": {
+          "n": 60,
+          "p50": 0.11,
+          "p95": 0.24,
+          "p99": 0.34,
+          "max": 0.34
+        },
+        "commandProcessingMs": {
+          "n": 60,
+          "p50": 21.62,
+          "p95": 88.41,
+          "p99": 93.01,
+          "max": 93.01
+        }
+      },
+      "stage3_preDiscoveryWaitMs": "NOT_MEASURABLE (cross-JVM command-worker->read-worker)",
+      "stage3_projections": {
+        "PotVersion": {
+          "n": 60,
+          "p50": 29.94,
+          "p95": 40.8,
+          "p99": 61.42,
+          "max": 61.42
+        },
+        "PotBalance": {
+          "n": 60,
+          "p50": 8.39,
+          "p95": 12.58,
+          "p99": 24.01,
+          "max": 24.01
+        },
+        "PotVisibility": {
+          "n": 60,
+          "p50": 3.56,
+          "p95": 8.69,
+          "p99": 11.49,
+          "max": 11.49
+        },
+        "CommandResult": {
+          "n": 60,
+          "p50": 1.94,
+          "p95": 2.8,
+          "p99": 3.95,
+          "max": 3.95
+        }
+      },
+      "stage4_resultE2eMs": {
+        "n": 60,
+        "p50": 85.949,
+        "p95": 187.068,
+        "p99": 195.546,
+        "max": 195.546
+      },
+      "stage4_c03E2eMs": {
+        "n": 60,
+        "p50": 157.761,
+        "p95": 292.994,
+        "p99": 323.038,
+        "max": 323.038
+      },
+      "stage4_balanceE2eMs": {
+        "n": 60,
+        "p50": 137.86,
+        "p95": 227.363,
+        "p99": 295.838,
+        "max": 295.838
+      }
+    },
+    "dbDeltas": {
+      "write": {
+        "initBytes": 116471475,
+        "finalBytes": 119527091,
+        "walDeltaBytes": 18658844,
+        "xactCommitDelta": 406444,
+        "xactRollbackDelta": 6,
+        "blksReadDelta": 1137,
+        "blksHitDelta": 492460
+      },
+      "read": {
+        "initBytes": 242603699,
+        "finalBytes": 248796851,
+        "walDeltaBytes": 18658844,
+        "xactCommitDelta": 500262,
+        "xactRollbackDelta": 3,
+        "blksReadDelta": 21802,
+        "blksHitDelta": 666499
+      }
+    },
+    "containerResources": {
+      "postgres": {
+        "samples": 16,
+        "cpuAvgPct": 76.18,
+        "cpuMaxPct": 86.22,
+        "memAvgMiB": 1009.0,
+        "memMaxMiB": 1026.0,
+        "lastBlockIO": "172kB / 8.19kB",
+        "lastNetIO": "336MB / 487MB"
+      },
+      "http-write": {
+        "samples": 16,
+        "cpuAvgPct": 1.65,
+        "cpuMaxPct": 3.93,
+        "memAvgMiB": 182.9,
+        "memMaxMiB": 185.7,
+        "lastBlockIO": "0B / 57.3kB",
+        "lastNetIO": "677kB / 1.38MB"
+      },
+      "http-read": {
+        "samples": 16,
+        "cpuAvgPct": 11.3,
+        "cpuMaxPct": 25.42,
+        "memAvgMiB": 228.4,
+        "memMaxMiB": 238.7,
+        "lastBlockIO": "4.1kB / 45.1kB",
+        "lastNetIO": "101MB / 24.7MB"
+      },
+      "command-worker": {
+        "samples": 16,
+        "cpuAvgPct": 26.05,
+        "cpuMaxPct": 36.73,
+        "memAvgMiB": 202.4,
+        "memMaxMiB": 206.1,
+        "lastBlockIO": "0B / 123kB",
+        "lastNetIO": "69MB / 82.1MB"
+      },
+      "results-worker": {
+        "samples": 16,
+        "cpuAvgPct": 25.85,
+        "cpuMaxPct": 39.47,
+        "memAvgMiB": 253.5,
+        "memMaxMiB": 256.5,
+        "lastBlockIO": "63MB / 53.2kB",
+        "lastNetIO": "66.7MB / 82.6MB"
+      },
+      "business-read-worker": {
+        "samples": 16,
+        "cpuAvgPct": 45.38,
+        "cpuMaxPct": 93.22,
+        "memAvgMiB": 650.4,
+        "memMaxMiB": 651.7,
+        "lastBlockIO": "38.9MB / 69.6kB",
+        "lastNetIO": "256MB / 187MB"
+      }
+    },
+    "workers": {
+      "http-write": {
+        "heapUsedMiB": 40.4,
+        "heapMaxMiB": 494.9,
+        "gcCountDelta": 5,
+        "gcPauseMsDelta": 16.0,
+        "processCpuSecDelta": 1.63,
+        "capacityLimit": null,
+        "saturationDelta": null,
+        "hikariPools": {
+          "v3-http-admission": {
+            "max": 4.0,
+            "activeEnd": 0.0,
+            "pendingEnd": 0.0,
+            "acquireCountDelta": 128.0,
+            "acquireTotalMsDelta": 15.37,
+            "acquireAvgMs": 0.1201,
+            "usageTotalMsDelta": 145.0,
+            "timeoutTotal": 0.0
+          }
+        },
+        "attemptsByConsumption": {},
+        "discoveryByConsumption": {},
+        "workerCycles": {}
+      },
+      "http-read": {
+        "heapUsedMiB": 51.3,
+        "heapMaxMiB": 494.9,
+        "gcCountDelta": 116,
+        "gcPauseMsDelta": 379.0,
+        "processCpuSecDelta": 8.64,
+        "capacityLimit": null,
+        "saturationDelta": null,
+        "hikariPools": {
+          "v3-http-read": {
+            "max": 8.0,
+            "activeEnd": 0.0,
+            "pendingEnd": 0.0,
+            "acquireCountDelta": 790.0,
+            "acquireTotalMsDelta": 40.88,
+            "acquireAvgMs": 0.0517,
+            "usageTotalMsDelta": 8386.0,
+            "timeoutTotal": 0.0
+          },
+          "v3-http-read-maintenance": {
+            "max": 1.0,
+            "activeEnd": 0.0,
+            "pendingEnd": 0.0,
+            "acquireCountDelta": 192.0,
+            "acquireTotalMsDelta": 95.69,
+            "acquireAvgMs": 0.4984,
+            "usageTotalMsDelta": 7.0,
+            "timeoutTotal": 0.0
+          }
+        },
+        "attemptsByConsumption": {},
+        "discoveryByConsumption": {},
+        "workerCycles": {}
+      },
+      "command-worker": {
+        "heapUsedMiB": 26.9,
+        "heapMaxMiB": 494.9,
+        "gcCountDelta": 68,
+        "gcPauseMsDelta": 110.0,
+        "processCpuSecDelta": 18.83,
+        "capacityLimit": 2,
+        "saturationDelta": null,
+        "hikariPools": {
+          "command-worker-write-business": {
+            "max": 4.0,
+            "activeEnd": 0.0,
+            "pendingEnd": 0.0,
+            "acquireCountDelta": 128.0,
+            "acquireTotalMsDelta": 9.14,
+            "acquireAvgMs": 0.0714,
+            "usageTotalMsDelta": 2356.0,
+            "timeoutTotal": 0.0
+          },
+          "command-worker-write-control": {
+            "max": 8.0,
+            "activeEnd": 1.0,
+            "pendingEnd": 0.0,
+            "acquireCountDelta": 64535.0,
+            "acquireTotalMsDelta": 19.3,
+            "acquireAvgMs": 0.0003,
+            "usageTotalMsDelta": 7697.0,
+            "timeoutTotal": 0.0
+          }
+        },
+        "attemptsByConsumption": {
+          "Command": {
+            "countDelta": 64,
+            "totalMsDelta": 2428.19,
+            "avgMs": 37.94
+          }
+        },
+        "discoveryByConsumption": {
+          "Command": {
+            "countDelta": 7857,
+            "totalMsDelta": 12829.57,
+            "avgMs": 1.633
+          },
+          "IdentityRequest": {
+            "countDelta": 7856,
+            "totalMsDelta": 13102.23,
+            "avgMs": 1.668
+          }
+        },
+        "workerCycles": {
+          "consumption": {
+            "countDelta": 17321,
+            "totalMsDelta": 20933.32
+          },
+          "discovery": {
+            "countDelta": 15713,
+            "totalMsDelta": 26080.4
+          }
+        }
+      },
+      "results-worker": {
+        "heapUsedMiB": 27.4,
+        "heapMaxMiB": 494.9,
+        "gcCountDelta": 63,
+        "gcPauseMsDelta": 86.0,
+        "processCpuSecDelta": 17.97,
+        "capacityLimit": 2,
+        "saturationDelta": null,
+        "hikariPools": {
+          "results-worker-read-business": {
+            "max": 4.0,
+            "activeEnd": 0.0,
+            "pendingEnd": 0.0,
+            "acquireCountDelta": 64.0,
+            "acquireTotalMsDelta": 7.31,
+            "acquireAvgMs": 0.1142,
+            "usageTotalMsDelta": 29.0,
+            "timeoutTotal": 0.0
+          },
+          "results-worker-read-control": {
+            "max": 8.0,
+            "activeEnd": 1.0,
+            "pendingEnd": 0.0,
+            "acquireCountDelta": 50654.0,
+            "acquireTotalMsDelta": 14.26,
+            "acquireAvgMs": 0.0003,
+            "usageTotalMsDelta": 4371.0,
+            "timeoutTotal": 0.0
+          },
+          "results-worker-write-source-read": {
+            "max": 4.0,
+            "activeEnd": 0.0,
+            "pendingEnd": 0.0,
+            "acquireCountDelta": 16347.0,
+            "acquireTotalMsDelta": 14.51,
+            "acquireAvgMs": 0.0009,
+            "usageTotalMsDelta": 865.0,
+            "timeoutTotal": 0.0
+          }
+        },
+        "attemptsByConsumption": {
+          "CommandResult": {
+            "countDelta": 64,
+            "totalMsDelta": 189.57,
+            "avgMs": 2.962
+          }
+        },
+        "discoveryByConsumption": {
+          "CommandResult": {
+            "countDelta": 8141,
+            "totalMsDelta": 12505.39,
+            "avgMs": 1.536
+          },
+          "IdentityRequestResult": {
+            "countDelta": 8142,
+            "totalMsDelta": 11546.77,
+            "avgMs": 1.418
+          }
+        },
+        "workerCycles": {
+          "consumption": {
+            "countDelta": 18019,
+            "totalMsDelta": 19217.98
+          },
+          "discovery": {
+            "countDelta": 16283,
+            "totalMsDelta": 24195.41
+          }
+        }
+      },
+      "business-read-worker": {
+        "heapUsedMiB": 225.1,
+        "heapMaxMiB": 494.9,
+        "gcCountDelta": 47,
+        "gcPauseMsDelta": 878.0,
+        "processCpuSecDelta": 32.71,
+        "capacityLimit": 3,
+        "saturationDelta": 108,
+        "hikariPools": {
+          "business-read-worker-read-business": {
+            "max": 5.0,
+            "activeEnd": 0.0,
+            "pendingEnd": 0.0,
+            "acquireCountDelta": 384.0,
+            "acquireTotalMsDelta": 23.54,
+            "acquireAvgMs": 0.0613,
+            "usageTotalMsDelta": 3022.0,
+            "timeoutTotal": 0.0
+          },
+          "business-read-worker-read-control": {
+            "max": 9.0,
+            "activeEnd": 0.0,
+            "pendingEnd": 0.0,
+            "acquireCountDelta": 95068.0,
+            "acquireTotalMsDelta": 26.39,
+            "acquireAvgMs": 0.0003,
+            "usageTotalMsDelta": 4069.0,
+            "timeoutTotal": 0.0
+          },
+          "business-read-worker-write-source-read": {
+            "max": 5.0,
+            "activeEnd": 1.0,
+            "pendingEnd": 0.0,
+            "acquireCountDelta": 28768.0,
+            "acquireTotalMsDelta": 30.03,
+            "acquireAvgMs": 0.001,
+            "usageTotalMsDelta": 3040.0,
+            "timeoutTotal": 0.0
+          }
+        },
+        "attemptsByConsumption": {
+          "PotBalance": {
+            "countDelta": 64,
+            "totalMsDelta": 2587.35,
+            "avgMs": 40.427
+          },
+          "PotVersion": {
+            "countDelta": 64,
+            "totalMsDelta": 3067.06,
+            "avgMs": 47.923
+          },
+          "PotVisibility": {
+            "countDelta": 64,
+            "totalMsDelta": 284.21,
+            "avgMs": 4.441
+          }
+        },
+        "discoveryByConsumption": {
+          "CurrentBinding": {
+            "countDelta": 5676,
+            "totalMsDelta": 7227.5,
+            "avgMs": 1.273
+          },
+          "Invitation": {
+            "countDelta": 5676,
+            "totalMsDelta": 6926.46,
+            "avgMs": 1.22
+          },
+          "PotBalance": {
+            "countDelta": 5676,
+            "totalMsDelta": 7399.82,
+            "avgMs": 1.304
+          },
+          "PotVersion": {
+            "countDelta": 5677,
+            "totalMsDelta": 7226.16,
+            "avgMs": 1.273
+          },
+          "PotVisibility": {
+            "countDelta": 5677,
+            "totalMsDelta": 7350.02,
+            "avgMs": 1.295
+          }
+        },
+        "workerCycles": {
+          "consumption": {
+            "countDelta": 39424,
+            "totalMsDelta": 23370.43
+          },
+          "discovery": {
+            "countDelta": 28382,
+            "totalMsDelta": 36315.42
+          }
+        }
+      }
+    }
+  },
+  "L7-C2-B1.4_restore-large-1": {
+    "runDir": "docs/testing/evidence/L7-C2-B1-4/restore-large-1",
+    "git": {
+      "sha": "dfaebe44a0734e1b665c1fa3eebc5726528ef2e8",
+      "dirty": "D app/infra-postgres-read/src/main/java/com/kartaguez/pocoma/infra/postgres/read/PotVersionJson.java\n M app/infra-postgres-read/src/test/java/com/kartaguez/pocoma/infra/postgres/read/PotBalanceReadStorePostgresTest.java\n D app/infra-postgres-read/src/test/java/com/kartaguez/pocoma/infra/postgres/read/PotVersionJsonTest.java\n M app/runtime-worker-materialize/src/test/java/com/kartaguez/pocoma/runtime/task/ReadRuntimeAssemblyPostgresTest.java\n M scripts/operations/setup-v3-database.py\n M scripts/operations/v3-rebuild-read.py\n M scripts/performance/observe-l7-spec09-backlog.py\n M scripts/performance/run-l7-4a-baseline.py\n M scripts/performance/v3-oracle-probe.py\n M scripts/performance/v3-seed.py\n M scripts/testing/verification-campaigns.json\n M scripts/v3/grant-l7-http-read.sql\n?? docs/testing/evidence/L7-C2-B1-4/\n?? experiments/\n?? scripts/performance/run-l7-c2-b1-qualification.py\n?? scripts/v3/diagnose-pot-version-unreachable.sql"
+    },
+    "profile": "large",
+    "latenciesMs": {
+      "offerLagMs": {
+        "n": 60,
+        "p50": 3.173,
+        "p95": 10.211,
+        "p99": 10.353,
+        "max": 10.353
+      },
+      "stage1_admissionMs": {
+        "n": 60,
+        "p50": 7.384,
+        "p95": 12.228,
+        "p99": 23.691,
+        "max": 23.691
+      },
+      "stage2_preDiscoveryWaitMs": "NOT_MEASURABLE (no created_at on v3_command; cross-JVM http-write->command-worker)",
+      "stage2_commandWorker": {
+        "discoveryToSlotMs": {
+          "n": 60,
+          "p50": 0.71,
+          "p95": 1.25,
+          "p99": 1.75,
+          "max": 1.75
+        },
+        "slotAcquisitionWaitMs": {
+          "n": 60,
+          "p50": 2.8,
+          "p95": 7.57,
+          "p99": 13.49,
+          "max": 13.49
+        },
+        "acquisitionToAttemptMs": {
+          "n": 60,
+          "p50": 0.11,
+          "p95": 0.24,
+          "p99": 1.83,
+          "max": 1.83
+        },
+        "commandProcessingMs": {
+          "n": 60,
+          "p50": 21.25,
+          "p95": 58.56,
+          "p99": 68.89,
+          "max": 68.89
+        }
+      },
+      "stage3_preDiscoveryWaitMs": "NOT_MEASURABLE (cross-JVM command-worker->read-worker)",
+      "stage3_projections": {
+        "PotVersion": {
+          "n": 60,
+          "p50": 9.63,
+          "p95": 14.02,
+          "p99": 18.55,
+          "max": 18.55
+        },
+        "PotBalance": {
+          "n": 60,
+          "p50": 6.25,
+          "p95": 8.33,
+          "p99": 13.37,
+          "max": 13.37
+        },
+        "PotVisibility": {
+          "n": 60,
+          "p50": 2.7,
+          "p95": 3.52,
+          "p99": 5.69,
+          "max": 5.69
+        },
+        "CommandResult": {
+          "n": 60,
+          "p50": 1.44,
+          "p95": 2.05,
+          "p99": 2.4,
+          "max": 2.4
+        }
+      },
+      "stage4_resultE2eMs": {
+        "n": 60,
+        "p50": 79.904,
+        "p95": 132.885,
+        "p99": 193.47,
+        "max": 193.47
+      },
+      "stage4_c03E2eMs": {
+        "n": 60,
+        "p50": 132.137,
+        "p95": 202.306,
+        "p99": 211.35,
+        "max": 211.35
+      },
+      "stage4_balanceE2eMs": {
+        "n": 60,
+        "p50": 110.486,
+        "p95": 181.534,
+        "p99": 194.082,
+        "max": 194.082
+      }
+    },
+    "dbDeltas": {
+      "write": {
+        "initBytes": 116479667,
+        "finalBytes": 119527091,
+        "walDeltaBytes": 12176152,
+        "xactCommitDelta": 416191,
+        "xactRollbackDelta": 0,
+        "blksReadDelta": 827,
+        "blksHitDelta": 449866
+      },
+      "read": {
+        "initBytes": 95639219,
+        "finalBytes": 96409267,
+        "walDeltaBytes": 12176616,
+        "xactCommitDelta": 514008,
+        "xactRollbackDelta": 0,
+        "blksReadDelta": 1012,
+        "blksHitDelta": 848291
+      }
+    },
+    "containerResources": {
+      "postgres": {
+        "samples": 16,
+        "cpuAvgPct": 73.27,
+        "cpuMaxPct": 84.91,
+        "memAvgMiB": 1009.1,
+        "memMaxMiB": 1016.0,
+        "lastBlockIO": "0B / 8.19kB",
+        "lastNetIO": "855MB / 1.35GB"
+      },
+      "http-write": {
+        "samples": 16,
+        "cpuAvgPct": 1.49,
+        "cpuMaxPct": 3.08,
+        "memAvgMiB": 179.9,
+        "memMaxMiB": 183.1,
+        "lastBlockIO": "0B / 73.7kB",
+        "lastNetIO": "687kB / 1.39MB"
+      },
+      "http-read": {
+        "samples": 16,
+        "cpuAvgPct": 8.4,
+        "cpuMaxPct": 20.33,
+        "memAvgMiB": 199.6,
+        "memMaxMiB": 206.1,
+        "lastBlockIO": "0B / 69.6kB",
+        "lastNetIO": "43.4MB / 24.6MB"
+      },
+      "command-worker": {
+        "samples": 16,
+        "cpuAvgPct": 24.42,
+        "cpuMaxPct": 41.88,
+        "memAvgMiB": 207.0,
+        "memMaxMiB": 212.5,
+        "lastBlockIO": "0B / 115kB",
+        "lastNetIO": "114MB / 136MB"
+      },
+      "results-worker": {
+        "samples": 16,
+        "cpuAvgPct": 22.32,
+        "cpuMaxPct": 24.68,
+        "memAvgMiB": 197.6,
+        "memMaxMiB": 198.4,
+        "lastBlockIO": "0B / 1.11MB",
+        "lastNetIO": "142MB / 155MB"
+      },
+      "business-read-worker": {
+        "samples": 16,
+        "cpuAvgPct": 37.63,
+        "cpuMaxPct": 40.93,
+        "memAvgMiB": 534.7,
+        "memMaxMiB": 540.3,
+        "lastBlockIO": "0B / 3.14MB",
+        "lastNetIO": "1.05GB / 579MB"
+      }
+    },
+    "workers": {
+      "http-write": {
+        "heapUsedMiB": 24.2,
+        "heapMaxMiB": 494.9,
+        "gcCountDelta": 6,
+        "gcPauseMsDelta": 17.0,
+        "processCpuSecDelta": 1.62,
+        "capacityLimit": null,
+        "saturationDelta": null,
+        "hikariPools": {
+          "v3-http-admission": {
+            "max": 4.0,
+            "activeEnd": 0.0,
+            "pendingEnd": 0.0,
+            "acquireCountDelta": 130.0,
+            "acquireTotalMsDelta": 13.2,
+            "acquireAvgMs": 0.1015,
+            "usageTotalMsDelta": 307.0,
+            "timeoutTotal": 0.0
+          }
+        },
+        "attemptsByConsumption": {},
+        "discoveryByConsumption": {},
+        "workerCycles": {}
+      },
+      "http-read": {
+        "heapUsedMiB": 26.0,
+        "heapMaxMiB": 494.9,
+        "gcCountDelta": 33,
+        "gcPauseMsDelta": 62.0,
+        "processCpuSecDelta": 6.44,
+        "capacityLimit": null,
+        "saturationDelta": null,
+        "hikariPools": {
+          "v3-http-read": {
+            "max": 8.0,
+            "activeEnd": 0.0,
+            "pendingEnd": 0.0,
+            "acquireCountDelta": 722.0,
+            "acquireTotalMsDelta": 39.85,
+            "acquireAvgMs": 0.0552,
+            "usageTotalMsDelta": 3487.0,
+            "timeoutTotal": 0.0
+          },
+          "v3-http-read-maintenance": {
+            "max": 1.0,
+            "activeEnd": 0.0,
+            "pendingEnd": 0.0,
+            "acquireCountDelta": 194.0,
+            "acquireTotalMsDelta": 92.87,
+            "acquireAvgMs": 0.4787,
+            "usageTotalMsDelta": 10.0,
+            "timeoutTotal": 0.0
+          }
+        },
+        "attemptsByConsumption": {},
+        "discoveryByConsumption": {},
+        "workerCycles": {}
+      },
+      "command-worker": {
+        "heapUsedMiB": 34.5,
+        "heapMaxMiB": 494.9,
+        "gcCountDelta": 69,
+        "gcPauseMsDelta": 96.0,
+        "processCpuSecDelta": 16.73,
+        "capacityLimit": 2,
+        "saturationDelta": null,
+        "hikariPools": {
+          "command-worker-write-business": {
+            "max": 4.0,
+            "activeEnd": 0.0,
+            "pendingEnd": 0.0,
+            "acquireCountDelta": 130.0,
+            "acquireTotalMsDelta": 58.91,
+            "acquireAvgMs": 0.4532,
+            "usageTotalMsDelta": 2140.0,
+            "timeoutTotal": 0.0
+          },
+          "command-worker-write-control": {
+            "max": 8.0,
+            "activeEnd": 1.0,
+            "pendingEnd": 0.0,
+            "acquireCountDelta": 66306.0,
+            "acquireTotalMsDelta": 15.48,
+            "acquireAvgMs": 0.0002,
+            "usageTotalMsDelta": 4498.0,
+            "timeoutTotal": 0.0
+          }
+        },
+        "attemptsByConsumption": {
+          "Command": {
+            "countDelta": 65,
+            "totalMsDelta": 2265.66,
+            "avgMs": 34.856
+          }
+        },
+        "discoveryByConsumption": {
+          "Command": {
+            "countDelta": 8077,
+            "totalMsDelta": 11771.21,
+            "avgMs": 1.457
+          },
+          "IdentityRequest": {
+            "countDelta": 8077,
+            "totalMsDelta": 11526.2,
+            "avgMs": 1.427
+          }
+        },
+        "workerCycles": {
+          "consumption": {
+            "countDelta": 17765,
+            "totalMsDelta": 18475.83
+          },
+          "discovery": {
+            "countDelta": 16154,
+            "totalMsDelta": 23423.14
+          }
+        }
+      },
+      "results-worker": {
+        "heapUsedMiB": 26.4,
+        "heapMaxMiB": 494.9,
+        "gcCountDelta": 67,
+        "gcPauseMsDelta": 52.0,
+        "processCpuSecDelta": 15.32,
+        "capacityLimit": 2,
+        "saturationDelta": 0,
+        "hikariPools": {
+          "results-worker-read-business": {
+            "max": 4.0,
+            "activeEnd": 0.0,
+            "pendingEnd": 0.0,
+            "acquireCountDelta": 65.0,
+            "acquireTotalMsDelta": 6.22,
+            "acquireAvgMs": 0.0957,
+            "usageTotalMsDelta": 8.0,
+            "timeoutTotal": 0.0
+          },
+          "results-worker-read-control": {
+            "max": 8.0,
+            "activeEnd": 0.0,
+            "pendingEnd": 0.0,
+            "acquireCountDelta": 53724.0,
+            "acquireTotalMsDelta": 11.84,
+            "acquireAvgMs": 0.0002,
+            "usageTotalMsDelta": 2026.0,
+            "timeoutTotal": 0.0
+          },
+          "results-worker-write-source-read": {
+            "max": 4.0,
+            "activeEnd": 0.0,
+            "pendingEnd": 0.0,
+            "acquireCountDelta": 16768.0,
+            "acquireTotalMsDelta": 13.14,
+            "acquireAvgMs": 0.0008,
+            "usageTotalMsDelta": 302.0,
+            "timeoutTotal": 0.0
+          }
+        },
+        "attemptsByConsumption": {
+          "CommandResult": {
+            "countDelta": 65,
+            "totalMsDelta": 97.7,
+            "avgMs": 1.503
+          },
+          "IdentityRequestResult": {
+            "countDelta": 0,
+            "totalMsDelta": 0.0,
+            "avgMs": 0.0
+          }
+        },
+        "discoveryByConsumption": {
+          "CommandResult": {
+            "countDelta": 8351,
+            "totalMsDelta": 11085.07,
+            "avgMs": 1.327
+          },
+          "IdentityRequestResult": {
+            "countDelta": 8351,
+            "totalMsDelta": 10643.82,
+            "avgMs": 1.275
+          }
+        },
+        "workerCycles": {
+          "consumption": {
+            "countDelta": 20238,
+            "totalMsDelta": 11350.95
+          },
+          "discovery": {
+            "countDelta": 16702,
+            "totalMsDelta": 21861.81
+          }
+        }
+      },
+      "business-read-worker": {
+        "heapUsedMiB": 275.9,
+        "heapMaxMiB": 494.9,
+        "gcCountDelta": 20,
+        "gcPauseMsDelta": 56.0,
+        "processCpuSecDelta": 25.56,
+        "capacityLimit": 3,
+        "saturationDelta": 85,
+        "hikariPools": {
+          "business-read-worker-read-business": {
+            "max": 5.0,
+            "activeEnd": 0.0,
+            "pendingEnd": 0.0,
+            "acquireCountDelta": 717.0,
+            "acquireTotalMsDelta": 17.4,
+            "acquireAvgMs": 0.0243,
+            "usageTotalMsDelta": 370.0,
+            "timeoutTotal": 0.0
+          },
+          "business-read-worker-read-control": {
+            "max": 9.0,
+            "activeEnd": 1.0,
+            "pendingEnd": 0.0,
+            "acquireCountDelta": 96032.0,
+            "acquireTotalMsDelta": 24.75,
+            "acquireAvgMs": 0.0003,
+            "usageTotalMsDelta": 2424.0,
+            "timeoutTotal": 0.0
+          },
+          "business-read-worker-write-source-read": {
+            "max": 5.0,
+            "activeEnd": 0.0,
+            "pendingEnd": 0.0,
+            "acquireCountDelta": 29061.0,
+            "acquireTotalMsDelta": 29.71,
+            "acquireAvgMs": 0.001,
+            "usageTotalMsDelta": 730.0,
+            "timeoutTotal": 0.0
+          }
+        },
+        "attemptsByConsumption": {
+          "CurrentBinding": {
+            "countDelta": 0,
+            "totalMsDelta": 0.0,
+            "avgMs": 0.0
+          },
+          "PotBalance": {
+            "countDelta": 65,
+            "totalMsDelta": 418.24,
+            "avgMs": 6.434
+          },
+          "PotVersion": {
+            "countDelta": 65,
+            "totalMsDelta": 651.27,
+            "avgMs": 10.02
+          },
+          "PotVisibility": {
+            "countDelta": 65,
+            "totalMsDelta": 182.84,
+            "avgMs": 2.813
+          }
+        },
+        "discoveryByConsumption": {
+          "CurrentBinding": {
+            "countDelta": 5734,
+            "totalMsDelta": 6986.98,
+            "avgMs": 1.219
+          },
+          "Invitation": {
+            "countDelta": 5733,
+            "totalMsDelta": 6812.67,
+            "avgMs": 1.188
+          },
+          "PotBalance": {
+            "countDelta": 5733,
+            "totalMsDelta": 6991.94,
+            "avgMs": 1.22
+          },
+          "PotVersion": {
+            "countDelta": 5734,
+            "totalMsDelta": 6991.31,
+            "avgMs": 1.219
+          },
+          "PotVisibility": {
+            "countDelta": 5734,
+            "totalMsDelta": 7002.0,
+            "avgMs": 1.221
+          }
+        },
+        "workerCycles": {
+          "consumption": {
+            "countDelta": 39173,
+            "totalMsDelta": 22471.13
+          },
+          "discovery": {
+            "countDelta": 28668,
+            "totalMsDelta": 34964.1
+          }
+        }
+      }
+    }
+  },
+  "L7-C2-B2.4_restore-large-1": {
+    "runDir": "docs/testing/evidence/L7-C2-B2/B2_4_requalification/restore-large-1",
+    "git": {
+      "sha": "fab2a51d0b6a0f4b384a8b7d223b2b7fee5b666d",
+      "dirty": "M app/compose-polling-nonburnable-materialize-postgres/src/main/java/com/kartaguez/pocoma/compose/polling/materialize/maintenance/ReadinessOracle.java\n M app/domain-projection/src/main/java/com/kartaguez/pocoma/domain/projection/balance/PotBalanceAggregateBinaryCodec.java\n M app/domain-projection/src/main/java/com/kartaguez/pocoma/domain/projection/balance/PotBalanceAggregateContent.java\n M app/domain-projection/src/main/java/com/kartaguez/pocoma/domain/projection/balance/PotBalanceBinaryCodec.java\n M app/domain-projection/src/main/java/com/kartaguez/pocoma/domain/projection/balance/PotBalanceContent.java\n M app/domain-projection/src/test/java/com/kartaguez/pocoma/domain/projection/balance/PotBalanceAggregateBinaryCodecTest.java\n M app/domain-projection/src/test/java/com/kartaguez/pocoma/domain/projection/balance/PotBalanceBinaryCodecTest.java\n M app/engine-materialize-pot/src/main/java/com/kartaguez/pocoma/engine/materialize/pot/MaterializePotBalance.java\n M app/engine-materialize-pot/src/main/java/com/kartaguez/pocoma/engine/materialize/pot/PotBalanceObservation.java\n M app/engine-materialize-pot/src/test/java/com/kartaguez/pocoma/engine/materialize/pot/MaterializePotBalanceIncrementalTest.java\n M app/infra-postgres-core/src/main/java/com/kartaguez/pocoma/infra/postgres/core/bootstrap/BootstrapGuard.java\n M app/infra-postgres-read/src/main/java/com/kartaguez/pocoma/infra/postgres/read/JdbcPotBalanceStore.java\n M app/infra-postgres-read/src/main/resources/db/read/migration/V4__pot_balance_shared_storage.sql\n M app/infra-postgres-read/src/test/java/com/kartaguez/pocoma/infra/postgres/read/PotBalanceReadStorePostgresTest.java\n M app/infra-postgres-read/src/test/java/com/kartaguez/pocoma/infra/postgres/read/PotBalanceSharedSchemaPostgresTest.java\n M app/port-projection/src/main/java/com/kartaguez/pocoma/port/projection/PotBalanceStore.java\n M app/runtime-monolith/src/test/java/com/kartaguez/pocoma/ReadMonolithI8Fixture.java\n M app/runtime-worker-materialize/src/test/java/com/kartaguez/pocoma/runtime/task/PotBalanceIncrementalPostgresTest.java\n M app/runtime-worker-materialize/src/test/java/com/kartaguez/pocoma/runtime/task/PotVersionAndBalanceJointIncrementalPostgresTest.java\n M app/runtime-worker-materialize/src/test/java/com/kartaguez/pocoma/runtime/task/ReadParticipantsFixture.java\n M app/runtime-worker-materialize/src/test/java/com/kartaguez/pocoma/runtime/task/ReadReconstructionPostgresTest.java\n M app/runtime-worker-materialize/src/test/java/com/kartaguez/pocoma/runtime/task/ReadRuntimeAssemblyPostgresTest.java\n M app/runtime-worker-materialize/src/test/java/com/kartaguez/pocoma/runtime/task/ReadRuntimeI8Fixture.java\n M scripts/operations/setup-v3-database.py\n M scripts/operations/v3-rebuild-read.py\n M scripts/performance/run-l7-4-a3-a4-multibucket.py\n M scripts/performance/run-l7-4a-baseline.py\n M scripts/performance/run-l7-4a4-targeted.py\n M scripts/v3/grant-l7-http-read.sql\n?? app/domain-projection/src/main/java/com/kartaguez/pocoma/domain/projection/balance/PotShareholderSet.java\n?? app/domain-projection/src/main/java/com/kartaguez/pocoma/domain/projection/balance/PotShareholderSetBinaryCodec.java\n?? app/domain-projection/src/test/java/com/kartaguez/pocoma/domain/projection/balance/PotShareholderSetBinaryCodecTest.java\n?? docs/testing/evidence/L7-C2-B2/B2_4/\n?? docs/testing/evidence/L7-C2-B2/B2_4_requalification/\n?? docs/v3/L7_C2_B2_4_Performance_Corrective_Analysis.md\n?? docs/v3/L7_C2_B2_4_PotBalance_Qualification_Report.md\n?? experiments/\n?? scripts/operations/test_v3_operations.py\n?? scripts/performance/run-l7-c2-b2-qualification.py\n?? scripts/performance/run-l7-c2-b2-xlarge-ab.py\n?? scripts/v3/diagnose-pot-balance-unreachable.sql"
+    },
+    "profile": "large",
+    "latenciesMs": {
+      "offerLagMs": {
+        "n": 60,
+        "p50": 4.558,
+        "p95": 10.18,
+        "p99": 10.219,
+        "max": 10.219
+      },
+      "stage1_admissionMs": {
+        "n": 60,
+        "p50": 7.203,
+        "p95": 10.1,
+        "p99": 17.933,
+        "max": 17.933
+      },
+      "stage2_preDiscoveryWaitMs": "NOT_MEASURABLE (no created_at on v3_command; cross-JVM http-write->command-worker)",
+      "stage2_commandWorker": {
+        "discoveryToSlotMs": {
+          "n": 60,
+          "p50": 0.74,
+          "p95": 1.37,
+          "p99": 2.65,
+          "max": 2.65
+        },
+        "slotAcquisitionWaitMs": {
+          "n": 60,
+          "p50": 2.71,
+          "p95": 6.88,
+          "p99": 14.71,
+          "max": 14.71
+        },
+        "acquisitionToAttemptMs": {
+          "n": 60,
+          "p50": 0.1,
+          "p95": 0.25,
+          "p99": 0.28,
+          "max": 0.28
+        },
+        "commandProcessingMs": {
+          "n": 60,
+          "p50": 20.57,
+          "p95": 84.49,
+          "p99": 95.56,
+          "max": 95.56
+        }
+      },
+      "stage3_preDiscoveryWaitMs": "NOT_MEASURABLE (cross-JVM command-worker->read-worker)",
+      "stage3_projections": {
+        "PotVersion": {
+          "n": 60,
+          "p50": 9.35,
+          "p95": 12.25,
+          "p99": 14.62,
+          "max": 14.62
+        },
+        "PotBalance": {
+          "n": 60,
+          "p50": 4.33,
+          "p95": 5.99,
+          "p99": 8.03,
+          "max": 8.03
+        },
+        "PotVisibility": {
+          "n": 60,
+          "p50": 2.57,
+          "p95": 4.06,
+          "p99": 4.47,
+          "max": 4.47
+        },
+        "CommandResult": {
+          "n": 60,
+          "p50": 1.5,
+          "p95": 2.42,
+          "p99": 3.24,
+          "max": 3.24
+        }
+      },
+      "stage4_resultE2eMs": {
+        "n": 60,
+        "p50": 82.918,
+        "p95": 151.254,
+        "p99": 193.313,
+        "max": 193.313
+      },
+      "stage4_c03E2eMs": {
+        "n": 60,
+        "p50": 133.817,
+        "p95": 212.777,
+        "p99": 294.198,
+        "max": 294.198
+      },
+      "stage4_balanceE2eMs": {
+        "n": 60,
+        "p50": 112.721,
+        "p95": 191.851,
+        "p99": 227.199,
+        "max": 227.199
+      }
+    },
+    "dbDeltas": {
+      "write": {
+        "initBytes": 116479667,
+        "finalBytes": 119453363,
+        "walDeltaBytes": 11670030,
+        "xactCommitDelta": 417898,
+        "xactRollbackDelta": 0,
+        "blksReadDelta": 761,
+        "blksHitDelta": 450792
+      },
+      "read": {
+        "initBytes": 60520115,
+        "finalBytes": 60798643,
+        "walDeltaBytes": 11670494,
+        "xactCommitDelta": 519224,
+        "xactRollbackDelta": 0,
+        "blksReadDelta": 28,
+        "blksHitDelta": 861170
+      }
+    },
+    "containerResources": {
+      "postgres": {
+        "samples": 16,
+        "cpuAvgPct": 72.36,
+        "cpuMaxPct": 76.24,
+        "memAvgMiB": 943.6,
+        "memMaxMiB": 948.8,
+        "lastBlockIO": "0B / 8.19kB",
+        "lastNetIO": "750MB / 1.09GB"
+      },
+      "http-write": {
+        "samples": 16,
+        "cpuAvgPct": 1.53,
+        "cpuMaxPct": 2.89,
+        "memAvgMiB": 189.6,
+        "memMaxMiB": 192.3,
+        "lastBlockIO": "0B / 61.4kB",
+        "lastNetIO": "688kB / 1.39MB"
+      },
+      "http-read": {
+        "samples": 16,
+        "cpuAvgPct": 7.72,
+        "cpuMaxPct": 20.78,
+        "memAvgMiB": 203.3,
+        "memMaxMiB": 211.8,
+        "lastBlockIO": "0B / 57.3kB",
+        "lastNetIO": "43.6MB / 25.3MB"
+      },
+      "command-worker": {
+        "samples": 16,
+        "cpuAvgPct": 25.43,
+        "cpuMaxPct": 49.69,
+        "memAvgMiB": 206.8,
+        "memMaxMiB": 208.9,
+        "lastBlockIO": "0B / 98.3kB",
+        "lastNetIO": "102MB / 122MB"
+      },
+      "results-worker": {
+        "samples": 16,
+        "cpuAvgPct": 22.36,
+        "cpuMaxPct": 24.32,
+        "memAvgMiB": 202.7,
+        "memMaxMiB": 204.5,
+        "lastBlockIO": "0B / 1.1MB",
+        "lastNetIO": "130MB / 142MB"
+      },
+      "business-read-worker": {
+        "samples": 16,
+        "cpuAvgPct": 37.27,
+        "cpuMaxPct": 42.16,
+        "memAvgMiB": 548.3,
+        "memMaxMiB": 548.9,
+        "lastBlockIO": "0B / 3.13MB",
+        "lastNetIO": "813MB / 499MB"
+      }
+    },
+    "workers": {
+      "http-write": {
+        "heapUsedMiB": 24.5,
+        "heapMaxMiB": 494.9,
+        "gcCountDelta": 6,
+        "gcPauseMsDelta": 16.0,
+        "processCpuSecDelta": 1.58,
+        "capacityLimit": null,
+        "saturationDelta": null,
+        "hikariPools": {
+          "v3-http-admission": {
+            "max": 4.0,
+            "activeEnd": 0.0,
+            "pendingEnd": 0.0,
+            "acquireCountDelta": 130.0,
+            "acquireTotalMsDelta": 12.57,
+            "acquireAvgMs": 0.0967,
+            "usageTotalMsDelta": 205.0,
+            "timeoutTotal": 0.0
+          }
+        },
+        "attemptsByConsumption": {},
+        "discoveryByConsumption": {},
+        "workerCycles": {}
+      },
+      "http-read": {
+        "heapUsedMiB": 41.9,
+        "heapMaxMiB": 494.9,
+        "gcCountDelta": 31,
+        "gcPauseMsDelta": 68.0,
+        "processCpuSecDelta": 6.54,
+        "capacityLimit": null,
+        "saturationDelta": null,
+        "hikariPools": {
+          "v3-http-read": {
+            "max": 8.0,
+            "activeEnd": 0.0,
+            "pendingEnd": 0.0,
+            "acquireCountDelta": 735.0,
+            "acquireTotalMsDelta": 27.75,
+            "acquireAvgMs": 0.0378,
+            "usageTotalMsDelta": 3560.0,
+            "timeoutTotal": 0.0
+          },
+          "v3-http-read-maintenance": {
+            "max": 1.0,
+            "activeEnd": 0.0,
+            "pendingEnd": 0.0,
+            "acquireCountDelta": 197.0,
+            "acquireTotalMsDelta": 87.45,
+            "acquireAvgMs": 0.4439,
+            "usageTotalMsDelta": 8.0,
+            "timeoutTotal": 0.0
+          }
+        },
+        "attemptsByConsumption": {},
+        "discoveryByConsumption": {},
+        "workerCycles": {}
+      },
+      "command-worker": {
+        "heapUsedMiB": 27.7,
+        "heapMaxMiB": 494.9,
+        "gcCountDelta": 70,
+        "gcPauseMsDelta": 72.0,
+        "processCpuSecDelta": 16.9,
+        "capacityLimit": 2,
+        "saturationDelta": null,
+        "hikariPools": {
+          "command-worker-write-business": {
+            "max": 4.0,
+            "activeEnd": 0.0,
+            "pendingEnd": 0.0,
+            "acquireCountDelta": 130.0,
+            "acquireTotalMsDelta": 10.0,
+            "acquireAvgMs": 0.0769,
+            "usageTotalMsDelta": 2185.0,
+            "timeoutTotal": 0.0
+          },
+          "command-worker-write-control": {
+            "max": 8.0,
+            "activeEnd": 1.0,
+            "pendingEnd": 0.0,
+            "acquireCountDelta": 66341.0,
+            "acquireTotalMsDelta": 14.74,
+            "acquireAvgMs": 0.0002,
+            "usageTotalMsDelta": 4871.0,
+            "timeoutTotal": 0.0
+          }
+        },
+        "attemptsByConsumption": {
+          "Command": {
+            "countDelta": 65,
+            "totalMsDelta": 2263.74,
+            "avgMs": 34.827
+          }
+        },
+        "discoveryByConsumption": {
+          "Command": {
+            "countDelta": 8082,
+            "totalMsDelta": 11553.52,
+            "avgMs": 1.43
+          },
+          "IdentityRequest": {
+            "countDelta": 8083,
+            "totalMsDelta": 11920.3,
+            "avgMs": 1.475
+          }
+        },
+        "workerCycles": {
+          "consumption": {
+            "countDelta": 17771,
+            "totalMsDelta": 18735.54
+          },
+          "discovery": {
+            "countDelta": 16165,
+            "totalMsDelta": 23600.85
+          }
+        }
+      },
+      "results-worker": {
+        "heapUsedMiB": 39.9,
+        "heapMaxMiB": 494.9,
+        "gcCountDelta": 67,
+        "gcPauseMsDelta": 55.0,
+        "processCpuSecDelta": 15.83,
+        "capacityLimit": 2,
+        "saturationDelta": 0,
+        "hikariPools": {
+          "results-worker-read-business": {
+            "max": 4.0,
+            "activeEnd": 0.0,
+            "pendingEnd": 0.0,
+            "acquireCountDelta": 65.0,
+            "acquireTotalMsDelta": 6.54,
+            "acquireAvgMs": 0.1006,
+            "usageTotalMsDelta": 5.0,
+            "timeoutTotal": 0.0
+          },
+          "results-worker-read-control": {
+            "max": 8.0,
+            "activeEnd": 1.0,
+            "pendingEnd": 0.0,
+            "acquireCountDelta": 53888.0,
+            "acquireTotalMsDelta": 11.45,
+            "acquireAvgMs": 0.0002,
+            "usageTotalMsDelta": 2539.0,
+            "timeoutTotal": 0.0
+          },
+          "results-worker-write-source-read": {
+            "max": 4.0,
+            "activeEnd": 0.0,
+            "pendingEnd": 0.0,
+            "acquireCountDelta": 16732.0,
+            "acquireTotalMsDelta": 14.04,
+            "acquireAvgMs": 0.0008,
+            "usageTotalMsDelta": 470.0,
+            "timeoutTotal": 0.0
+          }
+        },
+        "attemptsByConsumption": {
+          "CommandResult": {
+            "countDelta": 65,
+            "totalMsDelta": 96.31,
+            "avgMs": 1.482
+          },
+          "IdentityRequestResult": {
+            "countDelta": 0,
+            "totalMsDelta": 0.0,
+            "avgMs": 0.0
+          }
+        },
+        "discoveryByConsumption": {
+          "CommandResult": {
+            "countDelta": 8333,
+            "totalMsDelta": 11161.08,
+            "avgMs": 1.339
+          },
+          "IdentityRequestResult": {
+            "countDelta": 8334,
+            "totalMsDelta": 10841.66,
+            "avgMs": 1.301
+          }
+        },
+        "workerCycles": {
+          "consumption": {
+            "countDelta": 20480,
+            "totalMsDelta": 11197.41
+          },
+          "discovery": {
+            "countDelta": 16667,
+            "totalMsDelta": 22134.03
+          }
+        }
+      },
+      "business-read-worker": {
+        "heapUsedMiB": 221.7,
+        "heapMaxMiB": 494.9,
+        "gcCountDelta": 22,
+        "gcPauseMsDelta": 46.0,
+        "processCpuSecDelta": 25.67,
+        "capacityLimit": 3,
+        "saturationDelta": 44,
+        "hikariPools": {
+          "business-read-worker-read-business": {
+            "max": 5.0,
+            "activeEnd": 0.0,
+            "pendingEnd": 0.0,
+            "acquireCountDelta": 715.0,
+            "acquireTotalMsDelta": 14.79,
+            "acquireAvgMs": 0.0207,
+            "usageTotalMsDelta": 245.0,
+            "timeoutTotal": 0.0
+          },
+          "business-read-worker-read-control": {
+            "max": 9.0,
+            "activeEnd": 1.0,
+            "pendingEnd": 0.0,
+            "acquireCountDelta": 96549.0,
+            "acquireTotalMsDelta": 23.05,
+            "acquireAvgMs": 0.0002,
+            "usageTotalMsDelta": 2246.0,
+            "timeoutTotal": 0.0
+          },
+          "business-read-worker-write-source-read": {
+            "max": 5.0,
+            "activeEnd": 0.0,
+            "pendingEnd": 0.0,
+            "acquireCountDelta": 29293.0,
+            "acquireTotalMsDelta": 21.75,
+            "acquireAvgMs": 0.0007,
+            "usageTotalMsDelta": 655.0,
+            "timeoutTotal": 0.0
+          }
+        },
+        "attemptsByConsumption": {
+          "CurrentBinding": {
+            "countDelta": 0,
+            "totalMsDelta": 0.0,
+            "avgMs": 0.0
+          },
+          "PotBalance": {
+            "countDelta": 65,
+            "totalMsDelta": 288.2,
+            "avgMs": 4.434
+          },
+          "PotVersion": {
+            "countDelta": 65,
+            "totalMsDelta": 620.16,
+            "avgMs": 9.541
+          },
+          "PotVisibility": {
+            "countDelta": 65,
+            "totalMsDelta": 172.85,
+            "avgMs": 2.659
+          }
+        },
+        "discoveryByConsumption": {
+          "CurrentBinding": {
+            "countDelta": 5780,
+            "totalMsDelta": 7049.05,
+            "avgMs": 1.22
+          },
+          "Invitation": {
+            "countDelta": 5780,
+            "totalMsDelta": 6788.34,
+            "avgMs": 1.174
+          },
+          "PotBalance": {
+            "countDelta": 5781,
+            "totalMsDelta": 7013.2,
+            "avgMs": 1.213
+          },
+          "PotVersion": {
+            "countDelta": 5781,
+            "totalMsDelta": 6993.88,
+            "avgMs": 1.21
+          },
+          "PotVisibility": {
+            "countDelta": 5781,
+            "totalMsDelta": 6957.36,
+            "avgMs": 1.203
+          }
+        },
+        "workerCycles": {
+          "consumption": {
+            "countDelta": 38747,
+            "totalMsDelta": 23132.89
+          },
+          "discovery": {
+            "countDelta": 28903,
+            "totalMsDelta": 34991.82
+          }
+        }
+      }
+    }
+  },
+  "L7-C2-B2.4_med-1": {
+    "runDir": "docs/testing/evidence/L7-C2-B2/B2_4_requalification/med-1",
+    "git": {
+      "sha": "fab2a51d0b6a0f4b384a8b7d223b2b7fee5b666d",
+      "dirty": "M app/compose-polling-nonburnable-materialize-postgres/src/main/java/com/kartaguez/pocoma/compose/polling/materialize/maintenance/ReadinessOracle.java\n M app/domain-projection/src/main/java/com/kartaguez/pocoma/domain/projection/balance/PotBalanceAggregateBinaryCodec.java\n M app/domain-projection/src/main/java/com/kartaguez/pocoma/domain/projection/balance/PotBalanceAggregateContent.java\n M app/domain-projection/src/main/java/com/kartaguez/pocoma/domain/projection/balance/PotBalanceBinaryCodec.java\n M app/domain-projection/src/main/java/com/kartaguez/pocoma/domain/projection/balance/PotBalanceContent.java\n M app/domain-projection/src/test/java/com/kartaguez/pocoma/domain/projection/balance/PotBalanceAggregateBinaryCodecTest.java\n M app/domain-projection/src/test/java/com/kartaguez/pocoma/domain/projection/balance/PotBalanceBinaryCodecTest.java\n M app/engine-materialize-pot/src/main/java/com/kartaguez/pocoma/engine/materialize/pot/MaterializePotBalance.java\n M app/engine-materialize-pot/src/main/java/com/kartaguez/pocoma/engine/materialize/pot/PotBalanceObservation.java\n M app/engine-materialize-pot/src/test/java/com/kartaguez/pocoma/engine/materialize/pot/MaterializePotBalanceIncrementalTest.java\n M app/infra-postgres-core/src/main/java/com/kartaguez/pocoma/infra/postgres/core/bootstrap/BootstrapGuard.java\n M app/infra-postgres-read/src/main/java/com/kartaguez/pocoma/infra/postgres/read/JdbcPotBalanceStore.java\n M app/infra-postgres-read/src/main/resources/db/read/migration/V4__pot_balance_shared_storage.sql\n M app/infra-postgres-read/src/test/java/com/kartaguez/pocoma/infra/postgres/read/PotBalanceReadStorePostgresTest.java\n M app/infra-postgres-read/src/test/java/com/kartaguez/pocoma/infra/postgres/read/PotBalanceSharedSchemaPostgresTest.java\n M app/port-projection/src/main/java/com/kartaguez/pocoma/port/projection/PotBalanceStore.java\n M app/runtime-monolith/src/test/java/com/kartaguez/pocoma/ReadMonolithI8Fixture.java\n M app/runtime-worker-materialize/src/test/java/com/kartaguez/pocoma/runtime/task/PotBalanceIncrementalPostgresTest.java\n M app/runtime-worker-materialize/src/test/java/com/kartaguez/pocoma/runtime/task/PotVersionAndBalanceJointIncrementalPostgresTest.java\n M app/runtime-worker-materialize/src/test/java/com/kartaguez/pocoma/runtime/task/ReadParticipantsFixture.java\n M app/runtime-worker-materialize/src/test/java/com/kartaguez/pocoma/runtime/task/ReadReconstructionPostgresTest.java\n M app/runtime-worker-materialize/src/test/java/com/kartaguez/pocoma/runtime/task/ReadRuntimeAssemblyPostgresTest.java\n M app/runtime-worker-materialize/src/test/java/com/kartaguez/pocoma/runtime/task/ReadRuntimeI8Fixture.java\n M scripts/operations/setup-v3-database.py\n M scripts/operations/v3-rebuild-read.py\n M scripts/performance/run-l7-4-a3-a4-multibucket.py\n M scripts/performance/run-l7-4a-baseline.py\n M scripts/performance/run-l7-4a4-targeted.py\n M scripts/v3/grant-l7-http-read.sql\n?? app/domain-projection/src/main/java/com/kartaguez/pocoma/domain/projection/balance/PotShareholderSet.java\n?? app/domain-projection/src/main/java/com/kartaguez/pocoma/domain/projection/balance/PotShareholderSetBinaryCodec.java\n?? app/domain-projection/src/test/java/com/kartaguez/pocoma/domain/projection/balance/PotShareholderSetBinaryCodecTest.java\n?? docs/testing/evidence/L7-C2-B2/B2_4/\n?? docs/testing/evidence/L7-C2-B2/B2_4_requalification/\n?? docs/v3/L7_C2_B2_4_Performance_Corrective_Analysis.md\n?? docs/v3/L7_C2_B2_4_PotBalance_Qualification_Report.md\n?? experiments/\n?? scripts/operations/test_v3_operations.py\n?? scripts/performance/run-l7-c2-b2-qualification.py\n?? scripts/performance/run-l7-c2-b2-xlarge-ab.py\n?? scripts/v3/diagnose-pot-balance-unreachable.sql"
+    },
+    "profile": "medium",
+    "latenciesMs": {
+      "offerLagMs": {
+        "n": 60,
+        "p50": 6.27,
+        "p95": 10.332,
+        "p99": 11.262,
+        "max": 11.262
+      },
+      "stage1_admissionMs": {
+        "n": 60,
+        "p50": 4.394,
+        "p95": 11.36,
+        "p99": 23.879,
+        "max": 23.879
+      },
+      "stage2_preDiscoveryWaitMs": "NOT_MEASURABLE (no created_at on v3_command; cross-JVM http-write->command-worker)",
+      "stage2_commandWorker": {
+        "discoveryToSlotMs": {
+          "n": 60,
+          "p50": 0.64,
+          "p95": 1.39,
+          "p99": 4.65,
+          "max": 4.65
+        },
+        "slotAcquisitionWaitMs": {
+          "n": 60,
+          "p50": 3.96,
+          "p95": 8.46,
+          "p99": 67.37,
+          "max": 67.37
+        },
+        "acquisitionToAttemptMs": {
+          "n": 60,
+          "p50": 0.06,
+          "p95": 0.12,
+          "p99": 0.14,
+          "max": 0.14
+        },
+        "commandProcessingMs": {
+          "n": 60,
+          "p50": 8.13,
+          "p95": 14.68,
+          "p99": 70.87,
+          "max": 70.87
+        }
+      },
+      "stage3_preDiscoveryWaitMs": "NOT_MEASURABLE (cross-JVM command-worker->read-worker)",
+      "stage3_projections": {
+        "PotVersion": {
+          "n": 60,
+          "p50": 8.4,
+          "p95": 12.4,
+          "p99": 18.16,
+          "max": 18.16
+        },
+        "PotBalance": {
+          "n": 60,
+          "p50": 4.06,
+          "p95": 6.04,
+          "p99": 19.86,
+          "max": 19.86
+        },
+        "PotVisibility": {
+          "n": 60,
+          "p50": 2.35,
+          "p95": 3.29,
+          "p99": 4.57,
+          "max": 4.57
+        },
+        "CommandResult": {
+          "n": 60,
+          "p50": 1.48,
+          "p95": 2.53,
+          "p99": 3.02,
+          "max": 3.02
+        }
+      },
+      "stage4_resultE2eMs": {
+        "n": 60,
+        "p50": 75.745,
+        "p95": 133.46,
+        "p99": 150.109,
+        "max": 150.109
+      },
+      "stage4_c03E2eMs": {
+        "n": 60,
+        "p50": 105.241,
+        "p95": 151.689,
+        "p99": 160.188,
+        "max": 160.188
+      },
+      "stage4_balanceE2eMs": {
+        "n": 60,
+        "p50": 100.636,
+        "p95": 143.947,
+        "p99": 177.012,
+        "max": 177.012
+      }
+    },
+    "dbDeltas": {
+      "write": {
+        "initBytes": 21845683,
+        "finalBytes": 22771379,
+        "walDeltaBytes": 9400628,
+        "xactCommitDelta": 467257,
+        "xactRollbackDelta": 0,
+        "blksReadDelta": 0,
+        "blksHitDelta": 425743
+      },
+      "read": {
+        "initBytes": 15644339,
+        "finalBytes": 16185011,
+        "walDeltaBytes": 9400628,
+        "xactCommitDelta": 550638,
+        "xactRollbackDelta": 0,
+        "blksReadDelta": 0,
+        "blksHitDelta": 637350
+      }
+    },
+    "containerResources": {
+      "postgres": {
+        "samples": 17,
+        "cpuAvgPct": 71.37,
+        "cpuMaxPct": 77.31,
+        "memAvgMiB": 349.4,
+        "memMaxMiB": 361.6,
+        "lastBlockIO": "0B / 8.19kB",
+        "lastNetIO": "635MB / 560MB"
+      },
+      "http-write": {
+        "samples": 17,
+        "cpuAvgPct": 0.57,
+        "cpuMaxPct": 2.09,
+        "memAvgMiB": 207.5,
+        "memMaxMiB": 208.4,
+        "lastBlockIO": "0B / 164kB",
+        "lastNetIO": "5.06MB / 6.05MB"
+      },
+      "http-read": {
+        "samples": 17,
+        "cpuAvgPct": 3.51,
+        "cpuMaxPct": 9.11,
+        "memAvgMiB": 216.4,
+        "memMaxMiB": 218.4,
+        "lastBlockIO": "0B / 57.3kB",
+        "lastNetIO": "16.9MB / 17.8MB"
+      },
+      "command-worker": {
+        "samples": 17,
+        "cpuAvgPct": 21.9,
+        "cpuMaxPct": 23.27,
+        "memAvgMiB": 213.3,
+        "memMaxMiB": 216.2,
+        "lastBlockIO": "0B / 1.26MB",
+        "lastNetIO": "141MB / 161MB"
+      },
+      "results-worker": {
+        "samples": 17,
+        "cpuAvgPct": 22.16,
+        "cpuMaxPct": 26.49,
+        "memAvgMiB": 198.9,
+        "memMaxMiB": 200.2,
+        "lastBlockIO": "0B / 328kB",
+        "lastNetIO": "139MB / 168MB"
+      },
+      "business-read-worker": {
+        "samples": 17,
+        "cpuAvgPct": 37.36,
+        "cpuMaxPct": 40.75,
+        "memAvgMiB": 218.8,
+        "memMaxMiB": 220.3,
+        "lastBlockIO": "0B / 872kB",
+        "lastNetIO": "272MB / 318MB"
+      }
+    },
+    "workers": {
+      "http-write": {
+        "heapUsedMiB": 29.2,
+        "heapMaxMiB": 494.9,
+        "gcCountDelta": 3,
+        "gcPauseMsDelta": 7.0,
+        "processCpuSecDelta": 0.65,
+        "capacityLimit": null,
+        "saturationDelta": null,
+        "hikariPools": {
+          "v3-http-admission": {
+            "max": 4.0,
+            "activeEnd": 0.0,
+            "pendingEnd": 0.0,
+            "acquireCountDelta": 140.0,
+            "acquireTotalMsDelta": 13.35,
+            "acquireAvgMs": 0.0954,
+            "usageTotalMsDelta": 61.0,
+            "timeoutTotal": 0.0
+          }
+        },
+        "attemptsByConsumption": {},
+        "discoveryByConsumption": {},
+        "workerCycles": {}
+      },
+      "http-read": {
+        "heapUsedMiB": 26.8,
+        "heapMaxMiB": 494.9,
+        "gcCountDelta": 13,
+        "gcPauseMsDelta": 31.0,
+        "processCpuSecDelta": 3.31,
+        "capacityLimit": null,
+        "saturationDelta": null,
+        "hikariPools": {
+          "v3-http-read": {
+            "max": 8.0,
+            "activeEnd": 0.0,
+            "pendingEnd": 0.0,
+            "acquireCountDelta": 754.0,
+            "acquireTotalMsDelta": 88.48,
+            "acquireAvgMs": 0.1173,
+            "usageTotalMsDelta": 789.0,
+            "timeoutTotal": 0.0
+          },
+          "v3-http-read-maintenance": {
+            "max": 1.0,
+            "activeEnd": 0.0,
+            "pendingEnd": 0.0,
+            "acquireCountDelta": 202.0,
+            "acquireTotalMsDelta": 79.88,
+            "acquireAvgMs": 0.3955,
+            "usageTotalMsDelta": 3.0,
+            "timeoutTotal": 0.0
+          }
+        },
+        "attemptsByConsumption": {},
+        "discoveryByConsumption": {},
+        "workerCycles": {}
+      },
+      "command-worker": {
+        "heapUsedMiB": 30.6,
+        "heapMaxMiB": 494.9,
+        "gcCountDelta": 73,
+        "gcPauseMsDelta": 63.0,
+        "processCpuSecDelta": 16.21,
+        "capacityLimit": 2,
+        "saturationDelta": 0,
+        "hikariPools": {
+          "command-worker-write-business": {
+            "max": 4.0,
+            "activeEnd": 0.0,
+            "pendingEnd": 0.0,
+            "acquireCountDelta": 140.0,
+            "acquireTotalMsDelta": 9.65,
+            "acquireAvgMs": 0.0689,
+            "usageTotalMsDelta": 670.0,
+            "timeoutTotal": 0.0
+          },
+          "command-worker-write-control": {
+            "max": 8.0,
+            "activeEnd": 0.0,
+            "pendingEnd": 0.0,
+            "acquireCountDelta": 74913.0,
+            "acquireTotalMsDelta": 15.46,
+            "acquireAvgMs": 0.0002,
+            "usageTotalMsDelta": 3167.0,
+            "timeoutTotal": 0.0
+          }
+        },
+        "attemptsByConsumption": {
+          "Command": {
+            "countDelta": 70,
+            "totalMsDelta": 740.54,
+            "avgMs": 10.579
+          },
+          "IdentityRequest": {
+            "countDelta": 0,
+            "totalMsDelta": 0.0,
+            "avgMs": 0.0
+          }
+        },
+        "discoveryByConsumption": {
+          "Command": {
+            "countDelta": 8869,
+            "totalMsDelta": 11625.95,
+            "avgMs": 1.311
+          },
+          "IdentityRequest": {
+            "countDelta": 8868,
+            "totalMsDelta": 11706.68,
+            "avgMs": 1.32
+          }
+        },
+        "workerCycles": {
+          "consumption": {
+            "countDelta": 21624,
+            "totalMsDelta": 12126.48
+          },
+          "discovery": {
+            "countDelta": 17737,
+            "totalMsDelta": 23470.72
+          }
+        }
+      },
+      "results-worker": {
+        "heapUsedMiB": 39.0,
+        "heapMaxMiB": 494.9,
+        "gcCountDelta": 71,
+        "gcPauseMsDelta": 61.0,
+        "processCpuSecDelta": 15.97,
+        "capacityLimit": 2,
+        "saturationDelta": 0,
+        "hikariPools": {
+          "results-worker-read-business": {
+            "max": 4.0,
+            "activeEnd": 0.0,
+            "pendingEnd": 0.0,
+            "acquireCountDelta": 70.0,
+            "acquireTotalMsDelta": 6.41,
+            "acquireAvgMs": 0.0915,
+            "usageTotalMsDelta": 7.0,
+            "timeoutTotal": 0.0
+          },
+          "results-worker-read-control": {
+            "max": 8.0,
+            "activeEnd": 1.0,
+            "pendingEnd": 0.0,
+            "acquireCountDelta": 56909.0,
+            "acquireTotalMsDelta": 13.38,
+            "acquireAvgMs": 0.0002,
+            "usageTotalMsDelta": 2274.0,
+            "timeoutTotal": 0.0
+          },
+          "results-worker-write-source-read": {
+            "max": 4.0,
+            "activeEnd": 0.0,
+            "pendingEnd": 0.0,
+            "acquireCountDelta": 17743.0,
+            "acquireTotalMsDelta": 15.32,
+            "acquireAvgMs": 0.0009,
+            "usageTotalMsDelta": 414.0,
+            "timeoutTotal": 0.0
+          }
+        },
+        "attemptsByConsumption": {
+          "CommandResult": {
+            "countDelta": 70,
+            "totalMsDelta": 109.26,
+            "avgMs": 1.561
+          },
+          "IdentityRequestResult": {
+            "countDelta": 0,
+            "totalMsDelta": 0.0,
+            "avgMs": 0.0
+          }
+        },
+        "discoveryByConsumption": {
+          "CommandResult": {
+            "countDelta": 8852,
+            "totalMsDelta": 11877.45,
+            "avgMs": 1.342
+          },
+          "IdentityRequestResult": {
+            "countDelta": 8853,
+            "totalMsDelta": 11067.02,
+            "avgMs": 1.25
+          }
+        },
+        "workerCycles": {
+          "consumption": {
+            "countDelta": 21511,
+            "totalMsDelta": 12591.53
+          },
+          "discovery": {
+            "countDelta": 17704,
+            "totalMsDelta": 23053.35
+          }
+        }
+      },
+      "business-read-worker": {
+        "heapUsedMiB": 31.1,
+        "heapMaxMiB": 494.9,
+        "gcCountDelta": 131,
+        "gcPauseMsDelta": 105.0,
+        "processCpuSecDelta": 27.45,
+        "capacityLimit": 3,
+        "saturationDelta": 45,
+        "hikariPools": {
+          "business-read-worker-read-business": {
+            "max": 5.0,
+            "activeEnd": 0.0,
+            "pendingEnd": 0.0,
+            "acquireCountDelta": 700.0,
+            "acquireTotalMsDelta": 17.31,
+            "acquireAvgMs": 0.0247,
+            "usageTotalMsDelta": 262.0,
+            "timeoutTotal": 0.0
+          },
+          "business-read-worker-read-control": {
+            "max": 9.0,
+            "activeEnd": 1.0,
+            "pendingEnd": 0.0,
+            "acquireCountDelta": 103527.0,
+            "acquireTotalMsDelta": 28.15,
+            "acquireAvgMs": 0.0003,
+            "usageTotalMsDelta": 2674.0,
+            "timeoutTotal": 0.0
+          },
+          "business-read-worker-write-source-read": {
+            "max": 5.0,
+            "activeEnd": 0.0,
+            "pendingEnd": 0.0,
+            "acquireCountDelta": 31158.0,
+            "acquireTotalMsDelta": 26.88,
+            "acquireAvgMs": 0.0009,
+            "usageTotalMsDelta": 720.0,
+            "timeoutTotal": 0.0
+          }
+        },
+        "attemptsByConsumption": {
+          "CurrentBinding": {
+            "countDelta": 0,
+            "totalMsDelta": 0.0,
+            "avgMs": 0.0
+          },
+          "PotBalance": {
+            "countDelta": 70,
+            "totalMsDelta": 322.92,
+            "avgMs": 4.613
+          },
+          "PotVersion": {
+            "countDelta": 70,
+            "totalMsDelta": 649.53,
+            "avgMs": 9.279
+          },
+          "PotVisibility": {
+            "countDelta": 70,
+            "totalMsDelta": 179.95,
+            "avgMs": 2.571
+          }
+        },
+        "discoveryByConsumption": {
+          "CurrentBinding": {
+            "countDelta": 6148,
+            "totalMsDelta": 7365.77,
+            "avgMs": 1.198
+          },
+          "Invitation": {
+            "countDelta": 6148,
+            "totalMsDelta": 7207.09,
+            "avgMs": 1.172
+          },
+          "PotBalance": {
+            "countDelta": 6148,
+            "totalMsDelta": 7510.28,
+            "avgMs": 1.222
+          },
+          "PotVersion": {
+            "countDelta": 6147,
+            "totalMsDelta": 7393.3,
+            "avgMs": 1.203
+          },
+          "PotVisibility": {
+            "countDelta": 6147,
+            "totalMsDelta": 7477.96,
+            "avgMs": 1.217
+          }
+        },
+        "workerCycles": {
+          "consumption": {
+            "countDelta": 41970,
+            "totalMsDelta": 23403.69
+          },
+          "discovery": {
+            "countDelta": 30738,
+            "totalMsDelta": 37149.0
+          }
+        }
+      }
+    }
+  },
+  "L7-C2-B2.4_multibucket": {
+    "runDir": "docs/testing/evidence/L7-C2-B2/B2_4_requalification/multibucket-realistic",
+    "git": null,
+    "profile": null,
+    "latenciesMs": null,
+    "dbDeltas": {
+      "write": {
+        "initBytes": null,
+        "finalBytes": null,
+        "walDeltaBytes": null,
+        "xactCommitDelta": null,
+        "xactRollbackDelta": null,
+        "blksReadDelta": null,
+        "blksHitDelta": null
+      },
+      "read": {
+        "initBytes": null,
+        "finalBytes": null,
+        "walDeltaBytes": null,
+        "xactCommitDelta": null,
+        "xactRollbackDelta": null,
+        "blksReadDelta": null,
+        "blksHitDelta": null
+      }
+    },
+    "containerResources": {},
+    "workers": {}
+  }
+}
