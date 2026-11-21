@@ -50,8 +50,9 @@ def load_cfg():
     return base.load_profiles_config()
 
 
-def build_compose_services(cfg, work, ip, extra_props=None):
+def build_compose_services(cfg, work, ip, extra_props=None, extra_cfg=None):
     topo = cfg["topology"]
+    pg_cpus = (extra_cfg or {}).get("postgresCpus", topo["postgres"]["cpus"])
     definition = {
         "services": {
             "postgres": {
@@ -71,20 +72,24 @@ def build_compose_services(cfg, work, ip, extra_props=None):
                 },
                 "tmpfs": [f"/var/lib/postgresql/data:size={topo['postgres']['tmpfsSize']}"],
                 "mem_limit": topo["postgres"]["memLimit"],
-                "cpus": topo["postgres"]["cpus"],
+                "cpus": pg_cpus,
             }
         }
     }
-    for name, rcfg in topo["runtimes"].items():
+    runtimes_cfg = dict(topo["runtimes"])
+    if extra_cfg and "extraRuntimes" in extra_cfg:
+        runtimes_cfg.update(extra_cfg["extraRuntimes"])
+    for name, rcfg in runtimes_cfg.items():
         mod = rcfg["module"]
         jar = ROOT / "app" / mod / "target" / f"pocoma-{mod}-0.0.1-SNAPSHOT-exec.jar"
         if not jar.is_file():
             raise ValueError(f"Package runtime first: {mod} ({jar} missing)")
-        content = (base.PROPERTIES_DIR / f"{name}.properties").read_text()
+        base_prop = rcfg.get("baseProperties", name)
+        content = (base.PROPERTIES_DIR / f"{base_prop}.properties").read_text()
         content = content.replace("172.28.0.2/32", ip + "/32")
         content += "\npocoma.v3.http.issuer=http://pocoma-l74a.invalid\n"
         content += "pocoma.v3.http.jwk-set-uri=http://host.docker.internal:28090/jwks.json\n"
-        if name in ("http-read", "command-worker"):
+        if name in ("http-read", "command-worker") or rcfg.get("invitationKey"):
             content += (
                 "\npocoma.v3.invitation.current-key=local\n"
                 "pocoma.v3.invitation.key-ids=local\n"
@@ -92,6 +97,8 @@ def build_compose_services(cfg, work, ip, extra_props=None):
             )
         if extra_props and name in extra_props:
             content += "\n" + extra_props[name] + "\n"
+        if extra_cfg and name in extra_cfg.get("extraProps", {}):
+            content += "\n" + extra_cfg["extraProps"][name] + "\n"
         prop_file = work / f"{name}.properties"
         prop_file.write_text(content)
         mgmt = rcfg["managementPort"]
@@ -99,6 +106,8 @@ def build_compose_services(cfg, work, ip, extra_props=None):
         if "httpPort" in rcfg:
             hp = rcfg["httpPort"]
             ports.append(f"127.0.0.1:{hp + 19920}:{hp}")
+        cpus = (extra_cfg or {}).get("cpus", {}).get(name, rcfg["cpus"])
+        mem = (extra_cfg or {}).get("mem", {}).get(name, rcfg["memLimit"])
         definition["services"][name] = {
             "image": JAVA_IMAGE,
             "labels": {bench.LABEL: "true"},
@@ -110,8 +119,8 @@ def build_compose_services(cfg, work, ip, extra_props=None):
             },
             "volumes": [f"{jar}:/app/runtime.jar:ro", f"{prop_file}:/app/runtime.properties:ro"],
             "ports": ports,
-            "mem_limit": rcfg["memLimit"],
-            "cpus": rcfg["cpus"],
+            "mem_limit": mem,
+            "cpus": cpus,
         }
     return definition
 
@@ -502,7 +511,9 @@ def main():
     parser.add_argument("--snapshot-dir", type=Path, default=None)
     parser.add_argument("--save-v5-snapshot", type=Path, default=None)
     parser.add_argument("--pot-count", type=int, default=None)
+    parser.add_argument("--extra-config", type=Path, default=None)
     args = parser.parse_args()
+    extra_cfg = json.loads(args.extra_config.read_text()) if args.extra_config else None
 
     cfg = load_cfg()
     out = args.output.resolve()
@@ -573,11 +584,14 @@ def main():
         token = tokens_map[main_subject]
         fresh_tokens = [tokens_map[s] for s in fresh_subjects]
 
-        definition = build_compose_services(cfg, work, ip)
+        definition = build_compose_services(cfg, work, ip, extra_cfg=extra_cfg)
         compose_path.write_text(json.dumps(definition))
-        dc("up", "-d", "--no-recreate", *cfg["topology"]["runtimes"].keys())
+        all_rts = list(cfg["topology"]["runtimes"].keys()) + list((extra_cfg or {}).get("extraRuntimes", {}).keys())
+        dc("up", "-d", "--no-recreate", *all_rts)
 
         metrics_urls = {name: f"http://127.0.0.1:{rcfg['managementPort'] + 10000}" for name, rcfg in cfg["topology"]["runtimes"].items()}
+        for name, rcfg in (extra_cfg or {}).get("extraRuntimes", {}).items():
+            metrics_urls[name] = f"http://127.0.0.1:{rcfg['managementPort'] + 10000}"
         for name, url in metrics_urls.items():
             try:
                 base.wait_for(lambda u=url: bool(bench.fetch_metrics(u)), 150)
