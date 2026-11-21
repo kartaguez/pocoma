@@ -3,7 +3,7 @@
 - **Date de cadrage** : 21 novembre 2026
 - **Branche de référence** : `feat/v3-l7`
 - **HEAD vérifié à l'ouverture** : `181904cd02ffb7e3b9b60cf754cf365b99c2a3fa` (`origin/feat/v3-l7`, arbre propre, divergence `0/0`)
-- **Statut du chantier** : **`L7_C4_PLAN_READY_FOR_PHASE_1`** (cadrage documentaire achevé ; aucune campagne exécutée, aucune modification de code, SQL ou configuration engagée)
+- **Statut du chantier** : **`L7_C4_CLOSED`** ([clôture et reprise L7](closure-and-l7-qualification.md))
 - **État des chantiers amont** :
   - **L7-C1 (`L7.4-A3+A4`)** : Clos (`A3_A4_READY_TO_PUBLISH`, [rapport de consolidation](../L7_4_A3_A4_Consolidated_Qualification_Report.md)).
   - **L7-C2 (`C2-B1..B3`)** : Clos (`L7_C2_CLOSED` @ `d2530925`, [rapport consolidé C2-B3](../L7_C2_B3_Storage_Consolidated_Qualification_Report.md)).
@@ -46,6 +46,7 @@ Le chantier est structuré en **deux phases séquentielles séparées par une Ga
 | **3. Matrice de traçabilité** | [`traceability-matrix.md`](traceability-matrix.md) | Correspondance bijective entre arbitrages `C4-R1..R13`, exigences `SPEC-04/05/08/09/10`, risques techniques, campagnes et preuves attendues. |
 | **4. Registre des réserves et hypothèses** | [`reservations-and-hypotheses.md`](reservations-and-hypotheses.md) | Distinction stricte entre faits établis dans le code (`F-*`), observations historiques attribuées (`O-*`), réserves héritées (`RES-*`), hypothèses à tester (`H-*`) et questions ouvertes (`Q-*`). |
 | **5. Gabarit de rapport de Gate 1 → 2** | [`gate-decision-template.md`](gate-decision-template.md) | Format normatif du dossier de synthèse de Phase 1 et formulaire d'autorisation/refus humain par famille d'interventions pour la Gate `G-C4-1`. |
+| **6. Clôture C4 & reprise L7** | [`closure-and-l7-qualification.md`](closure-and-l7-qualification.md) | Verdict `L7_C4_CLOSED`, qualification des optimisations `B1–B3` sur PostgreSQL 17, rapprochement `16/16` et reprise de la matrice L7 (`L7_GLOBAL_CERTIFICATION_DEFERRED`). |
 
 ---
 

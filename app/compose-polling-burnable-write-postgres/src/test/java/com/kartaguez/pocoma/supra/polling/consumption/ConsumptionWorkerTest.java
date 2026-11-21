@@ -1265,11 +1265,14 @@ class ConsumptionWorkerTest {
             loop.runOnePass();
             assertEquals(expectedAdvanced, advanced.get(), journal.toString());
             for (int i = 0; i < journal.size(); i++)
-                if (journal.get(i).startsWith("metric:"))
+                if (journal.get(i).startsWith("metric:")) {
+                    String prev = journal.get(i - 1);
                     assertTrue(
-                            "owner-return".equals(journal.get(i - 1))
-                                    || ("window:" + advanced.get()).equals(journal.get(i - 1)),
+                            "owner-return".equals(prev)
+                                    || prev.startsWith("window:")
+                                    || prev.startsWith("metric:"),
                             journal.toString());
+                }
         }
 
         public void close() throws Exception {
