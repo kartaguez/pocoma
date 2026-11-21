@@ -47,6 +47,10 @@ public final class DiscoveryEngine {
     private final BurnableReferences requests;
     private final Predicate<NonBurnableReferences.Reference> relevant;
     private final DiscoveryListener listener;
+    private final java.util.concurrent.ConcurrentHashMap<Integer, CachedCheckpoint> checkpointCache =
+            new java.util.concurrent.ConcurrentHashMap<>();
+
+    private record CachedCheckpoint(UUID ownerToken, long checkpoint) {}
 
     public DiscoveryEngine(
             ConsumptionDefinition definition,
@@ -192,9 +196,13 @@ public final class DiscoveryEngine {
             Function<PartitionLease, R> onReady) {}
 
     public EventProgress discoverEvents(PartitionLease lease) {
+        return discoverEvents(lease, true);
+    }
+
+    public EventProgress discoverEvents(PartitionLease lease, boolean verifyOwnershipOnEmpty) {
         if (events == null) throw new IllegalStateException("not an event Discovery");
         lease(lease);
-        long k = readCheckpoint(lease);
+        long k = verifyOwnershipOnEmpty ? readCheckpoint(lease) : cachedOrReadCheckpoint(lease);
         var window = sourceReads.read(read -> events.window(k, settings.windowSize(), read));
         validateWindow(
                 new WindowBounds(
@@ -205,6 +213,9 @@ public final class DiscoveryEngine {
                 window.references(),
                 NonBurnableReferences.Reference::position,
                 NonBurnableReferences.Reference::eventId);
+        if (!verifyOwnershipOnEmpty && window.references().isEmpty()) {
+            return new EventProgress(Status.COMMITTED, OptionalLong.of(k), 0, 0);
+        }
         // Decide stable exclusions outside the effects transaction; no mutable source reads there.
         var eligible =
                 window.references().stream()
@@ -214,7 +225,9 @@ public final class DiscoveryEngine {
                 new DiscoveryHandler<EventProgress>(
                         (status, pos) -> new EventProgress(status, pos, 0, 0),
                         current -> admitEventBatch(current, k, window.references(), eligible));
-        return effects.write(() -> executeDiscovery(lease, k, handler));
+        var progress = effects.write(() -> executeDiscovery(lease, k, handler));
+        updateCheckpointCache(lease, progress.status(), progress.checkpoint());
+        return progress;
     }
 
     private EventProgress admitEventBatch(
@@ -222,11 +235,36 @@ public final class DiscoveryEngine {
             long k,
             List<NonBurnableReferences.Reference> references,
             List<Boolean> eligible) {
-        int remaining = budget(current);
         if (references.isEmpty()) {
             return new EventProgress(Status.COMMITTED, OptionalLong.of(k), 0, 0);
         }
+        int remaining = budget(current);
         return admitEventWindow(new RequestBatch(current, k, remaining), references, eligible);
+    }
+
+    private long cachedOrReadCheckpoint(PartitionLease lease) {
+        var cached = checkpointCache.get(lease.partitionId());
+        if (cached != null && cached.ownerToken().equals(lease.ownerToken())) {
+            return cached.checkpoint();
+        }
+        long k = readCheckpoint(lease);
+        checkpointCache.put(lease.partitionId(), new CachedCheckpoint(lease.ownerToken(), k));
+        return k;
+    }
+
+    private void updateCheckpointCache(
+            PartitionLease lease, Status status, OptionalLong checkpoint) {
+        if (status == Status.COMMITTED || status == Status.CAPACITY || status == Status.STALE_CHECKPOINT) {
+            if (checkpoint.isPresent()) {
+                checkpointCache.put(
+                        lease.partitionId(),
+                        new CachedCheckpoint(lease.ownerToken(), checkpoint.getAsLong()));
+            } else {
+                checkpointCache.remove(lease.partitionId());
+            }
+        } else {
+            checkpointCache.remove(lease.partitionId());
+        }
     }
 
     private long readCheckpoint(PartitionLease lease) {
@@ -300,9 +338,13 @@ public final class DiscoveryEngine {
     }
 
     public RequestProgress discoverRequests(PartitionLease lease) {
+        return discoverRequests(lease, true);
+    }
+
+    public RequestProgress discoverRequests(PartitionLease lease, boolean verifyOwnershipOnEmpty) {
         if (requests == null) throw new IllegalStateException("not a request Discovery");
         lease(lease);
-        long k = readCheckpoint(lease);
+        long k = verifyOwnershipOnEmpty ? readCheckpoint(lease) : cachedOrReadCheckpoint(lease);
         var window = sourceReads.read(read -> requests.window(k, settings.windowSize(), read));
         validateWindow(
                 new WindowBounds(
@@ -313,6 +355,9 @@ public final class DiscoveryEngine {
                 window.references(),
                 BurnableReferences.Reference::position,
                 BurnableReferences.Reference::requestId);
+        if (!verifyOwnershipOnEmpty && window.references().isEmpty()) {
+            return new RequestProgress(Status.COMMITTED, OptionalLong.of(k), 0, 0, 0);
+        }
         var eligible =
                 window.references().stream()
                         .map(r -> local(r.requestId(), lease.partitionId()))
@@ -321,7 +366,9 @@ public final class DiscoveryEngine {
                 new DiscoveryHandler<RequestProgress>(
                         (status, pos) -> new RequestProgress(status, pos, 0, 0, 0),
                         current -> admitRequestBatch(current, k, window.references(), eligible));
-        return effects.write(() -> executeDiscovery(lease, k, handler));
+        var progress = effects.write(() -> executeDiscovery(lease, k, handler));
+        updateCheckpointCache(lease, progress.status(), progress.checkpoint());
+        return progress;
     }
 
     private RequestProgress admitRequestBatch(
@@ -329,13 +376,13 @@ public final class DiscoveryEngine {
             long k,
             List<BurnableReferences.Reference> references,
             List<Boolean> eligible) {
+        if (references.isEmpty()) {
+            return new RequestProgress(Status.COMMITTED, OptionalLong.of(k), 0, 0, 0);
+        }
         int remaining = budget(current);
         if (remaining == 0) {
             fence(current);
             return new RequestProgress(Status.CAPACITY, OptionalLong.of(k), 0, 0, 0);
-        }
-        if (references.isEmpty()) {
-            return new RequestProgress(Status.COMMITTED, OptionalLong.of(k), 0, 0, 0);
         }
         return admitRequestWindow(new RequestBatch(current, k, remaining), references, eligible);
     }

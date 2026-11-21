@@ -8,8 +8,14 @@ public final class NonBurnableConsumptionProtocol extends AbstractConsumptionPro
         if (definition.family() == ConsumableFamily.COMMAND || definition.family() == ConsumableFamily.IDENTITY_REQUEST)
             throw new IllegalArgumentException("NonBurnable definition required");
     }
+    @Override
     public DiscoveryReports.Progress discover(Partition partition) {
-        var progress = discovery.discoverEvents(requirePartition(partition));
+        return discover(partition, true);
+    }
+
+    @Override
+    public DiscoveryReports.Progress discover(Partition partition, boolean verifyOwnershipOnEmpty) {
+        var progress = discovery.discoverEvents(requirePartition(partition), verifyOwnershipOnEmpty);
         return new DiscoveryReports.Progress(progress.status(), progress.checkpoint(), progress.examined(),
                 0, progress.inserted());
     }

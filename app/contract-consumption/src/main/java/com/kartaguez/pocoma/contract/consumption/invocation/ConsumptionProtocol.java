@@ -69,4 +69,7 @@ public interface ConsumptionProtocol {
     int settlePending();
     boolean hasUnresolvedRecovery();
     DiscoveryReports.Progress discover(Partition partition);
+    default DiscoveryReports.Progress discover(Partition partition, boolean verifyOwnershipOnEmpty) {
+        return discover(partition);
+    }
 }
