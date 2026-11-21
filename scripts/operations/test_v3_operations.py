@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""Unit tests for V4 operational scripts and SQL diagnostics (L7-C2-B2.4)."""
+"""Tests for READ bootstrap, reconstruction and PotBalance diagnostics."""
 
 import importlib.util
 from pathlib import Path
+import sys
 import unittest
 from unittest.mock import patch
 
@@ -12,11 +13,12 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 def _load_module(name, path):
     spec = importlib.util.spec_from_file_location(name, path)
     mod = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(mod)
+    with patch.object(sys, "path", [str(path.parent), *sys.path]):
+        spec.loader.exec_module(mod)
     return mod
 
 
-class TestV4OperationalScripts(unittest.TestCase):
+class OperationalScriptsTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.setup_mod = _load_module("setup_v3_db", REPO_ROOT / "scripts/operations/setup-v3-database.py")
@@ -49,7 +51,7 @@ class TestV4OperationalScripts(unittest.TestCase):
         self.assertIn("read_pot_balance_content", src)
         self.assertIn("read_pot_balance_aggregate_content", src)
 
-    def test_setup_v3_database_refuses_non_empty_v3_schema_and_applies_v4_on_fresh(self):
+    def test_setup_refuses_in_place_balance_upgrade_and_installs_availability_on_fresh_read(self):
         applied = []
 
         def fake_psql(db, sql_command, check=True):
@@ -78,7 +80,7 @@ class TestV4OperationalScripts(unittest.TestCase):
             self.assertIn("v3-rebuild-read.py", str(ctx.exception))
             self.assertEqual(applied, [])
 
-        # Fresh install path (no read_current_pot) applies V1..V4
+        # Fresh install path (no read_current_pot) applies V1..V5
         applied.clear()
 
         def fake_psql_fresh(db, sql_command, check=True):
@@ -88,8 +90,23 @@ class TestV4OperationalScripts(unittest.TestCase):
              patch.object(self.setup_mod, "psql_script", return_value=""), \
              patch.object(self.setup_mod, "apply_migrations", side_effect=lambda db, sc, ad, rt, migs: applied.extend(migs)):
             self.setup_mod.initialize_v3_read()
-        self.assertEqual(len(applied), 4)
-        self.assertTrue(applied[-1].endswith("V4__pot_balance_shared_storage.sql"))
+        self.assertEqual(len(applied), 5)
+        self.assertTrue(applied[-2].endswith("V4__pot_balance_shared_storage.sql"))
+        self.assertTrue(applied[-1].endswith("V5__projection_availability.sql"))
+
+    def test_partial_v5_is_refused_before_another_migration(self):
+        with patch.object(self.setup_mod, "psql", side_effect=["t", "f"]), \
+             patch.object(self.setup_mod, "apply_migrations") as apply:
+            with self.assertRaisesRegex(RuntimeError, "Incomplete READ V5"):
+                self.setup_mod.initialize_read_availability()
+            apply.assert_not_called()
+
+    def test_reopen_refuses_incomplete_c3_catalog(self):
+        with patch.object(self.rebuild_mod, "psql_admin", return_value="v3_read"), \
+             patch.object(self.rebuild_mod, "check_tables_exist", return_value=True), \
+             patch.object(self.rebuild_mod, "availability_schema_complete", return_value=False):
+            with self.assertRaisesRegex(RuntimeError, "availability catalog"):
+                self.rebuild_mod._ensure_physical_schema()
 
 
 if __name__ == "__main__":

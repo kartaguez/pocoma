@@ -140,10 +140,20 @@ public final class JdbcPotVersionStore implements PotVersionStore {
             left join read_pot_user_set atu on atu.set_hash = pv.attached_active_users_hash
             """;
 
+    private static final ReadAvailability.Family FAMILY = ReadAvailability.Family.POT_VERSION_AVAILABLE;
+
+    private static final ReadAvailability.Family CURRENT = ReadAvailability.Family.CURRENT_POT_CHANGED;
+
     private final ReadJdbc db;
+    private final ReadAvailability availability;
 
     public JdbcPotVersionStore(DataSource source, SpringAttemptTransactions owner) {
+        this(source, owner, false);
+    }
+
+    public JdbcPotVersionStore(DataSource source, SpringAttemptTransactions owner, boolean publishAvailability) {
         this.db = new ReadJdbc(source, owner);
+        this.availability = new ReadAvailability(db, publishAvailability);
     }
 
     @Override
@@ -385,6 +395,12 @@ public final class JdbcPotVersionStore implements PotVersionStore {
                 () -> {
                     try {
                         var actual = load(expected.potId(), expected.version());
+                        if (availability.enabled()) {
+                            var event = availability.historicalEventPositionValid(FAMILY, expected.potId(), expected.version());
+                            if (actual.isEmpty() ? event.isPresent() : !event.orElse(false)) {
+                                return ReadEvidence.DIVERGENT;
+                            }
+                        }
                         if (actual.isEmpty()) {
                             return ReadEvidence.MISSING;
                         }
@@ -399,7 +415,8 @@ public final class JdbcPotVersionStore implements PotVersionStore {
                             return ReadEvidence.MISSING;
                         }
                         long version = current.getFirst();
-                        if (version < expected.version()) {
+                        if (version < expected.version()
+                                || !availability.currentMarkerMatches(CURRENT, expected.potId(), version)) {
                             return ReadEvidence.DIVERGENT;
                         }
                         if (version > expected.version() && load(expected.potId(), version).isEmpty()) {
@@ -419,8 +436,13 @@ public final class JdbcPotVersionStore implements PotVersionStore {
 
     @Override
     public void publishPrepared(PotVersionWritePlan plan) {
+        publishPreparedWithReceipt(plan);
+    }
+
+    @Override
+    public WriteReceipt publishPreparedWithReceipt(PotVersionWritePlan plan) {
         Objects.requireNonNull(plan, "plan required");
-        db.write(
+        return db.write(
                 () -> {
                     for (PotUserSet userSet : plan.userSetsToInsert()) {
                         insertOrVerifyUserSet(userSet);
@@ -428,9 +450,9 @@ public final class JdbcPotVersionStore implements PotVersionStore {
                     for (List<Radix16Node> level : plan.nodeLevelsBottomUp()) {
                         insertOrVerifyNodeLevel(level);
                     }
-                    insertOrVerifyManifest(plan.manifest());
-                    advanceCurrentPot(plan.manifest().potId(), plan.manifest().version());
-                    return null;
+                    boolean inserted = insertOrVerifyManifest(plan.manifest());
+                    boolean advanced = advanceCurrentPot(plan.manifest().potId(), plan.manifest().version());
+                    return new WriteReceipt(inserted, advanced);
                 });
     }
 
@@ -454,6 +476,11 @@ public final class JdbcPotVersionStore implements PotVersionStore {
 
     @Override
     public void requireManifestStored(PotVersionManifest expected) {
+        requireCompletionReady(expected, null);
+    }
+
+    @Override
+    public void requireCompletionReady(PotVersionManifest expected, WriteReceipt receipt) {
         Objects.requireNonNull(expected, "expected manifest required");
         db.write(
                 () -> {
@@ -468,8 +495,22 @@ public final class JdbcPotVersionStore implements PotVersionStore {
                                     && loadManifest(expected.potId(), current).isEmpty())) {
                         throw new IllegalStateException("Incomplete CurrentPot");
                     }
+                    if (availability.enabled()) {
+                        availability.requireHistoricalEvent(FAMILY, expected.potId(), expected.version(),
+                                !Objects.requireNonNull(receipt).manifestInserted());
+                        availability.requireCurrent(CURRENT, expected.potId(), current, receipt.currentAdvanced());
+                    }
                     return null;
                 });
+    }
+
+    @Override
+    public void closePublication(PotVersionManifest manifest, WriteReceipt receipt) {
+        availability.closeAndPublish(
+                ReadAvailability.Publication.historical(FAMILY, manifest.potId(), manifest.version(),
+                        availability.enabled() && receipt.manifestInserted()),
+                ReadAvailability.Publication.current(CURRENT, manifest.potId(), manifest.version(),
+                        availability.enabled() && receipt.currentAdvanced()));
     }
 
     @Override
@@ -576,7 +617,7 @@ public final class JdbcPotVersionStore implements PotVersionStore {
         }
     }
 
-    private void insertOrVerifyManifest(PotVersionManifest m) {
+    private boolean insertOrVerifyManifest(PotVersionManifest m) {
         List<Integer> inserted = db.sql.query(
                 con -> {
                     PreparedStatement ps = con.prepareStatement("""
@@ -607,15 +648,16 @@ public final class JdbcPotVersionStore implements PotVersionStore {
             PotVersionManifest actual = loadManifest(m.potId(), m.version()).orElse(null);
             ReadJdbc.same(m, actual);
         }
+        return !inserted.isEmpty();
     }
 
-    private void advanceCurrentPot(UUID potId, long version) {
-        db.sql.update(
+    private boolean advanceCurrentPot(UUID potId, long version) {
+        return db.sql.update(
                 "insert into read_current_pot(pot_id,pot_version) values (?,?) "
                         + "on conflict (pot_id) do update set pot_version=excluded.pot_version "
                         + "where read_current_pot.pot_version < excluded.pot_version",
                 potId,
-                version);
+                version) == 1;
     }
 
     // =========================================================================

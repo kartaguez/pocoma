@@ -50,7 +50,22 @@ public interface PotVersionStore {
     Map<ContentHash, Radix16Node> loadNodes(
             Collection<ContentHash> hashes, RecoveryReadContext context);
 
+    record WriteReceipt(boolean manifestInserted, boolean currentAdvanced) {}
+
     void publishPrepared(PotVersionWritePlan plan);
+
+    default WriteReceipt publishPreparedWithReceipt(PotVersionWritePlan plan) {
+        publishPrepared(plan);
+        return new WriteReceipt(false, false);
+    }
+
+    default void requireCompletionReady(PotVersionManifest expected, WriteReceipt receipt) {
+        requireManifestStored(expected);
+    }
+
+    default void closePublication(PotVersionManifest manifest, WriteReceipt receipt) {
+        closePublication();
+    }
 
     void requireManifestStored(PotVersionManifest expected);
 }

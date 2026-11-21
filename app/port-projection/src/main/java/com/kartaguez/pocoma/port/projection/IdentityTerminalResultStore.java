@@ -1,12 +1,19 @@
 package com.kartaguez.pocoma.port.projection;
-import com.kartaguez.pocoma.domain.projection.*;
 
-import java.util.*;
+import com.kartaguez.pocoma.domain.projection.IdentityTerminalResult;
+import com.kartaguez.pocoma.port.transaction.RecoveryReadContext;
+import java.util.Optional;
+import java.util.UUID;
+
 /** Caller-owned READ transaction required for lookup as well as effects. */
 public interface IdentityTerminalResultStore {
-    void insertOrVerify(IdentityTerminalResult value);
-    void requireStored(IdentityTerminalResult value);
+    boolean insertOrVerify(IdentityTerminalResult value);
+
+    void requireCompletionReady(IdentityTerminalResult value, boolean inserted);
+
     Optional<IdentityTerminalResult> find(UUID requestId);
-    /** Close the existing READ publication after L2 complete, without committing. */
-    void closePublication();
+
+    ReadEvidence evidence(IdentityTerminalResult expected, RecoveryReadContext context);
+
+    void closePublication(UUID requestId, boolean inserted);
 }

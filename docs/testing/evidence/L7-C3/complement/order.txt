@@ -1,0 +1,20 @@
+terminate=false prefix=Page[head=1, positions=[1], keys=[67d1bc3e-9631-418c-9825-a2c17bcd3ce7]]
+PostgreSQL counter wait={pid=266, wait_event=transactionid, blocker=263}
+while first event is uncommitted: head=1; after cursor 1=[]; both slots visible
+after first resolution, second event uncommitted: Page[head=2, positions=[2], keys=[d8610db0-589e-4861-8cec-58fc0e0b057e]] first=COMMITTED
+second commit: Page[head=3, positions=[3], keys=[7c513a3d-6b22-4a2d-9636-45802f71e3f6]]
+final prefix=Page[head=3, positions=[1, 2, 3], keys=[67d1bc3e-9631-418c-9825-a2c17bcd3ce7, d8610db0-589e-4861-8cec-58fc0e0b057e, 7c513a3d-6b22-4a2d-9636-45802f71e3f6]]
+terminate=true prefix=Page[head=1, positions=[1], keys=[94dd05cd-7fdf-486b-aa84-a495c73da79b]]
+PostgreSQL counter wait={pid=478, wait_event=transactionid, blocker=475}
+while first event is uncommitted: head=1; after cursor 1=[]; both slots visible
+after first resolution, second event uncommitted: Page[head=1, positions=[], keys=[]] first=UNKNOWN
+second commit: Page[head=2, positions=[2], keys=[5106fb1c-c647-4feb-a6f1-82f9b0856bf9]]
+lease revoked with live claim; new owner could not steal the slot; after claim expiry and takeover, old worker=CLAIM_LOST; new worker committed remaining event
+final prefix=Page[head=3, positions=[1, 2, 3], keys=[94dd05cd-7fdf-486b-aa84-a495c73da79b, 5106fb1c-c647-4feb-a6f1-82f9b0856bf9, 76f5d8b5-bc7b-407b-8520-d9105aa90d9f]]
+revoked partition owner with valid individual claim committed position 1 once
+postmaster recovered after SIGKILL of writer PID 882; previous event UUID/position preserved and uncommitted position 2 invisible
+2026-11-20 22:57:59.487 UTC [1] LOG:  server process (PID 882) was terminated by signal 9: Killed
+2026-11-20 22:57:59.619 UTC [890] LOG:  database system was not properly shut down; automatic recovery in progress
+2026-11-20 22:57:59.684 UTC [890] LOG:  redo done at 0/34127A0 system usage: CPU: user: 0.02 s, system: 0.02 s, elapsed: 0.06 s
+after crash: successor committed position 2, interrupted source replay committed position 3
+PASS commit ordering, backend termination, partition revocation and resumed prefix

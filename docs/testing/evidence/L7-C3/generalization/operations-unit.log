@@ -1,0 +1,8 @@
+......
+----------------------------------------------------------------------
+Ran 6 tests in 0.015s
+
+OK
+  ✓ Schema v3_read (V3 Radix-16) already initialized.
+▶ Initializing schema v3_read in database pocoma_read...
+  ✓ Schema v3_read and public maintenance authority successfully provisioned and secured.

@@ -25,10 +25,12 @@ import sys
 import tempfile
 import time
 import uuid
+from zipfile import ZipFile
 
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_PG_IMAGE = "postgres@sha256:a77aa70e641402a21411b92b721c58d10f23b50ae5fdd2333efd22d166e1e5f7"
 F4_BALANCE_SQL = ROOT / "scripts/v3/diagnose-pot-balance-unreachable.sql"
+V5_MIGRATION = "infra-postgres-read/src/main/resources/db/read/availability/migration/V5__projection_availability.sql"
 
 JAVA_DRIVER = r"""
 import com.kartaguez.pocoma.domain.pot.value.Fraction;
@@ -123,7 +125,7 @@ public final class XLargeBalanceDriver {
             var tm = new DataSourceTransactionManager(ds);
             tm.setNestedTransactionAllowed(false);
             var tx = new SpringAttemptTransactions(ds, tm);
-            var store = new JdbcPotBalanceStore(ds, tx);
+            var store = __BALANCE_STORE__;
             var calc = new PotBalanceAggregateCalculator();
 
             Random rng = new Random(42L);
@@ -171,7 +173,7 @@ public final class XLargeBalanceDriver {
                 long t0 = System.nanoTime();
                 tx.write(() -> {
                     __WRITE_SIT_D__
-                    SpringAttemptTransactions.closePublication(ds);
+                    __CLOSE_PUBLICATION__
                     return null;
                 });
                 sitDWriteNs.add(System.nanoTime() - t0);
@@ -214,7 +216,7 @@ public final class XLargeBalanceDriver {
                 long t0 = System.nanoTime();
                 tx.write(() -> {
                     __WRITE_SIT_A__
-                    SpringAttemptTransactions.closePublication(ds);
+                    __CLOSE_PUBLICATION__
                     return null;
                 });
                 sitAWriteNs.add(System.nanoTime() - t0);
@@ -359,7 +361,17 @@ def build_classpath(app_dir):
     return ":".join(j for j in jars if j)
 
 
-def run_side(label, app_dir, pg_image, sh_count, sit_d, sit_a, is_v4):
+def packaged_classpath(app_dir, work):
+    runtime = Path(app_dir) / "runtime-worker-materialize/target"
+    jar, = runtime.glob("*-exec.jar")
+    with ZipFile(jar) as archive:
+        libraries = [name for name in archive.namelist()
+                     if name.startswith("BOOT-INF/lib/") and name.endswith(".jar")]
+        archive.extractall(work, libraries)
+    return ":".join(str(work / name) for name in libraries)
+
+
+def run_side(label, app_dir, pg_image, sh_count, sit_d, sit_a, is_v4, *, availability=False, packaged=False):
     work = Path(tempfile.mkdtemp(prefix=f"pocoma-b24-xl-{label}-"))
     pg = f"pocoma-b24-xl-{label}-{uuid.uuid4().hex[:6]}"
     try:
@@ -408,6 +420,8 @@ def run_side(label, app_dir, pg_image, sh_count, sit_d, sit_a, is_v4):
         ]
         if is_v4:
             migs.append("infra-postgres-read/src/main/resources/db/read/migration/V4__pot_balance_shared_storage.sql")
+        if availability:
+            migs.append(V5_MIGRATION)
         for mig in migs:
             sql = (Path(app_dir) / mig).read_text(encoding="utf-8")
             sql = (
@@ -418,29 +432,39 @@ def run_side(label, app_dir, pg_image, sh_count, sit_d, sit_a, is_v4):
             )
             subprocess.run(
                 ["docker", "exec", "-i", "-e", "PGOPTIONS=-c search_path=v3_read,public", pg,
-                 "psql", "-X", "-U", "pocoma", "-d", "pocoma_read", "-v", "ON_ERROR_STOP=1", "-f", "-"],
+                 "psql", "-X", "-U", "pocoma", "-d", "pocoma_read", "-v", "ON_ERROR_STOP=1",
+                 *(["--single-transaction"] if mig == V5_MIGRATION else []), "-f", "-"],
                 input=sql, check=True, capture_output=True, text=True,
             )
 
-        cp = build_classpath(app_dir)
+        cp = packaged_classpath(app_dir, work) if packaged else build_classpath(app_dir)
         driver_java = work / "XLargeBalanceDriver.java"
-        driver_src = (
-            JAVA_DRIVER
-            .replace(
-                "__WRITE_SIT_D__",
+        if is_v4:
+            receipt = ", res.pointerInserted()" if availability else ""
+            validate = "requireCompletionReady" if availability else "requireHashesStored"
+            write_d = (
                 "var res = store.insertOrVerifyVersionWithResult(bal, Optional.of(agg)); "
-                "store.requireHashesStored(potId, agg.version(), Optional.of(res.balanceHash()), res.aggregateHash());"
-                if is_v4
-                else "store.insertOrVerify(bal); store.insertOrVerifyAggregate(agg);",
+                f"store.{validate}(potId, agg.version(), Optional.of(res.balanceHash()), res.aggregateHash()"
+                + receipt + ");"
             )
-            .replace(
-                "__WRITE_SIT_A__",
+            write_a = (
                 "var res = store.insertOrVerifyVersionWithResult(balA, Optional.of(aggA)); "
-                "store.requireHashesStored(potId, v, Optional.of(res.balanceHash()), res.aggregateHash());"
-                if is_v4
-                else "store.insertOrVerify(balA); store.insertOrVerifyAggregate(aggA);",
+                f"store.{validate}(potId, v, Optional.of(res.balanceHash()), res.aggregateHash()"
+                + receipt + ");"
             )
-        )
+        else:
+            write_d = "store.insertOrVerify(bal); store.insertOrVerifyAggregate(agg);"
+            write_a = "store.insertOrVerify(balA); store.insertOrVerifyAggregate(aggA);"
+        close = "SpringAttemptTransactions.closePublication(ds);"
+        driver_src = JAVA_DRIVER.replace("__BALANCE_STORE__",
+                "new JdbcPotBalanceStore(ds, tx, true)" if availability else "new JdbcPotBalanceStore(ds, tx)")
+        for placeholder, write, version in [
+            ("__WRITE_SIT_D__", write_d, "agg.version()"),
+            ("__WRITE_SIT_A__", write_a, "v"),
+        ]:
+            publication = f"store.closePublication(potId, {version}, res.pointerInserted());" if availability else close
+            driver_src = driver_src.replace(placeholder + "\n                    __CLOSE_PUBLICATION__",
+                    write + "\n                    " + publication)
         driver_java.write_text(driver_src)
         subprocess.run(["javac", "-cp", cp, str(driver_java)], check=True)
         out = subprocess.check_output(
@@ -462,6 +486,18 @@ def run_side(label, app_dir, pg_image, sh_count, sit_d, sit_a, is_v4):
             )
             s, e = f4_res.find("{"), f4_res.rfind("}")
             data["f4Diagnostic"] = json.loads(f4_res[s:e + 1])
+        if availability:
+            if psql("pocoma_read", "select v3_read.read_availability_valid()") != "t":
+                raise RuntimeError("C3 availability integrity failed in the XLARGE store workload")
+            data["availability"] = json.loads(psql("pocoma_read", """
+                select jsonb_build_object(
+                  'historicalEvents', (select count(*) from v3_read.read_availability_event),
+                  'bytes', pg_total_relation_size('v3_read.read_availability_counter')
+                         + pg_total_relation_size('v3_read.read_availability_event')
+                         + pg_total_relation_size('v3_read.read_current_availability'))
+            """))
+            if data["availability"]["historicalEvents"] != sit_d + sit_a:
+                raise RuntimeError("Expected a PotBalance availability for every version")
         return data
     finally:
         subprocess.run(["docker", "rm", "-f", pg], capture_output=True)
@@ -492,10 +528,26 @@ def main():
     parser.add_argument("--sit-d-versions", type=int, default=100)
     parser.add_argument("--sit-a-versions", type=int, default=50)
     parser.add_argument("--postgres-image", default=DEFAULT_PG_IMAGE)
+    parser.add_argument("--compare-c3", action="store_true",
+                        help="Compare packaged C2 V4 and C3 V5 stores on the same XLARGE samples")
     args = parser.parse_args()
 
     out_dir = Path(args.out)
     out_dir.mkdir(parents=True, exist_ok=True)
+
+    if args.compare_c3:
+        common = (args.postgres_image, args.shareholders, args.sit_d_versions, args.sit_a_versions)
+        baseline = run_side("c2-v4", args.baseline_app_dir, *common, is_v4=True, packaged=True)
+        candidate = run_side("c3-v5", args.candidate_app_dir, *common, is_v4=True,
+                             availability=True, packaged=True)
+        comparison = {
+            "postgresImage": args.postgres_image, "shareholders": args.shareholders,
+            "sitDVersions": args.sit_d_versions, "sitAVersions": args.sit_a_versions,
+            "C2": baseline, "C3": candidate,
+        }
+        (out_dir / "c3_xlarge_ab_manifest.json").write_text(json.dumps(comparison, indent=2) + "\n")
+        print(json.dumps(comparison, indent=2))
+        return 0
 
     print(f"[xlarge-ab] Running Baseline A ({args.shareholders} sh, {args.sit_d_versions} SitD + {args.sit_a_versions} SitA)...")
     res_a = run_side("baseline-a", args.baseline_app_dir, args.postgres_image, args.shareholders, args.sit_d_versions, args.sit_a_versions, is_v4=False)

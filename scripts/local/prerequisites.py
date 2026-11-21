@@ -9,6 +9,8 @@ import re
 import shutil
 import subprocess
 
+from bootstrap import AVAILABILITY_MODULE, SETUP_SCRIPT
+
 
 TOOLCHAIN_ENV_VARS = ('MAVEN_ARGS', 'MAVEN_OPTS', 'JAVA_TOOL_OPTIONS', 'JDK_JAVA_OPTIONS', '_JAVA_OPTIONS')
 
@@ -158,14 +160,18 @@ def tools(root, command, dry_run=False, *, build_required=True):
 
 
 def _collect_sql_sources(root):
-    helper = root / 'scripts/operations/setup-v3-database.py'
-    if not helper.is_file():
-        reject('PRE-CONFIG-FILE', str(helper), 'missing')
-    # Current helper owns literal SQL inputs. Read its AST, never execute it here.
+    # Discover the literal SQL inputs in the setup script and its availability catalog.
+    return [sql for source in (SETUP_SCRIPT, AVAILABILITY_MODULE)
+            for sql in _literal_sql_sources(root / source)]
+
+
+def _literal_sql_sources(source):
+    if not source.is_file():
+        reject('PRE-CONFIG-FILE', str(source), 'missing')
     try:
-        tree = ast.parse(helper.read_text())
+        tree = ast.parse(source.read_text())
     except (OSError, SyntaxError):
-        reject('PRE-CONFIG-FILE', str(helper), 'unreadable or invalid Python')
+        reject('PRE-CONFIG-FILE', str(source), 'unreadable or invalid Python')
     return [
         node.value if '/' in node.value else 'scripts/v3/' + node.value
         for node in ast.walk(tree)
@@ -191,7 +197,7 @@ def sources(root, runtimes):
     files = ['app/pom.xml', 'app/mvnw', 'app/.mvn/wrapper/maven-wrapper.properties',
              'scripts/bruno-v3/package.json', 'scripts/bruno-v3/package-lock.json',
              'scripts/bruno-playground/inventory.json', 'scripts/functional-auth-proof.py',
-             'scripts/operations/setup-v3-database.py', 'docker/keycloak/pocoma-realm.json',
+             SETUP_SCRIPT, 'docker/keycloak/pocoma-realm.json',
              'docker/grafana/provisioning/datasources/prometheus.yml',
              'docker/grafana/provisioning/dashboards/dashboards.yml',
              'docker/grafana/dashboards/pocoma-runtime.json', 'docker/grafana/dashboards/pocoma-v3-overview.json']

@@ -18,12 +18,26 @@ import javax.sql.DataSource;
 /** Explicit inert factory only: no Bean, scheduler, worker setting or productive activation. */
 public final class ReadParticipants {
     public enum Name {
-        POT_VERSION,
-        POT_BALANCE,
-        POT_VISIBILITY,
-        CURRENT_BINDING,
-        COMMAND_RESULT,
-        IDENTITY_REQUEST_RESULT
+        POT_VERSION("MaterializePotVersion"),
+        POT_BALANCE("MaterializePotBalance"),
+        POT_VISIBILITY("MaterializePotVisibility"),
+        CURRENT_BINDING("MaterializeCurrentBinding"),
+        COMMAND_RESULT("MaterializeCommandResult"),
+        IDENTITY_REQUEST_RESULT("MaterializeIdentityRequestResult"),
+        INVITATION("MaterializeInvitation");
+
+        private final String capability;
+
+        Name(String capability) {
+            this.capability = capability;
+        }
+
+        public static Name ofCapability(String capability) {
+            return Arrays.stream(values())
+                    .filter(name -> name.capability.equals(capability))
+                    .findFirst()
+                    .orElseThrow(() -> new IllegalArgumentException("Unknown materialization capability: " + capability));
+        }
     }
 
     public record Inert(ConsumptionDefinition definition, ConsumptionParticipant participant) {}
@@ -71,75 +85,70 @@ public final class ReadParticipants {
             PotVersionObservation potVersionObservation,
             MaterializePotBalance.Settings potBalanceSettings,
             PotBalanceObservation potBalanceObservation) {
-        source.requireSource(write);
-        effects.requireSource(read);
-        if (write == read || source == effects)
-            throw new IllegalArgumentException("Separate WRITE/READ owners required");
-        var result = new EnumMap<Name, Inert>(Name.class);
-        result.put(
-                Name.POT_VERSION,
-                inert(
-                        "3dec1c8b-6e3e-57e1-82aa-aa0b5f297a4a",
-                        ConsumableFamily.POT_EVENT,
-                        new MaterializePotVersion(
-                                new JdbcPotVersionSource(write),
-                                new JdbcSubobjectVersionStore(read, effects),
-                                new JdbcPotVersionStore(read, effects),
-                                potVersionMaxDeltaDistance,
-                                potVersionObservation)));
-        result.put(
-                Name.POT_BALANCE,
-                inert(
-                        "190a93c6-b8af-5ac7-8001-72e2ec53c2df",
-                        ConsumableFamily.POT_EVENT,
-                        new MaterializePotBalance(
-                                new JdbcPotBalanceSource(write),
-                                new JdbcPotBalanceStore(read, effects),
-                                potBalanceSettings,
-                                potBalanceObservation)));
-        result.put(
-                Name.POT_VISIBILITY,
-                inert(
-                        "b4d04cce-b5da-5d1b-9698-5ff9af9a46fa",
-                        ConsumableFamily.POT_EVENT,
-                        new MaterializePotVisibility(
-                                new JdbcPotVisibilitySource(write),
-                                new JdbcPotVisibilityStore(read, effects))));
-        result.put(
-                Name.CURRENT_BINDING,
-                inert(
-                        "7b8d2838-bf7a-5117-868a-e5c14b4c0221",
-                        ConsumableFamily.IDENTITY_EVENT,
-                        new MaterializeCurrentBinding(
-                                new JdbcCurrentBindingSource(write, source),
-                                new JdbcCurrentBindingStore(read, effects))));
-        result.put(
-                Name.COMMAND_RESULT,
-                inert(
-                        "63664303-d33e-5d42-8cce-c4dae8023311",
-                        ConsumableFamily.COMMAND_COMPLETION_EVENT,
-                        new MaterializeCommandResult(
-                                new JdbcCommandTerminalSource(write, source),
-                                new JdbcCommandTerminalResultStore(read, effects))));
-        result.put(
-                Name.IDENTITY_REQUEST_RESULT,
-                inert(
-                        "1d8ff246-358f-5ddd-a7f5-416efcfd7445",
-                        ConsumableFamily.IDENTITY_COMPLETION_EVENT,
-                        new MaterializeIdentityRequestResult(
-                                new JdbcIdentityTerminalSource(write, source),
-                                new JdbcIdentityTerminalResultStore(read, effects))));
-        return Collections.unmodifiableMap(result);
+        requireSeparateOwners(write, source, read, effects);
+        var participants = new EnumMap<Name, Inert>(Name.class);
+        for (var name : Name.values()) {
+            participants.put(name, participant(name, write, source, read, effects,
+                    potVersionMaxDeltaDistance, potVersionObservation, potBalanceSettings, potBalanceObservation, false));
+        }
+        return Collections.unmodifiableMap(participants);
     }
 
-    private static final Map<String, Name> PARTICIPANT_NAMES =
-            Map.of(
-                    "MaterializePotVersion", Name.POT_VERSION,
-                    "MaterializePotBalance", Name.POT_BALANCE,
-                    "MaterializePotVisibility", Name.POT_VISIBILITY,
-                    "MaterializeCurrentBinding", Name.CURRENT_BINDING,
-                    "MaterializeCommandResult", Name.COMMAND_RESULT,
-                    "MaterializeIdentityRequestResult", Name.IDENTITY_REQUEST_RESULT);
+    private static Inert participant(
+            Name name, DataSource write, SpringAttemptTransactions source,
+            DataSource read, SpringAttemptTransactions effects,
+            long potVersionMaxDeltaDistance, PotVersionObservation potVersionObservation,
+            MaterializePotBalance.Settings potBalanceSettings, PotBalanceObservation potBalanceObservation,
+            boolean publishAvailability) {
+        return switch (name) {
+            case POT_VERSION -> inert(
+                    "3dec1c8b-6e3e-57e1-82aa-aa0b5f297a4a",
+                    ConsumableFamily.POT_EVENT,
+                    new MaterializePotVersion(
+                            new JdbcPotVersionSource(write),
+                            new JdbcSubobjectVersionStore(read, effects),
+                            new JdbcPotVersionStore(read, effects, publishAvailability),
+                            potVersionMaxDeltaDistance,
+                            potVersionObservation));
+            case POT_BALANCE -> inert(
+                    "190a93c6-b8af-5ac7-8001-72e2ec53c2df",
+                    ConsumableFamily.POT_EVENT,
+                    new MaterializePotBalance(
+                            new JdbcPotBalanceSource(write),
+                            new JdbcPotBalanceStore(read, effects, publishAvailability),
+                            potBalanceSettings,
+                            potBalanceObservation));
+            case POT_VISIBILITY -> inert(
+                    "b4d04cce-b5da-5d1b-9698-5ff9af9a46fa",
+                    ConsumableFamily.POT_EVENT,
+                    new MaterializePotVisibility(
+                            new JdbcPotVisibilitySource(write),
+                            new JdbcPotVisibilityStore(read, effects, publishAvailability)));
+            case CURRENT_BINDING -> inert(
+                    "7b8d2838-bf7a-5117-868a-e5c14b4c0221",
+                    ConsumableFamily.IDENTITY_EVENT,
+                    new MaterializeCurrentBinding(
+                            new JdbcCurrentBindingSource(write, source),
+                            new JdbcCurrentBindingStore(read, effects, publishAvailability)));
+            case COMMAND_RESULT -> inert(
+                    "63664303-d33e-5d42-8cce-c4dae8023311",
+                    ConsumableFamily.COMMAND_COMPLETION_EVENT,
+                    new MaterializeCommandResult(
+                            new JdbcCommandTerminalSource(write, source),
+                            new JdbcCommandTerminalResultStore(read, effects, publishAvailability)));
+            case IDENTITY_REQUEST_RESULT -> inert(
+                    "1d8ff246-358f-5ddd-a7f5-416efcfd7445",
+                    ConsumableFamily.IDENTITY_COMPLETION_EVENT,
+                    new MaterializeIdentityRequestResult(
+                            new JdbcIdentityTerminalSource(write, source),
+                            new JdbcIdentityTerminalResultStore(read, effects, publishAvailability)));
+            case INVITATION -> inert(
+                    "924cd9e3-435d-5804-9d1e-c6aecadb9ab4",
+                    ConsumableFamily.INVITATION_EVENT,
+                    new MaterializeInvitation(new JdbcInvitationSource(write),
+                            new JdbcInvitationStore(read, effects, publishAvailability)));
+        };
+    }
 
     public static Inert select(
             String name,
@@ -187,40 +196,20 @@ public final class ReadParticipants {
             PotVersionObservation potVersionObservation,
             MaterializePotBalance.Settings potBalanceSettings,
             PotBalanceObservation potBalanceObservation) {
-        if ("MaterializeInvitation".equals(name)) {
-            source.requireSource(write);
-            effects.requireSource(read);
-            if (write == read || source == effects) {
-                throw new IllegalArgumentException("Separate source/effects owners required");
-            }
-            return invitation(write, read);
-        }
-        Name key = PARTICIPANT_NAMES.get(name);
-        if (key == null) {
-            throw new IllegalArgumentException("Unknown materialization capability");
-        }
-        return create(
-                        write,
-                        source,
-                        read,
-                        effects,
-                        potVersionMaxDeltaDistance,
-                        potVersionObservation,
-                        potBalanceSettings,
-                        potBalanceObservation)
-                .get(key);
+        var capability = Name.ofCapability(name);
+        requireSeparateOwners(write, source, read, effects);
+        return participant(capability, write, source, read, effects, potVersionMaxDeltaDistance,
+                potVersionObservation, potBalanceSettings, potBalanceObservation, true);
     }
 
-    public static Inert invitation(DataSource write, DataSource read) {
-        if (write == read)
-            throw new IllegalArgumentException("Separate WRITE/READ sources required");
-        return inert(
-                "924cd9e3-435d-5804-9d1e-c6aecadb9ab4",
-                ConsumableFamily.INVITATION_EVENT,
-                new MaterializeInvitation(
-                        new JdbcInvitationSource(write),
-                        new com.kartaguez.pocoma.infra.postgres.read.JdbcInvitationStore(
-                                read)));
+    private static void requireSeparateOwners(
+            DataSource write, SpringAttemptTransactions source,
+            DataSource read, SpringAttemptTransactions effects) {
+        source.requireSource(write);
+        effects.requireSource(read);
+        if (write == read || source == effects) {
+            throw new IllegalArgumentException("Separate WRITE/READ owners required");
+        }
     }
 
     private static Inert inert(

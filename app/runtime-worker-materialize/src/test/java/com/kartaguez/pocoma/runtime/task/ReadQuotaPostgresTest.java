@@ -270,8 +270,20 @@ class ReadQuotaPostgresTest {
             workerFixture.read.execute("grant usage on schema " + workerFixture.schema + " to " + f.role);
             workerFixture.read.execute("grant select on read_current_binding to " + f.role);
             workerFixture.read.execute("grant select on public.read_maintenance_state to " + f.role);
-            workerFixture.read.update("insert into read_current_binding values (?,?,?,1,?,?)",
-                    f.issuer, "owner", UUID.randomUUID(), OWNER, TOKEN);
+            var readAdmin = workerFixture.read.getDataSource();
+            var seedOwner = SubobjectPostgresFixture.owner(readAdmin);
+            var seedStore = new com.kartaguez.pocoma.infra.postgres.read.JdbcCurrentBindingStore(
+                    readAdmin, seedOwner, true);
+            var binding = new com.kartaguez.pocoma.domain.identity.ExternalUserIdentity(
+                    new com.kartaguez.pocoma.domain.identity.ExternalUserIdentityId(UUID.randomUUID()),
+                    f.eui("owner"), 1, new com.kartaguez.pocoma.domain.identity.PocomaUserId(OWNER),
+                    new com.kartaguez.pocoma.domain.identity.BindingToken(TOKEN));
+            seedOwner.write(() -> {
+                boolean advanced = seedStore.apply(binding);
+                seedStore.requireCompletionReady(binding, advanced);
+                seedStore.closePublication(binding, advanced);
+                return null;
+            });
             f.context.close();
             f.properties.put("pocoma.v3.http.read.url", workerFixture.readUrl);
             f.start(HttpRoot.class);

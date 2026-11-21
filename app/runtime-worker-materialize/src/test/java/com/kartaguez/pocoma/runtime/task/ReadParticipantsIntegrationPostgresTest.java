@@ -42,7 +42,7 @@ class ReadParticipantsIntegrationPostgresTest {
                     "select binding_token from v3_eui_version where version=1", String.class);
             UUID changedIdentity = f.publishIdentity(new IdentityRequest.Unlink(f.eui), new BindingToken(token));
             var next = new EnumMap<Name, UUID>(Name.class);
-            for (var name : Name.values()) {
+            for (var name : ReadParticipantsFixture.PROJECTIONS_WITH_SEEDED_EVENTS) {
                 next.put(name, switch (name) {
                     case POT_VERSION, POT_BALANCE, POT_VISIBILITY -> changedPot;
                     case COMMAND_RESULT -> f.f.oracle.queryForObject(
@@ -52,10 +52,11 @@ class ReadParticipantsIntegrationPostgresTest {
                             "select event_id from v3_identity_event where request_id=?", UUID.class, changedIdentity);
                     case IDENTITY_REQUEST_RESULT -> f.f.oracle.queryForObject(
                             "select event_id from v3_identity_completion_event where subject_id=?", UUID.class, changedIdentity);
+                    case INVITATION -> throw new AssertionError("Invitation uses a dedicated fixture");
                 });
             }
             f.enroll();
-            for (var name : Name.values()) {
+            for (var name : ReadParticipantsFixture.PROJECTIONS_WITH_SEEDED_EVENTS) {
                 assertEquals(1, f.slots(name, f.event(name)));
                 assertEquals(1, f.slots(name, next.get(name)));
                 f.execute(name, f.event(name));
@@ -64,11 +65,11 @@ class ReadParticipantsIntegrationPostgresTest {
                     "select consumption_id,partition_id,position from discovery_checkpoint order by consumption_id,partition_id");
             var slots = f.f.read.oracle.queryForList(
                     "select * from consumption_slot order by consumption_id,consumable_id");
-            assertEquals(Name.values().length, slots.size());
+            assertEquals(ReadParticipantsFixture.PROJECTIONS_WITH_SEEDED_EVENTS.size(), slots.size());
             var business = new LinkedHashMap<String, Object>();
             for (String table : f.businessTables) business.put(table, f.f.read.oracle.queryForList("select row_to_json(t)::text as value from " + table + " t order by value"));
             // enroll constructs a fresh real DiscoveryEngine for every participant.
-            for (var name : Name.values()) f.engines.put(name,
+            for (var name : ReadParticipantsFixture.PROJECTIONS_WITH_SEEDED_EVENTS) f.engines.put(name,
                     f.engine(name, f.participants.get(name).participant(), f.f.read.source, f.f.read.tx));
             f.enroll();
             assertEquals(checkpoints, f.f.read.oracle.queryForList(
@@ -77,7 +78,7 @@ class ReadParticipantsIntegrationPostgresTest {
                     "select * from consumption_slot order by consumption_id,consumable_id"));
             for (String table : f.businessTables) assertEquals(business.get(table),
                     f.f.read.oracle.queryForList("select row_to_json(t)::text as value from " + table + " t order by value"));
-            for (var name : Name.values()) {
+            for (var name : ReadParticipantsFixture.PROJECTIONS_WITH_SEEDED_EVENTS) {
                 assertEquals(0, f.slots(name, f.event(name)));
                 f.execute(name, next.get(name));
             }
@@ -456,15 +457,15 @@ class ReadParticipantsIntegrationPostgresTest {
 
     @Test void independentProgression() throws Exception {
         var expected=Map.of(Name.POT_VERSION,"3dec1c8b-6e3e-57e1-82aa-aa0b5f297a4a",Name.POT_BALANCE,"190a93c6-b8af-5ac7-8001-72e2ec53c2df",Name.POT_VISIBILITY,"b4d04cce-b5da-5d1b-9698-5ff9af9a46fa",Name.CURRENT_BINDING,"7b8d2838-bf7a-5117-868a-e5c14b4c0221",Name.COMMAND_RESULT,"63664303-d33e-5d42-8cce-c4dae8023311",Name.IDENTITY_REQUEST_RESULT,"1d8ff246-358f-5ddd-a7f5-416efcfd7445");
-        for(var disabled:Name.values()) try(var f=new ReadParticipantsFixture(PG,"disabled-"+disabled)) {
+        for(var disabled:ReadParticipantsFixture.PROJECTIONS_WITH_SEEDED_EVENTS) try(var f=new ReadParticipantsFixture(PG,"disabled-"+disabled)) {
             f.enroll();
-            for(var name:Name.values()) {
+            for(var name:ReadParticipantsFixture.PROJECTIONS_WITH_SEEDED_EVENTS) {
                 var d=f.participants.get(name).definition(); assertEquals(UUID.fromString(expected.get(name)),d.id().value()); assertEquals(ConsumptionDefinition.Authority.READ,d.authority());
                 assertEquals(name==Name.CURRENT_BINDING?ConsumableFamily.IDENTITY_EVENT:name==Name.COMMAND_RESULT?ConsumableFamily.COMMAND_COMPLETION_EVENT:name==Name.IDENTITY_REQUEST_RESULT?ConsumableFamily.IDENTITY_COMPLETION_EVENT:ConsumableFamily.POT_EVENT,d.family());
                 if(name!=disabled) f.execute(name,f.event(name));
             }
             assertEquals(1,f.slots(disabled,f.event(disabled)));
-            for(var name:Name.values()) if(name!=disabled) assertEquals(0,f.slots(name,f.event(name)),disabled+" cannot block "+name);
+            for(var name:ReadParticipantsFixture.PROJECTIONS_WITH_SEEDED_EVENTS) if(name!=disabled) assertEquals(0,f.slots(name,f.event(name)),disabled+" cannot block "+name);
             assertEquals(3,f.f.read.oracle.queryForObject("select count(distinct consumption_id) from discovery_checkpoint where consumption_id in ('3dec1c8b-6e3e-57e1-82aa-aa0b5f297a4a','190a93c6-b8af-5ac7-8001-72e2ec53c2df','b4d04cce-b5da-5d1b-9698-5ff9af9a46fa')",Integer.class));
             f.f.read.trace.add("six independent consumptions; disabled="+disabled);
         }
@@ -500,7 +501,7 @@ class ReadParticipantsIntegrationPostgresTest {
     }
 
     @Test void l73_allReadParticipantsRetainUncertainCapacityAndExactEffects() throws Exception {
-        for(var name:Name.values()) for(var fault:List.of(CommitAcknowledgementProxy.Fault.BEFORE_COMMIT,CommitAcknowledgementProxy.Fault.AFTER_COMMIT))
+        for(var name:ReadParticipantsFixture.PROJECTIONS_WITH_SEEDED_EVENTS) for(var fault:List.of(CommitAcknowledgementProxy.Fault.BEFORE_COMMIT,CommitAcknowledgementProxy.Fault.AFTER_COMMIT))
             try(var f=new ReadParticipantsFixture(PG,"l73-unknown-"+name+"-"+fault);var proxy=new CommitAcknowledgementProxy(PG.getHost(),PG.getMappedPort(5432))) {
                 f.enroll(); var beforeVector=f.vector();
                 var ds=new DriverManagerDataSource("jdbc:postgresql://127.0.0.1:"+proxy.localPort()+"/"+PG.getDatabaseName()+"?sslmode=disable&gssEncMode=disable&preferQueryMode=simple&socketTimeout=5&currentSchema="+f.f.read.schema,f.f.read.runtimeRole,"i1-fixture");
@@ -598,7 +599,7 @@ class ReadParticipantsIntegrationPostgresTest {
                 assertEquals(ConsumptionProtocol.Status.COMMITTED,a.get(20,TimeUnit.SECONDS).status()); assertEquals(ConsumptionProtocol.Status.COMMITTED,b.get(20,TimeUnit.SECONDS).status());
             }
             assertEquals(0,f.capacity.snapshot().worker());
-            for(var name:Name.values()) assertTrue(f.capacity.supports(f.participants.get(name).definition().id()));
+            for(var name:ReadParticipantsFixture.PROJECTIONS_WITH_SEEDED_EVENTS) assertTrue(f.capacity.supports(f.participants.get(name).definition().id()));
             f.f.read.trace.add("bounded M_W=2; six declared consumptions; renewals while two real WRITE snapshots retained; productive pool/load proof remains I8");
         }
     }

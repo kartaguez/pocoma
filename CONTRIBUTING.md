@@ -9,6 +9,7 @@ You need **Java 21** and **Docker** (Testcontainers runs PostgreSQL integration 
 Before editing code under `app/`, review:
 - [Modular Architecture (42 Maven modules)](docs/architecture/modules.md) — understand layer boundaries and where to place new code.
 - [Reactor Verification Policy](docs/testing/Reactor_Verification_Policy.md) — normative rules for scoped verification (see the **Developer TL;DR** at the top of that file).
+- [Adding a READ Projection](docs/guides/adding-read-projections.md) — implementation and verification of transactional availability.
 
 ### Targeted verification by slice (default workflow)
 

@@ -15,6 +15,7 @@ Welcome to the **Pocoma** product documentation. It covers how to install, under
 - [Commands & Asynchronous Results](guides/commands.md) — `202 Accepted` admission, `Idempotency-Key`, result polling, and business payloads.
 - [READ Queries & Projections](guides/queries.md) — `minVersion` reads, exact history, balances, pagination, and opaque privacy (`404`).
 - [Local Development & Bruno](guides/local-development.md) — `--instance` management, Bruno GUI/CLI, Grafana/Prometheus, Java inner loop, and Maven slice workflow.
+- [Adding a READ Projection](guides/adding-read-projections.md) — family identity, transactional publication, tests and reconstruction.
 
 ## Architecture
 
@@ -23,6 +24,7 @@ Welcome to the **Pocoma** product documentation. It covers how to install, under
 - [Maven Modules (42 modules)](architecture/modules.md) — layer taxonomy, dependency rules, and where to place new code.
 - [JVM Runtimes & Concurrency](architecture/runtimes.md) — the 5 runtimes, 36 partitions, SQL leases (`30 s`), `renewBatch`, and fencing.
 - [PostgreSQL Persistence](architecture/persistence.md) — `pocoma_write` / `pocoma_read` databases, V1 baselines, and coordination tables.
+- [READ Materialization Availability](architecture/read-availability.md) — eight families, atomic publication and recovery.
 - [Security](architecture/security.md) — OIDC, pre-semaphore validation, HMAC idempotency, local secrets, and log redaction.
 
 ## Reference
@@ -31,6 +33,7 @@ Welcome to the **Pocoma** product documentation. It covers how to install, under
 - [`./pocoma-local` CLI](reference/cli.md) — full syntax, 9 subcommands, options, and exit codes.
 - [Runtime Configuration](reference/configuration.md) — Spring profiles, Hikari pools, leases, polling (ms), containers, and limits.
 - [Public API `/api/v3`](reference/api.md) — WRITE/READ routes, headers, payloads, HTTP statuses, and error format.
+- [READ Availability Reference](reference/read-availability.md) — internal PostgreSQL records, family cursors and retention.
 
 ## Operations
 

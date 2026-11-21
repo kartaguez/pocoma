@@ -1029,9 +1029,8 @@ class ReadWorkerResourcesPostgresTest {
         var fault = new RetainingSource(materialize(run.ctx()).readBusiness);
         var owner = new SpringAttemptTransactions(fault, manager(fault), 60);
         var resources = materialize(run.ctx());
-        var participants =
-                ReadParticipants.create(
-                        materialize(run.ctx()).writeSourceRead, resources.sourceReads, fault, owner);
+        var participant = ReadParticipants.select(
+                "MaterializePotVersion", resources.writeSourceRead, resources.sourceReads, fault, owner);
         var selected = binding(run.worker(), "MaterializePotVersion");
         replace(selected.engine(), "transactions", owner);
         replace(selected.engine(), "slots", new JdbcConsumptionSlotStore(fault));
@@ -1042,10 +1041,7 @@ class ReadWorkerResourcesPostgresTest {
                         fault,
                         new DiscoverySettings(
                                 128, run.batch(), run.batch(), 64, Duration.ofMillis(500), Duration.ofSeconds(2))));
-        replace(
-                selected.engine(),
-                "participant",
-                participants.get(ReadParticipants.Name.POT_VERSION).participant());
+        replace(selected.engine(), "participant", participant.participant());
         for (boolean committed : List.of(run.batch() == 32)) {
             fault.commitFirst = committed;
             fault.armed.set(true);

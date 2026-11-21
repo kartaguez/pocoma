@@ -152,7 +152,7 @@ public final class ReadMonolithI8Fixture implements AutoCloseable {
                                         "classpath:db/write/migration"
                                     }
                                     : new String[] {
-                                        "classpath:db/read/migration"
+                                        "classpath:db/read/migration", "classpath:db/read/availability/migration"
                                     })
                     .placeholders(
                             Map.of(

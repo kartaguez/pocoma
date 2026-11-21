@@ -1,0 +1,523 @@
+2026-11-21T01:12:39Z
+hungry_burnell 100.88% 2.16%
+testcontainers-ryuk-71a68f57-664e-419b-857c-c79bfaebf074 0.01% 0.14%
+pocoma-c2b24-candidate-v4-b3-02004f3c-postgres-1 0.49% 31.20%
+pocoma-l74a-87f8e9c6-postgres-1 33.90% 5.90%
+2026-11-21T01:12:57Z
+pocoma-l74a-87f8e9c6-http-write-1 0.07% 33.76%
+pocoma-l74a-87f8e9c6-http-read-1 0.11% 23.04%
+pocoma-l74a-87f8e9c6-results-worker-1 49.68% 35.93%
+pocoma-l74a-87f8e9c6-business-read-worker-1 45.54% 18.50%
+pocoma-l74a-87f8e9c6-command-worker-1 48.05% 35.53%
+pocoma-l74a-87f8e9c6-postgres-1 47.15% 10.94%
+testcontainers-ryuk-71a68f57-664e-419b-857c-c79bfaebf074 0.00% 0.14%
+pocoma-c2b24-candidate-v4-b3-02004f3c-postgres-1 0.00% 31.15%
+affectionate_chebyshev 56.09% 0.43%
+2026-11-21T01:13:15Z
+pocoma-l74a-87f8e9c6-http-write-1 14.02% 37.84%
+pocoma-l74a-87f8e9c6-http-read-1 42.73% 27.11%
+pocoma-l74a-87f8e9c6-results-worker-1 50.07% 37.30%
+pocoma-l74a-87f8e9c6-business-read-worker-1 86.78% 20.99%
+pocoma-l74a-87f8e9c6-command-worker-1 50.09% 39.67%
+pocoma-l74a-87f8e9c6-postgres-1 161.08% 14.35%
+testcontainers-ryuk-71a68f57-664e-419b-857c-c79bfaebf074 0.00% 0.14%
+pocoma-c2b24-candidate-v4-b3-02004f3c-postgres-1 0.00% 31.15%
+2026-11-21T01:13:32Z
+brave_black 64.92% 0.84%
+pocoma-l74a-87f8e9c6-http-write-1 5.38% 39.77%
+pocoma-l74a-87f8e9c6-http-read-1 8.46% 27.27%
+pocoma-l74a-87f8e9c6-results-worker-1 49.26% 37.58%
+pocoma-l74a-87f8e9c6-business-read-worker-1 62.08% 21.22%
+pocoma-l74a-87f8e9c6-command-worker-1 48.24% 40.44%
+pocoma-l74a-87f8e9c6-postgres-1 126.72% 16.20%
+testcontainers-ryuk-71a68f57-664e-419b-857c-c79bfaebf074 0.00% 0.14%
+pocoma-c2b24-candidate-v4-b3-02004f3c-postgres-1 0.00% 31.15%
+2026-11-21T01:13:49Z
+brave_black 65.80% 1.39%
+pocoma-l74a-87f8e9c6-http-write-1 2.11% 40.12%
+pocoma-l74a-87f8e9c6-http-read-1 37.89% 28.10%
+pocoma-l74a-87f8e9c6-results-worker-1 36.92% 37.60%
+pocoma-l74a-87f8e9c6-business-read-worker-1 57.31% 21.86%
+pocoma-l74a-87f8e9c6-command-worker-1 39.14% 40.77%
+pocoma-l74a-87f8e9c6-postgres-1 125.89% 16.65%
+testcontainers-ryuk-71a68f57-664e-419b-857c-c79bfaebf074 0.00% 0.14%
+pocoma-c2b24-candidate-v4-b3-02004f3c-postgres-1 0.32% 31.15%
+2026-11-21T01:14:06Z
+brave_black 61.90% 1.98%
+pocoma-l74a-87f8e9c6-http-write-1 2.17% 41.48%
+pocoma-l74a-87f8e9c6-http-read-1 11.15% 30.34%
+pocoma-l74a-87f8e9c6-results-worker-1 34.34% 37.90%
+pocoma-l74a-87f8e9c6-business-read-worker-1 55.62% 21.26%
+pocoma-l74a-87f8e9c6-command-worker-1 36.01% 40.95%
+pocoma-l74a-87f8e9c6-postgres-1 117.58% 17.65%
+testcontainers-ryuk-71a68f57-664e-419b-857c-c79bfaebf074 0.00% 0.14%
+pocoma-c2b24-candidate-v4-b3-02004f3c-postgres-1 0.00% 31.15%
+2026-11-21T01:14:22Z
+brave_black 100.78% 2.45%
+pocoma-l74a-87f8e9c6-results-worker-1 0.16% 37.76%
+pocoma-l74a-87f8e9c6-business-read-worker-1 0.29% 21.28%
+pocoma-l74a-87f8e9c6-command-worker-1 0.18% 41.37%
+testcontainers-ryuk-71a68f57-664e-419b-857c-c79bfaebf074 0.00% 0.14%
+pocoma-c2b24-candidate-v4-b3-02004f3c-postgres-1 0.00% 31.15%
+2026-11-21T01:14:39Z
+pocoma-l74a-cf139084-http-read-1 48.65% 21.12%
+pocoma-l74a-cf139084-business-read-worker-1 39.90% 18.00%
+pocoma-l74a-cf139084-http-write-1 49.36% 29.14%
+pocoma-l74a-cf139084-results-worker-1 49.15% 31.87%
+pocoma-l74a-cf139084-command-worker-1 48.93% 32.61%
+pocoma-l74a-cf139084-postgres-1 44.62% 10.39%
+testcontainers-ryuk-71a68f57-664e-419b-857c-c79bfaebf074 0.00% 0.14%
+pocoma-c2b24-candidate-v4-b3-02004f3c-postgres-1 0.00% 31.15%
+angry_hellman 66.50% 0.60%
+2026-11-21T01:14:57Z
+pocoma-l74a-cf139084-http-read-1 41.52% 26.52%
+pocoma-l74a-cf139084-business-read-worker-1 79.89% 20.66%
+pocoma-l74a-cf139084-http-write-1 19.78% 38.02%
+pocoma-l74a-cf139084-results-worker-1 46.12% 38.23%
+pocoma-l74a-cf139084-command-worker-1 49.61% 39.49%
+pocoma-l74a-cf139084-postgres-1 158.56% 13.89%
+testcontainers-ryuk-71a68f57-664e-419b-857c-c79bfaebf074 0.00% 0.14%
+pocoma-c2b24-candidate-v4-b3-02004f3c-postgres-1 0.00% 31.15%
+2026-11-21T01:15:15Z
+hardcore_dubinsky 47.56% 0.47%
+pocoma-l74a-cf139084-http-read-1 34.47% 27.19%
+pocoma-l74a-cf139084-business-read-worker-1 85.12% 20.94%
+pocoma-l74a-cf139084-http-write-1 13.12% 40.21%
+pocoma-l74a-cf139084-results-worker-1 49.76% 37.85%
+pocoma-l74a-cf139084-command-worker-1 49.20% 40.05%
+pocoma-l74a-cf139084-postgres-1 187.40% 16.41%
+testcontainers-ryuk-71a68f57-664e-419b-857c-c79bfaebf074 0.00% 0.14%
+pocoma-c2b24-candidate-v4-b3-02004f3c-postgres-1 0.00% 31.15%
+2026-11-21T01:15:31Z
+nice_goldwasser 64.31% 1.11%
+pocoma-l74a-cf139084-http-read-1 19.08% 27.53%
+pocoma-l74a-cf139084-business-read-worker-1 64.32% 21.51%
+pocoma-l74a-cf139084-http-write-1 6.85% 40.56%
+pocoma-l74a-cf139084-results-worker-1 49.30% 37.94%
+pocoma-l74a-cf139084-command-worker-1 43.53% 40.45%
+pocoma-l74a-cf139084-postgres-1 140.73% 16.99%
+testcontainers-ryuk-71a68f57-664e-419b-857c-c79bfaebf074 0.00% 0.14%
+pocoma-c2b24-candidate-v4-b3-02004f3c-postgres-1 0.00% 31.15%
+2026-11-21T01:15:48Z
+nice_goldwasser 65.15% 1.90%
+pocoma-l74a-cf139084-http-read-1 16.41% 29.43%
+pocoma-l74a-cf139084-business-read-worker-1 54.60% 22.06%
+pocoma-l74a-cf139084-http-write-1 1.13% 41.01%
+pocoma-l74a-cf139084-results-worker-1 33.39% 38.10%
+pocoma-l74a-cf139084-command-worker-1 35.63% 41.13%
+pocoma-l74a-cf139084-postgres-1 117.73% 18.13%
+testcontainers-ryuk-71a68f57-664e-419b-857c-c79bfaebf074 0.00% 0.14%
+pocoma-c2b24-candidate-v4-b3-02004f3c-postgres-1 0.00% 31.15%
+2026-11-21T01:16:05Z
+pocoma-l74a-cf139084-http-read-1 9.94% 29.57%
+pocoma-l74a-cf139084-business-read-worker-1 55.39% 21.77%
+pocoma-l74a-cf139084-http-write-1 3.24% 41.42%
+pocoma-l74a-cf139084-results-worker-1 35.94% 38.51%
+pocoma-l74a-cf139084-command-worker-1 40.35% 41.23%
+pocoma-l74a-cf139084-postgres-1 128.09% 18.29%
+testcontainers-ryuk-71a68f57-664e-419b-857c-c79bfaebf074 0.00% 0.14%
+pocoma-c2b24-candidate-v4-b3-02004f3c-postgres-1 0.00% 31.15%
+2026-11-21T01:16:22Z
+pocoma-l74a-055464d7-postgres-1 104.12% 24.21%
+interesting_nash 67.81% 0.64%
+testcontainers-ryuk-0edd5df3-9d36-466c-9dd6-924cc5dfd524 0.00% 0.14%
+pocoma-c2b24-candidate-v4-b3-02004f3c-postgres-1 0.00% 31.18%
+2026-11-21T01:16:39Z
+pocoma-l74a-055464d7-http-write-1 48.99% 23.02%
+pocoma-l74a-055464d7-results-worker-1 49.09% 25.63%
+pocoma-l74a-055464d7-command-worker-1 46.36% 28.08%
+pocoma-l74a-055464d7-http-read-1 49.03% 16.52%
+pocoma-l74a-055464d7-business-read-worker-1 142.55% 21.20%
+pocoma-l74a-055464d7-postgres-1 111.74% 36.16%
+interesting_nash 27.02% 0.62%
+testcontainers-ryuk-0edd5df3-9d36-466c-9dd6-924cc5dfd524 0.11% 0.15%
+pocoma-c2b24-candidate-v4-b3-02004f3c-postgres-1 0.52% 31.18%
+2026-11-21T01:16:56Z
+pocoma-l74a-055464d7-http-write-1 0.14% 33.40%
+pocoma-l74a-055464d7-results-worker-1 50.21% 37.27%
+pocoma-l74a-055464d7-command-worker-1 51.32% 38.39%
+pocoma-l74a-055464d7-http-read-1 0.09% 22.58%
+pocoma-l74a-055464d7-business-read-worker-1 114.80% 26.75%
+pocoma-l74a-055464d7-postgres-1 169.66% 39.75%
+testcontainers-ryuk-0edd5df3-9d36-466c-9dd6-924cc5dfd524 0.00% 0.14%
+pocoma-c2b24-candidate-v4-b3-02004f3c-postgres-1 0.00% 31.15%
+compassionate_faraday 45.03% 0.53%
+2026-11-21T01:17:14Z
+keen_chandrasekhar 39.72% 0.64%
+pocoma-l74a-055464d7-http-write-1 0.41% 33.45%
+pocoma-l74a-055464d7-results-worker-1 50.81% 37.35%
+pocoma-l74a-055464d7-command-worker-1 31.97% 39.01%
+pocoma-l74a-055464d7-http-read-1 0.21% 22.61%
+pocoma-l74a-055464d7-business-read-worker-1 98.50% 51.34%
+pocoma-l74a-055464d7-postgres-1 198.28% 42.59%
+testcontainers-ryuk-0edd5df3-9d36-466c-9dd6-924cc5dfd524 0.00% 0.14%
+pocoma-c2b24-candidate-v4-b3-02004f3c-postgres-1 0.00% 31.18%
+2026-11-21T01:17:31Z
+cranky_shirley 34.69% 1.31%
+testcontainers-ryuk-3cf7bf8b-8959-4cce-8310-893d165ebb35 0.00% 0.14%
+pocoma-l74a-055464d7-http-write-1 0.08% 33.46%
+pocoma-l74a-055464d7-results-worker-1 29.21% 37.58%
+pocoma-l74a-055464d7-command-worker-1 26.12% 39.11%
+pocoma-l74a-055464d7-http-read-1 0.09% 22.58%
+pocoma-l74a-055464d7-business-read-worker-1 107.03% 57.88%
+pocoma-l74a-055464d7-postgres-1 194.48% 44.41%
+pocoma-c2b24-candidate-v4-b3-02004f3c-postgres-1 0.00% 31.15%
+2026-11-21T01:17:48Z
+cranky_shirley 63.06% 0.63%
+testcontainers-ryuk-3cf7bf8b-8959-4cce-8310-893d165ebb35 0.00% 0.14%
+pocoma-l74a-055464d7-http-write-1 3.44% 34.99%
+pocoma-l74a-055464d7-results-worker-1 28.13% 38.12%
+pocoma-l74a-055464d7-command-worker-1 47.32% 39.96%
+pocoma-l74a-055464d7-http-read-1 33.14% 24.84%
+pocoma-l74a-055464d7-business-read-worker-1 44.85% 57.98%
+pocoma-l74a-055464d7-postgres-1 92.59% 46.61%
+pocoma-c2b24-candidate-v4-b3-02004f3c-postgres-1 0.00% 31.15%
+2026-11-21T01:18:05Z
+cranky_shirley 68.23% 1.47%
+testcontainers-ryuk-3cf7bf8b-8959-4cce-8310-893d165ebb35 0.00% 0.14%
+pocoma-l74a-055464d7-http-write-1 0.98% 35.51%
+pocoma-l74a-055464d7-results-worker-1 23.73% 38.23%
+pocoma-l74a-055464d7-command-worker-1 23.99% 40.51%
+pocoma-l74a-055464d7-http-read-1 7.31% 25.66%
+pocoma-l74a-055464d7-business-read-worker-1 37.80% 58.02%
+pocoma-l74a-055464d7-postgres-1 74.50% 46.90%
+pocoma-c2b24-candidate-v4-b3-02004f3c-postgres-1 0.00% 31.15%
+2026-11-21T01:18:21Z
+cranky_shirley 25.27% 1.57%
+testcontainers-ryuk-3cf7bf8b-8959-4cce-8310-893d165ebb35 0.00% 0.14%
+pocoma-l74a-055464d7-http-write-1 1.46% 35.89%
+pocoma-l74a-055464d7-results-worker-1 23.16% 38.40%
+pocoma-l74a-055464d7-command-worker-1 25.61% 40.67%
+pocoma-l74a-055464d7-http-read-1 8.37% 26.43%
+pocoma-l74a-055464d7-business-read-worker-1 37.62% 58.08%
+pocoma-l74a-055464d7-postgres-1 74.80% 47.11%
+pocoma-c2b24-candidate-v4-b3-02004f3c-postgres-1 0.00% 31.15%
+2026-11-21T01:18:38Z
+cranky_shirley 24.39% 1.64%
+testcontainers-ryuk-3cf7bf8b-8959-4cce-8310-893d165ebb35 0.00% 0.14%
+pocoma-l74a-055464d7-http-write-1 1.57% 36.31%
+pocoma-l74a-055464d7-results-worker-1 21.77% 38.40%
+pocoma-l74a-055464d7-command-worker-1 21.95% 40.72%
+pocoma-l74a-055464d7-http-read-1 4.02% 26.86%
+pocoma-l74a-055464d7-business-read-worker-1 36.22% 58.08%
+pocoma-l74a-055464d7-postgres-1 71.48% 48.05%
+pocoma-c2b24-candidate-v4-b3-02004f3c-postgres-1 0.27% 31.18%
+2026-11-21T01:18:55Z
+cranky_shirley 38.16% 1.80%
+testcontainers-ryuk-3cf7bf8b-8959-4cce-8310-893d165ebb35 0.00% 0.14%
+pocoma-c2b24-candidate-v4-b3-02004f3c-postgres-1 0.00% 31.15%
+2026-11-21T01:19:12Z
+pocoma-l74a-eaf3454a-postgres-1 26.75% 31.24%
+cranky_shirley 47.89% 1.97%
+testcontainers-ryuk-3cf7bf8b-8959-4cce-8310-893d165ebb35 0.00% 0.14%
+pocoma-c2b24-candidate-v4-b3-02004f3c-postgres-1 0.00% 31.17%
+2026-11-21T01:19:29Z
+pocoma-l74a-eaf3454a-results-worker-1 49.39% 35.61%
+pocoma-l74a-eaf3454a-business-read-worker-1 165.03% 26.69%
+pocoma-l74a-eaf3454a-command-worker-1 48.91% 37.31%
+pocoma-l74a-eaf3454a-http-read-1 0.11% 22.00%
+pocoma-l74a-eaf3454a-http-write-1 0.11% 34.94%
+pocoma-l74a-eaf3454a-postgres-1 162.86% 39.06%
+cranky_shirley 36.73% 1.96%
+testcontainers-ryuk-3cf7bf8b-8959-4cce-8310-893d165ebb35 0.00% 0.14%
+pocoma-c2b24-candidate-v4-b3-02004f3c-postgres-1 0.00% 31.15%
+2026-11-21T01:19:46Z
+pocoma-l74a-eaf3454a-results-worker-1 49.15% 37.31%
+pocoma-l74a-eaf3454a-business-read-worker-1 109.38% 44.83%
+pocoma-l74a-eaf3454a-command-worker-1 33.96% 38.18%
+pocoma-l74a-eaf3454a-http-read-1 0.12% 22.07%
+pocoma-l74a-eaf3454a-http-write-1 0.12% 35.00%
+pocoma-l74a-eaf3454a-postgres-1 194.95% 40.89%
+cranky_shirley 45.55% 1.18%
+testcontainers-ryuk-3cf7bf8b-8959-4cce-8310-893d165ebb35 0.00% 0.14%
+pocoma-c2b24-candidate-v4-b3-02004f3c-postgres-1 0.00% 31.17%
+2026-11-21T01:20:03Z
+pocoma-l74a-eaf3454a-results-worker-1 31.93% 37.98%
+pocoma-l74a-eaf3454a-business-read-worker-1 114.89% 44.85%
+pocoma-l74a-eaf3454a-command-worker-1 25.36% 38.71%
+pocoma-l74a-eaf3454a-http-read-1 0.07% 22.04%
+pocoma-l74a-eaf3454a-http-write-1 0.08% 34.97%
+pocoma-l74a-eaf3454a-postgres-1 191.18% 43.51%
+cranky_shirley 20.55% 1.62%
+testcontainers-ryuk-3cf7bf8b-8959-4cce-8310-893d165ebb35 0.00% 0.14%
+pocoma-c2b24-candidate-v4-b3-02004f3c-postgres-1 0.00% 31.20%
+2026-11-21T01:20:20Z
+pocoma-l74a-eaf3454a-results-worker-1 20.18% 38.64%
+pocoma-l74a-eaf3454a-business-read-worker-1 33.99% 44.93%
+pocoma-l74a-eaf3454a-command-worker-1 19.61% 38.73%
+pocoma-l74a-eaf3454a-http-read-1 0.07% 22.08%
+pocoma-l74a-eaf3454a-http-write-1 0.09% 34.93%
+pocoma-l74a-eaf3454a-postgres-1 66.48% 44.17%
+cranky_shirley 0.27% 2.09%
+testcontainers-ryuk-3cf7bf8b-8959-4cce-8310-893d165ebb35 0.00% 0.14%
+pocoma-c2b24-candidate-v4-b3-02004f3c-postgres-1 0.00% 31.20%
+2026-11-21T01:20:37Z
+pocoma-l74a-eaf3454a-results-worker-1 25.19% 38.62%
+pocoma-l74a-eaf3454a-business-read-worker-1 38.99% 44.97%
+pocoma-l74a-eaf3454a-command-worker-1 30.21% 39.83%
+pocoma-l74a-eaf3454a-http-read-1 19.43% 24.65%
+pocoma-l74a-eaf3454a-http-write-1 2.06% 36.82%
+pocoma-l74a-eaf3454a-postgres-1 74.12% 45.47%
+cranky_shirley 0.67% 2.09%
+testcontainers-ryuk-3cf7bf8b-8959-4cce-8310-893d165ebb35 0.00% 0.14%
+pocoma-c2b24-candidate-v4-b3-02004f3c-postgres-1 0.00% 31.15%
+2026-11-21T01:20:54Z
+pocoma-l74a-eaf3454a-results-worker-1 23.96% 38.85%
+pocoma-l74a-eaf3454a-business-read-worker-1 40.34% 45.03%
+pocoma-l74a-eaf3454a-command-worker-1 24.44% 40.38%
+pocoma-l74a-eaf3454a-http-read-1 7.76% 26.60%
+pocoma-l74a-eaf3454a-http-write-1 1.33% 37.10%
+pocoma-l74a-eaf3454a-postgres-1 75.42% 45.66%
+cranky_shirley 70.40% 1.45%
+testcontainers-ryuk-3cf7bf8b-8959-4cce-8310-893d165ebb35 0.00% 0.14%
+pocoma-c2b24-candidate-v4-b3-02004f3c-postgres-1 0.00% 31.15%
+2026-11-21T01:21:11Z
+pocoma-l74a-eaf3454a-results-worker-1 22.81% 38.87%
+pocoma-l74a-eaf3454a-business-read-worker-1 37.31% 45.05%
+pocoma-l74a-eaf3454a-command-worker-1 23.13% 40.57%
+pocoma-l74a-eaf3454a-http-read-1 5.74% 27.35%
+pocoma-l74a-eaf3454a-http-write-1 0.79% 37.55%
+pocoma-l74a-eaf3454a-postgres-1 72.13% 45.89%
+cranky_shirley 32.14% 2.23%
+testcontainers-ryuk-3cf7bf8b-8959-4cce-8310-893d165ebb35 0.00% 0.14%
+pocoma-c2b24-candidate-v4-b3-02004f3c-postgres-1 0.00% 31.15%
+2026-11-21T01:21:27Z
+pocoma-l74a-eaf3454a-results-worker-1 22.50% 39.03%
+pocoma-l74a-eaf3454a-business-read-worker-1 37.84% 45.11%
+pocoma-l74a-eaf3454a-command-worker-1 23.96% 40.72%
+pocoma-l74a-eaf3454a-http-read-1 5.07% 27.72%
+pocoma-l74a-eaf3454a-http-write-1 1.97% 37.80%
+pocoma-l74a-eaf3454a-postgres-1 72.03% 45.95%
+cranky_shirley 31.27% 2.25%
+testcontainers-ryuk-3cf7bf8b-8959-4cce-8310-893d165ebb35 0.00% 0.14%
+pocoma-c2b24-candidate-v4-b3-02004f3c-postgres-1 0.00% 31.15%
+2026-11-21T01:21:44Z
+cranky_shirley 27.69% 1.83%
+testcontainers-ryuk-3cf7bf8b-8959-4cce-8310-893d165ebb35 0.00% 0.14%
+pocoma-c2b24-candidate-v4-b3-02004f3c-postgres-1 0.00% 31.15%
+pocoma-b24-xl-c3-v5-825b73 32.19% 4.18%
+2026-11-21T01:22:01Z
+pocoma-l74mb-2984783b-results-worker-1 47.84% 30.59%
+pocoma-l74mb-2984783b-business-read-worker-1 57.70% 17.48%
+pocoma-l74mb-2984783b-http-write-1 48.73% 31.02%
+pocoma-l74mb-2984783b-http-read-1 11.99% 21.93%
+pocoma-l74mb-2984783b-command-worker-1 47.57% 31.75%
+pocoma-l74mb-2984783b-postgres-1 35.00% 10.82%
+cranky_shirley 74.94% 3.32%
+testcontainers-ryuk-3cf7bf8b-8959-4cce-8310-893d165ebb35 0.00% 0.14%
+pocoma-c2b24-candidate-v4-b3-02004f3c-postgres-1 0.26% 31.18%
+2026-11-21T01:22:18Z
+pocoma-l74mb-2984783b-results-worker-1 48.70% 37.08%
+pocoma-l74mb-2984783b-business-read-worker-1 85.54% 20.33%
+pocoma-l74mb-2984783b-http-write-1 9.10% 36.12%
+pocoma-l74mb-2984783b-http-read-1 20.76% 25.90%
+pocoma-l74mb-2984783b-command-worker-1 50.50% 40.80%
+pocoma-l74mb-2984783b-postgres-1 150.32% 13.04%
+cranky_shirley 33.87% 3.45%
+testcontainers-ryuk-3cf7bf8b-8959-4cce-8310-893d165ebb35 0.00% 0.14%
+pocoma-c2b24-candidate-v4-b3-02004f3c-postgres-1 0.00% 31.15%
+2026-11-21T01:22:35Z
+pocoma-l74mb-2984783b-results-worker-1 50.13% 37.57%
+pocoma-l74mb-2984783b-business-read-worker-1 110.75% 20.88%
+pocoma-l74mb-2984783b-http-write-1 6.99% 37.81%
+pocoma-l74mb-2984783b-http-read-1 16.16% 26.51%
+pocoma-l74mb-2984783b-command-worker-1 50.35% 41.33%
+pocoma-l74mb-2984783b-postgres-1 167.02% 14.56%
+cranky_shirley 12.32% 3.45%
+testcontainers-ryuk-3cf7bf8b-8959-4cce-8310-893d165ebb35 0.00% 0.14%
+pocoma-c2b24-candidate-v4-b3-02004f3c-postgres-1 0.00% 31.15%
+2026-11-21T01:22:52Z
+youthful_bell 58.31% 0.71%
+pocoma-l74mb-2984783b-results-worker-1 51.27% 37.69%
+pocoma-l74mb-2984783b-business-read-worker-1 100.26% 21.22%
+pocoma-l74mb-2984783b-http-write-1 9.25% 37.43%
+pocoma-l74mb-2984783b-http-read-1 16.24% 27.19%
+pocoma-l74mb-2984783b-command-worker-1 50.94% 41.69%
+pocoma-l74mb-2984783b-postgres-1 175.92% 16.29%
+testcontainers-ryuk-3cf7bf8b-8959-4cce-8310-893d165ebb35 0.00% 0.14%
+pocoma-c2b24-candidate-v4-b3-02004f3c-postgres-1 0.00% 31.15%
+2026-11-21T01:23:09Z
+pedantic_hofstadter 41.55% 0.94%
+pocoma-l74mb-2984783b-results-worker-1 49.92% 37.87%
+pocoma-l74mb-2984783b-business-read-worker-1 90.33% 24.00%
+pocoma-l74mb-2984783b-http-write-1 6.77% 38.72%
+pocoma-l74mb-2984783b-http-read-1 13.36% 27.23%
+pocoma-l74mb-2984783b-command-worker-1 50.28% 41.77%
+pocoma-l74mb-2984783b-postgres-1 182.13% 18.04%
+testcontainers-ryuk-3cf7bf8b-8959-4cce-8310-893d165ebb35 0.00% 0.14%
+pocoma-c2b24-candidate-v4-b3-02004f3c-postgres-1 0.00% 31.15%
+2026-11-21T01:23:26Z
+pedantic_hofstadter 65.38% 0.81%
+pocoma-l74mb-2984783b-results-worker-1 50.60% 37.89%
+pocoma-l74mb-2984783b-business-read-worker-1 94.86% 26.42%
+pocoma-l74mb-2984783b-http-write-1 8.57% 39.44%
+pocoma-l74mb-2984783b-http-read-1 13.46% 27.11%
+pocoma-l74mb-2984783b-command-worker-1 50.24% 42.32%
+pocoma-l74mb-2984783b-postgres-1 173.13% 19.73%
+testcontainers-ryuk-3cf7bf8b-8959-4cce-8310-893d165ebb35 0.00% 0.14%
+pocoma-c2b24-candidate-v4-b3-02004f3c-postgres-1 0.00% 31.15%
+2026-11-21T01:23:43Z
+pedantic_hofstadter 59.92% 0.87%
+pocoma-l74mb-2984783b-results-worker-1 48.72% 37.83%
+pocoma-l74mb-2984783b-business-read-worker-1 86.63% 26.36%
+pocoma-l74mb-2984783b-http-write-1 6.03% 40.80%
+pocoma-l74mb-2984783b-http-read-1 12.50% 27.67%
+pocoma-l74mb-2984783b-command-worker-1 50.48% 42.42%
+pocoma-l74mb-2984783b-postgres-1 167.22% 21.33%
+testcontainers-ryuk-3cf7bf8b-8959-4cce-8310-893d165ebb35 0.00% 0.14%
+pocoma-c2b24-candidate-v4-b3-02004f3c-postgres-1 0.00% 31.15%
+2026-11-21T01:24:00Z
+pedantic_hofstadter 34.98% 1.25%
+pocoma-l74mb-2984783b-results-worker-1 49.04% 37.84%
+pocoma-l74mb-2984783b-business-read-worker-1 96.07% 26.43%
+pocoma-l74mb-2984783b-http-write-1 4.47% 41.18%
+pocoma-l74mb-2984783b-http-read-1 10.95% 27.80%
+pocoma-l74mb-2984783b-command-worker-1 49.70% 42.51%
+pocoma-l74mb-2984783b-postgres-1 168.03% 22.95%
+testcontainers-ryuk-3cf7bf8b-8959-4cce-8310-893d165ebb35 0.00% 0.14%
+pocoma-c2b24-candidate-v4-b3-02004f3c-postgres-1 0.00% 31.15%
+2026-11-21T01:24:17Z
+pedantic_hofstadter 34.84% 1.26%
+pocoma-l74mb-2984783b-results-worker-1 49.49% 37.89%
+pocoma-l74mb-2984783b-business-read-worker-1 97.59% 26.42%
+pocoma-l74mb-2984783b-http-write-1 5.02% 41.32%
+pocoma-l74mb-2984783b-http-read-1 22.01% 28.19%
+pocoma-l74mb-2984783b-command-worker-1 51.10% 42.49%
+pocoma-l74mb-2984783b-postgres-1 174.67% 24.63%
+testcontainers-ryuk-3cf7bf8b-8959-4cce-8310-893d165ebb35 0.00% 0.14%
+pocoma-c2b24-candidate-v4-b3-02004f3c-postgres-1 0.00% 31.15%
+2026-11-21T01:24:34Z
+elated_raman 5.07% 0.47%
+pocoma-l74mb-2984783b-results-worker-1 50.53% 37.97%
+pocoma-l74mb-2984783b-business-read-worker-1 91.77% 26.40%
+pocoma-l74mb-2984783b-http-write-1 3.41% 41.35%
+pocoma-l74mb-2984783b-http-read-1 11.14% 28.25%
+pocoma-l74mb-2984783b-command-worker-1 51.22% 42.49%
+pocoma-l74mb-2984783b-postgres-1 177.28% 25.51%
+testcontainers-ryuk-3cf7bf8b-8959-4cce-8310-893d165ebb35 0.00% 0.14%
+pocoma-c2b24-candidate-v4-b3-02004f3c-postgres-1 0.00% 31.15%
+sweet_merkle 55.03% 0.59%
+2026-11-21T01:24:51Z
+agitated_chaplygin 65.77% 0.98%
+pocoma-l74mb-2984783b-results-worker-1 33.30% 38.08%
+pocoma-l74mb-2984783b-business-read-worker-1 92.04% 27.35%
+pocoma-l74mb-2984783b-http-write-1 0.61% 41.18%
+pocoma-l74mb-2984783b-http-read-1 18.26% 29.02%
+pocoma-l74mb-2984783b-command-worker-1 36.89% 42.69%
+pocoma-l74mb-2984783b-postgres-1 137.85% 26.77%
+testcontainers-ryuk-3cf7bf8b-8959-4cce-8310-893d165ebb35 0.01% 0.14%
+pocoma-c2b24-candidate-v4-b3-02004f3c-postgres-1 0.00% 31.15%
+2026-11-21T01:25:08Z
+pocoma-l74mb-98ffc146-business-read-worker-1 68.29% 13.74%
+pocoma-l74mb-98ffc146-command-worker-1 48.11% 13.60%
+pocoma-l74mb-98ffc146-results-worker-1 51.00% 15.34%
+pocoma-l74mb-98ffc146-http-write-1 50.31% 14.64%
+pocoma-l74mb-98ffc146-http-read-1 48.99% 9.39%
+pocoma-l74mb-98ffc146-postgres-1 0.12% 5.71%
+agitated_chaplygin 32.62% 1.09%
+testcontainers-ryuk-3cf7bf8b-8959-4cce-8310-893d165ebb35 0.00% 0.14%
+pocoma-c2b24-candidate-v4-b3-02004f3c-postgres-1 0.00% 31.15%
+2026-11-21T01:25:25Z
+pocoma-l74mb-98ffc146-business-read-worker-1 97.85% 20.11%
+pocoma-l74mb-98ffc146-command-worker-1 48.04% 40.09%
+pocoma-l74mb-98ffc146-results-worker-1 48.39% 36.45%
+pocoma-l74mb-98ffc146-http-write-1 11.91% 35.12%
+pocoma-l74mb-98ffc146-http-read-1 38.00% 25.08%
+pocoma-l74mb-98ffc146-postgres-1 114.03% 12.26%
+agitated_chaplygin 34.16% 1.07%
+testcontainers-ryuk-3cf7bf8b-8959-4cce-8310-893d165ebb35 0.00% 0.14%
+pocoma-c2b24-candidate-v4-b3-02004f3c-postgres-1 0.00% 31.15%
+2026-11-21T01:25:42Z
+pocoma-l74mb-98ffc146-business-read-worker-1 84.87% 20.65%
+pocoma-l74mb-98ffc146-command-worker-1 50.09% 40.99%
+pocoma-l74mb-98ffc146-results-worker-1 48.44% 37.97%
+pocoma-l74mb-98ffc146-http-write-1 14.67% 36.83%
+pocoma-l74mb-98ffc146-http-read-1 28.27% 25.86%
+pocoma-l74mb-98ffc146-postgres-1 151.20% 12.95%
+agitated_chaplygin 33.81% 1.12%
+testcontainers-ryuk-3cf7bf8b-8959-4cce-8310-893d165ebb35 0.00% 0.14%
+pocoma-c2b24-candidate-v4-b3-02004f3c-postgres-1 0.00% 31.15%
+2026-11-21T01:25:59Z
+pocoma-l74mb-98ffc146-business-read-worker-1 95.57% 20.97%
+pocoma-l74mb-98ffc146-command-worker-1 50.41% 41.57%
+pocoma-l74mb-98ffc146-results-worker-1 50.45% 38.18%
+pocoma-l74mb-98ffc146-http-write-1 7.13% 37.46%
+pocoma-l74mb-98ffc146-http-read-1 19.02% 26.80%
+pocoma-l74mb-98ffc146-postgres-1 169.52% 14.55%
+agitated_chaplygin 35.54% 1.13%
+testcontainers-ryuk-3cf7bf8b-8959-4cce-8310-893d165ebb35 0.00% 0.14%
+pocoma-c2b24-candidate-v4-b3-02004f3c-postgres-1 0.00% 31.15%
+2026-11-21T01:26:16Z
+pocoma-l74mb-98ffc146-business-read-worker-1 90.31% 21.17%
+pocoma-l74mb-98ffc146-command-worker-1 50.36% 41.81%
+pocoma-l74mb-98ffc146-results-worker-1 50.29% 38.29%
+pocoma-l74mb-98ffc146-http-write-1 7.27% 37.97%
+pocoma-l74mb-98ffc146-http-read-1 16.87% 26.95%
+pocoma-l74mb-98ffc146-postgres-1 169.89% 16.13%
+agitated_chaplygin 35.19% 1.18%
+testcontainers-ryuk-3cf7bf8b-8959-4cce-8310-893d165ebb35 0.00% 0.14%
+pocoma-c2b24-candidate-v4-b3-02004f3c-postgres-1 0.00% 31.15%
+2026-11-21T01:26:33Z
+pocoma-l74mb-98ffc146-business-read-worker-1 89.38% 21.87%
+pocoma-l74mb-98ffc146-command-worker-1 47.47% 41.90%
+pocoma-l74mb-98ffc146-results-worker-1 49.76% 38.34%
+pocoma-l74mb-98ffc146-http-write-1 4.50% 38.86%
+pocoma-l74mb-98ffc146-http-read-1 23.71% 27.09%
+pocoma-l74mb-98ffc146-postgres-1 160.74% 17.88%
+agitated_chaplygin 39.60% 1.18%
+testcontainers-ryuk-3cf7bf8b-8959-4cce-8310-893d165ebb35 0.00% 0.14%
+pocoma-c2b24-candidate-v4-b3-02004f3c-postgres-1 0.00% 31.15%
+2026-11-21T01:26:50Z
+pocoma-l74mb-98ffc146-business-read-worker-1 92.57% 23.30%
+pocoma-l74mb-98ffc146-command-worker-1 50.90% 42.27%
+pocoma-l74mb-98ffc146-results-worker-1 50.64% 38.32%
+pocoma-l74mb-98ffc146-http-write-1 11.05% 39.56%
+pocoma-l74mb-98ffc146-http-read-1 11.84% 27.99%
+pocoma-l74mb-98ffc146-postgres-1 167.25% 19.58%
+agitated_chaplygin 35.91% 1.24%
+testcontainers-ryuk-3cf7bf8b-8959-4cce-8310-893d165ebb35 0.00% 0.14%
+pocoma-c2b24-candidate-v4-b3-02004f3c-postgres-1 0.29% 31.15%
+2026-11-21T01:27:07Z
+pocoma-l74mb-98ffc146-business-read-worker-1 97.39% 25.51%
+pocoma-l74mb-98ffc146-command-worker-1 50.80% 42.44%
+pocoma-l74mb-98ffc146-results-worker-1 50.51% 38.48%
+pocoma-l74mb-98ffc146-http-write-1 7.45% 40.26%
+pocoma-l74mb-98ffc146-http-read-1 13.23% 28.00%
+pocoma-l74mb-98ffc146-postgres-1 167.81% 21.37%
+agitated_chaplygin 35.24% 1.22%
+testcontainers-ryuk-3cf7bf8b-8959-4cce-8310-893d165ebb35 0.00% 0.14%
+pocoma-c2b24-candidate-v4-b3-02004f3c-postgres-1 0.00% 31.15%
+2026-11-21T01:27:24Z
+pocoma-l74mb-98ffc146-business-read-worker-1 91.16% 25.56%
+pocoma-l74mb-98ffc146-command-worker-1 51.63% 42.46%
+pocoma-l74mb-98ffc146-results-worker-1 49.26% 38.49%
+pocoma-l74mb-98ffc146-http-write-1 4.49% 41.44%
+pocoma-l74mb-98ffc146-http-read-1 11.03% 28.11%
+pocoma-l74mb-98ffc146-postgres-1 182.17% 23.10%
+agitated_chaplygin 35.58% 1.32%
+testcontainers-ryuk-3cf7bf8b-8959-4cce-8310-893d165ebb35 0.00% 0.14%
+pocoma-c2b24-candidate-v4-b3-02004f3c-postgres-1 0.00% 31.15%
+2026-11-21T01:27:41Z
+pocoma-l74mb-98ffc146-business-read-worker-1 90.08% 29.92%
+pocoma-l74mb-98ffc146-command-worker-1 50.91% 42.54%
+pocoma-l74mb-98ffc146-results-worker-1 49.62% 38.56%
+pocoma-l74mb-98ffc146-http-write-1 7.82% 41.34%
+pocoma-l74mb-98ffc146-http-read-1 10.66% 28.08%
+pocoma-l74mb-98ffc146-postgres-1 166.91% 24.70%
+agitated_chaplygin 36.16% 1.33%
+testcontainers-ryuk-3cf7bf8b-8959-4cce-8310-893d165ebb35 0.00% 0.14%
+pocoma-c2b24-candidate-v4-b3-02004f3c-postgres-1 0.00% 31.15%
+2026-11-21T01:27:58Z
+pocoma-l74mb-98ffc146-business-read-worker-1 67.40% 29.92%
+pocoma-l74mb-98ffc146-command-worker-1 43.60% 42.67%
+pocoma-l74mb-98ffc146-results-worker-1 38.04% 38.48%
+pocoma-l74mb-98ffc146-http-write-1 0.98% 41.46%
+pocoma-l74mb-98ffc146-http-read-1 24.28% 28.89%
+pocoma-l74mb-98ffc146-postgres-1 137.98% 25.62%
+agitated_chaplygin 53.78% 1.36%
+testcontainers-ryuk-3cf7bf8b-8959-4cce-8310-893d165ebb35 0.00% 0.14%
+pocoma-c2b24-candidate-v4-b3-02004f3c-postgres-1 0.00% 31.15%
+2026-11-21T01:28:15Z
+agitated_chaplygin 29.02% 1.38%
+testcontainers-ryuk-3cf7bf8b-8959-4cce-8310-893d165ebb35 0.00% 0.14%
+pocoma-c2b24-candidate-v4-b3-02004f3c-postgres-1 0.02% 31.15%

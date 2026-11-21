@@ -1,0 +1,17 @@
+  private static ReadParticipantsFixture pilot(java.lang.String) throws java.lang.Exception;
+    descriptor: (Ljava/lang/String;)LReadParticipantsFixture;
+
+--
+  static com.kartaguez.pocoma.engine.materialize.results.MaterializeCommandResult participant(ReadParticipantsFixture, javax.sql.DataSource, com.kartaguez.pocoma.infra.tx.spring.SpringAttemptTransactions);
+    descriptor: (LReadParticipantsFixture;Ljavax/sql/DataSource;Lcom/kartaguez/pocoma/infra/tx/spring/SpringAttemptTransactions;)Lcom/kartaguez/pocoma/engine/materialize/results/MaterializeCommandResult;
+
+--
+  static com.kartaguez.pocoma.domain.projection.CommandTerminalResult expected(ReadParticipantsFixture);
+    descriptor: (LReadParticipantsFixture;)Lcom/kartaguez/pocoma/domain/projection/CommandTerminalResult;
+
+  static void assertPrefix(ReadParticipantsFixture, int);
+    descriptor: (LReadParticipantsFixture;I)V
+
+  static void expireSlot(ReadParticipantsFixture, java.util.UUID);
+    descriptor: (LReadParticipantsFixture;Ljava/util/UUID;)V
+

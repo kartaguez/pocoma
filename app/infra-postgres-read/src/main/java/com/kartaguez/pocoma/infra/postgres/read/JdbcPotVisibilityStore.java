@@ -1,13 +1,25 @@
 package com.kartaguez.pocoma.infra.postgres.read;
 import com.kartaguez.pocoma.domain.projection.PotVisibility;
 import com.kartaguez.pocoma.port.projection.PotVisibilityStore;
+import com.kartaguez.pocoma.port.projection.ReadEvidence;
 import com.kartaguez.pocoma.port.transaction.RecoveryReadContext;
 import com.kartaguez.pocoma.infra.tx.spring.SpringAttemptTransactions;
 import javax.sql.DataSource;
 import java.util.*;
 public final class JdbcPotVisibilityStore implements PotVisibilityStore {
+    private static final ReadAvailability.Family FAMILY = ReadAvailability.Family.POT_VISIBILITY_CHANGED;
+
     private final ReadJdbc db;
-    public JdbcPotVisibilityStore(DataSource source,SpringAttemptTransactions owner) { db=new ReadJdbc(source,owner); }
+    private final ReadAvailability availability;
+
+    public JdbcPotVisibilityStore(DataSource source, SpringAttemptTransactions owner) {
+        this(source, owner, false);
+    }
+
+    public JdbcPotVisibilityStore(DataSource source, SpringAttemptTransactions owner, boolean publishAvailability) {
+        db = new ReadJdbc(source, owner);
+        availability = new ReadAvailability(db, publishAvailability);
+    }
     private Set<UUID> visible(UUID p,long g) {
         var users=new HashSet<UUID>();
         db.sql.query("select user_id,pot_version from read_user_pot where pot_id=? and visible=true",r -> {
@@ -25,17 +37,19 @@ public final class JdbcPotVisibilityStore implements PotVisibilityStore {
         db.sql.update("insert into read_pot_visibility_state(pot_id,materialized_version) values (?,0) on conflict do nothing",p);
         long g=db.sql.queryForObject("select materialized_version from read_pot_visibility_state where pot_id=? for update",Long.class,p);
         var before=visible(p,g);
-        if(value.version()<g) return new Receipt(new PotVisibility(p,g,before),Set.of());
-        if(value.version()==g) { ReadJdbc.same(value.users(),before); return new Receipt(value,Set.of()); }
+        if(value.version()<g) return new Receipt(new PotVisibility(p,g,before),Set.of(),false);
+        if(value.version()==g) { ReadJdbc.same(value.users(),before); return new Receipt(value,Set.of(),false); }
         var disabled=new HashSet<>(before); disabled.removeAll(value.users());
         var ordered=new TreeSet<UUID>(com.kartaguez.pocoma.domain.projection.SubobjectKey::compareUuid); ordered.addAll(value.users()); ordered.addAll(disabled);
         for(var user:ordered) if(!before.contains(user) || disabled.contains(user))
             db.sql.update("insert into read_user_pot(user_id,pot_id,pot_version,visible) values (?,?,?,?) on conflict(user_id,pot_id) do update set pot_version=excluded.pot_version,visible=excluded.visible",user,p,value.version(),value.users().contains(user));
         db.sql.update("update read_pot_visibility_state set materialized_version=? where pot_id=?",value.version(),p);
-        return new Receipt(value,disabled);
+        return new Receipt(value,disabled,true);
     }); }
-    public void requireStored(Receipt receipt) { db.write(() -> {
-        ReadJdbc.same(receipt.state(),load(receipt.state().potId()).orElse(null));
+    public void requireCompletionReady(Receipt receipt) { db.write(() -> {
+        var state = receipt.state();
+        ReadJdbc.same(state, load(state.potId()).orElse(null));
+        availability.requireCurrent(FAMILY, state.potId(), state.version(), receipt.advanced());
         for(var user:receipt.disabled()) {
             var rows=db.sql.queryForList("select pot_version,visible from read_user_pot where user_id=? and pot_id=?",user,receipt.state().potId());
             if(rows.size()!=1 || !Objects.equals(rows.getFirst().get("pot_version"),receipt.state().version()) || !Boolean.FALSE.equals(rows.getFirst().get("visible"))) throw new IllegalStateException("Missing tombstone");
@@ -49,5 +63,14 @@ public final class JdbcPotVisibilityStore implements PotVisibilityStore {
                 : db.sql.query("select pot_id from read_user_pot where user_id=? and visible=true and pot_id>? order by pot_id limit ?",(r,n) -> r.getObject(1,UUID.class),user,after,limit);
         });
     }
-    public void closePublication() { SpringAttemptTransactions.closePublication(db.source); }
+    public void closePublication(Receipt receipt) {
+        var state = receipt.state();
+        availability.closeAndPublish(ReadAvailability.Publication.current(FAMILY, state.potId(), state.version(), receipt.advanced()));
+    }
+
+    @Override
+    public ReadEvidence evidence(PotVisibility incoming, PotVisibility expected, RecoveryReadContext context) {
+        return db.read(context, () -> availability.currentEvidence(
+                FAMILY, incoming.potId(), incoming.version(), expected, load(incoming.potId()), PotVisibility::version));
+    }
 }

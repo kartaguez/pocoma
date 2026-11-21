@@ -1,0 +1,4 @@
+2026-11-20 22:16:26.801 UTC [12418] LOG:  process 12418 still waiting for ShareLock on transaction 7722 after 5.473 ms
+2026-11-20 22:16:26.801 UTC [12418] STATEMENT:  insert into read_pot_shareholder_set(
+2026-11-20 22:16:26.802 UTC [12418] LOG:  process 12418 acquired ShareLock on transaction 7722 after 5.498 ms
+2026-11-20 22:16:26.802 UTC [12418] STATEMENT:  insert into read_pot_shareholder_set(

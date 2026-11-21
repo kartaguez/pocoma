@@ -24,10 +24,18 @@ import java.util.Optional;
 import java.util.UUID;
 
 public final class JdbcPotBalanceStore implements PotBalanceStore {
+    private static final ReadAvailability.Family FAMILY = ReadAvailability.Family.POT_BALANCE_AVAILABLE;
+
     private final ReadJdbc db;
+    private final ReadAvailability availability;
 
     public JdbcPotBalanceStore(DataSource source, SpringAttemptTransactions owner) {
+        this(source, owner, false);
+    }
+
+    public JdbcPotBalanceStore(DataSource source, SpringAttemptTransactions owner, boolean publishAvailability) {
         this.db = new ReadJdbc(source, owner);
+        this.availability = new ReadAvailability(db, publishAvailability);
     }
 
     private Optional<PotBalance> load(UUID potId, long version) {
@@ -156,6 +164,15 @@ public final class JdbcPotBalanceStore implements PotBalanceStore {
                 () -> {
                     try {
                         var actual = load(potId, version);
+                        if (availability.enabled()) {
+                            var event = availability.historicalEventPositionValid(FAMILY, potId, version);
+                            if (actual.isEmpty() ? event.isPresent() : !event.orElse(false)) {
+                                return ReadEvidence.DIVERGENT;
+                            }
+                            if (expected.isEmpty() && loadAggregate(potId, version).isPresent()) {
+                                return ReadEvidence.DIVERGENT;
+                            }
+                        }
                         if (expected.equals(actual)) {
                             return ReadEvidence.SATISFIED;
                         }
@@ -200,13 +217,14 @@ public final class JdbcPotBalanceStore implements PotBalanceStore {
                         insertOrVerifyShareholderSet(encoded.shareholderSet());
                         ContentWriteOutcome outcome =
                                 insertOrVerifyBalanceContent(encoded.content());
-                        insertOrVerifyBalancePointer(
+                        boolean inserted = insertOrVerifyBalancePointer(
                                 balance.potId(), balance.version(), encoded.content().hash());
                         return new PersistVersionResult(
                                 encoded.content().hash(),
                                 new WriteResult(outcome, encodeElapsed),
                                 Optional.empty(),
-                                Optional.empty());
+                                Optional.empty(),
+                                inserted);
                     });
         }
         PotBalanceAggregate agg = aggregate.get();
@@ -230,7 +248,7 @@ public final class JdbcPotBalanceStore implements PotBalanceStore {
                     var outcomes =
                             insertOrVerifyContentPair(balEnc.content(), aggEnc.content());
 
-                    insertOrVerifyBalancePointer(
+                    boolean inserted = insertOrVerifyBalancePointer(
                             balance.potId(), balance.version(), balEnc.content().hash());
                     insertOrVerifyAggregatePointer(
                             agg.potId(), agg.version(), aggEnc.content().hash());
@@ -239,7 +257,8 @@ public final class JdbcPotBalanceStore implements PotBalanceStore {
                             balEnc.content().hash(),
                             new WriteResult(outcomes[0], balEncodeElapsed),
                             Optional.of(aggEnc.content().hash()),
-                            Optional.of(new WriteResult(outcomes[1], aggEncodeElapsed)));
+                            Optional.of(new WriteResult(outcomes[1], aggEncodeElapsed)),
+                            inserted);
                 });
     }
 
@@ -412,7 +431,7 @@ public final class JdbcPotBalanceStore implements PotBalanceStore {
         }
     }
 
-    private void insertOrVerifyBalancePointer(UUID potId, long version, ContentHash expectedHash) {
+    private boolean insertOrVerifyBalancePointer(UUID potId, long version, ContentHash expectedHash) {
         byte[] expectedBytes = expectedHash.bytes();
         var inserted =
                 db.sql.query(
@@ -427,7 +446,7 @@ public final class JdbcPotBalanceStore implements PotBalanceStore {
                         version,
                         expectedBytes);
         if (!inserted.isEmpty()) {
-            return;
+            return true;
         }
         var actual =
                 db.sql.query(
@@ -439,6 +458,7 @@ public final class JdbcPotBalanceStore implements PotBalanceStore {
             throw new IllegalStateException(
                     "Divergent read_pot_balance for pot=" + potId + " version=" + version);
         }
+        return false;
     }
 
     @Override
@@ -676,6 +696,22 @@ public final class JdbcPotBalanceStore implements PotBalanceStore {
                             loadAggregate(expected.potId(), expected.version()).orElse(null));
                     return null;
                 });
+    }
+
+    @Override
+    public void requireCompletionReady(UUID pot, long version, Optional<ContentHash> balanceHash,
+            Optional<ContentHash> aggregateHash, boolean inserted) {
+        requireHashesStored(pot, version, balanceHash, aggregateHash);
+        db.write(() -> {
+            availability.requireHistoricalEvent(FAMILY, pot, version, balanceHash.isPresent() && !inserted);
+            return null;
+        });
+    }
+
+    @Override
+    public void closePublication(UUID pot, long version, boolean pointerInserted) {
+        availability.closeAndPublish(ReadAvailability.Publication.historical(
+                FAMILY, pot, version, availability.enabled() && pointerInserted));
     }
 
     @Override

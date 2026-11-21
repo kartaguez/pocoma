@@ -18,6 +18,10 @@ import argparse
 import os
 import subprocess
 
+from read_availability_schema import (
+    READ_AVAILABILITY_MIGRATION, availability_catalog_complete, availability_catalog_present,
+)
+
 REPO_ROOT = Path(__file__).resolve().parents[2]
 POSTGRES_CONTAINER = "pocoma-v3-postgres"
 POSTGRES_USER = "pocoma"
@@ -36,7 +40,7 @@ def psql(db, sql_command, check=True):
     return res.stdout.strip()
 
 
-def psql_script(db, schema, script_content, variables=None):
+def psql_script(db, schema, script_content, variables=None, single_transaction=False):
     vars_args = []
     if variables:
         for k, v in variables.items():
@@ -46,7 +50,7 @@ def psql_script(db, schema, script_content, variables=None):
         f"-e", f"PGOPTIONS=-c search_path={schema},public",
         POSTGRES_CONTAINER,
         "psql", "-X", "-U", POSTGRES_USER, "-d", db, "-v", "ON_ERROR_STOP=1",
-        *vars_args, "-f", "-"
+        *vars_args, *(["--single-transaction"] if single_transaction else []), "-f", "-"
     ]
     res = subprocess.run(cmd, input=script_content, capture_output=True, text=True)
     if res.returncode != 0:
@@ -116,7 +120,7 @@ def apply_migrations(db, schema, admin, runtime, migration_files):
         content = content.replace("${expectedSchema}", schema)
         content = content.replace("${expectedAdmin}", admin)
         content = content.replace("${expectedRuntime}", runtime)
-        psql_script(db, schema, content)
+        psql_script(db, schema, content, single_transaction=f == READ_AVAILABILITY_MIGRATION)
 
 
 def initialize_v3_write():
@@ -180,6 +184,20 @@ def initialize_v3_write():
     print("  ✓ Schema v3_write successfully provisioned and secured.")
 
 
+def initialize_read_availability():
+    schema = "v3_read"
+    database = "pocoma_read"
+    if psql(database, availability_catalog_present(schema)) == "t":
+        if (psql(database, availability_catalog_complete(schema)) != "t"
+                or psql(database, f"SELECT {schema}.read_availability_schema_valid();") != "t"):
+            raise RuntimeError("Incomplete READ V5 schema; repair by exclusive READ reconstruction.")
+        print("  ✓ READ V5 availability schema already installed.")
+        return
+    # The migration locks the affected tables, verifies the authority is empty and rolls
+    # back its DDL and grants together on any error. A populated READ must be rebuilt.
+    apply_migrations(database, schema, "pocoma", "pocoma_read", [READ_AVAILABILITY_MIGRATION])
+
+
 def initialize_v3_read():
     # Bootstrap persistent maintenance authority in public schema (idempotent)
     maint_content = (REPO_ROOT / "scripts/v3/bootstrap-read-maintenance.sql").read_text(encoding="utf-8")
@@ -241,6 +259,7 @@ def initialize_v3_read():
             print("  ✓ READ migration V4 (PotBalance shared storage) applied.")
         else:
             print("  ✓ Schema v3_read (V4 PotBalance shared storage) and public maintenance authority already initialized.")
+        initialize_read_availability()
         return
 
     print("▶ Initializing schema v3_read in database pocoma_read...")
@@ -251,6 +270,7 @@ def initialize_v3_read():
         "app/infra-postgres-read/src/main/resources/db/read/migration/V2__pot_balance_aggregate.sql",
         "app/infra-postgres-read/src/main/resources/db/read/migration/V3__pot_version_radix16.sql",
         "app/infra-postgres-read/src/main/resources/db/read/migration/V4__pot_balance_shared_storage.sql",
+        READ_AVAILABILITY_MIGRATION,
     ]
     apply_migrations("pocoma_read", "v3_read", "pocoma", "pocoma_read", read_migrations)
 

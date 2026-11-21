@@ -160,6 +160,11 @@ class LocalSafety(unittest.TestCase):
             self.assertEqual(1,len(__import__('re').findall(r'(?im)^COMMIT;',text)))
             self.assertIn('GRANT',text)
             self.assertLess(text.index('GRANT'),text.index('CREATE TABLE public.pocoma_local_bootstrap'))
+        read_ddl = next(text for db, text in calls
+                        if db == 'pocoma_read' and 'CREATE TABLE public.pocoma_local_bootstrap' in text)
+        self.assertIn('create table read_availability_event', read_ddl)
+        self.assertLess(read_ddl.index('create table read_availability_event'),
+                        read_ddl.index('CREATE TABLE public.pocoma_local_bootstrap'))
         roles='\n'.join(text for _,text in calls if 'CREATE ROLE' in text)
         self.assertNotIn('local-only',roles)
         self.assertIn('random-pocoma_admission',roles)

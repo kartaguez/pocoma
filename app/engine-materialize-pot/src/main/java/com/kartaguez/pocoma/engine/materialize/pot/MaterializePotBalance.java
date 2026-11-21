@@ -242,6 +242,7 @@ public final class MaterializePotBalance implements ConsumptionParticipant {
                 new Prepared() {
                     private Optional<ContentHash> persistedBalanceHash;
                     private Optional<ContentHash> persistedAggregateHash;
+                    private boolean pointerInserted;
 
                     @Override
                     public void finalizeIn(SlotCompletion completion) {
@@ -254,6 +255,7 @@ public final class MaterializePotBalance implements ConsumptionParticipant {
                                     Duration.ofNanos(System.nanoTime() - persistStart);
                             persistedBalanceHash = Optional.of(result.balanceHash());
                             persistedAggregateHash = result.aggregateHash();
+                            pointerInserted = result.pointerInserted();
 
                             observation.persisted(PersistTarget.BALANCE, persistElapsed);
                             observation.contentEncoded(
@@ -277,9 +279,10 @@ public final class MaterializePotBalance implements ConsumptionParticipant {
                         } else {
                             persistedBalanceHash = Optional.empty();
                             persistedAggregateHash = Optional.empty();
+                            pointerInserted = false;
                         }
                         completion.complete();
-                        store.closePublication();
+                        store.closePublication(potId, version, pointerInserted);
                     }
 
                     @Override
@@ -297,7 +300,7 @@ public final class MaterializePotBalance implements ConsumptionParticipant {
                                                             .content()
                                                             .hash());
                         }
-                        store.requireHashesStored(potId, version, expectedBalHash, expectedAggHash);
+                        store.requireCompletionReady(potId, version, expectedBalHash, expectedAggHash, pointerInserted);
                     }
                 });
     }

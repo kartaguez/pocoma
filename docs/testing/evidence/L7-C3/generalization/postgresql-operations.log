@@ -1,0 +1,68 @@
+▶ Initializing PostgreSQL databases and roles for V3...
+  • Creating database pocoma_write...
+  • Creating database pocoma_read...
+  ✓ Databases, roles, and search paths verified.
+▶ Initializing schema v3_write in database pocoma_write...
+  ✓ Schema v3_write successfully provisioned and secured.
+▶ Initializing schema v3_read in database pocoma_read...
+  ✓ Schema v3_read and public maintenance authority successfully provisioned and secured.
+✓ V3 PostgreSQL initialization complete.
+▶ Initializing PostgreSQL databases and roles for V3...
+  ✓ Databases, roles, and search paths verified.
+  ✓ Schema v3_write already initialized.
+  ✓ Schema v3_read (V3 Radix-16) already initialized.
+  ✓ Schema v3_read (V4 PotBalance shared storage) and public maintenance authority already initialized.
+  ✓ READ V5 availability schema already installed.
+✓ V3 PostgreSQL initialization complete.
+                                            version                                             | read_availability_schema_valid | read_availability_valid 
+------------------------------------------------------------------------------------------------+--------------------------------+-------------------------
+ PostgreSQL 17.12 on aarch64-unknown-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit | t                              | t
+(1 row)
+
+              family               | position 
+-----------------------------------+----------
+ COMMAND_RESULT_AVAILABLE          |        0
+ CURRENT_BINDING_CHANGED           |        0
+ CURRENT_INVITATION_CHANGED        |        0
+ CURRENT_POT_CHANGED               |        0
+ IDENTITY_REQUEST_RESULT_AVAILABLE |        0
+ POT_BALANCE_AVAILABLE             |        0
+ POT_VERSION_AVAILABLE             |        0
+ POT_VISIBILITY_CHANGED            |        0
+(8 rows)
+
+         rolname          |          relname          | selects | inserts | updates | other 
+--------------------------+---------------------------+---------+---------+---------+-------
+ pocoma_admission         | read_availability_counter | f       | f       | f       | f
+ pocoma_admission         | read_availability_effects | f       | f       | f       | f
+ pocoma_admission         | read_availability_event   | f       | f       | f       | f
+ pocoma_admission         | read_current_availability | f       | f       | f       | f
+ pocoma_react             | read_availability_counter | f       | f       | f       | f
+ pocoma_react             | read_availability_effects | f       | f       | f       | f
+ pocoma_react             | read_availability_event   | f       | f       | f       | f
+ pocoma_react             | read_current_availability | f       | f       | f       | f
+ pocoma_read              | read_availability_counter | t       | f       | t       | f
+ pocoma_read              | read_availability_effects | t       | f       | f       | f
+ pocoma_read              | read_availability_event   | t       | t       | f       | f
+ pocoma_read              | read_current_availability | t       | t       | t       | f
+ pocoma_read_http         | read_availability_counter | f       | f       | f       | f
+ pocoma_read_http         | read_availability_effects | f       | f       | f       | f
+ pocoma_read_http         | read_availability_event   | f       | f       | f       | f
+ pocoma_read_http         | read_current_availability | f       | f       | f       | f
+ pocoma_read_status       | read_availability_counter | f       | f       | f       | f
+ pocoma_read_status       | read_availability_effects | f       | f       | f       | f
+ pocoma_read_status       | read_availability_event   | f       | f       | f       | f
+ pocoma_read_status       | read_current_availability | f       | f       | f       | f
+ pocoma_write             | read_availability_counter | f       | f       | f       | f
+ pocoma_write             | read_availability_effects | f       | f       | f       | f
+ pocoma_write             | read_availability_event   | f       | f       | f       | f
+ pocoma_write             | read_current_availability | f       | f       | f       | f
+ pocoma_write_source_read | read_availability_counter | f       | f       | f       | f
+ pocoma_write_source_read | read_availability_effects | f       | f       | f       | f
+ pocoma_write_source_read | read_availability_event   | f       | f       | f       | f
+ pocoma_write_source_read | read_current_availability | f       | f       | f       | f
+(28 rows)
+
+Injected failure after V5 DDL and grants: psql script failed on pocoma_read.v3_read_probe: psql:<stdin>:432: ERROR:  division by zero
+V5 objects and business trigger absent after rollback
+V4 empty to V5 succeeds after rollback and takes all eight counters

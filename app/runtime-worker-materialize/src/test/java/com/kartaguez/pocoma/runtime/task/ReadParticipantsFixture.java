@@ -44,6 +44,9 @@ final class ReadParticipantsFixture implements AutoCloseable {
     final InterAuthorityPostgresFixture.Published pot;
     final UUID identityRequest;
     final ExternalIdentity eui=new ExternalIdentity("l4","owner");
+    static final Set<Name> PROJECTIONS_WITH_SEEDED_EVENTS = Collections.unmodifiableSet(
+            EnumSet.complementOf(EnumSet.of(Name.INVITATION)));
+
     final Map<Name,ReadParticipants.Inert> participants;
     final WorkerCapacity capacity;
     final Map<Name,ConsumptionEngine> engines=new EnumMap<>(Name.class);
@@ -59,9 +62,9 @@ final class ReadParticipantsFixture implements AutoCloseable {
         // Production enrollment below is exclusively the real DiscoveryEngine.
         f.read.oracle.update("delete from consumption_slot"); f.read.oracle.update("delete from discovery_checkpoint");
         participants=ReadParticipants.create(f.primary,f.sourceOwner,f.read.source,f.read.tx);
-        var limits=new HashMap<ConsumptionId,Integer>(); participants.values().forEach(p -> limits.put(p.definition().id(),8));
+        var limits=new HashMap<ConsumptionId,Integer>(); PROJECTIONS_WITH_SEEDED_EVENTS.forEach(name -> limits.put(participants.get(name).definition().id(),8));
         capacity=new WorkerCapacity(workerLimit,limits);
-        for(var name:Name.values()) engines.put(name,engine(name,participants.get(name).participant(),f.read.source,f.read.tx));
+        for(var name:PROJECTIONS_WITH_SEEDED_EVENTS) engines.put(name,engine(name,participants.get(name).participant(),f.read.source,f.read.tx));
     }
     ConsumptionEngine engine(Name name,ConsumptionParticipant participant,DataSource read,AttemptTransactions effects) {
         var d=participants.get(name).definition();
@@ -75,7 +78,7 @@ final class ReadParticipantsFixture implements AutoCloseable {
         return leases.computeIfAbsent(name+":"+partition,k -> engine.acquirePartition(partition).orElseThrow());
     }
     void enroll() {
-        for(var name:Name.values()) {
+        for(var name:PROJECTIONS_WITH_SEEDED_EVENTS) {
             var d=participants.get(name).definition(); var engine=engines.get(name);
             var discovery=new DiscoveryEngine(d,f.read.tx,f.read.ownership,f.admissions,SubobjectPostgresFixture.discoverySettings(),f.sourceOwner,
                 new JdbcEventDiscoveryReferences(f.primary,d.family(),SubobjectPostgresFixture.discoverySettings()),r -> com.kartaguez.pocoma.compose.polling.materialize.ConsumptionDiscoveryComposition.relevant(d,r));
@@ -88,6 +91,7 @@ final class ReadParticipantsFixture implements AutoCloseable {
             case COMMAND_RESULT -> pot.completion();
             case CURRENT_BINDING -> f.oracle.queryForObject("select event_id from v3_identity_event where subject_type='EXTERNAL_USER_IDENTITY' and request_id=?",UUID.class,identityRequest);
             case IDENTITY_REQUEST_RESULT -> f.oracle.queryForObject("select event_id from v3_identity_completion_event where subject_id=?",UUID.class,identityRequest);
+            case INVITATION -> throw new IllegalArgumentException("Invitation uses a dedicated fixture");
         };
     }
     ConsumptionEngine.AcquiredClaim acquire(Name name,ConsumptionEngine engine,UUID event) {

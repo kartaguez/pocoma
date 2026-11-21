@@ -6,9 +6,12 @@ credential enters argv or diagnostics. A committed input marker closes each DB.
 import hashlib
 import importlib.util
 import re
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
+SETUP_SCRIPT = 'scripts/operations/setup-v3-database.py'
+AVAILABILITY_MODULE = 'scripts/operations/read_availability_schema.py'
 ROLES = ('pocoma_write', 'pocoma_read', 'pocoma_admission', 'pocoma_write_source_read',
          'pocoma_read_http', 'pocoma_read_status', 'pocoma_react', 'pocoma_injector')
 
@@ -16,8 +19,9 @@ ROLES = ('pocoma_write', 'pocoma_read', 'pocoma_admission', 'pocoma_write_source
 def fingerprint():
     paths = sorted({*ROOT.glob('app/infra-postgres-write/src/main/resources/db/write/migration/*.sql'),
                     *ROOT.glob('app/infra-postgres-read/src/main/resources/db/read/migration/*.sql'),
+                    *ROOT.glob('app/infra-postgres-read/src/main/resources/db/read/availability/migration/*.sql'),
                     *ROOT.glob('scripts/v3/*.sql'),
-                    ROOT / 'scripts/operations/setup-v3-database.py', Path(__file__)})
+                    ROOT / SETUP_SCRIPT, ROOT / AVAILABILITY_MODULE, Path(__file__)})
     return hashlib.sha256(''.join(str(p.relative_to(ROOT)) + ':' +
                                  hashlib.sha256(p.read_bytes()).hexdigest() + '\n'
                                  for p in paths).encode()).hexdigest()
@@ -53,9 +57,15 @@ def verify_compatible_state(sql, expected):
 def initialize(sql, passwords):
     expected = fingerprint()
     verify_compatible_state(sql, expected)
-    spec = importlib.util.spec_from_file_location('existing_bootstrap', ROOT / 'scripts/operations/setup-v3-database.py')
+    setup_script = ROOT / SETUP_SCRIPT
+    spec = importlib.util.spec_from_file_location('existing_bootstrap', setup_script)
     helper = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(helper)
+    # Resolve the setup script's sibling imports as when invoked directly.
+    sys.path.insert(0, str(setup_script.parent))
+    try:
+        spec.loader.exec_module(helper)
+    finally:
+        sys.path.pop(0)
     pending = {'pocoma_write': [], 'pocoma_read': []}
     collecting = False
 
@@ -67,9 +77,9 @@ def initialize(sql, passwords):
             return ''
         return sql(db, text)
 
-    def script(db, schema, text, variables=None):
+    def script(db, schema, text, variables=None, *, single_transaction=False):
         # Existing scripts own transaction delimiters. Compose them into a single
-        # transaction with the marker; no early commit may survive an interruption.
+        # transaction with the marker, including scripts requesting single_transaction.
         text = re.sub(r'(?im)^[ \t]*(?:BEGIN|COMMIT);[ \t]*$', '', text)
         prelude = f'SET search_path={schema},public;\n'
         for key, value in (variables or {}).items():

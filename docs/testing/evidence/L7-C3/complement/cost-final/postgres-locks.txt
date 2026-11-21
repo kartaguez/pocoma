@@ -1,0 +1,12 @@
+2026-11-20 22:53:36.309 UTC [11399] LOG:  process 11399 still waiting for ShareLock on transaction 7292 after 7.900 ms
+2026-11-20 22:53:36.309 UTC [11399] STATEMENT:  update c3_bench_counter set position=position+1 where family=$1 returning position
+2026-11-20 22:53:36.318 UTC [11399] LOG:  process 11399 acquired ShareLock on transaction 7292 after 16.968 ms
+2026-11-20 22:53:36.318 UTC [11399] STATEMENT:  update c3_bench_counter set position=position+1 where family=$1 returning position
+2026-11-20 22:53:38.907 UTC [12323] LOG:  process 12323 still waiting for ShareLock on transaction 7679 after 5.011 ms
+2026-11-20 22:53:38.907 UTC [12323] STATEMENT:  insert into read_pot_shareholder_set(
+2026-11-20 22:53:38.907 UTC [12322] LOG:  process 12322 still waiting for ShareLock on transaction 7679 after 5.151 ms
+2026-11-20 22:53:38.907 UTC [12322] STATEMENT:  insert into read_pot_shareholder_set(
+2026-11-20 22:53:38.907 UTC [12322] LOG:  process 12322 acquired ShareLock on transaction 7679 after 5.231 ms
+2026-11-20 22:53:38.907 UTC [12322] STATEMENT:  insert into read_pot_shareholder_set(
+2026-11-20 22:53:38.907 UTC [12323] LOG:  process 12323 acquired ShareLock on transaction 7679 after 5.220 ms
+2026-11-20 22:53:38.907 UTC [12323] STATEMENT:  insert into read_pot_shareholder_set(

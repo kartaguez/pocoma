@@ -274,7 +274,13 @@ public final class ReadinessOracle {
         List<CheckpointEntry> checkpoints = fetchCheckpoints(readJdbc);
         List<SlotEntry> slots = fetchSlots(readJdbc, writeJdbc);
         List<String> integrityErrors = checkRelationalIntegrity(readJdbc);
-        return evaluatePure(targetPrefix, checkpoints, slots, integrityErrors);
+        var readiness = evaluatePure(targetPrefix, checkpoints, slots, integrityErrors);
+        if (readiness.ready() && !Boolean.TRUE.equals(readJdbc.queryForObject(
+                "select read_availability_schema_valid() and read_availability_valid()", Boolean.class))) {
+            integrityErrors.add("READ effects and availability or family positions diverge");
+            return evaluatePure(targetPrefix, checkpoints, slots, integrityErrors);
+        }
+        return readiness;
     }
 
     private static List<CheckpointEntry> fetchCheckpoints(JdbcTemplate readJdbc) {

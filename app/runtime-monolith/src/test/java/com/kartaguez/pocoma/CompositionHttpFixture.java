@@ -155,6 +155,10 @@ final class CompositionHttpFixture implements AutoCloseable {
     void useMaterializedRead(ReadMonolithI8Fixture worker) {
         worker.read.execute("grant usage on schema " + worker.schema + " to " + role);
         worker.read.execute("grant select on all tables in schema " + worker.schema + " to " + role);
+        worker.read.execute("""
+                revoke select on read_availability_counter, read_availability_event,
+                  read_current_availability, read_availability_effects from
+                """ + role);
         worker.read.execute("grant select on public.read_maintenance_state to " + role);
         properties.put("pocoma.v3.http.read.url", worker.readUrl);
     }

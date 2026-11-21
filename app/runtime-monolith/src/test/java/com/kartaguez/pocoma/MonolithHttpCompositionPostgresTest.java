@@ -4,6 +4,14 @@ import com.kartaguez.pocoma.compose.web.read.ReadFacadeComposition;
 import com.kartaguez.pocoma.compose.polling.materialize.MaterializeComposeConfiguration;
 import com.kartaguez.pocoma.compose.polling.materialize.MaterializeResources;
 import com.kartaguez.pocoma.contract.readquery.PotRead;
+import com.kartaguez.pocoma.domain.identity.BindingToken;
+import com.kartaguez.pocoma.domain.identity.ExternalIdentity;
+import com.kartaguez.pocoma.domain.identity.ExternalUserIdentity;
+import com.kartaguez.pocoma.domain.identity.ExternalUserIdentityId;
+import com.kartaguez.pocoma.domain.identity.PocomaUserId;
+import com.kartaguez.pocoma.infra.postgres.read.JdbcCurrentBindingStore;
+import com.kartaguez.pocoma.infra.tx.spring.SpringAttemptTransactions;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static com.kartaguez.pocoma.CompositionHttpFixture.*;
@@ -57,7 +65,19 @@ class MonolithHttpCompositionPostgresTest {
                 assertEquals(2, queryPool.getMaximumPoolSize());
                 assertEquals(1, statusPool.getMaximumPoolSize());
                 http.context = context; http.baseUrl = "http://127.0.0.1:" + ((org.springframework.boot.web.server.context.WebServerApplicationContext) context).getWebServer().getPort();
-                fixture.read.update("insert into read_current_binding values (?,?,?,1,?,?)", http.issuer, "owner", UUID.randomUUID(), OWNER, TOKEN);
+                var readAdmin = fixture.read.getDataSource();
+                var manager = new DataSourceTransactionManager(readAdmin);
+                manager.setNestedTransactionAllowed(false);
+                var owner = new SpringAttemptTransactions(readAdmin, manager, 30);
+                var bindings = new JdbcCurrentBindingStore(readAdmin, owner, true);
+                var binding = new ExternalUserIdentity(new ExternalUserIdentityId(UUID.randomUUID()),
+                        new ExternalIdentity(http.issuer, "owner"), 1, new PocomaUserId(OWNER), new BindingToken(TOKEN));
+                owner.write(() -> {
+                    boolean advanced = bindings.apply(binding);
+                    bindings.requireCompletionReady(binding, advanced);
+                    bindings.closePublication(binding, advanced);
+                    return null;
+                });
                 for (int n = 1; n <= 205; n++) fixture.read.update("insert into read_user_pot values (?,?,1,true)", OWNER, id(10000+n));
                 assertEquals(200, http.get("/me/binding").statusCode());
                 var page = http.get("/me/pots?limit=100"); assertEquals(200, page.statusCode()); assertEquals(100, http.body(page).get("potIds").size());

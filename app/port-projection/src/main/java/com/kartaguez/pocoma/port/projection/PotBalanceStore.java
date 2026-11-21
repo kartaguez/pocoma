@@ -29,7 +29,8 @@ public interface PotBalanceStore {
             ContentHash balanceHash,
             WriteResult balanceWrite,
             Optional<ContentHash> aggregateHash,
-            Optional<WriteResult> aggregateWrite) {
+            Optional<WriteResult> aggregateWrite,
+            boolean pointerInserted) {
         public PersistVersionResult {
             Objects.requireNonNull(balanceHash, "balanceHash");
             Objects.requireNonNull(balanceWrite, "balanceWrite");
@@ -87,7 +88,17 @@ public interface PotBalanceStore {
             aggHash = Optional.of(
                     PotBalanceAggregateBinaryCodec.encode(aggregate.get()).content().hash());
         }
-        return new PersistVersionResult(balHash, balWrite, aggHash, aggWrite);
+        return new PersistVersionResult(balHash, balWrite, aggHash, aggWrite, false);
+    }
+
+    default void closePublication(UUID pot, long version, boolean pointerInserted) {
+        closePublication();
+    }
+
+    default void requireCompletionReady(UUID pot, long version,
+            Optional<ContentHash> balanceHash, Optional<ContentHash> aggregateHash,
+            boolean pointerInserted) {
+        requireHashesStored(pot, version, balanceHash, aggregateHash);
     }
 
     default void requireHashesStored(

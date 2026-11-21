@@ -190,10 +190,12 @@ class L7ReactorArchitectureTest {
         }
         assertEquals(
                 List.of(
+                        "infra-postgres-read/src/main/resources/db/read/availability/migration/V5__projection_availability.sql",
                         "infra-postgres-read/src/main/resources/db/read/migration/V1__initial_schema.sql",
                         "infra-postgres-read/src/main/resources/db/read/migration/V2__pot_balance_aggregate.sql",
                         "infra-postgres-read/src/main/resources/db/read/migration/V3__pot_version_radix16.sql",
-                        "infra-postgres-read/src/main/resources/db/read/migration/V4__pot_balance_shared_storage.sql"),
+                        "infra-postgres-read/src/main/resources/db/read/migration/V4__pot_balance_shared_storage.sql",
+                        "infra-postgres-read/src/main/resources/db/read/pilot/migration/V5__command_result_availability.sql"),
                 readMainSql);
         var resources=new HashSet<String>();
         try(var files=Files.walk(APP)) {

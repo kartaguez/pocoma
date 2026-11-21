@@ -1,0 +1,24 @@
+================================================================================
+ Pocoma V3 — Resuming READ Reconstruction [Operator: c3-qualification]
+ Active Operation: 8e6adcab-943d-4418-8418-80d141ae1bfb | State: REBUILDING | Phase: REPLAYING
+ Mode: RESUME (Strictly Non-Destructive — NO DROP SCHEMA)
+================================================================================
+• Physical state inspection:
+  Schema v3_read exists:      True
+  Migration tables exist:    True (24/24)
+  Routing contracts:         7/7
+  Discovery checkpoints:     28/28
+  Target Prefix B:           {"POT": 404, "IDENTITY": 2, "INVITATION": 0, "COMMAND_COMPLETION": 404, "IDENTITY_COMPLETION": 1}
+Starting replay worker...
+Monitoring convergence towards target prefix B (timeout: 180s)...
+    [  0s] CP: 8/28 | Slots<=B: 748 (Q: 0) | Integrity: waiting for checkpoints and slots
+    [  2s] CP: 18/28 | Slots<=B: 593 (Q: 0) | Integrity: waiting for checkpoints and slots
+    [  4s] CP: 20/28 | Slots<=B: 227 (Q: 0) | Integrity: waiting for checkpoints and slots
+    [  6s] CP: 20/28 | Slots<=B: 0 (Q: 0) | Integrity: waiting for checkpoints and slots
+    [  8s] CP: 21/28 | Slots<=B: 32 (Q: 0) | Integrity: waiting for checkpoints and slots
+    [ 11s] CP: 24/28 | Slots<=B: 250 (Q: 0) | Integrity: waiting for checkpoints and slots
+    [ 13s] CP: 26/28 | Slots<=B: 248 (Q: 0) | Integrity: waiting for checkpoints and slots
+    [ 15s] CP: 28/28 | Slots<=B: 122 (Q: 0) | Integrity: waiting for checkpoints and slots
+    [ 18s] CP: 28/28 | Slots<=B: 0 (Q: 0) | Integrity: OK
+   ✓ Authority atomically transitioned to READY (phase: IDLE).
+✓ Reconstruction converged and restored to READY via --resume.

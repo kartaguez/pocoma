@@ -133,7 +133,8 @@ class ReadFacadesPostgresTest {
         final ReadFacadeComposition.Services services;
 
         Queries() throws Exception {
-            f = new ReadRuntimeI8Fixture(PG);
+            // These HTTP-only seeds intentionally construct partial projection states.
+            f = new ReadRuntimeI8Fixture(PG, false);
             f.select(List.of(), false);
             ctx = f.start();
             try {

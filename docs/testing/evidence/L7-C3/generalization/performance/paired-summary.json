@@ -1,0 +1,314 @@
+{
+  "med-5": {
+    "c2": {
+      "observedCommands": 150,
+      "observedRate": 5.001,
+      "c03Ms": {
+        "n": 150,
+        "p50": 101.29,
+        "p95": 172.96,
+        "p99": 181.703,
+        "max": 184.557
+      },
+      "c03After202P95Ms": 167.467,
+      "balanceMs": {
+        "n": 150,
+        "p50": 98.513,
+        "p95": 168.926,
+        "p99": 179.521,
+        "max": 180.065
+      },
+      "commandResultMs": {
+        "n": 150,
+        "p50": 75.009,
+        "p95": 119.49,
+        "p99": 172.979,
+        "max": 178.452
+      },
+      "materializersMs": {
+        "PotVersion": {
+          "n": 150,
+          "p50": 9.59,
+          "p95": 14.48,
+          "p99": 19.09,
+          "max": 20.58
+        },
+        "PotBalance": {
+          "n": 150,
+          "p50": 4.68,
+          "p95": 7.57,
+          "p99": 10.62,
+          "max": 11.95
+        },
+        "PotVisibility": {
+          "n": 150,
+          "p50": 2.69,
+          "p95": 4.77,
+          "p99": 5.52,
+          "max": 7.29
+        },
+        "CommandResult": {
+          "n": 150,
+          "p50": 1.51,
+          "p95": 2.64,
+          "p99": 4.71,
+          "max": 61.05
+        }
+      },
+      "walClusterBytes": 10048643,
+      "readSizeInitialBytes": 15660723,
+      "readSizeFinalBytes": 16692915,
+      "deadlocksRead": 0,
+      "sampledReadSnapshots": 8,
+      "sampledLockWaits": 0,
+      "sampledBlocking": 0,
+      "reconstruction": null,
+      "availability": null
+    },
+    "c3": {
+      "observedCommands": 150,
+      "observedRate": 5.016,
+      "c03Ms": {
+        "n": 150,
+        "p50": 105.65,
+        "p95": 175.285,
+        "p99": 210.029,
+        "max": 255.524
+      },
+      "c03After202P95Ms": 169.363,
+      "balanceMs": {
+        "n": 150,
+        "p50": 101.831,
+        "p95": 170.913,
+        "p99": 204.049,
+        "max": 270.548
+      },
+      "commandResultMs": {
+        "n": 150,
+        "p50": 73.776,
+        "p95": 125.406,
+        "p99": 197.23,
+        "max": 251.459
+      },
+      "materializersMs": {
+        "PotVersion": {
+          "n": 150,
+          "p50": 11.09,
+          "p95": 18.14,
+          "p99": 30.47,
+          "max": 31.61
+        },
+        "PotBalance": {
+          "n": 150,
+          "p50": 5.44,
+          "p95": 8.48,
+          "p99": 10.01,
+          "max": 10.18
+        },
+        "PotVisibility": {
+          "n": 150,
+          "p50": 3.59,
+          "p95": 5.59,
+          "p99": 9.5,
+          "max": 21.33
+        },
+        "CommandResult": {
+          "n": 150,
+          "p50": 2.21,
+          "p95": 3.68,
+          "p99": 6.12,
+          "max": 6.14
+        }
+      },
+      "walClusterBytes": 10389691,
+      "readSizeInitialBytes": 17209011,
+      "readSizeFinalBytes": 18503347,
+      "deadlocksRead": 0,
+      "sampledReadSnapshots": 8,
+      "sampledLockWaits": 0,
+      "sampledBlocking": 0,
+      "reconstruction": null,
+      "availability": {
+        "valid": true,
+        "positions": {
+          "CURRENT_POT_CHANGED": 1108,
+          "POT_BALANCE_AVAILABLE": 1175,
+          "POT_VERSION_AVAILABLE": 1175,
+          "POT_VISIBILITY_CHANGED": 1120,
+          "CURRENT_BINDING_CHANGED": 1,
+          "COMMAND_RESULT_AVAILABLE": 1175,
+          "CURRENT_INVITATION_CHANGED": 0,
+          "IDENTITY_REQUEST_RESULT_AVAILABLE": 1
+        },
+        "relationBytes": {
+          "read_availability_event": 1245184,
+          "read_availability_counter": 65536,
+          "read_current_availability": 303104
+        }
+      }
+    }
+  },
+  "large-1": {
+    "c2": {
+      "observedCommands": 60,
+      "observedRate": 1.014,
+      "c03Ms": {
+        "n": 60,
+        "p50": 133.648,
+        "p95": 225.367,
+        "p99": 290.837,
+        "max": 290.837
+      },
+      "c03After202P95Ms": 218.812,
+      "balanceMs": {
+        "n": 60,
+        "p50": 109.492,
+        "p95": 202.232,
+        "p99": 262.03,
+        "max": 262.03
+      },
+      "commandResultMs": {
+        "n": 60,
+        "p50": 81.889,
+        "p95": 164.455,
+        "p99": 269.478,
+        "max": 269.478
+      },
+      "materializersMs": {
+        "PotVersion": {
+          "n": 60,
+          "p50": 9.97,
+          "p95": 14.25,
+          "p99": 29.9,
+          "max": 29.9
+        },
+        "PotBalance": {
+          "n": 60,
+          "p50": 4.75,
+          "p95": 6.31,
+          "p99": 6.92,
+          "max": 6.92
+        },
+        "PotVisibility": {
+          "n": 60,
+          "p50": 2.67,
+          "p95": 3.95,
+          "p99": 18.52,
+          "max": 18.52
+        },
+        "CommandResult": {
+          "n": 60,
+          "p50": 1.52,
+          "p95": 2.5,
+          "p99": 4.21,
+          "max": 4.21
+        }
+      },
+      "walClusterBytes": 11630769,
+      "readSizeInitialBytes": 60749491,
+      "readSizeFinalBytes": 60962483,
+      "deadlocksRead": 0,
+      "sampledReadSnapshots": 16,
+      "sampledLockWaits": 0,
+      "sampledBlocking": 0,
+      "reconstruction": {
+        "snapshotDir": "/private/tmp/pocoma-l74a-snapshots/large",
+        "snapshotSha256": "2eb4567b568073c7d4e0c5bbd8db40aadfaeb222ed1c7e504bd6ed91fdab637d",
+        "restoreElapsedSeconds": 15.22,
+        "prepareSeedElapsedSeconds": 1802.9,
+        "readRebuiltFromWrite": true,
+        "readRebuildElapsedSeconds": 61.99
+      },
+      "availability": null
+    },
+    "c3": {
+      "observedCommands": 60,
+      "observedRate": 1.015,
+      "c03Ms": {
+        "n": 60,
+        "p50": 137.721,
+        "p95": 226.718,
+        "p99": 235.769,
+        "max": 235.769
+      },
+      "c03After202P95Ms": 218.49,
+      "balanceMs": {
+        "n": 60,
+        "p50": 113.711,
+        "p95": 199.349,
+        "p99": 207.112,
+        "max": 207.112
+      },
+      "commandResultMs": {
+        "n": 60,
+        "p50": 101.477,
+        "p95": 133.669,
+        "p99": 210.732,
+        "max": 210.732
+      },
+      "materializersMs": {
+        "PotVersion": {
+          "n": 60,
+          "p50": 11.46,
+          "p95": 13.99,
+          "p99": 19.79,
+          "max": 19.79
+        },
+        "PotBalance": {
+          "n": 60,
+          "p50": 5.08,
+          "p95": 6.64,
+          "p99": 8.01,
+          "max": 8.01
+        },
+        "PotVisibility": {
+          "n": 60,
+          "p50": 3.34,
+          "p95": 5.09,
+          "p99": 5.41,
+          "max": 5.41
+        },
+        "CommandResult": {
+          "n": 60,
+          "p50": 2.07,
+          "p95": 2.89,
+          "p99": 4.0,
+          "max": 4.0
+        }
+      },
+      "walClusterBytes": 11942979,
+      "readSizeInitialBytes": 65246899,
+      "readSizeFinalBytes": 65394355,
+      "deadlocksRead": 0,
+      "sampledReadSnapshots": 16,
+      "sampledLockWaits": 0,
+      "sampledBlocking": 0,
+      "reconstruction": {
+        "snapshotDir": "/private/tmp/pocoma-l74a-snapshots/large",
+        "snapshotSha256": "2eb4567b568073c7d4e0c5bbd8db40aadfaeb222ed1c7e504bd6ed91fdab637d",
+        "restoreElapsedSeconds": 16.81,
+        "prepareSeedElapsedSeconds": 1802.9,
+        "readRebuiltFromWrite": true,
+        "readRebuildElapsedSeconds": 56.43
+      },
+      "availability": {
+        "valid": true,
+        "positions": {
+          "CURRENT_POT_CHANGED": 263,
+          "POT_BALANCE_AVAILABLE": 4069,
+          "POT_VERSION_AVAILABLE": 4069,
+          "POT_VISIBILITY_CHANGED": 293,
+          "CURRENT_BINDING_CHANGED": 1,
+          "COMMAND_RESULT_AVAILABLE": 4069,
+          "CURRENT_INVITATION_CHANGED": 0,
+          "IDENTITY_REQUEST_RESULT_AVAILABLE": 1
+        },
+        "relationBytes": {
+          "read_availability_event": 4104192,
+          "read_availability_counter": 65536,
+          "read_current_availability": 114688
+        }
+      }
+    }
+  }
+}

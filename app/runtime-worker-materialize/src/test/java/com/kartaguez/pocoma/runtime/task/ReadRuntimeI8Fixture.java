@@ -111,6 +111,10 @@ public final class ReadRuntimeI8Fixture implements AutoCloseable {
     final List<ConfigurableApplicationContext> contexts = new ArrayList<>();
 
     ReadRuntimeI8Fixture(PostgreSQLContainer pg) throws Exception {
+        this(pg, true);
+    }
+
+    ReadRuntimeI8Fixture(PostgreSQLContainer pg, boolean availability) throws Exception {
         this.pg = pg;
         writeUrl =
                 "jdbc:postgresql://"
@@ -149,9 +153,9 @@ public final class ReadRuntimeI8Fixture implements AutoCloseable {
                                     ? new String[] {
                                         "classpath:db/write/migration"
                                     }
-                                    : new String[] {
-                                        "classpath:db/read/migration"
-                                    })
+                                    : availability
+                                            ? new String[] {"classpath:db/read/migration", "classpath:db/read/availability/migration"}
+                                            : new String[] {"classpath:db/read/migration"})
                     .placeholders(
                             Map.of(
                                     "expectedDatabase",

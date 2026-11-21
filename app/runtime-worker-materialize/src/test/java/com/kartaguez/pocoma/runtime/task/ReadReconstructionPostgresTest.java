@@ -85,7 +85,7 @@ class ReadReconstructionPostgresTest {
                 .schemas(f.schema)
                 .defaultSchema(f.schema)
                 .locations(
-                        "classpath:db/read/migration")
+                        "classpath:db/read/migration", "classpath:db/read/availability/migration")
                 .placeholders(Map.of(
                         "expectedDatabase", "i5_read",
                         "expectedSchema", f.schema,
@@ -310,6 +310,7 @@ class ReadReconstructionPostgresTest {
             awaitReady(f, oracle, prefix);
             f.drain(original);
             var expected = readContent(f.read);
+            assertAvailabilityMatchesWrite(f);
             assertEquals(4, f.read.queryForObject("select count(*) from read_pot_version", Integer.class));
             assertEquals(3, f.read.queryForObject("select count(*) from read_pot_balance", Integer.class));
             assertEquals(Boolean.TRUE, f.read.queryForObject("""
@@ -338,6 +339,8 @@ class ReadReconstructionPostgresTest {
             f.drain(replay);
             var replayed = readContent(f.read);
             assertEquals(expected, replayed, "logical table fingerprints differ after replay");
+            assertAvailabilityMatchesWrite(f);
+            var retainedEvents = f.read.queryForList("select * from read_availability_event order by family, position");
             assertEquals(writeBefore, f.snapshot());
             assertTrue(oracle.evaluate(f.read, f.write, prefix).ready());
 
@@ -396,6 +399,9 @@ class ReadReconstructionPostgresTest {
             f.drain(resumed);
             long drained = System.nanoTime();
             assertTrue(oracle.evaluate(f.read, f.write, finalPrefix).ready());
+            assertAvailabilityMatchesWrite(f);
+            assertTrue(f.read.queryForList("select * from read_availability_event order by family, position")
+                    .containsAll(retainedEvents), "non-destructive resume preserves the committed event UUIDs and positions");
             f.trace.add("physical lease remaining after drain (ms)=" + retainedLeaseMs);
             f.trace.add("prefix before replay=" + prefix + ", after interrupted arrival=" + afterWrite
                     + ", after active replay arrivals=" + finalPrefix);
@@ -436,6 +442,37 @@ class ReadReconstructionPostgresTest {
             while (rows.next()) prefix.put(rows.getString(1), rows.getLong(2));
             return prefix;
         });
+    }
+
+    private static void assertAvailabilityMatchesWrite(ReadRuntimeI8Fixture fixture) {
+        var expected = fixture.write.queryForList("""
+                with pot_at_version as (
+                  select e.pot_id, e.subject_version, h.deleted
+                  from v3_pot_event e join v3_pot_header h using (pot_id)
+                  where h.active_from <= e.subject_version
+                    and (h.active_to is null or h.active_to > e.subject_version)
+                ),
+                current_pot as (select pot_id, max(subject_version) version from v3_pot_event group by pot_id)
+                select 'POT_VERSION_AVAILABLE' family, pot_id projection_key, subject_version logical_version
+                  from pot_at_version
+                union all select 'POT_BALANCE_AVAILABLE', pot_id, subject_version from pot_at_version where not deleted
+                union all select 'COMMAND_RESULT_AVAILABLE', subject_id, null from v3_command_completion_event
+                union all select 'IDENTITY_REQUEST_RESULT_AVAILABLE', subject_id, null from v3_identity_completion_event
+                union all select 'CURRENT_POT_CHANGED', pot_id, version from current_pot
+                union all select 'POT_VISIBILITY_CHANGED', pot_id, version from current_pot
+                union all select 'CURRENT_BINDING_CHANGED', subject_id, max(subject_version)
+                  from v3_identity_event where subject_type = 'EXTERNAL_USER_IDENTITY' group by subject_id
+                union all select 'CURRENT_INVITATION_CHANGED', invitation_id, max(version)
+                  from v3_invitation_event group by invitation_id
+                order by 1, 2, 3
+                """);
+        var published = fixture.read.queryForList("""
+                select family, projection_key, logical_version from read_availability_event
+                union all
+                select family, projection_key, logical_version from read_current_availability
+                order by 1, 2, 3
+                """);
+        assertEquals(expected, published);
     }
 
     private Map<String, String> readContent(JdbcTemplate read) {
@@ -528,8 +565,18 @@ class ReadReconstructionPostgresTest {
             var nominalEval = oracle.evaluate(f.read, f.write, targetB);
             assertTrue(nominalEval.ready(), nominalEval.diagnostic());
 
+            f.read.execute("alter table read_availability_event disable trigger read_availability_event_immutable");
+            f.read.execute("delete from read_availability_event where family = 'COMMAND_RESULT_AVAILABLE'");
+            f.read.execute("alter table read_availability_event enable always trigger read_availability_event_immutable");
+            var missingAvailability = oracle.evaluate(f.read, f.write, targetB);
+            assertFalse(missingAvailability.ready());
+            assertTrue(missingAvailability.diagnostic().contains("READ effects and availability"));
+
             // Inject integrity violation: insert dangling current pot entry without balance/visibility
             UUID fakePotId = UUID.randomUUID();
+            // An operator-level corruption bypasses the commit guards so that the oracle sees it.
+            f.read.execute("alter table read_pot_version disable trigger read_effect_availability");
+            f.read.execute("alter table read_current_pot disable trigger read_effect_availability");
             f.read.update(
                     "INSERT INTO read_pot_version(pot_id, pot_version, schema_version, header_version, details_version, deleted, shareholders_count, expenses_count) "
                             + "VALUES (?, 1, 1, 1, 1, false, 0, 0)",
@@ -537,6 +584,8 @@ class ReadReconstructionPostgresTest {
             f.read.update(
                     "INSERT INTO read_current_pot(pot_id, pot_version) VALUES (?, 1)",
                     fakePotId);
+            f.read.execute("alter table read_pot_version enable always trigger read_effect_availability");
+            f.read.execute("alter table read_current_pot enable always trigger read_effect_availability");
             var brokenIntegrityEval = oracle.evaluate(f.read, f.write, targetB);
             assertFalse(brokenIntegrityEval.ready(), "Missing balance/visibility must block READY");
             assertFalse(brokenIntegrityEval.integritySatisfied());

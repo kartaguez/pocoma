@@ -1,0 +1,281 @@
+{
+  "head": "d7b4b6d73963cab7efeb658ef67478d52de03c32",
+  "inputManifestSha256": "b8cb360696583c4e906ba1ffd3f9995b9dfcde397da7f983aa088de73fe197af",
+  "scope": "filtered architecture module execution and isolated Bruno retry",
+  "bruno": {
+    "version": "4.3.0",
+    "node": "v24.15.0",
+    "executableSha256": "f1efb7d448b2cb60a956a825fc87891819a9c065e4d8639e0058aeb3ee23fc73",
+    "lockfileSha256": "34a146f16bb90ac02be565548ef9e9bc4ecfaf502239a1aa224c8dbd69293b98"
+  },
+  "runs": {
+    "architecture": {
+      "invocation": "c3-architecture-3TQYKI",
+      "command": [
+        "./mvnw",
+        "-pl",
+        "architecture-tests",
+        "-am",
+        "-Dtest=AdmissionArchitectureTest,ConsumptionEngineArchitectureTest,ConsumptionFoundationArchitectureTest,FoundationArchitectureTest,HexagonalArchitectureTest,IdentityAuthorityArchitectureTest,L7DeploymentArchitectureTest,L7ReactorArchitectureTest,PotExecutionArchitectureTest,WorkerDevelopmentToolsTest",
+        "-Dsurefire.failIfNoSpecifiedTests=false",
+        "-Dpocoma.verification.id=c3-architecture-3TQYKI",
+        "-Dpocoma.verification.reports=/tmp/pocoma-c3-pilot.3TQYKI/architecture",
+        "test"
+      ],
+      "cases": [
+        [
+          "com.kartaguez.pocoma.architecture.AdmissionArchitectureTest",
+          "admissionHasNoBusinessAuthorityOrFramework"
+        ],
+        [
+          "com.kartaguez.pocoma.architecture.AdmissionArchitectureTest",
+          "httpAssemblyRemainsExplicitAndLinkProposalTypesAreAbsent"
+        ],
+        [
+          "com.kartaguez.pocoma.architecture.AdmissionArchitectureTest",
+          "dedicatedWriterUsesExistingPhysicalOwner"
+        ],
+        [
+          "com.kartaguez.pocoma.architecture.ConsumptionEngineArchitectureTest",
+          "i8ReadRootsUseExplicitCompositionAndExcludeLegacyScanning"
+        ],
+        [
+          "com.kartaguez.pocoma.architecture.ConsumptionEngineArchitectureTest",
+          "lifecycleHasOneHandleAndNoSchedulerOrOwner"
+        ],
+        [
+          "com.kartaguez.pocoma.architecture.ConsumptionEngineArchitectureTest",
+          "persistenceParticipantsCannotOpenTransactionsOrRawEntityManagers"
+        ],
+        [
+          "com.kartaguez.pocoma.architecture.ConsumptionEngineArchitectureTest",
+          "negativeExamplesReallyFailRules"
+        ],
+        [
+          "com.kartaguez.pocoma.architecture.ConsumptionEngineArchitectureTest",
+          "i2ParticipantCapabilitiesCannotReceiveTheSharedGuardOrAResource"
+        ],
+        [
+          "com.kartaguez.pocoma.architecture.ConsumptionEngineArchitectureTest",
+          "engineAndContractsPureAndAgnostic"
+        ],
+        [
+          "com.kartaguez.pocoma.architecture.ConsumptionEngineArchitectureTest",
+          "businessIdentityAndEnginesAreRejectedByEngineAndWorkerGuards"
+        ],
+        [
+          "com.kartaguez.pocoma.architecture.ConsumptionEngineArchitectureTest",
+          "rejectedAbstractionsAndPotOwnerAbsent"
+        ],
+        [
+          "com.kartaguez.pocoma.architecture.ConsumptionEngineArchitectureTest",
+          "i5WorkerHasNoTransactionOwnerSqlOrTicketAuthority"
+        ],
+        [
+          "com.kartaguez.pocoma.architecture.ConsumptionEngineArchitectureTest",
+          "discoveryPortsAndWritersRemainBounded"
+        ],
+        [
+          "com.kartaguez.pocoma.architecture.ConsumptionEngineArchitectureTest",
+          "i8QueriesHaveOnlyReadPortsAndNoWriteOrInfrastructureDependencies"
+        ],
+        [
+          "com.kartaguez.pocoma.architecture.ConsumptionFoundationArchitectureTest",
+          "discoveryFactoryIsExplicitAndKeepsTheNineDefinitions"
+        ],
+        [
+          "com.kartaguez.pocoma.architecture.ConsumptionFoundationArchitectureTest",
+          "routingDomainRemainsPure"
+        ],
+        [
+          "com.kartaguez.pocoma.architecture.ConsumptionFoundationArchitectureTest",
+          "commonSqlIsByteIdenticalAndHistoricalMigrationsAreUnmodifiedByConstruction"
+        ],
+        [
+          "com.kartaguez.pocoma.architecture.FoundationArchitectureTest",
+          "eachForbiddenDependencyIsActuallyDetected"
+        ],
+        [
+          "com.kartaguez.pocoma.architecture.FoundationArchitectureTest",
+          "productionImportsAreNonemptyAndExcludeFixtures"
+        ],
+        [
+          "com.kartaguez.pocoma.architecture.FoundationArchitectureTest",
+          "nestedPortsCannotEscapeTheSelectorOrLeakImplementations"
+        ],
+        [
+          "com.kartaguez.pocoma.architecture.FoundationArchitectureTest",
+          "positiveFixturesSatisfyTheSameRules"
+        ],
+        [
+          "com.kartaguez.pocoma.architecture.FoundationArchitectureTest",
+          "productionKeepsPureDomainsAndInwardApplicationPorts"
+        ],
+        [
+          "com.kartaguez.pocoma.architecture.HexagonalArchitectureTest",
+          "writeAndReadSidesDoNotCrossForbiddenBoundaries"
+        ],
+        [
+          "com.kartaguez.pocoma.architecture.HexagonalArchitectureTest",
+          "domainPotPackagesAreAcyclicAndRespectHybridBoundaries"
+        ],
+        [
+          "com.kartaguez.pocoma.architecture.HexagonalArchitectureTest",
+          "potAndIdentityDomainsOwnTheirCanonicalTypesAndPureFunctions"
+        ],
+        [
+          "com.kartaguez.pocoma.architecture.HexagonalArchitectureTest",
+          "readPersistenceDoesNotDependOnWriteAuthorityOrApplicationServices"
+        ],
+        [
+          "com.kartaguez.pocoma.architecture.HexagonalArchitectureTest",
+          "reorganizedClassesResideInExpectedPackages"
+        ],
+        [
+          "com.kartaguez.pocoma.architecture.HexagonalArchitectureTest",
+          "genericConsumptionDoesNotKnowBusinessFamiliesOrConcreteAdapters"
+        ],
+        [
+          "com.kartaguez.pocoma.architecture.HexagonalArchitectureTest",
+          "negativeFixturesProveWriteReadAndCycleRules"
+        ],
+        [
+          "com.kartaguez.pocoma.architecture.HexagonalArchitectureTest",
+          "terminalResultQueriesUseOnlyTheirOwnReadStore"
+        ],
+        [
+          "com.kartaguez.pocoma.architecture.HexagonalArchitectureTest",
+          "durableBusinessModelsDoNotCarryLocalClaimsOrLeases"
+        ],
+        [
+          "com.kartaguez.pocoma.architecture.HexagonalArchitectureTest",
+          "httpSupraDoesNotOwnPersistenceOrBusinessExecution"
+        ],
+        [
+          "com.kartaguez.pocoma.architecture.HexagonalArchitectureTest",
+          "v2TaskSchedulingAndSynchronousDispatchTypesAreAbsent"
+        ],
+        [
+          "com.kartaguez.pocoma.architecture.HexagonalArchitectureTest",
+          "discoveryReadsReferencesWithoutDecodingBusinessPayloads"
+        ],
+        [
+          "com.kartaguez.pocoma.architecture.HexagonalArchitectureTest",
+          "infraPostgresCoreAndWritePackagesAreAcyclicAndRespectBoundaries"
+        ],
+        [
+          "com.kartaguez.pocoma.architecture.HexagonalArchitectureTest",
+          "admissionAndAuthenticationUseProviderNeutralContracts"
+        ],
+        [
+          "com.kartaguez.pocoma.architecture.HexagonalArchitectureTest",
+          "projectionContractsDependOnlyOnPureValuesAndTheNarrowReadContext"
+        ],
+        [
+          "com.kartaguez.pocoma.architecture.IdentityAuthorityArchitectureTest",
+          "l3_identity_authority_has_no_owner_or_runtime"
+        ],
+        [
+          "com.kartaguez.pocoma.architecture.IdentityAuthorityArchitectureTest",
+          "l3_real_authority_delegates_without_a_second_lock_protocol"
+        ],
+        [
+          "com.kartaguez.pocoma.architecture.IdentityAuthorityArchitectureTest",
+          "l3_canonical_acquisition_is_the_only_eui_writer_path"
+        ],
+        [
+          "com.kartaguez.pocoma.architecture.IdentityAuthorityArchitectureTest",
+          "l3_identity_participant_and_factory_keep_l2_ownership"
+        ],
+        [
+          "com.kartaguez.pocoma.architecture.PotExecutionArchitectureTest",
+          "carch02AllExecutionAndRevisionWritersUsePhysicalOwnerGuards"
+        ],
+        [
+          "com.kartaguez.pocoma.architecture.PotExecutionArchitectureTest",
+          "carch03ExplicitCompositionAndNoIdentityFixtureInProduction"
+        ],
+        [
+          "com.kartaguez.pocoma.architecture.PotExecutionArchitectureTest",
+          "carch01OrchestrationAndContractsRemainPure"
+        ],
+        [
+          "com.kartaguez.pocoma.architecture.l7.L7DeploymentArchitectureTest",
+          "fiveProcessesSelectFourActualArtifactsAndSeparatePrincipals"
+        ],
+        [
+          "com.kartaguez.pocoma.architecture.l7.L7ReactorArchitectureTest",
+          "migrationBytesAndResourceOwnershipAreConserved"
+        ],
+        [
+          "com.kartaguez.pocoma.architecture.l7.L7ReactorArchitectureTest",
+          "exactCatalogueScopesAndAcyclicReactor"
+        ],
+        [
+          "com.kartaguez.pocoma.architecture.l7.L7ReactorArchitectureTest",
+          "sourceAdaptersCannotInvokeMutatorsAndRuntimesOnlyHostCompose"
+        ],
+        [
+          "com.kartaguez.pocoma.architecture.l7.L7ReactorArchitectureTest",
+          "v2RootsAndImplicitPersistenceActivationAreAbsent"
+        ],
+        [
+          "com.kartaguez.pocoma.architecture.l7.L7ReactorArchitectureTest",
+          "domainsAndContractsAreNeutralAndSuprasUseOnlyCapabilities"
+        ],
+        [
+          "com.kartaguez.pocoma.runtime.command.dev.WorkerDevelopmentToolsTest",
+          "l3_canonical_internal_intention"
+        ],
+        [
+          "com.kartaguez.pocoma.runtime.command.dev.WorkerDevelopmentToolsTest",
+          "l3_private_intention_files"
+        ]
+      ]
+    },
+    "bruno-followup": {
+      "invocation": "c3-bruno-3TQYKI",
+      "command": [
+        "./mvnw",
+        "-pl",
+        "runtime-monolith",
+        "-am",
+        "-Dtest=AdmissionFlowPostgresTest#brunoB2PublicProtocol,InvitationHttpTest#brunoB4StandaloneCorpus",
+        "-Dsurefire.failIfNoSpecifiedTests=false",
+        "-Dpocoma.verification.id=c3-bruno-3TQYKI",
+        "-Dpocoma.verification.reports=/tmp/pocoma-c3-pilot.3TQYKI/bruno-followup",
+        "test"
+      ],
+      "cases": [
+        [
+          "com.kartaguez.pocoma.AdmissionFlowPostgresTest",
+          "brunoB2PublicProtocol"
+        ],
+        [
+          "com.kartaguez.pocoma.InvitationHttpTest",
+          "brunoB4StandaloneCorpus"
+        ]
+      ]
+    }
+  },
+  "archive": {
+    "file": "command-result-pilot-followup.tar.gz",
+    "sha256": "1eca6f13d0665f4f9ebb14b0118e206eebb88e7a3a8ea6b387508e20a6b6f0bf",
+    "members": {
+      "architecture.log": "3327a561d9d58d7588100954743c2cc7ba7a361cdf4f981ea43c100fe928f161",
+      "bruno-followup.log": "bfa4a01e65f12d559887a9432299fd6ab3ae2c84c9823ed8c5054466bc56b51a",
+      "reports/architecture/pocoma-architecture-tests/surefire-reports/TEST-com.kartaguez.pocoma.architecture.AdmissionArchitectureTest.xml": "2c9faff4bccaeede9baad2156ad272ec15e7705d4a268b4c0ad5d6870d8b01cf",
+      "reports/architecture/pocoma-architecture-tests/surefire-reports/TEST-com.kartaguez.pocoma.architecture.ConsumptionEngineArchitectureTest.xml": "53dee38bfc278856cb7b91f6f1db62fd18f2fd39480299142bfed3a6e071cbfb",
+      "reports/architecture/pocoma-architecture-tests/surefire-reports/TEST-com.kartaguez.pocoma.architecture.ConsumptionFoundationArchitectureTest.xml": "1b28feff7537edba0268804b1db56e6baf4bcaa055c900ad690c2fd443884018",
+      "reports/architecture/pocoma-architecture-tests/surefire-reports/TEST-com.kartaguez.pocoma.architecture.FoundationArchitectureTest.xml": "86a123ebd67d87999129f21767ca201512fe51527ca907a9a7927013fcb05988",
+      "reports/architecture/pocoma-architecture-tests/surefire-reports/TEST-com.kartaguez.pocoma.architecture.HexagonalArchitectureTest.xml": "2728660136b7d62bd40f7911440ec4f1c44ceb2d4d1d191688c82db80de4cce4",
+      "reports/architecture/pocoma-architecture-tests/surefire-reports/TEST-com.kartaguez.pocoma.architecture.IdentityAuthorityArchitectureTest.xml": "305a0da97fad315923039530adb24219529c48b3fa0f2fc0cc156638dd0ea104",
+      "reports/architecture/pocoma-architecture-tests/surefire-reports/TEST-com.kartaguez.pocoma.architecture.PotExecutionArchitectureTest.xml": "e3aa8f28817e4afa8c5d7557e9ec2ea8e475743a85f83632df8699333e6ebe6c",
+      "reports/architecture/pocoma-architecture-tests/surefire-reports/TEST-com.kartaguez.pocoma.architecture.l7.L7DeploymentArchitectureTest.xml": "3be1e16fc8a7fcac263d6680d28c1b0fd001c313e95c3748e6d2978a1098281f",
+      "reports/architecture/pocoma-architecture-tests/surefire-reports/TEST-com.kartaguez.pocoma.architecture.l7.L7ReactorArchitectureTest.xml": "93dfe777a781a528767bd74c64402fa16dfcd7fbf18693e89b178645fbdae756",
+      "reports/architecture/pocoma-architecture-tests/surefire-reports/TEST-com.kartaguez.pocoma.runtime.command.dev.WorkerDevelopmentToolsTest.xml": "59061bb8ffbe122f90f5fa4cf2c770087d72fccd5da007aa9cf26c719d00b8a8",
+      "reports/bruno-followup/pocoma-runtime-monolith/surefire-reports/TEST-com.kartaguez.pocoma.AdmissionFlowPostgresTest.xml": "e7697e233ea434ce9641da54f92c932ac84eb7b6e9608a2b205fc1abcf2a1f87",
+      "reports/bruno-followup/pocoma-runtime-monolith/surefire-reports/TEST-com.kartaguez.pocoma.InvitationHttpTest.xml": "af7e85b8caa777978733f9c102cfb55ea5cd494420a15a79dfb0efc1a920dbbb"
+    }
+  }
+}

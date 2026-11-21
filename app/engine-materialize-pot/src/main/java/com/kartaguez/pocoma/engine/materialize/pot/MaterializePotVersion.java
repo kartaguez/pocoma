@@ -319,13 +319,15 @@ public final class MaterializePotVersion implements ConsumptionParticipant {
             Path path) {
         return Optional.of(
                 new Prepared() {
+                    private PotVersionStore.WriteReceipt receipt;
+
                     @Override
                     public void finalizeIn(SlotCompletion completion) {
                         long start = System.nanoTime();
                         subobjects.insertOrVerifyAll(loaded);
-                        versions.publishPrepared(plan);
+                        receipt = versions.publishPreparedWithReceipt(plan);
                         completion.complete();
-                        versions.closePublication();
+                        versions.closePublication(plan.manifest(), receipt);
                         observation.persistedAndPublished(
                                 path, Duration.ofNanos(System.nanoTime() - start));
                     }
@@ -334,7 +336,7 @@ public final class MaterializePotVersion implements ConsumptionParticipant {
                     public void requireCompletionReady() {
                         subobjects.requireStored(loaded);
                         subobjects.requireKeysPresent(presentKeysToVerify);
-                        versions.requireManifestStored(plan.manifest());
+                        versions.requireCompletionReady(plan.manifest(), receipt);
                     }
                 });
     }

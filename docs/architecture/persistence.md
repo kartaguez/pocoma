@@ -10,7 +10,7 @@ Pocoma enforces physical data separation between the write store (`pocoma_write`
 | Main schema | `v3_write` | `v3_read` (+ `public.read_maintenance_state` table) |
 | Writing runtimes | `http-write`, `command-worker` | `results-worker`, `business-read-worker` |
 | Read-only runtimes | `results-worker`, `business-read-worker` (via `write-source-read` grants) | `http-read` |
-| Current Flyway path | `classpath:db/write/migration` | `classpath:db/read/migration` |
+| Canonical SQL locations | `db/write/migration` | `db/read/migration` and `db/read/availability/migration` |
 
 Least-privilege grants and local schema setup are applied by [`scripts/operations/setup-v3-database.py`](../../scripts/operations/setup-v3-database.py) using dedicated SQL scripts under `scripts/v3/`:
 
@@ -29,11 +29,13 @@ Each store has a **single active baseline** `V1__initial_schema.sql`:
 - **READ**: [`app/infra-postgres-read/src/main/resources/db/read/migration/V1__initial_schema.sql`](../../app/infra-postgres-read/src/main/resources/db/read/migration/V1__initial_schema.sql)
   - `14` tables, `74` columns, `67` constraints, `22` indexes, `5` functions, `16` triggers.
 
-No other SQL migrations exist in production `src/main/resources/` directories.
+Current READ initialization applies V2 (balance aggregates), V3 (PotVersion Radix-16) and V4 (shared PotBalance storage) after the baseline. It then applies [READ V5](../../app/infra-postgres-read/src/main/resources/db/read/availability/migration/V5__projection_availability.sql) from the separate availability location. The earlier CommandResult pilot migration is retained in the isolated `db/read/pilot/migration` location for historical qualification.
+
+The availability migration requires an empty READ authority. See [READ reconstruction and availability](../operations/recovery.md#read-reconstruction-and-availability) for first activation on a populated database.
 
 ## Consolidated Baselines & Isolated Historical Migrations
 
-To provide a clean distribution with no incremental Flyway history to replay at startup, earlier migrations were isolated outside the production path:
+The distribution starts from consolidated V1 baselines. Earlier migration histories are isolated outside the production path:
 
 - **19 archived V3 migrations** (`11` WRITE files and `8` READ files): kept for audit and traceability in [`docs/archive/v3-sql-migrations/`](../archive/v3-sql-migrations/MANIFEST.json) with their `MANIFEST.json`. See [Archive Index](../archive/README.md).
 - **45 historical V2 migrations isolated in test resources** (never packaged in production application JARs):

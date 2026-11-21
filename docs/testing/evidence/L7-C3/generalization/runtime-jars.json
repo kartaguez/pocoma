@@ -1,0 +1,38 @@
+{
+  "C2": {
+    "runtime-worker-process": {
+      "file": "pocoma-runtime-worker-process-0.0.1-SNAPSHOT-exec.jar",
+      "sha256": "0824f2a0687d69f3ef020effc5ef50f8ee722775afcd35c2cf863ff4de7eb755"
+    },
+    "runtime-worker-materialize": {
+      "file": "pocoma-runtime-worker-materialize-0.0.1-SNAPSHOT-exec.jar",
+      "sha256": "0ee5c31a74a9622d596c389eab0e38c246214f0436e60ee46ff9b2ac7580bd7c"
+    },
+    "runtime-web-write": {
+      "file": "pocoma-runtime-web-write-0.0.1-SNAPSHOT-exec.jar",
+      "sha256": "79878c76088ad9ace6cc6e64ca87d6fb8f6d5cc689225cca688ee0787e59bbdb"
+    },
+    "runtime-web-read": {
+      "file": "pocoma-runtime-web-read-0.0.1-SNAPSHOT-exec.jar",
+      "sha256": "8a5e38d70a991b5a3516e46122ccca731ac6dea8019e105b15a2b8117934290d"
+    }
+  },
+  "C3": {
+    "runtime-worker-process": {
+      "file": "pocoma-runtime-worker-process-0.0.1-SNAPSHOT-exec.jar",
+      "sha256": "f8df99dada283d39241da8a188d84d389d955b3dc144a16473808fcb535c62b0"
+    },
+    "runtime-worker-materialize": {
+      "file": "pocoma-runtime-worker-materialize-0.0.1-SNAPSHOT-exec.jar",
+      "sha256": "778cf0541ed9ee54bf9566fdf3812f07f5ae3deebd45c02bd4ae0ff3b7fdd529"
+    },
+    "runtime-web-write": {
+      "file": "pocoma-runtime-web-write-0.0.1-SNAPSHOT-exec.jar",
+      "sha256": "b4cd51e8fbd9dcb8d16447a6995acd83c154bd20f6464aba6778c24b1e6843e2"
+    },
+    "runtime-web-read": {
+      "file": "pocoma-runtime-web-read-0.0.1-SNAPSHOT-exec.jar",
+      "sha256": "608577b28b9304238d8fa57deabcbd010c2d5d9f18347ddf3c8b0916f2506e45"
+    }
+  }
+}

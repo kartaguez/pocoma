@@ -36,6 +36,10 @@ import spec09_bench as bench
 ROOT = bench.ROOT
 PROFILES_PATH = SCRIPT_DIR / "l7-4a-profiles.json"
 PROPERTIES_DIR = ROOT / "docker" / "v3-five-runtimes"
+V5_READ_MIGRATION = ROOT / (
+    "app/infra-postgres-read/src/main/resources/db/read/availability/migration/"
+    "V5__projection_availability.sql"
+)
 
 
 class BenchEnvironmentLimit(Exception):
@@ -578,10 +582,14 @@ def restore_snapshot_into_pg(pg, dump_path, out):
         capture_output=True,
         timeout=30,
     )
-    # Check whether the restored READ schema is already on the target version (V4 if present, else V3).
     # Legacy snapshots must rebuild READ from authoritative WRITE events.
     v4_mig = ROOT / "app/infra-postgres-read/src/main/resources/db/read/migration/V4__pot_balance_shared_storage.sql"
-    target_table = "v3_read.read_pot_shareholder_set" if v4_mig.exists() else "v3_read.read_pot_version_node"
+    if V5_READ_MIGRATION.exists():
+        target_table = "v3_read.read_availability_counter"
+    elif v4_mig.exists():
+        target_table = "v3_read.read_pot_shareholder_set"
+    else:
+        target_table = "v3_read.read_pot_version_node"
     schema_check = subprocess.run(
         [
             "docker", "exec", "-i", pg, "psql", "-X", "-U", "pocoma", "-d", "pocoma_read",
@@ -604,14 +612,15 @@ def restore_snapshot_into_pg(pg, dump_path, out):
                 check=True, capture_output=True, text=True, timeout=60,
             )
 
-        def _psql_read_file(sql_text, schema="v3_read", variables=None):
+        def _psql_read_file(sql_text, schema="v3_read", variables=None, single_transaction=False):
             vars_args = []
             for k, v in (variables or {}).items():
                 vars_args.extend(["-v", f"{k}={v}"])
             subprocess.run(
                 [
                     "docker", "exec", "-i", "-e", f"PGOPTIONS=-c search_path={schema},public", pg,
-                    "psql", "-X", "-U", "pocoma", "-d", "pocoma_read", "-v", "ON_ERROR_STOP=1", *vars_args, "-f", "-",
+                    "psql", "-X", "-U", "pocoma", "-d", "pocoma_read", "-v", "ON_ERROR_STOP=1",
+                    *vars_args, *(["--single-transaction"] if single_transaction else []), "-f", "-",
                 ],
                 input=sql_text, check=True, capture_output=True, text=True, timeout=60,
             )
@@ -626,15 +635,18 @@ def restore_snapshot_into_pg(pg, dump_path, out):
         ]
         if v4_mig.exists():
             migs.append("app/infra-postgres-read/src/main/resources/db/read/migration/V4__pot_balance_shared_storage.sql")
+        if V5_READ_MIGRATION.exists():
+            migs.append(V5_READ_MIGRATION)
         for mig in migs:
-            sql = (ROOT / mig).read_text(encoding="utf-8")
+            path = ROOT / mig
+            sql = path.read_text(encoding="utf-8")
             sql = (
                 sql.replace("${expectedDatabase}", "pocoma_read")
                 .replace("${expectedSchema}", "v3_read")
                 .replace("${expectedAdmin}", "pocoma")
                 .replace("${expectedRuntime}", "pocoma_read")
             )
-            _psql_read_file(sql)
+            _psql_read_file(sql, single_transaction=path == V5_READ_MIGRATION)
         for script_file, variables in (
             ("scripts/v3/bootstrap-l2-routing.sql", {
                 "expected_database": "pocoma_read", "expected_schema": "v3_read",
@@ -698,9 +710,23 @@ def await_read_rebuild_from_write(pg, expected_write_counters, timeout_s=600):
         slots_ok = slots["total"] == 0 and slots["quarantined"] == 0
         integrity_ok = all(v == 0 for v in integrity.values())
         if cp_ok and slots_ok and integrity_ok:
-            return round(time.monotonic() - t0, 2)
+            if not V5_READ_MIGRATION.exists() or read_availability_snapshot(pg)["valid"]:
+                return round(time.monotonic() - t0, 2)
         time.sleep(0.5)
     raise TimeoutError(f"READ rebuild from WRITE did not converge within {timeout_s}s")
+
+
+def read_availability_snapshot(pg):
+    return bench.sql(pg, "pocoma_read", """
+        select jsonb_build_object(
+          'valid', v3_read.read_availability_schema_valid() and v3_read.read_availability_valid(),
+          'positions', (select jsonb_object_agg(family, position) from v3_read.read_availability_counter),
+          'relationBytes', (select jsonb_object_agg(c.relname, pg_total_relation_size(c.oid))
+                from pg_class c join pg_namespace n on n.oid = c.relnamespace
+               where n.nspname = 'v3_read' and c.relname in (
+                   'read_availability_counter', 'read_availability_event', 'read_current_availability'))
+        )
+    """)
 
 
 def verify_restored_state(pg, meta, pot_count, token, out, metrics_urls, rebuilt=False):
@@ -920,10 +946,10 @@ def run_campaign(args, cfg, campaign_name, out):
         token = next(iter(json.loads((work / "tokens.json").read_text()).values()))
         if mode == "restore-run":
             if rebuilt_read:
-                print(f"[{campaign_name}] Legacy V1/V2 READ snapshot detected — rebuilding READ V3 Radix-16 from WRITE...")
+                print(f"[{campaign_name}] Rebuilding the current READ schema from WRITE...")
                 rebuild_elapsed = await_read_rebuild_from_write(pg, snap_meta_pre["writeCounters"], timeout_s=900)
                 manifest["restore"]["readRebuildElapsedSeconds"] = rebuild_elapsed
-                print(f"[{campaign_name}] READ V3 Radix-16 rebuilt from WRITE in {rebuild_elapsed}s.")
+                print(f"[{campaign_name}] READ rebuilt from WRITE in {rebuild_elapsed}s.")
             initial_snap, binding, states = verify_restored_state(
                 pg, snap_meta_pre, camp["potCount"], token, out, metrics_urls, rebuilt=rebuilt_read
             )
@@ -962,6 +988,11 @@ def run_campaign(args, cfg, campaign_name, out):
                 print(json.dumps({"campaign": campaign_name, "mode": "PREPARE", "verdict": "PASS"}))
                 return 0
 
+        if V5_READ_MIGRATION.exists():
+            manifest["initialAvailability"] = read_availability_snapshot(pg)
+            if not manifest["initialAvailability"]["valid"]:
+                raise RuntimeError("Inconsistent READ availability before measurement")
+
         def collect_loop():
             idx = 0
             while not stop.wait(guardrails["resourceSampleIntervalSeconds"]):
@@ -975,7 +1006,15 @@ def run_campaign(args, cfg, campaign_name, out):
                             ["docker", "stats", "--no-stream", "--format", "{{json .}}", *containers]
                         ).splitlines()
                     ]
-                    resource_samples.append({"utc": bench.utc(), "stats": stats, "collectorMs": snap["collectorMs"]})
+                    read = snap["databases"]["read"]
+                    resource_samples.append({
+                        "utc": bench.utc(), "stats": stats, "collectorMs": snap["collectorMs"],
+                        "readLockWaits": [
+                            activity for activity in read["activity"]
+                            if activity["wait_event_type"] == "Lock"
+                        ],
+                        "readBlocking": read["blocking"],
+                    })
                     if any(float(row["MemPerc"].rstrip("%")) > guardrails["maxContainerMemPercent"] for row in stats):
                         raise BenchEnvironmentLimit("Container memory safety ceiling exceeded")
                 except Exception as exc:
@@ -1036,6 +1075,10 @@ def run_campaign(args, cfg, campaign_name, out):
         wait_for_drainage(pg, timeout_s=30)
         final_snap = bench.snapshot(pg, metrics_urls, out, "final")
         bench.validate_progress(initial_snap, final_snap)
+        if V5_READ_MIGRATION.exists():
+            manifest["finalAvailability"] = read_availability_snapshot(pg)
+            if not manifest["finalAvailability"]["valid"]:
+                raise RuntimeError("Inconsistent READ availability after measurement")
 
         sample_rows = [r for r in all_rows if not r.get("warmup")]
         reconciliation = bench.reconcile(pg, sample_rows)

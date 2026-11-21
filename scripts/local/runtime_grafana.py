@@ -5,10 +5,12 @@ from pathlib import Path
 import re
 import tempfile
 
+from bootstrap import AVAILABILITY_MODULE, SETUP_SCRIPT
+
 
 _PROTECTED_INPUTS = (
     'app', 'docker/v3-five-runtimes', 'docker/keycloak', 'scripts/v3',
-    'scripts/operations/setup-v3-database.py', 'scripts/local/bootstrap.py',
+    SETUP_SCRIPT, AVAILABILITY_MODULE, 'scripts/local/bootstrap.py',
     'scripts/local/public_api.py', 'scripts/local/keycloak.py', 'scripts/local/auth.py',
     'scripts/bruno-v3/package.json', 'scripts/bruno-v3/package-lock.json',
 )

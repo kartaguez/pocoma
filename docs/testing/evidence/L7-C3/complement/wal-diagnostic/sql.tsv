@@ -1,0 +1,259 @@
+profile	workers	publish	role	calls	exec_ms	wal_bytes	wal_records	wal_fpi	query
+COMMAND_RESULT	1	false	READ	200	0.0299	0	0	0	BEGIN
+COMMAND_RESULT	1	false	READ	200	0.0567	0	0	0	COMMIT
+COMMAND_RESULT	1	false	READ	200	0.4942	0	0	0	SET application_name = 'PostgreSQL JDBC Driver'
+COMMAND_RESULT	1	false	READ	200	0.5497	0	0	0	SHOW TRANSACTION ISOLATION LEVEL
+COMMAND_RESULT	1	false	READ	100	1.7890	5680	105	0	delete from consumption_slot where consumption_id=$1 and consumable_id=$2 and claim_token=$3 and state=$4
+COMMAND_RESULT	1	false	READ	100	9.2613	24700	300	0	insert into read_command_result ( request_id, operation, requester_issuer, requester_subject, pot_id, write_outcome, resulting_pot_version, rejection ) values ($1,$2,$3,$4,$5,$6,$7,$8) on conflict (request_id) do nothing
+COMMAND_RESULT	1	false	READ	100	2.3314	6816	121	0	select claim_token,claimed_until,state from consumption_slot where consumption_id=$1 and consumable_id=$2 for update
+COMMAND_RESULT	1	false	READ	300	0.3071	0	0	0	select clock_timestamp()
+COMMAND_RESULT	1	false	READ	100	1.3908	5568	103	0	select consumable_id,claim_token,claimed_until,state,partition_id from consumption_slot where consumption_id=$1 and consumable_id in ($2) and partition_id=$3 order by consumable_id for update skip locked
+COMMAND_RESULT	1	false	READ	100	0.7393	0	0	0	select family,routing_version,partition_count from consumption_routing_contract where consumption_id=$1
+COMMAND_RESULT	1	false	READ	200	1.0877	0	0	0	select operation, requester_issuer, requester_subject, pot_id, write_outcome, resulting_pot_version, rejection from read_command_result where request_id = $1
+COMMAND_RESULT	1	false	READ	100	1.4315	5400	100	0	select owner_token,owned_until from partition_ownership where consumption_id=$1 and partition_id=$2 for update skip locked
+COMMAND_RESULT	1	false	READ	100	0.4553	0	0	0	select set_config($4, $1, $5), set_config($6, $2, $7), set_config($8, $3, $9)
+COMMAND_RESULT	1	false	READ	100	101.8583	47981	511	0	update consumption_slot set claim_token=$1,claimed_until=$2::timestamptz + $3 * interval $9 where consumption_id=$4 and consumable_id=$5 and partition_id=$6 and state=$10 and (retry_after is null or retry_after<=$7) and (claim_token is null or claimed_until<=$8) returning consumable_id,claim_token,claimed_until
+COMMAND_RESULT	1	false	WRITE	100	0.1382	0	0	0	BEGIN READ ONLY
+COMMAND_RESULT	1	false	WRITE	100	0.0264	0	0	0	COMMIT
+COMMAND_RESULT	1	false	WRITE	100	0.1146	0	0	0	SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL READ COMMITTED
+COMMAND_RESULT	1	false	WRITE	100	0.1211	0	0	0	SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL REPEATABLE READ
+COMMAND_RESULT	1	false	WRITE	100	0.2678	0	0	0	SET application_name = 'PostgreSQL JDBC Driver'
+COMMAND_RESULT	1	false	WRITE	100	0.3703	0	0	0	SHOW TRANSACTION ISOLATION LEVEL
+COMMAND_RESULT	1	false	WRITE	100	4.7475	56	1	0	select c.request_id,c.operation,c.requester_issuer,c.requester_subject,c.pot_id,c.status, r.outcome,r.resulting_pot_version,r.rejection from v3_command_completion_event e join v3_event_position p on p.event_id=e.event_id and p.family=$2 join v3_event_counter k on k.family=p.family and k.position>=p.position join v3_command c on c.request_id=e.subject_id join v3_command_result r on r.request_id=c.request_id where e.event_id=$1 and e.subject_type=$3
+COMMAND_RESULT	1	false	WRITE	100	0.0826	0	0	0	set transaction read only
+IDENTITY_REQUEST_RESULT	1	false	READ	200	0.0303	0	0	0	BEGIN
+IDENTITY_REQUEST_RESULT	1	false	READ	200	0.0648	0	0	0	COMMIT
+IDENTITY_REQUEST_RESULT	1	false	READ	200	0.4746	0	0	0	SET application_name = 'PostgreSQL JDBC Driver'
+IDENTITY_REQUEST_RESULT	1	false	READ	200	0.5614	0	0	0	SHOW TRANSACTION ISOLATION LEVEL
+IDENTITY_REQUEST_RESULT	1	false	READ	100	1.5347	5400	100	0	delete from consumption_slot where consumption_id=$1 and consumable_id=$2 and claim_token=$3 and state=$4
+IDENTITY_REQUEST_RESULT	1	false	READ	100	12.5753	25100	300	0	insert into read_identity_request_result(request_id,operation,requester_issuer,requester_subject,write_outcome,target_issuer,target_subject,target_version,rejection) values ($1,$2,$3,$4,$5,$6,$7,$8,$9) on conflict do nothing
+IDENTITY_REQUEST_RESULT	1	false	READ	100	2.5440	6092	106	0	select claim_token,claimed_until,state from consumption_slot where consumption_id=$1 and consumable_id=$2 for update
+IDENTITY_REQUEST_RESULT	1	false	READ	300	0.3060	0	0	0	select clock_timestamp()
+IDENTITY_REQUEST_RESULT	1	false	READ	100	1.4933	5400	100	0	select consumable_id,claim_token,claimed_until,state,partition_id from consumption_slot where consumption_id=$1 and consumable_id in ($2) and partition_id=$3 order by consumable_id for update skip locked
+IDENTITY_REQUEST_RESULT	1	false	READ	100	0.7575	0	0	0	select family,routing_version,partition_count from consumption_routing_contract where consumption_id=$1
+IDENTITY_REQUEST_RESULT	1	false	READ	200	1.0267	0	0	0	select operation,requester_issuer,requester_subject,write_outcome,target_issuer,target_subject,target_version,rejection from read_identity_request_result where request_id=$1
+IDENTITY_REQUEST_RESULT	1	false	READ	100	1.3667	5400	100	0	select owner_token,owned_until from partition_ownership where consumption_id=$1 and partition_id=$2 for update skip locked
+IDENTITY_REQUEST_RESULT	1	false	READ	100	0.4572	0	0	0	select set_config($4, $1, $5), set_config($6, $2, $7), set_config($8, $3, $9)
+IDENTITY_REQUEST_RESULT	1	false	READ	100	100.8387	47127	503	0	update consumption_slot set claim_token=$1,claimed_until=$2::timestamptz + $3 * interval $9 where consumption_id=$4 and consumable_id=$5 and partition_id=$6 and state=$10 and (retry_after is null or retry_after<=$7) and (claim_token is null or claimed_until<=$8) returning consumable_id,claim_token,claimed_until
+IDENTITY_REQUEST_RESULT	1	false	WRITE	100	0.1346	0	0	0	BEGIN READ ONLY
+IDENTITY_REQUEST_RESULT	1	false	WRITE	100	0.0240	0	0	0	COMMIT
+IDENTITY_REQUEST_RESULT	1	false	WRITE	100	0.1125	0	0	0	SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL READ COMMITTED
+IDENTITY_REQUEST_RESULT	1	false	WRITE	100	0.1128	0	0	0	SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL REPEATABLE READ
+IDENTITY_REQUEST_RESULT	1	false	WRITE	100	0.2552	0	0	0	SET application_name = 'PostgreSQL JDBC Driver'
+IDENTITY_REQUEST_RESULT	1	false	WRITE	100	0.3632	0	0	0	SHOW TRANSACTION ISOLATION LEVEL
+IDENTITY_REQUEST_RESULT	1	false	WRITE	100	4.6141	392	7	0	select e.subject_type,c.request_id,c.operation,c.requester_issuer,c.requester_subject, c.target_issuer,c.target_subject,c.status,r.outcome,r.target_eui_id,r.target_version,r.rejection from v3_identity_completion_event e join v3_event_position p on p.event_id=e.event_id and p.family=$2 join v3_event_counter k on k.family=p.family and k.position>=p.position join v3_identity_request c on c.request_id=e.subject_id join v3_identity_request_result r on r.request_id=c.request_id where e.event_id=$1
+IDENTITY_REQUEST_RESULT	1	false	WRITE	100	0.0992	0	0	0	set transaction read only
+POT_VERSION	1	false	READ	200	0.0317	0	0	0	BEGIN
+POT_VERSION	1	false	READ	100	0.1388	0	0	0	BEGIN READ ONLY
+POT_VERSION	1	false	READ	300	0.0920	0	0	0	COMMIT
+POT_VERSION	1	false	READ	100	0.1073	0	0	0	SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL READ COMMITTED
+POT_VERSION	1	false	READ	100	0.1169	0	0	0	SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL REPEATABLE READ
+POT_VERSION	1	false	READ	300	0.8653	0	0	0	SET application_name = 'PostgreSQL JDBC Driver'
+POT_VERSION	1	false	READ	300	0.7992	0	0	0	SHOW TRANSACTION ISOLATION LEVEL
+POT_VERSION	1	false	READ	100	2.0307	5400	100	0	delete from consumption_slot where consumption_id=$1 and consumable_id=$2 and claim_token=$3 and state=$4
+POT_VERSION	1	false	READ	100	14.3941	25300	400	0	insert into read_current_pot(pot_id,pot_version) values ($1,$2) on conflict (pot_id) do update set pot_version=excluded.pot_version where read_current_pot.pot_version < excluded.pot_version
+POT_VERSION	1	false	READ	100	5.9103	0	0	0	insert into read_pot_user_set(set_hash,schema_version,user_count,user_ids) values ($1,$2,$3,$4) on conflict (set_hash) do nothing returning set_hash
+POT_VERSION	1	false	READ	100	53.4279	33800	400	0	insert into read_pot_version( pot_id, pot_version, schema_version, header_version, details_version, deleted, shareholders_count, expenses_count, shareholders_root, expenses_root, authorized_users_hash, attached_active_users_hash) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) on conflict (pot_id, pot_version) do nothing returning $13
+POT_VERSION	1	false	READ	100	26.2060	69930	602	0	insert into read_subobject_version(pot_id,kind,object_id,local_version,schema_version,payload) values ($1,$2,$3,$4,$11,$5::jsonb),($6,$7,$8,$9,$12,$10::jsonb) on conflict(pot_id,kind,object_id,local_version) do nothing
+POT_VERSION	1	false	READ	100	2.8992	6848	121	0	select claim_token,claimed_until,state from consumption_slot where consumption_id=$1 and consumable_id=$2 for update
+POT_VERSION	1	false	READ	300	0.4173	0	0	0	select clock_timestamp()
+POT_VERSION	1	false	READ	100	1.6878	5904	109	0	select consumable_id,claim_token,claimed_until,state,partition_id from consumption_slot where consumption_id=$1 and consumable_id in ($2) and partition_id=$3 order by consumable_id for update skip locked
+POT_VERSION	1	false	READ	100	0.7839	0	0	0	select family,routing_version,partition_count from consumption_routing_contract where consumption_id=$1
+POT_VERSION	1	false	READ	100	1.5473	5400	100	0	select owner_token,owned_until from partition_ownership where consumption_id=$1 and partition_id=$2 for update skip locked
+POT_VERSION	1	false	READ	100	0.7644	0	0	0	select pot_id,kind,object_id,local_version from read_subobject_version where (pot_id,kind,object_id,local_version) in (($1,$2,$3,$4),($5,$6,$7,$8))
+POT_VERSION	1	false	READ	200	1.9061	0	0	0	select pot_id,kind,object_id,local_version,schema_version,payload::text from read_subobject_version where (pot_id,kind,object_id,local_version) in (($1,$2,$3,$4),($5,$6,$7,$8))
+POT_VERSION	1	false	READ	100	0.4992	0	0	0	select pot_version from read_current_pot where pot_id=$1
+POT_VERSION	1	false	READ	100	1.5327	0	0	0	select pv.pot_id, pv.pot_version, pv.schema_version, pv.header_version, pv.details_version, pv.deleted, pv.shareholders_count, pv.expenses_count, pv.shareholders_root, pv.expenses_root, pv.authorized_users_hash, pv.attached_active_users_hash, au.user_ids as authorized_user_ids, atu.user_ids as attached_active_user_ids from read_pot_version pv left join read_pot_user_set au on au.set_hash = pv.authorized_users_hash left join read_pot_user_set atu on atu.set_hash = pv.attached_active_users_hash where pv.pot_id=$1 and pv.pot_version=$2
+POT_VERSION	1	false	READ	100	0.4897	0	0	0	select set_config($4, $1, $5), set_config($6, $2, $7), set_config($8, $3, $9)
+POT_VERSION	1	false	READ	100	0.7466	0	0	0	select set_hash, schema_version, user_ids from read_pot_user_set where set_hash=$1
+POT_VERSION	1	false	READ	100	0.0821	0	0	0	set transaction read only
+POT_VERSION	1	false	READ	100	104.6942	47809	506	0	update consumption_slot set claim_token=$1,claimed_until=$2::timestamptz + $3 * interval $9 where consumption_id=$4 and consumable_id=$5 and partition_id=$6 and state=$10 and (retry_after is null or retry_after<=$7) and (claim_token is null or claimed_until<=$8) returning consumable_id,claim_token,claimed_until
+POT_VERSION	1	false	WRITE	300	0.4048	0	0	0	BEGIN READ ONLY
+POT_VERSION	1	false	WRITE	300	0.0774	0	0	0	COMMIT
+POT_VERSION	1	false	WRITE	300	1.1293	0	0	0	SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL READ COMMITTED
+POT_VERSION	1	false	WRITE	300	0.3483	0	0	0	SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL REPEATABLE READ
+POT_VERSION	1	false	WRITE	300	0.8365	0	0	0	SET application_name = 'PostgreSQL JDBC Driver'
+POT_VERSION	1	false	WRITE	600	1.0544	0	0	0	SHOW TRANSACTION ISOLATION LEVEL
+POT_VERSION	1	false	WRITE	100	0.9605	0	0	0	select * from v3_pot_details where pot_id=$1 and active_from<=$2 and (active_to is null or $3<active_to) and (object_id,local_version) in (($4,$5))
+POT_VERSION	1	false	WRITE	100	1.3106	0	0	0	select * from v3_pot_header where pot_id=$1 and active_from<=$2 and (active_to is null or $3<active_to) and (object_id,local_version) in (($4,$5))
+POT_VERSION	1	false	WRITE	100	0.7983	0	0	0	select * from v3_pot_header where pot_id=$1 and object_id = any($2) and active_to is null
+POT_VERSION	1	false	WRITE	200	5.6404	0	0	0	select e.pot_id,e.subject_version from v3_pot_event e join v3_event_position p on p.event_id=e.event_id and p.family=$2 join v3_event_counter c on c.family=p.family and c.position>=p.position where e.event_id=$1 and e.subject_type=$3
+POT_VERSION	1	false	WRITE	100	0.4735	0	0	0	select object_id,created_at from v3_expense_identity where pot_id=$1 and created_at<=$2 order by object_id
+POT_VERSION	1	false	WRITE	100	1.4638	0	0	0	select object_id,created_at from v3_shareholder_identity where pot_id=$1 and created_at<=$2 order by object_id
+POT_VERSION	1	false	WRITE	100	0.7755	0	0	0	select revision_id,pot_id,object_id,local_version,active_from,active_to,creator_id from v3_pot_details where pot_id=$1 and object_id = any($2) and active_to is null
+POT_VERSION	1	false	WRITE	100	0.6465	0	0	0	select version,recorded_at from v3_pot_version where pot_id=$1 and version=$2
+POT_VERSION	1	false	WRITE	100	1.2094	0	0	0	select version,recorded_at from v3_pot_version where pot_id=$1 order by version desc limit $2
+POT_VERSION	1	false	WRITE	300	0.2902	0	0	0	set transaction read only
+POT_BALANCE	1	false	READ	200	0.0327	0	0	0	BEGIN
+POT_BALANCE	1	false	READ	200	0.0648	0	0	0	COMMIT
+POT_BALANCE	1	false	READ	200	0.5652	0	0	0	SET application_name = 'PostgreSQL JDBC Driver'
+POT_BALANCE	1	false	READ	200	0.5586	0	0	0	SHOW TRANSACTION ISOLATION LEVEL
+POT_BALANCE	1	false	READ	100	1.7462	5512	102	0	delete from consumption_slot where consumption_id=$1 and consumable_id=$2 and claim_token=$3 and state=$4
+POT_BALANCE	1	false	READ	100	16.0048	29400	400	0	insert into read_pot_balance(pot_id, pot_version, content_hash) values ($1, $2, $3) on conflict (pot_id, pot_version) do nothing returning $4
+POT_BALANCE	1	false	READ	100	16.8776	34800	500	0	insert into read_pot_balance_aggregate(pot_id, pot_version, content_hash) values ($1, $2, $3) on conflict (pot_id, pot_version) do nothing returning $4
+POT_BALANCE	1	false	READ	100	8.2479	0	0	0	insert into read_pot_shareholder_set( set_hash, schema_version, shareholders_count, payload) values ($1, $2, $3, $4) on conflict (set_hash) do nothing returning set_hash
+POT_BALANCE	1	false	READ	100	0.9908	0	0	0	select b.content_hash, a.content_hash from read_pot_balance b left join read_pot_balance_aggregate a on a.pot_id = b.pot_id and a.pot_version = b.pot_version where b.pot_id = $1 and b.pot_version = $2
+POT_BALANCE	1	false	READ	100	1.1088	0	0	0	select b.schema_version, b.shareholders_count, b.shareholder_set_hash, b.payload, a.schema_version, a.shareholders_count, a.bucket_count, a.shareholder_set_hash, a.payload from read_pot_balance_content b join read_pot_balance_aggregate_content a on a.content_hash = $1 where b.content_hash = $2
+POT_BALANCE	1	false	READ	100	3.1783	6204	112	0	select claim_token,claimed_until,state from consumption_slot where consumption_id=$1 and consumable_id=$2 for update
+POT_BALANCE	1	false	READ	300	0.3461	0	0	0	select clock_timestamp()
+POT_BALANCE	1	false	READ	100	1.7986	5512	102	0	select consumable_id,claim_token,claimed_until,state,partition_id from consumption_slot where consumption_id=$1 and consumable_id in ($2) and partition_id=$3 order by consumable_id for update skip locked
+POT_BALANCE	1	false	READ	100	0.9042	0	0	0	select family,routing_version,partition_count from consumption_routing_contract where consumption_id=$1
+POT_BALANCE	1	false	READ	100	2.8263	5400	100	0	select owner_token,owned_until from partition_ownership where consumption_id=$1 and partition_id=$2 for update skip locked
+POT_BALANCE	1	false	READ	100	0.5951	0	0	0	select schema_version, shareholders_count, payload from read_pot_shareholder_set where set_hash = $1
+POT_BALANCE	1	false	READ	100	0.4893	0	0	0	select set_config($4, $1, $5), set_config($6, $2, $7), set_config($8, $3, $9)
+POT_BALANCE	1	false	READ	100	106.5209	46892	503	0	update consumption_slot set claim_token=$1,claimed_until=$2::timestamptz + $3 * interval $9 where consumption_id=$4 and consumable_id=$5 and partition_id=$6 and state=$10 and (retry_after is null or retry_after<=$7) and (claim_token is null or claimed_until<=$8) returning consumable_id,claim_token,claimed_until
+POT_BALANCE	1	false	READ	100	3.8727	0	0	0	with bal_c as ( insert into read_pot_balance_content( content_hash, schema_version, shareholders_count, shareholder_set_hash, payload) values ($1, $2, $3, $4, $5) on conflict (content_hash) do nothing returning $12 ), agg_c as ( insert into read_pot_balance_aggregate_content( content_hash, schema_version, shareholders_count, bucket_count, shareholder_set_hash, payload) values ($6, $7, $8, $9, $10, $11) on conflict (content_hash) do nothing returning $13 ) select exists(select $14 from bal_c), exists(select $15 from agg_c)
+POT_BALANCE	1	false	WRITE	200	0.2653	0	0	0	BEGIN READ ONLY
+POT_BALANCE	1	false	WRITE	200	0.0552	0	0	0	COMMIT
+POT_BALANCE	1	false	WRITE	200	0.2597	0	0	0	SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL READ COMMITTED
+POT_BALANCE	1	false	WRITE	200	0.2374	0	0	0	SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL REPEATABLE READ
+POT_BALANCE	1	false	WRITE	200	0.5034	0	0	0	SET application_name = 'PostgreSQL JDBC Driver'
+POT_BALANCE	1	false	WRITE	500	0.9576	0	0	0	SHOW TRANSACTION ISOLATION LEVEL
+POT_BALANCE	1	false	WRITE	200	1.4535	0	0	0	select * from v3_pot_header where pot_id=$1 and object_id = any($2) and active_to is null
+POT_BALANCE	1	false	WRITE	200	5.5327	0	0	0	select e.pot_id,e.subject_version from v3_pot_event e join v3_event_position p on p.event_id=e.event_id and p.family=$2 join v3_event_counter c on c.family=p.family and c.position>=p.position where e.event_id=$1 and e.subject_type=$3
+POT_BALANCE	1	false	WRITE	100	0.4557	0	0	0	select object_id,created_at from v3_expense_identity where pot_id=$1 and created_at<=$2 order by object_id
+POT_BALANCE	1	false	WRITE	100	1.2275	0	0	0	select object_id,created_at from v3_shareholder_identity where pot_id=$1 and created_at<=$2 order by object_id
+POT_BALANCE	1	false	WRITE	200	1.3183	0	0	0	select version,recorded_at from v3_pot_version where pot_id=$1 and version=$2
+POT_BALANCE	1	false	WRITE	200	1.9690	0	0	0	select version,recorded_at from v3_pot_version where pot_id=$1 order by version desc limit $2
+POT_BALANCE	1	false	WRITE	200	0.2095	0	0	0	set transaction read only
+COMMAND_RESULT	1	true	READ	200	0.0320	0	0	0	BEGIN
+COMMAND_RESULT	1	true	READ	200	0.0553	0	0	0	COMMIT
+COMMAND_RESULT	1	true	READ	200	0.4920	0	0	0	SET application_name = 'PostgreSQL JDBC Driver'
+COMMAND_RESULT	1	true	READ	200	0.5042	0	0	0	SHOW TRANSACTION ISOLATION LEVEL
+COMMAND_RESULT	1	true	READ	100	2.3940	6016	111	0	delete from consumption_slot where consumption_id=$1 and consumable_id=$2 and claim_token=$3 and state=$4
+COMMAND_RESULT	1	true	READ	100	14.7531	40148	401	0	insert into read_availability_event(family, position, event_id, projection_key) values ($1, $2, $3, $4)
+COMMAND_RESULT	1	true	READ	100	10.5468	24700	300	0	insert into read_command_result ( request_id, operation, requester_issuer, requester_subject, pot_id, write_outcome, resulting_pot_version, rejection ) values ($1,$2,$3,$4,$5,$6,$7,$8) on conflict (request_id) do nothing
+COMMAND_RESULT	1	true	READ	100	0.8942	0	0	0	not exists ( select from read_availability_event where family = $15 and projection_key = new.request_id )
+COMMAND_RESULT	1	true	READ	100	0.6808	0	0	0	not exists ( select from read_availability_event where family = new.family and position = new.position )
+COMMAND_RESULT	1	true	READ	100	1.0024	0	0	0	not exists (select from read_command_result where request_id = new.projection_key)
+COMMAND_RESULT	1	true	READ	100	2.8173	7112	126	0	select claim_token,claimed_until,state from consumption_slot where consumption_id=$1 and consumable_id=$2 for update
+COMMAND_RESULT	1	true	READ	300	0.3198	0	0	0	select clock_timestamp()
+COMMAND_RESULT	1	true	READ	100	0.6195	0	0	0	select coalesce(event.position <= counter.position, $3) from read_availability_event event left join read_availability_counter counter using (family) where event.family = $1 and event.projection_key = $2
+COMMAND_RESULT	1	true	READ	100	1.5654	5568	103	0	select consumable_id,claim_token,claimed_until,state,partition_id from consumption_slot where consumption_id=$1 and consumable_id in ($2) and partition_id=$3 order by consumable_id for update skip locked
+COMMAND_RESULT	1	true	READ	100	0.7693	0	0	0	select family,routing_version,partition_count from consumption_routing_contract where consumption_id=$1
+COMMAND_RESULT	1	true	READ	200	1.1386	0	0	0	select operation, requester_issuer, requester_subject, pot_id, write_outcome, resulting_pot_version, rejection from read_command_result where request_id = $1
+COMMAND_RESULT	1	true	READ	100	1.4169	5400	100	0	select owner_token,owned_until from partition_ownership where consumption_id=$1 and partition_id=$2 for update skip locked
+COMMAND_RESULT	1	true	READ	100	0.4373	0	0	0	select set_config($4, $1, $5), set_config($6, $2, $7), set_config($8, $3, $9)
+COMMAND_RESULT	1	true	READ	100	103.2395	47636	507	0	update consumption_slot set claim_token=$1,claimed_until=$2::timestamptz + $3 * interval $9 where consumption_id=$4 and consumable_id=$5 and partition_id=$6 and state=$10 and (retry_after is null or retry_after<=$7) and (claim_token is null or claimed_until<=$8) returning consumable_id,claim_token,claimed_until
+COMMAND_RESULT	1	true	READ	100	40.4765	13301	200	0	update read_availability_counter set position = position + $2 where family = $1 returning position
+COMMAND_RESULT	1	true	WRITE	100	0.1345	0	0	0	BEGIN READ ONLY
+COMMAND_RESULT	1	true	WRITE	100	0.0246	0	0	0	COMMIT
+COMMAND_RESULT	1	true	WRITE	100	0.1171	0	0	0	SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL READ COMMITTED
+COMMAND_RESULT	1	true	WRITE	100	0.1185	0	0	0	SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL REPEATABLE READ
+COMMAND_RESULT	1	true	WRITE	100	0.2555	0	0	0	SET application_name = 'PostgreSQL JDBC Driver'
+COMMAND_RESULT	1	true	WRITE	100	0.2411	0	0	0	SHOW TRANSACTION ISOLATION LEVEL
+COMMAND_RESULT	1	true	WRITE	100	5.0719	56	1	0	select c.request_id,c.operation,c.requester_issuer,c.requester_subject,c.pot_id,c.status, r.outcome,r.resulting_pot_version,r.rejection from v3_command_completion_event e join v3_event_position p on p.event_id=e.event_id and p.family=$2 join v3_event_counter k on k.family=p.family and k.position>=p.position join v3_command c on c.request_id=e.subject_id join v3_command_result r on r.request_id=c.request_id where e.event_id=$1 and e.subject_type=$3
+COMMAND_RESULT	1	true	WRITE	100	0.0873	0	0	0	set transaction read only
+IDENTITY_REQUEST_RESULT	1	true	READ	200	0.0315	0	0	0	BEGIN
+IDENTITY_REQUEST_RESULT	1	true	READ	200	0.0572	0	0	0	COMMIT
+IDENTITY_REQUEST_RESULT	1	true	READ	200	0.5906	0	0	0	SET application_name = 'PostgreSQL JDBC Driver'
+IDENTITY_REQUEST_RESULT	1	true	READ	200	0.4794	0	0	0	SHOW TRANSACTION ISOLATION LEVEL
+IDENTITY_REQUEST_RESULT	1	true	READ	100	1.8291	5400	100	0	delete from consumption_slot where consumption_id=$1 and consumable_id=$2 and claim_token=$3 and state=$4
+IDENTITY_REQUEST_RESULT	1	true	READ	100	13.7901	38568	401	0	insert into c3_bench_event(family,position,event_id,projection_key,logical_version) values ($1,$2,$3,$4,$5)
+IDENTITY_REQUEST_RESULT	1	true	READ	100	13.5916	25100	300	0	insert into read_identity_request_result(request_id,operation,requester_issuer,requester_subject,write_outcome,target_issuer,target_subject,target_version,rejection) values ($1,$2,$3,$4,$5,$6,$7,$8,$9) on conflict do nothing
+IDENTITY_REQUEST_RESULT	1	true	READ	100	0.7730	0	0	0	not (case new.family when $17 then exists ( select from read_identity_request_result where request_id = new.projection_key) when $18 then exists ( select from read_pot_version where pot_id = new.projection_key and pot_version = new.logical_version) when $19 then exists ( select from read_pot_balance where pot_id = new.projection_key and pot_version = new.logical_version) else $20 end)
+IDENTITY_REQUEST_RESULT	1	true	READ	100	0.9679	0	0	0	not exists ( select from c3_bench_event where family = tg_argv[$16] and projection_key = effect_key and logical_version is not distinct from effect_version )
+IDENTITY_REQUEST_RESULT	1	true	READ	100	0.5417	0	0	0	not exists (select from c3_bench_event where family = new.family and position = new.position)
+IDENTITY_REQUEST_RESULT	1	true	READ	100	0.6343	0	0	0	select $4 from c3_bench_event where family=$1 and projection_key=$2 and logical_version is not distinct from cast($3 as bigint)
+IDENTITY_REQUEST_RESULT	1	true	READ	100	2.7980	5972	106	0	select claim_token,claimed_until,state from consumption_slot where consumption_id=$1 and consumable_id=$2 for update
+IDENTITY_REQUEST_RESULT	1	true	READ	300	0.3853	0	0	0	select clock_timestamp()
+IDENTITY_REQUEST_RESULT	1	true	READ	100	1.5910	5400	100	0	select consumable_id,claim_token,claimed_until,state,partition_id from consumption_slot where consumption_id=$1 and consumable_id in ($2) and partition_id=$3 order by consumable_id for update skip locked
+IDENTITY_REQUEST_RESULT	1	true	READ	100	0.7806	0	0	0	select family,routing_version,partition_count from consumption_routing_contract where consumption_id=$1
+IDENTITY_REQUEST_RESULT	1	true	READ	200	1.1144	0	0	0	select operation,requester_issuer,requester_subject,write_outcome,target_issuer,target_subject,target_version,rejection from read_identity_request_result where request_id=$1
+IDENTITY_REQUEST_RESULT	1	true	READ	100	1.4375	5400	100	0	select owner_token,owned_until from partition_ownership where consumption_id=$1 and partition_id=$2 for update skip locked
+IDENTITY_REQUEST_RESULT	1	true	READ	100	0.4377	0	0	0	select set_config($4, $1, $5), set_config($6, $2, $7), set_config($8, $3, $9)
+IDENTITY_REQUEST_RESULT	1	true	READ	100	36.2751	13301	200	0	update c3_bench_counter set position=position+$2 where family=$1 returning position
+IDENTITY_REQUEST_RESULT	1	true	READ	100	102.6910	47093	503	0	update consumption_slot set claim_token=$1,claimed_until=$2::timestamptz + $3 * interval $9 where consumption_id=$4 and consumable_id=$5 and partition_id=$6 and state=$10 and (retry_after is null or retry_after<=$7) and (claim_token is null or claimed_until<=$8) returning consumable_id,claim_token,claimed_until
+IDENTITY_REQUEST_RESULT	1	true	WRITE	100	0.1283	0	0	0	BEGIN READ ONLY
+IDENTITY_REQUEST_RESULT	1	true	WRITE	100	0.0380	0	0	0	COMMIT
+IDENTITY_REQUEST_RESULT	1	true	WRITE	100	0.1105	0	0	0	SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL READ COMMITTED
+IDENTITY_REQUEST_RESULT	1	true	WRITE	100	0.1183	0	0	0	SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL REPEATABLE READ
+IDENTITY_REQUEST_RESULT	1	true	WRITE	100	0.2605	0	0	0	SET application_name = 'PostgreSQL JDBC Driver'
+IDENTITY_REQUEST_RESULT	1	true	WRITE	100	0.2649	0	0	0	SHOW TRANSACTION ISOLATION LEVEL
+IDENTITY_REQUEST_RESULT	1	true	WRITE	100	4.9490	392	7	0	select e.subject_type,c.request_id,c.operation,c.requester_issuer,c.requester_subject, c.target_issuer,c.target_subject,c.status,r.outcome,r.target_eui_id,r.target_version,r.rejection from v3_identity_completion_event e join v3_event_position p on p.event_id=e.event_id and p.family=$2 join v3_event_counter k on k.family=p.family and k.position>=p.position join v3_identity_request c on c.request_id=e.subject_id join v3_identity_request_result r on r.request_id=c.request_id where e.event_id=$1
+IDENTITY_REQUEST_RESULT	1	true	WRITE	100	0.0906	0	0	0	set transaction read only
+POT_VERSION	1	true	READ	200	0.0304	0	0	0	BEGIN
+POT_VERSION	1	true	READ	100	0.1223	0	0	0	BEGIN READ ONLY
+POT_VERSION	1	true	READ	300	0.0892	0	0	0	COMMIT
+POT_VERSION	1	true	READ	100	0.1125	0	0	0	SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL READ COMMITTED
+POT_VERSION	1	true	READ	100	0.1059	0	0	0	SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL REPEATABLE READ
+POT_VERSION	1	true	READ	300	0.8000	0	0	0	SET application_name = 'PostgreSQL JDBC Driver'
+POT_VERSION	1	true	READ	300	0.7156	0	0	0	SHOW TRANSACTION ISOLATION LEVEL
+POT_VERSION	1	true	READ	100	2.3049	5400	100	0	delete from consumption_slot where consumption_id=$1 and consumable_id=$2 and claim_token=$3 and state=$4
+POT_VERSION	1	true	READ	100	14.5948	42874	404	0	insert into c3_bench_event(family,position,event_id,projection_key,logical_version) values ($1,$2,$3,$4,$5)
+POT_VERSION	1	true	READ	100	14.1638	25300	400	0	insert into read_current_pot(pot_id,pot_version) values ($1,$2) on conflict (pot_id) do update set pot_version=excluded.pot_version where read_current_pot.pot_version < excluded.pot_version
+POT_VERSION	1	true	READ	100	5.4327	0	0	0	insert into read_pot_user_set(set_hash,schema_version,user_count,user_ids) values ($1,$2,$3,$4) on conflict (set_hash) do nothing returning set_hash
+POT_VERSION	1	true	READ	100	51.3924	33800	400	0	insert into read_pot_version( pot_id, pot_version, schema_version, header_version, details_version, deleted, shareholders_count, expenses_count, shareholders_root, expenses_root, authorized_users_hash, attached_active_users_hash) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) on conflict (pot_id, pot_version) do nothing returning $13
+POT_VERSION	1	true	READ	100	25.6682	69994	602	0	insert into read_subobject_version(pot_id,kind,object_id,local_version,schema_version,payload) values ($1,$2,$3,$4,$11,$5::jsonb),($6,$7,$8,$9,$12,$10::jsonb) on conflict(pot_id,kind,object_id,local_version) do nothing
+POT_VERSION	1	true	READ	100	0.7269	0	0	0	not (case new.family when $17 then exists ( select from read_identity_request_result where request_id = new.projection_key) when $18 then exists ( select from read_pot_version where pot_id = new.projection_key and pot_version = new.logical_version) when $19 then exists ( select from read_pot_balance where pot_id = new.projection_key and pot_version = new.logical_version) else $20 end)
+POT_VERSION	1	true	READ	100	0.9967	0	0	0	not exists ( select from c3_bench_event where family = tg_argv[$16] and projection_key = effect_key and logical_version is not distinct from effect_version )
+POT_VERSION	1	true	READ	100	0.5805	0	0	0	not exists (select from c3_bench_event where family = new.family and position = new.position)
+POT_VERSION	1	true	READ	100	0.6720	0	0	0	select $4 from c3_bench_event where family=$1 and projection_key=$2 and logical_version is not distinct from cast($3 as bigint)
+POT_VERSION	1	true	READ	100	3.0627	6848	121	0	select claim_token,claimed_until,state from consumption_slot where consumption_id=$1 and consumable_id=$2 for update
+POT_VERSION	1	true	READ	300	0.3418	0	0	0	select clock_timestamp()
+POT_VERSION	1	true	READ	100	1.6124	5904	109	0	select consumable_id,claim_token,claimed_until,state,partition_id from consumption_slot where consumption_id=$1 and consumable_id in ($2) and partition_id=$3 order by consumable_id for update skip locked
+POT_VERSION	1	true	READ	100	0.7500	0	0	0	select family,routing_version,partition_count from consumption_routing_contract where consumption_id=$1
+POT_VERSION	1	true	READ	100	1.3097	5400	100	0	select owner_token,owned_until from partition_ownership where consumption_id=$1 and partition_id=$2 for update skip locked
+POT_VERSION	1	true	READ	100	0.9057	0	0	0	select pot_id,kind,object_id,local_version from read_subobject_version where (pot_id,kind,object_id,local_version) in (($1,$2,$3,$4),($5,$6,$7,$8))
+POT_VERSION	1	true	READ	200	1.8360	0	0	0	select pot_id,kind,object_id,local_version,schema_version,payload::text from read_subobject_version where (pot_id,kind,object_id,local_version) in (($1,$2,$3,$4),($5,$6,$7,$8))
+POT_VERSION	1	true	READ	100	0.4668	0	0	0	select pot_version from read_current_pot where pot_id=$1
+POT_VERSION	1	true	READ	100	1.4466	0	0	0	select pv.pot_id, pv.pot_version, pv.schema_version, pv.header_version, pv.details_version, pv.deleted, pv.shareholders_count, pv.expenses_count, pv.shareholders_root, pv.expenses_root, pv.authorized_users_hash, pv.attached_active_users_hash, au.user_ids as authorized_user_ids, atu.user_ids as attached_active_user_ids from read_pot_version pv left join read_pot_user_set au on au.set_hash = pv.authorized_users_hash left join read_pot_user_set atu on atu.set_hash = pv.attached_active_users_hash where pv.pot_id=$1 and pv.pot_version=$2
+POT_VERSION	1	true	READ	100	0.4287	0	0	0	select set_config($4, $1, $5), set_config($6, $2, $7), set_config($8, $3, $9)
+POT_VERSION	1	true	READ	100	0.6521	0	0	0	select set_hash, schema_version, user_ids from read_pot_user_set where set_hash=$1
+POT_VERSION	1	true	READ	100	0.0780	0	0	0	set transaction read only
+POT_VERSION	1	true	READ	100	15.9342	13301	200	0	update c3_bench_counter set position=position+$2 where family=$1 returning position
+POT_VERSION	1	true	READ	100	100.0005	47956	507	0	update consumption_slot set claim_token=$1,claimed_until=$2::timestamptz + $3 * interval $9 where consumption_id=$4 and consumable_id=$5 and partition_id=$6 and state=$10 and (retry_after is null or retry_after<=$7) and (claim_token is null or claimed_until<=$8) returning consumable_id,claim_token,claimed_until
+POT_VERSION	1	true	WRITE	300	0.4188	0	0	0	BEGIN READ ONLY
+POT_VERSION	1	true	WRITE	300	0.0711	0	0	0	COMMIT
+POT_VERSION	1	true	WRITE	300	0.9777	0	0	0	SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL READ COMMITTED
+POT_VERSION	1	true	WRITE	300	0.3316	0	0	0	SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL REPEATABLE READ
+POT_VERSION	1	true	WRITE	300	0.7386	0	0	0	SET application_name = 'PostgreSQL JDBC Driver'
+POT_VERSION	1	true	WRITE	600	0.9804	0	0	0	SHOW TRANSACTION ISOLATION LEVEL
+POT_VERSION	1	true	WRITE	100	0.9530	0	0	0	select * from v3_pot_details where pot_id=$1 and active_from<=$2 and (active_to is null or $3<active_to) and (object_id,local_version) in (($4,$5))
+POT_VERSION	1	true	WRITE	100	1.0425	0	0	0	select * from v3_pot_header where pot_id=$1 and active_from<=$2 and (active_to is null or $3<active_to) and (object_id,local_version) in (($4,$5))
+POT_VERSION	1	true	WRITE	100	0.7003	0	0	0	select * from v3_pot_header where pot_id=$1 and object_id = any($2) and active_to is null
+POT_VERSION	1	true	WRITE	200	5.0777	0	0	0	select e.pot_id,e.subject_version from v3_pot_event e join v3_event_position p on p.event_id=e.event_id and p.family=$2 join v3_event_counter c on c.family=p.family and c.position>=p.position where e.event_id=$1 and e.subject_type=$3
+POT_VERSION	1	true	WRITE	100	0.4375	0	0	0	select object_id,created_at from v3_expense_identity where pot_id=$1 and created_at<=$2 order by object_id
+POT_VERSION	1	true	WRITE	100	1.3699	0	0	0	select object_id,created_at from v3_shareholder_identity where pot_id=$1 and created_at<=$2 order by object_id
+POT_VERSION	1	true	WRITE	100	0.8345	0	0	0	select revision_id,pot_id,object_id,local_version,active_from,active_to,creator_id from v3_pot_details where pot_id=$1 and object_id = any($2) and active_to is null
+POT_VERSION	1	true	WRITE	100	0.6399	0	0	0	select version,recorded_at from v3_pot_version where pot_id=$1 and version=$2
+POT_VERSION	1	true	WRITE	100	1.1171	0	0	0	select version,recorded_at from v3_pot_version where pot_id=$1 order by version desc limit $2
+POT_VERSION	1	true	WRITE	300	0.2733	0	0	0	set transaction read only
+POT_BALANCE	1	true	READ	200	0.0298	0	0	0	BEGIN
+POT_BALANCE	1	true	READ	200	0.0595	0	0	0	COMMIT
+POT_BALANCE	1	true	READ	200	0.5177	0	0	0	SET application_name = 'PostgreSQL JDBC Driver'
+POT_BALANCE	1	true	READ	200	0.4600	0	0	0	SHOW TRANSACTION ISOLATION LEVEL
+POT_BALANCE	1	true	READ	100	2.1715	5680	105	0	delete from consumption_slot where consumption_id=$1 and consumable_id=$2 and claim_token=$3 and state=$4
+POT_BALANCE	1	true	READ	100	14.1707	49022	404	0	insert into c3_bench_event(family,position,event_id,projection_key,logical_version) values ($1,$2,$3,$4,$5)
+POT_BALANCE	1	true	READ	100	15.1098	29400	400	0	insert into read_pot_balance(pot_id, pot_version, content_hash) values ($1, $2, $3) on conflict (pot_id, pot_version) do nothing returning $4
+POT_BALANCE	1	true	READ	100	16.6610	34800	500	0	insert into read_pot_balance_aggregate(pot_id, pot_version, content_hash) values ($1, $2, $3) on conflict (pot_id, pot_version) do nothing returning $4
+POT_BALANCE	1	true	READ	100	7.4540	0	0	0	insert into read_pot_shareholder_set( set_hash, schema_version, shareholders_count, payload) values ($1, $2, $3, $4) on conflict (set_hash) do nothing returning set_hash
+POT_BALANCE	1	true	READ	100	0.9021	0	0	0	not (case new.family when $17 then exists ( select from read_identity_request_result where request_id = new.projection_key) when $18 then exists ( select from read_pot_version where pot_id = new.projection_key and pot_version = new.logical_version) when $19 then exists ( select from read_pot_balance where pot_id = new.projection_key and pot_version = new.logical_version) else $20 end)
+POT_BALANCE	1	true	READ	100	0.9370	0	0	0	not exists ( select from c3_bench_event where family = tg_argv[$16] and projection_key = effect_key and logical_version is not distinct from effect_version )
+POT_BALANCE	1	true	READ	100	0.7119	0	0	0	not exists (select from c3_bench_event where family = new.family and position = new.position)
+POT_BALANCE	1	true	READ	100	0.8815	0	0	0	select $4 from c3_bench_event where family=$1 and projection_key=$2 and logical_version is not distinct from cast($3 as bigint)
+POT_BALANCE	1	true	READ	100	0.9797	0	0	0	select b.content_hash, a.content_hash from read_pot_balance b left join read_pot_balance_aggregate a on a.pot_id = b.pot_id and a.pot_version = b.pot_version where b.pot_id = $1 and b.pot_version = $2
+POT_BALANCE	1	true	READ	100	1.1133	0	0	0	select b.schema_version, b.shareholders_count, b.shareholder_set_hash, b.payload, a.schema_version, a.shareholders_count, a.bucket_count, a.shareholder_set_hash, a.payload from read_pot_balance_content b join read_pot_balance_aggregate_content a on a.content_hash = $1 where b.content_hash = $2
+POT_BALANCE	1	true	READ	100	3.0499	6478	115	0	select claim_token,claimed_until,state from consumption_slot where consumption_id=$1 and consumable_id=$2 for update
+POT_BALANCE	1	true	READ	300	0.3343	0	0	0	select clock_timestamp()
+POT_BALANCE	1	true	READ	100	1.6933	5512	102	0	select consumable_id,claim_token,claimed_until,state,partition_id from consumption_slot where consumption_id=$1 and consumable_id in ($2) and partition_id=$3 order by consumable_id for update skip locked
+POT_BALANCE	1	true	READ	100	0.9287	0	0	0	select family,routing_version,partition_count from consumption_routing_contract where consumption_id=$1
+POT_BALANCE	1	true	READ	100	1.2757	5400	100	0	select owner_token,owned_until from partition_ownership where consumption_id=$1 and partition_id=$2 for update skip locked
+POT_BALANCE	1	true	READ	100	0.5200	0	0	0	select schema_version, shareholders_count, payload from read_pot_shareholder_set where set_hash = $1
+POT_BALANCE	1	true	READ	100	0.4256	0	0	0	select set_config($4, $1, $5), set_config($6, $2, $7), set_config($8, $3, $9)
+POT_BALANCE	1	true	READ	100	36.3777	13301	200	0	update c3_bench_counter set position=position+$2 where family=$1 returning position
+POT_BALANCE	1	true	READ	100	103.3242	47223	503	0	update consumption_slot set claim_token=$1,claimed_until=$2::timestamptz + $3 * interval $9 where consumption_id=$4 and consumable_id=$5 and partition_id=$6 and state=$10 and (retry_after is null or retry_after<=$7) and (claim_token is null or claimed_until<=$8) returning consumable_id,claim_token,claimed_until
+POT_BALANCE	1	true	READ	100	4.0462	0	0	0	with bal_c as ( insert into read_pot_balance_content( content_hash, schema_version, shareholders_count, shareholder_set_hash, payload) values ($1, $2, $3, $4, $5) on conflict (content_hash) do nothing returning $12 ), agg_c as ( insert into read_pot_balance_aggregate_content( content_hash, schema_version, shareholders_count, bucket_count, shareholder_set_hash, payload) values ($6, $7, $8, $9, $10, $11) on conflict (content_hash) do nothing returning $13 ) select exists(select $14 from bal_c), exists(select $15 from agg_c)
+POT_BALANCE	1	true	WRITE	200	0.2470	0	0	0	BEGIN READ ONLY
+POT_BALANCE	1	true	WRITE	200	0.0459	0	0	0	COMMIT
+POT_BALANCE	1	true	WRITE	200	0.2232	0	0	0	SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL READ COMMITTED
+POT_BALANCE	1	true	WRITE	200	0.2195	0	0	0	SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL REPEATABLE READ
+POT_BALANCE	1	true	WRITE	200	0.4835	0	0	0	SET application_name = 'PostgreSQL JDBC Driver'
+POT_BALANCE	1	true	WRITE	500	0.7167	0	0	0	SHOW TRANSACTION ISOLATION LEVEL
+POT_BALANCE	1	true	WRITE	200	1.2515	0	0	0	select * from v3_pot_header where pot_id=$1 and object_id = any($2) and active_to is null
+POT_BALANCE	1	true	WRITE	200	5.1856	0	0	0	select e.pot_id,e.subject_version from v3_pot_event e join v3_event_position p on p.event_id=e.event_id and p.family=$2 join v3_event_counter c on c.family=p.family and c.position>=p.position where e.event_id=$1 and e.subject_type=$3
+POT_BALANCE	1	true	WRITE	100	0.4211	0	0	0	select object_id,created_at from v3_expense_identity where pot_id=$1 and created_at<=$2 order by object_id
+POT_BALANCE	1	true	WRITE	100	1.1957	0	0	0	select object_id,created_at from v3_shareholder_identity where pot_id=$1 and created_at<=$2 order by object_id
+POT_BALANCE	1	true	WRITE	200	1.2155	0	0	0	select version,recorded_at from v3_pot_version where pot_id=$1 and version=$2
+POT_BALANCE	1	true	WRITE	200	1.7718	0	0	0	select version,recorded_at from v3_pot_version where pot_id=$1 order by version desc limit $2
+POT_BALANCE	1	true	WRITE	200	0.1645	0	0	0	set transaction read only
