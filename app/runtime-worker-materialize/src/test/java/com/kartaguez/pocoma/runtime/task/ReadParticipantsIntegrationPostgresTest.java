@@ -245,8 +245,18 @@ class ReadParticipantsIntegrationPostgresTest {
     void participantConformance(String participant) throws Exception {
         var name=Name.valueOf(participant);
         for(var mode:List.of("missing","afterComplete","success")) try(var f=new ReadParticipantsFixture(PG,participant+"-"+mode)) {
+            boolean terminal = isTerminalResult(name);
+            var db = f.f.read;
+            if (terminal) ReadAvailabilityPostgresTest.install(db);
             f.enroll(); f.witnesses(); var sourceDuringFinal=new AtomicInteger();
-            var real=f.participants.get(name).participant(); var engine=f.engine(name,decorated(real,f,mode,sourceDuringFinal),f.f.read.source,f.f.read.tx);
+            var real = f.participants.get(name).participant();
+            if (terminal) {
+                real = ReadParticipants.select(real.getClass().getSimpleName(),
+                        f.f.primary, f.f.sourceOwner, db.source, db.tx).participant();
+                db.oracle.execute("create trigger l4_availability_witness after insert on read_availability_event "
+                        + "for each row execute function l4_witness()");
+            }
+            var engine=f.engine(name,decorated(real,f,mode,sourceDuringFinal),db.source,db.tx);
             if(name==Name.CURRENT_BINDING) {
                 var ignored=f.f.oracle.queryForObject("select event_id from v3_identity_event where subject_type='POCOMA_USER' and request_id=?",UUID.class,f.identityRequest);
                 assertEquals(0,f.slots(name,ignored),"POCOMA_USER filtered before slot enrollment");
@@ -260,6 +270,7 @@ class ReadParticipantsIntegrationPostgresTest {
                 assertEquals(AttemptTransactions.Resolution.ROLLED_BACK,result.resolution(),()->String.valueOf(result));
                 assertEquals(before,f.vector(),participant+" no partial business prefix "+mode); assertEquals(1,f.slots(name,event));
                 assertEquals(0,f.f.read.oracle.queryForObject("select count(*) from l4_witness",Integer.class));
+                if (terminal) assertEquals(0, terminalPublications(f, name).size());
             } else {
                 assertEquals(ConsumptionProtocol.Status.COMMITTED,result.status(),()->String.valueOf(result.cause()));
                 assertEquals(0,f.slots(name,event));
@@ -275,6 +286,18 @@ class ReadParticipantsIntegrationPostgresTest {
                 var d=f.participants.get(name).definition();
                 f.f.read.oracle.update("insert into consumption_slot(consumption_id,consumable_id,partition_hash,partition_id) select ?,?,h,((h::bigint%4+4)%4)::int from(select consumption_hash_v1(?,?) h)x",d.id().value(),event,d.family().name(),event);
                 assertEquals(RecoveryObservation.NOT_COMPLETED,engine.observe(acquired.claim()),"effect alone never proves completion");
+                if (terminal) {
+                    String table = name == Name.COMMAND_RESULT ? "read_command_result" : "read_identity_request_result";
+                    assertEquals(Set.of(table, "consumption_slot", "read_availability_event"),
+                            new HashSet<>(db.oracle.queryForList("select t from l4_witness", String.class)));
+                    var publications = terminalPublications(f, name);
+                    assertEquals(1, publications.size());
+                    assertEquals(ConsumptionProtocol.Status.COMMITTED, engine.execute(f.acquire(name,engine,event)).status());
+                    assertEquals(publications, terminalPublications(f, name));
+                    assertEquals(0, f.slots(name, event));
+                    assertEquals(RecoveryObservation.COMPLETED, engine.observe(acquired.claim()));
+                    setRecoverySlot(f, name, event, true);
+                }
                 f.tamper(name);
                 assertEquals(RecoveryObservation.INCONSISTENT,engine.observe(acquired.claim()),participant+" divergent full business content");
                 if(name==Name.POT_VERSION) {
@@ -312,6 +335,15 @@ class ReadParticipantsIntegrationPostgresTest {
                 assertEquals(name==Name.POT_VERSION || name==Name.POT_BALANCE?RecoveryObservation.INCONSISTENT:RecoveryObservation.COMPLETED,engine.observe(old),"exact immutable proof versus derived mutable completion");
                 f.f.read.trace.add(participant+" newer state/old slot discriminant");
             }
+    }
+
+    private static boolean isTerminalResult(Name name) {
+        return name == Name.COMMAND_RESULT || name == Name.IDENTITY_REQUEST_RESULT;
+    }
+
+    private static List<Map<String, Object>> terminalPublications(ReadParticipantsFixture fixture, Name name) {
+        return fixture.f.read.oracle.queryForList(
+                "select * from read_availability_event where family = ? order by position", name + "_AVAILABLE");
     }
 
     /** Explicit bounded entry point: execute the unchanged conformance body for these three only. */
@@ -503,9 +535,15 @@ class ReadParticipantsIntegrationPostgresTest {
     @Test void l73_allReadParticipantsRetainUncertainCapacityAndExactEffects() throws Exception {
         for(var name:ReadParticipantsFixture.PROJECTIONS_WITH_SEEDED_EVENTS) for(var fault:List.of(CommitAcknowledgementProxy.Fault.BEFORE_COMMIT,CommitAcknowledgementProxy.Fault.AFTER_COMMIT))
             try(var f=new ReadParticipantsFixture(PG,"l73-unknown-"+name+"-"+fault);var proxy=new CommitAcknowledgementProxy(PG.getHost(),PG.getMappedPort(5432))) {
+                boolean terminal = isTerminalResult(name);
+                if (terminal) ReadAvailabilityPostgresTest.install(f.f.read);
                 f.enroll(); var beforeVector=f.vector();
                 var ds=new DriverManagerDataSource("jdbc:postgresql://127.0.0.1:"+proxy.localPort()+"/"+PG.getDatabaseName()+"?sslmode=disable&gssEncMode=disable&preferQueryMode=simple&socketTimeout=5&currentSchema="+f.f.read.schema,f.f.read.runtimeRole,"i1-fixture");
-                var tx=SubobjectPostgresFixture.owner(ds); var real=ReadParticipants.create(f.f.primary,f.f.sourceOwner,ds,tx).get(name).participant();
+                var tx=SubobjectPostgresFixture.owner(ds);
+                var real = terminal
+                        ? ReadParticipants.select(f.participants.get(name).participant().getClass().getSimpleName(),
+                                f.f.primary, f.f.sourceOwner, ds, tx).participant()
+                        : ReadParticipants.create(f.f.primary, f.f.sourceOwner, ds, tx).get(name).participant();
                 var p=new ConsumptionParticipant() {
                     public Optional<Prepared> prepare(UUID id,PreparationReads reads) { return real.prepare(id,reads).map(actual -> new Prepared() {
                         public void requireCompletionReady() { actual.requireCompletionReady(); }
@@ -518,6 +556,7 @@ class ReadParticipantsIntegrationPostgresTest {
                 assertEquals(1,proxy.interceptedCount()); assertEquals(committed?1:0,proxy.committedReplyCount());
                 assertEquals(AttemptTransactions.Resolution.UNKNOWN,result.resolution()); assertNull(result.cession()); assertNull(result.cessionResolution());
                 assertEquals(committed?RecoveryObservation.COMPLETED:RecoveryObservation.NOT_COMPLETED,result.observation());
+                if (terminal) assertEquals(committed ? 1 : 0, terminalPublications(f, name).size());
                 if(name==Name.POT_VERSION) {
                 assertEquals(committed?1:0,f.f.read.oracle.queryForObject("select count(*) from read_current_pot",Integer.class));
                 assertEquals(committed?2:0,f.f.read.oracle.queryForObject("select count(*) from read_subobject_version",Integer.class));

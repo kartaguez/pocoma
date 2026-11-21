@@ -8,7 +8,7 @@ Initializes:
 3. Schemas: `v3_write` in `pocoma_write` and `v3_read` in `pocoma_read`.
 4. Consolidated initial baselines:
    - Write: `db/write/migration/V1__initial_schema.sql` on `v3_write` in `pocoma_write`
-   - Read: `db/read/migration/V1__initial_schema.sql` on `v3_read` in `pocoma_read`
+   - Read: canonical READ V1 to V5 on `v3_read` in `pocoma_read`
 5. Routing, lifecycle, discovery, identity logging, and admission SQL scripts.
 6. Dedicated SELECT grants for WRITE source, HTTP READ and READ maintenance status.
 """
@@ -16,6 +16,7 @@ Initializes:
 from pathlib import Path
 import argparse
 import os
+import re
 import subprocess
 
 from read_availability_schema import (
@@ -23,6 +24,7 @@ from read_availability_schema import (
 )
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
+READ_MAINTENANCE = "scripts/v3/bootstrap-read-maintenance.sql"
 POSTGRES_CONTAINER = "pocoma-v3-postgres"
 POSTGRES_USER = "pocoma"
 POSTGRES_PASSWORD = "pocoma-local-only"
@@ -111,31 +113,54 @@ def initialize_databases_and_roles():
     print("  ✓ Databases, roles, and search paths verified.")
 
 
+def migration_sql(path, db, schema, admin, runtime):
+    return ((REPO_ROOT / path).read_text(encoding="utf-8")
+            .replace("${expectedDatabase}", db)
+            .replace("${expectedSchema}", schema)
+            .replace("${expectedAdmin}", admin)
+            .replace("${expectedRuntime}", runtime))
+
+
 def apply_migrations(db, schema, admin, runtime, migration_files):
-    for f in migration_files:
-        path = REPO_ROOT / f
-        content = path.read_text(encoding="utf-8")
-        # Replace Flyway placeholders
-        content = content.replace("${expectedDatabase}", db)
-        content = content.replace("${expectedSchema}", schema)
-        content = content.replace("${expectedAdmin}", admin)
-        content = content.replace("${expectedRuntime}", runtime)
-        psql_script(db, schema, content, single_transaction=f == READ_AVAILABILITY_MIGRATION)
+    for path in migration_files:
+        psql_script(db, schema, migration_sql(path, db, schema, admin, runtime),
+                    single_transaction=path == READ_AVAILABILITY_MIGRATION)
+
+
+def install_fresh_schema(db, schema, migrations, scripts):
+    statements = [f"CREATE SCHEMA IF NOT EXISTS {schema} AUTHORIZATION pocoma;"]
+    statements.extend(migration_sql(path, db, schema, "pocoma", db) for path in migrations)
+    for path, variables in scripts:
+        statements.extend(f"\\set {key} {value}" for key, value in variables.items())
+        content = (REPO_ROOT / path).read_text(encoding="utf-8")
+        # Standalone scripts have delimiters. This caller owns the transaction.
+        statements.append(re.sub(r"(?im)^[ \t]*(?:BEGIN|COMMIT);[ \t]*$", "", content))
+    psql_script(db, schema, "\n".join(statements), single_transaction=True)
+
+
+def require_routing_bootstrap(db, schema, contracts):
+    ready = psql(db, f"""
+        SELECT (SELECT count(*) FROM {schema}.consumption_routing_contract) = {contracts}
+           AND (SELECT count(*) FROM {schema}.partition_ownership) = {4 * contracts}
+           AND has_table_privilege('{db}', '{schema}.consumption_routing_contract', 'SELECT')
+           AND has_column_privilege('{db}', '{schema}.consumption_slot', 'consumable_id', 'INSERT');
+    """)
+    if ready != "t":
+        raise RuntimeError(f"Incomplete {schema} routing bootstrap; inspect the installation before restarting.")
 
 
 def initialize_v3_write():
     reg = psql("pocoma_write", "SELECT to_regclass('v3_write.v3_command')::text;")
     if reg and reg != "":
+        require_routing_bootstrap("pocoma_write", "v3_write", 2)
         print("  ✓ Schema v3_write already initialized.")
         return
 
     print("▶ Initializing schema v3_write in database pocoma_write...")
-    psql("pocoma_write", "CREATE SCHEMA IF NOT EXISTS v3_write AUTHORIZATION pocoma;")
 
     write_migrations = [
         "app/infra-postgres-write/src/main/resources/db/write/migration/V1__initial_schema.sql",
     ]
-    apply_migrations("pocoma_write", "v3_write", "pocoma", "pocoma_write", write_migrations)
 
     # Apply SQL scripts
     scripts = [
@@ -177,9 +202,7 @@ def initialize_v3_write():
         }),
     ]
 
-    for script_file, variables in scripts:
-        content = (REPO_ROOT / script_file).read_text(encoding="utf-8")
-        psql_script("pocoma_write", "v3_write", content, variables=variables)
+    install_fresh_schema("pocoma_write", "v3_write", write_migrations, scripts)
 
     print("  ✓ Schema v3_write successfully provisioned and secured.")
 
@@ -199,12 +222,9 @@ def initialize_read_availability():
 
 
 def initialize_v3_read():
-    # Bootstrap persistent maintenance authority in public schema (idempotent)
-    maint_content = (REPO_ROOT / "scripts/v3/bootstrap-read-maintenance.sql").read_text(encoding="utf-8")
-    psql_script("pocoma_read", "public", maint_content)
-
     reg = psql("pocoma_read", "SELECT to_regclass('v3_read.read_current_pot')::text;")
     if reg and reg != "":
+        require_routing_bootstrap("pocoma_read", "v3_read", 7)
         agg_reg = psql("pocoma_read", "SELECT to_regclass('v3_read.read_pot_balance_aggregate')::text;")
         if not agg_reg:
             print("▶ Applying additive READ migration V2__pot_balance_aggregate.sql...")
@@ -258,12 +278,13 @@ def initialize_v3_read():
             )
             print("  ✓ READ migration V4 (PotBalance shared storage) applied.")
         else:
-            print("  ✓ Schema v3_read (V4 PotBalance shared storage) and public maintenance authority already initialized.")
+            print("  ✓ Schema v3_read (V4 PotBalance shared storage) already initialized.")
         initialize_read_availability()
+        maint_content = (REPO_ROOT / READ_MAINTENANCE).read_text(encoding="utf-8")
+        psql_script("pocoma_read", "public", maint_content, single_transaction=True)
         return
 
     print("▶ Initializing schema v3_read in database pocoma_read...")
-    psql("pocoma_read", "CREATE SCHEMA IF NOT EXISTS v3_read AUTHORIZATION pocoma;")
 
     read_migrations = [
         "app/infra-postgres-read/src/main/resources/db/read/migration/V1__initial_schema.sql",
@@ -272,7 +293,6 @@ def initialize_v3_read():
         "app/infra-postgres-read/src/main/resources/db/read/migration/V4__pot_balance_shared_storage.sql",
         READ_AVAILABILITY_MIGRATION,
     ]
-    apply_migrations("pocoma_read", "v3_read", "pocoma", "pocoma_read", read_migrations)
 
     scripts = [
         ("scripts/v3/bootstrap-l2-routing.sql", {
@@ -299,11 +319,10 @@ def initialize_v3_read():
             "identity_authority": "real",
             "identity_read_role": "pocoma_read",
         }),
+        (READ_MAINTENANCE, {}),
     ]
 
-    for script_file, variables in scripts:
-        content = (REPO_ROOT / script_file).read_text(encoding="utf-8")
-        psql_script("pocoma_read", "v3_read", content, variables=variables)
+    install_fresh_schema("pocoma_read", "v3_read", read_migrations, scripts)
 
     print("  ✓ Schema v3_read and public maintenance authority successfully provisioned and secured.")
 

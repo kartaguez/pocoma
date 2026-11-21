@@ -1,0 +1,194 @@
+{
+  "historicalInputs": 811,
+  "historicalGitBlobDelta": {
+    "app/mvnw.cmd": {
+      "expected": "46eedb8419bd14fe70d5bb2916d7b6f51806e51b39d5b76a42610384ca929c1c",
+      "observed": "4a361e1374a3e5ad6d03e18e9adc0cf181ac5058ac6203b76f0ba3b456b56481",
+      "matchesWithCrLf": true
+    }
+  },
+  "testedBase": "96513f91bcff687aaac57ff55f0f37030b208fbe",
+  "testedOverrides": {
+    "app/runtime-worker-materialize/src/test/java/com/kartaguez/pocoma/runtime/task/PotVersionAndBalanceJointIncrementalPostgresTest.java": "f4c488c76cd7b85612976ad937845b7a52b6447edc8c481f26eb7d924b8a4cb8",
+    "scripts/operations/setup-v3-database.py": "1bda7f56e4cbb46e021a38ab63836223ec81aad6b4a9dbfd239e3f7fb245b1e9",
+    "scripts/operations/test_v3_operations.py": "fa975fe05683a861332b594c205edc7e0baee7a9cb09619becdc3158b8bdf483"
+  },
+  "targetedMavenRuns": {
+    "1": {
+      "argv": [
+        "./mvnw",
+        "--batch-mode",
+        "--no-transfer-progress",
+        "-Dmaven.repo.local=/private/tmp/pocoma-c3-consolidation.fJBVia/maven-repository",
+        "-Dpocoma.verification.id=c3-focused-fJBVia-1",
+        "-Dpocoma.verification.reports=/private/tmp/pocoma-c3-consolidation.fJBVia/focused/1",
+        "-pl",
+        "runtime-worker-materialize",
+        "-am",
+        "-Dtest=PotVersionAndBalanceJointIncrementalPostgresTest#jointLeaseRevocationAndInterruptionPreserveAtomicityAndIndependence,ReadAvailabilityPostgresTest",
+        "-Dsurefire.failIfNoSpecifiedTests=false",
+        "test"
+      ],
+      "exit": 0,
+      "reports": {
+        "pocoma-runtime-worker-materialize/surefire-reports/TEST-com.kartaguez.pocoma.runtime.task.PotVersionAndBalanceJointIncrementalPostgresTest.xml": {
+          "sha256": "23118ff200f9c14c8ebcc29fd45c66d89f0778994150eeee555580d9b0c60d29",
+          "tests": 1,
+          "errors": 0,
+          "failures": 0,
+          "skipped": 0,
+          "invocationId": "c3-focused-fJBVia-1"
+        },
+        "pocoma-runtime-worker-materialize/surefire-reports/TEST-com.kartaguez.pocoma.runtime.task.ReadAvailabilityPostgresTest.xml": {
+          "sha256": "e9357d90ca3d9807a9f4c6332d65f30609bf0ce3818a4a9f97af5e452ecb0262",
+          "tests": 7,
+          "errors": 0,
+          "failures": 0,
+          "skipped": 0,
+          "invocationId": "c3-focused-fJBVia-1"
+        }
+      }
+    },
+    "2": {
+      "argv": [
+        "./mvnw",
+        "--batch-mode",
+        "--no-transfer-progress",
+        "-Dmaven.repo.local=/private/tmp/pocoma-c3-consolidation.fJBVia/maven-repository",
+        "-Dpocoma.verification.id=c3-focused-fJBVia-2",
+        "-Dpocoma.verification.reports=/private/tmp/pocoma-c3-consolidation.fJBVia/focused/2",
+        "-pl",
+        "runtime-worker-materialize",
+        "-am",
+        "-Dtest=PotVersionAndBalanceJointIncrementalPostgresTest#jointLeaseRevocationAndInterruptionPreserveAtomicityAndIndependence,ReadAvailabilityPostgresTest",
+        "-Dsurefire.failIfNoSpecifiedTests=false",
+        "test"
+      ],
+      "exit": 0,
+      "reports": {
+        "pocoma-runtime-worker-materialize/surefire-reports/TEST-com.kartaguez.pocoma.runtime.task.PotVersionAndBalanceJointIncrementalPostgresTest.xml": {
+          "sha256": "98b25cdd1c0aafa1abe07d7844d1ef547db7c41739ea64ade0e25d96df948b81",
+          "tests": 1,
+          "errors": 0,
+          "failures": 0,
+          "skipped": 0,
+          "invocationId": "c3-focused-fJBVia-2"
+        },
+        "pocoma-runtime-worker-materialize/surefire-reports/TEST-com.kartaguez.pocoma.runtime.task.ReadAvailabilityPostgresTest.xml": {
+          "sha256": "b7d7934cc03dbfca8ab3b5e656acc94b025edbe1dd17683e50249fbfdc9d12b1",
+          "tests": 7,
+          "errors": 0,
+          "failures": 0,
+          "skipped": 0,
+          "invocationId": "c3-focused-fJBVia-2"
+        }
+      }
+    },
+    "3": {
+      "argv": [
+        "./mvnw",
+        "--batch-mode",
+        "--no-transfer-progress",
+        "-Dmaven.repo.local=/private/tmp/pocoma-c3-consolidation.fJBVia/maven-repository",
+        "-Dpocoma.verification.id=c3-focused-fJBVia-3",
+        "-Dpocoma.verification.reports=/private/tmp/pocoma-c3-consolidation.fJBVia/focused/3",
+        "-pl",
+        "runtime-worker-materialize",
+        "-am",
+        "-Dtest=PotVersionAndBalanceJointIncrementalPostgresTest#jointLeaseRevocationAndInterruptionPreserveAtomicityAndIndependence,ReadAvailabilityPostgresTest",
+        "-Dsurefire.failIfNoSpecifiedTests=false",
+        "test"
+      ],
+      "exit": 0,
+      "reports": {
+        "pocoma-runtime-worker-materialize/surefire-reports/TEST-com.kartaguez.pocoma.runtime.task.PotVersionAndBalanceJointIncrementalPostgresTest.xml": {
+          "sha256": "e6fc90a8d06e1ae324199e4d23e5f39bac761199ee7cc2a6eea4844fb3062696",
+          "tests": 1,
+          "errors": 0,
+          "failures": 0,
+          "skipped": 0,
+          "invocationId": "c3-focused-fJBVia-3"
+        },
+        "pocoma-runtime-worker-materialize/surefire-reports/TEST-com.kartaguez.pocoma.runtime.task.ReadAvailabilityPostgresTest.xml": {
+          "sha256": "63c658948fbc42b37ba83a124c9048a2b0ed1ff262e136dedc1dad5e64a50dda",
+          "tests": 7,
+          "errors": 0,
+          "failures": 0,
+          "skipped": 0,
+          "invocationId": "c3-focused-fJBVia-3"
+        }
+      }
+    },
+    "4": {
+      "argv": [
+        "./mvnw",
+        "--batch-mode",
+        "--no-transfer-progress",
+        "-Dmaven.repo.local=/private/tmp/pocoma-c3-consolidation.fJBVia/maven-repository",
+        "-Dpocoma.verification.id=c3-focused-fJBVia-4",
+        "-Dpocoma.verification.reports=/private/tmp/pocoma-c3-consolidation.fJBVia/focused/4",
+        "-pl",
+        "runtime-worker-materialize",
+        "-am",
+        "-Dtest=PotVersionAndBalanceJointIncrementalPostgresTest#jointLeaseRevocationAndInterruptionPreserveAtomicityAndIndependence,ReadAvailabilityPostgresTest",
+        "-Dsurefire.failIfNoSpecifiedTests=false",
+        "test"
+      ],
+      "exit": 0,
+      "reports": {
+        "pocoma-runtime-worker-materialize/surefire-reports/TEST-com.kartaguez.pocoma.runtime.task.PotVersionAndBalanceJointIncrementalPostgresTest.xml": {
+          "sha256": "d0bf40dcb3da784d9674b19cbe5a9a57aa0ffad417e5b4222a00c20511ff9f42",
+          "tests": 1,
+          "errors": 0,
+          "failures": 0,
+          "skipped": 0,
+          "invocationId": "c3-focused-fJBVia-4"
+        },
+        "pocoma-runtime-worker-materialize/surefire-reports/TEST-com.kartaguez.pocoma.runtime.task.ReadAvailabilityPostgresTest.xml": {
+          "sha256": "d2cec0a5e0b0f4a956b6a455b24c0dbadcce2536590c7e5efeb3992646ecabb6",
+          "tests": 7,
+          "errors": 0,
+          "failures": 0,
+          "skipped": 0,
+          "invocationId": "c3-focused-fJBVia-4"
+        }
+      }
+    },
+    "5": {
+      "argv": [
+        "./mvnw",
+        "--batch-mode",
+        "--no-transfer-progress",
+        "-Dmaven.repo.local=/private/tmp/pocoma-c3-consolidation.fJBVia/maven-repository",
+        "-Dpocoma.verification.id=c3-focused-fJBVia-5",
+        "-Dpocoma.verification.reports=/private/tmp/pocoma-c3-consolidation.fJBVia/focused/5",
+        "-pl",
+        "runtime-worker-materialize",
+        "-am",
+        "-Dtest=PotVersionAndBalanceJointIncrementalPostgresTest#jointLeaseRevocationAndInterruptionPreserveAtomicityAndIndependence,ReadAvailabilityPostgresTest",
+        "-Dsurefire.failIfNoSpecifiedTests=false",
+        "test"
+      ],
+      "exit": 0,
+      "reports": {
+        "pocoma-runtime-worker-materialize/surefire-reports/TEST-com.kartaguez.pocoma.runtime.task.PotVersionAndBalanceJointIncrementalPostgresTest.xml": {
+          "sha256": "25671e0006d71b0474f7e846c617337409b0bf34ac3faca7c294c148ba010d52",
+          "tests": 1,
+          "errors": 0,
+          "failures": 0,
+          "skipped": 0,
+          "invocationId": "c3-focused-fJBVia-5"
+        },
+        "pocoma-runtime-worker-materialize/surefire-reports/TEST-com.kartaguez.pocoma.runtime.task.ReadAvailabilityPostgresTest.xml": {
+          "sha256": "f1f9caf8139441cc4c4e59351ff9a96706776d5847e5a6903e652b580bda6473",
+          "tests": 7,
+          "errors": 0,
+          "failures": 0,
+          "skipped": 0,
+          "invocationId": "c3-focused-fJBVia-5"
+        }
+      }
+    }
+  },
+  "targetedMavenArchiveSha256": "2b5de2617aa35b9e5785bca9c603e0eb1eb2c095dc3de770f724f370d19df6bb"
+}

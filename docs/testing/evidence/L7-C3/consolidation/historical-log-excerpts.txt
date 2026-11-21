@@ -1,0 +1,87 @@
+[INFO] Reactor Build Order:
+[INFO] pocoma                                                             [pom]
+[INFO] pocoma-domain-pot                                                  [jar]
+[INFO] pocoma-domain-identity                                             [jar]
+[INFO] pocoma-domain-projection                                           [jar]
+[INFO] pocoma-domain-consumption                                          [jar]
+[INFO] pocoma-contract-authentication                                     [jar]
+[INFO] pocoma-contract-write-admission                                    [jar]
+[INFO] pocoma-port-transaction                                            [jar]
+[INFO] pocoma-contract-read-query                                         [jar]
+[INFO] pocoma-port-projection                                             [jar]
+[INFO] pocoma-engine-admit-command                                        [jar]
+[INFO] pocoma-engine-admit-identity                                       [jar]
+[INFO] pocoma-contract-consumption                                        [jar]
+[INFO] pocoma-engine-write-pot                                            [jar]
+[INFO] pocoma-engine-write-identity                                       [jar]
+[INFO] pocoma-engine-materialize-pot                                      [jar]
+[INFO] pocoma-engine-materialize-identity                                 [jar]
+[INFO] pocoma-engine-materialize-results                                  [jar]
+[INFO] pocoma-engine-read-pot                                             [jar]
+[INFO] pocoma-engine-read-identity                                        [jar]
+[INFO] pocoma-engine-read-results                                         [jar]
+[INFO] pocoma-orchestrator-consumption                                    [jar]
+[INFO] pocoma-supra-polling-consumption                                   [jar]
+[INFO] pocoma-supra-web-write                                             [jar]
+[INFO] pocoma-infra-tx-spring                                             [jar]
+[INFO] pocoma-infra-postgres-core                                         [jar]
+[INFO] pocoma-infra-postgres-read                                         [jar]
+[INFO] pocoma-supra-web-read                                              [jar]
+[INFO] pocoma-infra-security-spring                                       [jar]
+[INFO] pocoma-infra-postgres-write-source-read                            [jar]
+[INFO] pocoma-infra-postgres-write                                        [jar]
+[INFO] pocoma-infra-observability-micrometer                              [jar]
+[INFO] pocoma-compose-web-write-postgres                                  [jar]
+[INFO] pocoma-compose-polling-burnable-write-postgres                     [jar]
+[INFO] pocoma-compose-polling-nonburnable-materialize-postgres            [jar]
+[INFO] pocoma-engine-read-execution                                       [jar]
+[INFO] pocoma-compose-web-read-postgres                                   [jar]
+[INFO] pocoma-runtime-web-write                                           [jar]
+[INFO] pocoma-runtime-web-read                                            [jar]
+[INFO] pocoma-runtime-worker-process                                      [jar]
+[INFO] pocoma-runtime-worker-materialize                                  [jar]
+[INFO] pocoma-runtime-monolith                                            [jar]
+[INFO] pocoma-architecture-tests                                          [jar]
+[INFO] Running com.kartaguez.pocoma.runtime.command.WorkerResourcesPostgresTest
+[INFO] Running com.kartaguez.pocoma.runtime.command.ConsumptionBootstrapPostgresTest
+[INFO] Running com.kartaguez.pocoma.runtime.command.I5TemporalV2Test
+[INFO] Running com.kartaguez.pocoma.runtime.command.IdentityRequestCompositionPostgresTest
+[INFO] Running com.kartaguez.pocoma.runtime.command.PotCommandCompositionPostgresTest
+[INFO] Running com.kartaguez.pocoma.runtime.command.DiscoveryCompositionPostgresTest
+[INFO] Running com.kartaguez.pocoma.runtime.command.ConsumptionCompositeClassificationTest
+[INFO] Running com.kartaguez.pocoma.runtime.command.IdentityPotCommandPostgresTest
+[INFO] Running com.kartaguez.pocoma.runtime.command.WorkerAwaitTest
+[INFO] Running com.kartaguez.pocoma.runtime.command.I5TemporalBudgetTest
+[INFO] Running com.kartaguez.pocoma.runtime.command.I5PhysicalWindowTest
+[INFO] Running com.kartaguez.pocoma.runtime.command.ConsumptionLifecycleCompositionPostgresTest
+[INFO] Running com.kartaguez.pocoma.runtime.command.WorkerPostgresTest
+
+resume-install.log (exit 0)
+[INFO] Reactor Summary for pocoma 0.0.1-SNAPSHOT:
+[INFO] BUILD SUCCESS
+[INFO] Finished at: 2026-11-21T11:51:27+01:00
+
+resume-worker-process.log (exit 0)
+[INFO] BUILD SUCCESS
+[INFO] Finished at: 2026-11-21T12:10:30+01:00
+
+resume-canonical.log (exit 1)
+[ERROR] Tests run: 3, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 9.883 s <<< FAILURE! -- in com.kartaguez.pocoma.runtime.task.PotVersionAndBalanceJointIncrementalPostgresTest
+[ERROR] com.kartaguez.pocoma.runtime.task.PotVersionAndBalanceJointIncrementalPostgresTest.jointLeaseRevocationAndInterruptionPreserveAtomicityAndIndependence -- Time elapsed: 1.220 s <<< ERROR!
+java.util.NoSuchElementException: No value present
+	at com.kartaguez.pocoma.runtime.task.PotVersionAndBalanceJointIncrementalPostgresTest.lambda$jointLeaseRevocationAndInterruptionPreserveAtomicityAndIndependence$15(PotVersionAndBalanceJointIncrementalPostgresTest.java:871)
+	at com.kartaguez.pocoma.runtime.task.PotVersionAndBalanceJointIncrementalPostgresTest.jointLeaseRevocationAndInterruptionPreserveAtomicityAndIndependence(PotVersionAndBalanceJointIncrementalPostgresTest.java:871)
+[ERROR]   PotVersionAndBalanceJointIncrementalPostgresTest.jointLeaseRevocationAndInterruptionPreserveAtomicityAndIndependence:871->lambda$jointLeaseRevocationAndInterruptionPreserveAtomicityAndIndependence$15:871 » NoSuchElement No value present
+[ERROR] Tests run: 135, Failures: 0, Errors: 1, Skipped: 0
+[INFO] Reactor Summary for pocoma-runtime-worker-materialize 0.0.1-SNAPSHOT:
+[INFO] BUILD FAILURE
+[INFO] Finished at: 2026-11-21T12:19:54+01:00
+
+replay-joint-incremental.log (exit 0)
+[INFO] BUILD SUCCESS
+[INFO] Finished at: 2026-11-21T12:21:47+01:00
+
+resume-monolith.log (exit 0)
+[INFO] Reactor Summary for pocoma-runtime-monolith 0.0.1-SNAPSHOT:
+[INFO] BUILD SUCCESS
+[INFO] Finished at: 2026-11-21T12:43:39+01:00

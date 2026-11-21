@@ -1,6 +1,6 @@
 # L7-C3 — Clôture technique
 
-## État initial et périmètre
+## État initial de la livraison C3 et périmètre
 
 Branche `feat/v3-l7`, HEAD `d7b4b6d73963cab7efeb658ef67478d52de03c32`, synchronisée avec `origin/feat/v3-l7`. L’index était vide. Le statut détaillé recensait 41 fichiers suivis modifiés et 154 fichiers non suivis. Ces derniers comprenaient 105 fichiers de C3 et 49 fichiers du prototype Radix C2. Huit journaux C3 ignorés par Git étaient présents et référencés par le manifeste de généralisation. Le périmètre de livraison comprend la généralisation C3, les corrections de clôture, les rapports, les preuves manifestées et le banc du pilote nécessaire à leur traçabilité. Le prototype C2 est resté hors du périmètre.
 
@@ -70,7 +70,7 @@ git diff --cached --check
 - **PostgreSQL 17.6.** Une erreur injectée dans le bootstrap du lanceur, après V5 et avant son marqueur, annule la transaction READ. Le démarrage suivant puis le rejeu retrouvent le catalogue, les huit compteurs, le marqueur correct et l’isolation des droits HTTP. Les deux formes de CTE passent avec le rôle matérialiseur, y compris le remplacement d’un marqueur. Les plans génériques versionné et sans version exécutent uniquement l’index de la famille demandée dans les cas mesurés. [Journaux, plans et script](../../testing/evidence/L7-C3/closure/local-verification.tar.gz)
 - **Intégrité et navigation.** Les 42 empreintes de généralisation, les 50 empreintes du complément et les trois archives du pilote correspondent. Les contrôles Git portent aussi sur le contenu du commit préparé dans l’index isolé.
 
-### Maven
+### Maven historique
 
 La compilation bornée des tests a passé sur 40 modules, dans une copie distincte, avec Maven 3.9.14 et Java 21.
 
@@ -92,7 +92,7 @@ L’invocation initiale a validé les 40 premiers modules jusqu’à `runtime-wo
 2. Exécution des trois classes restantes de `runtime-worker-process` (`WorkerPostgresTest`, `WorkerCompositionPostgresTest`, `WorkerMetricsTest` : 31 tests réussis, code de sortie 0).
 3. Reprise non filtrée à partir de `runtime-worker-materialize` (`-rf :pocoma-runtime-worker-materialize`), rejeu de `PotVersionAndBalanceJointIncrementalPostgresTest` après collision d’acquisition de partition entre les deux moteurs de test sur le même bail, puis reprise non filtrée de `runtime-monolith` et `architecture-tests` (`-rf :pocoma-runtime-monolith`, code de sortie 0).
 
-La couverture de la gate composée sur l’état audité est complète : **1 170 tests exécutés sur les 43 modules du réacteur, avec 1 170 réussites, 0 échec, 0 erreur et 0 skip** (les 1 169 cas de la généralisation initiale plus le nouveau test `ReadAvailabilityPostgresTest#genericEffectLookupExecutesOnlyTheRequestedFamily`). Tous les rapports XML portent la provenance `pocoma-c3-final.hLqqKB`. [Reçu de la gate de clôture](../../testing/evidence/L7-C3/closure/maven-gate.json) · [Archive des rapports et journaux](../../testing/evidence/L7-C3/closure/maven-gate.tar.gz) · [Empreintes des 811 entrées Maven](../../testing/evidence/L7-C3/closure/maven-inputs.json)
+Le reçu composite historique couvre 43 projets et retient **1 170 réussites, 0 échec, 0 erreur et 0 skip dans les XML retenus** (les 1 169 cas de la généralisation initiale plus le nouveau test `ReadAvailabilityPostgresTest#genericEffectLookupExecutesOnlyTheRequestedFamily`). Les journaux de l’échec et des reprises sont attribués dans le [dossier de consolidation](consolidation.md#qualification-et-attribution-maven). Les rapports XML retenus portent la provenance `pocoma-c3-final.hLqqKB`. [Reçu de la gate de clôture](../../testing/evidence/L7-C3/closure/maven-gate.json) · [Archive des rapports et journaux](../../testing/evidence/L7-C3/closure/maven-gate.tar.gz) · [Empreintes des 811 entrées Maven](../../testing/evidence/L7-C3/closure/maven-inputs.json)
 
 ## Réserves
 
@@ -106,6 +106,14 @@ La couverture de la gate composée sur l’état audité est complète : **1 170
 
 La perte de débit sous contention demeure une réserve. Le regroupement JDBC réduit le nombre d’instructions par famille de deux à une. Le gain de débit et le coût WAL du suffixe modifié restent à mesurer en C4 ou pendant la qualification globale L7. Les mesures historiques sont attribuées aux profils et versions PostgreSQL du [rapport de généralisation](generalization-report.md#comparaison-de-performance-c2--c3). La mise en service sur un stock à conserver reste soumise à une décision d’exploitation et à C3-R2. Un reset intégral requiert une resynchronisation des futurs lecteurs.
 
+## Qualification de consolidation
+
+Le test C2 restitue les baux des deux partitions possibles. En installation vierge, le setup local installe READ V5, le routage, les droits de consommation et la maintenance dans une transaction READ. Il applique les droits HTTP avant le message de succès global et refuse le routage incomplet au rejeu. La preuve PostgreSQL 17.6 est réutilisée après contrôle des empreintes. Le CLI L6/I2, le catalogue et les garde-fous de retour à READY de la livraison C3 sont conservés.
+
+Les contrôles ciblés des deux reçus terminaux couvrent désormais V5, l’atomicité, le rejeu et la récupération après perte d’ACK. Les sept invocations ciblées passent sur PostgreSQL 17.11. Le rapport Gemini original demeure introuvable. Le contrôle porte sur le point 3.4 accessible. [Détail, preuves réutilisées et preuves nouvelles](consolidation.md#qualification-finale)
+
 ## Verdict
 
-**`L7_C3_TECHNICAL_CLOSURE_PASS`** — Le code audité et corrigé, les huit familles de disponibilité READ, la migration V5 canonique, les scripts d’exploitation et du lanceur local, la documentation de référence et la gate Maven composée (1 170 / 1 170 tests verts) sont qualifiés et prêts pour livraison.
+**`L7_C3_CONSOLIDATION_PASS_WITH_RESERVATIONS`.** Les sources corrigées passent la qualification composée de PROJECTION, WEB, COMMAND, Monolith et `architecture-tests`. La sélection canonique a validé 41 projets avant l’erreur de prérequis Bruno dans Monolith (code 1). La reprise non filtrée après installation du CLI verrouillé a validé Monolith et l’architecture (code 0). L’inventaire vérifié couvre 43 projets et 1 170 tests réussis, zéro échec, erreur ou test ignoré dans les résultats retenus. [Commandes, échecs conservés et empreintes](../../testing/evidence/L7-C3/canonical/qualification.json)
+
+Les limites de provenance et d’audit Gemini restent explicites. Les réserves de débit, contention et WAL restent à mesurer sur le suffixe livré. La certification globale L7 et l’autorisation de production suivent leurs propres gates.

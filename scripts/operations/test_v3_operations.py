@@ -73,6 +73,7 @@ class OperationalScriptsTest(unittest.TestCase):
 
         with patch.object(self.setup_mod, "psql", side_effect=fake_psql), \
              patch.object(self.setup_mod, "psql_script", return_value=""), \
+             patch.object(self.setup_mod, "require_routing_bootstrap"), \
              patch.object(self.setup_mod, "apply_migrations", side_effect=lambda *a: applied.append(a)):
             with self.assertRaises(RuntimeError) as ctx:
                 self.setup_mod.initialize_v3_read()
@@ -80,19 +81,27 @@ class OperationalScriptsTest(unittest.TestCase):
             self.assertIn("v3-rebuild-read.py", str(ctx.exception))
             self.assertEqual(applied, [])
 
-        # Fresh install path (no read_current_pot) applies V1..V5
-        applied.clear()
-
-        def fake_psql_fresh(db, sql_command, check=True):
-            return ""
-
-        with patch.object(self.setup_mod, "psql", side_effect=fake_psql_fresh), \
-             patch.object(self.setup_mod, "psql_script", return_value=""), \
-             patch.object(self.setup_mod, "apply_migrations", side_effect=lambda db, sc, ad, rt, migs: applied.extend(migs)):
+        with patch.object(self.setup_mod, "psql", return_value=""), \
+             patch.object(self.setup_mod, "psql_script") as script:
             self.setup_mod.initialize_v3_read()
-        self.assertEqual(len(applied), 5)
-        self.assertTrue(applied[-2].endswith("V4__pot_balance_shared_storage.sql"))
-        self.assertTrue(applied[-1].endswith("V5__projection_availability.sql"))
+        install, = [call for call in script.call_args_list if call.args[1] == "v3_read"]
+        self.assertTrue(install.kwargs["single_transaction"])
+        sql = install.args[2].lower()
+        sections = ("create table read_current_pot", "create table read_pot_balance_aggregate",
+                    "create table read_pot_version_node", "create table read_pot_balance_content",
+                    "create table read_availability_counter", "insert into consumption_routing_contract",
+                    "insert into public.read_maintenance_state")
+        self.assertEqual(sorted(sql.index(section) for section in sections),
+                         [sql.index(section) for section in sections])
+        self.assertNotRegex(sql, r"(?m)^\s*(begin|commit);\s*$")
+
+    def test_existing_read_schema_with_incomplete_routing_is_refused(self):
+        with patch.object(self.setup_mod, "psql", side_effect=["v3_read.read_current_pot", "f"]), \
+             patch.object(self.setup_mod, "psql_script"), \
+             patch.object(self.setup_mod, "initialize_read_availability") as install:
+            with self.assertRaisesRegex(RuntimeError, "Incomplete v3_read routing bootstrap"):
+                self.setup_mod.initialize_v3_read()
+            install.assert_not_called()
 
     def test_partial_v5_is_refused_before_another_migration(self):
         with patch.object(self.setup_mod, "psql", side_effect=["t", "f"]), \

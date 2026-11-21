@@ -282,11 +282,11 @@ final class ConsumptionLifecyclePostgresFixture implements AutoCloseable {
     }
 
     static void initialize(PostgreSQLContainer pg) throws Exception {
-        var jdbc =
-                new JdbcTemplate(
-                        new DriverManagerDataSource(
-                                pg.getJdbcUrl(), pg.getUsername(), pg.getPassword()));
-        jdbc.execute("create database i3_read");
+        // The container's log readiness can precede the mapped port accepting JDBC.
+        try (var connection = pg.createConnection("");
+                var statement = connection.createStatement()) {
+            statement.execute("create database i3_read");
+        }
         for (String db : List.of(pg.getDatabaseName(), "i3_read")) {
             var ds =
                     new DriverManagerDataSource(

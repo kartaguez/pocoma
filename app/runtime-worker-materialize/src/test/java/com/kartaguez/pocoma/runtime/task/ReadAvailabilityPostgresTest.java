@@ -324,11 +324,11 @@ class ReadAvailabilityPostgresTest {
         }
     }
 
-    private static void install(SubobjectPostgresFixture db) {
+    static void install(SubobjectPostgresFixture db) {
         assertEquals(1, Flyway.configure().dataSource(db.admin).schemas(db.schema).defaultSchema(db.schema)
                 .createSchemas(false)
                 .locations("classpath:db/read/migration", "classpath:db/read/availability/migration")
-                .placeholders(Map.of("expectedDatabase", PG.getDatabaseName(), "expectedSchema", db.schema,
+                .placeholders(Map.of("expectedDatabase", db.pg.getDatabaseName(), "expectedSchema", db.schema,
                         "expectedAdmin", db.adminRole, "expectedRuntime", db.runtimeRole))
                 .load().migrate().migrationsExecuted);
     }

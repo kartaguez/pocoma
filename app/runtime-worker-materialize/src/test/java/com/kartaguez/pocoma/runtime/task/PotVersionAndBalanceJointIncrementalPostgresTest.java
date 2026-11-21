@@ -811,7 +811,6 @@ class PotVersionAndBalanceJointIncrementalPostgresTest {
 
             // Both projections materialize v1
             var verLeases = new HashMap<Integer, com.kartaguez.pocoma.contract.consumption.spi.PartitionLease>();
-            var bal1Leases = new HashMap<Integer, com.kartaguez.pocoma.contract.consumption.spi.PartitionLease>();
             int p1 = RoutingV1.partition(RoutingV1.hash(ConsumableFamily.POT_EVENT, events.get(1L)), 4);
             var verLease1 = verEngine.acquirePartition(p1).orElseThrow();
             verLeases.put(p1, verLease1);
@@ -819,20 +818,20 @@ class PotVersionAndBalanceJointIncrementalPostgresTest {
                     ConsumptionProtocol.Status.COMMITTED,
                     verEngine.execute(verEngine.acquire(verLease1, List.of(events.get(1L))).claims().getFirst()).status());
             var bal1Lease1 = balEngine1.acquirePartition(p1).orElseThrow();
-            bal1Leases.put(p1, bal1Lease1);
             assertEquals(
                     ConsumptionProtocol.Status.COMMITTED,
                     balEngine1.execute(balEngine1.acquire(bal1Lease1, List.of(events.get(1L))).claims().getFirst()).status());
 
             // Worker 1 acquires claim on PotBalance v2, then its lease & slot claim expire and Worker 2 takes over
             int p2 = RoutingV1.partition(RoutingV1.hash(ConsumableFamily.POT_EVENT, events.get(2L)), 4);
-            var staleLease = bal1Leases.computeIfAbsent(p2, k -> balEngine1.acquirePartition(k).orElseThrow());
+            var staleLease = p2 == p1 ? bal1Lease1 : balEngine1.acquirePartition(p2).orElseThrow();
             var staleClaim = balEngine1.acquire(staleLease, List.of(events.get(2L))).claims().getFirst();
 
-            f.read.oracle.update(
-                    "update partition_ownership set owner_token = null, owned_until = null where consumption_id=? and partition_id=?",
-                    balDef.id().value(),
-                    p2);
+            // Worker 1 stops owning both partitions it used. Versions 3 and 4 may route to either.
+            assertEquals(p1 == p2 ? 1 : 2, f.read.oracle.update(
+                    "update partition_ownership set owner_token = null, owned_until = null"
+                            + " where consumption_id=? and partition_id in (?,?) and owner_token is not null",
+                    balDef.id().value(), p1, p2));
             f.read.oracle.update(
                     "update consumption_slot set claimed_until = now() - interval '1 second' where consumption_id=? and consumable_id=?",
                     balDef.id().value(),

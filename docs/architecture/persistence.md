@@ -31,6 +31,8 @@ Each store has a **single active baseline** `V1__initial_schema.sql`:
 
 Current READ initialization applies V2 (balance aggregates), V3 (PotVersion Radix-16) and V4 (shared PotBalance storage) after the baseline. It then applies [READ V5](../../app/infra-postgres-read/src/main/resources/db/read/availability/migration/V5__projection_availability.sql) from the separate availability location. The earlier CommandResult pilot migration is retained in the isolated `db/read/pilot/migration` location for historical qualification.
 
+Fresh local setup commits each authority's schema, routing and lifecycle grants in a single PostgreSQL transaction. The READ transaction includes V5 and the initial maintenance state. Setup refuses an existing schema with incomplete routing or missing discovery grants. Database and role creation precede schema installation. The local launcher also commits its bootstrap fingerprint with each authority's schema.
+
 The availability migration requires an empty READ authority. See [READ reconstruction and availability](../operations/recovery.md#read-reconstruction-and-availability) for first activation on a populated database.
 
 ## Consolidated Baselines & Isolated Historical Migrations

@@ -21,10 +21,13 @@ Les stores valident l’effet et sa disponibilité attendue dans le protocole L2
 - [D — Registre des arbitrages](arbitrages.md)
 - [Rapport d’exécution du pilote CommandResult](pilot-report.md)
 - [Rapport de clôture technique](technical-closure.md)
+- [Audit de consolidation et attribution des preuves](consolidation.md)
 
 **Généralisation autorisée.** C3-R1 et C3-R2 restent ratifiés. La décision humaine du chantier I1–I6 autorise la généralisation malgré la qualification de performance incomplète du pilote. Les résultats du pilote restent attribués à sa V5 isolée. La V5 canonique lie les huit familles aux sept matérialiseurs existants et s’installe par reconstruction exclusive sur un READ déjà peuplé. [Rapport de généralisation](generalization-report.md)
 
 **Qualification de la généralisation.** Les preuves PostgreSQL et CLI couvrent le reset puis la reprise. La gate composée a couvert 1 169 tests après reprise et correction de deux fixtures Monolith. Le rapport propose la clôture technique C3 sur les profils mesurés. [Résultats et réserves](generalization-report.md#verdict-proposé)
+
+**Clôture de consolidation.** `L7_C3_CONSOLIDATION_PASS_WITH_RESERVATIONS`. La qualification couvre 43 projets et 1 170 tests réussis sur les sources corrigées, avec reprise non filtrée de Monolith et de l’architecture. Les réserves de performance restent ouvertes. [Décision et preuves](consolidation.md#qualification-finale)
 
 **État du pilote.** Le verdict historique reste `L7_C3_PILOT_GATE_INCOMPLETE`. La généralisation dispose de sa propre qualification, et la mise en production exige une décision distincte. [Rapport du pilote](pilot-report.md#résultat-des-gates-et-décision) · [Qualification complémentaire](../L7_C3_CommandResult_Complementary_Gate_Report.md)
 
