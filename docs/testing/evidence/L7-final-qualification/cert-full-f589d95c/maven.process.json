@@ -1,0 +1,12 @@
+{
+  "pid": 80886,
+  "process_group": 80886,
+  "command": [
+    "./mvnw",
+    "--batch-mode",
+    "--no-transfer-progress",
+    "-Dpocoma.verification.id=a80a48245b5c4bedb737b50338d930dc",
+    "-Dpocoma.verification.reports=/private/tmp/pocoma-l7-cert-full-f589d95c/reports",
+    "test"
+  ]
+}

@@ -1,12 +1,12 @@
-# Registre des réserves actualisé — Post-clôture des 15 obligations L7.3
+# Registre des réserves actualisé — Qualification globale finale L7 (Post C1–C4 & `CERT-FULL`)
 
-- **Date d'actualisation** : 17 novembre 2026
-- **Référence Git** : `feat/l7-i3-closure-and-consolidation` (issue de `main` @ `0227dd0f`)
-- **Sources** : [`L7_I3_Closure_Report.md`](L7_I3_Closure_Report.md), [`L7_Residual_Certification_Matrix.md`](L7_Residual_Certification_Matrix.md), [`L7_SPEC09_Local_Qualification_Protocol.md`](L7_SPEC09_Local_Qualification_Protocol.md)
+- **Date d'actualisation** : 22 novembre 2026
+- **Référence Git** : `feat/v3-l7` (`CERT-FULL` vérifiée sur `f589d95cc120331250a9e566f548481b6da7f836`)
+- **Sources** : [`L7_Final_Global_Qualification_Dossier.md`](L7_Final_Global_Qualification_Dossier.md), [`L7_Residual_Certification_Matrix.md`](L7_Residual_Certification_Matrix.md), [`L7_C4/closure-and-l7-qualification.md`](L7_C4/closure-and-l7-qualification.md)
 
 **Classes de réserves** :
-- **R1 (Bloquante L7)** : garantie ou preuve nécessaire avant clôture de L7.
-- **R2 (Limite caractérisée / non bloquante L7-LB)** : limite d'exploitation ou de capacité connue et documentée.
+- **R1 (Bloquante L7)** : garantie ou preuve nécessaire avant clôture locale de L7 — **toutes soldées (`0` ouverte)**.
+- **R2 (Limite caractérisée / non bloquante)** : limite d'exploitation ou sous-variante connue et documentée.
 - **R3 (Report L8 / Production)** : exigence relevant de l'infrastructure cible (Configuration A/B), de la haute disponibilité multi-nœuds ou de la production Internet.
 - **R4 (Soldée / Remplacée)** : réserve close par correction ou preuve complète dans sa portée explicite.
 
@@ -16,22 +16,21 @@
 
 | ID | Description factuelle | Classe | Statut | Impact L7 |
 |---|---|---|---|---|
-| `DEBT-L7LB-01` | `pocoma-local doctor` ne contrôle pas l'espace disque hôte (`PRE-DISK` vérifié au `start`). | **R2** | **OPEN** (non bloquant) | Non bloquant L7 ; fiche [`DOCTOR_DISK_CHECK/Debt.md`](../internal/debts/DOCTOR_DISK_CHECK/Debt.md). |
-| `RES-L7LB-S6-01` | Enveloppe locale nominale bornée à `25 cmd/s` (`50 cmd/s` sature `business-read-worker` / PG en mono-hôte). | **R2** | **OPEN** (caractérisée) | À confronter sur Config A en L8 (`SPEC-09`). |
+| `DEBT-L7LB-01` | Contrôle d'espace disque hôte (`PRE-DISK`) ajouté à `pocoma-local doctor` (`f589d95c`, `36/36` tests Python `PASS`). | **R4** | **CLOSED** | Soldée ([`DOCTOR_DISK_CHECK/Debt.md`](../internal/debts/DOCTOR_DISK_CHECK/Debt.md)). |
+| `RES-L7LB-S6-01` | Enveloppe locale mono-hôte (`6 CPUs` Docker) : soutenable jusqu'à `35 cmd/s` (`p95 = 134 ms`), plateau à **`36,83 cmd/s`** (`+34 %` vs `T0`), en deçà de la pointe `50 cmd/s` Config A. | **R2** | **OPEN** (caractérisée) | À confronter sur Config A en L8 (`SPEC-09`). |
 | `RES-L7LB-S6-02` | Topologie mono-worker et PostgreSQL partagé (reprise post-TTL, non failover actif multi-nœuds). | **R3** | **OPEN** (borne locale) | Relève de L8 (multi-nœuds / HA). |
 | `RES-L7LB-S5-01..03` / `LB-J1-COLD` | Écarts S5 et installation clone vierge local. | **R4** | **CLOSED** | Soldée par S6, PR #6 et PR #7. |
-| `LB-J1-GUI` / `LB-J1-CLIENT` | Ergonomie Bruno GUI par humain ; CORS/SPA BFF. | **R2 / R3** | **OPEN** | Non bloquant L7-LB ; CORS/SPA relève de L8. |
+| `LB-J1-GUI` / `LB-J1-CLIENT` | Ergonomie Bruno GUI par humain ; CORS/SPA BFF. | **R2 / R3** | **OPEN** | Non bloquant L7 ; CORS/SPA relève de L8. |
 
 ---
 
-## 2. Réserves L7.3 (Sûreté, atomicité, non-purge et couverture matricielle)
+## 2. Réserves L7.2 / L7.3 / C4
 
 | ID / Groupe | Description factuelle | Classe | Statut | Impact L7 |
 |---|---|---|---|---|
-| `L2M-E02-J-REPORT` | Crash après admission HTTP durable avant finalisation (`e1-e3-06` + `S5-B`/`S6`, diff vérifié). | **R4** | **CLOSED** | Soldée par réemploi validé ([`L7_I3_Closure_Report.md`](L7_I3_Closure_Report.md) §1). |
-| `14` obligations `L7.3` ciblées | `L2M-E01-E`, `CON-05-NOPURGE`, `C01-A-REPORT`, `C01-D-REPORT`, `E01-G-INV-COMP`, `E01-G-ID-IDCOMP`, `CON-05-CRASH`, `C03-J-CRASH`, `C04-K`, `E01-H-REPORT`, `C04-L-REPORT`, `C06-M-REPORT`, `R8-03`, `R8-05`. | **R4** | **CLOSED** | Soldées par tests PostgreSQL ciblés (11/11 PASS) et audit sémantique de `writer-inventory-final` (`2 704` candidats). |
-| `338` `CURRENT_PARTIAL` + `30` `HISTORICAL_PARTIAL` `L7.3` | Contributions partielles hors du noyau des 15 obligations bloquantes closes. | **R1** | **PARTIAL** | **Bloquant L7** — revue d'allocation/suffisance requise avant L7.5. |
-| `41` `CURRENT_PARTIAL` `L7.2` | Couverture fonctionnelle/sécurité `L7.2` restante (après passage à `CURRENT_FULL` de `5` lignes qualifiées par `L7-LB`). | **R1** | **PARTIAL** | Requis pour la clôture L7.5. |
+| `L2M-E02-J-REPORT` + `14` obligations `L7.3` ciblées | Clôturées en `L7-I3` et reconfirmées `PASS` dans `CERT-FULL` (`f589d95c`). | **R4** | **CLOSED** | Soldée. |
+| Revue `R1` (`41` L7.2 & `338+30` L7.3) | Réconciliation nominative des `522` lignes contre `CERT-FULL` (`1 173/1 173 PASS`) : `486 CURRENT_FULL`, `3 HISTORICAL_REUSABLE`, `10` sous-variantes partielles non bloquantes (`7` L7.2 + `3` L7.3) documentées. | **R4** *(réserve bloquante levée)* / **R2** *(10 sous-variantes)* | **CLOSED (R1)** / **OPEN (R2)** | Aucune obligation bloquante restante en L7 local. |
+| Observation `a2-idle` (latence post-inactivité) | Pic `p95=max = 978–1 121 ms` (`n=10`, `warmup=0`) démontré comme effet de démarrage à froid des conteneurs sur `--snapshot-dir` (`41–54 %` dès `http-write`, hors `B1–B3`) ; médiane chaude `142–149 ms`. | **R4** | **CLOSED** | Expliquée et qualifiée sans modification de code ni des SLO. |
 
 ---
 
@@ -39,7 +38,9 @@
 
 | ID | Description factuelle | Classe | Statut |
 |---|---|---|---|
-| `L74-ENV-01` | Environnement A/B (`2 × 4 vCPU / 8 GiB` + Keycloak isolé) indisponible ; `13` familles `SPEC-09` `NOT_RUN` en conditions contractuelles. | **R3** | **OPEN** (relève de L8 / labo A/B dédié) |
-| `L74-MET-02` / `L74-BENCH-01` | Calibration sonde et caractérisation locale sur profils `Moyen` (`20/200`) et `Grand` (`100/2000`). | **R1 / R2** | **PROTOCOL_READY** ([`L7_SPEC09_Local_Qualification_Protocol.md`](L7_SPEC09_Local_Qualification_Protocol.md)) — campagne locale non lancée. |
-| `RES-L75-GATES` | Gates globales non filtrées (`./mvnw test` complet + `architecture-tests`) sur le SHA candidat gelé de L7, manifeste et audit final (`CERT-FULL`, `CERT-ARCH`, `CERT-SPEC10`, `CERT-AUDIT`, `CERT-TRACE`). | **R1** | **BLOCKED** (attend solde `338+30` L7.3 / `41` L7.2 et caractérisation locale SPEC-09). |
+| `L74-MET-02` / `L74-BENCH-01` | Métrologie complète (`PERF-METRO` `CURRENT_FULL`) et caractérisation locale `Moyen`, `Grand`, `Identity`, `DeletePot`, `Idle`, `Ramp`, `Backlog 10k` exécutées (`C2–C4`). | **R4** | **CLOSED** (périmètre local) |
+| `RES-L75-GATES` | Gates globales `CERT-FULL` (`1 173/1 173 PASS`), `CERT-ARCH` (`50/50 PASS`) et `CERT-TRACE` exécutées sur SHA gelé propre `f589d95c`. | **R4** | **CLOSED** |
+| `RES-L75-AUDIT` | `CERT-AUDIT` : audit interne consolidé livré ; un éventuel audit tiers indépendant relève d'une décision de gouvernance humaine. | **R2** | **OPEN** (gouvernance) |
+| `RES-L74-CONTENTION` | `F01-H` (`c2-contention-1pot`) : `0` violation d'invariant mais `2–6/120` commandes résiduelles au `drainageTimeout` sous `T0` ; revalidation sous `A2` + Config A reportée L8. | **R2 / R3** | **OPEN** |
+| `L74-ENV-01` | Environnement cible `SPEC-09` Configuration A/B (`2 × 4 vCPU / 8 GiB` + Keycloak isolé) indisponible localement (`17` obligations `LOCAL_ENV_BOUNDED`, `1` `DEFERRED_TO_L8_INFRA`). | **R3** | **DEFERRED TO L8** |
 | `RES-L8-PROD` | HA multi-nœuds, TLS/mTLS, rotation secrets, volumes globaux `10k/1M` et `100k/10M`, campagnes `SPEC-09` Config A/B. | **R3** | **DEFERRED TO L8** |
