@@ -338,8 +338,54 @@ class S6HardeningTests(unittest.TestCase):
             self.assertFalse(result['buildCached'])
             self.assertEqual(8192, result['dockerMemoryMiB'])
             self.assertTrue(result['memorySufficient'])
+            self.assertEqual(2 * 1024**3, result['requiredDiskBytes'])
+            self.assertTrue(result['diskSufficient'])
+            self.assertIsNone(result['diskDiagnostic'])
             self.assertFalse((home_local / 'instances').exists())
             tools_mock.assert_called_once_with(rt.ROOT, 'doctor', False, build_required=True)
+
+    def test_doctor_reports_disk_thresholds_and_insufficient_disk_diagnostic(self):
+        fake_ok = type('Proc', (), {'returncode': 0})()
+        fake_missing = type('Proc', (), {'returncode': 1})()
+        DiskUsage = type('DiskUsage', (), {'free': 100 * 1024**2})
+        with tempfile.TemporaryDirectory() as folder:
+            home_local = Path(folder) / '.pocoma-local'
+            # Case 1: build not cached, images missing -> 4 GiB required, 100 MiB free -> NOT_READY
+            with patch.object(rt, 'HOME_LOCAL', home_local), \
+                    patch.object(rt, 'safe_tree'), \
+                    patch.object(rt.prerequisites, 'sources'), \
+                    patch.object(rt.prerequisites, 'tools'), \
+                    patch.object(rt, 'source_hash', return_value='abc123'), \
+                    patch.object(rt.subprocess, 'run', return_value=fake_missing), \
+                    patch.object(rt, 'run', return_value=str(8 * 1024**3)), \
+                    patch.object(rt.shutil, 'disk_usage', return_value=DiskUsage()):
+                result = rt.doctor()
+            self.assertEqual('NOT_READY', result['state'])
+            self.assertEqual(2, result['exit'])
+            self.assertTrue(result['readOnly'])
+            self.assertFalse(result['diskSufficient'])
+            self.assertEqual(4 * 1024**3, result['requiredDiskBytes'])
+            self.assertEqual(100 * 1024**2, result['freeDiskBytes'])
+            self.assertIn('PRE-DISK', result['diskDiagnostic'])
+
+            # Case 2: build cached, images cached -> 256 MiB required, 512 MiB free -> READY
+            (home_local / 'builds' / 'abc123').mkdir(parents=True)
+            (home_local / 'builds' / 'abc123' / 'receipt.json').write_text('{}')
+            DiskUsageOk = type('DiskUsage', (), {'free': 512 * 1024**2})
+            with patch.object(rt, 'HOME_LOCAL', home_local), \
+                    patch.object(rt, 'safe_tree'), \
+                    patch.object(rt.prerequisites, 'sources'), \
+                    patch.object(rt.prerequisites, 'tools'), \
+                    patch.object(rt, 'source_hash', return_value='abc123'), \
+                    patch.object(rt.subprocess, 'run', return_value=fake_ok), \
+                    patch.object(rt, 'run', return_value=str(8 * 1024**3)), \
+                    patch.object(rt.shutil, 'disk_usage', return_value=DiskUsageOk()):
+                result = rt.doctor()
+            self.assertEqual('READY', result['state'])
+            self.assertEqual(0, result['exit'])
+            self.assertTrue(result['diskSufficient'])
+            self.assertEqual(256 * 1024**2, result['requiredDiskBytes'])
+            self.assertIsNone(result['diskDiagnostic'])
 
 
 if __name__ == '__main__':

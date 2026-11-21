@@ -1,6 +1,6 @@
 # DEBT-L7LB-01 — Contrôle de l'espace disque hôte dans `pocoma-local doctor`
 
-- **Statut** : **OPEN** (non bloquant pour `L7_LB_CLOSED`)
+- **Statut** : **CLOSED** (résolu lors de la qualification globale finale L7 sur `feat/v3-l7`)
 - **Criticité** : **LOW**
 - **Origine** : Clôture `L7_LB_CLOSED` (`main` @ `59f68956e984a932bc28da6d9588680ce49d8210`) et constat S5 (`L7_LB_Distribution_Qualification_and_Guarantees.md` §1.3)
 
