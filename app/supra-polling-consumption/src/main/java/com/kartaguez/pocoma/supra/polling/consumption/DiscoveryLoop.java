@@ -5,6 +5,9 @@ import com.kartaguez.pocoma.domain.consumption.ConsumableFamily;
 
 import java.time.Duration;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLongArray;
 
 /** One bounded C/p opportunity, independent of business threads and capacity. */
 public final class DiscoveryLoop {
@@ -15,6 +18,9 @@ public final class DiscoveryLoop {
     private final Set<ConsumptionWorker.Pair> saturated = new HashSet<>();
     private final Map<ConsumptionWorker.Pair, Long> pairCheckpoints = new HashMap<>();
     private final Map<ConsumableFamily, Long> emptyFamilyCheckpointThisTour = new EnumMap<>(ConsumableFamily.class);
+    private final AtomicInteger pendingWakeupPairs = new AtomicInteger();
+    private final AtomicLongArray wakeupReceivedNanos = new AtomicLongArray(32);
+    private final AtomicBoolean fullReconcileRequested = new AtomicBoolean();
     private int tourRemaining;
 
     DiscoveryLoop(ConsumptionWorker worker) {
@@ -27,6 +33,49 @@ public final class DiscoveryLoop {
                                 .mapToInt(b -> b.partitions().size())
                                 .max()
                                 .orElse(1);
+    }
+
+    void onExternalWakeup(ConsumableFamily family, int partition) {
+        if (family == null || partition < 0 || partition >= 4) return;
+        int mask = 0;
+        for (int i = 0; i < worker.bindings.size() && i < 8; i++) {
+            var b = worker.bindings.get(i);
+            if (b.definition().family() == family && b.partitions().contains(partition)) {
+                mask |= (1 << (i * 4 + partition));
+            }
+        }
+        if (mask != 0) {
+            long now = System.nanoTime();
+            int remaining = mask;
+            while (remaining != 0) {
+                int bit = Integer.numberOfTrailingZeros(remaining);
+                wakeupReceivedNanos.compareAndSet(bit, 0L, now);
+                remaining &= ~(1 << bit);
+            }
+            worker.wakeupMetrics.onReceived();
+            pendingWakeupPairs.getAndAccumulate(mask, (a, b) -> a | b);
+            worker.discoveryWait.signal();
+        }
+    }
+
+    void onExternalReconnect() {
+        fullReconcileRequested.set(true);
+        worker.discoveryWait.signal();
+    }
+
+    boolean hasPendingWakeup() {
+        return pendingWakeupPairs.get() != 0 || fullReconcileRequested.get();
+    }
+
+    private int pollPendingWakeupBit() {
+        while (true) {
+            int mask = pendingWakeupPairs.get();
+            if (mask == 0) return -1;
+            int bit = Integer.numberOfTrailingZeros(mask);
+            if (pendingWakeupPairs.compareAndSet(mask, mask & ~(1 << bit))) {
+                return bit;
+            }
+        }
     }
 
     boolean hasReadyBinding() {
@@ -43,14 +92,43 @@ public final class DiscoveryLoop {
     public boolean runOnePass() {
         if (!worker.beginOperation()) return false;
         long began = System.nanoTime();
-        int selected = selectBindingIndex(began);
-        var binding = worker.bindings.get(selected);
-        nextConsumption = (selected + 1) % worker.bindings.size();
-        int p = advancePartition(selected, binding);
+        if (fullReconcileRequested.compareAndSet(true, false)) {
+            emptyFamilyCheckpointThisTour.clear();
+        }
+        int wakeupBit = pollPendingWakeupBit();
+        boolean fromWakeup = wakeupBit >= 0;
+        int selected;
+        ConsumptionWorker.Binding binding;
+        int p;
+        if (fromWakeup) {
+            long receivedAt = wakeupReceivedNanos.getAndSet(wakeupBit, 0L);
+            if (receivedAt > 0L) {
+                worker.wakeupMetrics.onDiscoveryDelay(began - receivedAt);
+            }
+            selected = wakeupBit / 4;
+            p = wakeupBit % 4;
+            binding = worker.bindings.get(selected);
+            emptyFamilyCheckpointThisTour.remove(binding.definition().family());
+        } else {
+            selected = selectBindingIndex(began);
+            binding = worker.bindings.get(selected);
+            nextConsumption = (selected + 1) % worker.bindings.size();
+            p = advancePartition(selected, binding);
+        }
         var state = new DiscoveryState();
         worker.event(binding, Phase.DISCOVERY_ROTATION, Outcome.CONFIRMED, 1, Duration.ZERO);
         try {
-            return executeDiscoveryPass(selected, binding, p, state);
+            if (fromWakeup && worker.lease(binding, p) == null) {
+                worker.wakeupMetrics.onWakeupIgnoredNoLease();
+                state.outcome = Outcome.CONFIRMED;
+                return false;
+            }
+            boolean progressed = executeDiscoveryPass(selected, binding, p, state);
+            if (fromWakeup) {
+                if (progressed) worker.wakeupMetrics.onWakeupUseful();
+                else worker.wakeupMetrics.onWakeupSpurious();
+            }
+            return progressed;
         } catch (RuntimeException | Error exit) {
             state.failure = exit;
             errorUntilNanos[selected] =

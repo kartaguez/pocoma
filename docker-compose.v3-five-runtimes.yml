@@ -10,7 +10,7 @@ networks:
 services:
   postgres:
     container_name: pocoma-v3-postgres
-    image: postgres:17-alpine
+    image: postgres:17.6-alpine
     environment:
       POSTGRES_DB: pocoma
       POSTGRES_USER: pocoma
@@ -19,7 +19,7 @@ services:
       - postgres-v3-data:/var/lib/postgresql/data
       - ./docker/postgres/functional-init.sql:/docker-entrypoint-initdb.d/functional-init.sql:ro
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     networks:
       pocoma-v3-net:
         ipv4_address: 172.28.0.2
@@ -67,6 +67,27 @@ services:
         limits:
           cpus: "1.0"
           memory: 1024M
+
+  nats:
+    container_name: pocoma-v3-nats
+    image: nats:2.15.3-alpine
+    command: ["-c", "/etc/nats/nats.conf"]
+    volumes:
+      - ./docker/v3-five-runtimes/nats.conf:/etc/nats/nats.conf:ro
+    networks:
+      pocoma-v3-net:
+        ipv4_address: 172.28.0.4
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8222/healthz"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 128M
 
   pocoma-http-write:
     container_name: pocoma-http-write
@@ -138,11 +159,11 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "0.5"
+          cpus: "0.75"
           memory: 512M
 
-  pocoma-results-worker:
-    container_name: pocoma-results-worker
+  pocoma-critical-read-worker:
+    container_name: pocoma-critical-read-worker
     image: pocoma-l7-runtime-worker-materialize:local
     build:
       context: ./app
@@ -152,12 +173,12 @@ services:
         RUNTIME_ARTIFACT: pocoma-runtime-worker-materialize
     environment:
       SPRING_PROFILES_ACTIVE: v3-read-worker
-      SPRING_CONFIG_ADDITIONAL_LOCATION: file:/app/config/results-worker.properties
+      SPRING_CONFIG_ADDITIONAL_LOCATION: file:/app/config/critical-read-worker.properties
       JAVA_TOOL_OPTIONS: -Xms128m -Xmx384m -XX:+UseSerialGC
     ports:
       - "127.0.0.1:18084:18084"
     volumes:
-      - ./docker/v3-five-runtimes/results-worker.properties:/app/config/results-worker.properties:ro
+      - ./docker/v3-five-runtimes/critical-read-worker.properties:/app/config/critical-read-worker.properties:ro
     networks:
       pocoma-v3-net:
         ipv4_address: 172.28.0.12
@@ -173,11 +194,11 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "0.5"
+          cpus: "0.75"
           memory: 512M
 
-  pocoma-business-read-worker:
-    container_name: pocoma-business-read-worker
+  pocoma-pot-read-worker:
+    container_name: pocoma-pot-read-worker
     image: pocoma-l7-runtime-worker-materialize:local
     build:
       context: ./app
@@ -187,12 +208,12 @@ services:
         RUNTIME_ARTIFACT: pocoma-runtime-worker-materialize
     environment:
       SPRING_PROFILES_ACTIVE: v3-read-worker
-      SPRING_CONFIG_ADDITIONAL_LOCATION: file:/app/config/business-read-worker.properties
+      SPRING_CONFIG_ADDITIONAL_LOCATION: file:/app/config/pot-read-worker.properties
       JAVA_TOOL_OPTIONS: -Xms128m -Xmx512m -XX:+UseSerialGC
     ports:
       - "127.0.0.1:18085:18085"
     volumes:
-      - ./docker/v3-five-runtimes/business-read-worker.properties:/app/config/business-read-worker.properties:ro
+      - ./docker/v3-five-runtimes/pot-read-worker.properties:/app/config/pot-read-worker.properties:ro
     networks:
       pocoma-v3-net:
         ipv4_address: 172.28.0.13
@@ -208,8 +229,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "0.75"
-          memory: 640M
+          cpus: "1.25"
+          memory: 1024M
 
   pocoma-http-read:
     container_name: pocoma-http-read
@@ -246,12 +267,12 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "0.5"
-          memory: 512M
+          cpus: "0.75"
+          memory: 768M
 
   prometheus:
     container_name: pocoma-v3-prometheus
-    image: prom/prometheus:latest
+    image: prom/prometheus:v3.5.0
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
       - "--storage.tsdb.path=/prometheus"

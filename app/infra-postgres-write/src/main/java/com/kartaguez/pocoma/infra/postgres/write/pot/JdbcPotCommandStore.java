@@ -14,7 +14,9 @@ import javax.sql.DataSource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
+import com.kartaguez.pocoma.contract.consumption.wakeup.WakeupPublisher;
 import com.kartaguez.pocoma.contract.writeadmission.PotCommand;
+import com.kartaguez.pocoma.domain.consumption.ConsumableFamily;
 import com.kartaguez.pocoma.domain.pot.revision.InconsistentPotFactsException;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.engine.write.pot.port.execution.PotCommandStore;
@@ -36,18 +38,28 @@ public final class JdbcPotCommandStore implements PotCommandStore {
     private final JdbcTemplate jdbc;
     private final SpringAttemptTransactions transactions;
     private final PublicationListener publicationListener;
+    private final WakeupPublisher wakeupPublisher;
 
     public JdbcPotCommandStore(DataSource source, SpringAttemptTransactions transactions) {
-        this(source, transactions, (cmd, pot, ver, potEvt, compEvt) -> {});
+        this(source, transactions, (cmd, pot, ver, potEvt, compEvt) -> {}, WakeupPublisher.NOOP);
     }
 
     public JdbcPotCommandStore(
             DataSource source,
             SpringAttemptTransactions transactions,
             PublicationListener publicationListener) {
+        this(source, transactions, publicationListener, WakeupPublisher.NOOP);
+    }
+
+    public JdbcPotCommandStore(
+            DataSource source,
+            SpringAttemptTransactions transactions,
+            PublicationListener publicationListener,
+            WakeupPublisher wakeupPublisher) {
         this.source = Objects.requireNonNull(source);
         this.transactions = Objects.requireNonNull(transactions);
         this.publicationListener = Objects.requireNonNull(publicationListener);
+        this.wakeupPublisher = wakeupPublisher == null ? WakeupPublisher.NOOP : wakeupPublisher;
         transactions.requireSource(source);
         jdbc = new JdbcTemplate(source);
     }
@@ -333,6 +345,7 @@ public final class JdbcPotCommandStore implements PotCommandStore {
                     if (potEvent != null) position("POT", potEvent);
                     if (invitationEvent != null) position("INVITATION", invitationEvent);
                     position("COMMAND_COMPLETION", completion);
+                    scheduleWakeupAfterCommit(potEvent, invitationEvent, completion);
                     publicationListener.onPublished(
                             command.requestId(),
                             effectivePot == null ? null : effectivePot.value(),
@@ -340,6 +353,23 @@ public final class JdbcPotCommandStore implements PotCommandStore {
                             potEvent,
                             completion);
                     return null;
+                });
+    }
+
+    private void scheduleWakeupAfterCommit(UUID potEvent, UUID invitationEvent, UUID completion) {
+        if (wakeupPublisher == WakeupPublisher.NOOP) return;
+        SpringAttemptTransactions.afterCommit(
+                source,
+                () -> {
+                    if (potEvent != null) {
+                        wakeupPublisher.publishForId(ConsumableFamily.POT_EVENT, potEvent);
+                    }
+                    if (invitationEvent != null) {
+                        wakeupPublisher.publishForId(
+                                ConsumableFamily.INVITATION_EVENT, invitationEvent);
+                    }
+                    wakeupPublisher.publishForId(
+                            ConsumableFamily.COMMAND_COMPLETION_EVENT, completion);
                 });
     }
 

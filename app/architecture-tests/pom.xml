@@ -296,6 +296,12 @@
         </dependency>
         <dependency>
             <groupId>com.kartaguez.pocoma</groupId>
+            <artifactId>pocoma-infra-wakeup-nats</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.kartaguez.pocoma</groupId>
             <artifactId>pocoma-engine-read-execution</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>

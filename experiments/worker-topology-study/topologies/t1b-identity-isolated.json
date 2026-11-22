@@ -1,0 +1,42 @@
+{
+  "description": "T1b - Physical IdentityRequest isolation (topo-c1 executable: 4 worker runtimes)",
+  "removeRuntimes": ["command-worker"],
+  "cpus": {
+    "http-write": 0.5,
+    "http-read": 0.75,
+    "results-worker": 0.65,
+    "business-read-worker": 1.20
+  },
+  "mem": {
+    "http-write": "512m",
+    "http-read": "768m",
+    "results-worker": "384m",
+    "business-read-worker": "768m"
+  },
+  "extraRuntimes": {
+    "pot-command-worker": {
+      "module": "runtime-worker-process",
+      "profile": "v3-consumption-worker-dev",
+      "baseProperties": "command-worker",
+      "managementPort": 18083,
+      "cpus": 0.65,
+      "memLimit": "512m",
+      "invitationKey": true
+    },
+    "identity-worker": {
+      "module": "runtime-worker-process",
+      "profile": "v3-consumption-worker-dev",
+      "baseProperties": "command-worker",
+      "managementPort": 18086,
+      "cpus": 0.25,
+      "memLimit": "384m",
+      "invitationKey": false
+    }
+  },
+  "extraProps": {
+    "pot-command-worker": "management.server.port=18083\npocoma.v3.worker.worker-name=pot-command-worker\npocoma.v3.worker.command-enabled=true\npocoma.v3.worker.identity-request=false\npocoma.v3.worker.worker-limit=4\npocoma.v3.worker.consumption-limits=Command=4\npocoma.v3.worker.partitions=Command=0|1|2|3\npocoma.v3.worker.write-business.minimum-idle=6\npocoma.v3.worker.write-business.maximum-pool-size=6\npocoma.v3.worker.write-control.minimum-idle=10\npocoma.v3.worker.write-control.maximum-pool-size=10",
+    "identity-worker": "management.server.port=18086\npocoma.v3.worker.worker-name=identity-worker\npocoma.v3.worker.command-enabled=false\npocoma.v3.worker.identity-request=true\npocoma.v3.worker.worker-limit=2\npocoma.v3.worker.consumption-limits=IdentityRequest=2\npocoma.v3.worker.partitions=IdentityRequest=0|1|2|3\npocoma.v3.worker.write-business.minimum-idle=4\npocoma.v3.worker.write-business.maximum-pool-size=4\npocoma.v3.worker.write-control.minimum-idle=8\npocoma.v3.worker.write-control.maximum-pool-size=8",
+    "results-worker": "pocoma.v3.worker.worker-limit=4\npocoma.v3.worker.consumption-limits=MaterializeCommandResult=3,MaterializeIdentityRequestResult=2\npocoma.v3.worker.write-source-read.minimum-idle=6\npocoma.v3.worker.write-source-read.maximum-pool-size=6\npocoma.v3.worker.read-business.minimum-idle=6\npocoma.v3.worker.read-business.maximum-pool-size=6\npocoma.v3.worker.read-control.minimum-idle=10\npocoma.v3.worker.read-control.maximum-pool-size=10",
+    "business-read-worker": "pocoma.v3.worker.worker-limit=4\npocoma.v3.worker.write-source-read.minimum-idle=6\npocoma.v3.worker.write-source-read.maximum-pool-size=6\npocoma.v3.worker.read-business.minimum-idle=6\npocoma.v3.worker.read-business.maximum-pool-size=6\npocoma.v3.worker.read-control.minimum-idle=10\npocoma.v3.worker.read-control.maximum-pool-size=10"
+  }
+}

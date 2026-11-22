@@ -1,6 +1,8 @@
 package com.kartaguez.pocoma.infra.postgres.write.identity;
 
+import com.kartaguez.pocoma.contract.consumption.wakeup.WakeupPublisher;
 import com.kartaguez.pocoma.contract.writeadmission.IdentityRequest;
+import com.kartaguez.pocoma.domain.consumption.ConsumableFamily;
 import com.kartaguez.pocoma.domain.identity.ExternalIdentity;
 import com.kartaguez.pocoma.domain.identity.*;
 import com.kartaguez.pocoma.engine.write.identity.IdentityRequestStore;
@@ -21,10 +23,19 @@ public final class JdbcIdentityRequestStore implements IdentityRequestStore {
     private final DataSource source;
     private final JdbcTemplate jdbc;
     private final SpringAttemptTransactions transactions;
+    private final WakeupPublisher wakeupPublisher;
 
     public JdbcIdentityRequestStore(DataSource source, SpringAttemptTransactions transactions) {
+        this(source, transactions, WakeupPublisher.NOOP);
+    }
+
+    public JdbcIdentityRequestStore(
+            DataSource source,
+            SpringAttemptTransactions transactions,
+            WakeupPublisher wakeupPublisher) {
         this.source = Objects.requireNonNull(source);
         this.transactions = Objects.requireNonNull(transactions);
+        this.wakeupPublisher = wakeupPublisher == null ? WakeupPublisher.NOOP : wakeupPublisher;
         transactions.requireSource(source);
         jdbc = new JdbcTemplate(source);
     }
@@ -318,7 +329,21 @@ values (?,?,?,?,?,?,?,?::jsonb,?) on conflict(request_id) do nothing
                     SpringAttemptTransactions.closePublication(source);
                     if (!events.isEmpty()) position("IDENTITY", events);
                     position("IDENTITY_COMPLETION", List.of(completion));
+                    scheduleWakeupAfterCommit(List.copyOf(events), completion);
                     return null;
+                });
+    }
+
+    private void scheduleWakeupAfterCommit(List<UUID> identityEvents, UUID completion) {
+        if (wakeupPublisher == WakeupPublisher.NOOP) return;
+        SpringAttemptTransactions.afterCommit(
+                source,
+                () -> {
+                    for (UUID evt : identityEvents) {
+                        wakeupPublisher.publishForId(ConsumableFamily.IDENTITY_EVENT, evt);
+                    }
+                    wakeupPublisher.publishForId(
+                            ConsumableFamily.IDENTITY_COMPLETION_EVENT, completion);
                 });
     }
 

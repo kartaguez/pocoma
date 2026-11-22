@@ -342,6 +342,36 @@ public record MaterializeSettings(
         }
         if (Set.of("business-read-worker", "pocoma-business-read-worker").contains(name)) {
             validateBusinessWorkerReads(reads);
+            return;
+        }
+        if (Set.of("critical-read-worker", "pocoma-critical-read-worker").contains(name)) {
+            validateCriticalReadWorkerReads(reads);
+            return;
+        }
+        if (Set.of("pot-read-worker", "pocoma-pot-read-worker").contains(name)) {
+            validatePotReadWorkerReads(reads);
+        }
+    }
+
+    private static void validateCriticalReadWorkerReads(List<String> reads) {
+        var criticalTypes =
+                Set.of(
+                        "MaterializeCommandResult",
+                        "MaterializeIdentityRequestResult",
+                        "MaterializeCurrentBinding");
+        if (!criticalTypes.containsAll(reads) || !reads.containsAll(criticalTypes)) {
+            throw new IllegalArgumentException(
+                    "Critical READ worker (T1A) must activate exclusively MaterializeCommandResult,"
+                            + " MaterializeIdentityRequestResult and MaterializeCurrentBinding");
+        }
+    }
+
+    private static void validatePotReadWorkerReads(List<String> reads) {
+        if (reads.contains("MaterializeCommandResult")
+                || reads.contains("MaterializeIdentityRequestResult")
+                || reads.contains("MaterializeCurrentBinding")) {
+            throw new IllegalArgumentException(
+                    "Pot READ worker (T1A) cannot activate critical result or binding projections");
         }
     }
 

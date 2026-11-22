@@ -177,6 +177,9 @@ def _boot_distribution_stack(rt, path, m, boot_spec):
     rt.compose(path, m, 'up', '-d', 'keycloak', log=evidence / 'keycloak-up.log')
     rt.await_check(lambda: rt.discovery(m['issuer']), 150, 'KEYCLOAK_OIDC_DISCOVERY_UNAVAILABLE')
     auth_checks, tokens = rt.identities(m['issuer'], lambda data: rt.save(evidence / 'keycloak-auth.json', data))
+    extra_infra = ['nats'] if m.get('wakeupMode', 'nats') == 'nats' else []
+    if extra_infra:
+        rt.compose(path, m, 'up', '-d', *extra_infra, log=evidence / 'nats-up.log')
     if force_recreate_runtimes:
         recreate = tuple(rt.RUNTIMES) if force_recreate_runtimes is True else tuple(force_recreate_runtimes)
         remaining = [r for r in rt.RUNTIMES if r not in recreate]
@@ -226,6 +229,70 @@ def _verify_canary_and_observability(rt, path, m, verify_spec):
     return tools, canary_result, grafana_diagnostics
 
 
+WAKEUP_STATE_LABELS = {0: 'NOOP', 1: 'CONNECTED', 2: 'DEGRADED'}
+
+
+def wakeup_diagnostics(rt, path, m):
+    """Inspect NATS broker state and runtime wakeup telemetry without conflating with Pocoma business availability."""
+    configured = m.get('wakeupMode', 'nats')
+    broker = dict(configured=(configured == 'nats'), state='NOT_CONFIGURED', healthy=False, available=False)
+    if configured == 'nats' and (path / 'compose.json').exists():
+        try:
+            cid = rt.compose(path, m, 'ps', '-aq', 'nats', timeout=10)
+            if cid:
+                info, = rt.docker_json('inspect', cid)
+                st = info.get('State', {})
+                running = bool(st.get('Running'))
+                health = st.get('Health', {}).get('Status')
+                broker.update(
+                    state=st.get('Status', 'unknown'),
+                    running=running,
+                    health=health or ('running' if running else 'stopped'),
+                    healthy=(running and health in (None, 'healthy')),
+                    available=(running and health in (None, 'healthy')),
+                )
+            else:
+                broker.update(state='ABSENT', running=False, health='absent', healthy=False, available=False)
+        except Exception:
+            broker.update(state='UNOBSERVABLE', running=False, health='unknown', healthy=False, available=False)
+    runtimes = {}
+    for name in getattr(rt, 'WAKEUP_RUNTIMES', ()):
+        port = m.get('ports', {}).get(name)
+        text = rt.scrape_prometheus_text(port) if port else None
+        if text is None:
+            runtimes[name] = dict(state='UNOBSERVABLE')
+            continue
+        code_raw = rt.recovery.metric(text, 'pocoma_v3_wakeup_state')
+        code = int(code_raw) if code_raw is not None else None
+        runtimes[name] = dict(
+            state=WAKEUP_STATE_LABELS.get(code, 'UNKNOWN'),
+            published=rt.recovery.metric(text, 'pocoma_v3_wakeup_published_total'),
+            received=rt.recovery.metric(text, 'pocoma_v3_wakeup_received_total'),
+            coalesced=rt.recovery.metric(text, 'pocoma_v3_wakeup_coalesced_total'),
+            useful=rt.recovery.metric(text, 'pocoma_v3_wakeup_useful_total'),
+            spurious=rt.recovery.metric(text, 'pocoma_v3_wakeup_spurious_total'),
+            ignoredNoLease=rt.recovery.metric(text, 'pocoma_v3_wakeup_ignored_no_lease_total'),
+            fallbackTransitions=rt.recovery.metric(text, 'pocoma_v3_wakeup_fallback_transitions_total'),
+            reconnects=rt.recovery.metric(text, 'pocoma_v3_wakeup_reconnects_total'),
+            publishErrors=rt.recovery.metric(text, 'pocoma_v3_wakeup_publish_errors_total'),
+        )
+    effective_states = {v.get('state') for v in runtimes.values()}
+    effective_mode = (
+        'NOOP' if configured == 'noop'
+        else 'CONNECTED' if effective_states == {'CONNECTED'} and broker['available']
+        else 'DEGRADED' if 'DEGRADED' in effective_states or not broker['available']
+        else 'MIXED'
+    )
+    return dict(
+        topology=m.get('topology', 'T1A'),
+        configuredMode=configured,
+        effectiveMode=effective_mode,
+        broker=broker,
+        brokerAvailable=broker['available'],
+        runtimes=runtimes,
+    )
+
+
 def start_distribution(rt, path, m, evidence, *, force_recreate_runtimes=None):
     before, credentials = _prepare_distribution_runtime(rt, path, m, evidence)
     auth_checks, tokens = _boot_distribution_stack(rt, path, m, (evidence, credentials, force_recreate_runtimes))
@@ -241,6 +308,7 @@ def start_distribution(rt, path, m, evidence, *, force_recreate_runtimes=None):
     m.update(state='RUNNING', startedAt=time.time())
     rt.save(path / 'manifest.json', m)
     result = rt.verdict(checks, True, tools, canary_result)
+    result['wakeup'] = wakeup_diagnostics(rt, path, m)
     if grafana_diagnostics:
         result['grafanaDiagnostics'] = grafana_diagnostics
     return result
@@ -329,6 +397,7 @@ def status(rt, path, m, evidence=None, diagnostic_run=None):
     proof = dict(proof, generationQualified=freshness['generationQualified']) if proof else None
     tools = rt.observability(m)
     result = rt.verdict(checks, freshness['demonstrated'], tools, proof)
+    result['wakeup'] = wakeup_diagnostics(rt, path, m)
     _enrich_status_result(rt, result, (checks, freshness, history, after, proof, content_valid, tools, late, auth_proof, grafana_diagnostics))
     return result
 

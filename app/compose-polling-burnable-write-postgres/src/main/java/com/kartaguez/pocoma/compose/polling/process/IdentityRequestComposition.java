@@ -25,10 +25,32 @@ public final class IdentityRequestComposition {
             LifecycleSettings settings,
             WorkerCapacity capacity,
             ConsumptionObservation observation) {
+        return assemble(
+                business,
+                effects,
+                control,
+                technical,
+                guard,
+                settings,
+                capacity,
+                observation,
+                com.kartaguez.pocoma.contract.consumption.wakeup.WakeupPublisher.NOOP);
+    }
+
+    public static ConsumptionEngine assemble(
+            HikariDataSource business,
+            SpringAttemptTransactions effects,
+            HikariDataSource control,
+            SpringAttemptTransactions technical,
+            BootstrapGuard guard,
+            LifecycleSettings settings,
+            WorkerCapacity capacity,
+            ConsumptionObservation observation,
+            com.kartaguez.pocoma.contract.consumption.wakeup.WakeupPublisher wakeupPublisher) {
         effects.requireSource(business);
         guard.validateIdentitySource(business);
         guard.validateIdentitySource(control);
-        var requests = new JdbcIdentityRequestStore(business, effects);
+        var requests = new JdbcIdentityRequestStore(business, effects, wakeupPublisher);
         requests.requireRetiredLinksDrained();
         var participant =
                 new ExecuteIdentityRequest(

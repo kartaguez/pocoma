@@ -2,6 +2,7 @@ package com.kartaguez.pocoma.compose.polling.process;
 
 import com.kartaguez.pocoma.contract.consumption.invocation.*;
 import com.kartaguez.pocoma.contract.consumption.spi.*;
+import com.kartaguez.pocoma.contract.consumption.wakeup.*;
 import com.kartaguez.pocoma.domain.consumption.*;
 import com.kartaguez.pocoma.orchestrator.consumption.*;
 import com.kartaguez.pocoma.supra.polling.consumption.ConsumptionWorker;
@@ -9,6 +10,7 @@ import com.kartaguez.pocoma.infra.postgres.core.bootstrap.*;
 import com.kartaguez.pocoma.infra.postgres.core.consumption.*;
 import com.kartaguez.pocoma.infra.postgres.core.history.*;
 import com.kartaguez.pocoma.infra.observability.micrometer.*;
+import com.kartaguez.pocoma.infra.wakeup.nats.NatsWakeupTransport;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
@@ -97,8 +99,16 @@ public class ProcessComposeConfiguration {
         if (observation instanceof MicrometerConsumptionObservation metrics) {
             metrics.bindCapacity(capacity, settings.capacityLimits());
         }
+        var wakeup = buildWakeup(env, settings, registry);
         var bindings =
-                buildBindings(resources, settings, env, capacity, observation, tracker);
+                buildBindings(
+                        resources,
+                        settings,
+                        env,
+                        capacity,
+                        observation,
+                        tracker,
+                        wakeup.publisher());
         var worker =
                 new ConsumptionWorker(
                         bindings,
@@ -106,13 +116,77 @@ public class ProcessComposeConfiguration {
                         settings.capacityLimits(),
                         settings.polling(),
                         observation,
-                        resources::close,
+                        () -> {
+                            try {
+                                wakeup.publisher().close();
+                            } catch (Throwable ignored) {
+                            }
+                            resources.close();
+                        },
                         tracker,
-                        ConsumptionSafety::new);
+                        ConsumptionSafety::new,
+                        wakeup.options());
         resources.bindWorker(worker, capacity);
         if (observation instanceof MicrometerConsumptionObservation metrics) metrics.bind(worker);
         tracker.registerWakeSignal(worker::signal);
         return worker;
+    }
+
+    private record ProcessWakeup(
+            WakeupPublisher publisher, ConsumptionWorker.WakeupOptions options) {}
+
+    private static ProcessWakeup buildWakeup(
+            Environment env, ProcessSettings settings, Optional<MeterRegistry> registry) {
+        String mode = env.getProperty("pocoma.v3.wakeup.mode", "noop").trim().toLowerCase();
+        WakeupMetrics metrics =
+                registry.<WakeupMetrics>map(
+                                r ->
+                                        new MicrometerWakeupMetrics(
+                                                r,
+                                                io.micrometer.core.instrument.Tags.of(
+                                                        "role", "process")))
+                        .orElse(WakeupMetrics.NOOP);
+        if ("noop".equals(mode) || mode.isEmpty()) {
+            metrics.onStateChanged(WakeupState.NOOP);
+            return new ProcessWakeup(
+                    WakeupPublisher.NOOP,
+                    new ConsumptionWorker.WakeupOptions(
+                            WakeupSubscriber.NOOP,
+                            settings.polling().maxPoll(),
+                            settings.polling().maxPoll(),
+                            settings.polling().maxPoll(),
+                            metrics));
+        }
+        if (!"nats".equals(mode)) {
+            throw new IllegalStateException("Unsupported wakeup mode: " + mode);
+        }
+        var strategy =
+                CoalescingWakeupPublisher.Strategy.valueOf(
+                        env.getProperty("pocoma.v3.wakeup.coalesce-strategy", "IN_FLIGHT_DEDUP")
+                                .trim()
+                                .toUpperCase());
+        long windowMs = env.getProperty("pocoma.v3.wakeup.coalesce-window-ms", Long.class, 1L);
+        Duration reconcilePoll =
+                Duration.ofMillis(
+                        env.getProperty("pocoma.v3.wakeup.reconcile-poll-ms", Long.class, 2000L));
+        Duration fallbackMaxPoll =
+                Duration.ofMillis(
+                        env.getProperty(
+                                "pocoma.v3.wakeup.fallback-max-poll-ms",
+                                Long.class,
+                                settings.polling().maxPoll().toMillis()));
+        Duration consumptionMaxPoll =
+                Duration.ofMillis(
+                        env.getProperty(
+                                "pocoma.v3.wakeup.consumption-max-poll-ms", Long.class, 500L));
+        var transport =
+                new NatsWakeupTransport(
+                        NatsWakeupTransport.TransportOptions.fromProperties(env::getProperty));
+        var publisher = transport.createPublisher(strategy, windowMs, metrics);
+        return new ProcessWakeup(
+                publisher,
+                new ConsumptionWorker.WakeupOptions(
+                        transport, reconcilePoll, fallbackMaxPoll, consumptionMaxPoll, metrics));
     }
 
     private static com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation
@@ -139,7 +213,8 @@ public class ProcessComposeConfiguration {
             WorkerCapacity capacity,
             com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation
                     observation,
-            StageHandoffTracker tracker) {
+            StageHandoffTracker tracker,
+            WakeupPublisher wakeupPublisher) {
         var discoverySettings =
                 new DiscoverySettings(
                         128,
@@ -152,7 +227,16 @@ public class ProcessComposeConfiguration {
         for (String name : List.of("IdentityRequest", "Command")) {
             if (!settings.consumptionLimits().containsKey(name)) continue;
             var definition = ProcessSettings.definition(name);
-            var engine = buildEngine(name, resources, settings, env, capacity, observation, tracker);
+            var engine =
+                    buildEngine(
+                            name,
+                            resources,
+                            settings,
+                            env,
+                            capacity,
+                            observation,
+                            tracker,
+                            wakeupPublisher);
             var discovery =
                     ConsumptionDiscoveryComposition.requests(
                             resources.guard,
@@ -179,7 +263,8 @@ public class ProcessComposeConfiguration {
             WorkerCapacity capacity,
             com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation
                     observation,
-            StageHandoffTracker tracker) {
+            StageHandoffTracker tracker,
+            WakeupPublisher wakeupPublisher) {
         if (name.equals("IdentityRequest")) {
             return IdentityRequestComposition.assemble(
                     resources.writeBusiness,
@@ -189,7 +274,8 @@ public class ProcessComposeConfiguration {
                     resources.guard,
                     settings.lifecycle(),
                     capacity,
-                    observation);
+                    observation,
+                    wakeupPublisher);
         }
         var keys = InvitationConfiguration.keys(env);
         if (keys != null) requireInvitation(resources.writeBusiness);
@@ -210,7 +296,8 @@ public class ProcessComposeConfiguration {
                 capacity,
                 observation,
                 keys == null ? null : new JdbcInvitationStore(resources.writeBusiness, keys),
-                tracker::linkCommandEvents);
+                tracker::linkCommandEvents,
+                wakeupPublisher);
     }
     @Bean public SmartLifecycle processLifecycle(@Qualifier("processResources") ProcessResources resources,
             @Qualifier("processWorker") Optional<ConsumptionWorker> worker) {

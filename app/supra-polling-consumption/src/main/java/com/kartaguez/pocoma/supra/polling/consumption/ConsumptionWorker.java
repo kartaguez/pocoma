@@ -7,6 +7,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.RejectedExecutionException;
@@ -14,6 +15,7 @@ import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 import com.kartaguez.pocoma.contract.consumption.invocation.CapacityView;
 import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionProtocol;
@@ -21,6 +23,10 @@ import com.kartaguez.pocoma.contract.consumption.invocation.ProtocolSafety;
 import com.kartaguez.pocoma.contract.consumption.observation.AttemptObservation;
 import com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation;
 import com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation.Outcome;
+import com.kartaguez.pocoma.contract.consumption.wakeup.WakeupKey;
+import com.kartaguez.pocoma.contract.consumption.wakeup.WakeupMetrics;
+import com.kartaguez.pocoma.contract.consumption.wakeup.WakeupState;
+import com.kartaguez.pocoma.contract.consumption.wakeup.WakeupSubscriber;
 import com.kartaguez.pocoma.domain.consumption.ConsumptionDefinition;
 import com.kartaguez.pocoma.domain.consumption.ConsumptionId;
 import com.kartaguez.pocoma.supra.polling.consumption.wait.ConditionConsumptionWaiter;
@@ -172,11 +178,35 @@ public final class ConsumptionWorker implements com.kartaguez.pocoma.contract.co
 
     final Object monitor = new Object();
     final List<Binding> bindings;
+    public record WakeupOptions(
+            WakeupSubscriber subscriber,
+            Duration reconcilePoll,
+            Duration fallbackMaxPoll,
+            Duration consumptionMaxPoll,
+            WakeupMetrics metrics) {
+        public WakeupOptions {
+            subscriber = subscriber == null ? WakeupSubscriber.NOOP : subscriber;
+            metrics = metrics == null ? WakeupMetrics.NOOP : metrics;
+        }
+
+        public static WakeupOptions noop(Settings settings) {
+            return new WakeupOptions(
+                    WakeupSubscriber.NOOP,
+                    settings.maxPoll(),
+                    settings.maxPoll(),
+                    settings.maxPoll(),
+                    WakeupMetrics.NOOP);
+        }
+    }
+
     final CapacityView capacity;
     final ProtocolSafety safety;
     final Map<ConsumptionId, Integer> limits;
     final Settings settings;
     final ConsumptionObservation observation;
+    final WakeupOptions wakeupOptions;
+    final WakeupMetrics wakeupMetrics;
+    final AtomicReference<WakeupState> wakeupState = new AtomicReference<>(WakeupState.NOOP);
     final Map<Pair, LeaseEntry> leases = new LinkedHashMap<>();
     private final Map<Pair, Object> pairLocks = new ConcurrentHashMap<>();
     private final Map<Pair, Long> cleanUntilNanos = new ConcurrentHashMap<>();
@@ -230,6 +260,28 @@ public final class ConsumptionWorker implements com.kartaguez.pocoma.contract.co
                 observation,
                 closeResources,
                 attemptHook,
+                safetyFactory,
+                WakeupOptions.noop(settings));
+    }
+
+    public ConsumptionWorker(
+            List<Binding> bindings,
+            CapacityView capacity,
+            Map<ConsumptionId, Integer> limits,
+            Settings settings,
+            ConsumptionObservation observation,
+            Runnable closeResources,
+            AttemptObservation attemptHook,
+            ProtocolSafety.Factory safetyFactory,
+            WakeupOptions wakeupOptions) {
+        this(
+                bindings,
+                capacity,
+                limits,
+                settings,
+                observation,
+                closeResources,
+                attemptHook,
                 new ThreadPoolExecutor(
                         capacity.workerLimit(),
                         capacity.workerLimit(),
@@ -237,7 +289,9 @@ public final class ConsumptionWorker implements com.kartaguez.pocoma.contract.co
                         TimeUnit.MILLISECONDS,
                         new SynchronousQueue<>(),
                         namedFactory("v3-attempt"),
-                        new ThreadPoolExecutor.AbortPolicy()), safetyFactory);
+                        new ThreadPoolExecutor.AbortPolicy()),
+                safetyFactory,
+                wakeupOptions);
     }
 
     ConsumptionWorker(
@@ -257,7 +311,9 @@ public final class ConsumptionWorker implements com.kartaguez.pocoma.contract.co
                 observation,
                 closeResources,
                 AttemptObservation.NOOP,
-                executor, safetyFactory);
+                executor,
+                safetyFactory,
+                WakeupOptions.noop(settings));
     }
 
     ConsumptionWorker(
@@ -270,6 +326,30 @@ public final class ConsumptionWorker implements com.kartaguez.pocoma.contract.co
             AttemptObservation attemptHook,
             ThreadPoolExecutor executor,
             ProtocolSafety.Factory safetyFactory) {
+        this(
+                bindings,
+                capacity,
+                limits,
+                settings,
+                observation,
+                closeResources,
+                attemptHook,
+                executor,
+                safetyFactory,
+                WakeupOptions.noop(settings));
+    }
+
+    ConsumptionWorker(
+            List<Binding> bindings,
+            CapacityView capacity,
+            Map<ConsumptionId, Integer> limits,
+            Settings settings,
+            ConsumptionObservation observation,
+            Runnable closeResources,
+            AttemptObservation attemptHook,
+            ThreadPoolExecutor executor,
+            ProtocolSafety.Factory safetyFactory,
+            WakeupOptions wakeupOptions) {
         this.bindings = List.copyOf(bindings);
         this.capacity = Objects.requireNonNull(capacity);
         this.safety = Objects.requireNonNull(safetyFactory).create(
@@ -277,6 +357,8 @@ public final class ConsumptionWorker implements com.kartaguez.pocoma.contract.co
         this.limits = Map.copyOf(limits);
         this.settings = Objects.requireNonNull(settings);
         this.observation = Objects.requireNonNull(observation);
+        this.wakeupOptions = wakeupOptions == null ? WakeupOptions.noop(settings) : wakeupOptions;
+        this.wakeupMetrics = this.wakeupOptions.metrics();
         this.closeResources = Objects.requireNonNull(closeResources);
         this.attemptHook = Objects.requireNonNull(attemptHook);
         this.executor = Objects.requireNonNull(executor);
@@ -332,8 +414,50 @@ public final class ConsumptionWorker implements com.kartaguez.pocoma.contract.co
             throw failure;
         } finally {
             activated.countDown();
+            startWakeupSubscriber();
             signal();
         }
+    }
+
+    private void startWakeupSubscriber() {
+        var keys = new HashSet<WakeupKey>();
+        for (var b : bindings) {
+            for (int p : b.partitions()) {
+                if (p >= 0 && p < WakeupKey.DEFAULT_PARTITION_COUNT) {
+                    keys.add(new WakeupKey(b.definition().family(), p));
+                }
+            }
+        }
+        try {
+            wakeupOptions
+                    .subscriber()
+                    .start(
+                            Set.copyOf(keys),
+                            key -> discovery.onExternalWakeup(key.family(), key.partition()),
+                            this::onWakeupStateChanged);
+        } catch (Throwable ignored) {
+            onWakeupStateChanged(WakeupState.DEGRADED);
+        }
+    }
+
+    private void onWakeupStateChanged(WakeupState next) {
+        if (next == null) return;
+        WakeupState prev = wakeupState.getAndSet(next);
+        wakeupMetrics.onStateChanged(next);
+        if (next == WakeupState.DEGRADED && prev != WakeupState.DEGRADED) {
+            wakeupMetrics.onFallbackTransition();
+            discoveryWait.signal();
+        } else if (next == WakeupState.CONNECTED && prev != WakeupState.CONNECTED) {
+            if (prev == WakeupState.DEGRADED) {
+                wakeupMetrics.onReconnect();
+            }
+            discovery.onExternalReconnect();
+            consumptionWait.signal();
+        }
+    }
+
+    public WakeupState wakeupState() {
+        return wakeupState.get();
     }
 
     private void launchWorkerThreads() {
@@ -736,7 +860,15 @@ public final class ConsumptionWorker implements com.kartaguez.pocoma.contract.co
             this.remaining = tour;
         }
 
-        Duration nextDelay(boolean progressed) {
+        Duration nextDelay(boolean progressed, boolean isDiscovery) {
+            if (isDiscovery && discovery.hasPendingWakeup()) {
+                backoff = settings.minPoll();
+                return Duration.ZERO;
+            }
+            Duration maxPoll = effectiveMaxPoll(isDiscovery);
+            if (backoff.compareTo(maxPoll) > 0) {
+                backoff = maxPoll;
+            }
             Duration delay = stepPoll;
             if (progressed) {
                 delay = Duration.ZERO;
@@ -750,13 +882,24 @@ public final class ConsumptionWorker implements com.kartaguez.pocoma.contract.co
                 } else {
                     delay = backoff;
                     Duration doubled = backoff.multipliedBy(2);
-                    backoff =
-                            doubled.compareTo(settings.maxPoll()) > 0
-                                    ? settings.maxPoll()
-                                    : doubled;
+                    backoff = doubled.compareTo(maxPoll) > 0 ? maxPoll : doubled;
                 }
             }
             return delay;
+        }
+
+        private Duration effectiveMaxPoll(boolean isDiscovery) {
+            WakeupState st = wakeupState.get();
+            if (isDiscovery) {
+                return switch (st) {
+                    case CONNECTED -> wakeupOptions.reconcilePoll();
+                    case DEGRADED -> wakeupOptions.fallbackMaxPoll();
+                    case NOOP -> settings.maxPoll();
+                };
+            }
+            return st == WakeupState.CONNECTED
+                    ? wakeupOptions.consumptionMaxPoll()
+                    : settings.maxPoll();
         }
     }
 
@@ -790,7 +933,7 @@ public final class ConsumptionWorker implements com.kartaguez.pocoma.contract.co
         try {
             boolean progressed = pass.getAsBoolean();
             returned = true;
-            return schedule.nextDelay(progressed);
+            return schedule.nextDelay(progressed, isDiscovery);
         } catch (RuntimeException fault) {
             boolean ready =
                     isDiscovery ? discovery.hasReadyBinding() : consumption.hasReadyBinding();
@@ -872,6 +1015,10 @@ public final class ConsumptionWorker implements com.kartaguez.pocoma.contract.co
     }
 
     private void completeDrain() throws InterruptedException {
+        try {
+            wakeupOptions.subscriber().close();
+        } catch (Throwable ignored) {
+        }
         renewals.stopAndJoin();
         for (var t : loopThreads) t.join();
         closeResources.run();

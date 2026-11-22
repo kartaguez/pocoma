@@ -1,0 +1,22 @@
+{
+  "description": "T0 - Reference A2 (3 worker runtimes: command, results, business-read)",
+  "cpus": {
+    "http-write": 0.5,
+    "http-read": 0.75,
+    "command-worker": 0.75,
+    "results-worker": 0.75,
+    "business-read-worker": 1.25
+  },
+  "mem": {
+    "http-write": "512m",
+    "http-read": "768m",
+    "command-worker": "512m",
+    "results-worker": "512m",
+    "business-read-worker": "1024m"
+  },
+  "extraProps": {
+    "command-worker": "pocoma.v3.worker.worker-limit=4\npocoma.v3.worker.consumption-limits=Command=3,IdentityRequest=2\npocoma.v3.worker.write-business.minimum-idle=6\npocoma.v3.worker.write-business.maximum-pool-size=6\npocoma.v3.worker.write-control.minimum-idle=10\npocoma.v3.worker.write-control.maximum-pool-size=10",
+    "results-worker": "pocoma.v3.worker.worker-limit=4\npocoma.v3.worker.consumption-limits=MaterializeCommandResult=3,MaterializeIdentityRequestResult=2\npocoma.v3.worker.write-source-read.minimum-idle=6\npocoma.v3.worker.write-source-read.maximum-pool-size=6\npocoma.v3.worker.read-business.minimum-idle=6\npocoma.v3.worker.read-business.maximum-pool-size=6\npocoma.v3.worker.read-control.minimum-idle=10\npocoma.v3.worker.read-control.maximum-pool-size=10",
+    "business-read-worker": "pocoma.v3.worker.worker-limit=4\npocoma.v3.worker.write-source-read.minimum-idle=6\npocoma.v3.worker.write-source-read.maximum-pool-size=6\npocoma.v3.worker.read-business.minimum-idle=6\npocoma.v3.worker.read-business.maximum-pool-size=6\npocoma.v3.worker.read-control.minimum-idle=10\npocoma.v3.worker.read-control.maximum-pool-size=10"
+  }
+}

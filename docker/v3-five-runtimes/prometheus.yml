@@ -17,15 +17,15 @@ scrape_configs:
     static_configs:
       - targets: ["pocoma-command-worker:18083"]
 
-  - job_name: pocoma-results-worker
+  - job_name: pocoma-critical-read-worker
     metrics_path: /actuator/prometheus
     static_configs:
-      - targets: ["pocoma-results-worker:18084"]
+      - targets: ["pocoma-critical-read-worker:18084"]
 
-  - job_name: pocoma-business-read-worker
+  - job_name: pocoma-pot-read-worker
     metrics_path: /actuator/prometheus
     static_configs:
-      - targets: ["pocoma-business-read-worker:18085"]
+      - targets: ["pocoma-pot-read-worker:18085"]
 
   - job_name: pocoma-http-read
     metrics_path: /actuator/prometheus
