@@ -22,7 +22,7 @@ from urllib.request import urlopen
 
 from auth import interactive, login
 from keycloak import LOCAL_PASSWORD, LOCAL_USERS, KeycloakFailure, access, discovery, identities
-from bootstrap import fingerprint, initialize, ROLES
+from bootstrap import AVAILABILITY_MODULE, SETUP_SCRIPT, fingerprint, initialize, ROLES
 from public_api import PublicAPI, canary, seed
 import grafana
 import recovery
@@ -80,11 +80,11 @@ def read(path):
 def source_hash():
     # Product inputs, configs, SQL catalogue, oracles and distribution toolchain.
     paths = run(['git', 'ls-files', 'app', 'docker/v3-five-runtimes', 'scripts/local',
-                 'scripts/operations/setup-v3-database.py', 'scripts/v3', 'scripts/functional-auth-proof.py',
+                 SETUP_SCRIPT, 'scripts/v3', 'scripts/functional-auth-proof.py',
                  'scripts/bruno-v3/package.json', 'scripts/bruno-v3/package-lock.json']).splitlines()
     paths = set(paths) | {str(p.relative_to(ROOT)) for p in (ROOT / 'scripts/local').glob('*.py') if not p.name.startswith('test_')}
     paths |= {str(p.relative_to(ROOT)) for p in (ROOT / 'scripts/bruno-playground').rglob('*') if p.is_file() and not (p.parent.name == 'environments' and p.name.startswith('Instance-'))}
-    paths.update(['pocoma-local', 'scripts/local/toolchain.json', 'docker/keycloak/pocoma-realm.json',
+    paths.update(['pocoma-local', AVAILABILITY_MODULE, 'scripts/local/toolchain.json', 'docker/keycloak/pocoma-realm.json',
                   'scripts/bruno-v3/package.json', 'scripts/bruno-v3/package-lock.json'])
     paths |= {str(p.relative_to(ROOT)) for p in (ROOT / 'docker/grafana').rglob('*') if p.is_file()}
     return hashlib.sha256(''.join(p + ':' + hashlib.sha256((ROOT / p).read_bytes()).hexdigest() + '\n'
@@ -458,7 +458,7 @@ def _check_refresh_baseline(m, evidence):
     if not re.fullmatch(r'[0-9a-f]{40}', baseline):
         raise Refusal('PRE-TOOLING-BASELINE-UNPROVEN')
     protected = ('app', 'docker/v3-five-runtimes', 'docker/keycloak', 'scripts/v3',
-        'scripts/operations/setup-v3-database.py', 'scripts/local/bootstrap.py',
+        SETUP_SCRIPT, AVAILABILITY_MODULE, 'scripts/local/bootstrap.py',
         'scripts/local/keycloak.py', 'scripts/local/auth.py',
         'scripts/bruno-v3/package.json', 'scripts/bruno-v3/package-lock.json')
     try:
@@ -612,11 +612,11 @@ def preflight(path, m, *, record=True):
         raise Refusal('PRE-RESOURCES: Docker >=6GiB')
     # Cached restart needs diagnostic headroom, not a second cold-install budget.
     cached = (HOME_LOCAL / 'builds' / m['inputs'] / 'receipt.json').exists()
-    minimum = 256 * 1024**2 if cached else 2 * 1024**3
-    for reference in IMAGES.values():
-        result = subprocess.run(['docker','image','inspect',reference],capture_output=True,text=True)
-        if result.returncode:
-            minimum = max(minimum, 4 * 1024**3)
+    has_missing = any(
+        subprocess.run(['docker', 'image', 'inspect', reference], capture_output=True, text=True).returncode != 0
+        for reference in IMAGES.values()
+    )
+    minimum = _required_disk_bytes(cached, has_missing)
     free = shutil.disk_usage(ROOT).free
     if record:
         save(path / 'resources.json', dict(dockerMemoryBytes=data['MemTotal'], cpus=data['NCPU'],
@@ -637,7 +637,7 @@ def upgrade_grafana(path, m, evidence):
 def _check_reload_compatibility(baseline, evidence):
     forbidden_roots = (
         'docker/v3-five-runtimes', 'docker/keycloak', 'scripts/v3',
-        'scripts/operations/setup-v3-database.py', 'scripts/local/bootstrap.py',
+        SETUP_SCRIPT, AVAILABILITY_MODULE, 'scripts/local/bootstrap.py',
         'scripts/local/keycloak.py', 'scripts/local/auth.py',
         'scripts/local/public_api.py',
         'scripts/bruno-v3/package.json', 'scripts/bruno-v3/package-lock.json',
@@ -896,6 +896,11 @@ def prepare(command, instance, dry_run=False):
         ownership(m)
 
 
+def _required_disk_bytes(build_cached, has_missing_images):
+    minimum = 256 * 1024**2 if build_cached else 2 * 1024**3
+    return max(minimum, 4 * 1024**3) if has_missing_images else minimum
+
+
 def doctor():
     """Read-only workstation and cache check without creating instance state."""
     safe_tree(HOME_LOCAL)
@@ -910,9 +915,17 @@ def doctor():
         (cached_images if probe.returncode == 0 else missing_images).append(image)
     mem_raw = run(['docker', 'info', '--format', '{{.MemTotal}}'])
     mem_mib = int(mem_raw) // (1024 * 1024) if mem_raw.isdigit() else None
+    free_disk_bytes = shutil.disk_usage(ROOT).free
+    required_disk_bytes = _required_disk_bytes(build_cached, bool(missing_images))
+    disk_sufficient = free_disk_bytes >= required_disk_bytes
+    disk_diagnostic = (
+        None
+        if disk_sufficient
+        else f'PRE-DISK: requiredBytes={required_disk_bytes}, availableBytes={free_disk_bytes}'
+    )
     return dict(
-        state='READY',
-        exit=0,
+        state='READY' if disk_sufficient else 'NOT_READY',
+        exit=0 if disk_sufficient else 2,
         readOnly=True,
         python='.'.join(str(v) for v in sys.version_info[:3]),
         inputs=inputs,
@@ -923,6 +936,10 @@ def doctor():
         dockerMemoryMiB=mem_mib,
         recommendedMemoryMiB=8192,
         memorySufficient=(mem_mib is None or mem_mib >= 7680),
+        freeDiskBytes=free_disk_bytes,
+        requiredDiskBytes=required_disk_bytes,
+        diskSufficient=disk_sufficient,
+        diskDiagnostic=disk_diagnostic,
     )
 
 

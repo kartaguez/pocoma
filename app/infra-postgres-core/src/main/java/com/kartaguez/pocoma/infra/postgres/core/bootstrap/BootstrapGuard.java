@@ -148,27 +148,29 @@ public final class BootstrapGuard {
     }
 
     private static final Map<String, Set<String>> READ_UPDATES =
-            Map.of(
-                    "read_subobject_version",
-                    Set.of(),
-                    "read_pot_version",
-                    Set.of(),
-                    "read_current_pot",
-                    Set.of("pot_version"),
-                    "read_pot_balance",
-                    Set.of(),
-                    "read_pot_visibility_state",
-                    Set.of("materialized_version"),
-                    "read_user_pot",
-                    Set.of("pot_version", "visible"),
-                    "read_current_binding",
-                    Set.of("eui_version", "user_id", "binding_token"),
-                    "read_command_result",
-                    Set.of(),
-                    "read_identity_request_result",
-                    Set.of(),
-                    "read_current_invitation",
-                    Set.of("version", "expires_at", "protected_link"));
+            Map.ofEntries(
+                    Map.entry("read_subobject_version", Set.of()),
+                    Map.entry("read_pot_user_set", Set.of()),
+                    Map.entry("read_pot_version_node", Set.of()),
+                    Map.entry("read_pot_version", Set.of()),
+                    Map.entry("read_current_pot", Set.of("pot_version")),
+                    Map.entry("read_pot_shareholder_set", Set.of()),
+                    Map.entry("read_pot_balance_content", Set.of()),
+                    Map.entry("read_pot_balance_aggregate_content", Set.of()),
+                    Map.entry("read_pot_balance", Set.of()),
+                    Map.entry("read_pot_balance_aggregate", Set.of()),
+                    Map.entry("read_pot_visibility_state", Set.of("materialized_version")),
+                    Map.entry("read_user_pot", Set.of("pot_version", "visible")),
+                    Map.entry("read_current_binding", Set.of("eui_version", "user_id", "binding_token")),
+                    Map.entry("read_command_result", Set.of()),
+                    Map.entry("read_identity_request_result", Set.of()),
+                    Map.entry("read_current_invitation", Set.of("version", "expires_at", "protected_link")));
+
+    private static final Map<String, Set<String>> READ_AVAILABILITY_UPDATES = Map.of(
+            "read_availability_counter", Set.of("position"),
+            "read_availability_event", Set.of(),
+            "read_current_availability", Set.of("position", "logical_version"),
+            "read_availability_effects", Set.of());
 
     private record TableRightsSpec(
             boolean allowInsert, boolean allowDelete, String ownerQuery) {}
@@ -245,13 +247,13 @@ public final class BootstrapGuard {
                     table,
                     new TableRightsSpec(true, false, pgTablesOwnerQuery(table)),
                     "unsafe READ business table rights: ");
-            verifyReadBusinessColumnRights(s, table, entry.getValue());
+            verifyReadBusinessColumnRights(s, table, entry.getValue(), true);
             verifyNoPublicAcl(s, table, "PUBLIC READ business grant: " + table);
         }
     }
 
     private static void verifyReadBusinessColumnRights(
-            Statement s, String table, Set<String> updatableColumns) throws SQLException {
+            Statement s, String table, Set<String> updatableColumns, boolean allowInsert) throws SQLException {
         String sql =
                 "select a.attname,has_column_privilege(c.oid,a.attnum,'SELECT'),"
                         + "has_column_privilege(c.oid,a.attnum,'INSERT'),has_column_privilege(c.oid,a.attnum,'UPDATE'),has_column_privilege(c.oid,a.attnum,'REFERENCES')"
@@ -263,7 +265,7 @@ public final class BootstrapGuard {
             while (rows.next()) {
                 boolean valid =
                         rows.getBoolean(2)
-                                && rows.getBoolean(3)
+                                && rows.getBoolean(3) == allowInsert
                                 && rows.getBoolean(4) == updatableColumns.contains(rows.getString(1))
                                 && !rows.getBoolean(5);
                 require(valid, "unsafe READ business column rights: " + table + "." + rows.getString(1));
@@ -346,6 +348,37 @@ public final class BootstrapGuard {
                     profile);
         } catch (SQLException failure) {
             throw new IllegalStateException("actual lifecycle source refused", failure);
+        }
+    }
+
+    /** Production materializers require the complete C3 schema on their effects authority. */
+    public void validateReadAvailabilitySource(DataSource source) {
+        ensureReadAuthorityAvailable(Authority.READ);
+        try (var connection = source.getConnection()) {
+            connection.setReadOnly(true);
+            connection.setAutoCommit(false);
+            connection.setTransactionIsolation(Connection.TRANSACTION_REPEATABLE_READ);
+            try (var statement = connection.createStatement()) {
+                verifyTargetIdentity(statement, new Target(source, read.database(), read.schema(), read.runtimeRole()));
+                verifyRoleNotPrivileged(statement);
+                try (var row = statement.executeQuery("select read_availability_schema_valid()")) {
+                    require(row.next() && row.getBoolean(1), "incomplete READ availability catalog");
+                }
+                for (var entry : READ_AVAILABILITY_UPDATES.entrySet()) {
+                    String table = entry.getKey();
+                    boolean allowInsert = table.equals("read_availability_event")
+                            || table.equals("read_current_availability");
+                    String owner = "select relowner from pg_class where oid='" + table + "'::regclass";
+                    verifyTableRights(statement, table, new TableRightsSpec(allowInsert, false, owner),
+                            "unsafe READ availability rights: ");
+                    verifyReadBusinessColumnRights(statement, table, entry.getValue(), allowInsert);
+                    verifyNoPublicAcl(statement, table, "PUBLIC READ availability grant: " + table);
+                }
+            } finally {
+                connection.rollback();
+            }
+        } catch (SQLException failure) {
+            throw new IllegalStateException("READ availability schema refused; provision V5 or rebuild READ", failure);
         }
     }
 
@@ -1051,7 +1084,7 @@ or exists(select 1 from pg_attribute a join pg_class c on c.oid=a.attrelid
             String table, Authority authority, String fixture, boolean enabled) {
         if (TABLES.contains(table)) return true;
         if (enabled && table.equals(fixture)) return true;
-        if (authority == Authority.READ) return READ_UPDATES.containsKey(table);
+        if (authority == Authority.READ) return READ_UPDATES.containsKey(table) || READ_AVAILABILITY_UPDATES.containsKey(table);
         return authority == Authority.WRITE
                 && (DEV_WRITE_TABLES.contains(table) || IDENTITY_TABLES.contains(table));
     }

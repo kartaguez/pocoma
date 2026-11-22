@@ -60,6 +60,9 @@ public final class MaterializeResources {
                     readControl,
                     ConsumptionDefinition.Authority.READ,
                     BootstrapGuard.Privileges.LIFECYCLE_AND_DISCOVERY);
+            if (!settings.consumptionLimits().isEmpty()) {
+                guard.validateReadAvailabilitySource(readBusiness);
+            }
         } catch (RuntimeException | Error failure) {
             for (var pool : opened) {
                 try {

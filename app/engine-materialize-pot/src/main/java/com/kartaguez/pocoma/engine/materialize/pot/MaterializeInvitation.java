@@ -21,49 +21,22 @@ public final class MaterializeInvitation implements ConsumptionParticipant {
         var expected = reads.source(c -> source.load(event, c));
         return Optional.of(
                 new Prepared() {
+                    private Boolean advanced;
+
                     public void finalizeIn(SlotCompletion completion) {
-                        store.put(expected);
+                        advanced = store.put(expected);
                         completion.complete();
-                        store.closePublication();
+                        store.closePublication(expected, advanced);
                     }
 
                     public void requireCompletionReady() {
-                        var actual = store.byRequest(expected.creationRequestId()).orElseThrow();
-                        if (!matchesExpected(actual, expected)) {
-                            throw new IllegalStateException("Invitation materialization differs");
-                        }
+                        store.requireCompletionReady(expected, Objects.requireNonNull(advanced, "Projection write not attempted"));
                     }
                 });
     }
 
-    private static boolean matchesExpected(
-            com.kartaguez.pocoma.domain.pot.invitation.Invitation actual,
-            com.kartaguez.pocoma.domain.pot.invitation.Invitation expected) {
-        if (!sameIdentity(actual, expected)) return false;
-        if (actual.version() > expected.version()) return true;
-        return actual.version() == expected.version() && actual.equals(expected);
-    }
-
-    private static boolean sameIdentity(
-            com.kartaguez.pocoma.domain.pot.invitation.Invitation a,
-            com.kartaguez.pocoma.domain.pot.invitation.Invitation b) {
-        if (!a.invitationId().equals(b.invitationId())) return false;
-        if (!a.creationRequestId().equals(b.creationRequestId())) return false;
-        if (!a.creatorIssuer().equals(b.creatorIssuer())) return false;
-        if (!a.creatorSubject().equals(b.creatorSubject())) return false;
-        return a.potId().equals(b.potId()) && a.tokenHash().equals(b.tokenHash());
-    }
-
     public Recovery prepareRecovery(UUID event, PreparationReads reads) {
         var expected = reads.source(c -> source.load(event, c));
-        return c -> {
-            var actual = store.byRequest(expected.creationRequestId());
-            if (actual.isEmpty() || actual.get().version() < expected.version()) {
-                return EffectEvidence.MISSING;
-            }
-            return matchesExpected(actual.get(), expected)
-                    ? EffectEvidence.SATISFIED
-                    : EffectEvidence.DIVERGENT;
-        };
+        return context -> EffectEvidence.valueOf(store.evidence(expected, context).name());
     }
 }

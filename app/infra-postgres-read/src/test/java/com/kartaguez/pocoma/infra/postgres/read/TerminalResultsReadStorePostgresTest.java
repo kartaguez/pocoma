@@ -21,13 +21,13 @@ class TerminalResultsReadStorePostgresTest {
         var cg=new GetCommandTerminalResult(cs); var ig=new GetIdentityTerminalResult(is);
         var pending=UUID.randomUUID(); assertTrue(f.tx.read(c -> cg.get(pending,e1)).isEmpty(),"A10-H absent before materialization");
         for(var outcome:List.of("CHANGED","UNCHANGED","REJECTED")) {
-            var value=command(UUID.randomUUID(),outcome); f.write(() -> { cs.insertOrVerify(value); cs.requireStored(value); });
+            var value=command(UUID.randomUUID(),outcome); f.write(() -> { cs.requireCompletionReady(value, cs.insertOrVerify(value)); });
             assertEquals(value,f.tx.read(c -> cg.get(value.requestId(),e1).orElseThrow()));
             assertTrue(f.tx.read(c -> cg.get(value.requestId(),e2)).isEmpty()); assertTrue(f.tx.read(c -> cg.get(value.requestId(),e3)).isEmpty());
             assertTrue(f.tx.read(c -> cg.get(UUID.randomUUID(),e2)).isEmpty());
         }
         for(var op:List.of("REGISTRATION","LINK","UNLINK")) for(boolean changed:List.of(true,false)) {
-            var value=identity(UUID.randomUUID(),op,changed); f.write(() -> { is.insertOrVerify(value); is.requireStored(value); });
+            var value=identity(UUID.randomUUID(),op,changed); f.write(() -> { boolean inserted = is.insertOrVerify(value); is.requireCompletionReady(value, inserted); });
             assertEquals(value,f.tx.read(c -> ig.get(value.requestId(),e1).orElseThrow())); assertTrue(f.tx.read(c -> ig.get(value.requestId(),e2)).isEmpty());
             assertEquals(value,f.tx.read(c -> ig.get(value.requestId(),e1).orElseThrow()),"A10-F/K no binding dependency or expiry");
         }

@@ -1,0 +1,60 @@
+{
+  "scenario": "weight-update-large",
+  "snapshotDir": "/private/tmp/pocoma-l74a-snapshots/large",
+  "snapshotSha256": "2eb4567b568073c7d4e0c5bbd8db40aadfaeb222ed1c7e504bd6ed91fdab637d",
+  "startedAt": "2026-11-19T08:15:39.520271+00:00",
+  "verdict": "PASS",
+  "restoreElapsedSeconds": 13.1,
+  "safety": "PASS",
+  "weightUpdateCount": 30,
+  "incrementalHitsDuringWindow": 30,
+  "expensesReadDuringWeightUpdates": 0,
+  "e2eBalanceMs": {
+    "n": 30,
+    "p50": 121.798,
+    "p95": 176.649,
+    "p99": 183.538,
+    "max": 183.538
+  },
+  "projections": {
+    "PotVersion": {
+      "n": 0,
+      "p50": null,
+      "p95": null,
+      "p99": null,
+      "max": null
+    },
+    "PotBalance": {
+      "n": 0,
+      "p50": null,
+      "p95": null,
+      "p99": null,
+      "max": null
+    },
+    "PotVisibility": {
+      "n": 0,
+      "p50": null,
+      "p95": null,
+      "p99": null,
+      "max": null
+    },
+    "CommandResult": {
+      "n": 0,
+      "p50": null,
+      "p95": null,
+      "p99": null,
+      "max": null
+    }
+  },
+  "aggregateStorage": {
+    "rowCount": 32,
+    "avgBuckets": 1.0,
+    "maxBuckets": 1,
+    "avgTextBytes": 11674,
+    "maxTextBytes": 11674,
+    "avgColumnBytes": 5538,
+    "maxColumnBytes": 5588
+  },
+  "cleanup": "REMOVED_OWN_PROJECT",
+  "finishedAt": "2026-11-19T08:16:27.250417+00:00"
+}

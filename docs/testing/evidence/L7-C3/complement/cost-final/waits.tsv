@@ -1,0 +1,230 @@
+profile	workers	publish	pid	type	event	blockers	query
+COMMAND_RESULT	1	false	2723	IO	WalSync	{}	COMMIT
+IDENTITY_REQUEST_RESULT	1	false	2826	IO	WalWrite	{}	COMMIT
+IDENTITY_REQUEST_RESULT	1	false	2853	IO	WalSync	{}	COMMIT
+IDENTITY_REQUEST_RESULT	1	false	2854	IO	WalWrite	{}	COMMIT
+IDENTITY_REQUEST_RESULT	1	false	2889	IO	WalSync	{}	COMMIT
+IDENTITY_REQUEST_RESULT	1	false	3054	IO	WalSync	{}	COMMIT
+POT_VERSION	1	false	3359	IO	WalWrite	{}	COMMIT
+POT_VERSION	1	false	3497	IO	WalSync	{}	COMMIT
+POT_VERSION	1	false	3516	IO	WalSync	{}	COMMIT
+POT_VERSION	1	false	3726	IO	WalSync	{}	COMMIT
+POT_VERSION	1	false	3731	IO	WalSync	{}	COMMIT
+POT_VERSION	1	false	3732	IO	WalSync	{}	COMMIT
+POT_VERSION	1	false	3750	IO	WalSync	{}	COMMIT
+POT_BALANCE	1	false	3997	IO	WalSync	{}	COMMIT
+POT_BALANCE	1	false	4149	IO	WalSync	{}	COMMIT
+POT_BALANCE	1	false	4186	IO	WalWrite	{}	COMMIT
+POT_BALANCE	1	false	4225	IO	WalSync	{}	COMMIT
+POT_BALANCE	1	false	4246	IO	WalSync	{}	COMMIT
+COMMAND_RESULT	1	true	6620	IO	WalWrite	{}	COMMIT
+COMMAND_RESULT	1	true	6623	IO	WalSync	{}	COMMIT
+COMMAND_RESULT	1	true	6629	IO	WalSync	{}	COMMIT
+COMMAND_RESULT	1	true	6662	IO	WalSync	{}	COMMIT
+COMMAND_RESULT	1	true	6691	IO	WalSync	{}	COMMIT
+COMMAND_RESULT	1	true	6704	IO	WalSync	{}	COMMIT
+COMMAND_RESULT	1	true	6740	IO	WalSync	{}	COMMIT
+COMMAND_RESULT	1	true	6743	IO	WalWrite	{}	COMMIT
+COMMAND_RESULT	1	true	6809	IO	WalSync	{}	COMMIT
+COMMAND_RESULT	1	true	6854	IO	WalWrite	{}	COMMIT
+COMMAND_RESULT	1	true	6857	IO	WalSync	{}	COMMIT
+COMMAND_RESULT	1	true	6869	IO	WalSync	{}	COMMIT
+COMMAND_RESULT	1	true	6881	IO	WalSync	{}	COMMIT
+IDENTITY_REQUEST_RESULT	1	true	7089	IO	WalSync	{}	COMMIT
+IDENTITY_REQUEST_RESULT	1	true	7107	IO	WalSync	{}	COMMIT
+IDENTITY_REQUEST_RESULT	1	true	7140	IO	WalSync	{}	COMMIT
+IDENTITY_REQUEST_RESULT	1	true	7182	IO	WalSync	{}	COMMIT
+IDENTITY_REQUEST_RESULT	1	true	7216	IO	WalSync	{}	COMMIT
+IDENTITY_REQUEST_RESULT	1	true	7227	IO	WalSync	{}	COMMIT
+IDENTITY_REQUEST_RESULT	1	true	7257	IO	WalSync	{}	COMMIT
+POT_VERSION	1	true	7416	IO	WalSync	{}	COMMIT
+POT_VERSION	1	true	7475	IO	WalSync	{}	COMMIT
+POT_VERSION	1	true	7638	IO	WalSync	{}	COMMIT
+POT_VERSION	1	true	7644	IO	WalWrite	{}	COMMIT
+POT_VERSION	1	true	7896	IO	WalWrite	{}	COMMIT
+POT_VERSION	1	true	7963	IO	WalWrite	{}	COMMIT
+POT_BALANCE	1	true	8096	IO	WalWrite	{}	COMMIT
+POT_BALANCE	1	true	8233	IO	WalSync	{}	COMMIT
+POT_BALANCE	1	true	8253	IO	WalWrite	{}	COMMIT
+POT_BALANCE	1	true	8285	IO	WalSync	{}	COMMIT
+POT_BALANCE	1	true	8288	IO	WalSync	{}	COMMIT
+POT_BALANCE	1	true	8441	IO	WalSync	{}	COMMIT
+POT_BALANCE	1	true	8477	IO	WalSync	{}	COMMIT
+COMMAND_RESULT	4	true	10945	Lock	transactionid	{"10946"}	update read_availability_counter set position = position + 1 where family = $1 returning position
+COMMAND_RESULT	4	true	10973	IO	WalSync	{}	COMMIT
+COMMAND_RESULT	4	true	11010	IO	WalSync	{}	COMMIT
+COMMAND_RESULT	4	true	11065	IO	WalSync	{}	COMMIT
+COMMAND_RESULT	4	true	11073	IO	WalSync	{}	COMMIT
+COMMAND_RESULT	4	true	11076	Lock	transactionid	{"11077"}	update read_availability_counter set position = position + 1 where family = $1 returning position
+COMMAND_RESULT	4	true	11077	IO	WalSync	{}	COMMIT
+COMMAND_RESULT	4	true	11113	Lock	transactionid	{"11112"}	update read_availability_counter set position = position + 1 where family = $1 returning position
+COMMAND_RESULT	4	true	11124	Lock	transactionid	{"11125"}	update read_availability_counter set position = position + 1 where family = $1 returning position
+IDENTITY_REQUEST_RESULT	4	true	11291	Lock	tuple	{"11292"}	update c3_bench_counter set position=position+1 where family=$1 returning position
+IDENTITY_REQUEST_RESULT	4	true	11292	Lock	transactionid	{"11290"}	update c3_bench_counter set position=position+1 where family=$1 returning position
+IDENTITY_REQUEST_RESULT	4	true	11293	IO	WalSync	{}	COMMIT
+IDENTITY_REQUEST_RESULT	4	true	11306	IO	WalSync	{}	COMMIT
+IDENTITY_REQUEST_RESULT	4	true	11330	IO	WalSync	{}	COMMIT
+IDENTITY_REQUEST_RESULT	4	true	11333	IO	WalSync	{}	COMMIT
+IDENTITY_REQUEST_RESULT	4	true	11340	Lock	transactionid	{"11339"}	update c3_bench_counter set position=position+1 where family=$1 returning position
+IDENTITY_REQUEST_RESULT	4	true	11364	Lock	transactionid	{"11363"}	update c3_bench_counter set position=position+1 where family=$1 returning position
+IDENTITY_REQUEST_RESULT	4	true	11399	Lock	transactionid	{"11398"}	update c3_bench_counter set position=position+1 where family=$1 returning position
+IDENTITY_REQUEST_RESULT	4	true	11401	Lock	transactionid	{"11400"}	update c3_bench_counter set position=position+1 where family=$1 returning position
+IDENTITY_REQUEST_RESULT	4	true	11411	Lock	transactionid	{"11410"}	update c3_bench_counter set position=position+1 where family=$1 returning position
+IDENTITY_REQUEST_RESULT	4	true	11412	IO	WalSync	{}	COMMIT
+IDENTITY_REQUEST_RESULT	4	true	11413	Lock	transactionid	{"11412"}	update c3_bench_counter set position=position+1 where family=$1 returning position
+IDENTITY_REQUEST_RESULT	4	true	11424	Lock	transactionid	{"11422"}	update c3_bench_counter set position=position+1 where family=$1 returning position
+IDENTITY_REQUEST_RESULT	4	true	11444	Lock	transactionid	{"11445"}	update c3_bench_counter set position=position+1 where family=$1 returning position
+IDENTITY_REQUEST_RESULT	4	true	11455	Lock	transactionid	{"11454"}	update c3_bench_counter set position=position+1 where family=$1 returning position
+IDENTITY_REQUEST_RESULT	4	true	11508	Lock	transactionid	{"11507"}	update c3_bench_counter set position=position+1 where family=$1 returning position
+IDENTITY_REQUEST_RESULT	4	true	11509	Lock	tuple	{"11508"}	update c3_bench_counter set position=position+1 where family=$1 returning position
+IDENTITY_REQUEST_RESULT	4	true	11543	IO	WalSync	{}	COMMIT
+IDENTITY_REQUEST_RESULT	4	true	11546	IO	WalSync	{}	COMMIT
+POT_VERSION	4	true	11694	Lock	transactionid	{"11695"}	update c3_bench_counter set position=position+1 where family=$1 returning position
+POT_VERSION	4	true	11696	Lock	tuple	{"11694","11697"}	update c3_bench_counter set position=position+1 where family=$1 returning position
+POT_VERSION	4	true	11697	Lock	tuple	{"11694"}	update c3_bench_counter set position=position+1 where family=$1 returning position
+POT_VERSION	4	true	11718	Lock	transactionid	{"11719"}	update c3_bench_counter set position=position+1 where family=$1 returning position
+POT_VERSION	4	true	11719	IO	WalSync	{}	COMMIT
+POT_VERSION	4	true	11724	IO	WalSync	{}	COMMIT
+POT_VERSION	4	true	11745	Lock	transactionid	{"11744"}	update c3_bench_counter set position=position+1 where family=$1 returning position
+POT_VERSION	4	true	11792	Lock	transactionid	{"11789"}	update c3_bench_counter set position=position+1 where family=$1 returning position
+POT_VERSION	4	true	11840	IO	WalSync	{}	COMMIT
+POT_VERSION	4	true	11866	IO	WalSync	{}	COMMIT
+POT_VERSION	4	true	11868	IO	WalSync	{}	COMMIT
+POT_VERSION	4	true	11888	Lock	transactionid	{"11887"}	update c3_bench_counter set position=position+1 where family=$1 returning position
+POT_VERSION	4	true	12101	Lock	transactionid	{"12103"}	update c3_bench_counter set position=position+1 where family=$1 returning position
+POT_VERSION	4	true	12102	Lock	tuple	{"12101"}	update c3_bench_counter set position=position+1 where family=$1 returning position
+POT_VERSION	4	true	12175	Lock	transactionid	{"12173"}	update c3_bench_counter set position=position+1 where family=$1 returning position
+POT_VERSION	4	true	12196	Lock	transactionid	{"12197"}	update c3_bench_counter set position=position+1 where family=$1 returning position
+POT_VERSION	4	true	12221	Lock	transactionid	{"12220"}	update c3_bench_counter set position=position+1 where family=$1 returning position
+POT_VERSION	4	true	12225	IO	WalSync	{}	COMMIT
+POT_VERSION	4	true	12227	IO	WalSync	{}	COMMIT
+POT_BALANCE	4	true	12378	Lock	transactionid	{"12380"}	update c3_bench_counter set position=position+1 where family=$1 returning position
+POT_BALANCE	4	true	12379	Lock	tuple	{"12378","12381"}	update c3_bench_counter set position=position+1 where family=$1 returning position
+POT_BALANCE	4	true	12380	IO	WalSync	{}	COMMIT
+POT_BALANCE	4	true	12381	Lock	tuple	{"12378"}	update c3_bench_counter set position=position+1 where family=$1 returning position
+POT_BALANCE	4	true	12401	IO	WalSync	{}	COMMIT
+POT_BALANCE	4	true	12412	IO	WalSync	{}	COMMIT
+POT_BALANCE	4	true	12413	Lock	transactionid	{}	update c3_bench_counter set position=position+1 where family=$1 returning position
+POT_BALANCE	4	true	12461	LWLock	LockManager	{}	update c3_bench_counter set position=position+1 where family=$1 returning position
+POT_BALANCE	4	true	12475	Lock	transactionid	{"12472"}	update c3_bench_counter set position=position+1 where family=$1 returning position
+POT_BALANCE	4	true	12525	IO	WalSync	{}	COMMIT
+POT_BALANCE	4	true	12526	Lock	transactionid	{"12525"}	update c3_bench_counter set position=position+1 where family=$1 returning position
+POT_BALANCE	4	true	12539	IO	WalSync	{}	COMMIT
+POT_BALANCE	4	true	12574	Lock	transactionid	{"12572"}	update c3_bench_counter set position=position+1 where family=$1 returning position
+POT_BALANCE	4	true	12594	IO	WalSync	{}	COMMIT
+POT_BALANCE	4	true	12604	Lock	transactionid	{"12606"}	update c3_bench_counter set position=position+1 where family=$1 returning position
+POT_BALANCE	4	true	12606	IO	WalSync	{}	COMMIT
+POT_BALANCE	4	true	12607	LWLock	WALWrite	{}	COMMIT
+POT_BALANCE	4	true	12622	Lock	transactionid	{"12621"}	update c3_bench_counter set position=position+1 where family=$1 returning position
+POT_BALANCE	4	true	12638	Lock	transactionid	{"12636"}	update c3_bench_counter set position=position+1 where family=$1 returning position
+POT_BALANCE	4	true	12654	Lock	transactionid	{"12653"}	update c3_bench_counter set position=position+1 where family=$1 returning position
+POT_BALANCE	4	true	12655	IO	WalSync	{}	COMMIT
+POT_BALANCE	4	true	12670	Lock	transactionid	{"12669"}	update c3_bench_counter set position=position+1 where family=$1 returning position
+POT_BALANCE	4	true	12707	IO	WalSync	{}	COMMIT
+POT_BALANCE	4	true	12733	Lock	transactionid	{"12732"}	update c3_bench_counter set position=position+1 where family=$1 returning position
+POT_BALANCE	4	true	12734	Lock	tuple	{"12733"}	update c3_bench_counter set position=position+1 where family=$1 returning position
+POT_BALANCE	4	true	12750	IO	WalSync	{}	COMMIT
+MIXED	4	true	14399	Lock	transactionid	{14400}	update read_availability_counter set position = position + 1 where family = $1 returning position
+MIXED	4	true	14414	IO	WalSync	{}	COMMIT
+MIXED	4	true	14430	IO	WalSync	{}	COMMIT
+MIXED	4	true	14668	IO	WalSync	{}	COMMIT
+MIXED	4	true	14691	IO	WalSync	{}	COMMIT
+MIXED	4	true	14704	IO	WalSync	{}	COMMIT
+MIXED	4	true	14721	Lock	transactionid	{"14722"}	update read_availability_counter set position = position + 1 where family = $1 returning position
+MIXED	4	true	14789	IO	WalSync	{}	COMMIT
+MIXED	4	true	14790	LWLock	WALWrite	{}	COMMIT
+MIXED	4	true	14803	IO	WalSync	{}	COMMIT
+MIXED	4	true	14822	IO	WalSync	{}	COMMIT
+MIXED	4	true	14824	IO	WalSync	{}	COMMIT
+MIXED	4	true	14879	IO	WalWrite	{}	COMMIT
+MIXED	4	true	14895	IO	WalSync	{}	COMMIT
+MIXED	4	true	14904	IO	WalSync	{}	COMMIT
+MIXED	4	true	14917	LWLock	WALWrite	{}	COMMIT
+MIXED	4	true	14918	IO	WalSync	{}	COMMIT
+MIXED	4	true	15028	LWLock	WALWrite	{}	COMMIT
+MIXED	4	true	15029	IO	WalSync	{}	COMMIT
+MIXED	4	true	15117	IO	WalSync	{}	COMMIT
+MIXED	4	true	15119	LWLock	WALWrite	{}	COMMIT
+MIXED	4	true	15139	IO	WalWrite	{}	COMMIT
+MIXED	4	true	15151	IO	WalSync	{}	COMMIT
+MIXED	4	true	15164	IO	WalSync	{}	COMMIT
+MIXED	4	true	15165	LWLock	WALWrite	{}	COMMIT
+MIXED	4	true	15176	IO	WalSync	{}	COMMIT
+MIXED	4	true	15188	IO	WalSync	{}	COMMIT
+MIXED	4	true	15189	LWLock	WALWrite	{}	COMMIT
+MIXED	4	true	15190	Lock	transactionid	{"15188"}	update read_availability_counter set position = position + 1 where family = $1 returning position
+MIXED	4	true	15217	IO	WalSync	{}	COMMIT
+MIXED	4	true	15297	IO	WalSync	{}	COMMIT
+MIXED	4	true	15322	IO	WalSync	{}	COMMIT
+MIXED	4	true	15362	IO	WalSync	{}	COMMIT
+MIXED	4	true	15402	IO	WalSync	{}	COMMIT
+MIXED	4	true	15506	IO	WalSync	{}	COMMIT
+MIXED	4	true	15519	IO	WalSync	{}	COMMIT
+MIXED	4	true	15520	LWLock	WALWrite	{}	COMMIT
+MIXED	4	true	15537	IO	WalSync	{}	COMMIT
+MIXED	4	true	15558	Lock	transactionid	{"15559"}	update read_availability_counter set position = position + 1 where family = $1 returning position
+MIXED	4	true	15559	LWLock	WALWrite	{}	COMMIT
+MIXED	4	true	15560	IO	WalSync	{}	COMMIT
+MIXED	4	true	15598	IO	WalSync	{}	COMMIT
+MIXED	4	true	15647	IO	WalSync	{}	COMMIT
+MIXED	4	true	15665	IO	WalSync	{}	COMMIT
+COMMAND_RESULT	4	false	18100	IO	WalSync	{}	COMMIT
+COMMAND_RESULT	4	false	18101	LWLock	WALWrite	{}	COMMIT
+COMMAND_RESULT	4	false	18102	LWLock	WALWrite	{}	COMMIT
+COMMAND_RESULT	4	false	18130	IO	WalSync	{}	COMMIT
+COMMAND_RESULT	4	false	18131	LWLock	WALWrite	{}	COMMIT
+COMMAND_RESULT	4	false	18138	IO	WalSync	{}	COMMIT
+COMMAND_RESULT	4	false	18139	LWLock	WALWrite	{}	COMMIT
+COMMAND_RESULT	4	false	18225	LWLock	WALWrite	{}	COMMIT
+COMMAND_RESULT	4	false	18226	LWLock	WALWrite	{}	COMMIT
+COMMAND_RESULT	4	false	18227	IO	WalSync	{}	COMMIT
+COMMAND_RESULT	4	false	18228	LWLock	WALWrite	{}	COMMIT
+COMMAND_RESULT	4	false	18275	LWLock	WALWrite	{}	COMMIT
+COMMAND_RESULT	4	false	18276	IO	WalSync	{}	COMMIT
+COMMAND_RESULT	4	false	18284	IO	WalWrite	{}	COMMIT
+COMMAND_RESULT	4	false	18285	LWLock	WALWrite	{}	COMMIT
+COMMAND_RESULT	4	false	18286	IO	WalSync	{}	COMMIT
+COMMAND_RESULT	4	false	18287	LWLock	WALWrite	{}	COMMIT
+COMMAND_RESULT	4	false	18305	IO	WalSync	{}	COMMIT
+COMMAND_RESULT	4	false	18306	LWLock	WALWrite	{}	COMMIT
+COMMAND_RESULT	4	false	18307	LWLock	WALWrite	{}	COMMIT
+COMMAND_RESULT	4	false	18369	IO	WalSync	{}	COMMIT
+IDENTITY_REQUEST_RESULT	4	false	18628	LWLock	LockManager	{}	select claim_token,claimed_until,state from consumption_slot where consumption_id=$1 and consumable_id=$2 for update
+IDENTITY_REQUEST_RESULT	4	false	18665	LWLock	WALWrite	{}	COMMIT
+IDENTITY_REQUEST_RESULT	4	false	18666	IO	WalSync	{}	COMMIT
+IDENTITY_REQUEST_RESULT	4	false	18667	LWLock	WALWrite	{}	COMMIT
+IDENTITY_REQUEST_RESULT	4	false	18668	LWLock	WALWrite	{}	COMMIT
+POT_VERSION	4	false	18974	LWLock	BufferContent	{}	update consumption_slot set claim_token=$1,claimed_until=$2::timestamptz + $3 * interval '1 microsecond' where consumption_id=$4 and consumable_id=$5 and partition_id=$6 and state='AVAILABLE' and (retry_after is null or retry_after<=$7) and (claim_token is null or claimed_until<=$8) returning consumable_id,claim_token,claimed_until
+POT_VERSION	4	false	19320	LWLock	PgStatsData	{}	SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL READ COMMITTED
+POT_VERSION	4	false	19330	LWLock	BufferContent	{}	insert into read_pot_version( pot_id, pot_version, schema_version, header_version, details_version, deleted, shareholders_count, expenses_count, shareholders_root, expenses_root, authorized_users_hash, attached_active_users_hash) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) on conflict (pot_id, pot_version) do nothing returning 1
+POT_VERSION	4	false	19366	LWLock	BufferContent	{}	insert into read_pot_version( pot_id, pot_version, schema_version, header_version, details_version, deleted, shareholders_count, expenses_count, shareholders_root, expenses_root, authorized_users_hash, attached_active_users_hash) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) on conflict (pot_id, pot_version) do nothing returning 1
+POT_BALANCE	4	false	19681	LWLock	WALWrite	{}	COMMIT
+POT_BALANCE	4	false	19682	LWLock	WALWrite	{}	COMMIT
+POT_BALANCE	4	false	19683	IO	WalSync	{}	COMMIT
+POT_BALANCE	4	false	19684	LWLock	WALWrite	{}	COMMIT
+POT_BALANCE	4	false	19741	LWLock	WALWrite	{}	COMMIT
+POT_BALANCE	4	false	19757	LWLock	WALWrite	{}	COMMIT
+POT_BALANCE	4	false	19758	IO	WalSync	{}	COMMIT
+POT_BALANCE	4	false	19759	LWLock	WALWrite	{}	COMMIT
+POT_BALANCE	4	false	19760	LWLock	WALWrite	{}	COMMIT
+POT_BALANCE	4	false	19804	LWLock	LockManager	{}	select * from v3_pot_header where pot_id=$1 and object_id = any($2) and active_to is null
+MIXED	4	false	21866	IO	WalSync	{}	COMMIT
+MIXED	4	false	21936	IO	WalWrite	{}	COMMIT
+MIXED	4	false	21939	IO	WalSync	{}	COMMIT
+MIXED	4	false	21988	IO	WalSync	{}	COMMIT
+MIXED	4	false	22205	IO	WalSync	{}	COMMIT
+MIXED	4	false	22230	IO	WalSync	{}	COMMIT
+MIXED	4	false	22237	IO	WalSync	{}	COMMIT
+MIXED	4	false	22291	IO	WalSync	{}	COMMIT
+MIXED	4	false	22292	LWLock	WALWrite	{}	COMMIT
+MIXED	4	false	22309	IO	WalSync	{}	COMMIT
+MIXED	4	false	22327	LWLock	LockManager	{}	select b.content_hash, a.content_hash from read_pot_balance b left join read_pot_balance_aggregate a on a.pot_id = b.pot_id and a.pot_version = b.pot_version where b.pot_id = $1 and b.pot_version = $2
+MIXED	4	false	22357	IO	WalWrite	{}	COMMIT
+MIXED	4	false	22509	IO	WalSync	{}	COMMIT
+MIXED	4	false	22616	IO	WalSync	{}	COMMIT
+MIXED	4	false	22663	IO	WalSync	{}	COMMIT
+MIXED	4	false	22722	IO	WalSync	{}	COMMIT
+MIXED	4	false	22738	IO	WalSync	{}	COMMIT
+MIXED	4	false	22768	IO	WalSync	{}	COMMIT
+MIXED	4	false	22780	IO	WalSync	{}	COMMIT
+MIXED	4	false	22930	IO	WalSync	{}	COMMIT

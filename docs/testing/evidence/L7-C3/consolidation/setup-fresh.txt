@@ -1,0 +1,32 @@
+▶ Initializing PostgreSQL databases and roles for V3...
+  • Creating database pocoma_write...
+  • Creating database pocoma_read...
+  ✓ Databases, roles, and search paths verified.
+▶ Initializing schema v3_write in database pocoma_write...
+pocoma_write: psql script failed on pocoma_write.v3_write: psql:<stdin>:1701: ERROR:  division by zero
+▶ Initializing schema v3_write in database pocoma_write...
+  ✓ Schema v3_write successfully provisioned and secured.
+▶ Initializing schema v3_read in database pocoma_read...
+pocoma_read: psql script failed on pocoma_read.v3_read: psql:<stdin>:1675: NOTICE:  column "operation_id" of relation "read_maintenance_state" already exists, skipping
+psql:<stdin>:1685: ERROR:  division by zero
+▶ Initializing schema v3_read in database pocoma_read...
+  ✓ Schema v3_read and public maintenance authority successfully provisioned and secured.
+17.6 show server_version
+t select v3_read.read_availability_schema_valid() and v3_read.read_availability_valid()
+8 select count(*) from v3_read.read_availability_counter
+7 select count(*) from v3_read.consumption_routing_contract
+28 select count(*) from v3_read.partition_ownership
+READY/IDLE select state || '/' || phase from public.read_maintenance_state where id = 1
+t select has_column_privilege('pocoma_read','v3_read.consumption_slot','consumable_id','insert') and has_table_privilege('pocoma_read','v3_read.read_availability_event','insert') and not has_table_privilege('pocoma_read','v3_read.read_availability_event','delete') and not exists ( select from (values ('read_availability_counter'), ('read_availability_event'), ('read_current_availability'), ('read_availability_effects')) metadata(relation) where has_table_privilege('pocoma_read_http', 'v3_read.' || relation, 'select')) and not has_function_privilege('pocoma_read_http', 'v3_read.read_current_availability_page(text,bigint,integer)', 'execute')
+  ✓ Schema v3_write already initialized.
+  ✓ Schema v3_read (V3 Radix-16) already initialized.
+  ✓ Schema v3_read (V4 PotBalance shared storage) already initialized.
+  ✓ READ V5 availability schema already installed.
+17.6 show server_version
+t select v3_read.read_availability_schema_valid() and v3_read.read_availability_valid()
+8 select count(*) from v3_read.read_availability_counter
+7 select count(*) from v3_read.consumption_routing_contract
+28 select count(*) from v3_read.partition_ownership
+READY/IDLE select state || '/' || phase from public.read_maintenance_state where id = 1
+t select has_column_privilege('pocoma_read','v3_read.consumption_slot','consumable_id','insert') and has_table_privilege('pocoma_read','v3_read.read_availability_event','insert') and not has_table_privilege('pocoma_read','v3_read.read_availability_event','delete') and not exists ( select from (values ('read_availability_counter'), ('read_availability_event'), ('read_current_availability'), ('read_availability_effects')) metadata(relation) where has_table_privilege('pocoma_read_http', 'v3_read.' || relation, 'select')) and not has_function_privilege('pocoma_read_http', 'v3_read.read_current_availability_page(text,bigint,integer)', 'execute')
+Incomplete v3_read routing bootstrap; inspect the installation before restarting.

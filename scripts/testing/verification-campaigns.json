@@ -153,16 +153,15 @@
     "READ-FAST-1": {
       "level": "FAST",
       "modules": [
-        "domain-projection",
-        "infra-postgres-read"
+        "domain-projection"
       ],
       "expected_invocations": 2,
       "tests": {
         "com.kartaguez.pocoma.domain.projection.PotVersionContractTest": [
           "compositionAndKeys"
         ],
-        "com.kartaguez.pocoma.infra.postgres.read.PotVersionJsonTest": [
-          "strictCanonicalCodec"
+        "com.kartaguez.pocoma.domain.projection.radix.Radix16CodecTest": [
+          "shareholderRoundTripAndFlags"
         ]
       },
       "forecast": {

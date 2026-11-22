@@ -34,6 +34,10 @@ import os
 import re
 from pathlib import Path
 import subprocess
+
+from read_availability_schema import (
+    READ_AVAILABILITY_MIGRATION, READ_AVAILABILITY_RELATIONS, availability_catalog_complete,
+)
 import sys
 import time
 import uuid
@@ -75,9 +79,12 @@ EXPECTED_CHECKPOINTS_COUNT = len(CANONICAL_READ_CONSUMPTIONS) * 4  # 28
 
 CANONICAL_MIGRATION_TABLES = (
     "consumption_routing_contract", "partition_ownership", "discovery_checkpoint", "consumption_slot",
-    "read_subobject_version", "read_pot_version", "read_current_pot", "read_pot_balance",
-    "read_pot_visibility_state", "read_user_pot", "read_current_binding", "read_command_result",
-    "read_identity_request_result", "read_current_invitation",
+    "read_subobject_version", "read_pot_user_set", "read_pot_version_node", "read_pot_version",
+    "read_current_pot", "read_pot_shareholder_set", "read_pot_balance_content", "read_pot_balance",
+    "read_pot_balance_aggregate_content", "read_pot_balance_aggregate",
+    "read_pot_visibility_state", "read_user_pot", "read_current_binding",
+    "read_command_result", "read_identity_request_result", "read_current_invitation",
+    *READ_AVAILABILITY_RELATIONS,
 )
 
 
@@ -162,7 +169,7 @@ def psql_write_readonly(sql_command, check=True):
     return _exec_psql(target, sql_command, check=check)
 
 
-def psql_script(db, schema, script_content, variables=None):
+def psql_script(db, schema, script_content, variables=None, single_transaction=False):
     """Execute SQL script content via docker exec as admin."""
     vars_args = []
     if variables:
@@ -173,7 +180,7 @@ def psql_script(db, schema, script_content, variables=None):
         "-e", f"PGOPTIONS=-c search_path={schema},public",
         POSTGRES_CONTAINER,
         "psql", "-X", "-U", POSTGRES_ADMIN_USER, "-d", db, "-v", "ON_ERROR_STOP=1",
-        *vars_args, "-f", "-"
+        *vars_args, *(["--single-transaction"] if single_transaction else []), "-f", "-"
     ]
     res = subprocess.run(cmd, input=script_content, capture_output=True, text=True)
     if res.returncode != 0:
@@ -237,7 +244,7 @@ def apply_migrations(db_spec, migration_files):
         content = content.replace("${expectedSchema}", schema)
         content = content.replace("${expectedAdmin}", admin)
         content = content.replace("${expectedRuntime}", runtime)
-        psql_script(db, schema, content)
+        psql_script(db, schema, content, single_transaction=f == READ_AVAILABILITY_MIGRATION)
 
 
 def to_write_family(family):
@@ -348,10 +355,37 @@ def _evaluate_integrity():
          "WHERE pv.pot_id IS NULL;", "dangling current_pot references"),
         (f"SELECT count(*) FROM {READ_SCHEMA}.read_pot_version pv "
          f"LEFT JOIN {READ_SCHEMA}.read_pot_balance pb USING (pot_id, pot_version) "
-         "WHERE jsonb_typeof(pv.payload->'deleted') IS DISTINCT FROM 'boolean' "
-         "OR (pv.payload->'deleted' = 'false'::jsonb AND pb.pot_id IS NULL) "
-         "OR (pv.payload->'deleted' = 'true'::jsonb AND pb.pot_id IS NOT NULL);",
-         "Pot versions with missing balance rows, unexpected terminal balances or invalid deletion flags"),
+         "WHERE (NOT pv.deleted AND pb.pot_id IS NULL) "
+         "OR (pv.deleted AND pb.pot_id IS NOT NULL);",
+         "Pot versions with missing balance rows or unexpected terminal balances"),
+        (f"SELECT count(*) FROM {READ_SCHEMA}.read_pot_balance pb "
+         f"LEFT JOIN {READ_SCHEMA}.read_pot_balance_content bc ON bc.content_hash = pb.content_hash "
+         "WHERE bc.content_hash IS NULL;",
+         "read_pot_balance rows with dangling content_hash references"),
+        (f"SELECT count(*) FROM {READ_SCHEMA}.read_pot_balance_aggregate pba "
+         f"LEFT JOIN {READ_SCHEMA}.read_pot_balance_aggregate_content bac ON bac.content_hash = pba.content_hash "
+         "WHERE bac.content_hash IS NULL;",
+         "read_pot_balance_aggregate rows with dangling content_hash references"),
+        (f"SELECT count(*) FROM {READ_SCHEMA}.read_pot_balance_content bc "
+         f"LEFT JOIN {READ_SCHEMA}.read_pot_shareholder_set ss ON ss.set_hash = bc.shareholder_set_hash "
+         "WHERE ss.set_hash IS NULL OR ss.shareholders_count <> bc.shareholders_count;",
+         "read_pot_balance_content rows with inconsistent shareholder_set_hash references"),
+        (f"SELECT count(*) FROM {READ_SCHEMA}.read_pot_balance_aggregate_content bac "
+         f"LEFT JOIN {READ_SCHEMA}.read_pot_shareholder_set ss ON ss.set_hash = bac.shareholder_set_hash "
+         "WHERE ss.set_hash IS NULL OR ss.shareholders_count <> bac.shareholders_count;",
+         "read_pot_balance_aggregate_content rows with inconsistent shareholder_set_hash references"),
+        (f"SELECT count(*) FROM {READ_SCHEMA}.read_pot_version pv "
+         f"LEFT JOIN {READ_SCHEMA}.read_pot_version_node sh ON sh.node_hash = pv.shareholders_root "
+         f"LEFT JOIN {READ_SCHEMA}.read_pot_version_node ex ON ex.node_hash = pv.expenses_root "
+         "WHERE (pv.shareholders_root IS NOT NULL "
+         "       AND (sh.node_hash IS NULL OR sh.tree_kind <> 'S' OR sh.entry_count <> pv.shareholders_count)) "
+         "OR (pv.expenses_root IS NOT NULL "
+         "       AND (ex.node_hash IS NULL OR ex.tree_kind <> 'E' OR ex.entry_count <> pv.expenses_count)) "
+         f"OR (pv.authorized_users_hash IS NOT NULL "
+         f"       AND NOT EXISTS (SELECT 1 FROM {READ_SCHEMA}.read_pot_user_set u WHERE u.set_hash = pv.authorized_users_hash)) "
+         f"OR (pv.attached_active_users_hash IS NOT NULL "
+         f"       AND NOT EXISTS (SELECT 1 FROM {READ_SCHEMA}.read_pot_user_set u WHERE u.set_hash = pv.attached_active_users_hash));",
+         "Pot versions with inconsistent Radix-16 roots or user sets"),
         ("SELECT count(*) FROM v3_read.read_current_pot cp "
          "LEFT JOIN v3_read.read_pot_visibility_state vs ON cp.pot_id = vs.pot_id AND cp.pot_version <= vs.materialized_version "
          "WHERE vs.pot_id IS NULL;", "missing pot visibility rows"),
@@ -362,6 +396,10 @@ def _evaluate_integrity():
         count = psql_admin(READ_DB, sql)
         if count and int(count) > 0:
             errors.append(f"{count} {label}")
+    if not availability_schema_complete():
+        errors.append("READ availability catalog is incomplete")
+    elif psql_admin(READ_DB, f"SELECT {READ_SCHEMA}.read_availability_valid();") != "t":
+        errors.append("READ effects and availability or family positions diverge")
     return len(errors) == 0, errors
 
 
@@ -375,7 +413,9 @@ def evaluate_readiness_oracle(target_prefix):
 
     checkpoints_ok, satisfied_checkpoints = _evaluate_checkpoints(target_prefix)
     slots_ok, residual_slots, quarantined_slots = _evaluate_slots(target_prefix)
-    integrity_ok, integrity_errors = _evaluate_integrity()
+    integrity_ok, integrity_errors = (False, ["waiting for checkpoints and slots"])
+    if checkpoints_ok and slots_ok:
+        integrity_ok, integrity_errors = _evaluate_integrity()
 
     ready = checkpoints_ok and slots_ok and integrity_ok
     diagnostic = (
@@ -412,11 +452,18 @@ def check_tables_exist(expected_tables):
     return True
 
 
+def availability_schema_complete():
+    return (
+        psql_admin(READ_DB, availability_catalog_complete(READ_SCHEMA)) == "t"
+        and psql_admin(READ_DB, f"SELECT {READ_SCHEMA}.read_availability_schema_valid();") == "t"
+    )
+
+
 def _ensure_physical_schema():
     if not psql_admin(READ_DB, f"SELECT to_regnamespace('{READ_SCHEMA}')::text;"):
         raise RuntimeError("Cannot restore READY: schema v3_read is absent")
-    if not check_tables_exist(CANONICAL_MIGRATION_TABLES):
-        raise RuntimeError("Cannot restore READY: canonical migration tables are incomplete")
+    if not check_tables_exist(CANONICAL_MIGRATION_TABLES) or not availability_schema_complete():
+        raise RuntimeError("Cannot restore READY: canonical migration tables or availability catalog are incomplete")
 
 
 def _ensure_target_prefix(target_prefix):
@@ -505,17 +552,21 @@ def _recreate_and_migrate_schema(operation_id, operator_id):
     transition("MAINTENANCE", "MAINTENANCE/SCHEMA_CREATED", (operation_id, operator_id))
     print("   ✓ Clean schema v3_read created and verified (phase: SCHEMA_CREATED).")
 
-    print("8. Applying canonical READ DDL (V1 + V2)...")
+    print("8. Applying canonical READ DDL (V1–V6)...")
     read_migrations = [
         "app/infra-postgres-read/src/main/resources/db/read/migration/V1__initial_schema.sql",
-        "app/infra-postgres-read/src/main/resources/db/read/migration/V2__server_assigned_pot_identities.sql",
+        "app/infra-postgres-read/src/main/resources/db/read/migration/V2__pot_balance_aggregate.sql",
+        "app/infra-postgres-read/src/main/resources/db/read/migration/V3__pot_version_radix16.sql",
+        "app/infra-postgres-read/src/main/resources/db/read/migration/V4__pot_balance_shared_storage.sql",
+        READ_AVAILABILITY_MIGRATION,
+        "app/infra-postgres-read/src/main/resources/db/read/migration/V6__server_assigned_pot_identities.sql",
     ]
     apply_migrations((READ_DB, READ_SCHEMA, POSTGRES_ADMIN_USER, READ_ROLE), read_migrations)
-    if not check_tables_exist(CANONICAL_MIGRATION_TABLES):
-        print("FATAL: Postcondition failed: Not all canonical migration tables were created!", file=sys.stderr)
+    if not check_tables_exist(CANONICAL_MIGRATION_TABLES) or not availability_schema_complete():
+        print("FATAL: Postcondition failed: Incomplete canonical READ schema!", file=sys.stderr)
         return False
     transition("MAINTENANCE", "MAINTENANCE/MIGRATED", (operation_id, operator_id))
-    print("   ✓ Baseline V1__initial_schema.sql applied and 14 tables verified (phase: MIGRATED).")
+    print(f"   ✓ READ migrations applied and {len(CANONICAL_MIGRATION_TABLES)} tables verified (phase: MIGRATED).")
     return True
 
 
@@ -790,11 +841,12 @@ def _inspect_physical_state(target_b):
     cp_count = int(psql_admin(READ_DB, f"SELECT count(*) FROM {READ_SCHEMA}.discovery_checkpoint;", check=False) or 0) if tables_exist else 0
     print("• Physical state inspection:")
     print(f"  Schema {READ_SCHEMA} exists:      {schema_exists}")
-    print(f"  Migration tables exist:    {tables_exist} (14/14)")
+    print(f"  Migration tables exist:    {tables_exist} ({len(CANONICAL_MIGRATION_TABLES)}/{len(CANONICAL_MIGRATION_TABLES)})")
     print(f"  Routing contracts:         {routing_count}/7")
     print(f"  Discovery checkpoints:     {cp_count}/{EXPECTED_CHECKPOINTS_COUNT}")
     print(f"  Target Prefix B:           {json.dumps(target_b) if target_b else '(not set)'}")
-    return schema_exists and tables_exist and routing_count == 7 and cp_count == EXPECTED_CHECKPOINTS_COUNT
+    return (schema_exists and tables_exist and routing_count == 7
+            and cp_count == EXPECTED_CHECKPOINTS_COUNT and availability_schema_complete())
 
 
 def _restore_converged_ready(operation_id, active_op, target_b):

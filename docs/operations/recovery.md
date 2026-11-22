@@ -18,7 +18,7 @@ This guide describes the full lifecycle of a [`./pocoma-local`](../reference/cli
        │
        ├── stop ──▶ [ STOPPED (data preserved) ] ──( start )──▶ [ READY ]
        │
-       ├── reset --confirm RESET:<name> ──▶ reinitialize DBs/data from V1
+       ├── reset --confirm RESET:<name> ──▶ reinitialize DBs/data with the current schema
        │
        └── destroy --confirm DESTROY:<name> ──▶ full deletion (containers, volumes, state)
 ```
@@ -90,16 +90,24 @@ If a command hits a client-side timeout, inspect the final outcome using the pri
   ./pocoma-local upgrade-grafana --instance <name>
   ```
 
-- **Reset databases from V1 baselines** (all local business data is wiped):
+- **Reset databases with the current schema** (all local business data is wiped):
 
   ```bash
-  ./pocoma-local reset --instance <name> --dry-run
+  ./pocoma-local reset --instance <name> --confirm RESET:<name> --dry-run
   ./pocoma-local reset --instance <name> --confirm RESET:<name>
   ```
 
 - **Completely destroy the instance** (containers, volumes, and `.pocoma-local/instances/<name>/` directory):
 
   ```bash
-  ./pocoma-local destroy --instance <name> --dry-run
+  ./pocoma-local destroy --instance <name> --confirm DESTROY:<name> --dry-run
   ./pocoma-local destroy --instance <name> --confirm DESTROY:<name>
   ```
+
+## READ reconstruction and availability
+
+A fresh database installs the canonical READ V5 availability schema after V4. A populated V4 READ authority requires the exclusive L6/I2 reconstruction procedure for first activation. The procedure preserves authoritative WRITE data, drains the READ materializers, recreates READ and replays the retained WRITE sources. READ remains in maintenance until checkpoints, outstanding slots and projection integrity allow reopening. The availability oracle checks the catalogue, both directions of the effect and publication mapping, and the family positions.
+
+For a fresh installation, rerun the setup command after a failed schema transaction. It verifies routing and discovery grants before accepting an existing authority. An incomplete schema left by an older installer requires inspection before the runtimes are restarted. Use the reconstruction procedure for populated READ data.
+
+Use the [L6/I2 reconstruction procedure](../v3/L6_I2_Acceptance_and_Closure_Decision.md) for the qualified five-runtime topology. The [reconstruction script](../../scripts/operations/v3-rebuild-read.py) includes status and resume paths. A resume after a replay interruption keeps committed availability UUIDs and positions. A full READ rebuild regenerates them. Any downstream reader must resynchronize its cursors with the new READ incarnation. See the [availability reference](../reference/read-availability.md#concurrency-privileges-and-retention).

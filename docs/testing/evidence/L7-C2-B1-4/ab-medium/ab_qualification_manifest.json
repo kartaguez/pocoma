@@ -1,0 +1,655 @@
+{
+  "profile": "medium",
+  "snapshotDir": "/private/tmp/pocoma-l74a-snapshots/medium",
+  "equivalence": {
+    "exactMatch": true,
+    "checkedEndpoints": [
+      "balanceCurrent",
+      "currentFull",
+      "historicalMid",
+      "historicalV1",
+      "targetedExpense1",
+      "targetedExpense50"
+    ],
+    "mismatches": {}
+  },
+  "baselineA": {
+    "label": "baseline-a",
+    "profile": "medium",
+    "restoreSeconds": 0.58,
+    "snapshotSha256": "77dd5a955af3bf254a29efe2e78652bceef52bd10c44c69f980b5bacebf0d523",
+    "storagePostRestore": {
+      "read_pot_version": {
+        "rows": 404,
+        "heapBytes": 131072,
+        "indexBytes": 32768,
+        "toastBytes": 2334720,
+        "totalBytes": 2498560
+      },
+      "read_pot_version_node": null,
+      "read_pot_user_set": null,
+      "read_subobject_version": {
+        "rows": 1324,
+        "heapBytes": 1212416,
+        "indexBytes": 122880,
+        "toastBytes": 32768,
+        "totalBytes": 1368064
+      },
+      "read_current_pot": {
+        "rows": 2,
+        "heapBytes": 8192,
+        "indexBytes": 16384,
+        "toastBytes": 0,
+        "totalBytes": 24576
+      },
+      "read_pot_balance": {
+        "rows": 404,
+        "heapBytes": 1245184,
+        "indexBytes": 32768,
+        "toastBytes": 32768,
+        "totalBytes": 1310720
+      },
+      "read_pot_balance_aggregate": {
+        "rows": 0,
+        "heapBytes": 0,
+        "indexBytes": 8192,
+        "toastBytes": 8192,
+        "totalBytes": 16384
+      }
+    },
+    "readLatencies": {
+      "currentFull": {
+        "n": 30,
+        "p50": 8.979,
+        "p95": 88.953,
+        "p99": 90.692,
+        "max": 90.692
+      },
+      "historicalMidFull": {
+        "n": 30,
+        "p50": 6.29,
+        "p95": 81.64,
+        "p99": 83.401,
+        "max": 83.401
+      },
+      "balanceAtVersion": {
+        "n": 30,
+        "p50": 4.179,
+        "p95": 80.27,
+        "p99": 80.841,
+        "max": 80.841
+      },
+      "targetedExpense1": {
+        "n": 30,
+        "p50": 4.798,
+        "p95": 78.803,
+        "p99": 79.359,
+        "max": 79.359
+      },
+      "targetedExpense50": {
+        "n": 30,
+        "p50": 10.145,
+        "p95": 81.273,
+        "p99": 82.797,
+        "max": 82.797
+      }
+    },
+    "mixedMutations": {
+      "commandCount": 20,
+      "finalVersion": 222,
+      "walTotalBytes": 1077392,
+      "walBytesPerVersion": 53869.6,
+      "e2e": {
+        "admissionMs": {
+          "n": 20,
+          "p50": 8.471,
+          "p95": 12.391,
+          "p99": 337.078,
+          "max": 337.078
+        },
+        "resultE2eMs": {
+          "n": 20,
+          "p50": 128.341,
+          "p95": 444.801,
+          "p99": 798.358,
+          "max": 798.358
+        },
+        "c03E2eMs": {
+          "n": 20,
+          "p50": 130.701,
+          "p95": 403.128,
+          "p99": 901.663,
+          "max": 901.663
+        },
+        "balanceE2eMs": {
+          "n": 20,
+          "p50": 129.086,
+          "p95": 408.347,
+          "p99": 906.386,
+          "max": 906.386
+        }
+      },
+      "potVersionPaths": {
+        "incremental:incremental_hit": 20
+      },
+      "potBalancePaths": {
+        "full:no_reference": 1,
+        "incremental:incremental_hit": 19
+      },
+      "potVersionStages": {
+        "reference_lookup": {
+          "count": 20,
+          "totalMs": 113.854,
+          "avgMs": 5.693
+        },
+        "delta_resolution": {
+          "count": 20,
+          "totalMs": 54.947,
+          "avgMs": 2.747
+        },
+        "compose": {
+          "count": 20,
+          "totalMs": 2.339,
+          "avgMs": 0.117
+        },
+        "tree_build": {
+          "count": 0,
+          "totalMs": 0.0,
+          "avgMs": 0.0
+        },
+        "persist_publish": {
+          "count": 20,
+          "totalMs": 175.103,
+          "avgMs": 8.755
+        },
+        "full_source_read": {
+          "count": 0,
+          "totalMs": 0.0,
+          "avgMs": 0.0
+        }
+      },
+      "potVersionNodes": {
+        "inserted": {
+          "count": 0,
+          "sum": 0.0,
+          "avg": 0.0
+        },
+        "loaded": {
+          "count": 0,
+          "sum": 0.0,
+          "avg": 0.0
+        },
+        "reused": {
+          "count": 0,
+          "sum": 0.0,
+          "avg": 0.0
+        }
+      },
+      "storageBefore": {
+        "read_pot_version": {
+          "rows": 404,
+          "heapBytes": 131072,
+          "indexBytes": 32768,
+          "toastBytes": 2334720,
+          "totalBytes": 2498560
+        },
+        "read_pot_version_node": null,
+        "read_pot_user_set": null,
+        "read_subobject_version": {
+          "rows": 1324,
+          "heapBytes": 1212416,
+          "indexBytes": 122880,
+          "toastBytes": 32768,
+          "totalBytes": 1368064
+        },
+        "read_current_pot": {
+          "rows": 2,
+          "heapBytes": 8192,
+          "indexBytes": 16384,
+          "toastBytes": 0,
+          "totalBytes": 24576
+        },
+        "read_pot_balance": {
+          "rows": 404,
+          "heapBytes": 1245184,
+          "indexBytes": 32768,
+          "toastBytes": 32768,
+          "totalBytes": 1310720
+        },
+        "read_pot_balance_aggregate": {
+          "rows": 0,
+          "heapBytes": 0,
+          "indexBytes": 8192,
+          "toastBytes": 8192,
+          "totalBytes": 16384
+        }
+      },
+      "storageAfter": {
+        "read_pot_version": {
+          "rows": 424,
+          "heapBytes": 131072,
+          "indexBytes": 32768,
+          "toastBytes": 2523136,
+          "totalBytes": 2686976
+        },
+        "read_pot_version_node": null,
+        "read_pot_user_set": null,
+        "read_subobject_version": {
+          "rows": 1356,
+          "heapBytes": 1212416,
+          "indexBytes": 122880,
+          "toastBytes": 32768,
+          "totalBytes": 1368064
+        },
+        "read_current_pot": {
+          "rows": 2,
+          "heapBytes": 8192,
+          "indexBytes": 16384,
+          "toastBytes": 0,
+          "totalBytes": 24576
+        },
+        "read_pot_balance": {
+          "rows": 424,
+          "heapBytes": 1245184,
+          "indexBytes": 32768,
+          "toastBytes": 32768,
+          "totalBytes": 1310720
+        },
+        "read_pot_balance_aggregate": {
+          "rows": 20,
+          "heapBytes": 40960,
+          "indexBytes": 16384,
+          "toastBytes": 32768,
+          "totalBytes": 90112
+        }
+      }
+    }
+  },
+  "candidateB": {
+    "label": "candidate-b",
+    "profile": "medium",
+    "restoreSeconds": 0.54,
+    "snapshotSha256": "77dd5a955af3bf254a29efe2e78652bceef52bd10c44c69f980b5bacebf0d523",
+    "rebuild1": {
+      "elapsedSeconds": 4.29,
+      "treeDigest": {
+        "versionCount": 404,
+        "sha256": "0e179e4451f939642a139b8f4a293ae1e895344cc60380b6944c40c1e7ae215f"
+      },
+      "f4Diagnostic": {
+        "nodes": {
+          "node_heap_bytes": 507904,
+          "node_index_bytes": 73728,
+          "node_toast_bytes": 32768,
+          "node_total_bytes": 614400,
+          "total_node_count": 703,
+          "reachable_node_count": 703,
+          "total_node_row_bytes": 476337,
+          "unreachable_node_bytes": 0,
+          "unreachable_node_count": 0
+        },
+        "userSets": {
+          "user_set_heap_bytes": 8192,
+          "total_user_set_count": 1,
+          "user_set_index_bytes": 16384,
+          "user_set_toast_bytes": 8192,
+          "user_set_total_bytes": 32768,
+          "reachable_user_set_count": 1,
+          "total_user_set_row_bytes": 102,
+          "unreachable_user_set_bytes": 0,
+          "unreachable_user_set_count": 0
+        },
+        "publishedVersions": 404
+      }
+    },
+    "rebuild2": {
+      "elapsedSeconds": 11.23,
+      "treeDigest": {
+        "versionCount": 404,
+        "sha256": "0e179e4451f939642a139b8f4a293ae1e895344cc60380b6944c40c1e7ae215f"
+      },
+      "deterministicBitForBit": true,
+      "f4Diagnostic": {
+        "nodes": {
+          "node_heap_bytes": 507904,
+          "node_index_bytes": 73728,
+          "node_toast_bytes": 32768,
+          "node_total_bytes": 614400,
+          "total_node_count": 703,
+          "reachable_node_count": 703,
+          "total_node_row_bytes": 476337,
+          "unreachable_node_bytes": 0,
+          "unreachable_node_count": 0
+        },
+        "userSets": {
+          "user_set_heap_bytes": 8192,
+          "total_user_set_count": 1,
+          "user_set_index_bytes": 16384,
+          "user_set_toast_bytes": 8192,
+          "user_set_total_bytes": 32768,
+          "reachable_user_set_count": 1,
+          "total_user_set_row_bytes": 102,
+          "unreachable_user_set_bytes": 0,
+          "unreachable_user_set_count": 0
+        },
+        "publishedVersions": 404
+      }
+    },
+    "storagePostRestore": {
+      "read_pot_version": {
+        "rows": 404,
+        "heapBytes": 106496,
+        "indexBytes": 40960,
+        "toastBytes": 32768,
+        "totalBytes": 180224
+      },
+      "read_pot_version_node": {
+        "rows": 703,
+        "heapBytes": 507904,
+        "indexBytes": 73728,
+        "toastBytes": 32768,
+        "totalBytes": 614400
+      },
+      "read_pot_user_set": {
+        "rows": 1,
+        "heapBytes": 8192,
+        "indexBytes": 16384,
+        "toastBytes": 8192,
+        "totalBytes": 32768
+      },
+      "read_subobject_version": {
+        "rows": 1324,
+        "heapBytes": 942080,
+        "indexBytes": 155648,
+        "toastBytes": 32768,
+        "totalBytes": 1130496
+      },
+      "read_current_pot": {
+        "rows": 2,
+        "heapBytes": 8192,
+        "indexBytes": 16384,
+        "toastBytes": 0,
+        "totalBytes": 24576
+      },
+      "read_pot_balance": {
+        "rows": 404,
+        "heapBytes": 827392,
+        "indexBytes": 40960,
+        "toastBytes": 32768,
+        "totalBytes": 901120
+      },
+      "read_pot_balance_aggregate": {
+        "rows": 404,
+        "heapBytes": 573440,
+        "indexBytes": 40960,
+        "toastBytes": 32768,
+        "totalBytes": 647168
+      }
+    },
+    "readLatencies": {
+      "currentFull": {
+        "n": 30,
+        "p50": 8.047,
+        "p95": 83.594,
+        "p99": 84.454,
+        "max": 84.454
+      },
+      "historicalMidFull": {
+        "n": 30,
+        "p50": 5.802,
+        "p95": 81.758,
+        "p99": 82.052,
+        "max": 82.052
+      },
+      "balanceAtVersion": {
+        "n": 30,
+        "p50": 3.656,
+        "p95": 78.219,
+        "p99": 80.173,
+        "max": 80.173
+      },
+      "targetedExpense1": {
+        "n": 30,
+        "p50": 4.428,
+        "p95": 80.55,
+        "p99": 85.675,
+        "max": 85.675
+      },
+      "targetedExpense50": {
+        "n": 30,
+        "p50": 9.85,
+        "p95": 80.355,
+        "p99": 89.506,
+        "max": 89.506
+      }
+    },
+    "explainTargetedSql": {
+      "r1ExecutionTimeMs": 0.199,
+      "r1PlanningTimeMs": 1.026,
+      "r3aExecutionTimeMs": 0.099,
+      "r3aPlanningTimeMs": 0.959,
+      "r3aNodeAccess": {
+        "expenseNodesVisited": 0,
+        "shareholderNodesVisited": 1
+      }
+    },
+    "mixedMutations": {
+      "commandCount": 20,
+      "finalVersion": 222,
+      "walTotalBytes": 923992,
+      "walBytesPerVersion": 46199.6,
+      "e2e": {
+        "admissionMs": {
+          "n": 20,
+          "p50": 7.06,
+          "p95": 16.105,
+          "p99": 396.009,
+          "max": 396.009
+        },
+        "resultE2eMs": {
+          "n": 20,
+          "p50": 112.514,
+          "p95": 331.178,
+          "p99": 803.663,
+          "max": 803.663
+        },
+        "c03E2eMs": {
+          "n": 20,
+          "p50": 101.046,
+          "p95": 293.528,
+          "p99": 809.687,
+          "max": 809.687
+        },
+        "balanceE2eMs": {
+          "n": 20,
+          "p50": 101.526,
+          "p95": 296.791,
+          "p99": 813.587,
+          "max": 813.587
+        }
+      },
+      "potVersionPaths": {
+        "incremental:incremental_hit": 20
+      },
+      "potBalancePaths": {
+        "incremental:incremental_hit": 20
+      },
+      "potVersionStages": {
+        "reference_lookup": {
+          "count": 20,
+          "totalMs": 10.279,
+          "avgMs": 0.514
+        },
+        "delta_resolution": {
+          "count": 20,
+          "totalMs": 23.775,
+          "avgMs": 1.189
+        },
+        "compose": {
+          "count": 20,
+          "totalMs": 11.688,
+          "avgMs": 0.584
+        },
+        "tree_build": {
+          "count": 20,
+          "totalMs": 14.346,
+          "avgMs": 0.717
+        },
+        "persist_publish": {
+          "count": 20,
+          "totalMs": 36.269,
+          "avgMs": 1.813
+        },
+        "full_source_read": {
+          "count": 0,
+          "totalMs": 0.0,
+          "avgMs": 0.0
+        }
+      },
+      "potVersionNodes": {
+        "inserted": {
+          "count": 0,
+          "sum": 0.0,
+          "avg": 0.0
+        },
+        "loaded": {
+          "count": 0,
+          "sum": 0.0,
+          "avg": 0.0
+        },
+        "reused": {
+          "count": 0,
+          "sum": 0.0,
+          "avg": 0.0
+        }
+      },
+      "storageBefore": {
+        "read_pot_version": {
+          "rows": 404,
+          "heapBytes": 106496,
+          "indexBytes": 40960,
+          "toastBytes": 32768,
+          "totalBytes": 180224
+        },
+        "read_pot_version_node": {
+          "rows": 703,
+          "heapBytes": 507904,
+          "indexBytes": 73728,
+          "toastBytes": 32768,
+          "totalBytes": 614400
+        },
+        "read_pot_user_set": {
+          "rows": 1,
+          "heapBytes": 8192,
+          "indexBytes": 16384,
+          "toastBytes": 8192,
+          "totalBytes": 32768
+        },
+        "read_subobject_version": {
+          "rows": 1324,
+          "heapBytes": 942080,
+          "indexBytes": 155648,
+          "toastBytes": 32768,
+          "totalBytes": 1130496
+        },
+        "read_current_pot": {
+          "rows": 2,
+          "heapBytes": 8192,
+          "indexBytes": 16384,
+          "toastBytes": 0,
+          "totalBytes": 24576
+        },
+        "read_pot_balance": {
+          "rows": 404,
+          "heapBytes": 827392,
+          "indexBytes": 40960,
+          "toastBytes": 32768,
+          "totalBytes": 901120
+        },
+        "read_pot_balance_aggregate": {
+          "rows": 404,
+          "heapBytes": 573440,
+          "indexBytes": 40960,
+          "toastBytes": 32768,
+          "totalBytes": 647168
+        }
+      },
+      "storageAfter": {
+        "read_pot_version": {
+          "rows": 424,
+          "heapBytes": 106496,
+          "indexBytes": 40960,
+          "toastBytes": 32768,
+          "totalBytes": 180224
+        },
+        "read_pot_version_node": {
+          "rows": 735,
+          "heapBytes": 532480,
+          "indexBytes": 73728,
+          "toastBytes": 32768,
+          "totalBytes": 638976
+        },
+        "read_pot_user_set": {
+          "rows": 1,
+          "heapBytes": 8192,
+          "indexBytes": 16384,
+          "toastBytes": 8192,
+          "totalBytes": 32768
+        },
+        "read_subobject_version": {
+          "rows": 1356,
+          "heapBytes": 966656,
+          "indexBytes": 155648,
+          "toastBytes": 32768,
+          "totalBytes": 1155072
+        },
+        "read_current_pot": {
+          "rows": 2,
+          "heapBytes": 8192,
+          "indexBytes": 16384,
+          "toastBytes": 0,
+          "totalBytes": 24576
+        },
+        "read_pot_balance": {
+          "rows": 424,
+          "heapBytes": 876544,
+          "indexBytes": 40960,
+          "toastBytes": 32768,
+          "totalBytes": 950272
+        },
+        "read_pot_balance_aggregate": {
+          "rows": 424,
+          "heapBytes": 606208,
+          "indexBytes": 40960,
+          "toastBytes": 32768,
+          "totalBytes": 679936
+        }
+      }
+    },
+    "f4AfterMutations": {
+      "nodes": {
+        "node_heap_bytes": 532480,
+        "node_index_bytes": 73728,
+        "node_toast_bytes": 32768,
+        "node_total_bytes": 638976,
+        "total_node_count": 735,
+        "reachable_node_count": 735,
+        "total_node_row_bytes": 497732,
+        "unreachable_node_bytes": 0,
+        "unreachable_node_count": 0
+      },
+      "userSets": {
+        "user_set_heap_bytes": 8192,
+        "total_user_set_count": 1,
+        "user_set_index_bytes": 16384,
+        "user_set_toast_bytes": 8192,
+        "user_set_total_bytes": 32768,
+        "reachable_user_set_count": 1,
+        "total_user_set_row_bytes": 102,
+        "unreachable_user_set_bytes": 0,
+        "unreachable_user_set_count": 0
+      },
+      "publishedVersions": 424
+    }
+  }
+}

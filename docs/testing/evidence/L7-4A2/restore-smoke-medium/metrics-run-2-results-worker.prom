@@ -1,0 +1,1829 @@
+# HELP application_ready_time_seconds Time taken for the application to be ready to service requests
+# TYPE application_ready_time_seconds gauge
+application_ready_time_seconds{main_application_class="com.kartaguez.pocoma.PocomaMaterializeWorkerApplication"} 8.694
+# HELP application_started_time_seconds Time taken to start the application
+# TYPE application_started_time_seconds gauge
+application_started_time_seconds{main_application_class="com.kartaguez.pocoma.PocomaMaterializeWorkerApplication"} 8.399
+# HELP disk_free_bytes Usable space for path
+# TYPE disk_free_bytes gauge
+disk_free_bytes{path="/."} 5.6350547968E10
+# HELP disk_total_bytes Total space for path
+# TYPE disk_total_bytes gauge
+disk_total_bytes{path="/."} 6.7296079872E10
+# HELP executor_active_threads The approximate number of threads that are actively executing tasks
+# TYPE executor_active_threads gauge
+executor_active_threads{name="applicationTaskExecutor"} 0.0
+# HELP executor_completed_tasks_total The approximate total number of tasks that have completed execution
+# TYPE executor_completed_tasks_total counter
+executor_completed_tasks_total{name="applicationTaskExecutor"} 0.0
+# HELP executor_pool_core_threads The core number of threads for the pool
+# TYPE executor_pool_core_threads gauge
+executor_pool_core_threads{name="applicationTaskExecutor"} 8.0
+# HELP executor_pool_max_threads The maximum allowed number of threads in the pool
+# TYPE executor_pool_max_threads gauge
+executor_pool_max_threads{name="applicationTaskExecutor"} 2.147483647E9
+# HELP executor_pool_size_threads The current number of threads in the pool
+# TYPE executor_pool_size_threads gauge
+executor_pool_size_threads{name="applicationTaskExecutor"} 0.0
+# HELP executor_queue_remaining_tasks The number of additional elements that this queue can ideally accept without blocking
+# TYPE executor_queue_remaining_tasks gauge
+executor_queue_remaining_tasks{name="applicationTaskExecutor"} 2.147483647E9
+# HELP executor_queued_tasks The approximate number of tasks that are queued for execution
+# TYPE executor_queued_tasks gauge
+executor_queued_tasks{name="applicationTaskExecutor"} 0.0
+# HELP hikaricp_connections Total connections
+# TYPE hikaricp_connections gauge
+hikaricp_connections{pool="results-worker-read-business"} 4.0
+hikaricp_connections{pool="results-worker-read-control"} 8.0
+hikaricp_connections{pool="results-worker-write-source-read"} 4.0
+# HELP hikaricp_connections_acquire_seconds Connection acquire time
+# TYPE hikaricp_connections_acquire_seconds summary
+hikaricp_connections_acquire_seconds_count{pool="results-worker-read-business"} 14
+hikaricp_connections_acquire_seconds_sum{pool="results-worker-read-business"} 0.001129667
+hikaricp_connections_acquire_seconds_count{pool="results-worker-read-control"} 7787
+hikaricp_connections_acquire_seconds_sum{pool="results-worker-read-control"} 0.005746691
+hikaricp_connections_acquire_seconds_count{pool="results-worker-write-source-read"} 2522
+hikaricp_connections_acquire_seconds_sum{pool="results-worker-write-source-read"} 0.003678256
+# HELP hikaricp_connections_acquire_seconds_max Connection acquire time
+# TYPE hikaricp_connections_acquire_seconds_max gauge
+hikaricp_connections_acquire_seconds_max{pool="results-worker-read-business"} 1.70709E-4
+hikaricp_connections_acquire_seconds_max{pool="results-worker-read-control"} 3.68875E-4
+hikaricp_connections_acquire_seconds_max{pool="results-worker-write-source-read"} 3.13834E-4
+# HELP hikaricp_connections_active Active connections
+# TYPE hikaricp_connections_active gauge
+hikaricp_connections_active{pool="results-worker-read-business"} 0.0
+hikaricp_connections_active{pool="results-worker-read-control"} 0.0
+hikaricp_connections_active{pool="results-worker-write-source-read"} 0.0
+# HELP hikaricp_connections_creation_seconds Connection creation time
+# TYPE hikaricp_connections_creation_seconds summary
+hikaricp_connections_creation_seconds_count{pool="results-worker-read-business"} 3
+hikaricp_connections_creation_seconds_sum{pool="results-worker-read-business"} 0.06
+hikaricp_connections_creation_seconds_count{pool="results-worker-read-control"} 7
+hikaricp_connections_creation_seconds_sum{pool="results-worker-read-control"} 0.031
+hikaricp_connections_creation_seconds_count{pool="results-worker-write-source-read"} 3
+hikaricp_connections_creation_seconds_sum{pool="results-worker-write-source-read"} 0.125
+# HELP hikaricp_connections_creation_seconds_max Connection creation time
+# TYPE hikaricp_connections_creation_seconds_max gauge
+hikaricp_connections_creation_seconds_max{pool="results-worker-read-business"} 0.052
+hikaricp_connections_creation_seconds_max{pool="results-worker-read-control"} 0.008
+hikaricp_connections_creation_seconds_max{pool="results-worker-write-source-read"} 0.066
+# HELP hikaricp_connections_idle Idle connections
+# TYPE hikaricp_connections_idle gauge
+hikaricp_connections_idle{pool="results-worker-read-business"} 4.0
+hikaricp_connections_idle{pool="results-worker-read-control"} 8.0
+hikaricp_connections_idle{pool="results-worker-write-source-read"} 4.0
+# HELP hikaricp_connections_max Max connections
+# TYPE hikaricp_connections_max gauge
+hikaricp_connections_max{pool="results-worker-read-business"} 4.0
+hikaricp_connections_max{pool="results-worker-read-control"} 8.0
+hikaricp_connections_max{pool="results-worker-write-source-read"} 4.0
+# HELP hikaricp_connections_min Min connections
+# TYPE hikaricp_connections_min gauge
+hikaricp_connections_min{pool="results-worker-read-business"} 4.0
+hikaricp_connections_min{pool="results-worker-read-control"} 8.0
+hikaricp_connections_min{pool="results-worker-write-source-read"} 4.0
+# HELP hikaricp_connections_pending Pending threads
+# TYPE hikaricp_connections_pending gauge
+hikaricp_connections_pending{pool="results-worker-read-business"} 0.0
+hikaricp_connections_pending{pool="results-worker-read-control"} 0.0
+hikaricp_connections_pending{pool="results-worker-write-source-read"} 0.0
+# HELP hikaricp_connections_timeout_total Connection timeout total count
+# TYPE hikaricp_connections_timeout_total counter
+hikaricp_connections_timeout_total{pool="results-worker-read-business"} 0.0
+hikaricp_connections_timeout_total{pool="results-worker-read-control"} 0.0
+hikaricp_connections_timeout_total{pool="results-worker-write-source-read"} 0.0
+# HELP hikaricp_connections_usage_seconds Connection usage time
+# TYPE hikaricp_connections_usage_seconds summary
+hikaricp_connections_usage_seconds_count{pool="results-worker-read-business"} 14
+hikaricp_connections_usage_seconds_sum{pool="results-worker-read-business"} 0.334
+hikaricp_connections_usage_seconds_count{pool="results-worker-read-control"} 7787
+hikaricp_connections_usage_seconds_sum{pool="results-worker-read-control"} 3.182
+hikaricp_connections_usage_seconds_count{pool="results-worker-write-source-read"} 2522
+hikaricp_connections_usage_seconds_sum{pool="results-worker-write-source-read"} 1.255
+# HELP hikaricp_connections_usage_seconds_max Connection usage time
+# TYPE hikaricp_connections_usage_seconds_max gauge
+hikaricp_connections_usage_seconds_max{pool="results-worker-read-business"} 0.103
+hikaricp_connections_usage_seconds_max{pool="results-worker-read-control"} 0.102
+hikaricp_connections_usage_seconds_max{pool="results-worker-write-source-read"} 0.087
+# HELP jvm_info JVM version info
+# TYPE jvm_info gauge
+jvm_info{runtime="OpenJDK Runtime Environment",vendor="Eclipse Adoptium",version="21.0.8+9-LTS"} 1
+# HELP jvm_buffer_count_buffers An estimate of the number of buffers in the pool
+# TYPE jvm_buffer_count_buffers gauge
+jvm_buffer_count_buffers{id="direct"} 10.0
+jvm_buffer_count_buffers{id="mapped"} 0.0
+jvm_buffer_count_buffers{id="mapped - 'non-volatile memory'"} 0.0
+# HELP jvm_buffer_memory_used_bytes An estimate of the memory that the Java virtual machine is using for this buffer pool
+# TYPE jvm_buffer_memory_used_bytes gauge
+jvm_buffer_memory_used_bytes{id="direct"} 83968.0
+jvm_buffer_memory_used_bytes{id="mapped"} 0.0
+jvm_buffer_memory_used_bytes{id="mapped - 'non-volatile memory'"} 0.0
+# HELP jvm_buffer_total_capacity_bytes An estimate of the total capacity of the buffers in this pool
+# TYPE jvm_buffer_total_capacity_bytes gauge
+jvm_buffer_total_capacity_bytes{id="direct"} 83968.0
+jvm_buffer_total_capacity_bytes{id="mapped"} 0.0
+jvm_buffer_total_capacity_bytes{id="mapped - 'non-volatile memory'"} 0.0
+# HELP jvm_classes_loaded_classes The number of classes that are currently loaded in the Java virtual machine
+# TYPE jvm_classes_loaded_classes gauge
+jvm_classes_loaded_classes 10165.0
+# HELP jvm_classes_loaded_count_classes_total The number of classes loaded in the Java virtual machine
+# TYPE jvm_classes_loaded_count_classes_total counter
+jvm_classes_loaded_count_classes_total 10165.0
+# HELP jvm_classes_unloaded_classes_total The number of classes unloaded in the Java virtual machine
+# TYPE jvm_classes_unloaded_classes_total counter
+jvm_classes_unloaded_classes_total 0.0
+# HELP jvm_compilation_time_ms_total The approximate accumulated elapsed time spent in compilation
+# TYPE jvm_compilation_time_ms_total counter
+jvm_compilation_time_ms_total{compiler="HotSpot 64-Bit Tiered Compilers"} 15120.0
+# HELP jvm_gc_live_data_size_bytes Size of long-lived heap memory pool after reclamation
+# TYPE jvm_gc_live_data_size_bytes gauge
+jvm_gc_live_data_size_bytes 0.0
+# HELP jvm_gc_max_data_size_bytes Max size of long-lived heap memory pool
+# TYPE jvm_gc_max_data_size_bytes gauge
+jvm_gc_max_data_size_bytes 3.57957632E8
+# HELP jvm_gc_memory_allocated_bytes_total Incremented for an increase in the size of the (young) heap memory pool after one GC to before the next
+# TYPE jvm_gc_memory_allocated_bytes_total counter
+jvm_gc_memory_allocated_bytes_total 2.33439144E8
+# HELP jvm_gc_memory_promoted_bytes_total Count of positive increases in the size of the old generation memory pool before GC to after GC
+# TYPE jvm_gc_memory_promoted_bytes_total counter
+jvm_gc_memory_promoted_bytes_total 3276960.0
+# HELP jvm_gc_overhead An approximation of the percent of CPU time used by GC activities over the last lookback period or since monitoring began, whichever is shorter, in the range [0..1]
+# TYPE jvm_gc_overhead gauge
+jvm_gc_overhead 0.0023662644180691113
+# HELP jvm_gc_pause_seconds Time spent in GC pause
+# TYPE jvm_gc_pause_seconds summary
+jvm_gc_pause_seconds_count{action="end of minor GC",cause="Allocation Failure",gc="Copy"} 13
+jvm_gc_pause_seconds_sum{action="end of minor GC",cause="Allocation Failure",gc="Copy"} 0.033
+# HELP jvm_gc_pause_seconds_max Time spent in GC pause
+# TYPE jvm_gc_pause_seconds_max gauge
+jvm_gc_pause_seconds_max{action="end of minor GC",cause="Allocation Failure",gc="Copy"} 0.005
+# HELP jvm_memory_committed_bytes The amount of memory in bytes that is committed for the Java virtual machine to use
+# TYPE jvm_memory_committed_bytes gauge
+jvm_memory_committed_bytes{area="heap",id="Eden Space"} 1.7956864E7
+jvm_memory_committed_bytes{area="heap",id="Survivor Space"} 2228224.0
+jvm_memory_committed_bytes{area="heap",id="Tenured Gen"} 4.4761088E7
+jvm_memory_committed_bytes{area="nonheap",id="CodeHeap 'non-nmethods'"} 2555904.0
+jvm_memory_committed_bytes{area="nonheap",id="CodeHeap 'non-profiled nmethods'"} 5308416.0
+jvm_memory_committed_bytes{area="nonheap",id="CodeHeap 'profiled nmethods'"} 1.5925248E7
+jvm_memory_committed_bytes{area="nonheap",id="Compressed Class Space"} 6553600.0
+jvm_memory_committed_bytes{area="nonheap",id="Metaspace"} 4.9741824E7
+# HELP jvm_memory_max_bytes The maximum amount of memory in bytes that can be used for memory management
+# TYPE jvm_memory_max_bytes gauge
+jvm_memory_max_bytes{area="heap",id="Eden Space"} 1.43130624E8
+jvm_memory_max_bytes{area="heap",id="Survivor Space"} 1.7891328E7
+jvm_memory_max_bytes{area="heap",id="Tenured Gen"} 3.57957632E8
+jvm_memory_max_bytes{area="nonheap",id="CodeHeap 'non-nmethods'"} 5828608.0
+jvm_memory_max_bytes{area="nonheap",id="CodeHeap 'non-profiled nmethods'"} 1.22916864E8
+jvm_memory_max_bytes{area="nonheap",id="CodeHeap 'profiled nmethods'"} 1.22912768E8
+jvm_memory_max_bytes{area="nonheap",id="Compressed Class Space"} 1.073741824E9
+jvm_memory_max_bytes{area="nonheap",id="Metaspace"} -1.0
+# HELP jvm_memory_usage_after_gc The percentage of long-lived heap pool used after the last GC event, in the range [0..1]
+# TYPE jvm_memory_usage_after_gc gauge
+jvm_memory_usage_after_gc{area="heap",pool="long-lived"} 0.061224228905391795
+# HELP jvm_memory_used_bytes The amount of used memory
+# TYPE jvm_memory_used_bytes gauge
+jvm_memory_used_bytes{area="heap",id="Eden Space"} 2714168.0
+jvm_memory_used_bytes{area="heap",id="Survivor Space"} 706976.0
+jvm_memory_used_bytes{area="heap",id="Tenured Gen"} 2.191568E7
+jvm_memory_used_bytes{area="nonheap",id="CodeHeap 'non-nmethods'"} 1456512.0
+jvm_memory_used_bytes{area="nonheap",id="CodeHeap 'non-profiled nmethods'"} 5271424.0
+jvm_memory_used_bytes{area="nonheap",id="CodeHeap 'profiled nmethods'"} 1.5893504E7
+jvm_memory_used_bytes{area="nonheap",id="Compressed Class Space"} 6130168.0
+jvm_memory_used_bytes{area="nonheap",id="Metaspace"} 4.8826496E7
+# HELP jvm_threads_daemon_threads The current number of live daemon threads
+# TYPE jvm_threads_daemon_threads gauge
+jvm_threads_daemon_threads 35.0
+# HELP jvm_threads_live_threads The current number of live threads including both daemon and non-daemon threads
+# TYPE jvm_threads_live_threads gauge
+jvm_threads_live_threads 50.0
+# HELP jvm_threads_peak_threads The peak live thread count since the Java virtual machine started or peak was reset
+# TYPE jvm_threads_peak_threads gauge
+jvm_threads_peak_threads 53.0
+# HELP jvm_threads_started_threads_total The total number of application threads started in the JVM
+# TYPE jvm_threads_started_threads_total counter
+jvm_threads_started_threads_total 54.0
+# HELP jvm_threads_states_threads The current number of threads
+# TYPE jvm_threads_states_threads gauge
+jvm_threads_states_threads{state="blocked"} 0.0
+jvm_threads_states_threads{state="new"} 0.0
+jvm_threads_states_threads{state="runnable"} 9.0
+jvm_threads_states_threads{state="terminated"} 0.0
+jvm_threads_states_threads{state="timed-waiting"} 17.0
+jvm_threads_states_threads{state="waiting"} 24.0
+# HELP logback_events_total Number of log events that were enabled by the effective log level
+# TYPE logback_events_total counter
+logback_events_total{level="debug"} 0.0
+logback_events_total{level="error"} 0.0
+logback_events_total{level="info"} 11.0
+logback_events_total{level="trace"} 0.0
+logback_events_total{level="warn"} 0.0
+# HELP pocoma_v3_attempt_duration_seconds  
+# TYPE pocoma_v3_attempt_duration_seconds histogram
+pocoma_v3_attempt_duration_seconds_bucket{consumption="CommandResult",outcome="committed",le="0.001"} 0
+pocoma_v3_attempt_duration_seconds_bucket{consumption="CommandResult",outcome="committed",le="0.001048576"} 0
+pocoma_v3_attempt_duration_seconds_bucket{consumption="CommandResult",outcome="committed",le="0.001398101"} 0
+pocoma_v3_attempt_duration_seconds_bucket{consumption="CommandResult",outcome="committed",le="0.001747626"} 1
+pocoma_v3_attempt_duration_seconds_bucket{consumption="CommandResult",outcome="committed",le="0.002097151"} 2
+pocoma_v3_attempt_duration_seconds_bucket{consumption="CommandResult",outcome="committed",le="0.002446676"} 6
+pocoma_v3_attempt_duration_seconds_bucket{consumption="CommandResult",outcome="committed",le="0.002796201"} 8
+pocoma_v3_attempt_duration_seconds_bucket{consumption="CommandResult",outcome="committed",le="0.003145726"} 8
+pocoma_v3_attempt_duration_seconds_bucket{consumption="CommandResult",outcome="committed",le="0.003495251"} 8
+pocoma_v3_attempt_duration_seconds_bucket{consumption="CommandResult",outcome="committed",le="0.003844776"} 8
+pocoma_v3_attempt_duration_seconds_bucket{consumption="CommandResult",outcome="committed",le="0.004194304"} 9
+pocoma_v3_attempt_duration_seconds_bucket{consumption="CommandResult",outcome="committed",le="0.005"} 9
+pocoma_v3_attempt_duration_seconds_bucket{consumption="CommandResult",outcome="committed",le="0.005592405"} 9
+pocoma_v3_attempt_duration_seconds_bucket{consumption="CommandResult",outcome="committed",le="0.006990506"} 9
+pocoma_v3_attempt_duration_seconds_bucket{consumption="CommandResult",outcome="committed",le="0.008388607"} 9
+pocoma_v3_attempt_duration_seconds_bucket{consumption="CommandResult",outcome="committed",le="0.009786708"} 9
+pocoma_v3_attempt_duration_seconds_bucket{consumption="CommandResult",outcome="committed",le="0.01"} 9
+pocoma_v3_attempt_duration_seconds_bucket{consumption="CommandResult",outcome="committed",le="0.011184809"} 9
+pocoma_v3_attempt_duration_seconds_bucket{consumption="CommandResult",outcome="committed",le="0.01258291"} 9
+pocoma_v3_attempt_duration_seconds_bucket{consumption="CommandResult",outcome="committed",le="0.013981011"} 9
+pocoma_v3_attempt_duration_seconds_bucket{consumption="CommandResult",outcome="committed",le="0.015379112"} 9
+pocoma_v3_attempt_duration_seconds_bucket{consumption="CommandResult",outcome="committed",le="0.016777216"} 9
+pocoma_v3_attempt_duration_seconds_bucket{consumption="CommandResult",outcome="committed",le="0.022369621"} 9
+pocoma_v3_attempt_duration_seconds_bucket{consumption="CommandResult",outcome="committed",le="0.027962026"} 9
+pocoma_v3_attempt_duration_seconds_bucket{consumption="CommandResult",outcome="committed",le="0.033554431"} 9
+pocoma_v3_attempt_duration_seconds_bucket{consumption="CommandResult",outcome="committed",le="0.039146836"} 9
+pocoma_v3_attempt_duration_seconds_bucket{consumption="CommandResult",outcome="committed",le="0.044739241"} 9
+pocoma_v3_attempt_duration_seconds_bucket{consumption="CommandResult",outcome="committed",le="0.05"} 9
+pocoma_v3_attempt_duration_seconds_bucket{consumption="CommandResult",outcome="committed",le="0.050331646"} 9
+pocoma_v3_attempt_duration_seconds_bucket{consumption="CommandResult",outcome="committed",le="0.055924051"} 9
+pocoma_v3_attempt_duration_seconds_bucket{consumption="CommandResult",outcome="committed",le="0.061516456"} 9
+pocoma_v3_attempt_duration_seconds_bucket{consumption="CommandResult",outcome="committed",le="0.067108864"} 9
+pocoma_v3_attempt_duration_seconds_bucket{consumption="CommandResult",outcome="committed",le="0.089478485"} 9
+pocoma_v3_attempt_duration_seconds_bucket{consumption="CommandResult",outcome="committed",le="0.1"} 10
+pocoma_v3_attempt_duration_seconds_bucket{consumption="CommandResult",outcome="committed",le="0.111848106"} 10
+pocoma_v3_attempt_duration_seconds_bucket{consumption="CommandResult",outcome="committed",le="0.134217727"} 10
+pocoma_v3_attempt_duration_seconds_bucket{consumption="CommandResult",outcome="committed",le="0.156587348"} 10
+pocoma_v3_attempt_duration_seconds_bucket{consumption="CommandResult",outcome="committed",le="0.178956969"} 10
+pocoma_v3_attempt_duration_seconds_bucket{consumption="CommandResult",outcome="committed",le="0.20132659"} 10
+pocoma_v3_attempt_duration_seconds_bucket{consumption="CommandResult",outcome="committed",le="0.223696211"} 10
+pocoma_v3_attempt_duration_seconds_bucket{consumption="CommandResult",outcome="committed",le="0.246065832"} 10
+pocoma_v3_attempt_duration_seconds_bucket{consumption="CommandResult",outcome="committed",le="0.268435456"} 10
+pocoma_v3_attempt_duration_seconds_bucket{consumption="CommandResult",outcome="committed",le="0.357913941"} 10
+pocoma_v3_attempt_duration_seconds_bucket{consumption="CommandResult",outcome="committed",le="0.447392426"} 10
+pocoma_v3_attempt_duration_seconds_bucket{consumption="CommandResult",outcome="committed",le="0.5"} 10
+pocoma_v3_attempt_duration_seconds_bucket{consumption="CommandResult",outcome="committed",le="0.536870911"} 10
+pocoma_v3_attempt_duration_seconds_bucket{consumption="CommandResult",outcome="committed",le="0.626349396"} 10
+pocoma_v3_attempt_duration_seconds_bucket{consumption="CommandResult",outcome="committed",le="0.715827881"} 10
+pocoma_v3_attempt_duration_seconds_bucket{consumption="CommandResult",outcome="committed",le="0.805306366"} 10
+pocoma_v3_attempt_duration_seconds_bucket{consumption="CommandResult",outcome="committed",le="0.894784851"} 10
+pocoma_v3_attempt_duration_seconds_bucket{consumption="CommandResult",outcome="committed",le="0.984263336"} 10
+pocoma_v3_attempt_duration_seconds_bucket{consumption="CommandResult",outcome="committed",le="1.0"} 10
+pocoma_v3_attempt_duration_seconds_bucket{consumption="CommandResult",outcome="committed",le="1.073741824"} 10
+pocoma_v3_attempt_duration_seconds_bucket{consumption="CommandResult",outcome="committed",le="1.431655765"} 10
+pocoma_v3_attempt_duration_seconds_bucket{consumption="CommandResult",outcome="committed",le="1.789569706"} 10
+pocoma_v3_attempt_duration_seconds_bucket{consumption="CommandResult",outcome="committed",le="2.0"} 10
+pocoma_v3_attempt_duration_seconds_bucket{consumption="CommandResult",outcome="committed",le="2.147483647"} 10
+pocoma_v3_attempt_duration_seconds_bucket{consumption="CommandResult",outcome="committed",le="2.505397588"} 10
+pocoma_v3_attempt_duration_seconds_bucket{consumption="CommandResult",outcome="committed",le="2.863311529"} 10
+pocoma_v3_attempt_duration_seconds_bucket{consumption="CommandResult",outcome="committed",le="3.22122547"} 10
+pocoma_v3_attempt_duration_seconds_bucket{consumption="CommandResult",outcome="committed",le="3.579139411"} 10
+pocoma_v3_attempt_duration_seconds_bucket{consumption="CommandResult",outcome="committed",le="3.937053352"} 10
+pocoma_v3_attempt_duration_seconds_bucket{consumption="CommandResult",outcome="committed",le="4.294967296"} 10
+pocoma_v3_attempt_duration_seconds_bucket{consumption="CommandResult",outcome="committed",le="5.0"} 10
+pocoma_v3_attempt_duration_seconds_bucket{consumption="CommandResult",outcome="committed",le="5.726623061"} 10
+pocoma_v3_attempt_duration_seconds_bucket{consumption="CommandResult",outcome="committed",le="7.158278826"} 10
+pocoma_v3_attempt_duration_seconds_bucket{consumption="CommandResult",outcome="committed",le="8.589934591"} 10
+pocoma_v3_attempt_duration_seconds_bucket{consumption="CommandResult",outcome="committed",le="10.021590356"} 10
+pocoma_v3_attempt_duration_seconds_bucket{consumption="CommandResult",outcome="committed",le="11.453246121"} 10
+pocoma_v3_attempt_duration_seconds_bucket{consumption="CommandResult",outcome="committed",le="12.884901886"} 10
+pocoma_v3_attempt_duration_seconds_bucket{consumption="CommandResult",outcome="committed",le="14.316557651"} 10
+pocoma_v3_attempt_duration_seconds_bucket{consumption="CommandResult",outcome="committed",le="15.748213416"} 10
+pocoma_v3_attempt_duration_seconds_bucket{consumption="CommandResult",outcome="committed",le="17.179869184"} 10
+pocoma_v3_attempt_duration_seconds_bucket{consumption="CommandResult",outcome="committed",le="22.906492245"} 10
+pocoma_v3_attempt_duration_seconds_bucket{consumption="CommandResult",outcome="committed",le="28.633115306"} 10
+pocoma_v3_attempt_duration_seconds_bucket{consumption="CommandResult",outcome="committed",le="30.0"} 10
+pocoma_v3_attempt_duration_seconds_bucket{consumption="CommandResult",outcome="committed",le="60.0"} 10
+pocoma_v3_attempt_duration_seconds_bucket{consumption="CommandResult",outcome="committed",le="120.0"} 10
+pocoma_v3_attempt_duration_seconds_bucket{consumption="CommandResult",outcome="committed",le="+Inf"} 10
+pocoma_v3_attempt_duration_seconds_count{consumption="CommandResult",outcome="committed"} 10
+pocoma_v3_attempt_duration_seconds_sum{consumption="CommandResult",outcome="committed"} 0.119925706
+# HELP pocoma_v3_attempt_duration_seconds_max  
+# TYPE pocoma_v3_attempt_duration_seconds_max gauge
+pocoma_v3_attempt_duration_seconds_max{consumption="CommandResult",outcome="committed"} 0.098280542
+# HELP pocoma_v3_attempt_outcomes_total  
+# TYPE pocoma_v3_attempt_outcomes_total counter
+pocoma_v3_attempt_outcomes_total{consumption="CommandResult",outcome="committed"} 10.0
+# HELP pocoma_v3_attempt_phase_duration_seconds  
+# TYPE pocoma_v3_attempt_phase_duration_seconds histogram
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="committed",phase="finalize",le="0.001"} 2
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="committed",phase="finalize",le="0.001048576"} 3
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="committed",phase="finalize",le="0.001398101"} 8
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="committed",phase="finalize",le="0.001747626"} 9
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="committed",phase="finalize",le="0.002097151"} 9
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="committed",phase="finalize",le="0.002446676"} 9
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="committed",phase="finalize",le="0.002796201"} 9
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="committed",phase="finalize",le="0.003145726"} 9
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="committed",phase="finalize",le="0.003495251"} 9
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="committed",phase="finalize",le="0.003844776"} 9
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="committed",phase="finalize",le="0.004194304"} 9
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="committed",phase="finalize",le="0.005"} 9
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="committed",phase="finalize",le="0.005592405"} 9
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="committed",phase="finalize",le="0.006990506"} 9
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="committed",phase="finalize",le="0.008388607"} 9
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="committed",phase="finalize",le="0.009786708"} 9
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="committed",phase="finalize",le="0.01"} 9
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="committed",phase="finalize",le="0.011184809"} 9
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="committed",phase="finalize",le="0.01258291"} 9
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="committed",phase="finalize",le="0.013981011"} 9
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="committed",phase="finalize",le="0.015379112"} 9
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="committed",phase="finalize",le="0.016777216"} 9
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="committed",phase="finalize",le="0.022369621"} 9
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="committed",phase="finalize",le="0.027962026"} 9
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="committed",phase="finalize",le="0.033554431"} 9
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="committed",phase="finalize",le="0.039146836"} 9
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="committed",phase="finalize",le="0.044739241"} 9
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="committed",phase="finalize",le="0.05"} 9
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="committed",phase="finalize",le="0.050331646"} 9
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="committed",phase="finalize",le="0.055924051"} 9
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="committed",phase="finalize",le="0.061516456"} 9
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="committed",phase="finalize",le="0.067108864"} 9
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="committed",phase="finalize",le="0.089478485"} 9
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="committed",phase="finalize",le="0.1"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="committed",phase="finalize",le="0.111848106"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="committed",phase="finalize",le="0.134217727"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="committed",phase="finalize",le="0.156587348"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="committed",phase="finalize",le="0.178956969"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="committed",phase="finalize",le="0.20132659"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="committed",phase="finalize",le="0.223696211"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="committed",phase="finalize",le="0.246065832"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="committed",phase="finalize",le="0.268435456"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="committed",phase="finalize",le="0.357913941"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="committed",phase="finalize",le="0.447392426"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="committed",phase="finalize",le="0.5"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="committed",phase="finalize",le="0.536870911"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="committed",phase="finalize",le="0.626349396"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="committed",phase="finalize",le="0.715827881"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="committed",phase="finalize",le="0.805306366"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="committed",phase="finalize",le="0.894784851"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="committed",phase="finalize",le="0.984263336"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="committed",phase="finalize",le="1.0"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="committed",phase="finalize",le="1.073741824"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="committed",phase="finalize",le="1.431655765"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="committed",phase="finalize",le="1.789569706"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="committed",phase="finalize",le="2.0"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="committed",phase="finalize",le="2.147483647"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="committed",phase="finalize",le="2.505397588"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="committed",phase="finalize",le="2.863311529"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="committed",phase="finalize",le="3.22122547"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="committed",phase="finalize",le="3.579139411"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="committed",phase="finalize",le="3.937053352"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="committed",phase="finalize",le="4.294967296"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="committed",phase="finalize",le="5.0"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="committed",phase="finalize",le="5.726623061"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="committed",phase="finalize",le="7.158278826"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="committed",phase="finalize",le="8.589934591"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="committed",phase="finalize",le="10.021590356"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="committed",phase="finalize",le="11.453246121"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="committed",phase="finalize",le="12.884901886"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="committed",phase="finalize",le="14.316557651"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="committed",phase="finalize",le="15.748213416"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="committed",phase="finalize",le="17.179869184"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="committed",phase="finalize",le="22.906492245"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="committed",phase="finalize",le="28.633115306"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="committed",phase="finalize",le="30.0"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="committed",phase="finalize",le="60.0"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="committed",phase="finalize",le="120.0"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="committed",phase="finalize",le="+Inf"} 10
+pocoma_v3_attempt_phase_duration_seconds_count{consumption="CommandResult",outcome="committed",phase="finalize"} 10
+pocoma_v3_attempt_phase_duration_seconds_sum{consumption="CommandResult",outcome="committed",phase="finalize"} 0.103030209
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",phase="prepare",le="0.001"} 4
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",phase="prepare",le="0.001048576"} 4
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",phase="prepare",le="0.001398101"} 7
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",phase="prepare",le="0.001747626"} 8
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",phase="prepare",le="0.002097151"} 8
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",phase="prepare",le="0.002446676"} 9
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",phase="prepare",le="0.002796201"} 9
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",phase="prepare",le="0.003145726"} 9
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",phase="prepare",le="0.003495251"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",phase="prepare",le="0.003844776"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",phase="prepare",le="0.004194304"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",phase="prepare",le="0.005"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",phase="prepare",le="0.005592405"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",phase="prepare",le="0.006990506"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",phase="prepare",le="0.008388607"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",phase="prepare",le="0.009786708"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",phase="prepare",le="0.01"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",phase="prepare",le="0.011184809"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",phase="prepare",le="0.01258291"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",phase="prepare",le="0.013981011"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",phase="prepare",le="0.015379112"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",phase="prepare",le="0.016777216"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",phase="prepare",le="0.022369621"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",phase="prepare",le="0.027962026"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",phase="prepare",le="0.033554431"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",phase="prepare",le="0.039146836"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",phase="prepare",le="0.044739241"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",phase="prepare",le="0.05"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",phase="prepare",le="0.050331646"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",phase="prepare",le="0.055924051"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",phase="prepare",le="0.061516456"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",phase="prepare",le="0.067108864"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",phase="prepare",le="0.089478485"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",phase="prepare",le="0.1"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",phase="prepare",le="0.111848106"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",phase="prepare",le="0.134217727"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",phase="prepare",le="0.156587348"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",phase="prepare",le="0.178956969"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",phase="prepare",le="0.20132659"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",phase="prepare",le="0.223696211"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",phase="prepare",le="0.246065832"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",phase="prepare",le="0.268435456"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",phase="prepare",le="0.357913941"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",phase="prepare",le="0.447392426"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",phase="prepare",le="0.5"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",phase="prepare",le="0.536870911"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",phase="prepare",le="0.626349396"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",phase="prepare",le="0.715827881"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",phase="prepare",le="0.805306366"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",phase="prepare",le="0.894784851"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",phase="prepare",le="0.984263336"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",phase="prepare",le="1.0"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",phase="prepare",le="1.073741824"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",phase="prepare",le="1.431655765"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",phase="prepare",le="1.789569706"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",phase="prepare",le="2.0"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",phase="prepare",le="2.147483647"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",phase="prepare",le="2.505397588"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",phase="prepare",le="2.863311529"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",phase="prepare",le="3.22122547"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",phase="prepare",le="3.579139411"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",phase="prepare",le="3.937053352"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",phase="prepare",le="4.294967296"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",phase="prepare",le="5.0"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",phase="prepare",le="5.726623061"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",phase="prepare",le="7.158278826"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",phase="prepare",le="8.589934591"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",phase="prepare",le="10.021590356"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",phase="prepare",le="11.453246121"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",phase="prepare",le="12.884901886"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",phase="prepare",le="14.316557651"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",phase="prepare",le="15.748213416"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",phase="prepare",le="17.179869184"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",phase="prepare",le="22.906492245"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",phase="prepare",le="28.633115306"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",phase="prepare",le="30.0"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",phase="prepare",le="60.0"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",phase="prepare",le="120.0"} 10
+pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",phase="prepare",le="+Inf"} 10
+pocoma_v3_attempt_phase_duration_seconds_count{consumption="CommandResult",outcome="confirmed",phase="prepare"} 10
+pocoma_v3_attempt_phase_duration_seconds_sum{consumption="CommandResult",outcome="confirmed",phase="prepare"} 0.014179044
+# HELP pocoma_v3_attempt_phase_duration_seconds_max  
+# TYPE pocoma_v3_attempt_phase_duration_seconds_max gauge
+pocoma_v3_attempt_phase_duration_seconds_max{consumption="CommandResult",outcome="committed",phase="finalize"} 0.092771292
+pocoma_v3_attempt_phase_duration_seconds_max{consumption="CommandResult",outcome="confirmed",phase="prepare"} 0.003221917
+# HELP pocoma_v3_attempt_started_total  
+# TYPE pocoma_v3_attempt_started_total counter
+pocoma_v3_attempt_started_total{consumption="CommandResult"} 10.0
+# HELP pocoma_v3_capacity_changes_total  
+# TYPE pocoma_v3_capacity_changes_total counter
+pocoma_v3_capacity_changes_total{consumption="Command",kind="reserved"} 0.0
+pocoma_v3_capacity_changes_total{consumption="Command",kind="returned"} 0.0
+pocoma_v3_capacity_changes_total{consumption="CommandResult",kind="reserved"} 10.0
+pocoma_v3_capacity_changes_total{consumption="CommandResult",kind="returned"} 10.0
+pocoma_v3_capacity_changes_total{consumption="CurrentBinding",kind="reserved"} 0.0
+pocoma_v3_capacity_changes_total{consumption="CurrentBinding",kind="returned"} 0.0
+pocoma_v3_capacity_changes_total{consumption="I5ReadCompletionProbe",kind="reserved"} 0.0
+pocoma_v3_capacity_changes_total{consumption="I5ReadCompletionProbe",kind="returned"} 0.0
+pocoma_v3_capacity_changes_total{consumption="I5ReadPotProbe",kind="reserved"} 0.0
+pocoma_v3_capacity_changes_total{consumption="I5ReadPotProbe",kind="returned"} 0.0
+pocoma_v3_capacity_changes_total{consumption="IdentityRequest",kind="reserved"} 0.0
+pocoma_v3_capacity_changes_total{consumption="IdentityRequest",kind="returned"} 0.0
+pocoma_v3_capacity_changes_total{consumption="IdentityRequestResult",kind="reserved"} 0.0
+pocoma_v3_capacity_changes_total{consumption="IdentityRequestResult",kind="returned"} 0.0
+pocoma_v3_capacity_changes_total{consumption="Invitation",kind="reserved"} 0.0
+pocoma_v3_capacity_changes_total{consumption="Invitation",kind="returned"} 0.0
+pocoma_v3_capacity_changes_total{consumption="PotBalance",kind="reserved"} 0.0
+pocoma_v3_capacity_changes_total{consumption="PotBalance",kind="returned"} 0.0
+pocoma_v3_capacity_changes_total{consumption="PotVersion",kind="reserved"} 0.0
+pocoma_v3_capacity_changes_total{consumption="PotVersion",kind="returned"} 0.0
+pocoma_v3_capacity_changes_total{consumption="PotVisibility",kind="reserved"} 0.0
+pocoma_v3_capacity_changes_total{consumption="PotVisibility",kind="returned"} 0.0
+# HELP pocoma_v3_capacity_limit  
+# TYPE pocoma_v3_capacity_limit gauge
+pocoma_v3_capacity_limit{scope="CommandResult"} NaN
+pocoma_v3_capacity_limit{scope="IdentityRequestResult"} NaN
+pocoma_v3_capacity_limit{scope="worker"} 2.0
+# HELP pocoma_v3_capacity_used  
+# TYPE pocoma_v3_capacity_used gauge
+pocoma_v3_capacity_used{scope="CommandResult"} 0.0
+pocoma_v3_capacity_used{scope="IdentityRequestResult"} 0.0
+pocoma_v3_capacity_used{scope="worker"} 0.0
+# HELP pocoma_v3_claim_acquisition_duration_seconds  
+# TYPE pocoma_v3_claim_acquisition_duration_seconds histogram
+pocoma_v3_claim_acquisition_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.001"} 0
+pocoma_v3_claim_acquisition_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.001048576"} 0
+pocoma_v3_claim_acquisition_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.001398101"} 3
+pocoma_v3_claim_acquisition_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.001747626"} 6
+pocoma_v3_claim_acquisition_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.002097151"} 7
+pocoma_v3_claim_acquisition_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.002446676"} 8
+pocoma_v3_claim_acquisition_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.002796201"} 8
+pocoma_v3_claim_acquisition_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.003145726"} 8
+pocoma_v3_claim_acquisition_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.003495251"} 8
+pocoma_v3_claim_acquisition_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.003844776"} 8
+pocoma_v3_claim_acquisition_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.004194304"} 9
+pocoma_v3_claim_acquisition_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.005"} 9
+pocoma_v3_claim_acquisition_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.005592405"} 9
+pocoma_v3_claim_acquisition_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.006990506"} 9
+pocoma_v3_claim_acquisition_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.008388607"} 9
+pocoma_v3_claim_acquisition_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.009786708"} 9
+pocoma_v3_claim_acquisition_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.01"} 9
+pocoma_v3_claim_acquisition_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.011184809"} 9
+pocoma_v3_claim_acquisition_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.01258291"} 9
+pocoma_v3_claim_acquisition_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.013981011"} 9
+pocoma_v3_claim_acquisition_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.015379112"} 9
+pocoma_v3_claim_acquisition_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.016777216"} 9
+pocoma_v3_claim_acquisition_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.022369621"} 9
+pocoma_v3_claim_acquisition_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.027962026"} 9
+pocoma_v3_claim_acquisition_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.033554431"} 9
+pocoma_v3_claim_acquisition_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.039146836"} 9
+pocoma_v3_claim_acquisition_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.044739241"} 9
+pocoma_v3_claim_acquisition_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.05"} 9
+pocoma_v3_claim_acquisition_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.050331646"} 9
+pocoma_v3_claim_acquisition_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.055924051"} 9
+pocoma_v3_claim_acquisition_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.061516456"} 10
+pocoma_v3_claim_acquisition_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.067108864"} 10
+pocoma_v3_claim_acquisition_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.089478485"} 10
+pocoma_v3_claim_acquisition_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.1"} 10
+pocoma_v3_claim_acquisition_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.111848106"} 10
+pocoma_v3_claim_acquisition_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.134217727"} 10
+pocoma_v3_claim_acquisition_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.156587348"} 10
+pocoma_v3_claim_acquisition_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.178956969"} 10
+pocoma_v3_claim_acquisition_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.20132659"} 10
+pocoma_v3_claim_acquisition_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.223696211"} 10
+pocoma_v3_claim_acquisition_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.246065832"} 10
+pocoma_v3_claim_acquisition_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.268435456"} 10
+pocoma_v3_claim_acquisition_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.357913941"} 10
+pocoma_v3_claim_acquisition_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.447392426"} 10
+pocoma_v3_claim_acquisition_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.5"} 10
+pocoma_v3_claim_acquisition_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.536870911"} 10
+pocoma_v3_claim_acquisition_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.626349396"} 10
+pocoma_v3_claim_acquisition_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.715827881"} 10
+pocoma_v3_claim_acquisition_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.805306366"} 10
+pocoma_v3_claim_acquisition_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.894784851"} 10
+pocoma_v3_claim_acquisition_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.984263336"} 10
+pocoma_v3_claim_acquisition_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="1.0"} 10
+pocoma_v3_claim_acquisition_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="1.073741824"} 10
+pocoma_v3_claim_acquisition_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="1.431655765"} 10
+pocoma_v3_claim_acquisition_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="1.789569706"} 10
+pocoma_v3_claim_acquisition_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="2.0"} 10
+pocoma_v3_claim_acquisition_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="2.147483647"} 10
+pocoma_v3_claim_acquisition_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="2.505397588"} 10
+pocoma_v3_claim_acquisition_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="2.863311529"} 10
+pocoma_v3_claim_acquisition_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="3.22122547"} 10
+pocoma_v3_claim_acquisition_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="3.579139411"} 10
+pocoma_v3_claim_acquisition_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="3.937053352"} 10
+pocoma_v3_claim_acquisition_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="4.294967296"} 10
+pocoma_v3_claim_acquisition_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="5.0"} 10
+pocoma_v3_claim_acquisition_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="5.726623061"} 10
+pocoma_v3_claim_acquisition_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="7.158278826"} 10
+pocoma_v3_claim_acquisition_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="8.589934591"} 10
+pocoma_v3_claim_acquisition_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="10.021590356"} 10
+pocoma_v3_claim_acquisition_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="11.453246121"} 10
+pocoma_v3_claim_acquisition_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="12.884901886"} 10
+pocoma_v3_claim_acquisition_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="14.316557651"} 10
+pocoma_v3_claim_acquisition_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="15.748213416"} 10
+pocoma_v3_claim_acquisition_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="17.179869184"} 10
+pocoma_v3_claim_acquisition_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="22.906492245"} 10
+pocoma_v3_claim_acquisition_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="28.633115306"} 10
+pocoma_v3_claim_acquisition_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="30.0"} 10
+pocoma_v3_claim_acquisition_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="60.0"} 10
+pocoma_v3_claim_acquisition_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="120.0"} 10
+pocoma_v3_claim_acquisition_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="+Inf"} 10
+pocoma_v3_claim_acquisition_duration_seconds_count{consumption="CommandResult",outcome="confirmed"} 10
+pocoma_v3_claim_acquisition_duration_seconds_sum{consumption="CommandResult",outcome="confirmed"} 0.075373333
+# HELP pocoma_v3_claim_acquisition_duration_seconds_max  
+# TYPE pocoma_v3_claim_acquisition_duration_seconds_max gauge
+pocoma_v3_claim_acquisition_duration_seconds_max{consumption="CommandResult",outcome="confirmed"} 0.059544542
+# HELP pocoma_v3_claim_operations_total  
+# TYPE pocoma_v3_claim_operations_total counter
+pocoma_v3_claim_operations_total{consumption="CommandResult",operation="acquire",outcome="confirmed"} 10.0
+# HELP pocoma_v3_consumption_opportunity_duration_seconds  
+# TYPE pocoma_v3_consumption_opportunity_duration_seconds histogram
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.001"} 639
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.001048576"} 703
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.001398101"} 1025
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.001747626"} 1164
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.002097151"} 1218
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.002446676"} 1260
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.002796201"} 1281
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.003145726"} 1296
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.003495251"} 1308
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.003844776"} 1317
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.004194304"} 1324
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.005"} 1327
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.005592405"} 1329
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.006990506"} 1332
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.008388607"} 1337
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.009786708"} 1343
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.01"} 1343
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.011184809"} 1344
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.01258291"} 1347
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.013981011"} 1347
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.015379112"} 1347
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.016777216"} 1347
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.022369621"} 1349
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.027962026"} 1355
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.033554431"} 1355
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.039146836"} 1355
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.044739241"} 1360
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.05"} 1362
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.050331646"} 1362
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.055924051"} 1363
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.061516456"} 1365
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.067108864"} 1368
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.089478485"} 1375
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.1"} 1375
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.111848106"} 1375
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.134217727"} 1375
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.156587348"} 1375
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.178956969"} 1375
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.20132659"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.223696211"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.246065832"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.268435456"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.357913941"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.447392426"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.5"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.536870911"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.626349396"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.715827881"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.805306366"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.894784851"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.984263336"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="1.0"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="1.073741824"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="1.431655765"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="1.789569706"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="2.0"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="2.147483647"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="2.505397588"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="2.863311529"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="3.22122547"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="3.579139411"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="3.937053352"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="4.294967296"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="5.0"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="5.726623061"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="7.158278826"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="8.589934591"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="10.021590356"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="11.453246121"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="12.884901886"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="14.316557651"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="15.748213416"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="17.179869184"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="22.906492245"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="28.633115306"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="30.0"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="60.0"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="120.0"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="+Inf"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_count{consumption="CommandResult",outcome="confirmed"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_sum{consumption="CommandResult",outcome="confirmed"} 3.178430983
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.001"} 639
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.001048576"} 714
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.001398101"} 1075
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.001747626"} 1189
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.002097151"} 1260
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.002446676"} 1300
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.002796201"} 1319
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.003145726"} 1328
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.003495251"} 1341
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.003844776"} 1341
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.004194304"} 1345
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.005"} 1348
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.005592405"} 1349
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.006990506"} 1350
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.008388607"} 1352
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.009786708"} 1354
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.01"} 1354
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.011184809"} 1355
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.01258291"} 1355
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.013981011"} 1356
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.015379112"} 1356
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.016777216"} 1358
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.022369621"} 1359
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.027962026"} 1360
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.033554431"} 1360
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.039146836"} 1362
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.044739241"} 1365
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.05"} 1367
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.050331646"} 1367
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.055924051"} 1367
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.061516456"} 1369
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.067108864"} 1369
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.089478485"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.1"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.111848106"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.134217727"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.156587348"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.178956969"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.20132659"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.223696211"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.246065832"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.268435456"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.357913941"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.447392426"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.5"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.536870911"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.626349396"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.715827881"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.805306366"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.894784851"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.984263336"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="1.0"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="1.073741824"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="1.431655765"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="1.789569706"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="2.0"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="2.147483647"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="2.505397588"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="2.863311529"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="3.22122547"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="3.579139411"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="3.937053352"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="4.294967296"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="5.0"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="5.726623061"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="7.158278826"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="8.589934591"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="10.021590356"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="11.453246121"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="12.884901886"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="14.316557651"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="15.748213416"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="17.179869184"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="22.906492245"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="28.633115306"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="30.0"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="60.0"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="120.0"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="+Inf"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_count{consumption="IdentityRequestResult",outcome="confirmed"} 1376
+pocoma_v3_consumption_opportunity_duration_seconds_sum{consumption="IdentityRequestResult",outcome="confirmed"} 2.528420002
+# HELP pocoma_v3_consumption_opportunity_duration_seconds_max  
+# TYPE pocoma_v3_consumption_opportunity_duration_seconds_max gauge
+pocoma_v3_consumption_opportunity_duration_seconds_max{consumption="CommandResult",outcome="confirmed"} 0.201110958
+pocoma_v3_consumption_opportunity_duration_seconds_max{consumption="IdentityRequestResult",outcome="confirmed"} 0.088842084
+# HELP pocoma_v3_consumption_opportunity_wait_seconds  
+# TYPE pocoma_v3_consumption_opportunity_wait_seconds histogram
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="CommandResult",le="0.001"} 0
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="CommandResult",le="0.001048576"} 0
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="CommandResult",le="0.001398101"} 24
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="CommandResult",le="0.001747626"} 256
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="CommandResult",le="0.002097151"} 340
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="CommandResult",le="0.002446676"} 373
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="CommandResult",le="0.002796201"} 456
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="CommandResult",le="0.003145726"} 649
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="CommandResult",le="0.003495251"} 758
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="CommandResult",le="0.003844776"} 826
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="CommandResult",le="0.004194304"} 859
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="CommandResult",le="0.005"} 914
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="CommandResult",le="0.005592405"} 943
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="CommandResult",le="0.006990506"} 973
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="CommandResult",le="0.008388607"} 997
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="CommandResult",le="0.009786708"} 1002
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="CommandResult",le="0.01"} 1002
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="CommandResult",le="0.011184809"} 1012
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="CommandResult",le="0.01258291"} 1018
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="CommandResult",le="0.013981011"} 1025
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="CommandResult",le="0.015379112"} 1027
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="CommandResult",le="0.016777216"} 1028
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="CommandResult",le="0.022369621"} 1132
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="CommandResult",le="0.027962026"} 1320
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="CommandResult",le="0.033554431"} 1333
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="CommandResult",le="0.039146836"} 1337
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="CommandResult",le="0.044739241"} 1341
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="CommandResult",le="0.05"} 1347
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="CommandResult",le="0.050331646"} 1347
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="CommandResult",le="0.055924051"} 1350
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="CommandResult",le="0.061516456"} 1350
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="CommandResult",le="0.067108864"} 1357
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="CommandResult",le="0.089478485"} 1370
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="CommandResult",le="0.1"} 1374
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="CommandResult",le="0.111848106"} 1375
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="CommandResult",le="0.134217727"} 1375
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="CommandResult",le="0.156587348"} 1375
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="CommandResult",le="0.178956969"} 1375
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="CommandResult",le="0.20132659"} 1375
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="CommandResult",le="0.223696211"} 1375
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="CommandResult",le="0.246065832"} 1375
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="CommandResult",le="0.268435456"} 1375
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="CommandResult",le="0.357913941"} 1376
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="CommandResult",le="0.447392426"} 1376
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="CommandResult",le="0.5"} 1376
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="CommandResult",le="0.536870911"} 1376
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="CommandResult",le="0.626349396"} 1376
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="CommandResult",le="0.715827881"} 1376
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="CommandResult",le="0.805306366"} 1376
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="CommandResult",le="0.894784851"} 1376
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="CommandResult",le="0.984263336"} 1376
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="CommandResult",le="1.0"} 1376
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="CommandResult",le="1.073741824"} 1376
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="CommandResult",le="1.431655765"} 1376
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="CommandResult",le="1.789569706"} 1376
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="CommandResult",le="2.0"} 1376
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="CommandResult",le="2.147483647"} 1376
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="CommandResult",le="2.505397588"} 1376
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="CommandResult",le="2.863311529"} 1376
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="CommandResult",le="3.22122547"} 1376
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="CommandResult",le="3.579139411"} 1376
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="CommandResult",le="3.937053352"} 1376
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="CommandResult",le="4.294967296"} 1376
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="CommandResult",le="5.0"} 1376
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="CommandResult",le="5.726623061"} 1376
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="CommandResult",le="7.158278826"} 1376
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="CommandResult",le="8.589934591"} 1376
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="CommandResult",le="10.021590356"} 1376
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="CommandResult",le="11.453246121"} 1376
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="CommandResult",le="12.884901886"} 1376
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="CommandResult",le="14.316557651"} 1376
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="CommandResult",le="15.748213416"} 1376
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="CommandResult",le="17.179869184"} 1376
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="CommandResult",le="22.906492245"} 1376
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="CommandResult",le="28.633115306"} 1376
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="CommandResult",le="30.0"} 1376
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="CommandResult",le="60.0"} 1376
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="CommandResult",le="120.0"} 1376
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="CommandResult",le="+Inf"} 1376
+pocoma_v3_consumption_opportunity_wait_seconds_count{consumption="CommandResult"} 1376
+pocoma_v3_consumption_opportunity_wait_seconds_sum{consumption="CommandResult"} 13.255705797
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="IdentityRequestResult",le="0.001"} 0
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="IdentityRequestResult",le="0.001048576"} 0
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="IdentityRequestResult",le="0.001398101"} 24
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="IdentityRequestResult",le="0.001747626"} 256
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="IdentityRequestResult",le="0.002097151"} 327
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="IdentityRequestResult",le="0.002446676"} 357
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="IdentityRequestResult",le="0.002796201"} 447
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="IdentityRequestResult",le="0.003145726"} 676
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="IdentityRequestResult",le="0.003495251"} 788
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="IdentityRequestResult",le="0.003844776"} 830
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="IdentityRequestResult",le="0.004194304"} 869
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="IdentityRequestResult",le="0.005"} 940
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="IdentityRequestResult",le="0.005592405"} 960
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="IdentityRequestResult",le="0.006990506"} 999
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="IdentityRequestResult",le="0.008388607"} 1016
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="IdentityRequestResult",le="0.009786708"} 1018
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="IdentityRequestResult",le="0.01"} 1018
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="IdentityRequestResult",le="0.011184809"} 1029
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="IdentityRequestResult",le="0.01258291"} 1033
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="IdentityRequestResult",le="0.013981011"} 1038
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="IdentityRequestResult",le="0.015379112"} 1039
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="IdentityRequestResult",le="0.016777216"} 1040
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="IdentityRequestResult",le="0.022369621"} 1149
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="IdentityRequestResult",le="0.027962026"} 1319
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="IdentityRequestResult",le="0.033554431"} 1333
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="IdentityRequestResult",le="0.039146836"} 1337
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="IdentityRequestResult",le="0.044739241"} 1341
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="IdentityRequestResult",le="0.05"} 1345
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="IdentityRequestResult",le="0.050331646"} 1345
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="IdentityRequestResult",le="0.055924051"} 1347
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="IdentityRequestResult",le="0.061516456"} 1350
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="IdentityRequestResult",le="0.067108864"} 1352
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="IdentityRequestResult",le="0.089478485"} 1367
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="IdentityRequestResult",le="0.1"} 1374
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="IdentityRequestResult",le="0.111848106"} 1374
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="IdentityRequestResult",le="0.134217727"} 1374
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="IdentityRequestResult",le="0.156587348"} 1374
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="IdentityRequestResult",le="0.178956969"} 1375
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="IdentityRequestResult",le="0.20132659"} 1375
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="IdentityRequestResult",le="0.223696211"} 1375
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="IdentityRequestResult",le="0.246065832"} 1375
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="IdentityRequestResult",le="0.268435456"} 1375
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="IdentityRequestResult",le="0.357913941"} 1375
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="IdentityRequestResult",le="0.447392426"} 1375
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="IdentityRequestResult",le="0.5"} 1375
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="IdentityRequestResult",le="0.536870911"} 1375
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="IdentityRequestResult",le="0.626349396"} 1375
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="IdentityRequestResult",le="0.715827881"} 1375
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="IdentityRequestResult",le="0.805306366"} 1375
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="IdentityRequestResult",le="0.894784851"} 1375
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="IdentityRequestResult",le="0.984263336"} 1375
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="IdentityRequestResult",le="1.0"} 1375
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="IdentityRequestResult",le="1.073741824"} 1375
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="IdentityRequestResult",le="1.431655765"} 1375
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="IdentityRequestResult",le="1.789569706"} 1375
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="IdentityRequestResult",le="2.0"} 1375
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="IdentityRequestResult",le="2.147483647"} 1375
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="IdentityRequestResult",le="2.505397588"} 1375
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="IdentityRequestResult",le="2.863311529"} 1375
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="IdentityRequestResult",le="3.22122547"} 1375
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="IdentityRequestResult",le="3.579139411"} 1375
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="IdentityRequestResult",le="3.937053352"} 1375
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="IdentityRequestResult",le="4.294967296"} 1375
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="IdentityRequestResult",le="5.0"} 1375
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="IdentityRequestResult",le="5.726623061"} 1375
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="IdentityRequestResult",le="7.158278826"} 1375
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="IdentityRequestResult",le="8.589934591"} 1375
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="IdentityRequestResult",le="10.021590356"} 1375
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="IdentityRequestResult",le="11.453246121"} 1375
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="IdentityRequestResult",le="12.884901886"} 1375
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="IdentityRequestResult",le="14.316557651"} 1375
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="IdentityRequestResult",le="15.748213416"} 1375
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="IdentityRequestResult",le="17.179869184"} 1375
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="IdentityRequestResult",le="22.906492245"} 1375
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="IdentityRequestResult",le="28.633115306"} 1375
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="IdentityRequestResult",le="30.0"} 1375
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="IdentityRequestResult",le="60.0"} 1375
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="IdentityRequestResult",le="120.0"} 1375
+pocoma_v3_consumption_opportunity_wait_seconds_bucket{consumption="IdentityRequestResult",le="+Inf"} 1375
+pocoma_v3_consumption_opportunity_wait_seconds_count{consumption="IdentityRequestResult"} 1375
+pocoma_v3_consumption_opportunity_wait_seconds_sum{consumption="IdentityRequestResult"} 12.944453672
+# HELP pocoma_v3_consumption_opportunity_wait_seconds_max  
+# TYPE pocoma_v3_consumption_opportunity_wait_seconds_max gauge
+pocoma_v3_consumption_opportunity_wait_seconds_max{consumption="CommandResult"} 0.295326416
+pocoma_v3_consumption_opportunity_wait_seconds_max{consumption="IdentityRequestResult"} 0.165304875
+# HELP pocoma_v3_discovery_duration_seconds  
+# TYPE pocoma_v3_discovery_duration_seconds histogram
+pocoma_v3_discovery_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.001"} 85
+pocoma_v3_discovery_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.001048576"} 256
+pocoma_v3_discovery_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.001398101"} 789
+pocoma_v3_discovery_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.001747626"} 982
+pocoma_v3_discovery_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.002097151"} 1074
+pocoma_v3_discovery_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.002446676"} 1129
+pocoma_v3_discovery_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.002796201"} 1156
+pocoma_v3_discovery_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.003145726"} 1172
+pocoma_v3_discovery_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.003495251"} 1188
+pocoma_v3_discovery_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.003844776"} 1194
+pocoma_v3_discovery_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.004194304"} 1200
+pocoma_v3_discovery_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.005"} 1208
+pocoma_v3_discovery_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.005592405"} 1213
+pocoma_v3_discovery_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.006990506"} 1217
+pocoma_v3_discovery_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.008388607"} 1223
+pocoma_v3_discovery_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.009786708"} 1224
+pocoma_v3_discovery_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.01"} 1225
+pocoma_v3_discovery_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.011184809"} 1226
+pocoma_v3_discovery_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.01258291"} 1226
+pocoma_v3_discovery_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.013981011"} 1226
+pocoma_v3_discovery_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.015379112"} 1226
+pocoma_v3_discovery_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.016777216"} 1227
+pocoma_v3_discovery_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.022369621"} 1230
+pocoma_v3_discovery_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.027962026"} 1232
+pocoma_v3_discovery_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.033554431"} 1234
+pocoma_v3_discovery_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.039146836"} 1235
+pocoma_v3_discovery_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.044739241"} 1237
+pocoma_v3_discovery_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.05"} 1237
+pocoma_v3_discovery_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.050331646"} 1237
+pocoma_v3_discovery_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.055924051"} 1238
+pocoma_v3_discovery_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.061516456"} 1241
+pocoma_v3_discovery_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.067108864"} 1245
+pocoma_v3_discovery_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.089478485"} 1250
+pocoma_v3_discovery_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.1"} 1251
+pocoma_v3_discovery_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.111848106"} 1251
+pocoma_v3_discovery_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.134217727"} 1251
+pocoma_v3_discovery_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.156587348"} 1251
+pocoma_v3_discovery_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.178956969"} 1251
+pocoma_v3_discovery_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.20132659"} 1251
+pocoma_v3_discovery_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.223696211"} 1251
+pocoma_v3_discovery_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.246065832"} 1251
+pocoma_v3_discovery_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.268435456"} 1251
+pocoma_v3_discovery_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.357913941"} 1252
+pocoma_v3_discovery_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.447392426"} 1252
+pocoma_v3_discovery_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.5"} 1252
+pocoma_v3_discovery_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.536870911"} 1252
+pocoma_v3_discovery_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.626349396"} 1252
+pocoma_v3_discovery_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.715827881"} 1252
+pocoma_v3_discovery_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.805306366"} 1252
+pocoma_v3_discovery_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.894784851"} 1252
+pocoma_v3_discovery_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.984263336"} 1252
+pocoma_v3_discovery_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="1.0"} 1252
+pocoma_v3_discovery_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="1.073741824"} 1252
+pocoma_v3_discovery_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="1.431655765"} 1252
+pocoma_v3_discovery_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="1.789569706"} 1252
+pocoma_v3_discovery_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="2.0"} 1252
+pocoma_v3_discovery_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="2.147483647"} 1252
+pocoma_v3_discovery_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="2.505397588"} 1252
+pocoma_v3_discovery_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="2.863311529"} 1252
+pocoma_v3_discovery_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="3.22122547"} 1252
+pocoma_v3_discovery_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="3.579139411"} 1252
+pocoma_v3_discovery_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="3.937053352"} 1252
+pocoma_v3_discovery_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="4.294967296"} 1252
+pocoma_v3_discovery_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="5.0"} 1252
+pocoma_v3_discovery_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="5.726623061"} 1252
+pocoma_v3_discovery_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="7.158278826"} 1252
+pocoma_v3_discovery_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="8.589934591"} 1252
+pocoma_v3_discovery_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="10.021590356"} 1252
+pocoma_v3_discovery_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="11.453246121"} 1252
+pocoma_v3_discovery_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="12.884901886"} 1252
+pocoma_v3_discovery_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="14.316557651"} 1252
+pocoma_v3_discovery_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="15.748213416"} 1252
+pocoma_v3_discovery_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="17.179869184"} 1252
+pocoma_v3_discovery_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="22.906492245"} 1252
+pocoma_v3_discovery_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="28.633115306"} 1252
+pocoma_v3_discovery_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="30.0"} 1252
+pocoma_v3_discovery_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="60.0"} 1252
+pocoma_v3_discovery_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="120.0"} 1252
+pocoma_v3_discovery_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="+Inf"} 1252
+pocoma_v3_discovery_duration_seconds_count{consumption="CommandResult",outcome="confirmed"} 1252
+pocoma_v3_discovery_duration_seconds_sum{consumption="CommandResult",outcome="confirmed"} 3.4430426
+pocoma_v3_discovery_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.001"} 95
+pocoma_v3_discovery_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.001048576"} 308
+pocoma_v3_discovery_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.001398101"} 845
+pocoma_v3_discovery_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.001747626"} 1006
+pocoma_v3_discovery_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.002097151"} 1097
+pocoma_v3_discovery_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.002446676"} 1147
+pocoma_v3_discovery_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.002796201"} 1175
+pocoma_v3_discovery_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.003145726"} 1193
+pocoma_v3_discovery_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.003495251"} 1203
+pocoma_v3_discovery_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.003844776"} 1210
+pocoma_v3_discovery_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.004194304"} 1212
+pocoma_v3_discovery_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.005"} 1215
+pocoma_v3_discovery_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.005592405"} 1217
+pocoma_v3_discovery_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.006990506"} 1219
+pocoma_v3_discovery_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.008388607"} 1221
+pocoma_v3_discovery_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.009786708"} 1223
+pocoma_v3_discovery_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.01"} 1223
+pocoma_v3_discovery_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.011184809"} 1224
+pocoma_v3_discovery_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.01258291"} 1224
+pocoma_v3_discovery_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.013981011"} 1226
+pocoma_v3_discovery_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.015379112"} 1226
+pocoma_v3_discovery_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.016777216"} 1229
+pocoma_v3_discovery_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.022369621"} 1231
+pocoma_v3_discovery_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.027962026"} 1232
+pocoma_v3_discovery_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.033554431"} 1234
+pocoma_v3_discovery_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.039146836"} 1235
+pocoma_v3_discovery_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.044739241"} 1237
+pocoma_v3_discovery_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.05"} 1240
+pocoma_v3_discovery_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.050331646"} 1240
+pocoma_v3_discovery_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.055924051"} 1240
+pocoma_v3_discovery_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.061516456"} 1243
+pocoma_v3_discovery_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.067108864"} 1243
+pocoma_v3_discovery_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.089478485"} 1251
+pocoma_v3_discovery_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.1"} 1252
+pocoma_v3_discovery_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.111848106"} 1252
+pocoma_v3_discovery_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.134217727"} 1252
+pocoma_v3_discovery_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.156587348"} 1252
+pocoma_v3_discovery_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.178956969"} 1252
+pocoma_v3_discovery_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.20132659"} 1252
+pocoma_v3_discovery_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.223696211"} 1252
+pocoma_v3_discovery_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.246065832"} 1252
+pocoma_v3_discovery_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.268435456"} 1252
+pocoma_v3_discovery_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.357913941"} 1252
+pocoma_v3_discovery_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.447392426"} 1252
+pocoma_v3_discovery_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.5"} 1252
+pocoma_v3_discovery_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.536870911"} 1252
+pocoma_v3_discovery_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.626349396"} 1252
+pocoma_v3_discovery_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.715827881"} 1252
+pocoma_v3_discovery_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.805306366"} 1252
+pocoma_v3_discovery_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.894784851"} 1252
+pocoma_v3_discovery_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.984263336"} 1252
+pocoma_v3_discovery_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="1.0"} 1252
+pocoma_v3_discovery_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="1.073741824"} 1252
+pocoma_v3_discovery_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="1.431655765"} 1252
+pocoma_v3_discovery_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="1.789569706"} 1252
+pocoma_v3_discovery_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="2.0"} 1252
+pocoma_v3_discovery_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="2.147483647"} 1252
+pocoma_v3_discovery_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="2.505397588"} 1252
+pocoma_v3_discovery_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="2.863311529"} 1252
+pocoma_v3_discovery_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="3.22122547"} 1252
+pocoma_v3_discovery_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="3.579139411"} 1252
+pocoma_v3_discovery_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="3.937053352"} 1252
+pocoma_v3_discovery_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="4.294967296"} 1252
+pocoma_v3_discovery_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="5.0"} 1252
+pocoma_v3_discovery_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="5.726623061"} 1252
+pocoma_v3_discovery_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="7.158278826"} 1252
+pocoma_v3_discovery_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="8.589934591"} 1252
+pocoma_v3_discovery_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="10.021590356"} 1252
+pocoma_v3_discovery_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="11.453246121"} 1252
+pocoma_v3_discovery_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="12.884901886"} 1252
+pocoma_v3_discovery_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="14.316557651"} 1252
+pocoma_v3_discovery_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="15.748213416"} 1252
+pocoma_v3_discovery_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="17.179869184"} 1252
+pocoma_v3_discovery_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="22.906492245"} 1252
+pocoma_v3_discovery_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="28.633115306"} 1252
+pocoma_v3_discovery_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="30.0"} 1252
+pocoma_v3_discovery_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="60.0"} 1252
+pocoma_v3_discovery_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="120.0"} 1252
+pocoma_v3_discovery_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="+Inf"} 1252
+pocoma_v3_discovery_duration_seconds_count{consumption="IdentityRequestResult",outcome="confirmed"} 1252
+pocoma_v3_discovery_duration_seconds_sum{consumption="IdentityRequestResult",outcome="confirmed"} 3.132667027
+# HELP pocoma_v3_discovery_duration_seconds_max  
+# TYPE pocoma_v3_discovery_duration_seconds_max gauge
+pocoma_v3_discovery_duration_seconds_max{consumption="CommandResult",outcome="confirmed"} 0.300116833
+pocoma_v3_discovery_duration_seconds_max{consumption="IdentityRequestResult",outcome="confirmed"} 0.092336042
+# HELP pocoma_v3_discovery_references_total  
+# TYPE pocoma_v3_discovery_references_total counter
+pocoma_v3_discovery_references_total{consumption="CommandResult",kind="admitted"} 10.0
+pocoma_v3_discovery_references_total{consumption="CommandResult",kind="examined"} 40.0
+# HELP pocoma_v3_handoff_processing_seconds  
+# TYPE pocoma_v3_handoff_processing_seconds histogram
+pocoma_v3_handoff_processing_seconds_bucket{consumption="CommandResult",phase="read",le="0.001"} 0
+pocoma_v3_handoff_processing_seconds_bucket{consumption="CommandResult",phase="read",le="0.001048576"} 0
+pocoma_v3_handoff_processing_seconds_bucket{consumption="CommandResult",phase="read",le="0.001398101"} 0
+pocoma_v3_handoff_processing_seconds_bucket{consumption="CommandResult",phase="read",le="0.001747626"} 0
+pocoma_v3_handoff_processing_seconds_bucket{consumption="CommandResult",phase="read",le="0.002"} 1
+pocoma_v3_handoff_processing_seconds_bucket{consumption="CommandResult",phase="read",le="0.002097151"} 2
+pocoma_v3_handoff_processing_seconds_bucket{consumption="CommandResult",phase="read",le="0.002446676"} 6
+pocoma_v3_handoff_processing_seconds_bucket{consumption="CommandResult",phase="read",le="0.002796201"} 7
+pocoma_v3_handoff_processing_seconds_bucket{consumption="CommandResult",phase="read",le="0.003145726"} 8
+pocoma_v3_handoff_processing_seconds_bucket{consumption="CommandResult",phase="read",le="0.003495251"} 8
+pocoma_v3_handoff_processing_seconds_bucket{consumption="CommandResult",phase="read",le="0.003844776"} 8
+pocoma_v3_handoff_processing_seconds_bucket{consumption="CommandResult",phase="read",le="0.004194304"} 9
+pocoma_v3_handoff_processing_seconds_bucket{consumption="CommandResult",phase="read",le="0.005"} 9
+pocoma_v3_handoff_processing_seconds_bucket{consumption="CommandResult",phase="read",le="0.005592405"} 9
+pocoma_v3_handoff_processing_seconds_bucket{consumption="CommandResult",phase="read",le="0.006990506"} 9
+pocoma_v3_handoff_processing_seconds_bucket{consumption="CommandResult",phase="read",le="0.008388607"} 9
+pocoma_v3_handoff_processing_seconds_bucket{consumption="CommandResult",phase="read",le="0.009786708"} 9
+pocoma_v3_handoff_processing_seconds_bucket{consumption="CommandResult",phase="read",le="0.01"} 9
+pocoma_v3_handoff_processing_seconds_bucket{consumption="CommandResult",phase="read",le="0.011184809"} 9
+pocoma_v3_handoff_processing_seconds_bucket{consumption="CommandResult",phase="read",le="0.01258291"} 9
+pocoma_v3_handoff_processing_seconds_bucket{consumption="CommandResult",phase="read",le="0.013981011"} 9
+pocoma_v3_handoff_processing_seconds_bucket{consumption="CommandResult",phase="read",le="0.015379112"} 9
+pocoma_v3_handoff_processing_seconds_bucket{consumption="CommandResult",phase="read",le="0.016777216"} 9
+pocoma_v3_handoff_processing_seconds_bucket{consumption="CommandResult",phase="read",le="0.02"} 9
+pocoma_v3_handoff_processing_seconds_bucket{consumption="CommandResult",phase="read",le="0.022369621"} 9
+pocoma_v3_handoff_processing_seconds_bucket{consumption="CommandResult",phase="read",le="0.027962026"} 9
+pocoma_v3_handoff_processing_seconds_bucket{consumption="CommandResult",phase="read",le="0.033554431"} 9
+pocoma_v3_handoff_processing_seconds_bucket{consumption="CommandResult",phase="read",le="0.039146836"} 9
+pocoma_v3_handoff_processing_seconds_bucket{consumption="CommandResult",phase="read",le="0.044739241"} 9
+pocoma_v3_handoff_processing_seconds_bucket{consumption="CommandResult",phase="read",le="0.05"} 9
+pocoma_v3_handoff_processing_seconds_bucket{consumption="CommandResult",phase="read",le="0.050331646"} 9
+pocoma_v3_handoff_processing_seconds_bucket{consumption="CommandResult",phase="read",le="0.055924051"} 9
+pocoma_v3_handoff_processing_seconds_bucket{consumption="CommandResult",phase="read",le="0.061516456"} 9
+pocoma_v3_handoff_processing_seconds_bucket{consumption="CommandResult",phase="read",le="0.067108864"} 9
+pocoma_v3_handoff_processing_seconds_bucket{consumption="CommandResult",phase="read",le="0.089478485"} 9
+pocoma_v3_handoff_processing_seconds_bucket{consumption="CommandResult",phase="read",le="0.1"} 10
+pocoma_v3_handoff_processing_seconds_bucket{consumption="CommandResult",phase="read",le="0.111848106"} 10
+pocoma_v3_handoff_processing_seconds_bucket{consumption="CommandResult",phase="read",le="0.134217727"} 10
+pocoma_v3_handoff_processing_seconds_bucket{consumption="CommandResult",phase="read",le="0.156587348"} 10
+pocoma_v3_handoff_processing_seconds_bucket{consumption="CommandResult",phase="read",le="0.178956969"} 10
+pocoma_v3_handoff_processing_seconds_bucket{consumption="CommandResult",phase="read",le="0.2"} 10
+pocoma_v3_handoff_processing_seconds_bucket{consumption="CommandResult",phase="read",le="0.20132659"} 10
+pocoma_v3_handoff_processing_seconds_bucket{consumption="CommandResult",phase="read",le="0.223696211"} 10
+pocoma_v3_handoff_processing_seconds_bucket{consumption="CommandResult",phase="read",le="0.246065832"} 10
+pocoma_v3_handoff_processing_seconds_bucket{consumption="CommandResult",phase="read",le="0.268435456"} 10
+pocoma_v3_handoff_processing_seconds_bucket{consumption="CommandResult",phase="read",le="0.357913941"} 10
+pocoma_v3_handoff_processing_seconds_bucket{consumption="CommandResult",phase="read",le="0.447392426"} 10
+pocoma_v3_handoff_processing_seconds_bucket{consumption="CommandResult",phase="read",le="0.5"} 10
+pocoma_v3_handoff_processing_seconds_bucket{consumption="CommandResult",phase="read",le="0.536870911"} 10
+pocoma_v3_handoff_processing_seconds_bucket{consumption="CommandResult",phase="read",le="0.626349396"} 10
+pocoma_v3_handoff_processing_seconds_bucket{consumption="CommandResult",phase="read",le="0.715827881"} 10
+pocoma_v3_handoff_processing_seconds_bucket{consumption="CommandResult",phase="read",le="0.805306366"} 10
+pocoma_v3_handoff_processing_seconds_bucket{consumption="CommandResult",phase="read",le="0.894784851"} 10
+pocoma_v3_handoff_processing_seconds_bucket{consumption="CommandResult",phase="read",le="0.984263336"} 10
+pocoma_v3_handoff_processing_seconds_bucket{consumption="CommandResult",phase="read",le="1.0"} 10
+pocoma_v3_handoff_processing_seconds_bucket{consumption="CommandResult",phase="read",le="1.073741824"} 10
+pocoma_v3_handoff_processing_seconds_bucket{consumption="CommandResult",phase="read",le="1.431655765"} 10
+pocoma_v3_handoff_processing_seconds_bucket{consumption="CommandResult",phase="read",le="1.789569706"} 10
+pocoma_v3_handoff_processing_seconds_bucket{consumption="CommandResult",phase="read",le="2.0"} 10
+pocoma_v3_handoff_processing_seconds_bucket{consumption="CommandResult",phase="read",le="2.147483647"} 10
+pocoma_v3_handoff_processing_seconds_bucket{consumption="CommandResult",phase="read",le="2.505397588"} 10
+pocoma_v3_handoff_processing_seconds_bucket{consumption="CommandResult",phase="read",le="2.863311529"} 10
+pocoma_v3_handoff_processing_seconds_bucket{consumption="CommandResult",phase="read",le="3.22122547"} 10
+pocoma_v3_handoff_processing_seconds_bucket{consumption="CommandResult",phase="read",le="3.579139411"} 10
+pocoma_v3_handoff_processing_seconds_bucket{consumption="CommandResult",phase="read",le="3.937053352"} 10
+pocoma_v3_handoff_processing_seconds_bucket{consumption="CommandResult",phase="read",le="4.294967296"} 10
+pocoma_v3_handoff_processing_seconds_bucket{consumption="CommandResult",phase="read",le="5.0"} 10
+pocoma_v3_handoff_processing_seconds_bucket{consumption="CommandResult",phase="read",le="5.726623061"} 10
+pocoma_v3_handoff_processing_seconds_bucket{consumption="CommandResult",phase="read",le="7.158278826"} 10
+pocoma_v3_handoff_processing_seconds_bucket{consumption="CommandResult",phase="read",le="8.589934591"} 10
+pocoma_v3_handoff_processing_seconds_bucket{consumption="CommandResult",phase="read",le="10.0"} 10
+pocoma_v3_handoff_processing_seconds_bucket{consumption="CommandResult",phase="read",le="10.021590356"} 10
+pocoma_v3_handoff_processing_seconds_bucket{consumption="CommandResult",phase="read",le="11.453246121"} 10
+pocoma_v3_handoff_processing_seconds_bucket{consumption="CommandResult",phase="read",le="12.884901886"} 10
+pocoma_v3_handoff_processing_seconds_bucket{consumption="CommandResult",phase="read",le="14.316557651"} 10
+pocoma_v3_handoff_processing_seconds_bucket{consumption="CommandResult",phase="read",le="15.748213416"} 10
+pocoma_v3_handoff_processing_seconds_bucket{consumption="CommandResult",phase="read",le="17.179869184"} 10
+pocoma_v3_handoff_processing_seconds_bucket{consumption="CommandResult",phase="read",le="22.906492245"} 10
+pocoma_v3_handoff_processing_seconds_bucket{consumption="CommandResult",phase="read",le="28.633115306"} 10
+pocoma_v3_handoff_processing_seconds_bucket{consumption="CommandResult",phase="read",le="30.0"} 10
+pocoma_v3_handoff_processing_seconds_bucket{consumption="CommandResult",phase="read",le="60.0"} 10
+pocoma_v3_handoff_processing_seconds_bucket{consumption="CommandResult",phase="read",le="+Inf"} 10
+pocoma_v3_handoff_processing_seconds_count{consumption="CommandResult",phase="read"} 10
+pocoma_v3_handoff_processing_seconds_sum{consumption="CommandResult",phase="read"} 0.122250416
+# HELP pocoma_v3_handoff_processing_seconds_max  
+# TYPE pocoma_v3_handoff_processing_seconds_max gauge
+pocoma_v3_handoff_processing_seconds_max{consumption="CommandResult",phase="read"} 0.099028916
+# HELP pocoma_v3_lease_local  
+# TYPE pocoma_v3_lease_local gauge
+pocoma_v3_lease_local{authority="read"} 8.0
+pocoma_v3_lease_local{authority="write"} 0.0
+# HELP pocoma_v3_lease_operations_total  
+# TYPE pocoma_v3_lease_operations_total counter
+pocoma_v3_lease_operations_total{authority="read",operation="acquire",outcome="confirmed"} 8.0
+pocoma_v3_lease_operations_total{authority="read",operation="renew",outcome="confirmed"} 2.0
+pocoma_v3_lease_operations_total{authority="read",operation="suspend",outcome="busy"} 1.0
+# HELP pocoma_v3_physical_pending  
+# TYPE pocoma_v3_physical_pending gauge
+pocoma_v3_physical_pending{consumption="CommandResult"} 0.0
+pocoma_v3_physical_pending{consumption="IdentityRequestResult"} 0.0
+# HELP pocoma_v3_renewal_duration_seconds  
+# TYPE pocoma_v3_renewal_duration_seconds histogram
+pocoma_v3_renewal_duration_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.001"} 0
+pocoma_v3_renewal_duration_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.001048576"} 0
+pocoma_v3_renewal_duration_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.001398101"} 0
+pocoma_v3_renewal_duration_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.001747626"} 0
+pocoma_v3_renewal_duration_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.002097151"} 0
+pocoma_v3_renewal_duration_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.002446676"} 0
+pocoma_v3_renewal_duration_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.002796201"} 0
+pocoma_v3_renewal_duration_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.003145726"} 0
+pocoma_v3_renewal_duration_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.003495251"} 0
+pocoma_v3_renewal_duration_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.003844776"} 0
+pocoma_v3_renewal_duration_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.004194304"} 0
+pocoma_v3_renewal_duration_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.005"} 0
+pocoma_v3_renewal_duration_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.005592405"} 0
+pocoma_v3_renewal_duration_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.006990506"} 0
+pocoma_v3_renewal_duration_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.008388607"} 0
+pocoma_v3_renewal_duration_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.009786708"} 0
+pocoma_v3_renewal_duration_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.01"} 0
+pocoma_v3_renewal_duration_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.011184809"} 0
+pocoma_v3_renewal_duration_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.01258291"} 0
+pocoma_v3_renewal_duration_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.013981011"} 0
+pocoma_v3_renewal_duration_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.015379112"} 0
+pocoma_v3_renewal_duration_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.016777216"} 0
+pocoma_v3_renewal_duration_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.022369621"} 0
+pocoma_v3_renewal_duration_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.027962026"} 0
+pocoma_v3_renewal_duration_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.033554431"} 0
+pocoma_v3_renewal_duration_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.039146836"} 0
+pocoma_v3_renewal_duration_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.044739241"} 0
+pocoma_v3_renewal_duration_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.05"} 0
+pocoma_v3_renewal_duration_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.050331646"} 0
+pocoma_v3_renewal_duration_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.055924051"} 0
+pocoma_v3_renewal_duration_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.061516456"} 0
+pocoma_v3_renewal_duration_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.067108864"} 0
+pocoma_v3_renewal_duration_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.089478485"} 0
+pocoma_v3_renewal_duration_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.1"} 0
+pocoma_v3_renewal_duration_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.111848106"} 0
+pocoma_v3_renewal_duration_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.134217727"} 0
+pocoma_v3_renewal_duration_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.156587348"} 0
+pocoma_v3_renewal_duration_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.178956969"} 0
+pocoma_v3_renewal_duration_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.20132659"} 0
+pocoma_v3_renewal_duration_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.223696211"} 0
+pocoma_v3_renewal_duration_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.246065832"} 0
+pocoma_v3_renewal_duration_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.268435456"} 2
+pocoma_v3_renewal_duration_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.357913941"} 2
+pocoma_v3_renewal_duration_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.447392426"} 2
+pocoma_v3_renewal_duration_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.5"} 2
+pocoma_v3_renewal_duration_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.536870911"} 2
+pocoma_v3_renewal_duration_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.626349396"} 2
+pocoma_v3_renewal_duration_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.715827881"} 2
+pocoma_v3_renewal_duration_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.805306366"} 2
+pocoma_v3_renewal_duration_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.894784851"} 2
+pocoma_v3_renewal_duration_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.984263336"} 2
+pocoma_v3_renewal_duration_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="1.0"} 2
+pocoma_v3_renewal_duration_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="1.073741824"} 2
+pocoma_v3_renewal_duration_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="1.431655765"} 2
+pocoma_v3_renewal_duration_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="1.789569706"} 2
+pocoma_v3_renewal_duration_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="2.0"} 2
+pocoma_v3_renewal_duration_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="2.147483647"} 2
+pocoma_v3_renewal_duration_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="2.505397588"} 2
+pocoma_v3_renewal_duration_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="2.863311529"} 2
+pocoma_v3_renewal_duration_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="3.22122547"} 2
+pocoma_v3_renewal_duration_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="3.579139411"} 2
+pocoma_v3_renewal_duration_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="3.937053352"} 2
+pocoma_v3_renewal_duration_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="4.294967296"} 2
+pocoma_v3_renewal_duration_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="5.0"} 2
+pocoma_v3_renewal_duration_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="5.726623061"} 2
+pocoma_v3_renewal_duration_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="7.158278826"} 2
+pocoma_v3_renewal_duration_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="8.589934591"} 2
+pocoma_v3_renewal_duration_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="10.021590356"} 2
+pocoma_v3_renewal_duration_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="11.453246121"} 2
+pocoma_v3_renewal_duration_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="12.884901886"} 2
+pocoma_v3_renewal_duration_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="14.316557651"} 2
+pocoma_v3_renewal_duration_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="15.748213416"} 2
+pocoma_v3_renewal_duration_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="17.179869184"} 2
+pocoma_v3_renewal_duration_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="22.906492245"} 2
+pocoma_v3_renewal_duration_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="28.633115306"} 2
+pocoma_v3_renewal_duration_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="30.0"} 2
+pocoma_v3_renewal_duration_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="60.0"} 2
+pocoma_v3_renewal_duration_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="120.0"} 2
+pocoma_v3_renewal_duration_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="+Inf"} 2
+pocoma_v3_renewal_duration_seconds_count{authority="read",lane="2",outcome="confirmed"} 2
+pocoma_v3_renewal_duration_seconds_sum{authority="read",lane="2",outcome="confirmed"} 0.521073426
+# HELP pocoma_v3_renewal_duration_seconds_max  
+# TYPE pocoma_v3_renewal_duration_seconds_max gauge
+pocoma_v3_renewal_duration_seconds_max{authority="read",lane="2",outcome="confirmed"} 0.262283296
+# HELP pocoma_v3_renewal_inflight  
+# TYPE pocoma_v3_renewal_inflight gauge
+pocoma_v3_renewal_inflight{authority="read",kind="active",lane="0"} 0.0
+pocoma_v3_renewal_inflight{authority="read",kind="active",lane="1"} 0.0
+pocoma_v3_renewal_inflight{authority="read",kind="active",lane="2"} 0.0
+pocoma_v3_renewal_inflight{authority="read",kind="unknown",lane="0"} 0.0
+pocoma_v3_renewal_inflight{authority="read",kind="unknown",lane="1"} 0.0
+pocoma_v3_renewal_inflight{authority="read",kind="unknown",lane="2"} 0.0
+pocoma_v3_renewal_inflight{authority="write",kind="active",lane="0"} 0.0
+pocoma_v3_renewal_inflight{authority="write",kind="active",lane="1"} 0.0
+pocoma_v3_renewal_inflight{authority="write",kind="active",lane="2"} 0.0
+pocoma_v3_renewal_inflight{authority="write",kind="unknown",lane="0"} 0.0
+pocoma_v3_renewal_inflight{authority="write",kind="unknown",lane="1"} 0.0
+pocoma_v3_renewal_inflight{authority="write",kind="unknown",lane="2"} 0.0
+# HELP pocoma_v3_renewal_margin_seconds  
+# TYPE pocoma_v3_renewal_margin_seconds summary
+pocoma_v3_renewal_margin_seconds_count{authority="read",kind="claim"} 0
+pocoma_v3_renewal_margin_seconds_sum{authority="read",kind="claim"} 0.0
+pocoma_v3_renewal_margin_seconds_count{authority="read",kind="lease"} 0
+pocoma_v3_renewal_margin_seconds_sum{authority="read",kind="lease"} 0.0
+pocoma_v3_renewal_margin_seconds_count{authority="write",kind="claim"} 0
+pocoma_v3_renewal_margin_seconds_sum{authority="write",kind="claim"} 0.0
+pocoma_v3_renewal_margin_seconds_count{authority="write",kind="lease"} 0
+pocoma_v3_renewal_margin_seconds_sum{authority="write",kind="lease"} 0.0
+# HELP pocoma_v3_renewal_margin_seconds_max  
+# TYPE pocoma_v3_renewal_margin_seconds_max gauge
+pocoma_v3_renewal_margin_seconds_max{authority="read",kind="claim"} 0.0
+pocoma_v3_renewal_margin_seconds_max{authority="read",kind="lease"} 0.0
+pocoma_v3_renewal_margin_seconds_max{authority="write",kind="claim"} 0.0
+pocoma_v3_renewal_margin_seconds_max{authority="write",kind="lease"} 0.0
+# HELP pocoma_v3_renewal_schedule_lag_seconds  
+# TYPE pocoma_v3_renewal_schedule_lag_seconds histogram
+pocoma_v3_renewal_schedule_lag_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.001"} 0
+pocoma_v3_renewal_schedule_lag_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.001048576"} 0
+pocoma_v3_renewal_schedule_lag_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.001398101"} 0
+pocoma_v3_renewal_schedule_lag_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.001747626"} 0
+pocoma_v3_renewal_schedule_lag_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.002097151"} 0
+pocoma_v3_renewal_schedule_lag_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.002446676"} 0
+pocoma_v3_renewal_schedule_lag_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.002796201"} 0
+pocoma_v3_renewal_schedule_lag_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.003145726"} 0
+pocoma_v3_renewal_schedule_lag_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.003495251"} 0
+pocoma_v3_renewal_schedule_lag_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.003844776"} 0
+pocoma_v3_renewal_schedule_lag_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.004194304"} 0
+pocoma_v3_renewal_schedule_lag_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.005"} 0
+pocoma_v3_renewal_schedule_lag_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.005592405"} 0
+pocoma_v3_renewal_schedule_lag_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.006990506"} 0
+pocoma_v3_renewal_schedule_lag_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.008388607"} 0
+pocoma_v3_renewal_schedule_lag_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.009786708"} 0
+pocoma_v3_renewal_schedule_lag_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.01"} 0
+pocoma_v3_renewal_schedule_lag_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.011184809"} 0
+pocoma_v3_renewal_schedule_lag_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.01258291"} 0
+pocoma_v3_renewal_schedule_lag_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.013981011"} 0
+pocoma_v3_renewal_schedule_lag_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.015379112"} 0
+pocoma_v3_renewal_schedule_lag_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.016777216"} 0
+pocoma_v3_renewal_schedule_lag_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.022369621"} 0
+pocoma_v3_renewal_schedule_lag_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.027962026"} 0
+pocoma_v3_renewal_schedule_lag_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.033554431"} 0
+pocoma_v3_renewal_schedule_lag_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.039146836"} 0
+pocoma_v3_renewal_schedule_lag_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.044739241"} 0
+pocoma_v3_renewal_schedule_lag_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.05"} 0
+pocoma_v3_renewal_schedule_lag_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.050331646"} 0
+pocoma_v3_renewal_schedule_lag_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.055924051"} 0
+pocoma_v3_renewal_schedule_lag_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.061516456"} 0
+pocoma_v3_renewal_schedule_lag_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.067108864"} 0
+pocoma_v3_renewal_schedule_lag_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.089478485"} 0
+pocoma_v3_renewal_schedule_lag_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.1"} 0
+pocoma_v3_renewal_schedule_lag_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.111848106"} 0
+pocoma_v3_renewal_schedule_lag_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.134217727"} 0
+pocoma_v3_renewal_schedule_lag_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.156587348"} 0
+pocoma_v3_renewal_schedule_lag_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.178956969"} 0
+pocoma_v3_renewal_schedule_lag_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.20132659"} 0
+pocoma_v3_renewal_schedule_lag_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.223696211"} 0
+pocoma_v3_renewal_schedule_lag_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.246065832"} 0
+pocoma_v3_renewal_schedule_lag_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.268435456"} 2
+pocoma_v3_renewal_schedule_lag_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.357913941"} 2
+pocoma_v3_renewal_schedule_lag_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.447392426"} 2
+pocoma_v3_renewal_schedule_lag_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.5"} 2
+pocoma_v3_renewal_schedule_lag_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.536870911"} 2
+pocoma_v3_renewal_schedule_lag_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.626349396"} 2
+pocoma_v3_renewal_schedule_lag_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.715827881"} 2
+pocoma_v3_renewal_schedule_lag_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.805306366"} 2
+pocoma_v3_renewal_schedule_lag_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.894784851"} 2
+pocoma_v3_renewal_schedule_lag_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="0.984263336"} 2
+pocoma_v3_renewal_schedule_lag_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="1.0"} 2
+pocoma_v3_renewal_schedule_lag_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="1.073741824"} 2
+pocoma_v3_renewal_schedule_lag_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="1.431655765"} 2
+pocoma_v3_renewal_schedule_lag_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="1.789569706"} 2
+pocoma_v3_renewal_schedule_lag_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="2.0"} 2
+pocoma_v3_renewal_schedule_lag_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="2.147483647"} 2
+pocoma_v3_renewal_schedule_lag_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="2.505397588"} 2
+pocoma_v3_renewal_schedule_lag_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="2.863311529"} 2
+pocoma_v3_renewal_schedule_lag_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="3.22122547"} 2
+pocoma_v3_renewal_schedule_lag_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="3.579139411"} 2
+pocoma_v3_renewal_schedule_lag_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="3.937053352"} 2
+pocoma_v3_renewal_schedule_lag_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="4.294967296"} 2
+pocoma_v3_renewal_schedule_lag_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="5.0"} 2
+pocoma_v3_renewal_schedule_lag_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="5.726623061"} 2
+pocoma_v3_renewal_schedule_lag_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="7.158278826"} 2
+pocoma_v3_renewal_schedule_lag_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="8.589934591"} 2
+pocoma_v3_renewal_schedule_lag_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="10.021590356"} 2
+pocoma_v3_renewal_schedule_lag_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="11.453246121"} 2
+pocoma_v3_renewal_schedule_lag_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="12.884901886"} 2
+pocoma_v3_renewal_schedule_lag_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="14.316557651"} 2
+pocoma_v3_renewal_schedule_lag_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="15.748213416"} 2
+pocoma_v3_renewal_schedule_lag_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="17.179869184"} 2
+pocoma_v3_renewal_schedule_lag_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="22.906492245"} 2
+pocoma_v3_renewal_schedule_lag_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="28.633115306"} 2
+pocoma_v3_renewal_schedule_lag_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="30.0"} 2
+pocoma_v3_renewal_schedule_lag_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="60.0"} 2
+pocoma_v3_renewal_schedule_lag_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="120.0"} 2
+pocoma_v3_renewal_schedule_lag_seconds_bucket{authority="read",lane="2",outcome="confirmed",le="+Inf"} 2
+pocoma_v3_renewal_schedule_lag_seconds_count{authority="read",lane="2",outcome="confirmed"} 2
+pocoma_v3_renewal_schedule_lag_seconds_sum{authority="read",lane="2",outcome="confirmed"} 0.512657801
+# HELP pocoma_v3_renewal_schedule_lag_seconds_max  
+# TYPE pocoma_v3_renewal_schedule_lag_seconds_max gauge
+pocoma_v3_renewal_schedule_lag_seconds_max{authority="read",lane="2",outcome="confirmed"} 0.261261588
+# HELP pocoma_v3_rotation_opportunities_total  
+# TYPE pocoma_v3_rotation_opportunities_total counter
+pocoma_v3_rotation_opportunities_total{consumption="CommandResult",loop="consumption"} 1376.0
+pocoma_v3_rotation_opportunities_total{consumption="CommandResult",loop="discovery"} 1252.0
+pocoma_v3_rotation_opportunities_total{consumption="IdentityRequestResult",loop="consumption"} 1376.0
+pocoma_v3_rotation_opportunities_total{consumption="IdentityRequestResult",loop="discovery"} 1252.0
+# HELP pocoma_v3_rotation_tours_total  
+# TYPE pocoma_v3_rotation_tours_total counter
+pocoma_v3_rotation_tours_total{consumption="CommandResult",loop="consumption"} 1365.0
+pocoma_v3_rotation_tours_total{consumption="IdentityRequestResult",loop="consumption"} 1376.0
+# HELP pocoma_v3_slot_acquisition_examined_total  
+# TYPE pocoma_v3_slot_acquisition_examined_total counter
+pocoma_v3_slot_acquisition_examined_total{consumption="CommandResult"} 10.0
+# HELP pocoma_v3_slot_navigation_duration_seconds  
+# TYPE pocoma_v3_slot_navigation_duration_seconds histogram
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.001"} 1321
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.001048576"} 1323
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.001398101"} 1340
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.001747626"} 1344
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.002097151"} 1348
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.002446676"} 1349
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.002796201"} 1351
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.003145726"} 1352
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.003495251"} 1354
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.003844776"} 1354
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.004194304"} 1355
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.005"} 1355
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.005592405"} 1355
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.006990506"} 1359
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.008388607"} 1359
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.009786708"} 1359
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.01"} 1359
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.011184809"} 1359
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.01258291"} 1362
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.013981011"} 1362
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.015379112"} 1362
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.016777216"} 1362
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.022369621"} 1362
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.027962026"} 1365
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.033554431"} 1365
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.039146836"} 1366
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.044739241"} 1368
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.05"} 1370
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.050331646"} 1370
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.055924051"} 1370
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.061516456"} 1370
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.067108864"} 1372
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.089478485"} 1375
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.1"} 1375
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.111848106"} 1375
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.134217727"} 1375
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.156587348"} 1375
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.178956969"} 1375
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.20132659"} 1375
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.223696211"} 1375
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.246065832"} 1375
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.268435456"} 1375
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.357913941"} 1375
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.447392426"} 1375
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.5"} 1375
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.536870911"} 1375
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.626349396"} 1375
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.715827881"} 1375
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.805306366"} 1375
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.894784851"} 1375
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="0.984263336"} 1375
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="1.0"} 1375
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="1.073741824"} 1375
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="1.431655765"} 1375
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="1.789569706"} 1375
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="2.0"} 1375
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="2.147483647"} 1375
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="2.505397588"} 1375
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="2.863311529"} 1375
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="3.22122547"} 1375
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="3.579139411"} 1375
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="3.937053352"} 1375
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="4.294967296"} 1375
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="5.0"} 1375
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="5.726623061"} 1375
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="7.158278826"} 1375
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="8.589934591"} 1375
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="10.021590356"} 1375
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="11.453246121"} 1375
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="12.884901886"} 1375
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="14.316557651"} 1375
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="15.748213416"} 1375
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="17.179869184"} 1375
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="22.906492245"} 1375
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="28.633115306"} 1375
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="30.0"} 1375
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="60.0"} 1375
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="120.0"} 1375
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="CommandResult",outcome="confirmed",le="+Inf"} 1375
+pocoma_v3_slot_navigation_duration_seconds_count{consumption="CommandResult",outcome="confirmed"} 1375
+pocoma_v3_slot_navigation_duration_seconds_sum{consumption="CommandResult",outcome="confirmed"} 1.331377099
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.001"} 1332
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.001048576"} 1341
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.001398101"} 1360
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.001747626"} 1366
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.002097151"} 1366
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.002446676"} 1368
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.002796201"} 1370
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.003145726"} 1370
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.003495251"} 1370
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.003844776"} 1370
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.004194304"} 1370
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.005"} 1370
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.005592405"} 1370
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.006990506"} 1370
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.008388607"} 1370
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.009786708"} 1371
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.01"} 1371
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.011184809"} 1371
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.01258291"} 1371
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.013981011"} 1371
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.015379112"} 1371
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.016777216"} 1371
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.022369621"} 1372
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.027962026"} 1372
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.033554431"} 1372
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.039146836"} 1372
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.044739241"} 1373
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.05"} 1373
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.050331646"} 1373
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.055924051"} 1373
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.061516456"} 1374
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.067108864"} 1374
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.089478485"} 1376
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.1"} 1376
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.111848106"} 1376
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.134217727"} 1376
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.156587348"} 1376
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.178956969"} 1376
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.20132659"} 1376
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.223696211"} 1376
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.246065832"} 1376
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.268435456"} 1376
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.357913941"} 1376
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.447392426"} 1376
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.5"} 1376
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.536870911"} 1376
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.626349396"} 1376
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.715827881"} 1376
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.805306366"} 1376
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.894784851"} 1376
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="0.984263336"} 1376
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="1.0"} 1376
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="1.073741824"} 1376
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="1.431655765"} 1376
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="1.789569706"} 1376
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="2.0"} 1376
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="2.147483647"} 1376
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="2.505397588"} 1376
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="2.863311529"} 1376
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="3.22122547"} 1376
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="3.579139411"} 1376
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="3.937053352"} 1376
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="4.294967296"} 1376
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="5.0"} 1376
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="5.726623061"} 1376
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="7.158278826"} 1376
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="8.589934591"} 1376
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="10.021590356"} 1376
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="11.453246121"} 1376
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="12.884901886"} 1376
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="14.316557651"} 1376
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="15.748213416"} 1376
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="17.179869184"} 1376
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="22.906492245"} 1376
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="28.633115306"} 1376
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="30.0"} 1376
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="60.0"} 1376
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="120.0"} 1376
+pocoma_v3_slot_navigation_duration_seconds_bucket{consumption="IdentityRequestResult",outcome="confirmed",le="+Inf"} 1376
+pocoma_v3_slot_navigation_duration_seconds_count{consumption="IdentityRequestResult",outcome="confirmed"} 1376
+pocoma_v3_slot_navigation_duration_seconds_sum{consumption="IdentityRequestResult",outcome="confirmed"} 0.907502256
+# HELP pocoma_v3_slot_navigation_duration_seconds_max  
+# TYPE pocoma_v3_slot_navigation_duration_seconds_max gauge
+pocoma_v3_slot_navigation_duration_seconds_max{consumption="CommandResult",outcome="confirmed"} 0.075960417
+pocoma_v3_slot_navigation_duration_seconds_max{consumption="IdentityRequestResult",outcome="confirmed"} 0.085298
+# HELP pocoma_v3_slot_navigation_keys_total  
+# TYPE pocoma_v3_slot_navigation_keys_total counter
+pocoma_v3_slot_navigation_keys_total{consumption="CommandResult"} 10.0
+# HELP pocoma_v3_slot_navigation_pages_total  
+# TYPE pocoma_v3_slot_navigation_pages_total counter
+pocoma_v3_slot_navigation_pages_total{consumption="CommandResult"} 1375.0
+pocoma_v3_slot_navigation_pages_total{consumption="IdentityRequestResult"} 1376.0
+# HELP pocoma_v3_takeover_observed_total  
+# TYPE pocoma_v3_takeover_observed_total counter
+pocoma_v3_takeover_observed_total{authority="read"} 0.0
+pocoma_v3_takeover_observed_total{authority="write"} 0.0
+# HELP pocoma_v3_worker_cycle_duration_seconds  
+# TYPE pocoma_v3_worker_cycle_duration_seconds histogram
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="consumption",outcome="confirmed",le="0.001"} 1245
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="consumption",outcome="confirmed",le="0.001048576"} 1388
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="consumption",outcome="confirmed",le="0.001398101"} 2087
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="consumption",outcome="confirmed",le="0.001747626"} 2343
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="consumption",outcome="confirmed",le="0.002097151"} 2471
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="consumption",outcome="confirmed",le="0.002446676"} 2553
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="consumption",outcome="confirmed",le="0.002796201"} 2596
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="consumption",outcome="confirmed",le="0.003145726"} 2620
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="consumption",outcome="confirmed",le="0.003495251"} 2647
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="consumption",outcome="confirmed",le="0.003844776"} 2657
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="consumption",outcome="confirmed",le="0.004194304"} 2669
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="consumption",outcome="confirmed",le="0.005"} 2674
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="consumption",outcome="confirmed",le="0.005592405"} 2678
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="consumption",outcome="confirmed",le="0.006990506"} 2681
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="consumption",outcome="confirmed",le="0.008388607"} 2688
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="consumption",outcome="confirmed",le="0.009786708"} 2697
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="consumption",outcome="confirmed",le="0.01"} 2697
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="consumption",outcome="confirmed",le="0.011184809"} 2698
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="consumption",outcome="confirmed",le="0.01258291"} 2702
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="consumption",outcome="confirmed",le="0.013981011"} 2703
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="consumption",outcome="confirmed",le="0.015379112"} 2703
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="consumption",outcome="confirmed",le="0.016777216"} 2705
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="consumption",outcome="confirmed",le="0.022369621"} 2708
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="consumption",outcome="confirmed",le="0.027962026"} 2715
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="consumption",outcome="confirmed",le="0.033554431"} 2715
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="consumption",outcome="confirmed",le="0.039146836"} 2717
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="consumption",outcome="confirmed",le="0.044739241"} 2725
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="consumption",outcome="confirmed",le="0.05"} 2729
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="consumption",outcome="confirmed",le="0.050331646"} 2729
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="consumption",outcome="confirmed",le="0.055924051"} 2730
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="consumption",outcome="confirmed",le="0.061516456"} 2734
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="consumption",outcome="confirmed",le="0.067108864"} 2737
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="consumption",outcome="confirmed",le="0.089478485"} 2751
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="consumption",outcome="confirmed",le="0.1"} 2751
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="consumption",outcome="confirmed",le="0.111848106"} 2751
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="consumption",outcome="confirmed",le="0.134217727"} 2751
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="consumption",outcome="confirmed",le="0.156587348"} 2751
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="consumption",outcome="confirmed",le="0.178956969"} 2751
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="consumption",outcome="confirmed",le="0.20132659"} 2751
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="consumption",outcome="confirmed",le="0.223696211"} 2752
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="consumption",outcome="confirmed",le="0.246065832"} 2752
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="consumption",outcome="confirmed",le="0.268435456"} 2752
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="consumption",outcome="confirmed",le="0.357913941"} 2752
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="consumption",outcome="confirmed",le="0.447392426"} 2752
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="consumption",outcome="confirmed",le="0.5"} 2752
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="consumption",outcome="confirmed",le="0.536870911"} 2752
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="consumption",outcome="confirmed",le="0.626349396"} 2752
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="consumption",outcome="confirmed",le="0.715827881"} 2752
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="consumption",outcome="confirmed",le="0.805306366"} 2752
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="consumption",outcome="confirmed",le="0.894784851"} 2752
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="consumption",outcome="confirmed",le="0.984263336"} 2752
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="consumption",outcome="confirmed",le="1.0"} 2752
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="consumption",outcome="confirmed",le="1.073741824"} 2752
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="consumption",outcome="confirmed",le="1.431655765"} 2752
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="consumption",outcome="confirmed",le="1.789569706"} 2752
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="consumption",outcome="confirmed",le="2.0"} 2752
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="consumption",outcome="confirmed",le="2.147483647"} 2752
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="consumption",outcome="confirmed",le="2.505397588"} 2752
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="consumption",outcome="confirmed",le="2.863311529"} 2752
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="consumption",outcome="confirmed",le="3.22122547"} 2752
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="consumption",outcome="confirmed",le="3.579139411"} 2752
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="consumption",outcome="confirmed",le="3.937053352"} 2752
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="consumption",outcome="confirmed",le="4.294967296"} 2752
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="consumption",outcome="confirmed",le="5.0"} 2752
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="consumption",outcome="confirmed",le="5.726623061"} 2752
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="consumption",outcome="confirmed",le="7.158278826"} 2752
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="consumption",outcome="confirmed",le="8.589934591"} 2752
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="consumption",outcome="confirmed",le="10.021590356"} 2752
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="consumption",outcome="confirmed",le="11.453246121"} 2752
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="consumption",outcome="confirmed",le="12.884901886"} 2752
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="consumption",outcome="confirmed",le="14.316557651"} 2752
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="consumption",outcome="confirmed",le="15.748213416"} 2752
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="consumption",outcome="confirmed",le="17.179869184"} 2752
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="consumption",outcome="confirmed",le="22.906492245"} 2752
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="consumption",outcome="confirmed",le="28.633115306"} 2752
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="consumption",outcome="confirmed",le="30.0"} 2752
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="consumption",outcome="confirmed",le="60.0"} 2752
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="consumption",outcome="confirmed",le="120.0"} 2752
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="consumption",outcome="confirmed",le="+Inf"} 2752
+pocoma_v3_worker_cycle_duration_seconds_count{loop="consumption",outcome="confirmed"} 2752
+pocoma_v3_worker_cycle_duration_seconds_sum{loop="consumption",outcome="confirmed"} 5.751981007
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="discovery",outcome="confirmed",le="0.001"} 142
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="discovery",outcome="confirmed",le="0.001048576"} 506
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="discovery",outcome="confirmed",le="0.001398101"} 1608
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="discovery",outcome="confirmed",le="0.001747626"} 1969
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="discovery",outcome="confirmed",le="0.002097151"} 2159
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="discovery",outcome="confirmed",le="0.002446676"} 2273
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="discovery",outcome="confirmed",le="0.002796201"} 2327
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="discovery",outcome="confirmed",le="0.003145726"} 2358
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="discovery",outcome="confirmed",le="0.003495251"} 2389
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="discovery",outcome="confirmed",le="0.003844776"} 2402
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="discovery",outcome="confirmed",le="0.004194304"} 2411
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="discovery",outcome="confirmed",le="0.005"} 2423
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="discovery",outcome="confirmed",le="0.005592405"} 2430
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="discovery",outcome="confirmed",le="0.006990506"} 2436
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="discovery",outcome="confirmed",le="0.008388607"} 2444
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="discovery",outcome="confirmed",le="0.009786708"} 2447
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="discovery",outcome="confirmed",le="0.01"} 2448
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="discovery",outcome="confirmed",le="0.011184809"} 2450
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="discovery",outcome="confirmed",le="0.01258291"} 2450
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="discovery",outcome="confirmed",le="0.013981011"} 2452
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="discovery",outcome="confirmed",le="0.015379112"} 2452
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="discovery",outcome="confirmed",le="0.016777216"} 2456
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="discovery",outcome="confirmed",le="0.022369621"} 2461
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="discovery",outcome="confirmed",le="0.027962026"} 2464
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="discovery",outcome="confirmed",le="0.033554431"} 2468
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="discovery",outcome="confirmed",le="0.039146836"} 2470
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="discovery",outcome="confirmed",le="0.044739241"} 2474
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="discovery",outcome="confirmed",le="0.05"} 2477
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="discovery",outcome="confirmed",le="0.050331646"} 2477
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="discovery",outcome="confirmed",le="0.055924051"} 2478
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="discovery",outcome="confirmed",le="0.061516456"} 2484
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="discovery",outcome="confirmed",le="0.067108864"} 2488
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="discovery",outcome="confirmed",le="0.089478485"} 2501
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="discovery",outcome="confirmed",le="0.1"} 2503
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="discovery",outcome="confirmed",le="0.111848106"} 2503
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="discovery",outcome="confirmed",le="0.134217727"} 2503
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="discovery",outcome="confirmed",le="0.156587348"} 2503
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="discovery",outcome="confirmed",le="0.178956969"} 2503
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="discovery",outcome="confirmed",le="0.20132659"} 2503
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="discovery",outcome="confirmed",le="0.223696211"} 2503
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="discovery",outcome="confirmed",le="0.246065832"} 2503
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="discovery",outcome="confirmed",le="0.268435456"} 2503
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="discovery",outcome="confirmed",le="0.357913941"} 2504
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="discovery",outcome="confirmed",le="0.447392426"} 2504
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="discovery",outcome="confirmed",le="0.5"} 2504
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="discovery",outcome="confirmed",le="0.536870911"} 2504
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="discovery",outcome="confirmed",le="0.626349396"} 2504
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="discovery",outcome="confirmed",le="0.715827881"} 2504
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="discovery",outcome="confirmed",le="0.805306366"} 2504
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="discovery",outcome="confirmed",le="0.894784851"} 2504
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="discovery",outcome="confirmed",le="0.984263336"} 2504
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="discovery",outcome="confirmed",le="1.0"} 2504
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="discovery",outcome="confirmed",le="1.073741824"} 2504
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="discovery",outcome="confirmed",le="1.431655765"} 2504
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="discovery",outcome="confirmed",le="1.789569706"} 2504
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="discovery",outcome="confirmed",le="2.0"} 2504
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="discovery",outcome="confirmed",le="2.147483647"} 2504
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="discovery",outcome="confirmed",le="2.505397588"} 2504
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="discovery",outcome="confirmed",le="2.863311529"} 2504
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="discovery",outcome="confirmed",le="3.22122547"} 2504
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="discovery",outcome="confirmed",le="3.579139411"} 2504
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="discovery",outcome="confirmed",le="3.937053352"} 2504
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="discovery",outcome="confirmed",le="4.294967296"} 2504
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="discovery",outcome="confirmed",le="5.0"} 2504
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="discovery",outcome="confirmed",le="5.726623061"} 2504
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="discovery",outcome="confirmed",le="7.158278826"} 2504
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="discovery",outcome="confirmed",le="8.589934591"} 2504
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="discovery",outcome="confirmed",le="10.021590356"} 2504
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="discovery",outcome="confirmed",le="11.453246121"} 2504
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="discovery",outcome="confirmed",le="12.884901886"} 2504
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="discovery",outcome="confirmed",le="14.316557651"} 2504
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="discovery",outcome="confirmed",le="15.748213416"} 2504
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="discovery",outcome="confirmed",le="17.179869184"} 2504
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="discovery",outcome="confirmed",le="22.906492245"} 2504
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="discovery",outcome="confirmed",le="28.633115306"} 2504
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="discovery",outcome="confirmed",le="30.0"} 2504
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="discovery",outcome="confirmed",le="60.0"} 2504
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="discovery",outcome="confirmed",le="120.0"} 2504
+pocoma_v3_worker_cycle_duration_seconds_bucket{loop="discovery",outcome="confirmed",le="+Inf"} 2504
+pocoma_v3_worker_cycle_duration_seconds_count{loop="discovery",outcome="confirmed"} 2504
+pocoma_v3_worker_cycle_duration_seconds_sum{loop="discovery",outcome="confirmed"} 6.609896057
+# HELP pocoma_v3_worker_cycle_duration_seconds_max  
+# TYPE pocoma_v3_worker_cycle_duration_seconds_max gauge
+pocoma_v3_worker_cycle_duration_seconds_max{loop="consumption",outcome="confirmed"} 0.201518792
+pocoma_v3_worker_cycle_duration_seconds_max{loop="discovery",outcome="confirmed"} 0.300614208
+# HELP pocoma_v3_worker_cycles_total  
+# TYPE pocoma_v3_worker_cycles_total counter
+pocoma_v3_worker_cycles_total{loop="consumption",outcome="confirmed"} 2752.0
+pocoma_v3_worker_cycles_total{loop="discovery",outcome="confirmed"} 2504.0
+# HELP pocoma_v3_worker_state  
+# TYPE pocoma_v3_worker_state gauge
+pocoma_v3_worker_state{state="draining"} 0.0
+pocoma_v3_worker_state{state="running"} 1.0
+pocoma_v3_worker_state{state="starting"} 0.0
+pocoma_v3_worker_state{state="stopped"} 0.0
+# HELP process_cpu_time_ns_total The "cpu time" used by the Java Virtual Machine process
+# TYPE process_cpu_time_ns_total counter
+process_cpu_time_ns_total 1.011E10
+# HELP process_cpu_usage The "recent cpu usage" for the Java Virtual Machine process
+# TYPE process_cpu_usage gauge
+process_cpu_usage 0.62
+# HELP process_files_max_files The maximum file descriptor count
+# TYPE process_files_max_files gauge
+process_files_max_files 1048576.0
+# HELP process_files_open_files The open file descriptor count
+# TYPE process_files_open_files gauge
+process_files_open_files 32.0
+# HELP process_start_time_seconds Start time of the process since unix epoch.
+# TYPE process_start_time_seconds gauge
+process_start_time_seconds 1.795031861443E9
+# HELP process_uptime_seconds The uptime of the Java virtual machine
+# TYPE process_uptime_seconds gauge
+process_uptime_seconds 23.03
+# HELP system_cpu_count The number of processors available to the Java virtual machine
+# TYPE system_cpu_count gauge
+system_cpu_count 1.0
+# HELP system_cpu_usage The "recent cpu usage" of the system the application is running in
+# TYPE system_cpu_usage gauge
+system_cpu_usage 0.621975
+# HELP system_load_average_1m The sum of the number of runnable entities queued to available processors and the number of runnable entities running on the available processors averaged over a period of time
+# TYPE system_load_average_1m gauge
+system_load_average_1m 1.58056640625
+# HELP tomcat_sessions_active_current_sessions  
+# TYPE tomcat_sessions_active_current_sessions gauge
+tomcat_sessions_active_current_sessions 0.0
+# HELP tomcat_sessions_active_max_sessions  
+# TYPE tomcat_sessions_active_max_sessions gauge
+tomcat_sessions_active_max_sessions 0.0
+# HELP tomcat_sessions_alive_max_seconds  
+# TYPE tomcat_sessions_alive_max_seconds gauge
+tomcat_sessions_alive_max_seconds 0.0
+# HELP tomcat_sessions_created_sessions_total  
+# TYPE tomcat_sessions_created_sessions_total counter
+tomcat_sessions_created_sessions_total 0.0
+# HELP tomcat_sessions_expired_sessions_total  
+# TYPE tomcat_sessions_expired_sessions_total counter
+tomcat_sessions_expired_sessions_total 0.0
+# HELP tomcat_sessions_rejected_sessions_total  
+# TYPE tomcat_sessions_rejected_sessions_total counter
+tomcat_sessions_rejected_sessions_total 0.0

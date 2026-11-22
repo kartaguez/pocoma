@@ -1,0 +1,12 @@
+{
+  "project": "pocoma-c3-rebuild-proof-5290b4ab",
+  "snapshot": "77dd5a955af3bf254a29efe2e78652bceef52bd10c44c69f980b5bacebf0d523",
+  "writeFingerprint": "87eb9f69e63600fea77255485c8ecf29",
+  "logicalAvailabilityFingerprint": "d397c448acdb0dc32cd8a824ac0e06ed",
+  "initialHistorical": 1213,
+  "committedBeforeResume": 6,
+  "historicalAfterResume": 1213,
+  "checkpoints": 28,
+  "pendingSlots": 0,
+  "state": "READY/IDLE"
+}

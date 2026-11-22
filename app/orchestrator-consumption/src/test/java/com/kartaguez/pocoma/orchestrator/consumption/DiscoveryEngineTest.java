@@ -39,7 +39,7 @@ class DiscoveryEngineTest {
                 128, 32, 32, cap, Duration.ofMillis(500), Duration.ofSeconds(2));
     }
 
-    static final class Harness
+    static class Harness
             implements AttemptTransactions,
                     PartitionOwnershipStore,
                     DiscoveryAdmissionStore,
@@ -462,5 +462,38 @@ class DiscoveryEngineTest {
         h.owned = false;
         h.events = List.of();
         assertTrue(h.engine(1).discoverEvents(h.lease).checkpoint().isEmpty());
+    }
+
+    @Test
+    void b2_checkpointCacheHitsSameOwnerAndInvalidatesOnOwnerChangeOrStale() {
+        var reads = new java.util.concurrent.atomic.AtomicInteger();
+        var h = new Harness(ConsumableFamily.POT_EVENT) {
+            @Override
+            public long checkpoint(ConsumptionId cid, int partition, com.kartaguez.pocoma.port.transaction.RecoveryReadContext read) {
+                reads.incrementAndGet();
+                return super.checkpoint(cid, partition, read);
+            }
+        };
+        h.events = List.of();
+        var engine = h.engine(1);
+        // First empty fast-path call reads checkpoint once and skips effects.write.
+        var p1 = engine.discoverEvents(h.lease, false);
+        assertEquals(DiscoveryReports.Status.COMMITTED, p1.status());
+        assertEquals(1, reads.get());
+        // Second empty fast-path call with same ownerToken uses cached checkpoint (0 DB checkpoint reads).
+        var p2 = engine.discoverEvents(h.lease, false);
+        assertEquals(DiscoveryReports.Status.COMMITTED, p2.status());
+        assertEquals(1, reads.get());
+        // Owner change (new ownerToken after lease takeover) invalidates cache and re-reads DB.
+        var newLease = new PartitionLease(h.lease.consumptionId(), h.lease.partitionId(), UUID.randomUUID(), h.lease.ownedUntil());
+        var p3 = engine.discoverEvents(newLease, false);
+        assertEquals(DiscoveryReports.Status.COMMITTED, p3.status());
+        assertEquals(2, reads.get());
+        // STALE_CHECKPOINT on non-empty window invalidates cache and refreshes on next pass.
+        h.events = List.of(new NonBurnableReferences.Reference(1, u(1), "POT"));
+        h.actualK = 1L;
+        var stale = engine.discoverEvents(newLease, false);
+        assertEquals(DiscoveryReports.Status.STALE_CHECKPOINT, stale.status());
+        assertEquals(2, reads.get());
     }
 }

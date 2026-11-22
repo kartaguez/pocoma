@@ -83,13 +83,13 @@ public final class ReadInvitation {
         UUID potId = invitation.get().potId();
         var current = pots.currentVersion(potId, c);
         if (current.isEmpty()) return new NotReady<>();
-        var root = pots.read(potId, current.getAsLong(), c);
+        var root = pots.readShareholders(potId, current.getAsLong(), c);
         if (root.isEmpty()) return new NotReady<>();
         var p = root.get();
         if (p.deleted() || p.attachedActiveUserIds().contains(boundUserId.get())) {
             return new NotFound<>();
         }
-        var keys = freeShareholderDetailKeys(potId, p);
+        var keys = freeShareholderDetailKeys(potId, p.shareholders());
         var details = objects.readAll(keys, c);
         if (!details.keySet().containsAll(keys)) return new NotReady<>();
         return new Available<>(extractPlaces(keys, details), p.version());
@@ -103,8 +103,9 @@ public final class ReadInvitation {
         return Optional.of(binding.get().userId().value());
     }
 
-    private static List<SubobjectKey> freeShareholderDetailKeys(UUID potId, PotVersion p) {
-        return p.shareholders().stream()
+    private static List<SubobjectKey> freeShareholderDetailKeys(
+            UUID potId, List<PotVersion.Shareholder> shareholders) {
+        return shareholders.stream()
                 .filter(s -> !s.deleted() && s.isFree())
                 .map(
                         s ->

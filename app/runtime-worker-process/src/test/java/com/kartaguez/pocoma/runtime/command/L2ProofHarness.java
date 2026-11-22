@@ -113,14 +113,7 @@ final class L2ProofHarness {
                                     ds,
                                     BootstrapGuard.Privileges.LIFECYCLE_AND_DISCOVERY, tracker);
                 } else if (L2ProofSettings.READ_NAMES.contains(name)) {
-                    var participant =
-                            name.equals("MaterializeInvitation")
-                                    ? ReadParticipants.invitation(
-                                            resources.writeBusiness, resources.readBusiness)
-                                    : reads.get(
-                                            ReadParticipants.Name.values()[
-                                                    L2ProofSettings.READ_NAMES.indexOf(
-                                                            name)]);
+                    var participant = reads.get(ReadParticipants.Name.ofCapability(name));
                     engine =
                             com.kartaguez.pocoma.compose.polling.materialize.ConsumptionLifecycleComposition.assemble(
                                     guard,

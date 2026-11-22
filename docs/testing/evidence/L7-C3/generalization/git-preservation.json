@@ -1,0 +1,21 @@
+{
+  "head": "d7b4b6d73963cab7efeb658ef67478d52de03c32",
+  "upstreamDivergence": [
+    "0",
+    "0"
+  ],
+  "indexMatchesInitial": true,
+  "initialWorkPreservedByteForByte": 110,
+  "initialWorkUpdatedInScope": [
+    "docs/v3/L7_C3/README.md",
+    "docs/v3/L7_C3/arbitrages.md",
+    "docs/v3/L7_C3/architecture.md",
+    "docs/v3/L7_C3/audit.md",
+    "docs/v3/L7_C3/pilot-report.md",
+    "docs/v3/L7_C3/plan.md",
+    "app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/l7/L7ReactorArchitectureTest.java",
+    "app/infra-postgres-read/src/main/java/com/kartaguez/pocoma/infra/postgres/read/JdbcCommandTerminalResultStore.java",
+    "app/infra-postgres-read/src/test/java/com/kartaguez/pocoma/infra/postgres/read/TerminalResultsReadStorePostgresTest.java"
+  ],
+  "initialWorkMissing": []
+}

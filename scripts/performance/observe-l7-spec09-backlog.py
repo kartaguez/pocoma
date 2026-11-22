@@ -114,7 +114,7 @@ with targets as (
                r.operation,r.requester_issuer,r.requester_subject,r.pot_id,
                r.write_outcome,r.resulting_pot_version,r.rejection)::text,'UTF8')),'hex')
                =t.result_hash,false) as result_matches,
-           coalesce(version.payload->'deleted'='false'::jsonb
+           coalesce(not version.deleted
                 and current_pot.pot_version>=t.version,false) as pot_ready,
            balance.pot_id is not null as balance_ready,
            coalesce(visibility.materialized_version>=t.version,false) as visibility_ready,

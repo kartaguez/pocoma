@@ -139,7 +139,7 @@ class LocalSafety(unittest.TestCase):
     def test_previous_canary_version_is_not_new_proof(self):
         class FakeAPI:
             def binding(self): return 'private-binding'
-            def command(self,*args): return 'request',{'resultingPotVersion':4}
+            def command(self,*args): return 'request',{'potId':'00000000-0000-0000-0000-000000000002','resultingPotVersion':4}
             def pot(self,*args): return {'potVersion':4}
         with self.assertRaisesRegex(RuntimeError,'CANARY-NEW-VERSION'):
             canary('00000000-0000-0000-0000-000000000001',FakeAPI(),'new-run',{},lambda s:None)
@@ -160,6 +160,11 @@ class LocalSafety(unittest.TestCase):
             self.assertEqual(1,len(__import__('re').findall(r'(?im)^COMMIT;',text)))
             self.assertIn('GRANT',text)
             self.assertLess(text.index('GRANT'),text.index('CREATE TABLE public.pocoma_local_bootstrap'))
+        read_ddl = next(text for db, text in calls
+                        if db == 'pocoma_read' and 'CREATE TABLE public.pocoma_local_bootstrap' in text)
+        self.assertIn('create table read_availability_event', read_ddl)
+        self.assertLess(read_ddl.index('create table read_availability_event'),
+                        read_ddl.index('CREATE TABLE public.pocoma_local_bootstrap'))
         roles='\n'.join(text for _,text in calls if 'CREATE ROLE' in text)
         self.assertNotIn('local-only',roles)
         self.assertIn('random-pocoma_admission',roles)

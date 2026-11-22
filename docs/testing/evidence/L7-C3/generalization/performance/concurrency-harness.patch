@@ -1,0 +1,170 @@
+--- experiments/l7-c3-gate/C3Costs.java
++++ C3Costs.java
+@@ -3,14 +3,12 @@
+ import static com.kartaguez.pocoma.compose.polling.materialize.ReadParticipants.Name.*;
+ import static org.junit.jupiter.api.Assertions.*;
+ 
++import com.kartaguez.pocoma.compose.polling.materialize.ReadParticipants;
+ import com.kartaguez.pocoma.compose.polling.materialize.ReadParticipants.Name;
++import org.flywaydb.core.Flyway;
+ import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionProtocol.Status;
+-import com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant;
+-import com.kartaguez.pocoma.contract.consumption.participation.PreparationReads;
+-import com.kartaguez.pocoma.contract.consumption.participation.SlotCompletion;
+ import com.kartaguez.pocoma.contract.writeadmission.IdentityRequest;
+ import com.kartaguez.pocoma.domain.consumption.RoutingV1;
+-import com.kartaguez.pocoma.infra.tx.spring.SpringAttemptTransactions;
+ import java.io.PrintWriter;
+ import java.lang.management.ManagementFactory;
+ import java.nio.file.Files;
+@@ -77,16 +75,17 @@
+                             PrintWriter sql, PrintWriter waits, PrintWriter storage) throws Exception {
+         try (var f = new ReadParticipantsFixture(pg, "c3-cost-" + workers + "-" + publish)) {
+             var db = f.f.read;
+-            var published = new EnumMap<Name, Map<UUID, Work>>(Name.class);
+-            for (var name : FAMILIES) published.put(name, new HashMap<>());
+             if (publish) {
+-                C3Complement.enablePilot(f);
+-                db.oracle.execute(Files.readString(tooling.resolve("publication.sql"))
+-                        .replace("__WORKER__", db.runtimeRole));
+-                for (var name : FAMILIES.subList(1, FAMILIES.size())) {
+-                    var real = f.participants.get(name).participant();
+-                    f.engines.put(name, f.engine(name, experimentalPublication(db, real, published.get(name)),
+-                            db.source, db.tx));
++                assertEquals(1, Flyway.configure().dataSource(db.admin).schemas(db.schema)
++                        .defaultSchema(db.schema).createSchemas(false)
++                        .locations("classpath:db/read/migration", "classpath:db/read/availability/migration")
++                        .placeholders(Map.of("expectedDatabase", db.pg.getDatabaseName(), "expectedSchema", db.schema,
++                                "expectedAdmin", db.adminRole, "expectedRuntime", db.runtimeRole))
++                        .load().migrate().migrationsExecuted);
++                for (var name : FAMILIES) {
++                    String capability = f.participants.get(name).participant().getClass().getSimpleName();
++                    var production = ReadParticipants.select(capability, f.f.primary, f.f.sourceOwner, db.source, db.tx);
++                    f.engines.put(name, f.engine(name, production.participant(), db.source, db.tx));
+                 }
+             }
+ 
+@@ -102,9 +101,6 @@
+                         "select event_id from v3_identity_completion_event where subject_id=?", UUID.class, id);
+                 batch.get(IDENTITY_REQUEST_RESULT).add(new Work(IDENTITY_REQUEST_RESULT, event, id, null));
+             }
+-            for (var name : FAMILIES) {
+-                for (var work : batch.get(name)) published.get(name).put(work.event(), work);
+-            }
+             enroll(f, batch.values().stream().flatMap(List::stream).toList());
+             for (var name : FAMILIES) {
+                 var jobs = batch.get(name);
+@@ -115,12 +111,6 @@
+             }
+ 
+             if (workers > 1) {
+-                if (publish) {
+-                    for (var name : FAMILIES.subList(1, FAMILIES.size())) {
+-                        db.oracle.execute("alter table " + effectTable(name)
+-                                + " disable trigger c3_bench_publication");
+-                    }
+-                }
+                 var mixed = new ArrayList<Work>();
+                 for (int i = 0; i < WARMUP + samples; i++) {
+                     var pot = f.f.publish();
+@@ -140,7 +130,7 @@
+                 assertEquals(count, db.oracle.queryForObject("select count(*) from " + effectTable(name), Long.class));
+             }
+             for (String table : List.of("read_availability_counter", "read_availability_event",
+-                    "c3_bench_counter", "c3_bench_event")) {
++                    "read_current_availability")) {
+                 if (publish) {
+                     var physical = db.oracle.queryForMap("select count(*) as rows,"
+                             + " pg_total_relation_size(?::regclass) as bytes from " + table, table);
+@@ -149,10 +139,11 @@
+                 }
+             }
+             if (publish) {
+-                assertDense(db, true, "COMMAND_RESULT_AVAILABLE", (workers > 1 ? 2L : 1L) * (WARMUP + samples));
+-                for (var name : FAMILIES.subList(1, FAMILIES.size())) {
+-                    assertDense(db, false, name.name(), WARMUP + samples);
++                for (var name : FAMILIES) {
++                    long expected = (workers > 1 && name != IDENTITY_REQUEST_RESULT ? 2L : 1L) * (WARMUP + samples);
++                    assertDense(db, name.name() + "_AVAILABLE", expected);
+                 }
++                assertTrue(db.oracle.queryForObject("select read_availability_valid()", Boolean.class));
+             }
+         }
+     }
+@@ -203,8 +194,8 @@
+         };
+     }
+ 
+-    private static void assertDense(SubobjectPostgresFixture db, boolean pilot, String family, long expected) {
+-        String base = pilot ? "read_availability_" : "c3_bench_";
++    private static void assertDense(SubobjectPostgresFixture db, String family, long expected) {
++        String base = "read_availability_";
+         assertEquals(expected, db.oracle.queryForObject(
+                 "select position from " + base + "counter where family=?", Long.class, family));
+         assertEquals(Map.of("n", expected, "lo", 1L, "hi", expected, "unique_ids", expected),
+@@ -212,49 +203,6 @@
+                         + " count(distinct event_id) unique_ids from " + base + "event where family=?", family));
+     }
+ 
+-    private static ConsumptionParticipant experimentalPublication(SubobjectPostgresFixture db,
+-            ConsumptionParticipant real, Map<UUID, Work> targets) {
+-        return new ConsumptionParticipant() {
+-            @Override
+-            public Optional<Prepared> prepare(UUID event, PreparationReads reads) {
+-                var work = targets.get(event);
+-                if (work == null) return real.prepare(event, reads);
+-                return real.prepare(event, reads).map(prepared -> new Prepared() {
+-                    @Override
+-                    public void requireCompletionReady() {
+-                        prepared.requireCompletionReady();
+-                        var existing = db.sql.queryForList("""
+-                                select 1 from c3_bench_event where family=? and projection_key=?
+-                                    and logical_version is not distinct from cast(? as bigint)
+-                                """, Integer.class, work.family().name(), work.key(), work.version());
+-                        assertTrue(existing.isEmpty(), "Cost workload must consist of new effects");
+-                    }
+-
+-                    @Override
+-                    public void finalizeIn(SlotCompletion completion) {
+-                        // The outer guarded callback is entered before the real participant closes.
+-                        SpringAttemptTransactions.guarded(db.source, () -> {
+-                            prepared.finalizeIn(completion);
+-                            long position = db.sql.queryForObject("""
+-                                    update c3_bench_counter set position=position+1 where family=? returning position
+-                                    """, Long.class, work.family().name());
+-                            assertEquals(1, db.sql.update("""
+-                                    insert into c3_bench_event(family,position,event_id,projection_key,logical_version)
+-                                    values (?,?,?,?,?)
+-                                    """, work.family().name(), position, UUID.randomUUID(), work.key(), work.version()));
+-                            return null;
+-                        });
+-                    }
+-                });
+-            }
+-
+-            @Override
+-            public Recovery prepareRecovery(UUID event, PreparationReads reads) {
+-                return real.prepareRecovery(event, reads);
+-            }
+-        };
+-    }
+-
+     private void measure(ReadParticipantsFixture f, String profile, int workers, boolean publish,
+                          List<Work> jobs, PrintWriter summary, PrintWriter rows, PrintWriter sql, PrintWriter waits)
+             throws Exception {
+--- experiments/l7-c3-gate/summarize-cost.py
++++ summarize-cost.py
+@@ -97,11 +97,11 @@
+         assert set(profiles) == {profile}
+     publication_sql = [entry for entry in sql_rows[variant]
+                        if "read_availability_" in entry["query"].lower()
+-                       or "c3_bench_" in entry["query"].lower()]
++                       or "read_current_availability" in entry["query"].lower()]
+     counter = [entry for entry in publication_sql if is_counter(entry["query"])]
+     counter_calls = sum(int(entry["calls"]) for entry in counter)
+     counter_ms = sum(float(entry["exec_ms"]) for entry in counter)
+-    published = (n // 3 if profile == "MIXED" else n) if publish else 0
++    published = n + len(profiles.get("POT_VERSION", [])) if publish else 0
+     assert counter_calls == published, (variant, counter_calls, published)
+ 
+     per_family = {}

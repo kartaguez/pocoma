@@ -1,0 +1,2481 @@
+{
+  "receiptSha256": "f2b964981500d013c190fef6d32694bdb1aa6c983602d16841b378c0d6530db1",
+  "reportArchiveSha256": "cf56647fba95a3e967fff7546d92ef7574a6bd54694e4bc3287f7f8505020ff9",
+  "previousReportInventorySha256": "3de769914998f95a79264d056a90bc8ad834f697e3010c39d93d24f8567baa68",
+  "historicalRuns": {
+    "maven": {
+      "command": "./mvnw --batch-mode --no-transfer-progress -Dmaven.repo.local=/private/tmp/pocoma-c3-audit.Xhk0cB/maven-repository -Dpocoma.verification.id=pocoma-c3-final.hLqqKB -Dpocoma.verification.reports=/private/tmp/pocoma-c3-final.hLqqKB/reports -pl runtime-worker-materialize\\,runtime-web-write\\,runtime-web-read\\,runtime-worker-process\\,runtime-monolith\\,architecture-tests -am test",
+      "exit": null,
+      "logSha256": "8227f275a0470603e862410c467a3bfc88c92e6c7ca2fc3e2c79bcf1e69f52e1",
+      "reactor": {},
+      "markers": [],
+      "logTests": 912,
+      "logSuccessfulTests": 912
+    },
+    "resume-install": {
+      "command": "./mvnw --batch-mode --no-transfer-progress -Dmaven.repo.local=/private/tmp/pocoma-c3-audit.Xhk0cB/maven-repository -pl runtime-worker-materialize,runtime-web-write,runtime-web-read,runtime-worker-process,runtime-monolith,architecture-tests -am -DskipTests install",
+      "exit": 0,
+      "logSha256": "751d8a5c0e6ed3e9883c4ad4d66f0bf70ff35d1194e832149d022bda5a9f4026",
+      "reactor": {
+        "pocoma": "SUCCESS",
+        "pocoma-domain-pot": "SUCCESS",
+        "pocoma-domain-identity": "SUCCESS",
+        "pocoma-domain-projection": "SUCCESS",
+        "pocoma-domain-consumption": "SUCCESS",
+        "pocoma-contract-authentication": "SUCCESS",
+        "pocoma-contract-write-admission": "SUCCESS",
+        "pocoma-port-transaction": "SUCCESS",
+        "pocoma-contract-read-query": "SUCCESS",
+        "pocoma-port-projection": "SUCCESS",
+        "pocoma-engine-admit-command": "SUCCESS",
+        "pocoma-engine-admit-identity": "SUCCESS",
+        "pocoma-contract-consumption": "SUCCESS",
+        "pocoma-engine-write-pot": "SUCCESS",
+        "pocoma-engine-write-identity": "SUCCESS",
+        "pocoma-engine-materialize-pot": "SUCCESS",
+        "pocoma-engine-materialize-identity": "SUCCESS",
+        "pocoma-engine-materialize-results": "SUCCESS",
+        "pocoma-engine-read-pot": "SUCCESS",
+        "pocoma-engine-read-identity": "SUCCESS",
+        "pocoma-engine-read-results": "SUCCESS",
+        "pocoma-orchestrator-consumption": "SUCCESS",
+        "pocoma-supra-polling-consumption": "SUCCESS",
+        "pocoma-supra-web-write": "SUCCESS",
+        "pocoma-infra-tx-spring": "SUCCESS",
+        "pocoma-infra-postgres-core": "SUCCESS",
+        "pocoma-infra-postgres-read": "SUCCESS",
+        "pocoma-supra-web-read": "SUCCESS",
+        "pocoma-infra-security-spring": "SUCCESS",
+        "pocoma-infra-postgres-write-source-read": "SUCCESS",
+        "pocoma-infra-postgres-write": "SUCCESS",
+        "pocoma-infra-observability-micrometer": "SUCCESS",
+        "pocoma-compose-web-write-postgres": "SUCCESS",
+        "pocoma-compose-polling-burnable-write-postgres": "SUCCESS",
+        "pocoma-engine-read-execution": "SUCCESS",
+        "pocoma-compose-web-read-postgres": "SUCCESS",
+        "pocoma-runtime-web-write": "SUCCESS",
+        "pocoma-runtime-web-read": "SUCCESS",
+        "pocoma-runtime-worker-process": "SUCCESS",
+        "pocoma-runtime-worker-materialize": "SUCCESS",
+        "pocoma-runtime-monolith": "SUCCESS",
+        "pocoma-architecture-tests": "SUCCESS"
+      },
+      "markers": [
+        "[INFO] Reactor Summary for pocoma 0.0.1-SNAPSHOT:",
+        "[INFO] BUILD SUCCESS",
+        "[INFO] Finished at: 2026-11-21T11:51:27+01:00"
+      ],
+      "logTests": 0,
+      "logSuccessfulTests": 0
+    },
+    "resume-worker-process": {
+      "command": "./mvnw --batch-mode --no-transfer-progress -Dmaven.repo.local=/private/tmp/pocoma-c3-audit.Xhk0cB/maven-repository -Dpocoma.verification.id=pocoma-c3-final.hLqqKB -Dpocoma.verification.reports=/private/tmp/pocoma-c3-final.hLqqKB/reports -pl runtime-worker-process -Dtest=WorkerPostgresTest,WorkerMetricsTest,WorkerCompositionPostgresTest -Dsurefire.failIfNoSpecifiedTests=false test",
+      "exit": 0,
+      "logSha256": "4ffe4f94ea3e68e0dfa6d704fb4e33c2649f19d63c071b05b519fd73791e8389",
+      "reactor": {},
+      "markers": [
+        "[INFO] BUILD SUCCESS",
+        "[INFO] Finished at: 2026-11-21T12:10:30+01:00"
+      ],
+      "logTests": 31,
+      "logSuccessfulTests": 31
+    },
+    "resume-canonical": {
+      "command": "./mvnw --batch-mode --no-transfer-progress -Dmaven.repo.local=/private/tmp/pocoma-c3-audit.Xhk0cB/maven-repository -Dpocoma.verification.id=pocoma-c3-final.hLqqKB -Dpocoma.verification.reports=/private/tmp/pocoma-c3-final.hLqqKB/reports -pl runtime-worker-materialize,runtime-web-write,runtime-web-read,runtime-worker-process,runtime-monolith,architecture-tests -am -rf :pocoma-runtime-worker-materialize test",
+      "exit": 1,
+      "logSha256": "235f488fce3301d85a1786610ced712ad48e713fbccc5794ec75321a6dc88ea1",
+      "reactor": {
+        "pocoma-runtime-worker-materialize": "FAILURE",
+        "pocoma-runtime-monolith": "SKIPPED",
+        "pocoma-architecture-tests": "SKIPPED"
+      },
+      "markers": [
+        "[INFO] Reactor Summary for pocoma-runtime-worker-materialize 0.0.1-SNAPSHOT:",
+        "[INFO] BUILD FAILURE",
+        "[INFO] Finished at: 2026-11-21T12:19:54+01:00"
+      ],
+      "logTests": 135,
+      "logSuccessfulTests": 134
+    },
+    "replay-joint-incremental": {
+      "command": "./mvnw --batch-mode --no-transfer-progress -Dmaven.repo.local=/private/tmp/pocoma-c3-audit.Xhk0cB/maven-repository -Dpocoma.verification.id=pocoma-c3-final.hLqqKB -Dpocoma.verification.reports=/private/tmp/pocoma-c3-final.hLqqKB/reports -pl runtime-worker-materialize -Dtest=PotVersionAndBalanceJointIncrementalPostgresTest -Dsurefire.failIfNoSpecifiedTests=false test",
+      "exit": 0,
+      "logSha256": "8e18487a1b2819d903643714e303a29287a06b661a4cbff4209dedc428108770",
+      "reactor": {},
+      "markers": [
+        "[INFO] BUILD SUCCESS",
+        "[INFO] Finished at: 2026-11-21T12:21:47+01:00"
+      ],
+      "logTests": 3,
+      "logSuccessfulTests": 3
+    },
+    "resume-monolith": {
+      "command": "./mvnw --batch-mode --no-transfer-progress -Dmaven.repo.local=/private/tmp/pocoma-c3-audit.Xhk0cB/maven-repository -Dpocoma.verification.id=pocoma-c3-final.hLqqKB -Dpocoma.verification.reports=/private/tmp/pocoma-c3-final.hLqqKB/reports -pl runtime-worker-materialize,runtime-web-write,runtime-web-read,runtime-worker-process,runtime-monolith,architecture-tests -am -rf :pocoma-runtime-monolith test",
+      "exit": 0,
+      "logSha256": "e6bb06c2dfe8e078584cac918a11ac7ca35e8c8248ed891c13f27410a7a86ec7",
+      "reactor": {
+        "pocoma-runtime-monolith": "SUCCESS",
+        "pocoma-architecture-tests": "SUCCESS"
+      },
+      "markers": [
+        "[INFO] Reactor Summary for pocoma-runtime-monolith 0.0.1-SNAPSHOT:",
+        "[INFO] BUILD SUCCESS",
+        "[INFO] Finished at: 2026-11-21T12:43:39+01:00"
+      ],
+      "logTests": 92,
+      "logSuccessfulTests": 92
+    }
+  },
+  "xmlSuites": 166,
+  "xmlTestModules": 26,
+  "xmlUniqueTests": 1170,
+  "testsByLatestMatchingLog": {
+    "maven": 912,
+    "resume-install": 0,
+    "resume-worker-process": 31,
+    "resume-canonical": 132,
+    "replay-joint-incremental": 3,
+    "resume-monolith": 92,
+    "null": 0
+  },
+  "onlyInPreviousSuiteInventory": [],
+  "onlyInClosureSuiteInventory": [
+    [
+      "pocoma-runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.ReadAvailabilityPostgresTest",
+      "genericEffectLookupExecutesOnlyTheRequestedFamily"
+    ]
+  ],
+  "reportAttribution": [
+    {
+      "report": "reports/pocoma-architecture-tests/surefire-reports/TEST-com.kartaguez.pocoma.architecture.AdmissionArchitectureTest.xml",
+      "sha256": "72fd1ee6a24ac3f67e7efafed30db4459967c82c20105700ec0cd498b9a92d8f",
+      "tests": 3,
+      "observedInLogs": {
+        "resume-monolith": [
+          3,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "resume-monolith"
+    },
+    {
+      "report": "reports/pocoma-architecture-tests/surefire-reports/TEST-com.kartaguez.pocoma.architecture.ConsumptionEngineArchitectureTest.xml",
+      "sha256": "a3b977822b70fbc40d2d02c88b20d7a70bab1c4612e8dffe4e86b9464d7f9cc9",
+      "tests": 11,
+      "observedInLogs": {
+        "resume-monolith": [
+          11,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "resume-monolith"
+    },
+    {
+      "report": "reports/pocoma-architecture-tests/surefire-reports/TEST-com.kartaguez.pocoma.architecture.ConsumptionFoundationArchitectureTest.xml",
+      "sha256": "a82602546dbfc8f821bb3e399d61f36d65542e98fc0d085bb2a88553661de1de",
+      "tests": 3,
+      "observedInLogs": {
+        "resume-monolith": [
+          3,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "resume-monolith"
+    },
+    {
+      "report": "reports/pocoma-architecture-tests/surefire-reports/TEST-com.kartaguez.pocoma.architecture.FoundationArchitectureTest.xml",
+      "sha256": "b2907f7de6f84c4392156c942a7bddf6dd4ceddf3dd6b7a3759d7c40babbaeae",
+      "tests": 5,
+      "observedInLogs": {
+        "resume-monolith": [
+          5,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "resume-monolith"
+    },
+    {
+      "report": "reports/pocoma-architecture-tests/surefire-reports/TEST-com.kartaguez.pocoma.architecture.HexagonalArchitectureTest.xml",
+      "sha256": "a5c9efa73f1cd20000dba7ad07f403b50f4a3143f0a9f707e6e9ed162b4797f9",
+      "tests": 15,
+      "observedInLogs": {
+        "resume-monolith": [
+          15,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "resume-monolith"
+    },
+    {
+      "report": "reports/pocoma-architecture-tests/surefire-reports/TEST-com.kartaguez.pocoma.architecture.IdentityAuthorityArchitectureTest.xml",
+      "sha256": "3c52f407f7cb34767304b49bbeb247ed289136fc748971168cb6f3832dc5c6c7",
+      "tests": 4,
+      "observedInLogs": {
+        "resume-monolith": [
+          4,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "resume-monolith"
+    },
+    {
+      "report": "reports/pocoma-architecture-tests/surefire-reports/TEST-com.kartaguez.pocoma.architecture.PotExecutionArchitectureTest.xml",
+      "sha256": "6fc8182bb9e3b4ebf665253f75cb0d27eff46ce1dcb202fbe0b41072c3d9e1f9",
+      "tests": 3,
+      "observedInLogs": {
+        "resume-monolith": [
+          3,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "resume-monolith"
+    },
+    {
+      "report": "reports/pocoma-architecture-tests/surefire-reports/TEST-com.kartaguez.pocoma.architecture.l7.L7DeploymentArchitectureTest.xml",
+      "sha256": "27d75af507c5d9fb31007106187dc43648c12a049874ef3bd3fd1a04e77322db",
+      "tests": 1,
+      "observedInLogs": {
+        "resume-monolith": [
+          1,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "resume-monolith"
+    },
+    {
+      "report": "reports/pocoma-architecture-tests/surefire-reports/TEST-com.kartaguez.pocoma.architecture.l7.L7ReactorArchitectureTest.xml",
+      "sha256": "3014b39a98065057c871054396f7cee3b8ba59a3ec159047c757de5d9ee5430f",
+      "tests": 5,
+      "observedInLogs": {
+        "resume-monolith": [
+          5,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "resume-monolith"
+    },
+    {
+      "report": "reports/pocoma-architecture-tests/surefire-reports/TEST-com.kartaguez.pocoma.runtime.command.dev.WorkerDevelopmentToolsTest.xml",
+      "sha256": "7f82393d6e3489d3f3bca93b2c76e3fbbf47cb4e9040f0a2cff0b7213499686b",
+      "tests": 2,
+      "observedInLogs": {
+        "resume-monolith": [
+          2,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "resume-monolith"
+    },
+    {
+      "report": "reports/pocoma-compose-polling-burnable-write-postgres/surefire-reports/TEST-com.kartaguez.pocoma.supra.polling.consumption.ConsumptionWorkerTest.xml",
+      "sha256": "640242cf31b5115156ad2a72626c9cc6ee73787c383ccf72470b9182e6376fc6",
+      "tests": 13,
+      "observedInLogs": {
+        "maven": [
+          13,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-compose-polling-nonburnable-materialize-postgres/surefire-reports/TEST-com.kartaguez.pocoma.compose.polling.materialize.maintenance.ReadinessOracleTest.xml",
+      "sha256": "4cf3bd32a028a3392ee20f06958b75c91e4add53a618be74f2d235d954216872",
+      "tests": 13,
+      "observedInLogs": {
+        "maven": [
+          13,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-compose-web-write-postgres/surefire-reports/TEST-com.kartaguez.pocoma.compose.web.write.AdmissionHttpConfigurationTest.xml",
+      "sha256": "432b22e3511e978a98e174c4aee002394ecbe1446df909eef4f0f2f4adb17295",
+      "tests": 2,
+      "observedInLogs": {
+        "maven": [
+          2,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-compose-web-write-postgres/surefire-reports/TEST-com.kartaguez.pocoma.engine.admit.command.AdmissionCanonicalizationTest.xml",
+      "sha256": "5e72495e015fd022dc908f602da6350e7050016a237c942b3af4df789db2dc21",
+      "tests": 8,
+      "observedInLogs": {
+        "maven": [
+          8,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-compose-web-write-postgres/surefire-reports/TEST-com.kartaguez.pocoma.engine.admit.command.AdmissionInputTest.xml",
+      "sha256": "638397aa92d926ba7836ccd58aac0bc4dac9481718814698cd9658dd3cfbdd71",
+      "tests": 5,
+      "observedInLogs": {
+        "maven": [
+          5,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-compose-web-write-postgres/surefire-reports/TEST-com.kartaguez.pocoma.supra.web.write.AdmissionTransportTest.xml",
+      "sha256": "0930519998987b7730734be88c4cb9e92367cdd154ad889244c8f136f9a1bdbd",
+      "tests": 2,
+      "observedInLogs": {
+        "maven": [
+          2,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-compose-web-write-postgres/surefire-reports/TEST-com.kartaguez.pocoma.supra.web.write.D4AdmissionCalibrationTest.xml",
+      "sha256": "32c2e593e50d2795da6215e3de3144a9de4e1520e845ed673315edee7a127fbb",
+      "tests": 1,
+      "observedInLogs": {
+        "maven": [
+          1,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-domain-consumption/surefire-reports/TEST-com.kartaguez.pocoma.domain.consumption.RoutingV1Test.xml",
+      "sha256": "92da53bec8ad189dbd5704ad9dc3fd3ef8e84b098072c06d7963e4e2330e3094",
+      "tests": 1,
+      "observedInLogs": {
+        "maven": [
+          1,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-domain-identity/surefire-reports/TEST-com.kartaguez.pocoma.domain.identity.IdentityTransitionsTest.xml",
+      "sha256": "72c2973aab4f9ae8f18b4ccd871397df9b6465cde89d4d42ec31c9b0b4c2a00e",
+      "tests": 12,
+      "observedInLogs": {
+        "maven": [
+          12,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-domain-identity/surefire-reports/TEST-com.kartaguez.pocoma.domain.identity.IdentityValueContractsTest.xml",
+      "sha256": "371a4a5dad8bfd554e8ffd3e6678263ff6d528a937e04421e5c86e6dca3e545f",
+      "tests": 8,
+      "observedInLogs": {
+        "maven": [
+          8,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-domain-pot/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.InvitationAttachmentTest.xml",
+      "sha256": "e8d81b8bdeaf49e7f0846953e737537f4ea5b277a8a7ea5de53764151bf1d06b",
+      "tests": 3,
+      "observedInLogs": {
+        "maven": [
+          3,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-domain-pot/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.PotAuthorizationTest.xml",
+      "sha256": "023b8b77ed3331c1f3d1c918250e6d1f223d8984049794811edf69e8f02eb549",
+      "tests": 3,
+      "observedInLogs": {
+        "maven": [
+          3,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-domain-pot/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.PotBalanceCalculatorTest.xml",
+      "sha256": "e14e981b76accda0f9c8a56d56d754e3ec34ade65f2589c6512a11a9992106a0",
+      "tests": 6,
+      "observedInLogs": {
+        "maven": [
+          6,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-domain-pot/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.PotTransitionsTest.xml",
+      "sha256": "888a278e441ce4ea16ec0063efde0c79423d956f7559684c5f7c45ed430b2764",
+      "tests": 14,
+      "observedInLogs": {
+        "maven": [
+          14,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-domain-pot/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.PotVisibilityRulesTest.xml",
+      "sha256": "5daf5a9ff69b27c97939e56c7ea756ad4b09fc48e82270d9d96d0849ec321f56",
+      "tests": 1,
+      "observedInLogs": {
+        "maven": [
+          1,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-domain-pot/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.value.LabelTest.xml",
+      "sha256": "67ad5caddb28a5caee886970e5b9119a7306675a4cc6e1af7f53ea9768dbc17c",
+      "tests": 3,
+      "observedInLogs": {
+        "maven": [
+          3,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-domain-pot/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.value.NameTest.xml",
+      "sha256": "a9432b2b9c67a29520326d5e0cb27a7fe0e1642525272cdbe43b3b6799752cd3",
+      "tests": 3,
+      "observedInLogs": {
+        "maven": [
+          3,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-domain-pot/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.value.UserIdTest.xml",
+      "sha256": "94f06e8870a86aa3086ecbb261c8474f372d61a63c8a78f802806dbcea13b0cb",
+      "tests": 3,
+      "observedInLogs": {
+        "maven": [
+          3,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-domain-pot/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.value.id.EntityIdTest.xml",
+      "sha256": "159c8355d95f3a1bfccc48484b666d65e390f1091482830b159ba6ec484841ab",
+      "tests": 3,
+      "observedInLogs": {
+        "maven": [
+          3,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-domain-pot/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.value.id.ExpenseIdTest.xml",
+      "sha256": "3d4cf548fe87feb11ec7650fc9d7b9bd51ffbea9e28786d887da510b4f808605",
+      "tests": 2,
+      "observedInLogs": {
+        "maven": [
+          2,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-domain-pot/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.value.id.PotIdTest.xml",
+      "sha256": "71ec2c797e39f4df1e920f7ca2fc309555d44b621f44df81bbd366d6fd36c622",
+      "tests": 3,
+      "observedInLogs": {
+        "maven": [
+          3,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-domain-pot/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.value.id.ShareholderIdTest.xml",
+      "sha256": "fe8a8104ef09d065e63d3e1b7d1906b1e33d29aa5304c37422377f857d5b6bdd",
+      "tests": 2,
+      "observedInLogs": {
+        "maven": [
+          2,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-domain-projection/surefire-reports/TEST-com.kartaguez.pocoma.domain.projection.PotBalanceAggregateEquivalenceTest.xml",
+      "sha256": "208f1a47cbc6bd55539cae98a5ab3404f6e8d03871ac0487ecf10b4ac7cc0083",
+      "tests": 9,
+      "observedInLogs": {
+        "maven": [
+          9,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-domain-projection/surefire-reports/TEST-com.kartaguez.pocoma.domain.projection.PotVersionContractTest.xml",
+      "sha256": "36c54a0ac7741b8093935e1579ec7baa14166a46874eab4033e65d826276073d",
+      "tests": 1,
+      "observedInLogs": {
+        "maven": [
+          1,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-domain-projection/surefire-reports/TEST-com.kartaguez.pocoma.domain.projection.SubobjectVersionTest.xml",
+      "sha256": "cf4abd36a3fed341c3e78d62b2186cc966a6a5fecc9bc9feecc3ddf7c47aae77",
+      "tests": 4,
+      "observedInLogs": {
+        "maven": [
+          4,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-domain-projection/surefire-reports/TEST-com.kartaguez.pocoma.domain.projection.balance.PotBalanceAggregateBinaryCodecTest.xml",
+      "sha256": "173f97b526d134f052064d8113ac94f25a21d116fcefda466d252db19875cf00",
+      "tests": 3,
+      "observedInLogs": {
+        "maven": [
+          3,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-domain-projection/surefire-reports/TEST-com.kartaguez.pocoma.domain.projection.balance.PotBalanceBinaryCodecTest.xml",
+      "sha256": "9e69d2260d4c760ca64a1e7c28f03faee0a07cf02f7cbe1f8fbf2b720fde4675",
+      "tests": 5,
+      "observedInLogs": {
+        "maven": [
+          5,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-domain-projection/surefire-reports/TEST-com.kartaguez.pocoma.domain.projection.balance.PotShareholderSetBinaryCodecTest.xml",
+      "sha256": "48edd2c17ac0b4549a48b192c272581129cdda672ad6ca951eb1cea74e284353",
+      "tests": 3,
+      "observedInLogs": {
+        "maven": [
+          3,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-domain-projection/surefire-reports/TEST-com.kartaguez.pocoma.domain.projection.radix.Radix16CodecTest.xml",
+      "sha256": "e7515d84505deee1b0b96e5e2e480fcad866789352e33a2c2df8e547817b1c5a",
+      "tests": 6,
+      "observedInLogs": {
+        "maven": [
+          6,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-domain-projection/surefire-reports/TEST-com.kartaguez.pocoma.domain.projection.radix.Radix16TreeTest.xml",
+      "sha256": "fa0b1bdfdd7809e44a11f048281484eef25b936ed05542d9bffdf4482fa98744",
+      "tests": 5,
+      "observedInLogs": {
+        "maven": [
+          5,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-engine-admit-identity/surefire-reports/TEST-com.kartaguez.pocoma.engine.admit.identity.IdentityAdmissionInputTest.xml",
+      "sha256": "ccddd5a45e6ea37d01e98e2cbf988eee71bfd3841539b3231cb1bf84e637d1f6",
+      "tests": 4,
+      "observedInLogs": {
+        "maven": [
+          4,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-engine-materialize-pot/surefire-reports/TEST-com.kartaguez.pocoma.engine.materialize.pot.MaterializePotBalanceIncrementalTest.xml",
+      "sha256": "80dcfc1eb99a56f93854346b51ff3bc2d34fe662310f6e812257c30d9ddcd557",
+      "tests": 2,
+      "observedInLogs": {
+        "maven": [
+          2,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-engine-materialize-pot/surefire-reports/TEST-com.kartaguez.pocoma.engine.materialize.pot.MaterializePotVersionIncrementalTest.xml",
+      "sha256": "9ade38dd8a6c61e456ca9acd34120c3c0ce0e901326d3d7aa1140ded99600051",
+      "tests": 4,
+      "observedInLogs": {
+        "maven": [
+          4,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-engine-materialize-pot/surefire-reports/TEST-com.kartaguez.pocoma.engine.materialize.pot.MaterializePotVersionTest.xml",
+      "sha256": "13835bc74aa0ae3c1f546f99d6b50e0335a9deee78ab2701e55a1efc2cb74ffd",
+      "tests": 1,
+      "observedInLogs": {
+        "maven": [
+          1,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-engine-materialize-results/surefire-reports/TEST-com.kartaguez.pocoma.engine.materialize.results.CommandResultContractTest.xml",
+      "sha256": "f56087c713ad8ae16d1c04a2a4a323addca54dc93b762a9fa934e1254cbf60ac",
+      "tests": 1,
+      "observedInLogs": {
+        "maven": [
+          1,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-engine-materialize-results/surefire-reports/TEST-com.kartaguez.pocoma.engine.materialize.results.IdentityRequestResultContractTest.xml",
+      "sha256": "b6ebf92e8a5cf67a728dac5d73b8ac1e65fb27b6b0a447ea57a13dc0f608d452",
+      "tests": 1,
+      "observedInLogs": {
+        "maven": [
+          1,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-engine-read-execution/surefire-reports/TEST-com.kartaguez.pocoma.engine.read.execution.ReadExecutionTest.xml",
+      "sha256": "8a56484c9f866e2c06ac32d0a34d4496281d55985a3f8dba377957ea33e7e3fc",
+      "tests": 2,
+      "observedInLogs": {
+        "maven": [
+          2,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-engine-read-identity/surefire-reports/TEST-com.kartaguez.pocoma.engine.read.identity.CurrentBindingContractTest.xml",
+      "sha256": "30a6bc1e69611455c994aa5cd0664f22da4cfbf0e61d8290479bd05571105c23",
+      "tests": 1,
+      "observedInLogs": {
+        "maven": [
+          1,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-engine-write-identity/surefire-reports/TEST-com.kartaguez.pocoma.engine.write.identity.ExecuteIdentityRequestTest.xml",
+      "sha256": "f764967da8c5e0a65098ede16b90f6b9959e1e9a55929704957c4c8c2b916247",
+      "tests": 3,
+      "observedInLogs": {
+        "maven": [
+          3,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-engine-write-identity/surefire-reports/TEST-com.kartaguez.pocoma.engine.write.identity.IdentityRequestContractTest.xml",
+      "sha256": "5425811bdc0a58b7a73ae5d0561f7d0f28fd93e6b6082c90030746c7e7dcd52b",
+      "tests": 10,
+      "observedInLogs": {
+        "maven": [
+          10,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-engine-write-pot/surefire-reports/TEST-com.kartaguez.pocoma.engine.write.pot.ExecutePotCommandTest.xml",
+      "sha256": "e10573e510987e1ab2edb69038adc93b687774d4740c95919aba6e562aa24c54",
+      "tests": 9,
+      "observedInLogs": {
+        "maven": [
+          9,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-engine-write-pot/surefire-reports/TEST-com.kartaguez.pocoma.engine.write.pot.PotCommandIntentTest.xml",
+      "sha256": "1ee29b2482bc69a6a04985ca4d1b5a9a12e27db838e4745c5c2bf10ea0970561",
+      "tests": 5,
+      "observedInLogs": {
+        "maven": [
+          5,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-infra-observability-micrometer/surefire-reports/TEST-com.kartaguez.pocoma.infra.observability.micrometer.StageHandoffTrackerTest.xml",
+      "sha256": "fbc818045aadd4af3686b4366e8b08a3e06adeec25103966689be38c48af169d",
+      "tests": 6,
+      "observedInLogs": {
+        "maven": [
+          6,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-infra-postgres-core/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.core.bootstrap.WriteSourceReadPrivilegesPostgresTest.xml",
+      "sha256": "52b9754aaa8dad9c570f70b1eca8c01d1ba4bbabce5868ed0d3c33209a95d195",
+      "tests": 8,
+      "observedInLogs": {
+        "maven": [
+          8,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-infra-postgres-core/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.core.consumption.BatchLeaseRenewalPostgresTest.xml",
+      "sha256": "06fd17cef6d5944d95b2cab04f46032a6d9a387038119ad066c7c1903c74ff24",
+      "tests": 2,
+      "observedInLogs": {
+        "maven": [
+          2,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-infra-postgres-core/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.core.history.OpenComponentExplainPostgresTest.xml",
+      "sha256": "7e142fb1a7f4ace2f10fab3af13dfac2bc09d670b1e497de480b75a94595f74e",
+      "tests": 2,
+      "observedInLogs": {
+        "maven": [
+          2,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-infra-postgres-read/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.read.CurrentBindingReadStorePostgresTest.xml",
+      "sha256": "0ebfd0245d4222ae276d301453fd76449afe6ad50f9add2aa7db6b336bc498fd",
+      "tests": 3,
+      "observedInLogs": {
+        "maven": [
+          3,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-infra-postgres-read/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.read.PotBalanceReadStorePostgresTest.xml",
+      "sha256": "7067fd0bffc8fc2e136a50e71df32c01555aa6c7584b945ecfd9c9bc09a89cdc",
+      "tests": 5,
+      "observedInLogs": {
+        "maven": [
+          5,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-infra-postgres-read/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.read.PotBalanceSharedSchemaPostgresTest.xml",
+      "sha256": "fcab184c868051517382e28c0dc01b4ab03d8a5f6c84460c4fdc04c614c104c9",
+      "tests": 3,
+      "observedInLogs": {
+        "maven": [
+          3,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-infra-postgres-read/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.read.PotVersionRadixSchemaPostgresTest.xml",
+      "sha256": "cadf1fc1908f9adbed98a5046651126fdac6636e434e28750a05eb7edf0dc024",
+      "tests": 3,
+      "observedInLogs": {
+        "maven": [
+          3,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-infra-postgres-read/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.read.PotVersionReadStorePostgresTest.xml",
+      "sha256": "2d8e873e3037cc3540c387025677fa1a534234c0db121c389f6d4c7c60d4e96a",
+      "tests": 6,
+      "observedInLogs": {
+        "maven": [
+          6,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-infra-postgres-read/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.read.PotVersionTargetedReadPostgresTest.xml",
+      "sha256": "8710ef08c783d37504cd7727512e143b77d307c4525a4db185f7ca4129ba6d74",
+      "tests": 1,
+      "observedInLogs": {
+        "maven": [
+          1,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-infra-postgres-read/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.read.PotVisibilityReadStorePostgresTest.xml",
+      "sha256": "4ceb19c1c7b3f41ea22fe8628877d59176d03d3f5b2841a58fee213a78bb7ec7",
+      "tests": 4,
+      "observedInLogs": {
+        "maven": [
+          4,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-infra-postgres-read/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.read.SubobjectJsonTest.xml",
+      "sha256": "2a9a812b73bc3031b1479d5f77d5d31a5015c93f5b26da0bee9b8ffb0b4c42ae",
+      "tests": 4,
+      "observedInLogs": {
+        "maven": [
+          4,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-infra-postgres-read/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.read.TerminalResultsReadStorePostgresTest.xml",
+      "sha256": "5f036494b7d59b57172d1f8350a720ca324384a860aea375962b197dce608aa7",
+      "tests": 3,
+      "observedInLogs": {
+        "maven": [
+          3,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-infra-postgres-read/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.read.consumption.ReadConsumptionFoundationPostgresTest.xml",
+      "sha256": "0fbba4e5ee0c69d7be289dfe469ba4562d87b325cc3085b7de1641992d6b95f0",
+      "tests": 4,
+      "observedInLogs": {
+        "maven": [
+          4,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-infra-postgres-read/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.read.consumption.ReadConsumptionLifecyclePrivilegesPostgresTest.xml",
+      "sha256": "99fd500eea9669a568ebb49be270b5fdf99394f66a633aee097a0fb324f833d9",
+      "tests": 1,
+      "observedInLogs": {
+        "maven": [
+          1,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-infra-postgres-read/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.read.consumption.ReadDiscoveryPrivilegesPostgresTest.xml",
+      "sha256": "8b8104827a1958ffafc7ad4a15e7a951e1b92ca6c76e0136adaaf72cb9bd0e23",
+      "tests": 2,
+      "observedInLogs": {
+        "maven": [
+          2,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.AdmissionPostgresTest.xml",
+      "sha256": "b800c9e2de77c9e21f74c377478f326a74bf75b35dc639157414577630f134e1",
+      "tests": 20,
+      "observedInLogs": {
+        "maven": [
+          20,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.CommandExecutionPostgresTest.xml",
+      "sha256": "94a1bf7e66a4140b60d16e5c11b9fc3b64bfaf5b7c3df4fbb9b57509126fcada",
+      "tests": 31,
+      "observedInLogs": {
+        "maven": [
+          31,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.ConsumptionLifecyclePostgresTest.xml",
+      "sha256": "237612c2e60eadaeab82e4e9a8d2b7f7db43e8b6d02459105030f3ad5018ff12",
+      "tests": 45,
+      "observedInLogs": {
+        "maven": [
+          45,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.DiscoveryPostgresTest.xml",
+      "sha256": "af94ef7ffaad05c50eb9b393acb42bae6b183b6c92ffbe2c8d8a31d8cb2561cb",
+      "tests": 50,
+      "observedInLogs": {
+        "maven": [
+          50,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.L1IntegrationPostgresTest.xml",
+      "sha256": "30c433b1c7dd56e9f9ad616cebbf7308d0283409359d5f6ae811db4d7d2aa48f",
+      "tests": 4,
+      "observedInLogs": {
+        "maven": [
+          4,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.L2ManifestProof.xml",
+      "sha256": "ccac44f75fc34b3812c3383b7de2291e5d760ae24ee16530c321834fe141cc18",
+      "tests": 142,
+      "observedInLogs": {
+        "maven": [
+          142,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.L73TerminationWritePostgresTest.xml",
+      "sha256": "223dabfaf202911de9540454506815c3e0074b68552571da3e7897226006b83b",
+      "tests": 4,
+      "observedInLogs": {
+        "maven": [
+          4,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.PotBalanceSourcePostgresTest.xml",
+      "sha256": "80a9dc317f163ca4c04cbfe1d070d958ec10acb27bd6cc17d03121d676470c26",
+      "tests": 1,
+      "observedInLogs": {
+        "maven": [
+          1,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.PotCommandJsonTest.xml",
+      "sha256": "0c4c71c93190207a1cb072105709e026f500fe30758daae88f8143f8cb95e5f0",
+      "tests": 3,
+      "observedInLogs": {
+        "maven": [
+          3,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.PotFinancePostgresTest.xml",
+      "sha256": "c20004811cd2b6de57b19c4137dcc696235cad7f0572fca071b9d837ab9d6ac8",
+      "tests": 6,
+      "observedInLogs": {
+        "maven": [
+          6,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.PotHistoryCardinalityPostgresTest.xml",
+      "sha256": "0665a3fdc0d8e82bb3ac2908e93ee89d61e04209f3365bff65b02ea0c8deb252",
+      "tests": 3,
+      "observedInLogs": {
+        "maven": [
+          3,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.PotHistoryPostgresTest.xml",
+      "sha256": "9a68ef48386568f6a12c4228aa7ee0214cb471c92cf97a760fbbc05529531004",
+      "tests": 21,
+      "observedInLogs": {
+        "maven": [
+          21,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.PotVersionSourcePostgresTest.xml",
+      "sha256": "6f310aa37f98974a6b13c84c5c65594ff5ef0db8c355c8ea12ba915cbbc678b6",
+      "tests": 1,
+      "observedInLogs": {
+        "maven": [
+          1,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.PotVisibilitySourcePostgresTest.xml",
+      "sha256": "579f9e50d625bd0587b5c7909f7124fa799dd9ad458b0f2c713bc7a95788a51a",
+      "tests": 1,
+      "observedInLogs": {
+        "maven": [
+          1,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.QuarantineDiscoveryFilterPostgresTest.xml",
+      "sha256": "60e9eac8e5a5e9a46236018b252971156ac032d883e13c7f4c0c649b6b3004c9",
+      "tests": 12,
+      "observedInLogs": {
+        "maven": [
+          12,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.SlotNavigationPostgresTest.xml",
+      "sha256": "81ccfa696fa4c3a18899fea7dd6e2e0df41f3bd47d0c278f3f9d49d7f313c3d3",
+      "tests": 8,
+      "observedInLogs": {
+        "maven": [
+          8,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.WriteRevisionPerformancePostgresTest.xml",
+      "sha256": "f27aafc77761a145ad8cafa80095cd95f303911196ecdc167c18fb65d90e0c7e",
+      "tests": 1,
+      "observedInLogs": {
+        "maven": [
+          1,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.WriteRevisionPostgresTest.xml",
+      "sha256": "87dd80875c1f548765f0b56fac328040325ab8a92ac8ba1173cad9fcc28d5397",
+      "tests": 6,
+      "observedInLogs": {
+        "maven": [
+          6,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.consumption.ConsumptionFoundationPostgresTest.xml",
+      "sha256": "9da6988e7be2561d0daf53deb8cc7542e5bf8603c5e7df10f74ee8b2d4ab2fa0",
+      "tests": 15,
+      "observedInLogs": {
+        "maven": [
+          15,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.identity.BindingTokenGeneratorTest.xml",
+      "sha256": "03cd75ab47b41e5d8dc957d14e84befdc50358acf9a52adcb257c8c02135be86",
+      "tests": 2,
+      "observedInLogs": {
+        "maven": [
+          2,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.identity.CurrentBindingSourcePostgresTest.xml",
+      "sha256": "823cc34ca65f6a3aba04eb2b871398b4b8062cdb6df9c01ed61c3d61e8b9b051",
+      "tests": 1,
+      "observedInLogs": {
+        "maven": [
+          1,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.identity.IdentityAuthorityPostgresTest.xml",
+      "sha256": "d91eee4619b086fca716fa3b60c697003495fb6c7048eb6089fbedca053bfa63",
+      "tests": 6,
+      "observedInLogs": {
+        "maven": [
+          6,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.identity.IdentityConcurrencyPostgresTest.xml",
+      "sha256": "429223e7cb9ef736ab938cd5852624f85e18d220489a8b598848bfc83c54e722",
+      "tests": 8,
+      "observedInLogs": {
+        "maven": [
+          8,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.identity.IdentityDiscoveryPostgresTest.xml",
+      "sha256": "38d728ef0efd4f3545dc82e41aa97618e1b7f44f6c79d3975cb891e7f79457f8",
+      "tests": 4,
+      "observedInLogs": {
+        "maven": [
+          4,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.identity.IdentityPotAuthorityPostgresTest.xml",
+      "sha256": "0d67b077e44c23830a76e28eb3e03e1b0a2f7edf0bb2acd1959823eff90669a8",
+      "tests": 11,
+      "observedInLogs": {
+        "maven": [
+          11,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.identity.IdentityPrivilegesPostgresTest.xml",
+      "sha256": "de0efc9742f239ec0788d1f9b48e404e367811e6a97b302ed4c9464b8476b9fe",
+      "tests": 3,
+      "observedInLogs": {
+        "maven": [
+          3,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.identity.IdentityPublicationPostgresTest.xml",
+      "sha256": "c728aaebcba005a1e6db29730247c5d20f7c2f27fbab05c3524783d4a8da6479",
+      "tests": 10,
+      "observedInLogs": {
+        "maven": [
+          10,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.identity.IdentityRequestExecutionPostgresTest.xml",
+      "sha256": "990c8f7a8bb78d1821cf03a77517b3537741d1bd090ea3108f253d6c2b7cbe34",
+      "tests": 14,
+      "observedInLogs": {
+        "maven": [
+          14,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.identity.IdentitySchemaPostgresTest.xml",
+      "sha256": "9ec154ce3b18443423e385fe50968c5c37fa1421e9a389ce6ae6ad0a2493f437",
+      "tests": 11,
+      "observedInLogs": {
+        "maven": [
+          11,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.identity.L73TerminationIdentityPostgresTest.xml",
+      "sha256": "7bc770fa2de9ad1e87910a3f8cf98ee3e1371ac813c7549905a8e3563efc797a",
+      "tests": 1,
+      "observedInLogs": {
+        "maven": [
+          1,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.identity.TerminalResultSourcesPostgresTest.xml",
+      "sha256": "9e687ed587c2a92527fc56abf66aa4269ffa9bea0719e2e11fde588c4d2c3e59",
+      "tests": 1,
+      "observedInLogs": {
+        "maven": [
+          1,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.migration.CanonicalBusinessEventTypesMigrationPostgresTest.xml",
+      "sha256": "7bcd79ba8bbe4bd856b7439b99fcb66b99b69866d0bc8c839e58cc122063a795",
+      "tests": 7,
+      "observedInLogs": {
+        "maven": [
+          7,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.migration.CommandResultBackfillMigrationPostgresTest.xml",
+      "sha256": "524d5292eca39cd4e3fdb69feaa5c34afdbed025fd58df8fe7e566fe2ab41a7d",
+      "tests": 2,
+      "observedInLogs": {
+        "maven": [
+          2,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.migration.ExternalIdentityBindingCanonicalMigrationPostgresTest.xml",
+      "sha256": "b26dbba5135799316e61f9e31cb65286d7a78183fee69dc944a4b648e09c50c8",
+      "tests": 7,
+      "observedInLogs": {
+        "maven": [
+          7,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.migration.ExternalIdentityBindingLifecycleMigrationPostgresTest.xml",
+      "sha256": "48c8713a3b02165cef844a7052cd0b83296d81188ac0ec9c8634af38c7db29f1",
+      "tests": 2,
+      "observedInLogs": {
+        "maven": [
+          2,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.migration.PrimaryMigrationsPostgresTest.xml",
+      "sha256": "e0340c4b64ca2b8015acc0160b30fdc9944cef3f8335c23e1079b857a1d21cd0",
+      "tests": 5,
+      "observedInLogs": {
+        "maven": [
+          5,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.migration.RecordedCommandContractionMigrationPostgresTest.xml",
+      "sha256": "82cc33ed9c566fedb6bcf570866ce5e9b3b6471b3d76eba2a811d58d2bc65e0b",
+      "tests": 4,
+      "observedInLogs": {
+        "maven": [
+          4,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-infra-tx-spring/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.AttemptTransactionsPostgresTest.xml",
+      "sha256": "ba99d857a1b200413c9c780a3df157d2d5d5b82f435de224cd5e3b848fbc11ec",
+      "tests": 13,
+      "observedInLogs": {
+        "maven": [
+          13,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-infra-tx-spring/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.FoundationCompositionTest.xml",
+      "sha256": "66a7a6b19332d83739d814f994dc03cb479929b292ed1c275280a1699e60a409",
+      "tests": 3,
+      "observedInLogs": {
+        "maven": [
+          3,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-infra-tx-spring/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.HistoricalIntervalPostgresTest.xml",
+      "sha256": "3856043c46f327f56b6aa9f572bf017c062ea01fbc8828d0874beb550f561023",
+      "tests": 4,
+      "observedInLogs": {
+        "maven": [
+          4,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-infra-tx-spring/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.SchemaIsolationPostgresTest.xml",
+      "sha256": "f5446873a169f3c404765245e2036ae549895d9aa780b5cb354d09a664ced7fc",
+      "tests": 2,
+      "observedInLogs": {
+        "maven": [
+          2,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-infra-tx-spring/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.TransactionFoundationPostgresTest.xml",
+      "sha256": "a5174dcea8f717f01523e44513ea1ee72ad58a4eb2f8f1f0bead3efa77f6d419",
+      "tests": 6,
+      "observedInLogs": {
+        "maven": [
+          6,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-orchestrator-consumption/surefire-reports/TEST-com.kartaguez.pocoma.orchestrator.consumption.ConsumptionFailureClassificationTest.xml",
+      "sha256": "a5ee6b3668ff6f51e19ede66dfd8a66d16a975d3772de0426da95b38e30fb683",
+      "tests": 9,
+      "observedInLogs": {
+        "maven": [
+          9,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-orchestrator-consumption/surefire-reports/TEST-com.kartaguez.pocoma.orchestrator.consumption.ConsumptionInvocationContractTest.xml",
+      "sha256": "c2ac31d3cf85484af91005cb5f5303f4e7d79ce989821ed3450f037bf07099d2",
+      "tests": 5,
+      "observedInLogs": {
+        "maven": [
+          5,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-orchestrator-consumption/surefire-reports/TEST-com.kartaguez.pocoma.orchestrator.consumption.DiscoveryEngineTest.xml",
+      "sha256": "c3e88c16390932cb0993da52567859d77bee9cb0f2bb0ee7edadd243fa0aca4b",
+      "tests": 8,
+      "observedInLogs": {
+        "maven": [
+          8,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-orchestrator-consumption/surefire-reports/TEST-com.kartaguez.pocoma.orchestrator.consumption.PreparationReadsTest.xml",
+      "sha256": "729d94387d283d84c1eabf0f57ae8e01d203f8f2e2091860ad177bc7cce5a915",
+      "tests": 12,
+      "observedInLogs": {
+        "maven": [
+          12,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-orchestrator-consumption/surefire-reports/TEST-com.kartaguez.pocoma.orchestrator.consumption.WorkerCapacityTest.xml",
+      "sha256": "c4f9a4fc626e85c44ec0c2d5f0280ee606c6f9f55a2d1c7bbc680af4d4821b81",
+      "tests": 4,
+      "observedInLogs": {
+        "maven": [
+          4,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-runtime-monolith/surefire-reports/TEST-com.kartaguez.pocoma.AdmissionFlowPostgresTest.xml",
+      "sha256": "77272cea93bb6a79988b714e29a0073c0b184786c359ecc5a222970e6c696671",
+      "tests": 7,
+      "observedInLogs": {
+        "resume-monolith": [
+          7,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "resume-monolith"
+    },
+    {
+      "report": "reports/pocoma-runtime-monolith/surefire-reports/TEST-com.kartaguez.pocoma.ConsumptionPilotIsolationTest.xml",
+      "sha256": "84a27a4b3fd980f5f977ed9ed0d3cdf13d8a8e64df043708101b9ed9f0c12eec",
+      "tests": 3,
+      "observedInLogs": {
+        "resume-monolith": [
+          3,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "resume-monolith"
+    },
+    {
+      "report": "reports/pocoma-runtime-monolith/surefire-reports/TEST-com.kartaguez.pocoma.IdentityRequestMonolithPostgresTest.xml",
+      "sha256": "c39f981e2d530ab03a7e6034642aa3fd6ab9653efd69e20e78388fca39980a2f",
+      "tests": 7,
+      "observedInLogs": {
+        "resume-monolith": [
+          7,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "resume-monolith"
+    },
+    {
+      "report": "reports/pocoma-runtime-monolith/surefire-reports/TEST-com.kartaguez.pocoma.InvitationHttpTest.xml",
+      "sha256": "4c61c0b3030536ee9b0a9d306710792da30afba51404d5c77f5e399caeac2636",
+      "tests": 7,
+      "observedInLogs": {
+        "resume-monolith": [
+          7,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "resume-monolith"
+    },
+    {
+      "report": "reports/pocoma-runtime-monolith/surefire-reports/TEST-com.kartaguez.pocoma.InvitationReadPostgresTest.xml",
+      "sha256": "53962400dbd1fea3a8180d994f52dff146b0dbcdffebfe62e41e224e321e56f1",
+      "tests": 5,
+      "observedInLogs": {
+        "resume-monolith": [
+          5,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "resume-monolith"
+    },
+    {
+      "report": "reports/pocoma-runtime-monolith/surefire-reports/TEST-com.kartaguez.pocoma.InvitationTopologyPostgresTest.xml",
+      "sha256": "cd47b8172280013737c01b4a757f51eff0a3d9cd28970d73724455fd259df5c0",
+      "tests": 2,
+      "observedInLogs": {
+        "resume-monolith": [
+          2,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "resume-monolith"
+    },
+    {
+      "report": "reports/pocoma-runtime-monolith/surefire-reports/TEST-com.kartaguez.pocoma.L73TerminationCrashAndCompositePostgresTest.xml",
+      "sha256": "0c4bfe125dee21394737a954a4d7b53157ba52ea451b135740c03f79564fbfdf",
+      "tests": 4,
+      "observedInLogs": {
+        "resume-monolith": [
+          4,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "resume-monolith"
+    },
+    {
+      "report": "reports/pocoma-runtime-monolith/surefire-reports/TEST-com.kartaguez.pocoma.MonolithHttpCompositionPostgresTest.xml",
+      "sha256": "31e78ea28b396d591a6aef3986c8127abb7751c5a91f32a22b31c9672e6c311c",
+      "tests": 1,
+      "observedInLogs": {
+        "resume-monolith": [
+          1,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "resume-monolith"
+    },
+    {
+      "report": "reports/pocoma-runtime-monolith/surefire-reports/TEST-com.kartaguez.pocoma.ReadRootsCoexistencePostgresTest.xml",
+      "sha256": "251a7e442aae4e2834761fe5abb6cbf7752c7513bf8dc9603888f3af643dda82",
+      "tests": 1,
+      "observedInLogs": {
+        "resume-monolith": [
+          1,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "resume-monolith"
+    },
+    {
+      "report": "reports/pocoma-runtime-monolith/surefire-reports/TEST-com.kartaguez.pocoma.ReadWorkerResourcesPostgresTest.xml",
+      "sha256": "9317fa4f5b39005a971e592f50b36564f52744bd843453a399d649f5e9a514a6",
+      "tests": 2,
+      "observedInLogs": {
+        "resume-monolith": [
+          2,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "resume-monolith"
+    },
+    {
+      "report": "reports/pocoma-runtime-monolith/surefire-reports/TEST-com.kartaguez.pocoma.WorkerMonolithPostgresTest.xml",
+      "sha256": "c0454ee8ac8039cd79344c59d4f99c11fa3a70de71a6421d316159bad030ea0f",
+      "tests": 1,
+      "observedInLogs": {
+        "resume-monolith": [
+          1,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "resume-monolith"
+    },
+    {
+      "report": "reports/pocoma-runtime-web-read/surefire-reports/TEST-com.kartaguez.pocoma.AdmissionHttpTest.xml",
+      "sha256": "b789fbae3d5f7b4140d9c24fe69e20bf8ea68908bc469504054149243d3e9979",
+      "tests": 9,
+      "observedInLogs": {
+        "maven": [
+          9,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-runtime-web-read/surefire-reports/TEST-com.kartaguez.pocoma.HttpCompositionPostgresTest.xml",
+      "sha256": "3a8f6442ef3d0ab4a482e68c6899ef5fe71568ef0e59722244c235f693658522",
+      "tests": 5,
+      "observedInLogs": {
+        "maven": [
+          5,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-runtime-web-read/surefire-reports/TEST-com.kartaguez.pocoma.InvitationStandaloneWebPostgresTest.xml",
+      "sha256": "da1dd1c1ae46bb029fd17c258bd38a7a3c52a50bf4534be17b2f710fa6eb09e2",
+      "tests": 2,
+      "observedInLogs": {
+        "maven": [
+          2,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-runtime-web-read/surefire-reports/TEST-com.kartaguez.pocoma.LinkRetirementHttpTest.xml",
+      "sha256": "5ccd82e7b870208c105bb9a36c7b962bb8173b7116117bc84c470a6fbf7ca567",
+      "tests": 1,
+      "observedInLogs": {
+        "maven": [
+          1,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-runtime-web-read/surefire-reports/TEST-com.kartaguez.pocoma.ReadHttpContractTest.xml",
+      "sha256": "9ffd59156308ab40b755bd884217acaf2755dfb7e9f342d53e5cb369bf51202e",
+      "tests": 24,
+      "observedInLogs": {
+        "maven": [
+          24,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-runtime-web-read/surefire-reports/TEST-com.kartaguez.pocoma.StageHandoffsHttpTest.xml",
+      "sha256": "621ebb6bf2912add59fc1297ce5a7fdc9f3493dc12db3c53ea71e3c17a4b9ce5",
+      "tests": 1,
+      "observedInLogs": {
+        "maven": [
+          1,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-runtime-worker-materialize/surefire-reports/TEST-com.kartaguez.pocoma.runtime.task.CommandResultAvailabilityPostgresTest.xml",
+      "sha256": "281afff3514ae23f1794d07e5bbd5f1d5ef89c041a8efbf28f407b19c0854434",
+      "tests": 11,
+      "observedInLogs": {
+        "resume-canonical": [
+          11,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "resume-canonical"
+    },
+    {
+      "report": "reports/pocoma-runtime-worker-materialize/surefire-reports/TEST-com.kartaguez.pocoma.runtime.task.InterAuthorityPreparationPostgresTest.xml",
+      "sha256": "f039a20329b396b64c04654a49b34a7b58b1826edd54127c9aa50c1be14321bf",
+      "tests": 15,
+      "observedInLogs": {
+        "resume-canonical": [
+          15,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "resume-canonical"
+    },
+    {
+      "report": "reports/pocoma-runtime-worker-materialize/surefire-reports/TEST-com.kartaguez.pocoma.runtime.task.InterAuthorityRecoveryPostgresTest.xml",
+      "sha256": "2b5092386826e87bb96b19d03befca16fdc239a2007fd9e452a389e5382cbf67",
+      "tests": 10,
+      "observedInLogs": {
+        "resume-canonical": [
+          10,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "resume-canonical"
+    },
+    {
+      "report": "reports/pocoma-runtime-worker-materialize/surefire-reports/TEST-com.kartaguez.pocoma.runtime.task.L73TerminationReadPostgresTest.xml",
+      "sha256": "d9a5afe42b809dc8b744bc88cfb527b514bf8ac13f0ac828bcbdb58e99fb750d",
+      "tests": 2,
+      "observedInLogs": {
+        "resume-canonical": [
+          2,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "resume-canonical"
+    },
+    {
+      "report": "reports/pocoma-runtime-worker-materialize/surefire-reports/TEST-com.kartaguez.pocoma.runtime.task.PotBalanceIncrementalPostgresTest.xml",
+      "sha256": "300d9ad5632a1a22de28833156d89e779114a1307d43ef9ea52c12b53ae34d14",
+      "tests": 3,
+      "observedInLogs": {
+        "resume-canonical": [
+          3,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "resume-canonical"
+    },
+    {
+      "report": "reports/pocoma-runtime-worker-materialize/surefire-reports/TEST-com.kartaguez.pocoma.runtime.task.PotVersionAndBalanceJointIncrementalPostgresTest.xml",
+      "sha256": "798d5c4df1949543f768e4e0cd51a082f6f0ad9dbd2a0cd7717f8a90947c24cd",
+      "tests": 3,
+      "observedInLogs": {
+        "resume-canonical": [
+          3,
+          0,
+          1,
+          0
+        ],
+        "replay-joint-incremental": [
+          3,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "replay-joint-incremental"
+    },
+    {
+      "report": "reports/pocoma-runtime-worker-materialize/surefire-reports/TEST-com.kartaguez.pocoma.runtime.task.PotVersionIncrementalPostgresTest.xml",
+      "sha256": "afebfee3042260ce7652e1a912d10d9b903ecbb98a52580c47f42aaad7bf56cc",
+      "tests": 2,
+      "observedInLogs": {
+        "resume-canonical": [
+          2,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "resume-canonical"
+    },
+    {
+      "report": "reports/pocoma-runtime-worker-materialize/surefire-reports/TEST-com.kartaguez.pocoma.runtime.task.ReadActivationSettingsTest.xml",
+      "sha256": "283a08335ec87945c5ea441280913f5b5876c99b9d6d89f02602c16c88157977",
+      "tests": 4,
+      "observedInLogs": {
+        "resume-canonical": [
+          4,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "resume-canonical"
+    },
+    {
+      "report": "reports/pocoma-runtime-worker-materialize/surefire-reports/TEST-com.kartaguez.pocoma.runtime.task.ReadAvailabilityPostgresTest.xml",
+      "sha256": "f80dc57673b7590a88eb04c82d916e19a5cec65a4285a7a99c501ea478e5efdf",
+      "tests": 7,
+      "observedInLogs": {
+        "resume-canonical": [
+          7,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "resume-canonical"
+    },
+    {
+      "report": "reports/pocoma-runtime-worker-materialize/surefire-reports/TEST-com.kartaguez.pocoma.runtime.task.ReadFacadesPostgresTest.xml",
+      "sha256": "2afe9e4b1e470b6f4a43a832600805220d210d4e47484a93d481eec46937ac8e",
+      "tests": 5,
+      "observedInLogs": {
+        "resume-canonical": [
+          5,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "resume-canonical"
+    },
+    {
+      "report": "reports/pocoma-runtime-worker-materialize/surefire-reports/TEST-com.kartaguez.pocoma.runtime.task.ReadParticipantsIntegrationPostgresTest.xml",
+      "sha256": "48e9bae6fe10d607ecb7c6220b2217c39bd6db148a2e624ad91ef9dd97cc2d8b",
+      "tests": 18,
+      "observedInLogs": {
+        "resume-canonical": [
+          18,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "resume-canonical"
+    },
+    {
+      "report": "reports/pocoma-runtime-worker-materialize/surefire-reports/TEST-com.kartaguez.pocoma.runtime.task.ReadQuotaPostgresTest.xml",
+      "sha256": "fc231a3802ea073ff6299d7d746aff61ae748debab36e38e5ab648c2b359ac50",
+      "tests": 10,
+      "observedInLogs": {
+        "resume-canonical": [
+          10,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "resume-canonical"
+    },
+    {
+      "report": "reports/pocoma-runtime-worker-materialize/surefire-reports/TEST-com.kartaguez.pocoma.runtime.task.ReadReconstructionPostgresTest.xml",
+      "sha256": "c873ba52cd323dab41e498ef3fd344a3700d1d06b8a839169ca81c931e2e3615",
+      "tests": 13,
+      "observedInLogs": {
+        "resume-canonical": [
+          13,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "resume-canonical"
+    },
+    {
+      "report": "reports/pocoma-runtime-worker-materialize/surefire-reports/TEST-com.kartaguez.pocoma.runtime.task.ReadRuntimeAssemblyPostgresTest.xml",
+      "sha256": "ffd2d84e3ce1e044d18b874247b08538d21d72263b090fa7637620d3a1b67a95",
+      "tests": 2,
+      "observedInLogs": {
+        "resume-canonical": [
+          2,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "resume-canonical"
+    },
+    {
+      "report": "reports/pocoma-runtime-worker-materialize/surefire-reports/TEST-com.kartaguez.pocoma.runtime.task.SubobjectAtomicityPostgresTest.xml",
+      "sha256": "00732141fbaf9187fdf89ce185fe579a5e4f9bd08e9c5217dd62916fd8ab2f5d",
+      "tests": 12,
+      "observedInLogs": {
+        "resume-canonical": [
+          12,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "resume-canonical"
+    },
+    {
+      "report": "reports/pocoma-runtime-worker-materialize/surefire-reports/TEST-com.kartaguez.pocoma.runtime.task.SubobjectMigrationPostgresTest.xml",
+      "sha256": "4e3484b968cbfd6ac4c940c577dc7ad954a46ca20f54e133763c57a6991048cc",
+      "tests": 6,
+      "observedInLogs": {
+        "resume-canonical": [
+          6,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "resume-canonical"
+    },
+    {
+      "report": "reports/pocoma-runtime-worker-materialize/surefire-reports/TEST-com.kartaguez.pocoma.runtime.task.SubobjectStorePostgresTest.xml",
+      "sha256": "ec943aa060bc0c2f76c527cc306e986cd8017c32b4b0e4bf2472a93027338fce",
+      "tests": 12,
+      "observedInLogs": {
+        "resume-canonical": [
+          12,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "resume-canonical"
+    },
+    {
+      "report": "reports/pocoma-runtime-worker-process/surefire-reports/TEST-com.kartaguez.pocoma.runtime.command.ConsumptionBootstrapPostgresTest.xml",
+      "sha256": "9bc974bd493ddbb8ae7f02725c3686441c36728ce6a7c6bebc47498c770d7ca6",
+      "tests": 8,
+      "observedInLogs": {
+        "maven": [
+          8,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-runtime-worker-process/surefire-reports/TEST-com.kartaguez.pocoma.runtime.command.ConsumptionCompositeClassificationTest.xml",
+      "sha256": "f6269cad5d5aab5ab016142d68ba5d8d688c26fdba280270b239abcc353c60be",
+      "tests": 10,
+      "observedInLogs": {
+        "maven": [
+          10,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-runtime-worker-process/surefire-reports/TEST-com.kartaguez.pocoma.runtime.command.ConsumptionLifecycleCompositionPostgresTest.xml",
+      "sha256": "f3f4b5b7f1153447184f9e3b3ac80958468ea66a187b65cf59e3b40a70186512",
+      "tests": 5,
+      "observedInLogs": {
+        "maven": [
+          5,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-runtime-worker-process/surefire-reports/TEST-com.kartaguez.pocoma.runtime.command.DiscoveryCompositionPostgresTest.xml",
+      "sha256": "52217cd991c1a804309bcbe04dfd5f1897ea5e1948d47420b77dba23f102439f",
+      "tests": 2,
+      "observedInLogs": {
+        "maven": [
+          2,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-runtime-worker-process/surefire-reports/TEST-com.kartaguez.pocoma.runtime.command.I5PhysicalWindowTest.xml",
+      "sha256": "310274964ccdc9eec8b0088f3a33443a1eb6d7ed63bde541fcfceb4eb74e7517",
+      "tests": 2,
+      "observedInLogs": {
+        "maven": [
+          2,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-runtime-worker-process/surefire-reports/TEST-com.kartaguez.pocoma.runtime.command.I5TemporalBudgetTest.xml",
+      "sha256": "6e81d9d38a0e1d386e27256220dfa0e7a39db47f84b2540bc5fe2b4ba3021d2f",
+      "tests": 2,
+      "observedInLogs": {
+        "maven": [
+          2,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-runtime-worker-process/surefire-reports/TEST-com.kartaguez.pocoma.runtime.command.I5TemporalV2Test.xml",
+      "sha256": "fe0d921864f6c15a00a8f53675fc7f4b9c4dde6f4a9e547a1ce501b4129bf0e0",
+      "tests": 3,
+      "observedInLogs": {
+        "maven": [
+          3,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-runtime-worker-process/surefire-reports/TEST-com.kartaguez.pocoma.runtime.command.IdentityPotCommandPostgresTest.xml",
+      "sha256": "729abcf7a4f723d160f73be4656b6d14184aac469146d7756826e850fe562143",
+      "tests": 9,
+      "observedInLogs": {
+        "maven": [
+          9,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-runtime-worker-process/surefire-reports/TEST-com.kartaguez.pocoma.runtime.command.IdentityRequestCompositionPostgresTest.xml",
+      "sha256": "3de0df9409afcaca0403a39fbbee70917e6d846c3ce48de1cf299497232ae6a7",
+      "tests": 10,
+      "observedInLogs": {
+        "maven": [
+          10,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-runtime-worker-process/surefire-reports/TEST-com.kartaguez.pocoma.runtime.command.PotCommandCompositionPostgresTest.xml",
+      "sha256": "0b4aacb025604a251fd324c15f8c9415000ce88a3714f656ada7fbced874eaa4",
+      "tests": 2,
+      "observedInLogs": {
+        "maven": [
+          2,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-runtime-worker-process/surefire-reports/TEST-com.kartaguez.pocoma.runtime.command.WorkerAwaitTest.xml",
+      "sha256": "54d6eb22c24933c26efbb7e7aff9aedc06a313cab10c81dee180403539b3b728",
+      "tests": 1,
+      "observedInLogs": {
+        "maven": [
+          1,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-runtime-worker-process/surefire-reports/TEST-com.kartaguez.pocoma.runtime.command.WorkerCompositionPostgresTest.xml",
+      "sha256": "a444b86cce99a7a3f7a94527e65cdd243a8b6612c850ddba1fb199d27518be22",
+      "tests": 7,
+      "observedInLogs": {
+        "resume-worker-process": [
+          7,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "resume-worker-process"
+    },
+    {
+      "report": "reports/pocoma-runtime-worker-process/surefire-reports/TEST-com.kartaguez.pocoma.runtime.command.WorkerMetricsTest.xml",
+      "sha256": "6153d8b4023a6ee735b7585b4c461b9173f798fc956e6f7a264adfd9e9ffe485",
+      "tests": 3,
+      "observedInLogs": {
+        "resume-worker-process": [
+          3,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "resume-worker-process"
+    },
+    {
+      "report": "reports/pocoma-runtime-worker-process/surefire-reports/TEST-com.kartaguez.pocoma.runtime.command.WorkerPostgresTest.xml",
+      "sha256": "530ce48e24fede615b252d5eef2a02c4999aac7afc4458e52309b75f14ab4eb0",
+      "tests": 21,
+      "observedInLogs": {
+        "resume-worker-process": [
+          21,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "resume-worker-process"
+    },
+    {
+      "report": "reports/pocoma-runtime-worker-process/surefire-reports/TEST-com.kartaguez.pocoma.runtime.command.WorkerResourcesPostgresTest.xml",
+      "sha256": "47d91abe82cd749c1be09b05691c9a7742d66c8b9cb977a04f6f67aa1fe35fb1",
+      "tests": 13,
+      "observedInLogs": {
+        "maven": [
+          13,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-supra-web-read/surefire-reports/TEST-com.kartaguez.pocoma.supra.web.read.ReadTransportUnitTest.xml",
+      "sha256": "9135824da14cee32fa10f67d0c639ef8a9c0575b1f0c931bc2f62ec4ecd779b4",
+      "tests": 2,
+      "observedInLogs": {
+        "maven": [
+          2,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    },
+    {
+      "report": "reports/pocoma-supra-web-read/surefire-reports/TEST-com.kartaguez.pocoma.supra.web.read.maintenance.ReadMaintenanceBarrierTest.xml",
+      "sha256": "7fbf3b7f06a83113e17ec9d353488bf077f47ba362f439d36f2f98341574dd75",
+      "tests": 15,
+      "observedInLogs": {
+        "maven": [
+          15,
+          0,
+          0,
+          0
+        ]
+      },
+      "latestMatchingLog": "maven"
+    }
+  ]
+}

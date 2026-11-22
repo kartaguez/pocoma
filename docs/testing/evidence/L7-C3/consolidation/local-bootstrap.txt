@@ -1,0 +1,74 @@
+▶ Initializing PostgreSQL databases and roles for V3...
+  • Creating database pocoma_write...
+  • Creating database pocoma_read...
+  ✓ Databases, roles, and search paths verified.
+▶ Initializing schema v3_write in database pocoma_write...
+  ✓ Schema v3_write successfully provisioned and secured.
+▶ Initializing schema v3_read in database pocoma_read...
+  ✓ Schema v3_read and public maintenance authority successfully provisioned and secured.
+Injected READ bootstrap failure rolled back V5 and the bootstrap marker
+▶ Initializing PostgreSQL databases and roles for V3...
+  ✓ Databases, roles, and search paths verified.
+▶ Initializing schema v3_write in database pocoma_write...
+  ✓ Schema v3_write successfully provisioned and secured.
+▶ Initializing schema v3_read in database pocoma_read...
+  ✓ Schema v3_read and public maintenance authority successfully provisioned and secured.
+▶ Initializing PostgreSQL databases and roles for V3...
+  ✓ Databases, roles, and search paths verified.
+▶ Initializing schema v3_write in database pocoma_write...
+  ✓ Schema v3_write successfully provisioned and secured.
+▶ Initializing schema v3_read in database pocoma_read...
+  ✓ Schema v3_read and public maintenance authority successfully provisioned and secured.
+17.6
+Fresh bootstrap and repeat passed: eight families, matching marker, valid catalog and isolated grants
+Canonical PostgreSQL triggers accept both grouped statement shapes in a guarded-role transaction
+Result (actual rows=1 loops=1)
+  InitPlan 1
+    ->  Append (actual rows=1 loops=1)
+          ->  Result (actual rows=0 loops=1)
+                One-Time Filter: ('POT_VERSION_AVAILABLE'::text = $1)
+                ->  Index Only Scan using read_pot_version_pkey on read_pot_version (never executed)
+                      Index Cond: ((pot_id = $2) AND (pot_version = $3))
+                      Heap Fetches: 0
+          ->  Result (actual rows=0 loops=1)
+                One-Time Filter: ('POT_BALANCE_AVAILABLE'::text = $1)
+                ->  Index Only Scan using read_pot_balance_pkey on read_pot_balance (never executed)
+                      Index Cond: ((pot_id = $2) AND (pot_version = $3))
+                      Heap Fetches: 0
+          ->  Result (actual rows=0 loops=1)
+                One-Time Filter: ('CURRENT_POT_CHANGED'::text = $1)
+                ->  Index Scan using read_current_pot_pkey on read_current_pot (never executed)
+                      Index Cond: (pot_id = $2)
+                      Filter: (pot_version = $3)
+          ->  Result (actual rows=1 loops=1)
+                One-Time Filter: ('POT_VISIBILITY_CHANGED'::text = $1)
+                ->  Index Scan using read_pot_visibility_state_pkey on read_pot_visibility_state (actual rows=1 loops=1)
+                      Index Cond: (pot_id = $2)
+                      Filter: (materialized_version = $3)
+          ->  Result (never executed)
+                One-Time Filter: ('CURRENT_BINDING_CHANGED'::text = $1)
+                ->  Index Scan using read_current_binding_eui_id_key on read_current_binding (never executed)
+                      Index Cond: (eui_id = $2)
+                      Filter: (eui_version = $3)
+          ->  Result (never executed)
+                One-Time Filter: ('CURRENT_INVITATION_CHANGED'::text = $1)
+                ->  Index Scan using read_current_invitation_pkey on read_current_invitation (never executed)
+                      Index Cond: (invitation_id = $2)
+                      Filter: (version = $3)
+Planning Time: 1.021 ms
+Execution Time: 0.091 ms
+Result (actual rows=1 loops=1)
+  InitPlan 1
+    ->  Append (actual rows=0 loops=1)
+          ->  Result (actual rows=0 loops=1)
+                One-Time Filter: ('COMMAND_RESULT_AVAILABLE'::text = $1)
+                ->  Index Only Scan using read_command_result_pkey on read_command_result (never executed)
+                      Index Cond: (request_id = $2)
+                      Heap Fetches: 0
+          ->  Result (actual rows=0 loops=1)
+                One-Time Filter: ('IDENTITY_REQUEST_RESULT_AVAILABLE'::text = $1)
+                ->  Index Only Scan using read_identity_request_result_pkey on read_identity_request_result (actual rows=0 loops=1)
+                      Index Cond: (request_id = $2)
+                      Heap Fetches: 0
+Planning Time: 0.146 ms
+Execution Time: 0.020 ms

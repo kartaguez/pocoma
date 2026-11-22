@@ -1,0 +1,1167 @@
+6008dda2a15a0e9a834af4630a7a61efab3285f1f0229279a6dec5bc41dab917  ./app/.dockerignore
+5775a77ad2f6d12dde053a3fb0cca4309189163f0888f4e7e984cd0ab327028b  ./app/.gitattributes
+089382e4d7944ab6cb6900a1269678ebff93c00d441ada788cd05a8da182b22b  ./app/.gitignore
+b0ffaf47bfff05e4f8d05fdc32936382b3dff70efc6e8a480c42ae49aa04dc93  ./app/.mvn/wrapper/maven-wrapper.properties
+ab146882846364ef9018fcd9cafc016b7a82558cff7a87f29f4671eedb092615  ./app/Dockerfile
+d29165615adbd869426af7b9f11e87a3e33e61f019f8b0a9c3e0a364d365d939  ./app/architecture-tests/pom.xml
+70a45d9a050ee291705614c498c9b4375796dc569f4f1403edc0997a3e639f21  ./app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/AdmissionArchitectureTest.java
+4c85cdada232ecf4a083f140e9425a9a8f9c9af337ce2c5fd1a10eed003066b0  ./app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/ConsumptionEngineArchitectureTest.java
+a26f14678a4afbbb5be7d475b64e209331b14238cec95038a54d43a0ee5eb0e2  ./app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/ConsumptionFoundationArchitectureTest.java
+1fefcba1bd1e8760c1ac15d21552315f8fef894d74e123d2c9616b5bc6b07fed  ./app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/FoundationArchitectureTest.java
+d3949a84585d94ad9d5b712d0874bc6c5472df2794e3b23abbe0e6540c26a0c6  ./app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/HexagonalArchitectureTest.java
+844b5d68cb80f5c69975278f98d9c979fc0bca9ed5af1e980ba9b154a7af67f2  ./app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/IdentityAuthorityArchitectureTest.java
+c7e75c9c0094704e3d35221d4434ab74ab11ea4dd6b962aad9d0f062afa6a2ed  ./app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/PotExecutionArchitectureTest.java
+2c21e83afa1902d3fb438f8f94dd61b3d6f6bd93ca1db7ee2199650f03124566  ./app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/fixture/badread/BadReadToWriteFixture.java
+dbe7ece3965f2be4a5185b7cb33081239f6cf2f42e05d00a87160dd7018c118b  ./app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/fixture/badwrite/BadWriteToReadFixture.java
+a92d0db2f7fd43c2fa11eb369914d2ca9e12120f2b377ac7985fc31db5419818  ./app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/fixture/cycle/left/CycleLeftFixture.java
+d7ec5be390600b67e55ad276db2bad7d2139b58871dea7b52d417079248c9a88  ./app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/fixture/cycle/right/CycleRightFixture.java
+738452f3666a0e6577b965ee01fb5983d6e91610f14307d86cce8b896927016d  ./app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/fixture/domain/ForbiddenDomain.java
+ac8ab1ff3fc7a5a3b03c8b6a2a9520e97f0dfeda39e1bb1c02ff7b3cfda2ebe5  ./app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/fixture/domain/ForbiddenSqlDomain.java
+197c2dabadcaa2dd9a77dbf23482b2286b4379c56626845bb36f66ba050d5d26  ./app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/fixture/domain/PureDomain.java
+162e339500a4c3448eb385ac1e084e92dd969eb7099ce545611d7f990cccf279  ./app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/fixture/engine/ForbiddenApplication.java
+8e7034f3d7b976ed7bc3c0a24cdb2984ecc691c2c3ecb484203311c2518bbe27  ./app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/fixture/engine/PureApplication.java
+83d3e2d48c1c8276b753c6a23ee0170644de072f31a4ba032f620f995d8d0145  ./app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/fixture/engine/sample/port/persistence/BadAnnotationPort.java
+c4ad1a1cfec57c3d26a0c11a022fddf42846d375c2980a2e237132858d4947d9  ./app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/fixture/engine/sample/port/persistence/BadApplicationPort.java
+439fcefffee32b62fa60cb9e08cead85a71046791e18e3d79be6f7b16d3907c0  ./app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/fixture/engine/sample/port/persistence/BadInfrastructurePort.java
+1d205d44cdd830e22fd76c3432ab0a4aa8304006abe07321fd641cd57d46e4a6  ./app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/fixture/engine/sample/port/persistence/BadInheritancePort.java
+e8fc6e827d905018bc2576db47b79a036fc3090968d347c6658bb18f1c852b5c  ./app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/fixture/engine/sample/port/persistence/BadJdbcPort.java
+5ca6772beb3b26fda1442bf94137a7968e4772280df2b26ee5f8bc094f928b20  ./app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/fixture/engine/sample/port/persistence/BadJpaPort.java
+c3f7b2633ac190f177037e545ae9e282c1cfb59026c3cbc349b3a531bff49020  ./app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/fixture/engine/sample/port/persistence/BadSpringPort.java
+9ee83f1a427482892c248206f76ab4209bae85ec0fc54e2b45aa5b97ee9fdd3a  ./app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/fixture/engine/sample/port/persistence/BadSqlPort.java
+6bf736218067bb5a4222f81db227ca43811bdacafc2887787bc99313bba6f628  ./app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/fixture/engine/sample/port/persistence/GoodNestedPort.java
+87791d21aeb82d00aed66414cd9d42e6f85f24b7e546369c7e575a979c2ecbdb  ./app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/fixture/port/ForbiddenPort.java
+d320d833c9cf9b514574058dbd160e3dd1c1ffc4959d93cbe9c2b29fba43d5c4  ./app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/fixture/port/PurePort.java
+6d93ea5a98352f801f0f43837efc8c5d7d0df5dbbcd325486a28f701be7da342  ./app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/l7/L7DeploymentArchitectureTest.java
+8532f044d03eb4a821204b5bb9a760b16a7df4ed7287b07fff9c8ffa99012b6e  ./app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/l7/L7ReactorArchitectureTest.java
+cf5ee16b3bd86594eba1292c94dadcef671f5470ce2b5c9e52ff1fa5d0d2f054  ./app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/qualification/QualificationSettings.java
+ccf6f376826dc996a198d709a1312f50796a2e3e4dd8dc9597ce2700b3c958a4  ./app/architecture-tests/src/test/java/com/kartaguez/pocoma/runtime/command/dev/WorkerDevelopmentTools.java
+7d0087e953320a3857fb4a4c42d13e786e1787f10d10ca3c24c216a857693343  ./app/architecture-tests/src/test/java/com/kartaguez/pocoma/runtime/command/dev/WorkerDevelopmentToolsTest.java
+f88f36d9b3621ee397b0656a79526bab0f7112fbd63ca84c52d0251e9074d55a  ./app/compose-polling-burnable-write-postgres/pom.xml
+e346d1413f08cf35289c0cb6434b2d23ab1e990d39f4eea636e7508eb1c6bec4  ./app/compose-polling-burnable-write-postgres/src/main/java/com/kartaguez/pocoma/compose/polling/process/ConsumptionDiscoveryComposition.java
+16a8f5f2ba4ad2a7cb158c923b98265213d002d58b30ee80386eb9de3cf8caf8  ./app/compose-polling-burnable-write-postgres/src/main/java/com/kartaguez/pocoma/compose/polling/process/ConsumptionLifecycleComposition.java
+ff41e2b3c00c7243a8a96c2b13340fe41bf08454eb1a04d1c3d41f8a16a3fa19  ./app/compose-polling-burnable-write-postgres/src/main/java/com/kartaguez/pocoma/compose/polling/process/IdentityRequestComposition.java
+f0be7ae7ef9ff2b4a9ff69f3a23b349cd2dfb5325f612bb4e41def2520463f79  ./app/compose-polling-burnable-write-postgres/src/main/java/com/kartaguez/pocoma/compose/polling/process/PotCommandComposition.java
+f239d19b419880afdbbe19cce86b5b5c4ae765531f59107e45c95632905ee5de  ./app/compose-polling-burnable-write-postgres/src/main/java/com/kartaguez/pocoma/compose/polling/process/ProcessComposeConfiguration.java
+6746c9c2237ed83b673ecf19441b5c511f6a93baaae3d29d0680718d204dc0d0  ./app/compose-polling-burnable-write-postgres/src/main/java/com/kartaguez/pocoma/compose/polling/process/ProcessObservationConfiguration.java
+1cf42047001e10c386b6dc4378062376c0a3040e03ccbf5d9c007ec957bce231  ./app/compose-polling-burnable-write-postgres/src/main/java/com/kartaguez/pocoma/compose/polling/process/ProcessPoolSettings.java
+0150afbc6bdeb4a9d463d9d916f0793cb8b32049725cf250be1427b13a38a57e  ./app/compose-polling-burnable-write-postgres/src/main/java/com/kartaguez/pocoma/compose/polling/process/ProcessResources.java
+4ef1903fd308c3b95f2efe9e536c0a6969f82888cf20f1fba22d9344e3866a34  ./app/compose-polling-burnable-write-postgres/src/main/java/com/kartaguez/pocoma/compose/polling/process/ProcessSettings.java
+a8154821fbfa7a82a171a197ad3348cec3bea2c357a51d624b742c3885a88c5e  ./app/compose-polling-burnable-write-postgres/src/main/java/com/kartaguez/pocoma/compose/polling/process/dev/FixturePotActorAuthority.java
+adb46cd5f552c425c2c94e1f221e75cd7889b7d5264934740ed19797e4d3baf7  ./app/compose-polling-burnable-write-postgres/src/test/java/com/kartaguez/pocoma/supra/polling/consumption/ConsumptionWorkerTest.java
+ec0ae435830ac52a6e81c34596f768a71f8bcb1bafc7c69cbd60813a3d15ce2d  ./app/compose-polling-nonburnable-materialize-postgres/pom.xml
+01c02135c5bcc97a292e126bad92a9a6e4fc4743c1ce1e91bd3c27f3b8ae09d0  ./app/compose-polling-nonburnable-materialize-postgres/src/main/java/com/kartaguez/pocoma/compose/polling/materialize/ConsumptionDiscoveryComposition.java
+ea55e6e638b34cfb734c4a8b1b9d4f149e2c40a5e8d75de6321085872d6ee200  ./app/compose-polling-nonburnable-materialize-postgres/src/main/java/com/kartaguez/pocoma/compose/polling/materialize/ConsumptionLifecycleComposition.java
+01f94cf076866907b34252a16cbfbd30b54990f304e401a6a68bd581d14bca60  ./app/compose-polling-nonburnable-materialize-postgres/src/main/java/com/kartaguez/pocoma/compose/polling/materialize/MaterializeComposeConfiguration.java
+52481f77f41b54c741317a3ccbe0cd4748a9ecff1d0e4a4087402d5a3e0d52f3  ./app/compose-polling-nonburnable-materialize-postgres/src/main/java/com/kartaguez/pocoma/compose/polling/materialize/MaterializeObservationConfiguration.java
+59f05d347d82c7472dd282904abca3281880b6944aaaaca091b64af051b480d1  ./app/compose-polling-nonburnable-materialize-postgres/src/main/java/com/kartaguez/pocoma/compose/polling/materialize/MaterializePoolSettings.java
+3a335967f588e3c65ee494132335439672e85912164fde11ee6ffc0d8a96fe63  ./app/compose-polling-nonburnable-materialize-postgres/src/main/java/com/kartaguez/pocoma/compose/polling/materialize/MaterializeResources.java
+303c2fea634a02414c3f13b9625e27d66f91e312086f0121673c6cb493ca7294  ./app/compose-polling-nonburnable-materialize-postgres/src/main/java/com/kartaguez/pocoma/compose/polling/materialize/MaterializeSettings.java
+d102d7bde75988c635f1cf2fa8d12d0829bad685e85799aceac30c44918acfda  ./app/compose-polling-nonburnable-materialize-postgres/src/main/java/com/kartaguez/pocoma/compose/polling/materialize/MicrometerPotBalanceObservation.java
+d8d5fc0346b33d8c03939c18028bbde106f1379dce8d148d5350153b844fa1e7  ./app/compose-polling-nonburnable-materialize-postgres/src/main/java/com/kartaguez/pocoma/compose/polling/materialize/MicrometerPotVersionObservation.java
+ea656fac996a96af555fedb73a45a76434f53c8a84863c6938345d1119fa9961  ./app/compose-polling-nonburnable-materialize-postgres/src/main/java/com/kartaguez/pocoma/compose/polling/materialize/ReadParticipants.java
+e641b72f3b064ded67258ec2d901709ec523e10af36d21e2e291959533b9ad25  ./app/compose-polling-nonburnable-materialize-postgres/src/main/java/com/kartaguez/pocoma/compose/polling/materialize/maintenance/ReadinessOracle.java
+7548ab7f07f76f1f7870f1e2b775d7dab97603742a085934b9076b254f44b883  ./app/compose-polling-nonburnable-materialize-postgres/src/test/java/com/kartaguez/pocoma/compose/polling/materialize/maintenance/ReadinessOracleTest.java
+a9d81dae274ffe26051b0ec2cf07b458243383bce21687e33de053815f07b76d  ./app/compose-web-read-postgres/pom.xml
+44acb961b02e81e9292fcf92cf46be7e5489563cf8e0fd042ad772bac46dff09  ./app/compose-web-read-postgres/src/main/java/com/kartaguez/pocoma/compose/web/read/ReadFacadeComposition.java
+04acf050450063e90b741ad8a79bf6884b1215b57218d95d0a7fda43426922c3  ./app/compose-web-read-postgres/src/main/java/com/kartaguez/pocoma/compose/web/read/ReadHttpConfiguration.java
+4a99c104a02cad07370fb89fccb4771c931d869323c47edb876e61bcab42095a  ./app/compose-web-read-postgres/src/main/java/com/kartaguez/pocoma/compose/web/read/StageHandoffController.java
+81752f603de084cc76b24acb99318b016ca4cc5e9253c16068699ea4c80986dd  ./app/compose-web-read-postgres/src/main/java/com/kartaguez/pocoma/compose/web/read/WebReadObservationConfiguration.java
+ec257bbab3cd9e6c81c07b77b0a98a4181969a364c254ff163968dc9fe0b5d57  ./app/compose-web-write-postgres/pom.xml
+7314830533aaac7980161dda2030affb8547f40c7bb207380c3030906a0fecd7  ./app/compose-web-write-postgres/src/main/java/com/kartaguez/pocoma/compose/web/write/AdmissionHttpConfiguration.java
+a8713299576a4a30c6c233e73e573104b22b643e9df877b3c085c4e864a801a4  ./app/compose-web-write-postgres/src/main/java/com/kartaguez/pocoma/compose/web/write/WebWriteObservationConfiguration.java
+5b1da1aa7a62c0b9002d8920f6dea61b5d4503ec444b3297ac74fdc9c3294a20  ./app/compose-web-write-postgres/src/test/java/com/kartaguez/pocoma/compose/web/write/AdmissionHttpConfigurationTest.java
+372c243f75c11128b447fe5e63aec3d4911f1a8c72bc900e95e4471e09e2d02c  ./app/compose-web-write-postgres/src/test/java/com/kartaguez/pocoma/engine/admit/command/AdmissionCanonicalizationTest.java
+78395f90dd9406f51efd965ceed6c8c55661b6917214a80427bd9a3bccd4d5c8  ./app/compose-web-write-postgres/src/test/java/com/kartaguez/pocoma/engine/admit/command/AdmissionInputTest.java
+92573cbe03f0d5e6512f7e97d952cb35c5f61fc907d75e411cffb3a9fe97f462  ./app/compose-web-write-postgres/src/test/java/com/kartaguez/pocoma/supra/web/write/AdmissionTransportTest.java
+033bfb9dc1cb2f2c70050a9bf036b52ceb61fc197f7a999d7e2f5625f3d3bde0  ./app/compose-web-write-postgres/src/test/java/com/kartaguez/pocoma/supra/web/write/D4AdmissionCalibrationTest.java
+28a509030e7cef1fad1a1d8cbc29407ce9625d10914e753f59bb671ef83fed82  ./app/contract-authentication/pom.xml
+7f4b5530851e79de057cba74a961d541624ee8f7cffaa3f5ab3766bee7af6aa5  ./app/contract-authentication/src/main/java/com/kartaguez/pocoma/contract/authentication/AuthenticatedExternalPrincipal.java
+674415ad33a5c62addd3fc5597015200c2bc217f0d311fd63f9037dfa9a6013d  ./app/contract-consumption/pom.xml
+a7bd338fc44844003def086e077d5d7da56867a2f6e296a876f45db98f7b7894  ./app/contract-consumption/src/main/java/com/kartaguez/pocoma/contract/consumption/invocation/CapacityView.java
+f08245e0a23036e61a308162592ba7d56d14c8405529e03a2991dd52ac6b4969  ./app/contract-consumption/src/main/java/com/kartaguez/pocoma/contract/consumption/invocation/ConsumptionNavigation.java
+e45c64be08775a84b140d07aaa5c53598e69b9982b65883aa0e4c093fbbf203d  ./app/contract-consumption/src/main/java/com/kartaguez/pocoma/contract/consumption/invocation/ConsumptionProtocol.java
+55904fb5e7063a1cdfe8e8dc456fb4c1591d41ccadf53cf77d26f898dbab5dbc  ./app/contract-consumption/src/main/java/com/kartaguez/pocoma/contract/consumption/invocation/DiscoveryReports.java
+1e9c0d3605a11824179eeb3a8031a452ae0bddce24a35f64e334372bb38fb3f3  ./app/contract-consumption/src/main/java/com/kartaguez/pocoma/contract/consumption/invocation/ProtocolSafety.java
+f7baccf0d62fe57ef66943bfd2bf5a892eb8b231f120e4e8e25cd38b16ff4135  ./app/contract-consumption/src/main/java/com/kartaguez/pocoma/contract/consumption/invocation/WorkerView.java
+39ed65cab62b2330bc405d51131df6f9640c74d48f18e2e5a7a0ec463cff72fe  ./app/contract-consumption/src/main/java/com/kartaguez/pocoma/contract/consumption/observation/AttemptObservation.java
+a091f1d2b4d970124c52ed2a7c9af1eea627fd061c6f32380962c3bd59e60bb7  ./app/contract-consumption/src/main/java/com/kartaguez/pocoma/contract/consumption/observation/ConsumptionObservation.java
+3cb8630be83f4c34278dc6865fc630f4d8ee4e5b5b628a38363b491cd11da07e  ./app/contract-consumption/src/main/java/com/kartaguez/pocoma/contract/consumption/observation/DiscoveryListener.java
+15570f98bc1afc8f9eb62159f963b5d3e5a40e9c86c2d8a4ac9a09c928f6cad8  ./app/contract-consumption/src/main/java/com/kartaguez/pocoma/contract/consumption/participation/ConsumptionParticipant.java
+cd9ddaa3e0af4ef54e126512b1708b26ab3b39f048001337fa349fa1a49dab12  ./app/contract-consumption/src/main/java/com/kartaguez/pocoma/contract/consumption/participation/PreparationReads.java
+50ac0036323a1d2c2ebdf2851dbb676cb290d15c3ca5c2bd017e7235b7045d82  ./app/contract-consumption/src/main/java/com/kartaguez/pocoma/contract/consumption/participation/SlotCompletion.java
+14b33f5c1849296c906a9fb088fba7ed7c285c86d4aadea4bf9bd9714d605baf  ./app/contract-consumption/src/main/java/com/kartaguez/pocoma/contract/consumption/spi/AttemptFailureClassifier.java
+04972b1ed238a23ace43e60cb2a8b0f32182e93674b79a6824823f67190ed153  ./app/contract-consumption/src/main/java/com/kartaguez/pocoma/contract/consumption/spi/BurnableReferences.java
+d54495d0034a6d7977111da39459370f2ae409253db6d9aeabba039c5ce4f0d0  ./app/contract-consumption/src/main/java/com/kartaguez/pocoma/contract/consumption/spi/ClaimedSlot.java
+2c427efa073bfa5e3692a761fb1a1960182536834c34b5f9a4bbc3e146521c44  ./app/contract-consumption/src/main/java/com/kartaguez/pocoma/contract/consumption/spi/ConsumptionSlotStore.java
+846048f85cc307a1efb0b398096f5fe253d6159134f5cb8a8a9b888d4cdba2d5  ./app/contract-consumption/src/main/java/com/kartaguez/pocoma/contract/consumption/spi/DiscoveryAdmissionStore.java
+ab41199e142e5a1452cd27bbc20c291e2559e1919e4d2ced93f24c8a13704ca5  ./app/contract-consumption/src/main/java/com/kartaguez/pocoma/contract/consumption/spi/DiscoverySettings.java
+d61161ba7be11890938d5e8d86de5b59ce5b68c915f2b8bcf2bc9c15dc7ed49f  ./app/contract-consumption/src/main/java/com/kartaguez/pocoma/contract/consumption/spi/LifecycleSettings.java
+a7b3ea5eda48ffa6f3c46dd3a3885611cc508d180d90acdde37179fef7daf6ef  ./app/contract-consumption/src/main/java/com/kartaguez/pocoma/contract/consumption/spi/NonBurnableReferences.java
+2d598c0007caa6f452afbee2db9d26fc910ecde897a39c490212eb16425972f4  ./app/contract-consumption/src/main/java/com/kartaguez/pocoma/contract/consumption/spi/PartitionLease.java
+2e74336969fac683d612f74b6bfef7f51f97cbd1a6a6197440c638afeb47234c  ./app/contract-consumption/src/main/java/com/kartaguez/pocoma/contract/consumption/spi/PartitionOwnershipStore.java
+31ad0a720e3df02e309186cee6edc5eaead7cf88db304c36f77aa91c73ba8e16  ./app/contract-consumption/src/main/java/com/kartaguez/pocoma/contract/consumption/spi/RecoveryObservation.java
+a94fa51c4e7ea3ec4e1ce5b40f281861dea699c66b0a788a38fc924eb05dc566  ./app/contract-consumption/src/main/java/com/kartaguez/pocoma/contract/consumption/spi/RecoverySourcePolicy.java
+2c3574dd9956577594030d48b8bfa8d791068c13508a0961ea7fd9240e5719e9  ./app/contract-consumption/src/main/java/com/kartaguez/pocoma/contract/consumption/spi/SlotKeyNavigation.java
+37490fa7d5bbc2c33f7a8204a3b74bd04247a4bfd21e6559a512c7f514e8a360  ./app/contract-read-query/pom.xml
+6efd93a7cfdabcf80340fa295432fa0ceceb2a4de92c606d5109d3a8350bb5c5  ./app/contract-read-query/src/main/java/com/kartaguez/pocoma/contract/readquery/BindingRead.java
+795a75f9dc413f3bd4971cec3f8a1c29c41fcf5f2fc0e383baf9a517caa71a39  ./app/contract-read-query/src/main/java/com/kartaguez/pocoma/contract/readquery/CommandResultRead.java
+c14d0f42336f4a86b0638b12c96251479738d027d70655ec7a2e0f47b817182d  ./app/contract-read-query/src/main/java/com/kartaguez/pocoma/contract/readquery/IdentityResultRead.java
+e79cf336b8959d00b221eb360c8ee8778719b9f948f6323a68f24fd124cd784c  ./app/contract-read-query/src/main/java/com/kartaguez/pocoma/contract/readquery/InvitationRead.java
+41ae92b0964ef13782ca7b1c4aa6a122aa22154f546d62b47ba034e90bf7c92e  ./app/contract-read-query/src/main/java/com/kartaguez/pocoma/contract/readquery/PotRead.java
+636835f28ee2d8178eb0c0d074f3ed0ae93a2907c49d6f4220477e1e64cf63d2  ./app/contract-read-query/src/main/java/com/kartaguez/pocoma/contract/readquery/ReadLimits.java
+ce52bb90686d3e23de9dd847c44eca2a9c109eb83dc782098c3f29e9c6de3670  ./app/contract-read-query/src/main/java/com/kartaguez/pocoma/contract/readquery/ReadObservation.java
+66128d982dc12b1b61a89cc8f4a066b2265100a7f34fb23aedef6fb523bd89b5  ./app/contract-read-query/src/main/java/com/kartaguez/pocoma/contract/readquery/ReadPotResult.java
+a8f05e66238ee10d4893e440446b7b1ec541eb48c3ec6b6a8bce8a792936bed8  ./app/contract-read-query/src/main/java/com/kartaguez/pocoma/contract/readquery/SnapshotRead.java
+e67b15f46d990a5931fe2187b9d20792d1de8a91c3138ea446bd943e04c0df09  ./app/contract-write-admission/pom.xml
+45925f678022e5ddf98d88b7dae009be1de1895ecbf3f718fe94efdcc7860199  ./app/contract-write-admission/src/main/java/com/kartaguez/pocoma/contract/writeadmission/AdmissionAssociation.java
+7489077325a51d811511b1bb41dbb7adabf0c4cdfa3ff037747cf9662a512de0  ./app/contract-write-admission/src/main/java/com/kartaguez/pocoma/contract/writeadmission/AdmissionFailure.java
+d78324e7bd39c12090b36ede0aa2cb249b87b7dbc7c98ce3f330a1de798552ee  ./app/contract-write-admission/src/main/java/com/kartaguez/pocoma/contract/writeadmission/AdmissionFields.java
+cfa69c34049334e98a3da3f3bb8a1c7ab46d235330504141039db551b19ef913  ./app/contract-write-admission/src/main/java/com/kartaguez/pocoma/contract/writeadmission/AdmissionObserver.java
+73fefa2aa2b08f8077d3ef9b2ddacdeb78e1fa66e2445635a2de97177fd5e129  ./app/contract-write-admission/src/main/java/com/kartaguez/pocoma/contract/writeadmission/AdmissionProtection.java
+87ba30d94c2c91bdf3700b8958e43dab4af4b7ceb40c47a08dcfcb4d9c7c4f79  ./app/contract-write-admission/src/main/java/com/kartaguez/pocoma/contract/writeadmission/AdmitCommand.java
+75c4df5979c061e2936d341b4831a8acac4e05ac95d745a49e40887a8a4bbaae  ./app/contract-write-admission/src/main/java/com/kartaguez/pocoma/contract/writeadmission/AdmitIdentityRequest.java
+e23b7c75adac1dad98994f96d400e7951818a31dbf83da38144a3f4b7d6f0798  ./app/contract-write-admission/src/main/java/com/kartaguez/pocoma/contract/writeadmission/CommandAdmissionInput.java
+4efa6ad2202739dc66de65b65d073ff4621cb34bb3cbae5df943792ea1627ebb  ./app/contract-write-admission/src/main/java/com/kartaguez/pocoma/contract/writeadmission/IdentityAdmissionInput.java
+f6910776aa088abc6c92dd8504ec298232c8999e37268dfff73c6f7ddd561210  ./app/contract-write-admission/src/main/java/com/kartaguez/pocoma/contract/writeadmission/IdentityRequest.java
+1875bed915fa746fca4d4fada610482f9549578c48bcdc8f54d02dd082cc5bb5  ./app/contract-write-admission/src/main/java/com/kartaguez/pocoma/contract/writeadmission/PotCommand.java
+5489dd42343379fb3fd8a7c23c4ebb8f3eebe4a4b8aa621ec22ba338530bac71  ./app/docker-compose.postgres.yml
+61da0e369fbbf97a85bde77d9b25df372f7b7bd2fa33393434b90a3946d43015  ./app/domain-consumption/pom.xml
+5e96a46749b7ff6bc4028cd617b64352c9489c3d54d0315d34120f6e4fdfcc28  ./app/domain-consumption/src/main/java/com/kartaguez/pocoma/domain/consumption/ConsumableFamily.java
+98521dcec3380ceeeb7cab9b28689686d5e48cfd808ea9f9fcd1629879da8a17  ./app/domain-consumption/src/main/java/com/kartaguez/pocoma/domain/consumption/ConsumptionCatalog.java
+fe2c440c4d13b6c15dbba74762a5c7a0ca2f9e340c870ec865f1431fea28316c  ./app/domain-consumption/src/main/java/com/kartaguez/pocoma/domain/consumption/ConsumptionDefinition.java
+a43801ba265e24d111e72eed8f4544d8aa9969a92a4fe3d1e283a07fcebd92a6  ./app/domain-consumption/src/main/java/com/kartaguez/pocoma/domain/consumption/ConsumptionId.java
+77e6c423dd9831eea0890f878a5579aec2d15c918e83e3a00e873bfa82bd56ac  ./app/domain-consumption/src/main/java/com/kartaguez/pocoma/domain/consumption/RoutingV1.java
+ed012c5019521e48b72e6d3993b6891c78a4ea2e20d6ddbc141dbaeea49fe314  ./app/domain-consumption/src/test/java/com/kartaguez/pocoma/domain/consumption/RoutingV1Test.java
+2b6393f030901139f7c9688f881ed253576e29c35eeefaa8d4061db358e80428  ./app/domain-identity/pom.xml
+01cb3e1757783254109a1b8bff813bf38777844706a581e752e04f311249b8c8  ./app/domain-identity/src/main/java/com/kartaguez/pocoma/domain/identity/BindingToken.java
+1f1977ebc492b49762b27009f4126547e0ec59fd35546dbb5e985fbbdf2325f2  ./app/domain-identity/src/main/java/com/kartaguez/pocoma/domain/identity/ExternalIdentity.java
+2dbd11af1edee3791de8f123a1599d67d2074cde5c59f3dc34826cc8e8b618c4  ./app/domain-identity/src/main/java/com/kartaguez/pocoma/domain/identity/ExternalUserIdentity.java
+2a4ad1e1cd383ed4567e291bb1a68504d74cdf5530ca2322a75a0452e1daea0c  ./app/domain-identity/src/main/java/com/kartaguez/pocoma/domain/identity/ExternalUserIdentityId.java
+bb28536b207236b8704ef7732987cbd26acd99f2f7fdb233ea2f525602770f66  ./app/domain-identity/src/main/java/com/kartaguez/pocoma/domain/identity/IdentityTransitionResult.java
+1bea4bf2663468310e544af49eb42172115aef3b57bd72785568b16cf73d29ff  ./app/domain-identity/src/main/java/com/kartaguez/pocoma/domain/identity/IdentityTransitions.java
+4e00a5d1a45efd8b12aadd2d4997f8b7c0ac2c625a2d7467b0e6414866eddb1e  ./app/domain-identity/src/main/java/com/kartaguez/pocoma/domain/identity/PocomaUserId.java
+b07c67adae956100cb45ed1c05b5705902cd94b3522024330470ec29b7f1f379  ./app/domain-identity/src/main/java/com/kartaguez/pocoma/domain/identity/User.java
+be33a48d328d0b174d364d6b7a32ae351d6041a5ab10fc58ca8b25d4ebac1f5a  ./app/domain-identity/src/test/java/com/kartaguez/pocoma/domain/identity/IdentityTransitionsTest.java
+bc258608d20e6290d8fd711d4c63d81697ffdabbb08b0af80bde9617f04d6491  ./app/domain-identity/src/test/java/com/kartaguez/pocoma/domain/identity/IdentityValueContractsTest.java
+26fb9d5a14a53c59f81134a6db3ab2e8f1c38aeb262e3036d1f89605bfc1fbbf  ./app/domain-pot/pom.xml
+fd8a8cd1020d17fc0f9d0d30ea65d0611ceda963aa783768f6d3ef17388526c4  ./app/domain-pot/src/main/java/com/kartaguez/pocoma/domain/pot/AttachShareholderViaInvitation.java
+fd77d6d9e8fc9afb01b72ab12d90c7387898c500cf989cfc1ed29b1d1df27459  ./app/domain-pot/src/main/java/com/kartaguez/pocoma/domain/pot/AuthorizationFacts.java
+9322ac00446286a0566fa6f798ad445a8570dbb33fbdc1d430e736ed01715754  ./app/domain-pot/src/main/java/com/kartaguez/pocoma/domain/pot/ExpenseTransitions.java
+bae86b751f911980b85e5e2f97352f4ce205bc6394990fc09ddc5c257ff2d53f  ./app/domain-pot/src/main/java/com/kartaguez/pocoma/domain/pot/PotBalanceCalculator.java
+d6ed1cd52a552e460a63e5b61af7dbb65d7029ff1d48b21c42b6bde45c5f365a  ./app/domain-pot/src/main/java/com/kartaguez/pocoma/domain/pot/PotDetails.java
+16b36fa0dd793d4df9fb4e43b3aa785935663be4886a3e3870f91e48a158d4ce  ./app/domain-pot/src/main/java/com/kartaguez/pocoma/domain/pot/PotFacts.java
+b008ce068b9cbc7e886de15d83ea021fbc1d732a10f9c4d1e2b472a771e0bb67  ./app/domain-pot/src/main/java/com/kartaguez/pocoma/domain/pot/PotFinancialState.java
+7ccb55bc94e80a917a906d55c6fc5989008ea708390292edb3a5a24393b93e7e  ./app/domain-pot/src/main/java/com/kartaguez/pocoma/domain/pot/PotHeader.java
+710eaa0dc22979a7fad34e6dd0a7150538779d3ac7cf0980ae15d9beb766ae01  ./app/domain-pot/src/main/java/com/kartaguez/pocoma/domain/pot/PotHistory.java
+23c159fec21aaead9712fd21207e8df80a9edac23e683e5cabe594243eaf5c51  ./app/domain-pot/src/main/java/com/kartaguez/pocoma/domain/pot/PotState.java
+de720cf2eed08e4d014592c76d3c4ceb2b07903c1b1c558f9344149bd4e4f7c1  ./app/domain-pot/src/main/java/com/kartaguez/pocoma/domain/pot/PotTransitions.java
+65ba528a661b969582b8d769b7a4e4c7ffb4c759aa3e2a39f07bce5e38e29e59  ./app/domain-pot/src/main/java/com/kartaguez/pocoma/domain/pot/PotVisibilityRules.java
+c811fd76fa1eaee6fc5e84f51af252f715708aa3c8152672fef41d269be390c8  ./app/domain-pot/src/main/java/com/kartaguez/pocoma/domain/pot/ShareholderTransitions.java
+8e3c26dcd02a028cf54dc76f25236546748934073c059f584a3be4a1fc3aacb6  ./app/domain-pot/src/main/java/com/kartaguez/pocoma/domain/pot/TransitionChecks.java
+a9570b161f1df7fa81d0e601b565363b27da2db404ff08cd6c41719da8b437d5  ./app/domain-pot/src/main/java/com/kartaguez/pocoma/domain/pot/TransitionResult.java
+729128a835d4b73a73b4ff4dea38fd959e64c59c6c8c3ac43b361fd3e14e3248  ./app/domain-pot/src/main/java/com/kartaguez/pocoma/domain/pot/expense/ExpenseDetails.java
+5ec7493ca434f01eab8118a2cca89b9d8f95f66781e0f40723102e34a1314c59  ./app/domain-pot/src/main/java/com/kartaguez/pocoma/domain/pot/expense/ExpenseFinancials.java
+bb146829e692ba215f72ee1a4e04ec20b734d536e9600fc14fc70169a217c9c4  ./app/domain-pot/src/main/java/com/kartaguez/pocoma/domain/pot/expense/ExpenseHeader.java
+bff5f8a87a96360e963ea1ccf3bf325ad89ab8ce1a642861cb5fb6ee80bbbe9c  ./app/domain-pot/src/main/java/com/kartaguez/pocoma/domain/pot/expense/ExpenseState.java
+9a55803b7aca66275d0a4b8f9c8b7f21c0324094713d6a280b41f03c9542b9e5  ./app/domain-pot/src/main/java/com/kartaguez/pocoma/domain/pot/invitation/Invitation.java
+78ce006b8a78664fbc1c35e04a9e2bdc88991a8327a6b9d6406a600344be2795  ./app/domain-pot/src/main/java/com/kartaguez/pocoma/domain/pot/invitation/InvitationTokenHash.java
+46145291b8fe25849cfc323bccdfe523b8da524ca08cf219fa845a028b11e3de  ./app/domain-pot/src/main/java/com/kartaguez/pocoma/domain/pot/revision/ComponentRead.java
+02e9f7a271ac965298bde07938a12c6b94adb43e7920eb48313ce9e01a2d020a  ./app/domain-pot/src/main/java/com/kartaguez/pocoma/domain/pot/revision/InconsistentPotFactsException.java
+c91888b015ef2e2ac963f483230d6448fad0a03edefa566087d8f54a0ed34451  ./app/domain-pot/src/main/java/com/kartaguez/pocoma/domain/pot/revision/Versioned.java
+a65d74a8ee56b1ecd14439a7f0ce81e7fe9be94a41164e2bdd672319556c1ee3  ./app/domain-pot/src/main/java/com/kartaguez/pocoma/domain/pot/shareholder/ActiveShareholderUsage.java
+4e4661fb9dc3159e1752c6a54570e9e4409fb87d89c4e70bb865348c9806c1bc  ./app/domain-pot/src/main/java/com/kartaguez/pocoma/domain/pot/shareholder/ShareholderDetails.java
+ea2958c387ebc578b563f82eb856f2f723ecbaf21451955d9f3a9d9b366caf1a  ./app/domain-pot/src/main/java/com/kartaguez/pocoma/domain/pot/shareholder/ShareholderHeader.java
+3e3241de5af93b80705ee9f4ac016c3af79b739cd7462a9965937275a509badb  ./app/domain-pot/src/main/java/com/kartaguez/pocoma/domain/pot/shareholder/ShareholderReference.java
+286611907b92f968fd7e09f3b56c49dd0f8eefb8ac2d58a95d5ba7ff56923e03  ./app/domain-pot/src/main/java/com/kartaguez/pocoma/domain/pot/shareholder/ShareholderState.java
+79d4bc332616193465a8a3640859b77d1f9d8abce7f8ad9526399fa9bff1d4c2  ./app/domain-pot/src/main/java/com/kartaguez/pocoma/domain/pot/shareholder/ShareholderWeight.java
+eb6cfdd8fa4c2368857c23bd75cc470c0fa23266d4ef657de0d28444b87db879  ./app/domain-pot/src/main/java/com/kartaguez/pocoma/domain/pot/value/Amount.java
+a7488d0b51e0389a36eef9baecad0b34d8c74a66ab49d24bdfbe8a168864abe8  ./app/domain-pot/src/main/java/com/kartaguez/pocoma/domain/pot/value/Fraction.java
+372b97a3972edd2dea151097959aff9042a737dcf7a33f8296d28d2955a10675  ./app/domain-pot/src/main/java/com/kartaguez/pocoma/domain/pot/value/Label.java
+8d59dd38d9c05424efd68c4f2b23afd0f7a726e65f785ed57cdd5f2beaac6bf7  ./app/domain-pot/src/main/java/com/kartaguez/pocoma/domain/pot/value/Name.java
+15a6b6c4f0011c15b5afaf39ac7527c79f2b426b0c72605a7eadd2c8d95d7aaa  ./app/domain-pot/src/main/java/com/kartaguez/pocoma/domain/pot/value/UserId.java
+06bff3067a04b54f3512f1c7dce1b171bc48db504736de3568a711d4024f941f  ./app/domain-pot/src/main/java/com/kartaguez/pocoma/domain/pot/value/Weight.java
+33838f399d6d7ff7ef9acdd4994a28d7747611a99c88c1197700427cb0cad4d7  ./app/domain-pot/src/main/java/com/kartaguez/pocoma/domain/pot/value/id/EntityId.java
+58bf77431cc15535baf9b3c334f95057dcf7bfbdb7966f266f8c4476c1e626ff  ./app/domain-pot/src/main/java/com/kartaguez/pocoma/domain/pot/value/id/ExpenseId.java
+3152aac16d5e5efe8baa5e10c69b80df671118b6f53c4d15e3f64f8e18389604  ./app/domain-pot/src/main/java/com/kartaguez/pocoma/domain/pot/value/id/PotId.java
+55911cddc2e43a36661abfe1c53b2d14df787d6329cc3899e89891ed40f613c7  ./app/domain-pot/src/main/java/com/kartaguez/pocoma/domain/pot/value/id/ShareholderId.java
+c760784065e0fc3ee9306617d799f07a02611b534e3717878b4eff7e77654034  ./app/domain-pot/src/test/java/com/kartaguez/pocoma/domain/pot/InvitationAttachmentTest.java
+d36f3ec779c5208d2c9e88f8fc40ea39447cd17b5d7f608b83818889aea065f0  ./app/domain-pot/src/test/java/com/kartaguez/pocoma/domain/pot/PotAuthorizationTest.java
+f70c92635c4790d0707fc78b19c3a18499baf7b770421bfa310599fe609514d8  ./app/domain-pot/src/test/java/com/kartaguez/pocoma/domain/pot/PotBalanceCalculatorTest.java
+c2bba0de5ec89d8712d5bc6fdd3fef2b48ed76898351b332e948d4afff8b4626  ./app/domain-pot/src/test/java/com/kartaguez/pocoma/domain/pot/PotBalanceProfile.java
+6151bc4bfb7989b375686dda67c7a3e59eb415faa42d42929ce72f8ba9c35742  ./app/domain-pot/src/test/java/com/kartaguez/pocoma/domain/pot/PotTransitionsTest.java
+8877237cf819860dc72bacb5a8f6c35b27cb71cdf0190cb63d1b8fe8328cb06c  ./app/domain-pot/src/test/java/com/kartaguez/pocoma/domain/pot/PotVisibilityRulesTest.java
+3b84e4596c6261f6308887527f2b5344e26567f6b7e17c428e040ceddffdf85b  ./app/domain-pot/src/test/java/com/kartaguez/pocoma/domain/pot/value/LabelTest.java
+e4bf137125f85a96292654a23e9844ce1ada52c90a4fb59a127140e2b4c4c6a1  ./app/domain-pot/src/test/java/com/kartaguez/pocoma/domain/pot/value/NameTest.java
+d22f63badd863512c04550179b004dcb9083f88fe8b29192e941e46e446ff4fa  ./app/domain-pot/src/test/java/com/kartaguez/pocoma/domain/pot/value/UserIdTest.java
+0c55ef3da9bd79c0b6cc95ff3b31deca286792b28834b69ccf0b0ec93d76210b  ./app/domain-pot/src/test/java/com/kartaguez/pocoma/domain/pot/value/id/EntityIdTest.java
+f2126ed154c8e28f424b370171f2f9d78f321e91869910aa2a05111f92a6b47f  ./app/domain-pot/src/test/java/com/kartaguez/pocoma/domain/pot/value/id/ExpenseIdTest.java
+2a7b944dfd6e4c524046c2e044ed3f9c73627716b02940fa17d07f12d2253926  ./app/domain-pot/src/test/java/com/kartaguez/pocoma/domain/pot/value/id/PotIdTest.java
+dbe5bb81d62074b90feb7cbcb48bf431394b7a99a70455e3ba87159ef4e75e9d  ./app/domain-pot/src/test/java/com/kartaguez/pocoma/domain/pot/value/id/ShareholderIdTest.java
+a2d9e715c23163460d17f775f1bfeed7ab4e727fb8ebd6eb8f37ad0bc9ea07eb  ./app/domain-projection/pom.xml
+c933601afea64927737fc403285397871a3a86f2fe66684b356b2600295c319b  ./app/domain-projection/src/main/java/com/kartaguez/pocoma/domain/projection/CommandTerminalResult.java
+015479c3c5070796bada08fc625668250867e01c791b84c18918015f935ac0dc  ./app/domain-projection/src/main/java/com/kartaguez/pocoma/domain/projection/IdentityTerminalResult.java
+1e1c97c538bf403c44aedf10e9f05205bfea3c07dd0c9e555d20cd3fce78a989  ./app/domain-projection/src/main/java/com/kartaguez/pocoma/domain/projection/PotBalance.java
+fc8c7518d496371d4f21f59f107de3de1bb450c71f76074470519f0d7ac09090  ./app/domain-projection/src/main/java/com/kartaguez/pocoma/domain/projection/PotBalanceAggregate.java
+164cb61b38f650d1a262f4ea7cf7a4e3e93aee59eec577c643707a0142c6a03c  ./app/domain-projection/src/main/java/com/kartaguez/pocoma/domain/projection/PotBalanceAggregateCalculator.java
+332bfa0c9096e0a646797ec82b3b8fd0896ed6c3540f2f30cab32d78451848d6  ./app/domain-projection/src/main/java/com/kartaguez/pocoma/domain/projection/PotVersion.java
+5be1b42abd9a43a223e4779db743082eda6fba10db70ad3889d0d223e13d051b  ./app/domain-projection/src/main/java/com/kartaguez/pocoma/domain/projection/PotVisibility.java
+053dff6047075052e24e2b83f4b56889e45b263eda372f6a1e1b1178168ad414  ./app/domain-projection/src/main/java/com/kartaguez/pocoma/domain/projection/SubobjectContent.java
+50b60d18f3bd982173af3a0009b3f1ab78d2f7c6208a3e58b7236702eecfa456  ./app/domain-projection/src/main/java/com/kartaguez/pocoma/domain/projection/SubobjectKey.java
+3bee5a644884343ecc980c292ffccce42b9716ab9470cefd6c04b3ced5ef1d75  ./app/domain-projection/src/main/java/com/kartaguez/pocoma/domain/projection/SubobjectKind.java
+9199d6a5d1e16ad0d2aef3fa68f8a8fa2bfc8514835663beb1b3763ea5550212  ./app/domain-projection/src/main/java/com/kartaguez/pocoma/domain/projection/SubobjectVersion.java
+a2eb2a88ac56c571ea0a1c4c8a7735bc3ab8caf2821abb0c9d98e0a448313117  ./app/domain-projection/src/main/java/com/kartaguez/pocoma/domain/projection/balance/PotBalanceAggregateBinaryCodec.java
+597c791f7572deed8a93c6cf2b2b7860bebb9fc5dc6f2d195a1cd1f74461df7d  ./app/domain-projection/src/main/java/com/kartaguez/pocoma/domain/projection/balance/PotBalanceAggregateContent.java
+289e92bff885227017c1aa6c4ad8a8dcde4fb2f137256d0b8eefee603972aac9  ./app/domain-projection/src/main/java/com/kartaguez/pocoma/domain/projection/balance/PotBalanceBinaryCodec.java
+a3315f85bde8e2efde60e21bb42941aef10973b7eb0d8104d87f3598d6ff5fab  ./app/domain-projection/src/main/java/com/kartaguez/pocoma/domain/projection/balance/PotBalanceContent.java
+1b635424fcc82efa6dcd53595598a2d597951ef7d65f953bcbd88aa98957951d  ./app/domain-projection/src/main/java/com/kartaguez/pocoma/domain/projection/balance/PotShareholderSet.java
+d5f95b7bd14db265cfadbdfa473fdf25b3540a5ade662a11106d46c1bbf3e5b9  ./app/domain-projection/src/main/java/com/kartaguez/pocoma/domain/projection/balance/PotShareholderSetBinaryCodec.java
+b7dd97e73e5b2fe39b57557b10c6588754d836cae1f339c0dfa063026264b26a  ./app/domain-projection/src/main/java/com/kartaguez/pocoma/domain/projection/radix/ContentHash.java
+56f6989687952b641d890f18b95e9f7f9ed2372f8f1d861d7cca65a9864b1704  ./app/domain-projection/src/main/java/com/kartaguez/pocoma/domain/projection/radix/PotUserSet.java
+202296174eab545680c87183c604496e2f150334e1ad50bb052f313d40681143  ./app/domain-projection/src/main/java/com/kartaguez/pocoma/domain/projection/radix/Radix16Codec.java
+916d8e72a491556937e834d385ac327d23285e4cbfeec3dfa9a6cb3a8505de9e  ./app/domain-projection/src/main/java/com/kartaguez/pocoma/domain/projection/radix/Radix16Node.java
+2241e5b13d8fe97d738ba9cb1993010ab61b361db4c99530d7db8d3478c678e6  ./app/domain-projection/src/main/java/com/kartaguez/pocoma/domain/projection/radix/Radix16Tree.java
+92281e111a41f44d76461e13da6a022ad520bb55e4118c0aa6b0dfb3cbe91119  ./app/domain-projection/src/test/java/com/kartaguez/pocoma/domain/projection/PotBalanceAggregateEquivalenceTest.java
+d9807b3daa9427aa968086388bc08715f092dd7220a8da1a1ea141d29eb2f016  ./app/domain-projection/src/test/java/com/kartaguez/pocoma/domain/projection/PotVersionContractTest.java
+6045334265e52f1e1582a5234b5430342bc87402884293fc86a8e67f94faadb5  ./app/domain-projection/src/test/java/com/kartaguez/pocoma/domain/projection/SubobjectVersionTest.java
+5ab9c2b68f63c4b828f9d03140bd199765fa563dfe50a14de21df15a012fced3  ./app/domain-projection/src/test/java/com/kartaguez/pocoma/domain/projection/balance/PotBalanceAggregateBinaryCodecTest.java
+9fe831ced8a511698f69fa02c5b069bfaa5634a2186fb4a36000b311c5de86e9  ./app/domain-projection/src/test/java/com/kartaguez/pocoma/domain/projection/balance/PotBalanceBinaryCodecTest.java
+80525582c22589b6f6b35d641855d960983b37ec8481e4cadb0a18e06268ec85  ./app/domain-projection/src/test/java/com/kartaguez/pocoma/domain/projection/balance/PotShareholderSetBinaryCodecTest.java
+b747f8d0eedd919c132ed96045a9b2c38d06f8794fd618dc612aceb95f1f8168  ./app/domain-projection/src/test/java/com/kartaguez/pocoma/domain/projection/radix/Radix16CodecTest.java
+2f4111aeb893ba7235d8123f75cb014b09a344e168b49cfd75c67762fc031355  ./app/domain-projection/src/test/java/com/kartaguez/pocoma/domain/projection/radix/Radix16TreeTest.java
+500b27b1e500ec71367bdd0e4d0ab79b57c5c9b3aef147166c5e840f523a9ad1  ./app/engine-admit-command/pom.xml
+07fbd3d86c77086217d282b42a3e0daff92ef878a0303dd7ed5f07a5f0933b05  ./app/engine-admit-command/src/main/java/com/kartaguez/pocoma/engine/admit/command/CommandAdmission.java
+43c4803181af034e1fef5e6be2508246eaadd3fcd17526bc822e74de5f8a0e66  ./app/engine-admit-identity/pom.xml
+a3beec3edc4cb87050f5334a7b2dd395f9aa8fcfec1c2aead113bef356fca15e  ./app/engine-admit-identity/src/main/java/com/kartaguez/pocoma/engine/admit/identity/IdentityRequestAdmission.java
+1bb38d7c8c8f6ac49bf5dc9f977ad330b562a8fe511afd7821fd56d283b98558  ./app/engine-admit-identity/src/test/java/com/kartaguez/pocoma/engine/admit/identity/IdentityAdmissionInputTest.java
+17e5f1709e492723a128d9f769a58497fcd5c8e4b2c67d73bf8d8c034e22ab58  ./app/engine-materialize-identity/pom.xml
+9df1738b95177a08e83f6e4121f51b17a2c32aab1a932c69422845ab60f7c61f  ./app/engine-materialize-identity/src/main/java/com/kartaguez/pocoma/engine/materialize/identity/CurrentBindingSource.java
+2c09be33f57eaee0edc87ccc789abea6671a3ff14d41677d88ac164e940a58ba  ./app/engine-materialize-identity/src/main/java/com/kartaguez/pocoma/engine/materialize/identity/MaterializeCurrentBinding.java
+9a6be0997721f99a6ef8ab973dd907e0acc331b9f03bd987aceaa657903a7743  ./app/engine-materialize-pot/pom.xml
+30a0db92c35e1f52a36caa0f26904f433359cebcfe02e649642063915f6e35aa  ./app/engine-materialize-pot/src/main/java/com/kartaguez/pocoma/engine/materialize/pot/InvitationSource.java
+b0ae6c776d6ecd5266352274d2fed2dd5e68296d9d4adcf3d29f7a8eaffbfe24  ./app/engine-materialize-pot/src/main/java/com/kartaguez/pocoma/engine/materialize/pot/MaterializeInvitation.java
+067040f0e6aef65bc52e9b02a7c51c674ca8b92c16e8474d8d8d17ae7c0c225d  ./app/engine-materialize-pot/src/main/java/com/kartaguez/pocoma/engine/materialize/pot/MaterializePotBalance.java
+178a68ff53fe1c1d5fe265c1ef50768f7dbc0f6d10afd76c465d48e93c9e82a2  ./app/engine-materialize-pot/src/main/java/com/kartaguez/pocoma/engine/materialize/pot/MaterializePotVersion.java
+0e1e540577608c1dcfd8c87469aee67dbb5c362a8f70372625c4093653cc4e66  ./app/engine-materialize-pot/src/main/java/com/kartaguez/pocoma/engine/materialize/pot/MaterializePotVisibility.java
+1515c6be00ed3d4a063b2b1dc8aff61d4225891c61e9f4ca12f8eb392b9d9337  ./app/engine-materialize-pot/src/main/java/com/kartaguez/pocoma/engine/materialize/pot/PotBalanceObservation.java
+60d9d31959ca8d0ca636178c001c1fc88f00504ea6a78d3a252eef672aed1129  ./app/engine-materialize-pot/src/main/java/com/kartaguez/pocoma/engine/materialize/pot/PotBalanceSource.java
+5b6f78e1a73db0fba2f9d2cceea5400eaec12527597542b88fd17377305c4e69  ./app/engine-materialize-pot/src/main/java/com/kartaguez/pocoma/engine/materialize/pot/PotVersionDeltaComposer.java
+2aeed1122dc5b9992148059254919cf7a433d6c3a700054a47d8e0ec82616797  ./app/engine-materialize-pot/src/main/java/com/kartaguez/pocoma/engine/materialize/pot/PotVersionObservation.java
+da5e99d5302ead315a6950851d3af6b630a0ff3e5ba9cf519d4449bf26d703f3  ./app/engine-materialize-pot/src/main/java/com/kartaguez/pocoma/engine/materialize/pot/PotVersionSource.java
+bb74ab2ecf7c21869ea8392420577d9dc956f02336b631048b333b6a4d6f6915  ./app/engine-materialize-pot/src/main/java/com/kartaguez/pocoma/engine/materialize/pot/PotVisibilitySource.java
+54cd4b154308016800f277675028d8b8c7ecaafb0310f556a153f61c5f21c794  ./app/engine-materialize-pot/src/test/java/com/kartaguez/pocoma/engine/materialize/pot/MaterializePotBalanceIncrementalTest.java
+7c4468ddfc5146102c6369956137c8608cdf9bd26d839ca06bbb4172ce3b16fd  ./app/engine-materialize-pot/src/test/java/com/kartaguez/pocoma/engine/materialize/pot/MaterializePotVersionIncrementalTest.java
+a4d038bd135c00a741c0703a2dd64a917184490227179509826bab0a9083478c  ./app/engine-materialize-pot/src/test/java/com/kartaguez/pocoma/engine/materialize/pot/MaterializePotVersionTest.java
+db01a620734c810fd141ecd6d85abc3af4a43a51c6e09ce1b643c0bd79762245  ./app/engine-materialize-results/pom.xml
+f90242cc6772b417afafc2ec92daa283b6b834de3389c33d641dabda975289f9  ./app/engine-materialize-results/src/main/java/com/kartaguez/pocoma/engine/materialize/results/CommandTerminalSource.java
+8e2bd693788e7745842928369084417ffbf1287fc11e5c19d2e3d693b18323fb  ./app/engine-materialize-results/src/main/java/com/kartaguez/pocoma/engine/materialize/results/IdentityTerminalSource.java
+1bcdf463b207efa1882486c44661a94e3016b870ee11d4212a4469e4a1344325  ./app/engine-materialize-results/src/main/java/com/kartaguez/pocoma/engine/materialize/results/MaterializeCommandResult.java
+827b690476ed93570f3d77b6a2bd6dca33d116cf78ec27990dd94eb7c4f06a0a  ./app/engine-materialize-results/src/main/java/com/kartaguez/pocoma/engine/materialize/results/MaterializeIdentityRequestResult.java
+e7de86885bd4acefd193b9272c996db1209baa314bbbbff578cc4db5f6ced0e4  ./app/engine-materialize-results/src/test/java/com/kartaguez/pocoma/engine/materialize/results/CommandResultContractTest.java
+11b4467338293265a739e43afd366ce06e8590b588174e077b86d7362dc0acc7  ./app/engine-materialize-results/src/test/java/com/kartaguez/pocoma/engine/materialize/results/IdentityRequestResultContractTest.java
+8d5a50de46f30eea48ea790c1ee4a343c42264295c9af1b1e9b7746fefa2489e  ./app/engine-read-execution/pom.xml
+8bcfbb6734819a7240c7f021e8ea51d06329b39742509975356f6875ecd973f8  ./app/engine-read-execution/src/main/java/com/kartaguez/pocoma/engine/read/execution/ReadExecution.java
+02784d012bf43a68376f15e868e4add5907d6b10e6c935b85ccd019f1572d79d  ./app/engine-read-execution/src/test/java/com/kartaguez/pocoma/engine/read/execution/ReadExecutionTest.java
+a548231cc2e33ed14dc9e7f9264cb1a5a7bda6118557836d395e2b622bb60a90  ./app/engine-read-identity/pom.xml
+70cce14b57c2a223a3bad098fcf8f706eff7d4f8b316b143ff8b74e9504706f7  ./app/engine-read-identity/src/main/java/com/kartaguez/pocoma/engine/read/identity/GetCurrentBinding.java
+72d4a3d37a09713f4838527fa75043add343487cc1c11b08377b084b1fd31c55  ./app/engine-read-identity/src/test/java/com/kartaguez/pocoma/engine/read/identity/CurrentBindingContractTest.java
+37de9db2e432bb5ab5f58255be95f369f162d9e2a5328d2cd62ddd1fb4036c52  ./app/engine-read-pot/pom.xml
+a97a39602ec99e75e5f46d9ed5640f85e287b80432beea1c7b3ccdbb82a63022  ./app/engine-read-pot/src/main/java/com/kartaguez/pocoma/engine/read/pot/ReadInvitation.java
+8a75c97f5704a08f9ad1d8e73a42e38c78d0089b33d3076a37ba8ffcaaa56b1f  ./app/engine-read-pot/src/main/java/com/kartaguez/pocoma/engine/read/pot/ReadNavigation.java
+020e3e3c85f141071fa36e943b083ebeb9938bbb8c06d824df664109267a5db0  ./app/engine-read-pot/src/main/java/com/kartaguez/pocoma/engine/read/pot/ReadPot.java
+3856cfff60cff377268518f6b87532bd6484d9d6df866d613fe7672251e5a054  ./app/engine-read-results/pom.xml
+855b16d16c1f1e4066d89020e9fffabd26f33672661d9b88b7f37f268ad2de91  ./app/engine-read-results/src/main/java/com/kartaguez/pocoma/engine/read/results/GetCommandTerminalResult.java
+8cb76988d09dbdfa30ffe5da3b141492a78ad785cb49f53eadb6e3084136b9f5  ./app/engine-read-results/src/main/java/com/kartaguez/pocoma/engine/read/results/GetIdentityTerminalResult.java
+ff57d2c1d487063b43319bcd6827d8f2316a01277af3bf4c5b53ebb05871fb02  ./app/engine-write-identity/pom.xml
+a76fbb704bdf2ef1646ccb87393cdba13e30e799518fb6b7a2a90451ec80a676  ./app/engine-write-identity/src/main/java/com/kartaguez/pocoma/engine/write/identity/ExecuteIdentityRequest.java
+916b4ad81b68ac1d6fe3d4b0833e9330b2ad0e66a1745ee9830ba5c05ef67e72  ./app/engine-write-identity/src/main/java/com/kartaguez/pocoma/engine/write/identity/IdentityAuthority.java
+0a206700553111a4217fc0ff79ae7271396255d5cd26f666e80361a3a7005e50  ./app/engine-write-identity/src/main/java/com/kartaguez/pocoma/engine/write/identity/IdentityRequestObservation.java
+8e26501f11f74da683e5493542a5897afbd6bf64761477bafbd4f2ecb57b86e5  ./app/engine-write-identity/src/main/java/com/kartaguez/pocoma/engine/write/identity/IdentityRequestStore.java
+edda3ac6f938e3d521d09b7b4836c849320d91237c50a0d4647892b532e1facb  ./app/engine-write-identity/src/test/java/com/kartaguez/pocoma/engine/write/identity/ExecuteIdentityRequestTest.java
+bc5164ba278433b6842550bb1e55d08141bf2d7a4aa8768a25a42dfa57e96e68  ./app/engine-write-identity/src/test/java/com/kartaguez/pocoma/engine/write/identity/IdentityRequestContractTest.java
+590a6f57bc83fb82582e8fbace7b11860f714962e52f0f1b6e12a01c3023f4c2  ./app/engine-write-pot/pom.xml
+47f603358b75cf2c1959ee9ee3bbd3aea3e0834017a9cdf22e1f11fa3e37c102  ./app/engine-write-pot/src/main/java/com/kartaguez/pocoma/engine/write/pot/CalculatePotBalances.java
+544f952569384a0a46769f8343c81f2298c5bdedb84ce995e32b4d83288c6554  ./app/engine-write-pot/src/main/java/com/kartaguez/pocoma/engine/write/pot/ExecutePotCommand.java
+033a86b78cc58acc1c7d5ce220e2a88b4d76a441624564ec2be299978489e9aa  ./app/engine-write-pot/src/main/java/com/kartaguez/pocoma/engine/write/pot/port/execution/InvitationStore.java
+10ee96924550eab7ee47d8f452a0b6a716281037de67610ba24460a53a2a9251  ./app/engine-write-pot/src/main/java/com/kartaguez/pocoma/engine/write/pot/port/execution/PotActorAuthority.java
+f14afab1ea038e9117479c7396535448eb3d3f6d9fd5fc1127f1d9fca1f357b0  ./app/engine-write-pot/src/main/java/com/kartaguez/pocoma/engine/write/pot/port/execution/PotCommandObservation.java
+ab977f30d57c21b380270d9e959bbfe2c2a6563f205510d3911fd592d4e8875e  ./app/engine-write-pot/src/main/java/com/kartaguez/pocoma/engine/write/pot/port/execution/PotCommandStore.java
+5649cd471f26e0754c970e79f0aefdcf8ec8d11ed93b7719623732a150b2e2fb  ./app/engine-write-pot/src/main/java/com/kartaguez/pocoma/engine/write/pot/port/persistence/PotHistoryPort.java
+8f6ab8f9070df8a9c209049afd6bc783fa8f6afff079e551502683e36ec3a5f9  ./app/engine-write-pot/src/main/java/com/kartaguez/pocoma/engine/write/pot/port/persistence/PotRevisionPort.java
+ee03e1d71467c1d82e6aff42285a3d6b762eac7255c8f86d01aa6db6f2b4ee1e  ./app/engine-write-pot/src/test/java/com/kartaguez/pocoma/engine/write/pot/ExecutePotCommandTest.java
+766628cef7562b6608ad735a1fa8dba11a9a3e6ebca98a54b27f10b53ccdec5a  ./app/engine-write-pot/src/test/java/com/kartaguez/pocoma/engine/write/pot/PotCommandIntentTest.java
+95c9fafc94daa904e8de965ae6f254edad1a6635424d57d15f01cf9bcc32c409  ./app/infra-observability-micrometer/pom.xml
+3e5bb8cece3fa9502b13d304c5afc833f96df6aa90d844a4c4223ca608678b87  ./app/infra-observability-micrometer/src/main/java/com/kartaguez/pocoma/infra/observability/micrometer/MicrometerConsumptionObservation.java
+66516a5153901fa7ec508f36ee88115f9f8bca1386141d4d1e8e86500e7d496e  ./app/infra-observability-micrometer/src/main/java/com/kartaguez/pocoma/infra/observability/micrometer/MicrometerReadObservation.java
+8481844f0a5a1f54bcb539b5a06b279918c11d81eca84f27b1e6cd7eb6688560  ./app/infra-observability-micrometer/src/main/java/com/kartaguez/pocoma/infra/observability/micrometer/ReadRebuildObservation.java
+dffe602a120554487ac3e814a6b141f1b2942ef4880f77986ec15bf72dbf4cd0  ./app/infra-observability-micrometer/src/main/java/com/kartaguez/pocoma/infra/observability/micrometer/StageHandoffTracker.java
+dc7f143029664f86c5426aceafef9fe974a3c1fa25315a6dda25194edbe66702  ./app/infra-observability-micrometer/src/test/java/com/kartaguez/pocoma/infra/observability/micrometer/StageHandoffTrackerTest.java
+debed7a3d970efce08973a9e28034e2f50c2cf051b907f6644f93483b7055ea6  ./app/infra-postgres-core/pom.xml
+8c770c80c2ddae913dcfdafa9e32bc464f197a419cae0405a88a74f85b4a8654  ./app/infra-postgres-core/src/main/java/com/kartaguez/pocoma/infra/postgres/core/bootstrap/BootstrapGuard.java
+464be412c0885f8c13f926349ee8a5488fe89fb684a1c3fc922fedeceb1c3d0e  ./app/infra-postgres-core/src/main/java/com/kartaguez/pocoma/infra/postgres/core/bootstrap/WriteSourceReadPrivileges.java
+f6587065355018b58aeb44db4890e7324112e240e1310022f2d7db0b00c51cd4  ./app/infra-postgres-core/src/main/java/com/kartaguez/pocoma/infra/postgres/core/consumption/JdbcConsumptionSlotStore.java
+251131df06d7ef1c928e7b9f3b959e524a2284af94070a4eab8c494448cd5aac  ./app/infra-postgres-core/src/main/java/com/kartaguez/pocoma/infra/postgres/core/consumption/JdbcDiscoveryAdmissionStore.java
+563effa4c0d4adb5a8f074b6ee353e673102b33a16de185d630bd462f3ddcc8f  ./app/infra-postgres-core/src/main/java/com/kartaguez/pocoma/infra/postgres/core/consumption/JdbcPartitionOwnershipStore.java
+58d389ccf0598dfefcfb2e9a1b4aa4c302c478327fd8a1d7c875752277762be3  ./app/infra-postgres-core/src/main/java/com/kartaguez/pocoma/infra/postgres/core/consumption/JdbcSlotKeyNavigation.java
+f9501319fd74c2db8236173452188ccb8d34b9a6938f9e148b2d5630d8fa4c09  ./app/infra-postgres-core/src/main/java/com/kartaguez/pocoma/infra/postgres/core/history/PostgresPotHistoryReader.java
+b51c38ac8722f1d026459e22fa20e067ccfeade742ac694a289e7197cd90991e  ./app/infra-postgres-core/src/main/java/com/kartaguez/pocoma/infra/postgres/core/history/PotHistoryRows.java
+2e2b6279fcf2c6ce1d65aa17f3e9908962281d4806a78f63caf8cc7d7e1c826b  ./app/infra-postgres-core/src/test/java/com/kartaguez/pocoma/infra/postgres/core/bootstrap/WriteSourceReadPrivilegesPostgresTest.java
+662a8c9d104412d18dafe74e56ecee0bb06e86fa1b769aa186eef02609d67760  ./app/infra-postgres-core/src/test/java/com/kartaguez/pocoma/infra/postgres/core/consumption/BatchLeaseRenewalPostgresTest.java
+cf83b963348064d7ecf7116998a57c383a915617ec225277e0147e6373acab77  ./app/infra-postgres-core/src/test/java/com/kartaguez/pocoma/infra/postgres/core/history/OpenComponentExplainPostgresTest.java
+55979d1991feaa87e95dad41bcf97377f2dfec67dfc4739380fb0a7db9aa27e0  ./app/infra-postgres-read/pom.xml
+60c052c5fb35e4624998942d156e4019e7a2c7d38929e02610ef13e4493f0138  ./app/infra-postgres-read/src/main/java/com/kartaguez/pocoma/infra/postgres/read/JdbcCommandTerminalResultStore.java
+24e7e99008fed6f501cf0a90de7b6a2ae58b65890d65d36566801184b4231fba  ./app/infra-postgres-read/src/main/java/com/kartaguez/pocoma/infra/postgres/read/JdbcCurrentBindingStore.java
+58da5522ac24c6b20ce79e4719da61209bc3b6d4e1f0d40d45df275ba1ac3f00  ./app/infra-postgres-read/src/main/java/com/kartaguez/pocoma/infra/postgres/read/JdbcIdentityTerminalResultStore.java
+812343f4a66941455554e84cd930be77ceb313c7dca1ee0409ea3815aff2722c  ./app/infra-postgres-read/src/main/java/com/kartaguez/pocoma/infra/postgres/read/JdbcInvitationStore.java
+1b72557a44005949272f6b12715f8a66c9bdf4ae6457accee002d110a090e94d  ./app/infra-postgres-read/src/main/java/com/kartaguez/pocoma/infra/postgres/read/JdbcPotBalanceStore.java
+3354a4a0ce371811ea427ca92300359c0980b420d001edbc2bcd1bab01e4b5f2  ./app/infra-postgres-read/src/main/java/com/kartaguez/pocoma/infra/postgres/read/JdbcPotVersionStore.java
+26833f678a5c1aa369c3288bf605c52804c6a6d80c5df4c618d6943bd6e5644d  ./app/infra-postgres-read/src/main/java/com/kartaguez/pocoma/infra/postgres/read/JdbcPotVisibilityStore.java
+45cf490dd026a82d3151f86bf3765aabf2c731938f66e4b4b0ee1f2834cd4b0f  ./app/infra-postgres-read/src/main/java/com/kartaguez/pocoma/infra/postgres/read/JdbcSubobjectVersionStore.java
+a764ffabc46631830548672e8c580bbc2ef64472526f62145084bb8a675948cf  ./app/infra-postgres-read/src/main/java/com/kartaguez/pocoma/infra/postgres/read/ReadAvailability.java
+343bcc8d1317b3024a71b173e69d20e69e3cba59c421aa706ffff9d1c3811433  ./app/infra-postgres-read/src/main/java/com/kartaguez/pocoma/infra/postgres/read/ReadJdbc.java
+746438b58f4e57c0198c2d4f90fbe6c773e348f1fd80a1eb9bfa4cb87549aff0  ./app/infra-postgres-read/src/main/java/com/kartaguez/pocoma/infra/postgres/read/SubobjectJson.java
+fea93fe22770f2be7175a8785c4ab3a54ba8edeefe5bfdfcfe8c0d48c5c9074e  ./app/infra-postgres-read/src/main/java/com/kartaguez/pocoma/infra/postgres/read/maintenance/JdbcReadMaintenanceAuthority.java
+bc56322433c4c5c144ebd6a56b80629c1577e84708a0c44cd4653223a74283aa  ./app/infra-postgres-read/src/main/java/com/kartaguez/pocoma/infra/postgres/read/maintenance/JdbcReadMaintenanceStatus.java
+c20f7c97b2e92d5f0d00c94617b65fc1029b0685e91b9343a2b79545efb0ef33  ./app/infra-postgres-read/src/main/resources/db/read/availability/migration/V5__projection_availability.sql
+dcec6000655dc638ba220b620d451d6e21b1ac2bab42da27548f81820e6646ea  ./app/infra-postgres-read/src/main/resources/db/read/migration/V1__initial_schema.sql
+d0c35aa4faf5a3220c776e5d0855f89a233a5692e9c9600f66d41e0351ff06a1  ./app/infra-postgres-read/src/main/resources/db/read/migration/V2__pot_balance_aggregate.sql
+8970e08b74ce103a89cde0506daf8763b030b6d92932d30d0fa7cbafb71ea713  ./app/infra-postgres-read/src/main/resources/db/read/migration/V3__pot_version_radix16.sql
+e4960374bc6eb166dbba755a1835f5ccf65fde15a097b5d819ea228edd56a5db  ./app/infra-postgres-read/src/main/resources/db/read/migration/V4__pot_balance_shared_storage.sql
+6e375afb50c7a11bf18320cb7e3f032880ec47e377b93386e77bb4a22114754d  ./app/infra-postgres-read/src/main/resources/db/read/pilot/migration/V5__command_result_availability.sql
+c50545b362103806011f588a6d924f85f401a3e7a7efe5a808cbf733a96dea31  ./app/infra-postgres-read/src/test/java/com/kartaguez/pocoma/infra/postgres/read/CurrentBindingReadStorePostgresTest.java
+85a1352efc4bc30dac14ea16811abc2828e15dc53ee5b29523ca1d56d7447aa5  ./app/infra-postgres-read/src/test/java/com/kartaguez/pocoma/infra/postgres/read/PotBalanceReadStorePostgresTest.java
+386fb2f00edee7f97b9d5c505d89a07ffd82abea8089763f930bec9a99334556  ./app/infra-postgres-read/src/test/java/com/kartaguez/pocoma/infra/postgres/read/PotBalanceSharedSchemaPostgresTest.java
+a65a661e4a8cd80bfbf72d64b63d8eb9cdaadf6e42e626f9da171cef187da652  ./app/infra-postgres-read/src/test/java/com/kartaguez/pocoma/infra/postgres/read/PotVersionRadixSchemaPostgresTest.java
+179688ccae0bf32956de83bc2c4946fc114259735c9cb41e79477c7cfe3c77e6  ./app/infra-postgres-read/src/test/java/com/kartaguez/pocoma/infra/postgres/read/PotVersionReadStorePostgresTest.java
+fc09bda4838eb0caf01218746af9d1793aa6e64c9a7c62384801b7d674de4ade  ./app/infra-postgres-read/src/test/java/com/kartaguez/pocoma/infra/postgres/read/PotVersionTargetedReadPostgresTest.java
+9e08f02ea1c0311a8d2042931056ca3ee300d0802e098592dd88a4feb5cd5c1f  ./app/infra-postgres-read/src/test/java/com/kartaguez/pocoma/infra/postgres/read/PotVisibilityReadStorePostgresTest.java
+293943801ee6bf2419376ed63c8419c1ad089c8207d93536875f485eeeb36af9  ./app/infra-postgres-read/src/test/java/com/kartaguez/pocoma/infra/postgres/read/ReadStoreFixture.java
+e9514c17d952f541b969559b1e586ae245df64a5e22b5c15e61f8a5474b28781  ./app/infra-postgres-read/src/test/java/com/kartaguez/pocoma/infra/postgres/read/SubobjectJsonTest.java
+18052720f0e6bf061c0bab5530ec2ad8230c08018e78399f023177fa59496160  ./app/infra-postgres-read/src/test/java/com/kartaguez/pocoma/infra/postgres/read/TerminalResultsReadStorePostgresTest.java
+a5c5b9c9845d4985024bf84b02f0bab601feabdc6a6aca61cc990ca293e63808  ./app/infra-postgres-read/src/test/java/com/kartaguez/pocoma/infra/postgres/read/consumption/ReadConsumptionFoundationPostgresTest.java
+ac5988e242f5ab5f9da0249b3918ee3bf3b10153c98b4dc70b5a28d34778ab00  ./app/infra-postgres-read/src/test/java/com/kartaguez/pocoma/infra/postgres/read/consumption/ReadConsumptionLifecyclePrivilegesPostgresTest.java
+cf3ef268d58786305ffd6a038c79c649ef567196534b7a42bc6bb0b0a11a092f  ./app/infra-postgres-read/src/test/java/com/kartaguez/pocoma/infra/postgres/read/consumption/ReadDiscoveryPrivilegesPostgresTest.java
+e3f45bd7460e0e4cc511f87a67896ccd7f0355dd3e8872f188efefb10c3ad477  ./app/infra-postgres-read/src/test/resources/db/primary-test-migration/V1__initialize_primary_test.sql
+f9f2a651951cc666a27c18cd54d155ad5a4d739b3e44edf04bab2fdd659138bf  ./app/infra-postgres-read/src/test/resources/db/read-store/migration/V10__current_binding_expand.sql
+2a83afa1364ffec2cee11a37fcc7cb415d19f61d89561d79d41d6c4e17b2ac6f  ./app/infra-postgres-read/src/test/resources/db/read-store/migration/V11__current_binding_canonical_detached.sql
+fb5bd721296965cee096bd995b7bd63062f90eaa850192af0886c7129431b68b  ./app/infra-postgres-read/src/test/resources/db/read-store/migration/V12__current_binding_fact_provenance.sql
+0ebaa7a744281719def665925e83e356912b18bad899ac5d2f23a8dc21ce262d  ./app/infra-postgres-read/src/test/resources/db/read-store/migration/V13__verify_terminal_binding_facts.sql
+8b51eaca00a1c6f4c0cbf32367cc6adf414d33ce0118efeda387fa74f2bb1728  ./app/infra-postgres-read/src/test/resources/db/read-store/migration/V14__gate_command_result_exact_identity.sql
+5b17be9a75d1ef35ca2c3c511dadafbfe2bf1bda2b38b2d1214753c215d186e2  ./app/infra-postgres-read/src/test/resources/db/read-store/migration/V1__initialize_read_store.sql
+694a1decb3d180bc2accd96ae0c1753848f416423a69c87bf3d61c2441182f78  ./app/infra-postgres-read/src/test/resources/db/read-store/migration/V2__generic_projection_foundation.sql
+15781dd12400d860caba787363869fc309669ca7313a1991e983732dd17f2cc8  ./app/infra-postgres-read/src/test/resources/db/read-store/migration/V3__remove_projection_coverage.sql
+5fbe10ce43eb0d24c6aa4e64a4272511949380a0fc5c3fbeef54c760370ad17e  ./app/infra-postgres-read/src/test/resources/db/read-store/migration/V4__add_source_version_watermarks.sql
+4ffaba7276f7135825f0e22ac37d96d909aaf2b6a06e7fc425209a0de05df619  ./app/infra-postgres-read/src/test/resources/db/read-store/migration/V5__canonical_pot_projection.sql
+9d2af4a62f93e83730f04e920c27cca02bf195cf0c8e40ae92636bdb4821d31f  ./app/infra-postgres-read/src/test/resources/db/read-store/migration/V6__pot_version_metadata_and_user_index.sql
+1b63a453b5d3aca7d4cc20b6ba02ede52ab948373bfed411a97a36c2edeb57c8  ./app/infra-postgres-read/src/test/resources/db/read-store/migration/V7__canonical_projection_store.sql
+44bd50ed884795534f8747f67a3cde8be9878e3c972f5be0ed5293eef0e28e34  ./app/infra-postgres-read/src/test/resources/db/read-store/migration/V8__drop_legacy_read_projection_structures.sql
+083d1f0f83bfba657e77ce4929ab7d5a492f8047d89921fe8bd167fd40e399b5  ./app/infra-postgres-read/src/test/resources/db/read-store/migration/V9__current_external_identity_binding.sql
+315159908e194d058a8eed3bae9e5bf65d0a48df4fe672e07f5216ab3cce2801  ./app/infra-postgres-write-source-read/pom.xml
+012f4d2dd944ff4f53dae990355b3ec1a3d705f6037c11f2d67c9473e4f9613a  ./app/infra-postgres-write-source-read/src/main/java/com/kartaguez/pocoma/infra/postgres/source/JdbcCommandTerminalSource.java
+1587afd696c01b39399529b515511ca0b140422ef9c8c7329812464f6b65dd6b  ./app/infra-postgres-write-source-read/src/main/java/com/kartaguez/pocoma/infra/postgres/source/JdbcEventDiscoveryReferences.java
+e65c6dd6b964e621a30f096c22b664ad34339f0d653d083d14057d9ccf1e664c  ./app/infra-postgres-write-source-read/src/main/java/com/kartaguez/pocoma/infra/postgres/source/JdbcInvitationSource.java
+632df142337ea04e03bc6d44321cea5149066d437c32df6c00205edc6803f11c  ./app/infra-postgres-write-source-read/src/main/java/com/kartaguez/pocoma/infra/postgres/source/JdbcPotBalanceSource.java
+61b95361a764a84baf54194ca949bfa4c5b85dd73b23fa4f8c886998afbb3679  ./app/infra-postgres-write-source-read/src/main/java/com/kartaguez/pocoma/infra/postgres/source/JdbcPotVersionSource.java
+2d82dcdb3f186c9a7a950dc8498ca6b9b19c69480645caa90b669d74ec3f32c5  ./app/infra-postgres-write-source-read/src/main/java/com/kartaguez/pocoma/infra/postgres/source/JdbcPotVisibilitySource.java
+617868ece379426ce23f7e843a3925a7dd49340b4672077c22ae8fc0c9a9a5ad  ./app/infra-postgres-write-source-read/src/main/java/com/kartaguez/pocoma/infra/postgres/source/identity/JdbcCurrentBindingSource.java
+2296dc2b4b495f987ef29e1d06ee956f2a098c8cd2e10db47aee87f5439e02d3  ./app/infra-postgres-write-source-read/src/main/java/com/kartaguez/pocoma/infra/postgres/source/identity/JdbcIdentityTerminalSource.java
+cc61054ce3c57c809d1dbb7cda42e3653d3d20cb1358a542e7b157579965f41c  ./app/infra-postgres-write/pom.xml
+cc871a2dd99b36bd1d7e0fad3f09a118612bb1730867e7155340190a8393320d  ./app/infra-postgres-write/src/main/java/com/kartaguez/pocoma/infra/postgres/write/admission/AdmissionSqlAuthority.java
+8065836a65bc20f85cc8da6169e9e0a52ec7020c601beca2417dfbb41caeb09f  ./app/infra-postgres-write/src/main/java/com/kartaguez/pocoma/infra/postgres/write/admission/AdmissionSqlTransactions.java
+6e313bd12cbeda8a84e695ad04878a352f631eccdc08f858fca66cb2e89988a1  ./app/infra-postgres-write/src/main/java/com/kartaguez/pocoma/infra/postgres/write/admission/HmacAdmissionProtection.java
+5bb9acb55e90e38f61d0ce10ece1f79f801579c4020292c88f9bec837e5913c9  ./app/infra-postgres-write/src/main/java/com/kartaguez/pocoma/infra/postgres/write/admission/JdbcAdmissionStore.java
+e999d0612c14cb0d8bbe529ade0762cfff6c2b14390117fc80e573860ddbbc25  ./app/infra-postgres-write/src/main/java/com/kartaguez/pocoma/infra/postgres/write/consumption/JdbcCommandDiscoveryReferences.java
+24efc42ae0f9c78761cbbeef6a7804d14c76f6f2e3ff548d2fb935de1dbc7dd8  ./app/infra-postgres-write/src/main/java/com/kartaguez/pocoma/infra/postgres/write/consumption/JdbcIdentityRequestDiscoveryReferences.java
+a4543371f9892b1312fe10471f5917e631485f073bc0732eb5f38cdc3d25a58d  ./app/infra-postgres-write/src/main/java/com/kartaguez/pocoma/infra/postgres/write/identity/IdentityRequestJson.java
+8b8d7c9b6ba6bf4dd2c7401eac59598d7d71d9fb42240d72d02d0a7aef37aa4d  ./app/infra-postgres-write/src/main/java/com/kartaguez/pocoma/infra/postgres/write/identity/JdbcIdentityAuthority.java
+703ea9e292b4d373dca32b161683ce23897651b7da07a0b2b93ed503f429b9a3  ./app/infra-postgres-write/src/main/java/com/kartaguez/pocoma/infra/postgres/write/identity/JdbcIdentityPotActorAuthority.java
+0902b6a2c9991fc45ace56f566648e330c254481af57242b30258744c9830fb7  ./app/infra-postgres-write/src/main/java/com/kartaguez/pocoma/infra/postgres/write/identity/JdbcIdentityRequestObservation.java
+ab8cb8672595915dee8256e6bb95ad596d44e2a0e72098e4bb67e5764b7b7601  ./app/infra-postgres-write/src/main/java/com/kartaguez/pocoma/infra/postgres/write/identity/JdbcIdentityRequestStore.java
+d5b2af4fad8d9cdb0cb11253d7e5348171bc448d5f7c9e123508797a0404e566  ./app/infra-postgres-write/src/main/java/com/kartaguez/pocoma/infra/postgres/write/identity/SecureBindingTokenGenerator.java
+f5860feddaf257464f622f6c2fb07428de2de32ff7f3b288454cc7a4d6d4eb05  ./app/infra-postgres-write/src/main/java/com/kartaguez/pocoma/infra/postgres/write/pot/JdbcInvitationStore.java
+dfcd631c5050631abdd8cb7115eb3c5e8e72c49409e1936fbb33abd4c896cf24  ./app/infra-postgres-write/src/main/java/com/kartaguez/pocoma/infra/postgres/write/pot/JdbcPotCommandObservation.java
+66a91cf769df2b6df16b358f57291f15048403bf66dab278623e986ed9a20ed0  ./app/infra-postgres-write/src/main/java/com/kartaguez/pocoma/infra/postgres/write/pot/JdbcPotCommandStore.java
+7cdc519056ad0cb6d1206b26ef24e8ca56dc2ba2f255c4155427d68443cbe542  ./app/infra-postgres-write/src/main/java/com/kartaguez/pocoma/infra/postgres/write/pot/JdbcPotHistoryAdapter.java
+ffbfc709edb487da60457f0c9add349af6c10d6423d558e52d5e843e92c104af  ./app/infra-postgres-write/src/main/java/com/kartaguez/pocoma/infra/postgres/write/pot/JdbcPotRevisionAdapter.java
+4ee289512d56a03d71bdd270ede7b29298dbd3dd984261ac6262a463003a667e  ./app/infra-postgres-write/src/main/java/com/kartaguez/pocoma/infra/postgres/write/pot/PotCommandJson.java
+dac090231468fbbd8939e94862f2bc1eef658f84753a95e56b33891d69abd62d  ./app/infra-postgres-write/src/main/resources/db/write/migration/V1__initial_schema.sql
+3491aac4b96cf5156f6d527d1c33fe4d6a7623c3c43e56456c99b9a8612cd050  ./app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/fixture/command/CommandProbe.java
+993a74a465f7d9dfb7cd03447e56e7d9e3ef884a7b8cf10e698793e44048ffaf  ./app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/AdmissionPostgresTest.java
+a12e021287c5efa6ca8d9a688de7d523676dacabfd272b6820ba2cfab66c5b4c  ./app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/CommandExecutionPostgresTest.java
+98bed759460dd85e1402838fa5f6f2f11ff557f53241c10fadc945298bb63cb1  ./app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/CommitAcknowledgementProxy.java
+57034b2d894f013423e41929d9190d8dd19b4227a37627819a8acb4628aa0d15  ./app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/ConsumptionLifecyclePostgresFixture.java
+f8536986a5f60701f28c08e195145234032fae4a6dc848b219b6fde008f32009  ./app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/ConsumptionLifecyclePostgresTest.java
+ea331270f773a4f3ba4c50e4b995760cc4317682f718eda02b3388b89eedae25  ./app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/DiscoveryPostgresFixture.java
+e0b313497267fdda9012a75d3cb56268607e1ac1562413cb4dc098ccd4b596f3  ./app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/DiscoveryPostgresTest.java
+48b35c29d182d2f9f2a2dda0f647bae9ae7b9c6d4f4d5ba7982713c67a53627a  ./app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/ForwardingTransactions.java
+3c03ca0c0e11a78b4947aabd0fd03ca9dd60a83bc7e992862a5ae1c1aeeeb3ea  ./app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/I2Schema.java
+83c36515f1e5d702ae5cb68006241c044d39b34ea9eafc82287e17d160646ac2  ./app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/L1CommandCompatibilityHarness.java
+6b005af51769e7eb6db2d71e3b9c5328839737e709c95f7faed0e205b5258489  ./app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/L1CommandStore.java
+5e5bc722d5e0bcc67b5b3f4cce07d50985036aacbb1c31e7b3f09488e7d94c87  ./app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/L1IntegrationPostgresTest.java
+87bc8a8b62b796eb25bb8ce80d6c5598f2b2d483cde729626bdde5f49b82c457  ./app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/L2ManifestProof.java
+dfd0947066bd4be5f8335d60c4197a6812df83c34fc3031bff5fc365d5639f22  ./app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/L73TerminationWritePostgresTest.java
+9897219a8f6288e7e486f3e75c7a4d33988c60e86025dfdb8d249ebec9fac3fa  ./app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/PotBalanceSourcePostgresTest.java
+0626217fc63e6165abb94ddc30c349810d95d21203a40e0ffa5163fe1d394eb8  ./app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/PotCommandJsonTest.java
+dc506d0ce88194b214084287b72a67a69e88f545b6541b6cf1551c5d97fa0e2c  ./app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/PotFinancePostgresTest.java
+5880b7b0bd505e4ab8dfcfc5e1306676ab4d7c8b8d0ecd880247dfbf2631f34c  ./app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/PotHistoryCardinalityPostgresTest.java
+dcf5de4faaf6225fffc824d00841490c14e265a77222d154d3b636abbbc3ef34  ./app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/PotHistoryPostgresTest.java
+683a4a271bcd93ef567bbce9d659886e59151ff5ea58b91968237f6da0a55c9a  ./app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/PotVersionSourcePostgresTest.java
+3f9aba12d90421aec3b31f6bdf1d427fbe486edf6d2045920fbd2a3654bc2026  ./app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/PotVisibilitySourcePostgresTest.java
+1d6fb159501fff4d1d9270a824c03bafb872a44a98ae1ad3833471335ef8ea20  ./app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/QuarantineDiscoveryFilterPostgresTest.java
+7bfa300c36d3ba07dfe06fb366e1f1905a5ec77cbaf2b7f7867f1e6fe1d2142e  ./app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/ReadPotPublicationFixture.java
+52e25bccbf81cb1feed590ecfeacb0f0094f4091f6427a2de0fe567b09b794b8  ./app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/ReadSourceSqlProbe.java
+48462422f058514e09e5ef9a4d4ed396808586173615ebe87bc0c03491d935e5  ./app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/SlotNavigationPostgresTest.java
+627c5c2740eebf10f0e568d388e18c9b826dfab64a3dce1184827182b9710cb5  ./app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/WriteRevisionPerformancePostgresTest.java
+c82b6ff78d8f0246f59cc68a9b46ecc034c449795ce9f4267b4c7fac2ce94927  ./app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/WriteRevisionPostgresTest.java
+e1c78391f0e08abacf48aebb3dc16c37a38bedbdaf56faa027e4a19281b411c4  ./app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/consumption/ConsumptionFoundationPostgresTest.java
+095058900ec1d6f9b766c801ecdbe3afd42b099f7f92cd9b83b41426153d3511  ./app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/identity/BindingTokenGeneratorTest.java
+457553f29194a9c35eacec99703fb3c088b8ec3b237375cfe74cfc77275014ba  ./app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/identity/CurrentBindingSourcePostgresTest.java
+fe62e007abc61aa4811fac2d533026718416d492f95330040790a818f995d1fb  ./app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/identity/IdentityAuthorityPostgresTest.java
+d5855eafbca25c0692a2800048cd7aa5757999316a5152c27f984f267d56ede5  ./app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/identity/IdentityConcurrencyPostgresTest.java
+470a68228d9ae7d39a4d2394c171420e40d13c9e46de8b815683fcd94860c0a2  ./app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/identity/IdentityDiscoveryPostgresTest.java
+fd010da74212f94386c2fb4e41e3cf6ab4c35ef36ea06bdd438fd14c703179ae  ./app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/identity/IdentityPotAuthorityPostgresTest.java
+aeeb96e833b043a3c5ead311e8f78a106d119d368976cb2aa8a47e7b9752248d  ./app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/identity/IdentityPrivilegesPostgresTest.java
+21842e4668612ec075ddcf4f13146aa93bfc3631193bae943e1f92e81ce053f9  ./app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/identity/IdentityPublicationPostgresTest.java
+b48932765c89c34a7dbca82746b6fd1030301ba625d696f5fc210c2e87e8cb01  ./app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/identity/IdentityRequestExecutionPostgresTest.java
+985e20da52b3551ad1801cc2cbdde2aafa20db18a66d266c16a651bda55781de  ./app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/identity/IdentitySchemaPostgresTest.java
+5c1ac30664788e5c1dab258f38fcf7c3968385093a753660af2e183c73573760  ./app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/identity/L73TerminationIdentityPostgresTest.java
+2eeca6ad7cf5c26fcc9a9cf671888c7098d44f4d827c989bdfef6610fb358f0e  ./app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/identity/TerminalResultSourcesPostgresTest.java
+c666017aaf47932d74bf10ee14cae57440d00abcee8559f4e12b15df02c5d1aa  ./app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/migration/CanonicalBusinessEventTypesMigrationPostgresTest.java
+5330a7eceeeb4c254f070a4708245a67876057a4f43c5fd5f01d55049170a13a  ./app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/migration/CommandResultBackfillMigrationPostgresTest.java
+eef5e9b4c9431dfea1ded2b60b479aa920d050e3878ecb648a2c4eec82e846b1  ./app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/migration/ExternalIdentityBindingCanonicalMigrationPostgresTest.java
+a12d666f208a72c53a7412717905b9c2454a92356cf6c25f63fc7eb4c47d8312  ./app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/migration/ExternalIdentityBindingLifecycleMigrationPostgresTest.java
+c6b8115e65668e524b184ea69a0b00f16b56d2abb761fa446cce3f1124ec1f67  ./app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/migration/PrimaryMigrationsPostgresTest.java
+9a6d5d35f591ffe090a74497d7371adb8a7056ddb4baed65f36eddace2bf5018  ./app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/migration/RecordedCommandContractionMigrationPostgresTest.java
+458ad3589a984829a80cac3629183cb8bb953f86b7e81dcb6eb109421bcddfd8  ./app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/orchestrator/consumption/I2ReservedClaimFixture.java
+e6604d3fb042ad9ad49cd2d0b9912bc004e997480ea38dce1586444205e9c067  ./app/infra-postgres-write/src/test/resources/application.properties
+a33a9c41e1d68e3fa27b7bac9bd0eeb9fccbd677827a303d647bfc79734ebfde  ./app/infra-postgres-write/src/test/resources/db/migration/V10__align_projection_task_scheduling.sql
+d1b5cbd33d0c3d4cb5ff0d336e794ad5b4d81225736c0d3efa7deea0e76bc760  ./app/infra-postgres-write/src/test/resources/db/migration/V11__pot_version_metadata.sql
+b83cef2c00da4fde15e6a2c587ff7487ac05d924f12ddfb3135f52444bca6399  ./app/infra-postgres-write/src/test/resources/db/migration/V12__pipeline_version_lifecycle.sql
+f30f354b8aba453494b048e09515ed549e612820ab5ae24d6efdc543cbc8a5f8  ./app/infra-postgres-write/src/test/resources/db/migration/V13__canonical_projection_tasks.sql
+898806ceaf415bab032b110669b561c3070bfad85d5796333272635987adb212  ./app/infra-postgres-write/src/test/resources/db/migration/V14__expense_business_date.sql
+3b3ab42acf93de6c32b9bee80332acc15fdc323f5428f5401bb63f1aac475f74  ./app/infra-postgres-write/src/test/resources/db/migration/V15__canonical_business_event_types.sql
+a3f1bcc925d607f40eba2be2b000cdf259d9593824fde6996bde5ff344dff7e7  ./app/infra-postgres-write/src/test/resources/db/migration/V16__drop_legacy_projection_runtime_structures.sql
+522d3f73c2c59dc8f4df22bdc3d1f362ffc0a8a13f63b5038cadcf272ef02597  ./app/infra-postgres-write/src/test/resources/db/migration/V17__command_outcomes_and_terminal_events.sql
+495a3c072df28e4b7d3bd3edae1fb229c4a401fb3156246891a2559456181f38  ./app/infra-postgres-write/src/test/resources/db/migration/V18__user_identity_binding_authority.sql
+705a199bab87630e63b5bd013b895859934b65b1be6035117582ba8aa82993a5  ./app/infra-postgres-write/src/test/resources/db/migration/V19__recorded_command_envelope_expand.sql
+d35a440f7ac3d3722176844fc29c3ab9b515e864d77fb9788eb12639ad712ae4  ./app/infra-postgres-write/src/test/resources/db/migration/V1__init_schema.sql
+dee2e66b5d631af9acf56fdf6988e226f66e4040fb26b63b5db5b12dc0f7e14c  ./app/infra-postgres-write/src/test/resources/db/migration/V20__external_identity_binding_lifecycle.sql
+9445b8d7c1ce2490cfaa6c856ef37c2e857b6e8509b33d3759e70509988feccd  ./app/infra-postgres-write/src/test/resources/db/migration/V21__binding_occurrences_and_fact_expand.sql
+36951a325c52ff3e78670088eba90ea311d1aca7e2bdf8f2dd6ec224f5a2d1f4  ./app/infra-postgres-write/src/test/resources/db/migration/V22__repair_binding_history_and_contract.sql
+b1569a5366d0d16014415beec8c8fca0cb379132aaa54b3c842b42a084f5b8b7  ./app/infra-postgres-write/src/test/resources/db/migration/V23__close_binding_fact_type_contract.sql
+bd6cf2210b71299a71b63f95d7d8d08a29d477d7c27936a17822be5d457ec4b1  ./app/infra-postgres-write/src/test/resources/db/migration/V24__contract_recorded_commands.sql
+cc7ee8696b8bd5817995a8712332ca1cb57c26ff3c7705f90c91626168780d2f  ./app/infra-postgres-write/src/test/resources/db/migration/V25__immutable_command_result.sql
+96bc275a710f0fce284b1d405e197bf8827ba2694b730a15e02e66efadc8824a  ./app/infra-postgres-write/src/test/resources/db/migration/V26__retire_command_result_projection_data.sql
+7fb9faffe9bc015a34c75052ae10d3c2f2a0c256bec59adea6f9a748226ac5b7  ./app/infra-postgres-write/src/test/resources/db/migration/V27__registration_requests.sql
+8dd0a2a97269d08419da02be2b2ed5a8dabbd38922e39fba85f82b7127779ebc  ./app/infra-postgres-write/src/test/resources/db/migration/V28__registration_outcomes.sql
+a111eda3236bf51c5ddd5c6876743f85f1bf64753ea62aaa1dafc4715103f186  ./app/infra-postgres-write/src/test/resources/db/migration/V29__registration_results.sql
+998ac4c5c4a57eb4e074f8e905630395ec03a0b58f78c367c5c5fd45f5617150  ./app/infra-postgres-write/src/test/resources/db/migration/V2__projection_outbox_tasks.sql
+01a64bc55727089b62f3ac9234a01a311ad7ae6de961ac280255750f02d48679  ./app/infra-postgres-write/src/test/resources/db/migration/V30__prepared_event_transactional_sequencing.sql
+9a207d4cb81a7bdc6004d57dda45796d1aa7f4033be1ad58a61d05b5ae09c4c6  ./app/infra-postgres-write/src/test/resources/db/migration/V31__event_sequencing_administration.sql
+974a89b5e2abedb3fd1c6e353c7c47081a67ebf480206c0ec1a10b3897c964d0  ./app/infra-postgres-write/src/test/resources/db/migration/V3__pipeline_materialization_tasks.sql
+43c23185db61f14cbc22c6cbc116e25baf7a248a721451b919695aedfc441354  ./app/infra-postgres-write/src/test/resources/db/migration/V4__consumption_engine.sql
+2cb5b706743858ffd77225f0b22cfc7a0e01a1f978bbf8b0cde27f6239a980cb  ./app/infra-postgres-write/src/test/resources/db/migration/V5__transactional_task_consumption.sql
+974a32c0ac88955f9f298046c8bc1c309053d090a63c5a2deb018ec77fe6d228  ./app/infra-postgres-write/src/test/resources/db/migration/V6__consumption_terminal_reason.sql
+e5d7e497898d395a4952d85db7d45c1fac57fbd1a8fe091998c7aa4fe800e3a5  ./app/infra-postgres-write/src/test/resources/db/migration/V7__consumption_processing_failure_code.sql
+3dbe7ef9073da956d8be3eaf4d4d6a6cfb3c2bc160ad1c51ea19e6f41d8fdafe  ./app/infra-postgres-write/src/test/resources/db/migration/V8__recorded_commands.sql
+9988e95fcc7570f83a1c40dd5d3eb2cb82af88cf17abddb5fe65924b1a56a54b  ./app/infra-postgres-write/src/test/resources/db/migration/V9__external_identities.sql
+eb8fef6f431572ed14d3178db40f38bba7f32d960f808a1f09f6931bf0f63832  ./app/infra-security-spring/pom.xml
+9813be0369d01261c1db4ce6dd0ef45e455d0ed7f1da519e983ce0cb1bc830fd  ./app/infra-security-spring/src/main/java/com/kartaguez/pocoma/infra/security/spring/HttpSecurityConfiguration.java
+179160e33caaf97c7b39964ce46af0011240e1bdd5d808a8d217f9814e17a73c  ./app/infra-security-spring/src/main/java/com/kartaguez/pocoma/infra/security/spring/InvitationConfiguration.java
+a0da230b370e01ede00eb05338350508a46016b591776282859dc540651f7cf7  ./app/infra-security-spring/src/main/java/com/kartaguez/pocoma/infra/security/spring/InvitationCryptography.java
+31b3b111bc11f3b99f4972db07d1b383d62dcb05ecb401f7088c89c08fbadc11  ./app/infra-tx-spring/pom.xml
+57b8f6d34e1a6ceaadaa51e4703be39a8a85503c7cf4c7f9a4ed5e8560f45974  ./app/infra-tx-spring/src/main/java/com/kartaguez/pocoma/infra/tx/spring/ConsumptionFailureClassifier.java
+8712241f2f4566d2b34578c5112304048c6341997e5d9720a17008c4befec37d  ./app/infra-tx-spring/src/main/java/com/kartaguez/pocoma/infra/tx/spring/SpringAttemptTransactions.java
+05861bb8fae85d72cb65671978df6a5a02a92d564ef0845f4adb2a18192b4955  ./app/infra-tx-spring/src/main/java/com/kartaguez/pocoma/infra/tx/spring/SpringReadTransactions.java
+e31da71a4de9285bc718f1de74a656c282a935ffce9a911a45d622332c215448  ./app/infra-tx-spring/src/test/java/com/kartaguez/pocoma/infra/tx/spring/AttemptTransactionsPostgresTest.java
+49c3ed7a74fc1df1a7bd0ca1141a3250aea4466d6129fa21c0362ac253267641  ./app/infra-tx-spring/src/test/java/com/kartaguez/pocoma/infra/tx/spring/FoundationCompositionTest.java
+33af78386647109983d20114c31a8f7eeceb1b239aaf03467ac954ba9d8068d1  ./app/infra-tx-spring/src/test/java/com/kartaguez/pocoma/infra/tx/spring/HistoricalIntervalPostgresTest.java
+d876a9449bc9cf9f6dda876106994e9454d09c6fe4c25b603383dbdd5cbdf6a1  ./app/infra-tx-spring/src/test/java/com/kartaguez/pocoma/infra/tx/spring/PostgresFoundationTestSupport.java
+62bfa1938c4cc9238d45804a3d47260a16d6be461727bd8c57d8cd3c0c14ac0c  ./app/infra-tx-spring/src/test/java/com/kartaguez/pocoma/infra/tx/spring/SchemaIsolationPostgresTest.java
+c7c93680658e42d72fcb287b74b9e255a0284c7e1a4e6f626e4e1fc80697c7ac  ./app/infra-tx-spring/src/test/java/com/kartaguez/pocoma/infra/tx/spring/TransactionFoundationPostgresTest.java
+0803106632d28abd614019e72ca3aa0c2a1fa52be959199ee9561b0e7d682d2f  ./app/infra-tx-spring/src/test/java/com/kartaguez/pocoma/infra/tx/spring/fixture/FoundationEffect.java
+1e43613a3a3773c439969401afa23a20b828f1fa68425aedad9772bfc0819c0a  ./app/infra-tx-spring/src/test/java/com/kartaguez/pocoma/infra/tx/spring/fixture/FoundationRunner.java
+8e1aee8da31a37010ef1907d673f0c66f755d06ddc98d78d34696967919cf35c  ./app/infra-tx-spring/src/test/java/com/kartaguez/pocoma/infra/tx/spring/fixture/FoundationTransactionConfiguration.java
+4fa8e1d960c5037748ff835f05effacd1e8fd1000546ad6f24750a2e75de29a7  ./app/infra-tx-spring/src/test/java/com/kartaguez/pocoma/infra/tx/spring/fixture/FoundationTransactionRunner.java
+506d257cae71eafb0ad69c97ab4e26483bdcd6fce69d2bdb4b2ebf99f8e46429  ./app/infra-tx-spring/src/test/resources/db/v3-foundation/migration/V1__foundation_fixture.sql
+cae96cef89ebea3531221f4ae17c23cf8edf67d00eae8306d4186ae1bbed4d02  ./app/mvnw
+46eedb8419bd14fe70d5bb2916d7b6f51806e51b39d5b76a42610384ca929c1c  ./app/mvnw.cmd
+c72418f22d5dda9e70a57320c4719cfc36d118c760d2657f3be4b6e5ebcc3907  ./app/orchestrator-consumption/pom.xml
+05bd5198912826adf6e47a058202be9fa8d935184ae73a4848b786cb4c5c5d74  ./app/orchestrator-consumption/src/main/java/com/kartaguez/pocoma/orchestrator/consumption/AbstractConsumptionProtocol.java
+822ca5ba9aade6d19c53da6e9c56630d6534271d79e2043974264a8249ae9600  ./app/orchestrator-consumption/src/main/java/com/kartaguez/pocoma/orchestrator/consumption/BurnableConsumptionProtocol.java
+58e8a3d6ee1cf065fdb52b4c60334156685cdea1536c37c2c66de5dafad9439c  ./app/orchestrator-consumption/src/main/java/com/kartaguez/pocoma/orchestrator/consumption/ConsumptionEngine.java
+db8bd0b8973053ab48a53b24afc131df4f9b1d9707fe506a5a998a930c86d650  ./app/orchestrator-consumption/src/main/java/com/kartaguez/pocoma/orchestrator/consumption/ConsumptionProtocols.java
+65a12c3c5a754e11c1ee0acb706c23ede47000f0ff7e6049dba00d18c8995aa9  ./app/orchestrator-consumption/src/main/java/com/kartaguez/pocoma/orchestrator/consumption/ConsumptionSafety.java
+73e55c0e98b172b38173e2c684dbdfca83d7f0b98adec6e7839fbe2f16b5b1c7  ./app/orchestrator-consumption/src/main/java/com/kartaguez/pocoma/orchestrator/consumption/DiscoveryEngine.java
+02ced4d33baa34d2df982e5ca6cc5eedf3b8306723399b3a953e48ad2b3096f6  ./app/orchestrator-consumption/src/main/java/com/kartaguez/pocoma/orchestrator/consumption/NonBurnableConsumptionProtocol.java
+a5f582d5b9b16ace1f07d936c6c942b594d6725ec94586a99cb861d6e65dee2d  ./app/orchestrator-consumption/src/main/java/com/kartaguez/pocoma/orchestrator/consumption/WorkerCapacity.java
+f825cc4584c585b29b5456f9a5252a4bb2b92ae8b59bdb8e53818febc3b5d462  ./app/orchestrator-consumption/src/test/java/com/kartaguez/pocoma/orchestrator/consumption/ConsumptionFailureClassificationTest.java
+f21775aacdbc705e89a5bc059a69a65f2ee6cdf5062b231628d77948081330e3  ./app/orchestrator-consumption/src/test/java/com/kartaguez/pocoma/orchestrator/consumption/ConsumptionInvocationContractTest.java
+abaac862b4369fc41515c4be6bca5dd6dee883046aaaa8992ce40b5e28574052  ./app/orchestrator-consumption/src/test/java/com/kartaguez/pocoma/orchestrator/consumption/DiscoveryEngineTest.java
+523cf65145e857a4ba72b00648c6a3be6d4a024384287aa1bc26cabd0245eeb1  ./app/orchestrator-consumption/src/test/java/com/kartaguez/pocoma/orchestrator/consumption/PreparationReadsTest.java
+530db0c060f101efccf0ef3bd04f04d20a56bb2dd8cc87aee8674d9294470602  ./app/orchestrator-consumption/src/test/java/com/kartaguez/pocoma/orchestrator/consumption/WorkerCapacityTest.java
+a57935b04fafaf339b9dc6b3dd9b423b0a839a81dd26c9d641d21eaab2a36439  ./app/pom.xml
+9aefc8e99c7671f4e33da2f2c7bb0e10017200cc66f1c2280fa04608ede5eb83  ./app/port-projection/pom.xml
+8d3afeb06bf2ac8f6240ac2cf9bdf725280a958fd684ab64f454d5cc95df9640  ./app/port-projection/src/main/java/com/kartaguez/pocoma/port/projection/CommandTerminalResultStore.java
+28682d37692e286a28ce816d2585c2e6917b85c00c6e44b951fca942d64116e1  ./app/port-projection/src/main/java/com/kartaguez/pocoma/port/projection/CorruptSubobjectException.java
+69b17e51e069cad0fe8cedef76c9115881819fe6315fd5f1d74c4515362198d1  ./app/port-projection/src/main/java/com/kartaguez/pocoma/port/projection/CurrentBindingStore.java
+0045f7d990e5e6222decb47e345c973912ce414186683610980bef9d8990bdf2  ./app/port-projection/src/main/java/com/kartaguez/pocoma/port/projection/IdentityTerminalResultStore.java
+9dafa1434c8540fd1c7549a6abcaa21fd71474cfd2bd748fc40faf7df6f0745a  ./app/port-projection/src/main/java/com/kartaguez/pocoma/port/projection/InvitationStore.java
+8e49e8738e5d83ac68beb11123d2a06626f175a3b557d58f2299bc4f9ed101b9  ./app/port-projection/src/main/java/com/kartaguez/pocoma/port/projection/PotBalanceStore.java
+ee26dfd9545d7a4102986bff6c37c92e1a7d1e0708032f53a16c55b6b8daf3b2  ./app/port-projection/src/main/java/com/kartaguez/pocoma/port/projection/PotExpensesView.java
+e65b6d94db4b63413594429ab4705a26abb2712b0cc19a87825fc508d1077b0a  ./app/port-projection/src/main/java/com/kartaguez/pocoma/port/projection/PotShareholdersView.java
+2c0b5a25a89e1ce0a1e474e373183115916aa3e101234380e855d6be3f2117e8  ./app/port-projection/src/main/java/com/kartaguez/pocoma/port/projection/PotVersionManifest.java
+4ab067a78ec41dc035d3518d0b783e3ed3958ba7f9b33edfc943f2dd242ddd5e  ./app/port-projection/src/main/java/com/kartaguez/pocoma/port/projection/PotVersionStore.java
+7b0f9406e98dcf1526999ff60cef91ea2c2ccdd0322ca8bfeb1ef7a4611e465d  ./app/port-projection/src/main/java/com/kartaguez/pocoma/port/projection/PotVersionWritePlan.java
+6dd4db682378423c01a8000d1c07d21e91abc3eaaededba2b808120167e0e9a3  ./app/port-projection/src/main/java/com/kartaguez/pocoma/port/projection/PotVisibilityStore.java
+760bd9f53867593f89ca20a2238093ac72a788081bf8b5361f410e2352d71e44  ./app/port-projection/src/main/java/com/kartaguez/pocoma/port/projection/ReadEvidence.java
+57994347c59e55c7c780f68de6ab80beacd282fc2ac50b9a65330bbcc8bba4c0  ./app/port-projection/src/main/java/com/kartaguez/pocoma/port/projection/SubobjectConflictException.java
+4bb6f5fc9e4a586739e3df41a5163fa323f292ef6bf9b5db0065776f55e8ad78  ./app/port-projection/src/main/java/com/kartaguez/pocoma/port/projection/SubobjectVersionStore.java
+144dc271a6871181856fe6af39ab1ee75cf54d3f2a7f7ee46ae108d166ce8ea7  ./app/port-projection/src/main/java/com/kartaguez/pocoma/port/projection/maintenance/ReadMaintenanceAuthority.java
+31de8bec15d013bdc16e57ed527c8851a683eae917614e0172847227bbaf0a77  ./app/port-projection/src/main/java/com/kartaguez/pocoma/port/projection/maintenance/ReadMaintenanceState.java
+c8446f2c4438e23023631c29454de60993967e49887fcac423aa796b50111cca  ./app/port-projection/src/main/java/com/kartaguez/pocoma/port/projection/maintenance/ReadMaintenanceStatus.java
+e328e767267a99a024bfaadbfbbffc34b91b80080f85c70457ba11052957eee1  ./app/port-transaction/pom.xml
+0f3ba12b9e31442ccf006e10faef1a1ba5076efd06727e3d3aad0ed156c8c665  ./app/port-transaction/src/main/java/com/kartaguez/pocoma/port/transaction/AttemptTransactions.java
+0acd609167149dbc1644ed8bd66bbd46692623e92cecb819754c2abb04f7a04c  ./app/port-transaction/src/main/java/com/kartaguez/pocoma/port/transaction/ReadTransactions.java
+453418953369102073a2cf01dbc6573baf7e8ca5444974dfe73730770057f494  ./app/port-transaction/src/main/java/com/kartaguez/pocoma/port/transaction/RecoveryReadContext.java
+fe2e8ef78fc75f1499b3a854e6b07bdc7805320555c0a0a0b1e0d1080650fee2  ./app/runtime-monolith/pom.xml
+0ab1c62cc9b134f44536b029ff50c9f13fff5d8adf0831187a1188cbdd7f7593  ./app/runtime-monolith/src/main/java/com/kartaguez/pocoma/PocomaRuntimeMonolithApplication.java
+2a97580df73deb5548f156cdae325a61a7659dfbc009cf8968c3973d91866735  ./app/runtime-monolith/src/main/resources/application-v3-consumption-worker-dev.properties
+78bb87b7177b8b7e0e70e4e300e1fd0818e9b40e9e0818db8baa77f215fc9c3b  ./app/runtime-monolith/src/main/resources/application-v3-read-worker.properties
+c97c470108f3baf8392fbd34521a828947a3db25e84a4d7ed09b6c3d8b456bf0  ./app/runtime-monolith/src/main/resources/application.properties
+6ba3590584e9123eed80e79419a072a291c74a9947f914a374734d64ec99534d  ./app/runtime-monolith/src/test/java/com/kartaguez/pocoma/AdmissionFlowPostgresTest.java
+513d0363662c15909c09f153916dbfdd2e321b0074af1924280b12b2cdf4a5d0  ./app/runtime-monolith/src/test/java/com/kartaguez/pocoma/CompositionHttpFixture.java
+222915babcad7fd92af182f718819c4967bb33dcd24cd0871b969dfcd1754d7b  ./app/runtime-monolith/src/test/java/com/kartaguez/pocoma/ConsumptionPilotIsolationTest.java
+4ed2ed5c487c5eb468d7f84e4af6d6e032cb1e539366acb5bed2f8af80d30565  ./app/runtime-monolith/src/test/java/com/kartaguez/pocoma/IdentityRequestMonolithPostgresTest.java
+36ad227e33d10e6db281b4141da2902ab3ab5727390d89abb80c1cfd8f640e3c  ./app/runtime-monolith/src/test/java/com/kartaguez/pocoma/InvitationFixture.java
+411817f0d95c8bd527945254bfbdce40afba51c08657fea881b08eccd95f2daf  ./app/runtime-monolith/src/test/java/com/kartaguez/pocoma/InvitationHttpTest.java
+a3d5c364045f7a85f9acea286a7d265773c3ccbdf0dc5708492e583e0c8b0644  ./app/runtime-monolith/src/test/java/com/kartaguez/pocoma/InvitationReadPostgresTest.java
+5691204be566d202a510373cd1fe6dd2ef955849f0d1188c4cf594536057bcad  ./app/runtime-monolith/src/test/java/com/kartaguez/pocoma/InvitationTopologyPostgresTest.java
+817ef785284e579db41c7ad1d8ae01a046962a2a6679fa1bbf4229ada1eb1aea  ./app/runtime-monolith/src/test/java/com/kartaguez/pocoma/L73TerminationCrashAndCompositePostgresTest.java
+ecac0b800807c318a2a57410c72bd858ac4bbecd7e19ecddb1c88b5f87af6325  ./app/runtime-monolith/src/test/java/com/kartaguez/pocoma/MonolithHttpCompositionPostgresTest.java
+6a2fe63ec557071d95b44ee35520e335d3eb98aa2ac0169016448e875d6e5b08  ./app/runtime-monolith/src/test/java/com/kartaguez/pocoma/ReadI8Child.java
+40163c7f14055524c7d9868570087c02a5021fb54a04990e09f5e476023e3b02  ./app/runtime-monolith/src/test/java/com/kartaguez/pocoma/ReadMonolithI8Fixture.java
+ec4e280cc9e9b908b74b411b612d8b6eb5340cea8d4101d0a6f108bcb61929cf  ./app/runtime-monolith/src/test/java/com/kartaguez/pocoma/ReadRootsCoexistencePostgresTest.java
+a6a721cbf8051b0105ece006e68e77b6e0cd5eeda5f58fade419c69e7ed96cec  ./app/runtime-monolith/src/test/java/com/kartaguez/pocoma/ReadWorkerResourcesPostgresTest.java
+2ff21cb44270433aac826e7578cbbcbf9df692a94dc49443a8f9c3dd8bbc8609  ./app/runtime-monolith/src/test/java/com/kartaguez/pocoma/WorkerMonolithPostgresTest.java
+5abde31946a72006e4b594e84b44ba9756fb6f735dbfc2a96248f7490d9d3065  ./app/runtime-web-read/pom.xml
+c4aa3f5e9f1d42415ae1e1591d836ca28d902f98e880d82d6e2217faccdba979  ./app/runtime-web-read/src/main/java/com/kartaguez/pocoma/PocomaWebReadApplication.java
+05fc4dd4c128c51f3dc14c0ee95160649456c1e95cbf45a7b0696c2953c5160b  ./app/runtime-web-read/src/main/resources/application.properties
+1b9e9ef640b508e535396632cd471e6e4e51d4c5696111fd3edaf076d1189c0e  ./app/runtime-web-read/src/test/java/com/kartaguez/pocoma/AdmissionHttpTest.java
+5de7e86a4c9bdd080824adfe9e032865d3ba20d3dc4df7a5679185def3fa7f60  ./app/runtime-web-read/src/test/java/com/kartaguez/pocoma/HttpCompositionPostgresTest.java
+9d7adcdafdefadc87b800c8147f379b639ca55e14f9d72eebb382b3e84e0d428  ./app/runtime-web-read/src/test/java/com/kartaguez/pocoma/InvitationStandaloneWebPostgresTest.java
+25bf191c0b2c6ba39e280babbe695f4a089f72e98724b2b34ad5fae9c5886434  ./app/runtime-web-read/src/test/java/com/kartaguez/pocoma/LinkRetirementHttpTest.java
+4397674801ae5da5ce151848ad506cb2fb105186e6c542c0cb0b592181560274  ./app/runtime-web-read/src/test/java/com/kartaguez/pocoma/ReadHttpContractTest.java
+3dad45b802f0f8701e36c3ebfff01633c299f0aca3ecc91df9896b5f0942d063  ./app/runtime-web-read/src/test/java/com/kartaguez/pocoma/ReadHttpFixture.java
+7f2a96ce58357c5b975697bc04690a3b6f66017a33899f77d44e53a5e85e3642  ./app/runtime-web-read/src/test/java/com/kartaguez/pocoma/StageHandoffsHttpTest.java
+ce4e6898433b4860a8e76ce370e06b17535acbb7da8a2a503bdc6b64364c0ae7  ./app/runtime-web-write/pom.xml
+9d6cb9e73c726ca51eed67ffbe671f1f716d3c3716635c404ee18add170dd382  ./app/runtime-web-write/src/main/java/com/kartaguez/pocoma/PocomaWebWriteApplication.java
+50de55477792de4217864c2f62e718d1a9feb35fefcf2999ff2fc61c88c2231b  ./app/runtime-web-write/src/main/resources/application.properties
+a690b8f251cc6347a5fe31c164fd129b88803ef0de69437ec39790f206217e1d  ./app/runtime-worker-materialize/pom.xml
+02864b44c631e5dc02c34c6acd0fdf3559b4a470934a563179e5d8d5c5b64719  ./app/runtime-worker-materialize/src/main/java/com/kartaguez/pocoma/PocomaMaterializeWorkerApplication.java
+78bb87b7177b8b7e0e70e4e300e1fd0818e9b40e9e0818db8baa77f215fc9c3b  ./app/runtime-worker-materialize/src/main/resources/application-v3-read-worker.properties
+8b0da12b2100fa3c9854fcaa20ceebbb3f9bb4b28eff70f06892bcbf0dc1732e  ./app/runtime-worker-materialize/src/main/resources/application.properties
+841d6ab4c24821696a37d8ef62754c95de96fb4ef47747014ac72afc1d20c109  ./app/runtime-worker-materialize/src/test/java/com/kartaguez/pocoma/runtime/task/CommandResultAvailabilityPostgresTest.java
+ab2bd38b911f3d7abb8fda0b936f5ee9f9a52b63c08b9675932fe5161fb03342  ./app/runtime-worker-materialize/src/test/java/com/kartaguez/pocoma/runtime/task/CommitAcknowledgementProxy.java
+c486f0c8d6ac7ba14984fea0d72fcfb095d54d7ecf80dd23e292f4a0e42407b3  ./app/runtime-worker-materialize/src/test/java/com/kartaguez/pocoma/runtime/task/InterAuthorityPostgresFixture.java
+22d4cd912b799012fe70c8c86cb5bcf7ce82e40ab7a5a8e0976eb450c7d46ca1  ./app/runtime-worker-materialize/src/test/java/com/kartaguez/pocoma/runtime/task/InterAuthorityPreparationPostgresTest.java
+88c736599e0021fb7ca4fdf29da527064842757c4d6b7bf08a915eb80fba7ca3  ./app/runtime-worker-materialize/src/test/java/com/kartaguez/pocoma/runtime/task/InterAuthorityRecoveryPostgresTest.java
+c3561fb4d09504d1d0a30f54468cb7628591a250b90a57a096e635a5f8e40ddd  ./app/runtime-worker-materialize/src/test/java/com/kartaguez/pocoma/runtime/task/L73TerminationReadPostgresTest.java
+40842f71c175052f0ebb9b57e56ddff5df7b3aed7332f3d9ab0f2caede162e74  ./app/runtime-worker-materialize/src/test/java/com/kartaguez/pocoma/runtime/task/PotBalanceIncrementalPostgresTest.java
+f4c488c76cd7b85612976ad937845b7a52b6447edc8c481f26eb7d924b8a4cb8  ./app/runtime-worker-materialize/src/test/java/com/kartaguez/pocoma/runtime/task/PotVersionAndBalanceJointIncrementalPostgresTest.java
+b21d3308c8b1785e9ecad314f7d0570f4284d36c862b954a0d620f3a70596caa  ./app/runtime-worker-materialize/src/test/java/com/kartaguez/pocoma/runtime/task/PotVersionIncrementalPostgresTest.java
+7a1b70b208793b1a822a17af9d30fd5991112416578ed3b74909c011e7dfa42f  ./app/runtime-worker-materialize/src/test/java/com/kartaguez/pocoma/runtime/task/QuotaHttpFixture.java
+3081d998ea14e813934465abe4f73bf17d15c708a36c62cfe79597ecd265fcab  ./app/runtime-worker-materialize/src/test/java/com/kartaguez/pocoma/runtime/task/ReadActivationSettingsTest.java
+364cd578339256a0fd6199f4b54855d27622ca5fe9df117053f12ee074876705  ./app/runtime-worker-materialize/src/test/java/com/kartaguez/pocoma/runtime/task/ReadAvailabilityPostgresTest.java
+e3787524489fa50cb52ab6324cedf4753255ff9928e3f7f4efc6ca0aeb11242d  ./app/runtime-worker-materialize/src/test/java/com/kartaguez/pocoma/runtime/task/ReadFacadesPostgresTest.java
+84aa07a4605bcb8cf32eb94de7973067a2e50c71577202c3ac5e2b7be40ec6ec  ./app/runtime-worker-materialize/src/test/java/com/kartaguez/pocoma/runtime/task/ReadParticipantsFixture.java
+d1c5f8b9f9628b19beb22b19a561756f359d3337214be099b2184082055210a4  ./app/runtime-worker-materialize/src/test/java/com/kartaguez/pocoma/runtime/task/ReadParticipantsIntegrationPostgresTest.java
+d887ff5bbeaf7c36f789c29afffab0177f9c4e2e7cb26b5cca1a7ece681d9deb  ./app/runtime-worker-materialize/src/test/java/com/kartaguez/pocoma/runtime/task/ReadQuotaPostgresTest.java
+b3d77b5040d42945d04a26fc5d2ba38c85fb551bf8baa3b8057525919feb5147  ./app/runtime-worker-materialize/src/test/java/com/kartaguez/pocoma/runtime/task/ReadReconstructionPostgresTest.java
+aab034d59ef819602486bfa7a06bbd2ccb6e6312363061457c270d06cf61c256  ./app/runtime-worker-materialize/src/test/java/com/kartaguez/pocoma/runtime/task/ReadRuntimeAssemblyPostgresTest.java
+f014bcd11aa4c1b72c41cb80db883af54e49c6cc252073fc86a2bbb3041578fa  ./app/runtime-worker-materialize/src/test/java/com/kartaguez/pocoma/runtime/task/ReadRuntimeI8Fixture.java
+e973b566c167c5fe78ed82cc10680c5eab9832a5f43b3bfcc39b8db5f979a1b4  ./app/runtime-worker-materialize/src/test/java/com/kartaguez/pocoma/runtime/task/SubobjectAtomicityPostgresTest.java
+1589643520fd37a33a31c13329fbb7dba34172ed215a0e5f14c23a1ead4da0d3  ./app/runtime-worker-materialize/src/test/java/com/kartaguez/pocoma/runtime/task/SubobjectMigrationPostgresTest.java
+0482bf2fef3fa96ccdf422e674723223c33e1f56a45ac8c58308dd6e390f6c9a  ./app/runtime-worker-materialize/src/test/java/com/kartaguez/pocoma/runtime/task/SubobjectPostgresFixture.java
+eb0662d2785de5897997cb5653bfe35a35c7316d5763947fbf279bf94d76b2e8  ./app/runtime-worker-materialize/src/test/java/com/kartaguez/pocoma/runtime/task/SubobjectStorePostgresTest.java
+9f37d1dad38cd6997f3ed447e6041356abd3a0cb8bc46fc77bcd62747701cdcd  ./app/runtime-worker-process/pom.xml
+95cc5d97cfe48ca0174c43c0753f26c31da80bfc15ba9f1ef7e783951a35850a  ./app/runtime-worker-process/src/main/java/com/kartaguez/pocoma/PocomaProcessWorkerApplication.java
+2a97580df73deb5548f156cdae325a61a7659dfbc009cf8968c3973d91866735  ./app/runtime-worker-process/src/main/resources/application-v3-consumption-worker-dev.properties
+7a4e1f6b91f2f5168aced5bca8fb55313ec957d76e9f4dfafe8814a5b742b5c4  ./app/runtime-worker-process/src/main/resources/application.properties
+787ce5826abd7e22e18ef3f6d3400efea83fc35d0af83afdc006512c61403182  ./app/runtime-worker-process/src/test/java/com/kartaguez/pocoma/orchestrator/consumption/CommandReservedClaimFixture.java
+6cd643e0dad84e0cd1e3609f1198b05f6ae4d8b3d07a1b33313be2f2a60b3357  ./app/runtime-worker-process/src/test/java/com/kartaguez/pocoma/runtime/command/CommitAcknowledgementProxy.java
+fdb31af51681a857d8a8202951bff2d1c6160419e19f530e5c3dcadaba9ea4c8  ./app/runtime-worker-process/src/test/java/com/kartaguez/pocoma/runtime/command/ConsumptionBootstrapPostgresTest.java
+e37199e7a232ede31682d7510c955299388f4414c7eea5480760421b0e7a3b2f  ./app/runtime-worker-process/src/test/java/com/kartaguez/pocoma/runtime/command/ConsumptionCompositeClassificationTest.java
+e3c424392538127e44469e229572b48d0e5b247ba1211866d3bd7ca8b82668b3  ./app/runtime-worker-process/src/test/java/com/kartaguez/pocoma/runtime/command/ConsumptionLifecycleCompositionPostgresTest.java
+198a1f20150ceab89032ffcd91ddc169b06a2b82590fe37380053a3cb6168f27  ./app/runtime-worker-process/src/test/java/com/kartaguez/pocoma/runtime/command/DiscoveryCompositionPostgresTest.java
+dd408bab3b5b945c74ed197eb751a678713de2e839bef6f28f5523eff8a85d88  ./app/runtime-worker-process/src/test/java/com/kartaguez/pocoma/runtime/command/I5PhysicalWindow.java
+6fcdf33e3df16d51d71a6d7db984b0903fd0e0b0d621a27e7732db87d52a79c4  ./app/runtime-worker-process/src/test/java/com/kartaguez/pocoma/runtime/command/I5PhysicalWindowTest.java
+173e44252e73f25993ca2cc0ed3469d03abc04cb541a280a2a6f8a1914e47438  ./app/runtime-worker-process/src/test/java/com/kartaguez/pocoma/runtime/command/I5TemporalBudgetTest.java
+9b2867b755aee761c91c3d56d633e7e4cf1ac04bb354d3dff1dee9d351015dbe  ./app/runtime-worker-process/src/test/java/com/kartaguez/pocoma/runtime/command/I5TemporalV2Postgres.java
+a11d8d3e15cc8e7428013d26c63ba6ce5334f200baac69354fc2b307ed239285  ./app/runtime-worker-process/src/test/java/com/kartaguez/pocoma/runtime/command/I5TemporalV2Test.java
+0d8ce81b8ee8ad7b2ef8a980679e6d7974859e27e0ad7e0e71d11b397ffbff31  ./app/runtime-worker-process/src/test/java/com/kartaguez/pocoma/runtime/command/IdentityPotCommandPostgresTest.java
+7e2bd6400ff58e2e2f4d3ea41ead67ebb6bb7e69da5630e63f33fd6e9da19afd  ./app/runtime-worker-process/src/test/java/com/kartaguez/pocoma/runtime/command/IdentityRequestCompositionPostgresTest.java
+4313abb6e78e68ebef5b1fa727ec11e32414eedbd58294d9646d8dbbb78dc742  ./app/runtime-worker-process/src/test/java/com/kartaguez/pocoma/runtime/command/InertCatalogTestConfiguration.java
+a004244a280bcd6cfa6e32fd3a96b4cd0cedc611e29a2390374b02660fc9fc07  ./app/runtime-worker-process/src/test/java/com/kartaguez/pocoma/runtime/command/L2ProofHarness.java
+8ac1b76d54cd8cbfc94e86c0be14e98ba5142c5d98767370ab69abe576f8342e  ./app/runtime-worker-process/src/test/java/com/kartaguez/pocoma/runtime/command/L2ProofSettings.java
+6b11e9aba25c467f50c2fad7513c596910317594fba8c3891c1374fb0b9e66e4  ./app/runtime-worker-process/src/test/java/com/kartaguez/pocoma/runtime/command/L2TestAccess.java
+ab583fab762c809e56f1a36ce30c6c4b72990ad4d38b7682d8bcb45a4b51dcf1  ./app/runtime-worker-process/src/test/java/com/kartaguez/pocoma/runtime/command/PotCommandCompositionPostgresTest.java
+7538f299186b26974dec189f5c575369f7ef3f3a8e3938395e200abfe431de29  ./app/runtime-worker-process/src/test/java/com/kartaguez/pocoma/runtime/command/WorkerAwaitTest.java
+65bee640e50072cbc27ce00b662d724406f776707b555e9161e1aea4d527b878  ./app/runtime-worker-process/src/test/java/com/kartaguez/pocoma/runtime/command/WorkerCompositionPostgresTest.java
+ce12cadad30ea6168263109a7c2ddbbef13d2cd46be630eef284a586a9aad770  ./app/runtime-worker-process/src/test/java/com/kartaguez/pocoma/runtime/command/WorkerMetricsTest.java
+22bd3bdaf03a6aef78c28e761fc6a1617dc0c28468095b783fb658a2b9daebd6  ./app/runtime-worker-process/src/test/java/com/kartaguez/pocoma/runtime/command/WorkerPostgresTest.java
+d88d62d022b999705827737d7c8aa8b920aa5d8b980f7e1ac3990aee5a665302  ./app/runtime-worker-process/src/test/java/com/kartaguez/pocoma/runtime/command/WorkerResourcesPostgresTest.java
+fc4608fe7012c9ae893196e53f3c341184dab67d2a0bde21382514fe41dc645f  ./app/runtime-worker-process/src/test/java/com/kartaguez/pocoma/runtime/consumption/dev/TechnicalReadParticipant.java
+a0983d6d53f3f463f244276e031bdf388d8fe9add421bbd2f9b6efeb854a01ae  ./app/supra-polling-consumption/pom.xml
+a77e09c17f2adee453b5d7cae97392a50f457639fed0b6d3ff0f9b1e5358e263  ./app/supra-polling-consumption/src/main/java/com/kartaguez/pocoma/supra/polling/consumption/ConsumptionLoop.java
+399267410ab87389bc79a0cb6d201fedb4107168bd6f64c38fa1a3dc4ef159c5  ./app/supra-polling-consumption/src/main/java/com/kartaguez/pocoma/supra/polling/consumption/ConsumptionWorker.java
+0fd1c05aa0aba15711c2df4ae2cbad7ab18ee0e5e6fdea5c446ec239f3ad54d6  ./app/supra-polling-consumption/src/main/java/com/kartaguez/pocoma/supra/polling/consumption/DiscoveryLoop.java
+e0e4519418889b9346d2e250e8f1b611db286cdbbce29243b0c7cf94d32ad5c0  ./app/supra-polling-consumption/src/main/java/com/kartaguez/pocoma/supra/polling/consumption/RenewalService.java
+de3dac305807ad2db9b79bed396152fa57d0ddb66799698e9957a75553e47f41  ./app/supra-polling-consumption/src/main/java/com/kartaguez/pocoma/supra/polling/consumption/wait/ConditionConsumptionWaiter.java
+96658f3860df87ff327bb8ebd262d018ce05a2905cd61a96f5a98ff5b287c574  ./app/supra-polling-consumption/src/main/java/com/kartaguez/pocoma/supra/polling/consumption/wait/ConsumptionWaiter.java
+19bf0ecaad09e741a91cf5178c4a6c41b4d383899fb5a3634d067f09c5595dc3  ./app/supra-web-read/pom.xml
+13db11d59851c54be94df7a5d7ec076bba1776d2f6b2a00dceace4cbd13b8d3f  ./app/supra-web-read/src/main/java/com/kartaguez/pocoma/supra/web/read/InvitationController.java
+547f357b1186f4befdba8053c9541495d1ad0015c0e08cb6af4ac5cbdfde58be  ./app/supra-web-read/src/main/java/com/kartaguez/pocoma/supra/web/read/ReadController.java
+6ef9a7c776a9392b619337b790c2f8f735cb9e882fa7bdde91351ff83243d124  ./app/supra-web-read/src/main/java/com/kartaguez/pocoma/supra/web/read/ReadDtos.java
+33dfc65af1c5431c266afdcb2374f5ee869b99ed93f5512df0ee164485739bfc  ./app/supra-web-read/src/main/java/com/kartaguez/pocoma/supra/web/read/ReadTransport.java
+fa94583ba125beb7dfc134e6352334d329a8cac49b1d855db9d0e1af3be45e9f  ./app/supra-web-read/src/main/java/com/kartaguez/pocoma/supra/web/read/maintenance/ReadMaintenanceFilter.java
+b5909754aa6558ba12a9668406e7a06a058bd11559fdcbb93a11dde929700817  ./app/supra-web-read/src/test/java/com/kartaguez/pocoma/supra/web/read/ReadTransportUnitTest.java
+1255a3188af1f2f4c61d6da47a10cf76ad39bc8319f6940a8e9433b49a658b98  ./app/supra-web-read/src/test/java/com/kartaguez/pocoma/supra/web/read/maintenance/ReadMaintenanceBarrierTest.java
+f6d15d24280f378bbc6eaf89a778ef7066ddc045612f227fd7f785538ac170e6  ./app/supra-web-write/pom.xml
+c8747ec046e2e145bf56e255cf76c8c3130afe9e3639124b26d9ad76c013e960  ./app/supra-web-write/src/main/java/com/kartaguez/pocoma/supra/web/write/AdmissionController.java
+58a7d76df67a96c64a65267ab5ba8015cc87aacae5185adecee6b30feb2c9870  ./app/supra-web-write/src/main/java/com/kartaguez/pocoma/supra/web/write/AdmissionTransport.java
+869013ac28d4f3c0d695ebe7169016a610695916805c7e9ed4ed8090b66b4d4c  ./docker-compose.v3-five-runtimes.yml
+390cbdf30c6347915b5d8a7b3bfcbf2461197a0574bffbc71b3f5089401920a2  ./docker/compose/docker-compose.observability.yml
+2c2a43e8748803c41da5df55437a2a1f0909fbaadf1b8a41ba1ee5ffb9593314  ./docker/grafana/dashboards/pocoma-runtime.json
+70d36fe61032aa666bc010d9f381f536abb8dfcfd832d23c1491d3c833e8c42d  ./docker/grafana/dashboards/pocoma-v3-overview.json
+155a3d592b058ed28c3d68f536f15f48a7194f6ffd481c009ecc1ab0ace92f62  ./docker/grafana/provisioning/dashboards/dashboards.yml
+1e6f61206a1e791f6060b085cd11dd7264f24118db6879e6a04a69543ff5377a  ./docker/grafana/provisioning/datasources/prometheus.yml
+a29c2d5d48c94c58fdd87edc13c95c17385cbf926961913a4ced9bfa7ce0bfc7  ./docker/keycloak/pocoma-realm.json
+8a2c0494a750a72456541be083fadb33023ae47c761ea98d1600fb353f434cce  ./docker/monolith/application-v3.properties
+beb9ce0eff24460a1891b544ca3f32bdc2a7fa7f2dedaf072ed72568e2f0d3e9  ./docker/monolith/configurations/config-A.properties
+dac061fc00e9d5c565d4964ec794d7f7dea845a7fa488c57e5bf8368635b4989  ./docker/monolith/configurations/config-B.properties
+5aedbed1fa98e0ef730717e9c58c568426a98ae0f14fcd79fd6f0dbeefff85d0  ./docker/monolith/configurations/config-C.properties
+577a2b018c594820bca713eb28343797efbd7d3427384e9de9188cca7e368075  ./docker/monolith/configurations/config-D.properties
+fc62f54ec335b8314287c3842f6e110b3e39106166c76e6a624180cbdbd3fb26  ./docker/monolith/configurations/config-E.properties
+eb8dbc9358314a10c2dc23ae46c1bcf7a2aecdaea3d03701607c79a9d9b9699e  ./docker/monolith/configurations/config-qualification-r7.properties
+bce085788f47587c20ff4951c0e1eec5a7a2ee04c2749dcba4ccfbe47570add9  ./docker/postgres/functional-init.sql
+70d177b7da0ab26f33f88b3dcd01126a66ce8b9828d43af8f27d9710f29bcae8  ./docker/prometheus/prometheus.distributed.yml
+ba6e525a3434e2c436611c9d0ecce415ef3fd2cefb304ae8d2d3de12e24d2553  ./docker/prometheus/prometheus.local.yml
+2b97df7784debf83ba34f7c595f64c781d0965d970730ca4822351fdfa507958  ./docker/v3-five-runtimes/business-read-worker.properties
+c1f0b01aff94337de805f0d6097930b4bc5d05ff1838a9038353e070cb7b81bf  ./docker/v3-five-runtimes/command-worker.properties
+4f79847b940c1f8758f7aa0c055b4346b8f058791368de0b6a5888cbb13bde18  ./docker/v3-five-runtimes/http-read.properties
+e9ec1aa94d8d246039a7beab041396deeded51f29fc814445b4241145ea422f8  ./docker/v3-five-runtimes/http-write.properties
+23b787aa5f53e41fdb8b910ee3749d0309143e6a4c10364d1ddad5ffac70bb6f  ./docker/v3-five-runtimes/prometheus.yml
+afa438df6f77c068751239453710920455bd766bd3801b5f1fd05273e9ce2875  ./docker/v3-five-runtimes/results-worker.properties
+6b401bd05ed9133040fa1997712ecedf9c6b0f54ee8fdc481e4d868a78c7e721  ./docs/archive/v3-sql-migrations/MANIFEST.json
+3579a121b1360273477e18c7d0d5d5ef080124a389c2939cdb22dfb77cc74e19  ./docs/archive/v3-sql-migrations/infra-postgres-read/db/v3-consumption-read/migration/V1__consumption_foundation.sql
+43f85ccb97e2895cf769f6f091330c09c23496d982266dba9702473f4ca0811a  ./docs/archive/v3-sql-migrations/infra-postgres-read/db/v3-read-business/migration/V2__subobject_version.sql
+611bb59580dcbd398086981c8642b18a8735c424abe86cb0156a39f301cedeb3  ./docs/archive/v3-sql-migrations/infra-postgres-read/db/v3-read-business/migration/V3__pot_version.sql
+be1a828c8317e616999d652b58748aea7a7e0d20cd256de9d02812f94a36be02  ./docs/archive/v3-sql-migrations/infra-postgres-read/db/v3-read-business/migration/V4__pot_balance.sql
+59d74205fdf5be8ff6880869c8a097071ef339d1590db3787df23ee67076a990  ./docs/archive/v3-sql-migrations/infra-postgres-read/db/v3-read-business/migration/V5__pot_visibility.sql
+3e660471778671e933efd0aa3eb9e24c4db9f279320ede07231a1208d6b8bbf5  ./docs/archive/v3-sql-migrations/infra-postgres-read/db/v3-read-business/migration/V6__current_binding.sql
+0c87c0b99ccf889aaf2f7fb1b0224602c28e26f868fbde6b4a4585d74e194a16  ./docs/archive/v3-sql-migrations/infra-postgres-read/db/v3-read-business/migration/V7__terminal_results.sql
+0c0cf235794a4d321af6f07629a57197ce34811c5da25f97db3cd1fcc08fa95d  ./docs/archive/v3-sql-migrations/infra-postgres-read/db/v3-read-invitation/migration/V10__current_invitation.sql
+32de1f7317f0818d1d46f7b49e0cbc45925e25134838d655a511e6ebebe6f855  ./docs/archive/v3-sql-migrations/infra-postgres-write/db/v3-admission/migration/V7__public_admission.sql
+4beb30a26d7d365fdc71f8221f3559277d890517a4694d5c31a476f05b4e09d1  ./docs/archive/v3-sql-migrations/infra-postgres-write/db/v3-admission/migration/V8__admission_column_reads.sql
+a5cd55a5c335eed45094a16e335a1ca2bbd9393487ca251f84c043b148319535  ./docs/archive/v3-sql-migrations/infra-postgres-write/db/v3-admission/migration/V9__link_proposal.sql
+6e003959336a68f9f5ad371f72e62f7af41e27e92dcf2b0d1443cd35cbc8d14f  ./docs/archive/v3-sql-migrations/infra-postgres-write/db/v3-consumption-write/migration/V5__consumption_foundation.sql
+bf65598a7b10e80645fbde20449c17fcbc3204f98329ab378c1ed58bdca459c4  ./docs/archive/v3-sql-migrations/infra-postgres-write/db/v3-identity/migration/V11__sequential_request_publication.sql
+f1d21844ff391a67bf693c9b21c92c9950a9d9e76cf43dabd50c445ab212293e  ./docs/archive/v3-sql-migrations/infra-postgres-write/db/v3-identity/migration/V6__identity_authority_and_requests.sql
+521831c6dbc72dad9862d9d386ab1d7be22a9ffa34a75b0ed4ab8b7d6a8ff237  ./docs/archive/v3-sql-migrations/infra-postgres-write/db/v3-invitation/migration/V10__invitation_history.sql
+f7719a4d7ec585af88761837528a7e244ee4736b73c8669889eb148806b7bc02  ./docs/archive/v3-sql-migrations/infra-postgres-write/db/v3-pot-execution/migration/V2__command_execution.sql
+48a2e451513f77becddc456b6525a7321de49a71cb4321c0f721a389240d6d18  ./docs/archive/v3-sql-migrations/infra-postgres-write/db/v3-pot/migration/V1__pot_components.sql
+616534170d04e69802527dc0c43ad0f6f3dde073de187e93a3b4450725f3ae86  ./docs/archive/v3-sql-migrations/infra-postgres-write/db/v3-pot/migration/V3__point_history_indexes.sql
+c20cf15c91d0b9f0c6268c976c214ac900adbc0d46dc5330dd8ef6e25242a6cf  ./docs/archive/v3-sql-migrations/infra-postgres-write/db/v3-pot/migration/V4__write_effect_indexes.sql
+db2b4e50ce5c6b15624c035ebe8d70fa48241ae2e6e28b9d8d1754d19f2ab891  ./docs/testing/evidence/L2-I1/routing-vectors.csv
+151c9ca1295b966711e3e9013fb3be62bc7cfaace6fde59c843a91a0fd720db8  ./docs/testing/evidence/L2-I4/Performance-inputs.json
+4e07d322074d020f0734d29f05a95b24a073e8caf94d60ba2dae853cda3dc806  ./docs/testing/evidence/L2-I5-audit-remediation/temporal-contract-v1.properties
+a17342a7a6edcaf72838168614a70402d48c46096f733753c306884d658e73ac  ./docs/testing/evidence/L2-I5-temporal-final/temporal-contract-v3.properties
+b37ccf05c97813ad135b25643c78bad8a1d0893db75eaf3ed9e9778edc82d478  ./docs/testing/evidence/L2-I5-temporal-v2/temporal-contract-v2.properties
+8525b4c47f1db63028d5cc519943e029538671c1e85a3aff9de6b764b2134a94  ./docs/testing/evidence/L7-full-execution/sql-migration-ownership.json
+c0bfe54edc553c7112ce8e872a32913fd2ceb5c3c486bad8de8228251c9fa60f  ./docs/v3/L7_Target_Modular_Architecture_and_Migration_Plan.md
+c48299e7ad1c7920f888c2cb5d95209179e3a94d9cba2854151274b3417edd63  ./pocoma-local
+f3b3cfc063981b2b8c45e35ca7d38b651da084d72add2a08e8e50bc637896ba0  ./scripts/bruno-playground/00 - Getting Started/00 Login Owner.bru
+63ac0a8dcacf324e31ed94501ed200a0477857a056ed0d2c4a503cdcedb769eb  ./scripts/bruno-playground/00 - Getting Started/01 Login Guest.bru
+9ca36a608713edb46e459265852eb9ef3e3d5a83e9bed21c09f53dc48cd1d566  ./scripts/bruno-playground/00 - Getting Started/E00 Environment Check.bru
+e5757a1593a49401f4c3fed57823f4e0a31ffc5bca5be8d6d9a69cb416efaf33  ./scripts/bruno-playground/00 - Getting Started/folder.bru
+56736261c596a81540084b02bfed15b162156cdc03cc5da55d92ab212676cbd6  ./scripts/bruno-playground/01 - Identity and Registration/I01 Register Owner.bru
+83f68948e04fbe36c3caf03ec6f767b4444fc6b37d21b956a55e4e26a220ac41  ./scripts/bruno-playground/01 - Identity and Registration/I02 Owner Identity Result.bru
+0694232b117ff8385c5e5b2e2a384df97c713639a7c72386644f4bbc8b8570ba  ./scripts/bruno-playground/01 - Identity and Registration/I03 Owner Binding.bru
+3e21b0265821633b1062b2881e24bc9fc01a17cdf4ae19dc7e7264ce4375fb0d  ./scripts/bruno-playground/01 - Identity and Registration/I04 Register Guest.bru
+6159b1ced8a4d8ae6d2759c0388d925047151981061a229a89b3a23464b072cd  ./scripts/bruno-playground/01 - Identity and Registration/I05 Guest Identity Result.bru
+6530cdd8429f3527c8707419c7f37de328f2b06470c26e5f9346d33d374f38cc  ./scripts/bruno-playground/01 - Identity and Registration/I06 Guest Binding.bru
+17e5b5eaba09834f56371c421c16d91d80218c2199b446005c833033c4273352  ./scripts/bruno-playground/01 - Identity and Registration/I07 Unlink Guest Self.bru
+5b86c7366d6c7e9f444ad026471690e07b6efc6cf36c02dc49661420b990fa0a  ./scripts/bruno-playground/01 - Identity and Registration/folder.bru
+0c64981280221e4d4b11963a3623142f16e2ecd0f63d6ed324b9183b77e88bff  ./scripts/bruno-playground/02 - Pots/P01 Create Pot.bru
+09ed97e1c52489e75c306cd0ad87e8bff3c56acb8c2859e26e4daefaa925e4d4  ./scripts/bruno-playground/02 - Pots/P02 Update Pot Details.bru
+06acff8b09db16ca74296b7537ddbfc5ee92d633a867063eab8b65c53789c203  ./scripts/bruno-playground/02 - Pots/P03 Delete Pot.bru
+050cf4c91aaadef76cc901e8de49df7e99e332af0e1f7c95fc9e3d226d2fcada  ./scripts/bruno-playground/02 - Pots/P04 Read Current Pot.bru
+d99ee8fc26baf409af37daed1b5ff56bf35e6754e67a30d4c19839da1110ee5f  ./scripts/bruno-playground/02 - Pots/folder.bru
+bab29a58669cca1316387b699fc3d2c36d26ed77b34b121cf5688f49cf6fc5a1  ./scripts/bruno-playground/03 - Shareholders/S01 Add Owner and Free Guest.bru
+ebbec77bcfdc53c7b968b9bff612bb942b2d660fbddcff57112f38a2e25f5fce  ./scripts/bruno-playground/03 - Shareholders/S02 Rename Shareholder KEEP.bru
+7ee005bd372624c42840349976ce422709f3a3b4aa21fa9e2c59ffcbb14dc683  ./scripts/bruno-playground/03 - Shareholders/S03 Update Shareholder Weights.bru
+8173f790456042808bd0ee7a42ada236711575bc3a641e7cd9f0189c16e29784  ./scripts/bruno-playground/03 - Shareholders/S04 Delete Guest Shareholder.bru
+e92bba4e3f2c01fa8d6cf8c50397df53450456f421dbf5d9caedfaf35bf7059b  ./scripts/bruno-playground/03 - Shareholders/S05 Guest Voluntary Departure DETACH.bru
+74294c1725a6547b4b32fc60eaaa314d190b4db0f7bd50e6534893345e669c7b  ./scripts/bruno-playground/03 - Shareholders/S06 Attach Own Free Shareholder SELF.bru
+e79111738d9d376cb888f7372ce3dbc96d69964cb8af7e059a01a208e2c9f1e3  ./scripts/bruno-playground/03 - Shareholders/folder.bru
+bf5c69240642c7342d7c145f8899d741cebef9e5ae556f95ffdf1587b2bc0f86  ./scripts/bruno-playground/04 - Expenses/X01 Create Expense.bru
+c955a001a74a70d15cb4a0a5e3690814739f171fadd5fbe2f32619aa0dc8e9f2  ./scripts/bruno-playground/04 - Expenses/X02 Update Expense Details.bru
+b98e9146925afb9adb8d9f20344151509f875e28bfd4b1b62fb7e810d0a9f899  ./scripts/bruno-playground/04 - Expenses/X03 Update Expense Financials.bru
+c50a0e3b434eb2f0ccd9f7d81498c506c3a803ed9fa04ab170927d23fc384225  ./scripts/bruno-playground/04 - Expenses/X04 Delete Expense.bru
+e6ed4d17fac2f48a6de7096efd2e34f1da1b825c226bf1187864380b1c6e633e  ./scripts/bruno-playground/04 - Expenses/folder.bru
+7af4ecd8e989414659758db52387a94c22cae145bbccdd6c263b624d6eca57c7  ./scripts/bruno-playground/05 - Results/R01 Command Result.bru
+196adec92508e588073a49afe390b5f2e29e5c96b590cb62abe6fcd922c147a4  ./scripts/bruno-playground/05 - Results/R02 Historical Guest Result.bru
+2f9a96d1b19f9ec7ab4537f480c64506c3de70430cfdd0dfb1245a80db689de3  ./scripts/bruno-playground/05 - Results/folder.bru
+65f2d9df976a2da9d2299671ce278c5017814d8fe3bd91d68ffa9d87bd2c1f02  ./scripts/bruno-playground/06 - Balances and Navigation/B01 Exact Balances.bru
+af4087318ec82e6f4cd7ac9b8e82ff684df80faad326258c5e68bfa137b7dad8  ./scripts/bruno-playground/06 - Balances and Navigation/B02 My Pots First Page.bru
+4daa24bd2b430d19ce53b5182c55e5d8fb79d031ff753854040b2606ce577164  ./scripts/bruno-playground/06 - Balances and Navigation/B03 My Pots Next Page.bru
+2c099c9de957f9ef4e6473ae9fe612f47e2b3973d4b3f7fa547f7d00559396e5  ./scripts/bruno-playground/06 - Balances and Navigation/folder.bru
+445d6020e6b850bfbc680592a797aea9974ae4d6cfb460e8603a86d376fee6c2  ./scripts/bruno-playground/07 - History/H01 Read Exact Pot History.bru
+ecc01c7695a84d6cb1e4139112c08a4e2ddfcf147879a86c7b7000cfb85b4bcf  ./scripts/bruno-playground/07 - History/H02 Query Referenced Expenses.bru
+17475cd0d2327de8bedf2f63e4d98a52007fe7a5297f15b1ad448cc44144d809  ./scripts/bruno-playground/07 - History/folder.bru
+5fd1396bf24defb5a9579aa06f5389ba6b4ade83ef3cf76c5ae9c6e6e19bb2d3  ./scripts/bruno-playground/08 - Invitations/V01 Create Invitation.bru
+b9e8237f1e4415d4733186600f4abd38094c1e892024577f393be72193c0ef1a  ./scripts/bruno-playground/08 - Invitations/V02 Retrieve Private Invitation.bru
+b42ec374b8ebd03bed8b969eedbf80dcb6d0aa8a7f3034a918041efb15c277fe  ./scripts/bruno-playground/08 - Invitations/V03 Guest Available Shareholders.bru
+5197098987b87765fb56d8a099d8daf9fcd0902b05cb8c66bf127b1ef20ac49d  ./scripts/bruno-playground/08 - Invitations/V04 Guest Accept Invitation.bru
+cdb5c508fe25e8951d7759fad645d0f9e5ba9ae973029f1f0d595f4a5678d215  ./scripts/bruno-playground/08 - Invitations/folder.bru
+1f2c03bfc43e4a31e13c4457fbf0c0652cacb9a48784069cbe890556dc0041c5  ./scripts/bruno-playground/09 - Access Control and Errors/A01 No Bearer.bru
+69112d82d9801e1b3dd7d02abc125d0950b5c31540aae709072448c56d1357ff  ./scripts/bruno-playground/09 - Access Control and Errors/A02 Invalid Cursor.bru
+5578726bd979f48eab3781f43fcf8cf865b7d4a4531afd9ddb0c35b93edf17ca  ./scripts/bruno-playground/09 - Access Control and Errors/A03 Unknown Identity Field.bru
+26f418173933fcadbaf186a6c2aded3de3dde5cadafeb3f446634cb556bdcd62  ./scripts/bruno-playground/09 - Access Control and Errors/A04 Replay Same Intention.bru
+8f8decf8828212d5f78797c165eec5deb8ca95fac7ac401b801d8c489ded00f8  ./scripts/bruno-playground/09 - Access Control and Errors/A05 Conflicting Idempotency Key.bru
+6136b92ee6e8b276cd4e2c89876020e32a9baa0e89079fae4a74ce843c4add58  ./scripts/bruno-playground/09 - Access Control and Errors/A06 Guest Hidden Current Pot.bru
+956cf71d391475bdfc5140a89c0d4b4a6e684e80b0b62cb8a0c154364ad1260d  ./scripts/bruno-playground/09 - Access Control and Errors/A07 Guest Hidden Invitation.bru
+aae39d7f46c4bc1c83a40653b9ae89785d6562011c9b84497187a396e6b410a3  ./scripts/bruno-playground/09 - Access Control and Errors/A08 Guest Hidden Owner Result.bru
+64288d444b8b4e8d16a28c937411f585aebdcdff787b9553f90a24c872a60fd0  ./scripts/bruno-playground/09 - Access Control and Errors/A09 Guest Delete Forbidden.bru
+fb2a5db4ec60169f2fbff1bf3de0d072def5a4fcc6beeb678c6bd2d34f9dd8d7  ./scripts/bruno-playground/09 - Access Control and Errors/A10 Expired Invitation Rejected.bru
+9b9bfcd0076a8eee848e9c9e28adfb7287c9d0d77d157792f2de6c43cb935faf  ./scripts/bruno-playground/09 - Access Control and Errors/A11 Empty Expense Batch.bru
+43ea7fdadb9b530f2140ff63fa9fca60ec4f8dcc82e88131600e736adcab49d9  ./scripts/bruno-playground/09 - Access Control and Errors/A12 Deleted Current Pot.bru
+3fa72c3ddf9b2365e25a69254351e0cd0077b9013f0a1d042280b445fc69614c  ./scripts/bruno-playground/09 - Access Control and Errors/A13 Deleted Terminal Version.bru
+651fa38910d2f44488b27f0a4bc316e40483e09315cc8ae86bdf1d316d57c0b3  ./scripts/bruno-playground/09 - Access Control and Errors/A14 Stale Guest Binding.bru
+d0ff022cb8e49a84e348b32ed50248a32a06f94c3ee1e548f4cf8d2031babc0f  ./scripts/bruno-playground/09 - Access Control and Errors/folder.bru
+30aaebd253174aee4fa00789463644958a61b59833215ea345a7ca0343fcfbb4  ./scripts/bruno-playground/80 - Technical/T01 Stage Handoff Diagnostics.bru
+92f110e1e2858c7740f4b071501420652e522f259a9ce28b6af74ad540a41841  ./scripts/bruno-playground/80 - Technical/T02 READ Health.bru
+03ee26d2b82726b145eb370a8308e99d0cac3ca453159627db8d53f45b9e2833  ./scripts/bruno-playground/80 - Technical/T03 READ Prometheus.bru
+7498cccf933f75345681a8184f7a88ff3552467e3de7fa96000cfa6f333a3b06  ./scripts/bruno-playground/80 - Technical/T04 Stage Handoff Alias.bru
+9444a329b69e10d37864fd537da7a93203480adb7656e314cd5f91470af8ad30  ./scripts/bruno-playground/80 - Technical/folder.bru
+315654b97e19f4996bba9c2b9b7c75b2d860d87e66a5736a728a4557646947c9  ./scripts/bruno-playground/90 - End-to-End Journeys/J01 Complete Ledger and Invitation/01 E00 Environment Check.bru
+1ffdc46268d29f51867410be4884ad50b3e6fad55b461bcd718018cd75a604d4  ./scripts/bruno-playground/90 - End-to-End Journeys/J01 Complete Ledger and Invitation/02 I01 Register Owner.bru
+eb2f2f54c353d58487e0cbf2bc388fe73b1327141396307832861aae0c72f19a  ./scripts/bruno-playground/90 - End-to-End Journeys/J01 Complete Ledger and Invitation/03 I02 Owner Identity Result.bru
+9389fd179655d850a6ce7ae0899e6a8fb237c061d28b624cc3b94e02d58b6957  ./scripts/bruno-playground/90 - End-to-End Journeys/J01 Complete Ledger and Invitation/04 I03 Owner Binding.bru
+272f61b4ff0e83abb0c52d55e61738eb3891266441841b957bb8a6efdb796cfa  ./scripts/bruno-playground/90 - End-to-End Journeys/J01 Complete Ledger and Invitation/05 I04 Register Guest.bru
+4ae978966ab056f50a4c5f4e45c35b97f9225895f232bfd930dcf0f7c56a2421  ./scripts/bruno-playground/90 - End-to-End Journeys/J01 Complete Ledger and Invitation/06 I05 Guest Identity Result.bru
+9cbd414b4facdda69b860a35c774153ea1e85348acd5ffe44b778df6093c7474  ./scripts/bruno-playground/90 - End-to-End Journeys/J01 Complete Ledger and Invitation/07 I06 Guest Binding.bru
+8ba7689fba1cec166746bbdce8cf79fc887f5e00bd9105aaef2a1d25d87a62d9  ./scripts/bruno-playground/90 - End-to-End Journeys/J01 Complete Ledger and Invitation/08 P01 Create Pot.bru
+1dd49f574c8d158a8af4c27b0554a589acb83f940c5555b7566642d37fa7ac06  ./scripts/bruno-playground/90 - End-to-End Journeys/J01 Complete Ledger and Invitation/09 R01 Command Result.bru
+cf5a016cf2bfc61037a60d9ea038092b717339b7273fc49f1dfd3e6b70ee8a1a  ./scripts/bruno-playground/90 - End-to-End Journeys/J01 Complete Ledger and Invitation/10 P04 Read Current Pot.bru
+1c96c13fdf07a57f6f0b401a7d6db001b031cf33e2cc1c3e88a5ca0b598ab4e1  ./scripts/bruno-playground/90 - End-to-End Journeys/J01 Complete Ledger and Invitation/11 B02 My Pots First Page.bru
+36a506b83ff49371917c79f3a808f08f6ba169347cf1ac06483105e48aa9b522  ./scripts/bruno-playground/90 - End-to-End Journeys/J01 Complete Ledger and Invitation/12 S01 Add Owner and Free Guest.bru
+b9c2efac4332bf2ed24c5a3687269eecceba726a8f16c96b3661397ae96fb04b  ./scripts/bruno-playground/90 - End-to-End Journeys/J01 Complete Ledger and Invitation/13 R01 Command Result.bru
+b070be64cd5a0ad9d7fd86be228863919ff73ba01f35ad119554f0788a563799  ./scripts/bruno-playground/90 - End-to-End Journeys/J01 Complete Ledger and Invitation/14 P04 Read Current Pot.bru
+150e76dbcad665f267694e5e96efb646500a10df61d2ab0dca546d0c12f0338b  ./scripts/bruno-playground/90 - End-to-End Journeys/J01 Complete Ledger and Invitation/15 A06 Guest Hidden Current Pot.bru
+2a092477bb84ab426b788d5de29509f2b9b98b09f186e87007c9f72fbe0e2150  ./scripts/bruno-playground/90 - End-to-End Journeys/J01 Complete Ledger and Invitation/16 V01 Create Invitation.bru
+dcb0945813fd453e03c12f9bbc28c417a0c98f10d5d61a428b3471e0afd27b60  ./scripts/bruno-playground/90 - End-to-End Journeys/J01 Complete Ledger and Invitation/17 R01 Command Result.bru
+6a7941d705a903a3894574ccca5401934b6712bfcab491a39a233c4b6f23997d  ./scripts/bruno-playground/90 - End-to-End Journeys/J01 Complete Ledger and Invitation/18 V02 Retrieve Private Invitation.bru
+fe12d4140d66b0572e3eb9feff3385774acfbaade16ea7decdc0c0167af57adc  ./scripts/bruno-playground/90 - End-to-End Journeys/J01 Complete Ledger and Invitation/19 A07 Guest Hidden Invitation.bru
+bf2eda5e989e61581d06b6220f6640e36e32089b4727ae47fb33cbb0f805f9d7  ./scripts/bruno-playground/90 - End-to-End Journeys/J01 Complete Ledger and Invitation/20 V03 Guest Available Shareholders.bru
+df8cdcc7ecda08a0ab9c93bf77e243e9f0a43b14e27bbbf87455d63d2b51afd1  ./scripts/bruno-playground/90 - End-to-End Journeys/J01 Complete Ledger and Invitation/21 V04 Guest Accept Invitation.bru
+639c3241ad277470b028db6202eb63eb1f58ef667469a8500822df2333c58c71  ./scripts/bruno-playground/90 - End-to-End Journeys/J01 Complete Ledger and Invitation/22 R01 Command Result.bru
+1390263b3e9c5d597cd1b81d31c996c6b9fc8607e5c52c0ca574284b8b58224e  ./scripts/bruno-playground/90 - End-to-End Journeys/J01 Complete Ledger and Invitation/23 P04 Read Current Pot.bru
+1d83f4b438e7c0884bb3cf7edafa20f200110687e529f9b1f32857f2dc031fc4  ./scripts/bruno-playground/90 - End-to-End Journeys/J01 Complete Ledger and Invitation/24 X01 Create Expense.bru
+f65dd5a1d844b41ab0217dd43e0a08ebacb62644711d24e6b257964cd276f18d  ./scripts/bruno-playground/90 - End-to-End Journeys/J01 Complete Ledger and Invitation/25 R01 Command Result.bru
+5354e50c73770cf42df14b9139d576f2b911049315f40bc58a38d638e63d42ec  ./scripts/bruno-playground/90 - End-to-End Journeys/J01 Complete Ledger and Invitation/26 P04 Read Current Pot.bru
+4ce98cf55b6b19a11447a9f3abc3ccf36bf301a4ef5c36ef1c159baa1d67692b  ./scripts/bruno-playground/90 - End-to-End Journeys/J01 Complete Ledger and Invitation/27 B01 Exact Balances.bru
+48c155a9795ef6028078b4bcbf283de6c1efaa9b47dde98514e1812270bafb6a  ./scripts/bruno-playground/90 - End-to-End Journeys/J01 Complete Ledger and Invitation/28 H02 Query Referenced Expenses.bru
+57465884af561df72d44e2b41694ea587831cfaeec76d1eb6c0e9f75672edea0  ./scripts/bruno-playground/90 - End-to-End Journeys/J01 Complete Ledger and Invitation/29 X02 Update Expense Details.bru
+cb51f9e1b9ddc9937c93fbe43b8d76c90abaed8637a496727e60fe1a07eab972  ./scripts/bruno-playground/90 - End-to-End Journeys/J01 Complete Ledger and Invitation/30 R01 Command Result.bru
+bc3b46cce7d7cebe29a23aac6fd3528baab1a6ac9bdd4ad5e87e8629d9540abe  ./scripts/bruno-playground/90 - End-to-End Journeys/J01 Complete Ledger and Invitation/31 P04 Read Current Pot.bru
+468fe8af3c6a93e2f83fc9910d5063f520362bc29a5bc522d29f566af8f77496  ./scripts/bruno-playground/90 - End-to-End Journeys/J01 Complete Ledger and Invitation/32 H02 Query Referenced Expenses.bru
+2d71ddfe0d855d05f4006b28d72d059a8b3df74dbef955bfd2ae230e9f6069d4  ./scripts/bruno-playground/90 - End-to-End Journeys/J01 Complete Ledger and Invitation/33 X03 Update Expense Financials.bru
+534b699e3a2ed3a244a7643ccc4845bcad2c439c65d8c22d3126f784040f0b2f  ./scripts/bruno-playground/90 - End-to-End Journeys/J01 Complete Ledger and Invitation/34 R01 Command Result.bru
+4dff3b2f07aac2a236eaae7133d8ff66d96d09128b32eca9d79e70d445ec2af3  ./scripts/bruno-playground/90 - End-to-End Journeys/J01 Complete Ledger and Invitation/35 P04 Read Current Pot.bru
+16a45a65ecb005c454549c3dfe5b550aff5946e448ff8c68316972fb378a186f  ./scripts/bruno-playground/90 - End-to-End Journeys/J01 Complete Ledger and Invitation/36 B01 Exact Balances.bru
+ba51091dbb82d50bb8aabec4e39e7fcaca656321d8f05b993ced3563f0c84490  ./scripts/bruno-playground/90 - End-to-End Journeys/J01 Complete Ledger and Invitation/37 H01 Read Exact Pot History.bru
+ddc1e3b4a9aa27d46ad8d074359717ca809847739808892de27f4a9b0c3c2cc7  ./scripts/bruno-playground/90 - End-to-End Journeys/J01 Complete Ledger and Invitation/38 H02 Query Referenced Expenses.bru
+290769ed509937994ff69ac27f4700e0cdfde54cdf7d27e286c589aa4903d8cf  ./scripts/bruno-playground/90 - End-to-End Journeys/J01 Complete Ledger and Invitation/39 S02 Rename Shareholder KEEP.bru
+ae5970dcc581945b82fb25fc90fb0b6c65ad844272fb9622ed19eb07966e0adb  ./scripts/bruno-playground/90 - End-to-End Journeys/J01 Complete Ledger and Invitation/40 R01 Command Result.bru
+5536ebddbc606f742dfdd1b40a06042dad70544eb7b08185487dccfee33ae0e9  ./scripts/bruno-playground/90 - End-to-End Journeys/J01 Complete Ledger and Invitation/41 P04 Read Current Pot.bru
+920308b0579e0b3481647f7992c4c4e59033c6725b223f9211afb12c2c657bb9  ./scripts/bruno-playground/90 - End-to-End Journeys/J01 Complete Ledger and Invitation/42 S03 Update Shareholder Weights.bru
+67b9c6780473395db8c0cbfd40335eed5b026a150cd3b2afca049f6842b22835  ./scripts/bruno-playground/90 - End-to-End Journeys/J01 Complete Ledger and Invitation/43 R01 Command Result.bru
+15079cb497ba61629afade2573b5f7b8ee24121f124a8a8043eaea8633cb603d  ./scripts/bruno-playground/90 - End-to-End Journeys/J01 Complete Ledger and Invitation/44 P04 Read Current Pot.bru
+ede87ca0908f7ebd7c7f60d5a855e5a9125f0a7a49a704cb1e399cdee9605a95  ./scripts/bruno-playground/90 - End-to-End Journeys/J01 Complete Ledger and Invitation/45 S06 Attach Own Free Shareholder SELF.bru
+7b73cacafd0b8b590a465a5692dc98cb9e46f1a5d07a92aea430a93bdb891871  ./scripts/bruno-playground/90 - End-to-End Journeys/J01 Complete Ledger and Invitation/46 R01 Command Result.bru
+796043496adeb5d8b496e6543a003c6a7c506fd7264d08ff1ce0df8a45c4b4dc  ./scripts/bruno-playground/90 - End-to-End Journeys/J01 Complete Ledger and Invitation/47 X04 Delete Expense.bru
+8969425a04ddd0f598427bc190899d7d34fee9f5a71dda945499ce8d244bcc45  ./scripts/bruno-playground/90 - End-to-End Journeys/J01 Complete Ledger and Invitation/48 R01 Command Result.bru
+28e11a64ede091b17368ca85948cf2dfa8fc66d69946eadfbc2dd4de53b51655  ./scripts/bruno-playground/90 - End-to-End Journeys/J01 Complete Ledger and Invitation/49 P04 Read Current Pot.bru
+dc33ed360f3be761c4e3a9de4cba53c39aa3558dff1cd3b8bc2efdfdc91a2cbf  ./scripts/bruno-playground/90 - End-to-End Journeys/J01 Complete Ledger and Invitation/50 B01 Exact Balances.bru
+3185d3c2cf13851c96419758a11505a2095c18c67a9bc3d75b4c27e0623e548e  ./scripts/bruno-playground/90 - End-to-End Journeys/J01 Complete Ledger and Invitation/51 S05 Guest Voluntary Departure DETACH.bru
+aa6b0edd990844967550b67f720b16337e6a55535f4eeacaa7ffca18e5a5290d  ./scripts/bruno-playground/90 - End-to-End Journeys/J01 Complete Ledger and Invitation/52 R01 Command Result.bru
+46be9e10515f93d881fd9bf580a6d0ecd4cf0c96b7dff27a20384ed01719be53  ./scripts/bruno-playground/90 - End-to-End Journeys/J01 Complete Ledger and Invitation/53 P04 Read Current Pot.bru
+10df80255db76f6f0ebe1405f2802146c45a599c1a20a570c46116ea31beb4be  ./scripts/bruno-playground/90 - End-to-End Journeys/J01 Complete Ledger and Invitation/54 A06 Guest Hidden Current Pot.bru
+d4496270244540c29086575f19560333d1ae13c898584675d34befe02a190ace  ./scripts/bruno-playground/90 - End-to-End Journeys/J01 Complete Ledger and Invitation/55 H01 Read Exact Pot History.bru
+57e5c27d343e4571ceeff211bb6c74e628ab5cb7821028e3a21e50b7c6691381  ./scripts/bruno-playground/90 - End-to-End Journeys/J01 Complete Ledger and Invitation/56 S04 Delete Guest Shareholder.bru
+a46409b04ce6f916264c9d226574224299efebf838f76e9e2f42bd2980dad6a4  ./scripts/bruno-playground/90 - End-to-End Journeys/J01 Complete Ledger and Invitation/57 R01 Command Result.bru
+3d7d9d2d837c4079adfce1cbf16f16d7be59f10dcba43805d863868b602a16cf  ./scripts/bruno-playground/90 - End-to-End Journeys/J01 Complete Ledger and Invitation/58 P04 Read Current Pot.bru
+bcc39096bebe1d8142f7cbb30cb698318b6de69c105a92502316e0b2784675d9  ./scripts/bruno-playground/90 - End-to-End Journeys/J01 Complete Ledger and Invitation/59 P02 Update Pot Details.bru
+ab5206464dbdabc0c7030207bdbba9a69080e860abaedb96198ba937a3284684  ./scripts/bruno-playground/90 - End-to-End Journeys/J01 Complete Ledger and Invitation/60 R01 Command Result.bru
+978e398890ef48df3aae928126687da995358844f59e5d50b1249829412dcd76  ./scripts/bruno-playground/90 - End-to-End Journeys/J01 Complete Ledger and Invitation/61 P04 Read Current Pot.bru
+9b7ea27442f8c3128b4ab695842bdef249be235dde80ce13c54e9aefb6dcdb08  ./scripts/bruno-playground/90 - End-to-End Journeys/J01 Complete Ledger and Invitation/62 P03 Delete Pot.bru
+91667e7bc7218fb1105efdc4343fd26f96ad680242e21ab2acf9b42484b31314  ./scripts/bruno-playground/90 - End-to-End Journeys/J01 Complete Ledger and Invitation/63 R01 Command Result.bru
+1ef5e0974bb5d73ce8fce47e44ff280cd32d8c1e864ed4d562e7b8b6e14589f6  ./scripts/bruno-playground/90 - End-to-End Journeys/J01 Complete Ledger and Invitation/64 A12 Deleted Current Pot.bru
+45384fc4aae720692ec9218d7f6c4e8caf7a84ff14daf8a804186f2cd784afd1  ./scripts/bruno-playground/90 - End-to-End Journeys/J01 Complete Ledger and Invitation/65 A13 Deleted Terminal Version.bru
+43bc2b4ef6ea887e59a96675e585a9f343fa3ee0f8064e21a92f753371bb2b23  ./scripts/bruno-playground/90 - End-to-End Journeys/J01 Complete Ledger and Invitation/66 H01 Read Exact Pot History.bru
+ebf94f032f40b3d199fc74196196b231b2a346c58687ccc0c18731249ac3ea9d  ./scripts/bruno-playground/90 - End-to-End Journeys/J01 Complete Ledger and Invitation/folder.bru
+a92037a33d04f22e86d50e19878535b8a21fe020e75723fc3e522015f74aa4f8  ./scripts/bruno-playground/90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/01 E00 Environment Check.bru
+a32e4d01c889695747d1be746c09afce48a8bd61e5d4f998bc5f88dba78ca471  ./scripts/bruno-playground/90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/02 I01 Register Owner.bru
+d02eed1d0461266fd10476d250d5c3cfcb5bb996bea34c988183fcbeca211a30  ./scripts/bruno-playground/90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/03 I02 Owner Identity Result.bru
+25a56992811952e092f8af9303dd9b4ccc44ab9d51bd128c25e5cb017b0af536  ./scripts/bruno-playground/90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/04 I03 Owner Binding.bru
+dc38daa59c9f2eb0a9e3724c07d7b881d9637968c08bc6101cc1bac4ad992ff7  ./scripts/bruno-playground/90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/05 I04 Register Guest.bru
+449409bd7ca4c4c4d124bd52e1d74e14dd82619f46f75007db761eea9c848092  ./scripts/bruno-playground/90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/06 I05 Guest Identity Result.bru
+89a1eef761733978ebfbf03f4fbee1467569af1407b3c25d3ae0cf05e168afba  ./scripts/bruno-playground/90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/07 I06 Guest Binding.bru
+d6d21d7cd970525ca96e789ae9298a6e29e4c484cf4a92e43d0d62824bd6a9b6  ./scripts/bruno-playground/90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/08 P01 Create Pot.bru
+e9383553867c100f8328af4cf08d623dc34413cc9d9d360918b043e9579451cd  ./scripts/bruno-playground/90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/09 R01 Command Result.bru
+1c2a6e321b5b6e82391d2b3bfbb03f647941aff2d33366c12df74a4213f4b1c5  ./scripts/bruno-playground/90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/10 A04 Replay Same Intention.bru
+0a86639522a2a0580e8a4e11d1778ffa6894dc4d93e7c9aae5a897dccecb918b  ./scripts/bruno-playground/90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/11 A05 Conflicting Idempotency Key.bru
+73406b724d1a3fc32183fdd2d0377ae2521a7404a02e44116b0efc89262e4651  ./scripts/bruno-playground/90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/12 P04 Read Current Pot.bru
+f34b93a3e7ef91dba4e01cffc0c7c23d9daadcd3bd88feb1af8d6b0aaf4da468  ./scripts/bruno-playground/90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/13 B02 My Pots First Page.bru
+83a4d3f472483e3be08e18f4a53a1573138b73cf1f023c3c411e2f2f96c7bc6c  ./scripts/bruno-playground/90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/14 B03 My Pots Next Page.bru
+ed75dba59d79760f681b4f76b8f4421c17f9d1e06d4c749864578fd242d08131  ./scripts/bruno-playground/90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/15 S01 Add Owner and Free Guest.bru
+f4f15a6210457098d6c5907865b7fd8ea401105b47f68373585b6d17d55f5b76  ./scripts/bruno-playground/90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/16 R01 Command Result.bru
+a2287e1f9ef04fda2b56d49c2377e9f9743b6b453396974d65136322d0b9ba0e  ./scripts/bruno-playground/90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/17 P04 Read Current Pot.bru
+79118e25b4fa69424bfae094618e568399afb8e1bbce390449c0479aa56b5d2a  ./scripts/bruno-playground/90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/18 A01 No Bearer.bru
+fe17c7616b6a6cad81b6e9f0806b7b1c3ab940d55597ffb322e714f88c4eb234  ./scripts/bruno-playground/90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/19 A02 Invalid Cursor.bru
+950d40177d99c6f61222783e91a957570f517080f31eed449472b8a4a176f59d  ./scripts/bruno-playground/90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/20 A03 Unknown Identity Field.bru
+aad2ff13cfd938c6e68d98d39b9953d858f9a83d21ac400f9be428a1a9e78e89  ./scripts/bruno-playground/90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/21 A06 Guest Hidden Current Pot.bru
+7f08708b40a37257d41673969a533c0b914af2a0da872984af4cebce69270e7a  ./scripts/bruno-playground/90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/22 A08 Guest Hidden Owner Result.bru
+b339ced8b18fae5cd01e44c5df7fa6dcf2dc73a17a5ddb8625b00754d6635116  ./scripts/bruno-playground/90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/23 A09 Guest Delete Forbidden.bru
+ad73025023d6f8b9ead99cdaeeceb9aaab9863043c2a2d4148e91a4cb45507ed  ./scripts/bruno-playground/90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/24 R01 Command Result.bru
+934b09d33000574bfa8b7963bc81775b979252e9a0a444214c8aaaa2078c98ee  ./scripts/bruno-playground/90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/25 A10 Expired Invitation Rejected.bru
+e507b94dfe40a2558d50702616e6fb900418b3868612c1aa6ebd1154ceb505ae  ./scripts/bruno-playground/90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/26 R01 Command Result.bru
+bf77c8456e83e180a840d5082a0035ab24e9526c10c69cf8ac5bdb2275db447d  ./scripts/bruno-playground/90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/27 A11 Empty Expense Batch.bru
+a4acfc47c49e2aaad19b6fa5d53f9ba7b7159be3a42d7d1a3ee2870b427e68d0  ./scripts/bruno-playground/90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/28 P03 Delete Pot.bru
+963e4349753e445d76f900130d612acf8bfe4c8263d40e67f758f52c660fa15e  ./scripts/bruno-playground/90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/29 R01 Command Result.bru
+d9acbb390917f03e975c72b69fe58d2dd59cf7918dd71899b7e6d395787cde26  ./scripts/bruno-playground/90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/30 A12 Deleted Current Pot.bru
+1a3249e449c8b40ac07f2715479df3f3404126b4c08a395a0de97d6f2d182758  ./scripts/bruno-playground/90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/31 A13 Deleted Terminal Version.bru
+b3b12618b166e6e29aab22df7456e41211fdbd2b55556cd130abd1fb17c7b305  ./scripts/bruno-playground/90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/folder.bru
+743bcab7917d47efe0c3d15f6b7d4e77b64d9eabc3d80e85d361968e7cfab852  ./scripts/bruno-playground/90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/01 E00 Environment Check.bru
+a2acb0721916f8034a01c9eef63c1b0628532dfb5d14a616609f82feb0ae2433  ./scripts/bruno-playground/90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/02 I01 Register Owner.bru
+2a2aa7c143366f50b8e848ab3f3ffe9e2d41272007fb26092548e9213b17068c  ./scripts/bruno-playground/90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/03 I02 Owner Identity Result.bru
+eccddaf2e92a2a61edc8826f1ef1f7fa94ac4e5fb39d286ed0e13c63eda4be8b  ./scripts/bruno-playground/90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/04 I03 Owner Binding.bru
+13d72e9c0e581b7f060f02f1237d3c2cf3d9a277c5acbc7767f88f548a8de9a1  ./scripts/bruno-playground/90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/05 I04 Register Guest.bru
+77de7db3d7c1962d00d7327470e79660fdbfa278a571096977a6aca95783d4cc  ./scripts/bruno-playground/90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/06 I05 Guest Identity Result.bru
+804fcc3cb7d3207c4ef21816dedc20e403cc0996e6bb4995add9a5d7739f1c08  ./scripts/bruno-playground/90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/07 I06 Guest Binding.bru
+bfe4ffd05b6c6a4ffe48e43a851240ef821ddaaa7028100af54737262b54a862  ./scripts/bruno-playground/90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/08 P01 Create Pot.bru
+ccc5a4ffd05a426a40879e6e9c54568c4abf6ea9fa47925f779b0f874818e8e6  ./scripts/bruno-playground/90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/09 R01 Command Result.bru
+358f7c25377b6847b26bc3b2cb5b404b1478e53f80d3217ab4b9b36f2e35fd6b  ./scripts/bruno-playground/90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/10 P04 Read Current Pot.bru
+2b305cb0e062c4ac658b0b178e08f7e148939e0a925f071946fde7b76da4c618  ./scripts/bruno-playground/90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/11 P03 Delete Pot.bru
+a50100faa8d26d4fae83616b80f6590a36d57b57a314a6d0fce27089cb6b981a  ./scripts/bruno-playground/90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/12 R01 Command Result.bru
+d0d2766fdc6bdbe71967f8297a071cea3c15a6d5d3a760a9910dfb73fe14805c  ./scripts/bruno-playground/90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/13 I07 Unlink Guest Self.bru
+82c09acb23fb80f9fd25e9fba0187653ad0a0b676236692fbf8afdbbb2518b46  ./scripts/bruno-playground/90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/14 I05 Guest Identity Result.bru
+a3384f9e07aa2f88962ebba6aedb2857483f428e3fdac90bc77036876fd1192d  ./scripts/bruno-playground/90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/15 I06 Guest Binding.bru
+4fc62b4e69fdfdca4a6fc985451c4cbafa6cce61240e2bd661931b17e858020f  ./scripts/bruno-playground/90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/16 I04 Register Guest.bru
+5802cee619847cc10ed97a88091ab7d46514c07020d78c87deaf5045c4127191  ./scripts/bruno-playground/90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/17 I05 Guest Identity Result.bru
+a1f8e9d24a66036335e3845fe2d6db50b43bc3865029a5a1d15ca3e914faed40  ./scripts/bruno-playground/90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/18 I06 Guest Binding.bru
+9ee3fc95280dd2a394dfa4672c647b8bbb9dd6e9bffb5a30b1a9251ef5fc73c0  ./scripts/bruno-playground/90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/19 A14 Stale Guest Binding.bru
+13e4ad958148c2b5000a6790deb1c08fa5e425e6e44e631a508d97320335a269  ./scripts/bruno-playground/90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/20 R01 Command Result.bru
+733b4da18205343a1c9ea0a2b6c3ade2eab067f720ec1ad853b0bb7e266fc106  ./scripts/bruno-playground/90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/21 R02 Historical Guest Result.bru
+bae60b779e0835a81e2dc64fd6cf511956163359e2932f34d5bae824b151c4ca  ./scripts/bruno-playground/90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/folder.bru
+285fca3bbf8924383c6de153e4ad6a8e024e888ec72be97f514ded68d95921b6  ./scripts/bruno-playground/90 - End-to-End Journeys/folder.bru
+12a144181a2be3dde90640fbec2726b24e327ba7e62350c44bd6e864082ae401  ./scripts/bruno-playground/README.md
+79277c8b360d321f913b88e3abcd747636f57e3f49359833ea43c76d7b41af40  ./scripts/bruno-playground/bruno.json
+a5f2c6bde621ce533ab8a04afc5540b8040bd015bd584494ad4f7e0b79a661ba  ./scripts/bruno-playground/catalogue.json
+94bde342b5717381046ca5e202dccdff748555bf91f801459aae12d3b4df1f95  ./scripts/bruno-playground/collection.bru
+aaaca6cf9e51975cc72c806f32958b8aed7bad8997417a46f5b0531c7aae3163  ./scripts/bruno-playground/environments/Local.bru
+285e8782950c166cf39742f105843498c28b6a7c2d9ae05884a6c6726c4124cc  ./scripts/bruno-playground/inventory.json
+4636b0100e4777fa447fe7a5ab6636e031c30d7458cd420f7ff97c4d493366f3  ./scripts/bruno-playground/journeys.json
+d77066d7e66e3507e4ce92b55471855c30f45bf99ca92646207308202945ba14  ./scripts/bruno-playground/lib/session.js
+8619a41f49f4fdba8b751646da38fe307153db3f18817bf20b7bef6bcdf6c99a  ./scripts/bruno-playground/lib/workspace.js
+36d4d6f33a3ef86b6527552b92a2e9d8215ed6dcd7cbcb967efae5f38bb452a4  ./scripts/bruno-v3/.gitignore
+b5717067fd73c3f9fe68b016e57bf0e9fea50c8120efa9315e656a7fdc03fe30  ./scripts/bruno-v3/01 Identity and READ/01 Own Binding/B01 activeOwnBinding.bru
+5198f8e7366b91a1c7d371fcca543abf20ed23bddfc5c23e423c45d75446c330  ./scripts/bruno-v3/01 Identity and READ/01 Own Binding/B02 inactiveOwnBinding.bru
+4412e614407987dc371a44ac1437d25dbdaa435b6470c8e86645c0a68a2ed127  ./scripts/bruno-v3/01 Identity and READ/01 Own Binding/B03 absentOwnBinding.bru
+52dfd3c15eb0050f7f0978cf2c258dbc708bbab028235c5b5798735095205c91  ./scripts/bruno-v3/01 Identity and READ/01 Own Binding/B04 bindingMinimum.bru
+0cd36baab1dc58c6f304857104b62a7b73589a8dd33a2ba0fe728cf11a185e92  ./scripts/bruno-v3/01 Identity and READ/01 Own Binding/B05 foreignBindingSelector.bru
+d92a133bf0d343a35f5e153ddfa8f1f7c01fa8a991349a7b87d39ac4e35c6bbb  ./scripts/bruno-v3/01 Identity and READ/01 Own Binding/B06 noBearer.bru
+e28c19e2dc978384f62181c8d6dc0089d8665f6f78eecd23cfb77af0fb066b04  ./scripts/bruno-v3/01 Identity and READ/02 Pot and Balance/B07 currentComplete.bru
+2c19cfec7a09497832616a7151c1b1bb6cd6cc501bbbf179beff8f4b715309a8  ./scripts/bruno-v3/01 Identity and READ/02 Pot and Balance/B08 exactHistory.bru
+cb036d30290cc9e77e09ef59415fbae05297ab650b0f51dad64cd1cd95c733ec  ./scripts/bruno-v3/01 Identity and READ/02 Pot and Balance/B09 exactBalance.bru
+7febfa191f6d0a285056d2cb661f37808d8125c31c0157d8d1fb0d7a85e000f0  ./scripts/bruno-v3/01 Identity and READ/02 Pot and Balance/B10 forbiddenAndAbsent.bru
+1f434cc5d2ca299d0e50195399e949d37254c798fb95c12c6a6fd1ac401b8e71  ./scripts/bruno-v3/01 Identity and READ/02 Pot and Balance/B11 deletedCurrent.bru
+278f454f955706c49c8900408316447224a7031abb4834abb1ad729a1c720a6f  ./scripts/bruno-v3/01 Identity and READ/02 Pot and Balance/B12 terminalVersion.bru
+977c0c038f963a6a07246168c38a2392ce5539c181c0405bcbf6ef9117ee7c4d  ./scripts/bruno-v3/01 Identity and READ/02 Pot and Balance/B13 historyBeforeDeletion.bru
+c09eb98aa7ba7102a127f7a445cfd037b3708067a9d01dd18d019702d9cb42c5  ./scripts/bruno-v3/01 Identity and READ/02 Pot and Balance/B14 authorizedLag.bru
+8d7ae241c74e56ad4bdf0b86d4ee1b71cfadb94c94f75c83e20facbab50da4a0  ./scripts/bruno-v3/01 Identity and READ/03 Expense Batches/B15 singleExpense.bru
+df7d28b8e760dc78296a0de5fc59096f9603ea82102b68e61caaa9ec8cb37e69  ./scripts/bruno-v3/01 Identity and READ/03 Expense Batches/B16 fiftyExpenses.bru
+087cf5a7502677bb6368ea09a32a3adc485a97ed318e37dc77b3b1e54cbc67fe  ./scripts/bruno-v3/01 Identity and READ/03 Expense Batches/B17 emptyBatch.bru
+e9d47ce914b70353bd815891fc2a89bf129e2220e8714dd768015c8f68994a2d  ./scripts/bruno-v3/01 Identity and READ/03 Expense Batches/B18 oversizedBatch.bru
+69bf2f133d0cbd0bc08c5bd88209f2b5de200385f62c2258498c0d449be3572e  ./scripts/bruno-v3/01 Identity and READ/03 Expense Batches/B19 duplicateBatch.bru
+bc0b7175839445287c8ac124c8ff0b0285009e424939e8c2127e69a5b38771fd  ./scripts/bruno-v3/01 Identity and READ/03 Expense Batches/B20 foreignReference.bru
+b3e5898708de8d519c13bca27e379b5265db2e9d537fcbaf12ae680217ce8f6a  ./scripts/bruno-v3/01 Identity and READ/04 Navigation and Results/B21 navigationPages.bru
+e63a76e8891e62c1e4dd3d91dee64a754e73c44bdff51e7af9990ba835ac1ef3  ./scripts/bruno-v3/01 Identity and READ/04 Navigation and Results/B22 invalidCursor.bru
+b6b6501a5040bb3a138d66198c34d26f8d75ab01e33c24c6fd15c2992cce27cf  ./scripts/bruno-v3/01 Identity and READ/04 Navigation and Results/B23 pageLimits.bru
+42d2eb717297e984346e03c2b9415e0739b1f03255d277fe204c82a31e4cf965  ./scripts/bruno-v3/01 Identity and READ/04 Navigation and Results/B24 mismatchedToken.bru
+84b8849aa393949314c59ee0b4cc149e23bea8f1f1b1d414627d373a949d08c3  ./scripts/bruno-v3/01 Identity and READ/04 Navigation and Results/B25 commandCompleted.bru
+09747235145031126c044a840a718a3b8c46cc5b375c964396f85c54b164015e  ./scripts/bruno-v3/01 Identity and READ/04 Navigation and Results/B26 commandRejected.bru
+2d87fcfeb6fae866d113737db42b60e10e4b810089cd9e5898c604bed8abde35  ./scripts/bruno-v3/01 Identity and READ/04 Navigation and Results/B27 identityCompleted.bru
+c4b1cc67fde6ee5d0e17b488eeed0fe0c2d9a3305a9e7618f3fdd6bbbe87376a  ./scripts/bruno-v3/01 Identity and READ/04 Navigation and Results/B28 identityRejected.bru
+e65ad8b50ab1cddd0818d50f5974f9d965e631fb68cc8bc987d29c39fe7206b2  ./scripts/bruno-v3/01 Identity and READ/04 Navigation and Results/B29 foreignAndSameUserResult.bru
+b17926e1974e52c47c74acf4a6bff1cd730f89206135d14c27a6460c3d33b11f  ./scripts/bruno-v3/01 Identity and READ/04 Navigation and Results/B30 boundedResultPolling.bru
+6c7f15a4eba91e30a40c036acde84a488921dbe37fe0fc6d42945359fe768453  ./scripts/bruno-v3/01 Identity and READ/04 Navigation and Results/B31 invalidBearer.bru
+f05e208330e7133d29d3fccfe3a19c86028d745af13f0591ab808a5534be1c9c  ./scripts/bruno-v3/01 Identity and READ/04 Navigation and Results/B32 transportAndPrivacy.bru
+176d6b6a7d4f5c4ed18990ec7f9b5137e5f8f44b503a773e150facbaa18903da  ./scripts/bruno-v3/02 Admission and Commands/B201 RegistrationUnknown.bru
+8d0d02ea8d5dc23d67935ce0c80452c2d50f962f0133f090c0b7176f4f66c539  ./scripts/bruno-v3/02 Admission and Commands/B202 CreatePot.bru
+3a2e8bbd7f6992b3dea05068e6d70d60d93cf1d59478bbe4414a844f4094a6d1  ./scripts/bruno-v3/02 Admission and Commands/B203 UpdatePotDetails.bru
+d71bc96f7801a7763278c046119ad92d3344cea7f2068dfe004fdd53d000484c  ./scripts/bruno-v3/02 Admission and Commands/B204 AddShareholdersSELF.bru
+93e235ea9bbdc4b2b0729506b1729681f595233910c8b0d434e2b4516f765d42  ./scripts/bruno-v3/02 Admission and Commands/B205 UpdateShareholderDetailsKEEP.bru
+640808e6a6c1d11f9f1807020a8e88af2e9bbe78e4eafd03c1b97825e31c2f85  ./scripts/bruno-v3/02 Admission and Commands/B206 UpdateShareholderWeights.bru
+a2027264be4c4e1e985c3ca103a1bcc13a8193a8a37854f3b11626ab2509638e  ./scripts/bruno-v3/02 Admission and Commands/B207 CreateExpense.bru
+40094bb420752a1a4f0664c78c9cef7e62f248965cf05d3f41b772bc8677f95e  ./scripts/bruno-v3/02 Admission and Commands/B208 UpdateExpenseDetails.bru
+a27b397f46f0a6e437a6fc193ced054c7f2b80b27227d5ac18775369d97920c2  ./scripts/bruno-v3/02 Admission and Commands/B209 UpdateExpenseFinancials.bru
+20ef2e791c8919e43b68a76a601271132f4d04389c2cff90aeb521700b7a6444  ./scripts/bruno-v3/02 Admission and Commands/B210 DeleteExpense.bru
+dbaf1cc02c78b47d51975deb44771e64011637b0ddb54ff2db5f82bbbd1e3465  ./scripts/bruno-v3/02 Admission and Commands/B211 DeleteShareholder.bru
+7b2d44de0ad55602852856f4c6fb4f9805198c12009a16863df098849dfde30a  ./scripts/bruno-v3/02 Admission and Commands/B212 DeletePot.bru
+3fa6f765c9a5f4115988045cf14875db72e80e3772326c08574306e6f4f98eed  ./scripts/bruno-v3/02 Admission and Commands/B213 SameKeyReplayAfterTerminal.bru
+63b131737682b2a2921fe58adea40d25e1d469edd2fea823cdf9b8e55117b95b  ./scripts/bruno-v3/02 Admission and Commands/B214 DifferentIntent409.bru
+211fdf763b1933a413df877a8b733b269c3d31bfb4a2f0902728a9f2730b7d90  ./scripts/bruno-v3/02 Admission and Commands/B215 EquivalentJSON.bru
+0e5aeafef1bdcee236f0c096d360a2325922a0bc500a5882f95894af01ad4de2  ./scripts/bruno-v3/02 Admission and Commands/B216 IdentityScopeIsolation.bru
+1d2e62ec2d60d9306044a2193819a1b3f2da231039c957cb546849a337717e93  ./scripts/bruno-v3/02 Admission and Commands/B217 MalformedAndUnauthenticated.bru
+068897f56f249866229e6691a7bcb5352d821b7cbc042582b1370ed6191555b8  ./scripts/bruno-v3/02 Admission and Commands/B218 DeferredBusinessRejection.bru
+91fbd1482f6482022bd6a6435c2d8fff1fe2b419613408df1e5b0b4f17daaab2  ./scripts/bruno-v3/02 Admission and Commands/B219 Atomic101AndRead.bru
+b1e7599b33bdc1fc2947ff810cacf1b35849e89c823288706e802d9a3ca4e5af  ./scripts/bruno-v3/02 Admission and Commands/B220 UnlinkOtherSelfAndStaleSELF.bru
+8c492b29528cafaf587e3e0bbef08b04b2edd9cfc2b674e19fd1c99271719257  ./scripts/bruno-v3/02 Admission and Commands/B221 NoPublicLinkOrInvitation.bru
+d3c41099af617dc170d43974cf6b4a8aafab07fea1490076351fc8d5db791745  ./scripts/bruno-v3/02 Admission and Commands/B222 MediaAndBodyLimits.bru
+074e95feb4508db9cf9e22101b2c80fb8bfb1d2412825ce4a64a497437c8af3b  ./scripts/bruno-v3/02 Admission and Commands/B223 RegistrationFree.bru
+9e017808d9c7478316b9d83f60b43cf001877efe7c8278a3015f84dd4b539327  ./scripts/bruno-v3/02 Admission and Commands/B224 ResultsOwnershipAfterUnlink.bru
+c3eb7ce9d102a5d135ffbea61c8b6f9c5482055fe3164e7a555ae986aa7ac74d  ./scripts/bruno-v3/04 Invitations/B401 JourneyAndVoluntaryDeparture.bru
+5a349ca09e4bf825d5593383417398aec7e6b090c4646b2a76b7ed54c101cd50  ./scripts/bruno-v3/04 Invitations/B402 ConfidentialityAndMasking.bru
+13c1ff019fab4b3d30fe272f06caa0b21dd6286e974abb3ed5df9b5775210e4a  ./scripts/bruno-v3/04 Invitations/B403 ReusableInvitation.bru
+8583319f51ebba6d24069a7b92bb47d41340185e3fe3398b4031d502de4f6606  ./scripts/bruno-v3/04 Invitations/B404 ExpiredCreation.bru
+8e3b0302e3d0cbe62819d5f011df929d8aee4c65a3a19f7530b54f59ff0af824  ./scripts/bruno-v3/05 Observability Demo/01 Check Binding.bru
+ab9587378148d814c6ba8cd90ba83a3e4a60c09c7e5eff5e202d178f1303503b  ./scripts/bruno-v3/05 Observability Demo/02 Register Identity.bru
+b5557757690e7f8afe9b19960951a887e2c2755af9bcf1f54a413583ac0010ca  ./scripts/bruno-v3/05 Observability Demo/03 Poll Registration Result.bru
+d6d82065a2ac5354e003024ae0599ce0c49717a240be8dac1f8859ccfde1a922  ./scripts/bruno-v3/05 Observability Demo/04 Submit Create Pot Command.bru
+b64664390ecc5bcd8d06bfa1375cc8903583a56f3a7398916fca32eef063c132  ./scripts/bruno-v3/05 Observability Demo/05 Poll Command Result.bru
+945b2d89ebd303b4c21238061667a4ce3a3e51e6241d88cb78bc2c2f7a57264d  ./scripts/bruno-v3/05 Observability Demo/06 Consult Pot Read Facade.bru
+57b569cf97535292829d4e83bb96de35276befcff6ddc85f201ff3a1b004f88c  ./scripts/bruno-v3/05 Observability Demo/07 Actuator Health.bru
+c9ceba383e666d944ec384b6635e05bb70f797d4e00c1dce47a2a0ccb2ef1080  ./scripts/bruno-v3/05 Observability Demo/08 Prometheus Scrape.bru
+ed2ebcae17e558904445cc8ed026612b1d64002f87b8d5c351a95ef2b2a18c9f  ./scripts/bruno-v3/06 Installation Checks/B501 Authentication and retired routes.bru
+bf4b51a5c18468ae631697fa4e41d1247caa4454fed2b68034e6cdb8666e26d0  ./scripts/bruno-v3/06 Installation Checks/B502 Diagnostics.bru
+209ea7b0a8190131b1ee9726507b231fff9451e7f3c410a9905b6a56a39db8c9  ./scripts/bruno-v3/Coverage.md
+8f7a1f8d50db4e31e548fe60d9cf7f3c2a99039939be6de91edfc7659fcb4f27  ./scripts/bruno-v3/README.md
+dd08d8fc526839901e048bd8eb49b1ec0a5157e666ef2d14d7a99aafb6589ac0  ./scripts/bruno-v3/bruno.json
+4a69fda40256968023c6bac8d8db2da88d05eb0286b04370e8dea60140040a8a  ./scripts/bruno-v3/collection.bru
+07c7321392f9e2a4bfd1b3e8b39cddfc52b5cc24e649747ce9a93377a33c9113  ./scripts/bruno-v3/environments/Local.bru
+3927c7e147064a13c13405f7dc51f64ac832317b5c5bbd509f9f303fede9d922  ./scripts/bruno-v3/environments/Qualification.bru
+7f28ddd15ffa652930f97cae74f5614eab57df8cd9719e3d8df33f5572971177  ./scripts/bruno-v3/examples/error.json
+8853766a17a9d0640f5523fa0ca88e14a2767b67695455a7bab4425163cc36d4  ./scripts/bruno-v3/lib/i2-admission.js
+8a4bba628fb7fe28fe43a89956aa9ad87d38136fc5d05bde56e6cf8c918b2ad9  ./scripts/bruno-v3/lib/i4-invitation.js
+2219a34dc60288946e5df32e0a454dfcc6a81a38225336fc85d65064608bcfa2  ./scripts/bruno-v3/lib/installation.js
+34a146f16bb90ac02be565548ef9e9bc4ecfaf502239a1aa224c8dbd69293b98  ./scripts/bruno-v3/package-lock.json
+6f48c86571038a0c6bfec16e55eccc65dc590958d7714038702d3af12049cf58  ./scripts/bruno-v3/package.json
+a4cca616eea14cd9a548c06c5109b57a9c7b642edbf8bef1d0cc004a4e5c6557  ./scripts/bruno-v3/qualify-installation.py
+42ab59a45e782ff4e19ae08cb413fbaa544a52ad9f7347ba8ea8ebec2ce11a9a  ./scripts/bruno/00 Pot E2E/01 Create Pot.bru
+dd30da02d68731e17a63cdb39388b3471409678c4c27533b538d206905a12e86  ./scripts/bruno/00 Pot E2E/02 Get Create Command Result.bru
+8edc7c78c67ed7435f3a996ea6739337cac893330a51c637d158470ad1329bd3  ./scripts/bruno/00 Pot E2E/03 Read Pot V1.bru
+9c1612fa98fb390ec19448dd6af56447c93517c666e1f0d450e8bc8baacf4508  ./scripts/bruno/00 Pot E2E/04 Update Pot Details.bru
+c5c88afb5f3aad443eb1fad6875f0517f80489e2bb3a52c0b360e1093a72024b  ./scripts/bruno/00 Pot E2E/05 Get Update Command Result.bru
+0bf1e53a931b1ebd96e1397ae0b5e0945ff297e66ba4736318893a4a50c5db56  ./scripts/bruno/00 Pot E2E/06 Read Pot V2.bru
+33c02e2e2c4b03b3ef540bf9890dc46fbfbf3dfc18144940408e18cc5b44653b  ./scripts/bruno/00 Pot E2E/07 Re-read Pot V1.bru
+c47d9349c027466d5919cc102d02e425fde8d672f6c894412827daecb5445f52  ./scripts/bruno/00 Pot E2E/folder.bru
+c2bd72a1bc48ae79eef3249afe31b8f0673467ec96574ec1222f630a44a95646  ./scripts/bruno/01 Pots Commands/01 Create Pot.bru
+42305391dbb7c89db1de33a286f50ab2fd3561c7c05246216434c6268dad7b31  ./scripts/bruno/01 Pots Commands/02 Update Pot Details.bru
+85c8f22aa7d65faa01014ea38bafefd99d4b496c3d4c74a2fb88e8698a51df6e  ./scripts/bruno/01 Pots Commands/03 Add Pot Shareholders.bru
+d9ec5e35a7c9fe2669d0e3bdb23abd88cc61638e8929c1b24f6837a6df9801ca  ./scripts/bruno/01 Pots Commands/04 Link Pot Shareholders To Users.bru
+87bd3b44f8567567bbe4f156a90221725e0a3e33d3f087baf83c3dea8a0becb7  ./scripts/bruno/01 Pots Commands/05 Update Pot Shareholders Weights.bru
+25c846c7856b006d63ed686a6622f288a8835c4341bacf6bd66eefc6d5d6bf6e  ./scripts/bruno/01 Pots Commands/folder.bru
+5a7e1e9920152a2cc3d6d9e066213261ff9452b64d33136b961abc612d042aee  ./scripts/bruno/02 Pots Queries/01 List User Pots.bru
+189a03710a634453a07fd7e3a77c151f2e0b7885f98b4cbaf9539a89848593e3  ./scripts/bruno/02 Pots Queries/02 Get Pot Current.bru
+3c4dd2ae5d1acfde9792ad1445519786258d3edd58c52fa1203837275563cfd9  ./scripts/bruno/02 Pots Queries/03 Get Pot At Version.bru
+2d16f02c754daa62df84c337714e8fe65bee9d4d4da20b35e46e501cb1093c75  ./scripts/bruno/02 Pots Queries/04 List Pot Expenses Current.bru
+89418bb6a7aee309606b4d30b90895015b4183c78f2f3023e816cd4d880a2479  ./scripts/bruno/02 Pots Queries/05 List Pot Expenses At Version.bru
+e0ff15d18c946045bc4cfe4703c438b00b3038870f88606eb948f705c77c37d0  ./scripts/bruno/02 Pots Queries/folder.bru
+c4cc5302f914b51310602c42d5dedc9f91a03e7884b877d8323c9c5db3e9323c  ./scripts/bruno/03 Expenses Commands/01 Create Expense.bru
+ed569e9f2d0c36e6e5f8474874fc855ad17b9c5181d88bf540e34de6af52b9cd  ./scripts/bruno/03 Expenses Commands/02 Update Expense Details.bru
+96dfc4b63b780c7c1912dda11c3a2f74b8892e9fd5169b740478c3c377dd9db2  ./scripts/bruno/03 Expenses Commands/03 Update Expense Shares.bru
+82c9dbef875c6e8dd59a20d96b26711a22c043760a2e796c6605409313d9268c  ./scripts/bruno/03 Expenses Commands/folder.bru
+a31ffce4d639281a462785785f4a1957f529aa182cb926ce0d7f884bb43921b6  ./scripts/bruno/04 Expenses Queries/01 Get Expense Current.bru
+ea6fd7e99a8fc783e06969168d65c0c28d10b28a8ffcf1b96a6a3279c623a590  ./scripts/bruno/04 Expenses Queries/02 Get Expense At Version.bru
+5100a0cee13867adcf89d247d03059373612cdf86d62aff9d8a042ad9f38d066  ./scripts/bruno/04 Expenses Queries/folder.bru
+3fe35dfe05515966666a4800de8e8c03f14915fd2cab7e5268eec1cc8077b4f5  ./scripts/bruno/05 Balances/01 Get Pot Balances Current.bru
+5bf11d1171473b1b7e85ff4542a205f8dce8eb9b737b3a6796822d3f0b093330  ./scripts/bruno/05 Balances/02 Get Pot Balances At Version.bru
+e6be63023579c9b2036155be0f15479de4ed8513e9c45bc687f738318e7ee873  ./scripts/bruno/05 Balances/03 List My Pot Balances Current.bru
+16732c50819aad03562d8b7d39b17c0f45fdce3f0b477ff410764db338ff3c40  ./scripts/bruno/05 Balances/04 List My Pot Balances At Version.bru
+24b313c7d5001b2cf59a6fea72dad9792e0c289e0ac2f59ecd287dd5b58ed72a  ./scripts/bruno/05 Balances/folder.bru
+a1e34b006780d4c4598e55d89163bb897bb0596c50bbb8957785a492a751b2c4  ./scripts/bruno/06 Registration to Command/01 Register.bru
+19cf943842af30402f944e2ce7af401da4bb95ed726b1c71f499af5377fb202a  ./scripts/bruno/06 Registration to Command/02 Registration Result.bru
+7087f858fce3c8558aaf1572cd6a62375daa99fd603c4181c42e0c86df22fd9c  ./scripts/bruno/06 Registration to Command/03 Current Binding.bru
+88e5a193d8bea5528f12d30c3054e7d66bb2ab980a16e47a7fa268eec4f01144  ./scripts/bruno/06 Registration to Command/04 Create Pot with Current Binding.bru
+84e8fa5bca1627cbb06fd8294fdc6a1890591fab0441ea4fc73b594f89aa00f9  ./scripts/bruno/06 Registration to Command/05 Command Result.bru
+ad51d13efd575cae814655d31c998c3de22c143ece30e2989441121efa137bc2  ./scripts/bruno/06 Registration to Command/folder.bru
+c3a03cb102f835da0bf41e98f505287ec95fd1a35a5f6fd83a815c0eb5656810  ./scripts/bruno/99 Cleanup/01 Delete Expense.bru
+43c33e0b04a9e888d8b236092d01e3bad5dd2b292c9bb4c1da7b2a9ddfaff613  ./scripts/bruno/99 Cleanup/02 Delete Pot.bru
+f6442d4780ddcc07c3f266ebad2bffb3c0a6d1e64c635ce036934c7fe22a03cc  ./scripts/bruno/99 Cleanup/folder.bru
+865a4cb0f1601cb94b5c03d050b8b4e64608b6ce2f83bff91784d200bfb9a327  ./scripts/bruno/README.md
+24d358bc9a51dda61327bf3c49fbc4a01946edc4f9bcb5a6cc416049351885fb  ./scripts/bruno/bruno.json
+4846e31147a155ff072486b04b714599341797369e60060e21d76699cbbe7dfd  ./scripts/bruno/environments/Local.bru
+c0b6e6ae959ac93851378ad71d1898c84f3b931f3a7b6973e023b40db05254f5  ./scripts/functional-auth-proof.py
+4756d50f787947ed0ef08993bcfc996fa41412f7c5f73f729d74ca6015699246  ./scripts/k6/README.md
+491d7ae43c502a394c0acca44d73af24266cc4f2dfb438fd9cac5b1e4ce86421  ./scripts/k6/lib/checks.js
+126e098a487fc41220ea2b9812233720f2ec0ecbbeefa19e42443765dbd8ceb0  ./scripts/k6/lib/pocoma-client.js
+136e1ce31a937767f40b9cedb94b682755a20f3b9720bee8996afa8c8450a57b  ./scripts/k6/lib/prometheus-scraper.js
+de49e304914e4b6908b19fb6720a478c9151a73514fd4c639fa884f50c0341ac  ./scripts/k6/lib/scenario-data.js
+a02c4d710a4bf1baf55baf44c1932b792dbab1709bae9ae0eae93e3014e20569  ./scripts/k6/lib/v3-api.js
+a9b457461a86dfae6e7828518a832cfac98e8cdc69502dba162553a1ae0ea83c  ./scripts/k6/lib/v3-oracles.js
+92f83c4555f2e72dbe10e934aaecfd1c78c1c41dc4a2f81aea2d5f7d9c4d9a7e  ./scripts/k6/lib/workflows.js
+9a6df011b10ee05ed556fc9607c0bc2d77f028bb2e44783fec9d47b21b00de7b  ./scripts/k6/projection_backpressure.js
+a288e50f784daf2a5124614a78bf2cc762a881c1a53000602cde21109a1d6122  ./scripts/k6/smoke.js
+83d772dae18b4a4c5d1df08a1af23739f44c17d2369113bd8362bc24b1a03e1f  ./scripts/k6/stress.js
+73e37df644b25867849cbb62aaca9201f7b0d16e1dec58a270d6f304f879471f  ./scripts/k6/v3-oracles-selftest.js
+a424427c9bd661dab77000f3a59df5ce063661312f36f67f5960a4c4d955d0a8  ./scripts/k6/v3-performance.js
+6dc619075597a0f623454dec2dc7f2f3e272ac80f7445d5d672fe967952a2e4e  ./scripts/local/auth.py
+8ddaa8541c6a0d9c499b1428a84f9d79c68685ef4752d03428638cbfc36f14a2  ./scripts/local/bootstrap.py
+71248c0e0f1fc9e89fa79d6dfb1ee6a90e243817affb248a5877dbb4a4ba2f8c  ./scripts/local/entrypoint.py
+091dfb2b0a46d2fcd7b04e53d1f0d365358988028cd86c40d08268dfc6b80fd6  ./scripts/local/grafana.py
+d1320ab57b99f5beb8de0ad9a1d367701f54a502cb6ea43298aec4b713265673  ./scripts/local/inventory.py
+3f85064365d74dbad24f4aa61005e28b0417aacc617ee74b48e349c17a4c4b46  ./scripts/local/keycloak.py
+b25da094f991ac3051f1852690a6e46a04e6a791be7d6643817e7dd079e7bb4c  ./scripts/local/prerequisites.py
+4a9d1a4247256f2e56c519668ce3f9fd700507cf9459774936f015812eeb221d  ./scripts/local/public_api.py
+abb5d4cfac9299bd2cbd203b733ff87b10da35cf287bfeb0343bb665bd9af54d  ./scripts/local/recovery.py
+42bff1234f1270133d24f954b77bda7c3f7ac2c79cfdd1e738652408d7f52cfb  ./scripts/local/runtime.py
+92541f698610d856cfe97d5277d4467517ab6a45284b572232ae1bb70322e732  ./scripts/local/runtime_bruno.py
+2dc7b22b393a69be1f0611e439e964a3ad953ce68b55d004eb345f2444af02d9  ./scripts/local/runtime_grafana.py
+d7a22ab3bfb999c59a4b582715c8904ee933223e15e372c8c731f205456aaa45  ./scripts/local/runtime_lifecycle.py
+a9cdbe788836837fd0ea7b2d9166a79e8a77ac375bc8c501fcf0c227e4f8d789  ./scripts/local/sync_bruno_playground.py
+8808d64dccd5e5cddda88a12639dcb170e7c4bf472dcfb799be8da39fd9eb4d4  ./scripts/local/test_bruno_gui.js
+cdc72f8319934d5b8aa4e5c87ca5721a2b714c7234bf2b3a0d72c99456b4f980  ./scripts/local/test_bruno_playground_installation.py
+4339ef52ec483277261330e6dd02c3439aa22be29fdf9e5006e9fb10aba82c84  ./scripts/local/test_bruno_qualification.py
+892f87da634094e8eded4ea1b2517d8479b5aa154f80d42775f05cbd1c5300a3  ./scripts/local/test_grafana.py
+dfe6843965d860d360e33e849df19afe152ec33a5951e3d41664c1bf608541ce  ./scripts/local/test_grafana_installation.py
+dc20315a9619e51b2e05ffb8b6074d92046ccbc108ec7b513d7633328dba84d5  ./scripts/local/test_gui_auth_protocol.py
+4d60138f936497632ea194369c9ab043c364e95edda585acdf81464ddf3c419f  ./scripts/local/test_installation.py
+3beac16d57d4134832239b5a98a1b7ccd4f8a46f6b421ae3b22bac1ec33cf118  ./scripts/local/test_interactive_protocol.py
+ef972c1a4783934c787ef550dd4747b334db282d294f730b0b3d68542bce4b5d  ./scripts/local/test_keycloak.py
+76c5184b2d7bed186fd9796cd728c230fc42e021e3075c7f64b9c7753aa91dd8  ./scripts/local/test_keycloak_installation.py
+833e165d9da99ec680cec730c0f37c7689fa034a478827b3ea91e6c3ecaa28e2  ./scripts/local/test_local.py
+30b9a065f43594023dcf378632fb7526a54757aa93ecfb320db96f08e717bda5  ./scripts/local/test_prerequisites.py
+01171bf2bdbf06b442c765aa5d1a9a9feb1bfc85a8fdb976d06fc5c6ff90de8a  ./scripts/local/test_recovery.py
+f691bfe6d78b3596a445c58d70c0eb42766f3adb90129fa126cc0fc7a92e4b0f  ./scripts/local/test_recovery_installation.py
+6ec5128692b8dcbbe1e15f737efb4759e36f6d3abc5210bd461e5e3d872af970  ./scripts/local/test_s6_hardening.py
+136f65963c04cbfc1433f64d65eb747a63b2f5b5345af2903a9f6bf1e1a0da56  ./scripts/local/test_volume_ownership.py
+474924a091ffd6e8911376bccc44b24cb57a867eb58fba8ec5283bb6de44d10b  ./scripts/local/toolchain.json
+38faf9eebe0606e56b21d7fce12d07fb59f196dc729e2211080a7d3ae1d0347f  ./scripts/operations/event-sequencing.sh
+310b4951a24d305f897e2cc7cddc23a457deec97cc09ae113ee4a9b3e60ed826  ./scripts/operations/read_availability_schema.py
+10e084603fe188037b45a6ed10cf83040583c98c03847eba0826cb009e1b8d7d  ./scripts/operations/run-demo-journey.py
+1bda7f56e4cbb46e021a38ab63836223ec81aad6b4a9dbfd239e3f7fb245b1e9  ./scripts/operations/setup-v3-database.py
+fa975fe05683a861332b594c205edc7e0baee7a9cb09619becdc3158b8bdf483  ./scripts/operations/test_v3_operations.py
+edecef6a5317ff482745049081465f7671ee48aa4bc72a358fb8723b3da7a798  ./scripts/operations/v3-rebuild-read.py
+b0afb635ed2c25cbdf62aa1e0457d4eb7649591732b424434797ad3f228e625f  ./scripts/operations/verify-l6-i1-observability.sh
+48f58fe874b8c14fd39f33a83b3601a829a7f6170a7b84a83a2838f4d3f70a40  ./scripts/operations/verify-l6-i2-rebuild.sh
+fd5322a828af3671e711dca77b963fadd00ab435dee1bb55815962d74bbd7d44  ./scripts/performance/README.md
+a43033f9789c6ea2dad14eeae23b0dcb5cd543077fb9b15c21922445035f90c7  ./scripts/performance/advance_all_remaining.py
+99e5e4f7ae149c56f4ce34158f36a928739446b35d9ff74cfeb88b0555b45705  ./scripts/performance/analyze-l7-c2-b3-consolidated.py
+429711b6c42c8b2c07219f032081619ae2ef072a23e1a38fd7b67cad76a331fb  ./scripts/performance/l7-4a-profiles.json
+8821ae3438621c9adf119efd68bbe89668270da101465f4721f63e2c48d49c55  ./scripts/performance/l7-spec09-campaigns.json
+c8638a90b3763e852a30e55ba094e7a8fcbe8ef7d91b5af9ed69b2c801bde686  ./scripts/performance/observe-l7-spec09-backlog.py
+2dbbf624a449a1d15d48360dd62587f27aba1dd5a8ccf6dbf28085a8153e1914  ./scripts/performance/plan-l7-spec09.py
+06d4e1a560a8a48a4078b61eaa7c2630a724a774a53a28ede7f8bebbe7db132c  ./scripts/performance/run-l7-4-a3-a4-multibucket.py
+d6b39db3d403120cb9f4a6a4a0f1377f0049c6f48fc74dd44ca52ba2ac967f36  ./scripts/performance/run-l7-4a-baseline.py
+55f5cfc500fd904ff94dc020c6ae7e87ce678373705f7efa4d2bd3cb4f853a52  ./scripts/performance/run-l7-4a4-targeted.py
+c4f422f96f5a9b96f5ceec1208fbaa94c33c3d2f0ec507ad72e8a34abde1c813  ./scripts/performance/run-l7-c2-b1-qualification.py
+6b21da899f1675718256d4d2ef5669534bb99184d6d6f2d17df8b01bde9a0fc3  ./scripts/performance/run-l7-c2-b1-xlarge-ab.py
+4b9d56647e3cac290a586c93300b02eb5803573beb188d3db744d9fdbb7bea34  ./scripts/performance/run-l7-c2-b2-qualification.py
+1710b3b7d88ba77b93b7c55d232a11f00dd298b20c905b3abfed9364deb4ae42  ./scripts/performance/run-l7-c2-b2-xlarge-ab.py
+b39abae792cb8e761805df41ac0726f7b98204e7835f1c9950a73e61392e7b35  ./scripts/performance/run-l7-c2-b3-consolidated.py
+f7987b6a0b4440c0a9df559003fa254294d8cb5207506e88a5407be5266ba61f  ./scripts/performance/run-l7-spec09-e1.py
+4599874e7269a854111f9354b2b26c332030e22521f4b6c5e1a93e99741bb304  ./scripts/performance/run-l7-spec09-keycloak.py
+e374ead997fbfa26fda894ec9f60e7b6740df9ff6567685513a183353d4b45ef  ./scripts/performance/run-l7-spec09-registration.py
+4af02efb35d18544f5b670f7ecd3a436be7c398d25bfe3c9c72925a612ba866b  ./scripts/performance/seed_spec09_medium_pots.py
+3f4e65903d564cef718989fe609ef15fbb098035f2de5661977b0bb78f3884bf  ./scripts/performance/smoke_test_5_runtimes.py
+42b438b0d425b1481afea2a7ca573d4d9b6ea9273d86d6e4b2d94b2d45b58996  ./scripts/performance/spec09-test-issuer.mjs
+5673ca3741f855f2d85c381af786b1d5129875345a777c4cf1b776c7fc8a437f  ./scripts/performance/spec09_bench.py
+7c2c748b9b69cf71d5857f004cb9aacb7a853966ec55874e5721f4fd03bd0e6f  ./scripts/performance/stock-l7-spec09-backlog.py
+41ee350461402790d0c03afd27fdcb62d92c84febbf3f2cc68ccc067fe409e1a  ./scripts/performance/test-spec09-test-issuer.mjs
+99344cc17487011c9d380cdaf01348f01c3717059aea33368134359fe534ea3e  ./scripts/performance/test_bench.py
+9aef7c0e495fbf9c130a354ef044dab220a5dd400f6a7fa1d2ae9b6160930869  ./scripts/performance/test_five_runtime_smoke.py
+0318317bade6c99a8adc0172e5973d4294830888c575dd7bbd85e62e8b1f2625  ./scripts/performance/test_l7_4a_baseline.py
+188e6defb72e130f101207d1f49d59cc405b482fe70b4337e852b8278179b92e  ./scripts/performance/test_l7_spec09_keycloak.py
+8410d65690186eeb769e3eb03d0f93e473e521674e2c04f5bf56d3a70c0b9cc5  ./scripts/performance/test_l7_spec09_registration.py
+21f9a7af408822d7d0b19b9838334bb7f3ba28b312ee78851a2e09d691cdd3a9  ./scripts/performance/test_l7_spec09_stock.py
+8051c8ddce3191d01e821acaba00d6470d2989d0ee5a11b55ab06ec4f54c02e9  ./scripts/performance/test_r4_observer.py
+2c38c3edc60b91ed7d345a598ef5486aa7161a52af7d9a2651ce66832d97e8ab  ./scripts/performance/test_r5_scheduler.py
+5fdc4230b29653919bfe84fbc743920f7f4af137aa2b4facc5dc21e521788eaf  ./scripts/performance/test_spec09_bench.py
+2b5ced8ddc759bef2435e19617786fe68bb7414a82d2a543fd010b605185ffd5  ./scripts/performance/v3-collect.py
+741814f773a6f35f4e7790ab5c1e1a92b54fbd04c9c3b688f56482e683d38c76  ./scripts/performance/v3-oracle-probe.py
+b8167636d3e87cc753d68778e0ee0fa66f1dc8e0a2c7dd68134160a806652858  ./scripts/performance/v3-plot.py
+08552b4a8f1ff4da3a3263de8c1fb9f2c57eb86790176bd67597edf89fc55ff5  ./scripts/performance/v3-preflight.py
+602dfe3b153e1ca76bd852b88f5a0a14bc2e0b69ea88b5a5430e62bde0d0d4d6  ./scripts/performance/v3-run.py
+0dd4f725ec7728e27d747bf1ef1ea3f8b0ba602ca03633d1becb49d81fb6a0c2  ./scripts/performance/v3-seed.py
+40fbfaa2683737c4f4cee0e3e91534e9a5e8edb8a213396d2952c4a359b61eba  ./scripts/performance/v3_ab_sequential_discovery.py
+9f422d27ec277ef3798c2bfb7ae9de5a271acda811249e78858a8261fa3bc32b  ./scripts/performance/v3_observer.py
+596b6b62d81250e67faaf8309fa7d9eded3a1617d70d854c876e87e74e055522  ./scripts/performance/v3_populated_db_generator.py
+bd66304e15494ce55b00d999c81cd8b71f8c22778b16a1369e17f13c00d215d2  ./scripts/performance/v3_r10_consolidation.py
+75336393eac59967e6776fced11f591d8e00fbc75b0a9681c605fc88430e97cd  ./scripts/performance/v3_r11_filter_qualification.py
+4dfef17bc65b010bd56c4c17c39b206287d2704612cbddd7c3b81dcce25acfe4  ./scripts/performance/v3_r7_campaign.py
+d1d028b6aad0a1730d27c68407d446bc5700229dd3e7bad8d51584ae1552ec29  ./scripts/performance/v3_r9_resilience.py
+b9ac3a9f2302be560427ef2556f17650fb8737ec7ae84e2b3f27fbb8dcf388f0  ./scripts/performance/v3_realistic_workload.py
+cb9616dd915e18f6bbab7446a469fd592275ef1c1f59b1ba577929d9014541c1  ./scripts/performance/v3_token.py
+2fc0d2f317773aba6902de123c2a0daac415a52f5fc6f15485b6a5ee9879dbc6  ./scripts/testing/audit-evidence-retention.py
+40d5cb296d28b76051ba7ce5e1ce91f33cba5883829511b54b29b4dd3ba54a25  ./scripts/testing/build-l1-matrix.py
+a5e21ca69fa9053bdf40f958798c7067679dbc9d16e58b49275df81d5dfc9b0c  ./scripts/testing/check-l73-completion-evidence.py
+52f6cbaa707234e3cb2c38af00dbebce2b6147ec7acd71003f4b6911270191da  ./scripts/testing/check-l73-final-evidence.py
+047ec7ec58ceba1e6016714085df628fcb77d6c09c28c676feae424feba73e6a  ./scripts/testing/check-l74-evidence.py
+05da0301d5fcc5e14c13b9097a30b015679f5680b6f3c80f24f445343c06ee11  ./scripts/testing/check-v3-l2-i6.py
+166db78735330747da605f690297add4b83538e72a4ffb96f83e196f7dd99245  ./scripts/testing/consolidate_bruno_b5.py
+9f94c5cbeff5bd9cc448be93ab764485b61b28ebe8bae5de6c614057010f0500  ./scripts/testing/evidence-storage.py
+aeed2612727304509de869d5857ad6dec043c45e6f2b0a01381221801ef60253  ./scripts/testing/fixtures/complete-historical-link.sql
+f7661910dcdb6c7968beec5029bfc87085934283e019c5326f9969af2875f3e2  ./scripts/testing/inventory-l74-writer-candidates.py
+2bd59a20f140de4c3bb7522197dbfaae6f375477a2beef640a85c79f5a44c14e  ./scripts/testing/inventory-verification.py
+af9f992031b4e820c2d33c6879aa7900f477c4984d21d978c339852065fdce2e  ./scripts/testing/l5-i3-auth.py
+15e4cae0c58be8122a5a756fd12759f9e36803c488fc528590b2498f44e2b6f0  ./scripts/testing/l7_l2_gates.py
+658bbc453c82a3b6400387b2fd312b5b7c9c4cdf987ca6e40a198d05d3b3838a  ./scripts/testing/preflight-l5-i2-gates.py
+85e9c9023635a5ba41c8ba19fae10cf3d0590ee53d351c5415aa51b16313691c  ./scripts/testing/profile-v3-l1-f.sh
+dda1bfeadf78597aa3e6ba9921c41e78788a209bb395584070b9d4e9e98bcae1  ./scripts/testing/run-i5-temporal-final.py
+1367d61ee3e515ca1ce2eb0ff8f717f9c45ad1ae00c02d978334477cd386283a  ./scripts/testing/run-i5-temporal-v2.py
+71a979a4adf20414e5fb031f1904ddaea0b63b319b4c439505b4af298c52f4cc  ./scripts/testing/run_l5_i1.py
+36a5d75e2afda52436cae0d9b879b399ae16741d4bcec68e02462d44174dccfe  ./scripts/testing/summarize-4e.py
+e931340c118115ce983e8f33fb0dfb4b84fe121af284661b69f3388681b47e4c  ./scripts/testing/summarize-v3.py
+8450d582516f65eef413aad1e4a04d30a4f6afba8295e4feda40835c7376d462  ./scripts/testing/test_evidence_storage.py
+bdf297bded76309ef7ab89b9f29534c844b6204df2acec6578bcc8fce459daf5  ./scripts/testing/test_i2_evidence.py
+02d6340fa4ca1de40a0948cdce4c55ebc1f31385eef17b5774fae4d9c72192aa  ./scripts/testing/test_i3_evidence.py
+d55deaf9ae9ef531f9e751889e9e7aceab2ddac930d1fa64c20225a8a354d516  ./scripts/testing/test_i4_evidence.py
+8c8a7069ae9f42aba6e2416d746859e0aab0b7cbf15db5ba086aaac2cfd2c67c  ./scripts/testing/test_i5_evidence.py
+db99c9eb15e2b0b215c92acab08288547d7a5cbb6a46c6811e62f54b650c4157  ./scripts/testing/test_i6_evidence.py
+e293fb40498bd502222372be681c183237e2e3ea96a3c25e4902d247161cddf2  ./scripts/testing/test_l1_provenance.py
+1cb2db295e24f4a50573abc1c0e749a50d4ba9ffa4d343a109f389d7f25a32c8  ./scripts/testing/test_l73_historical_admin_safety.py
+632e57e8f3f94e88520ab74bfeac66a4fd0bf39223507dc40da4d6127887200d  ./scripts/testing/test_read_campaigns.py
+83a273159a55bf53a44eaae6ecafe96153404d085cfbd104ff54a51f9fa5aa30  ./scripts/testing/test_summarize_v3.py
+04fbb3fb9ab887abde216807d2b5bc291a53244014abeb3eb6d57ad0235e740a  ./scripts/testing/test_verification.py
+f12a989a7f421a4ec43a4ab27883422a6e02c6fd3d3ccee79654acf876905cb8  ./scripts/testing/test_verification_cli.py
+d98dd64cee99d8149c0601847076f727aa4af5b3c1a03cd6af3f84f9045efa4e  ./scripts/testing/verification-campaigns.json
+f9f4818705acdbefdaabbd62457499a3f8342ec93ba36e24721d03763670072e  ./scripts/testing/verify-4c-previous-runtime.sh
+86446396fa7e500ccd7bdfb0d357c1ac198e768a52d3fbb9021517f73083de10  ./scripts/testing/verify-4d-previous-runtime.sh
+c7052d5891c763eb8775dcdbe330a6faa8634e75b6575340e806209b0aadc1d7  ./scripts/testing/verify-4e-previous-runtime.sh
+9da35c827ef0a31ac4c61a8c5e7c1c3a9c4286057545ab9919654b3039c1ddfb  ./scripts/testing/verify-4e.sh
+f9e2afe54621a0220af1b1b1f68a992a1bd310aaa878c7fe5095e1f04159fc1b  ./scripts/testing/verify-v3-l0.sh
+4fcb001217385f2c3c2b7bb22a53fd59433535ce996c26be599a70f9fb914055  ./scripts/testing/verify-v3-l1-f.py
+9276a1c8118b35609ce97776f1fb400c957c66fa9c3cd1479b82f5b5df527b9c  ./scripts/testing/verify-v3-l1-f2.py
+589226e7967f5512b15b2adfbd06e254e0ff8c73fa5a71ed2077bfdea0d4f453  ./scripts/testing/verify-v3-l1.py
+283df73b19e1942396647b7a8f3487a632cc455e2a98099f432cfe0b2dfb511d  ./scripts/testing/verify-v3-l2-i2.py
+c7e7730e825c1acb16ef9d88e6de2ed05ea3fbd47b2244f02adf0ce0967f47c8  ./scripts/testing/verify-v3-l2-i3.py
+83f59fb10e9a1e164c85c11f4b532b440e062e7861318c0b513dcc1b510c39ac  ./scripts/testing/verify-v3-l2-i4.py
+60c545a963ad6731d21f35a0dec044b32281e3642b5206e6597d518ec380bbac  ./scripts/testing/verify-v3-l2-i5.py
+61b4861917f6c7a70271716be467e8a93990c2cf91a32492322ed90e1b00abdb  ./scripts/testing/verify.py
+a1c20559057fc02ed947792a463f9e19a5698508e5c913874f620dbde9716d3f  ./scripts/v3/bootstrap-l2-routing.sql
+4dbe67e37968a950fde7af978ef7973b98477b0c0231c3ec7a8cba4abdeaea3e  ./scripts/v3/bootstrap-l2-worker-dev.sql
+e033f8621b2d8b82b606e1d8086ea3cbe28ebab4871134ffc27a472d81ce591a  ./scripts/v3/bootstrap-read-maintenance.sql
+407052551fcb673a53ae9a0041bde0aa0229c2978168253272cc4c068ef88881  ./scripts/v3/check-routing-vectors.py
+705dbb6e09bd185863b4af8a12c4ba672e08223946083094879ece2316a63824  ./scripts/v3/configure-l3-identity-logging.sql
+95c2ccab0dc1aa5b20594298ab7f6c1fb748d32a5d82e2ed96eea6a2011e83af  ./scripts/v3/diagnose-pot-balance-unreachable.sql
+50c2e5e0d294354a2c8fddbec648cf1da5e1369e1a37422225d6ce128b91254a  ./scripts/v3/diagnose-pot-version-unreachable.sql
+a62924394a78d6e42f570963352f30d07792873aa7d48bc8f83e0602df9e9006  ./scripts/v3/grant-l2-discovery.sql
+03c942d8638a3e20870aedc7b411f45c275a98c6e5959558264447efd6df6582  ./scripts/v3/grant-l2-lifecycle.sql
+d99d5589e9d50a441dd9d767cca15878ac0682f3c0be0b7aa642ee0402f95d35  ./scripts/v3/grant-l2-worker-dev.sql
+2136c5e762bfb46f5307bb75921140835427aec5057831b2d21111635fb21a9b  ./scripts/v3/grant-l5-admission.sql
+52609ed6f72c03045fbc682011c9cc69fdfce68183cb78e011c521cd1a149cd5  ./scripts/v3/grant-l7-http-read.sql
+b9f6db2c8a1a04df630f6bac86f6eed99bc62f7a1c494afa10f6b98152a0067e  ./scripts/v3/grant-l7-write-source-read.sql
+07ee9777e821caf3e96029c5a6beee65cddbf2acef4088e33502aeca927271a4  ./scripts/v3/reactivate-l2-slot.sql
+56dab2472243c4db449ce9d617f3fcdb036f1d64a79c313b1d486cf7bc76a8c7  ./scripts/v3/worker-dev.py

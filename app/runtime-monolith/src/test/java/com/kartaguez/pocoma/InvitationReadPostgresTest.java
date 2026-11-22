@@ -23,7 +23,6 @@ import com.kartaguez.pocoma.infra.postgres.write.pot.*;
 import com.kartaguez.pocoma.infra.postgres.write.consumption.*;
 import com.kartaguez.pocoma.infra.tx.spring.SpringAttemptTransactions;
 
-import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.Test;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 
@@ -444,7 +443,7 @@ class InvitationReadPostgresTest extends InvitationFixture {
         var first = source(event);
         var ds = f.worker.read.getDataSource();
         var owner = owner(ds);
-        var store = new com.kartaguez.pocoma.infra.postgres.read.JdbcInvitationStore(ds);
+        var store = new com.kartaguez.pocoma.infra.postgres.read.JdbcInvitationStore(ds, owner);
         var crypto = InvitationConfiguration.keys(f.http.context.getEnvironment());
         var unsealed =
                 new Invitation(
@@ -470,16 +469,25 @@ class InvitationReadPostgresTest extends InvitationFixture {
                         crypto.encrypt(unsealed, crypto.decrypt(first)));
         owner.write(
                 () -> {
-                    store.put(next);
+                    boolean advanced = store.put(next);
+                    assertTrue(advanced);
+                    store.requireCompletionReady(next, advanced);
+                    store.closePublication(next, advanced);
                     return null;
                 });
         owner.write(
                 () -> {
-                    store.put(first);
-                    store.put(next);
+                    assertFalse(store.put(first));
+                    store.requireCompletionReady(first, false);
+                    assertFalse(store.put(next));
+                    store.requireCompletionReady(next, false);
+                    store.closePublication(next, false);
                     return null;
                 });
         assertEquals(next, owner.read(c -> store.byRequest(id).orElseThrow()));
+        assertEquals(2L, f.worker.read.queryForObject("""
+                select position from read_availability_counter where family = 'CURRENT_INVITATION_CHANGED'
+                """, Long.class));
         assertTrue(crypto.decrypt(first).equals(crypto.decrypt(next)), "Protected link changed");
         var divergent =
                 new Invitation(
@@ -515,11 +523,17 @@ class InvitationReadPostgresTest extends InvitationFixture {
                         "select"
                                 + " invitation_id,version,creation_request_id,creator_issuer,creator_subject,pot_id,expires_at,token_hash,protected_link"
                                 + " from read_current_invitation order by invitation_id");
+        String invitationMarkers = """
+                select projection_key, logical_version from read_current_availability
+                where family = 'CURRENT_INVITATION_CHANGED' order by projection_key
+                """;
+        var expectedMarkers = f.worker.read.queryForList(invitationMarkers);
+        assertEquals(2, expectedMarkers.size());
         for (var context : new ArrayList<>(f.worker.contexts)) {
             f.worker.drain(context);
         }
         try (var fresh = new ReadMonolithI8Fixture(PG)) {
-            migrateFreshReadSchema(fresh);
+            assertEquals(0, fresh.read.queryForObject("select count(*) from read_current_invitation", Integer.class));
             UUID definitionId = replayInvitationsOnFreshRead(fresh);
             assertAll(
                     () ->
@@ -529,6 +543,7 @@ class InvitationReadPostgresTest extends InvitationFixture {
                                             "select"
                                                     + " invitation_id,version,creation_request_id,creator_issuer,creator_subject,pot_id,expires_at,token_hash,protected_link"
                                                     + " from read_current_invitation order by invitation_id")),
+                    () -> assertEquals(expectedMarkers, fresh.read.queryForList(invitationMarkers)),
                     () ->
                             assertEquals(
                                     0,
@@ -546,36 +561,12 @@ class InvitationReadPostgresTest extends InvitationFixture {
         }
     }
 
-    private static void migrateFreshReadSchema(ReadMonolithI8Fixture fresh) {
-        Flyway.configure()
-                .dataSource(fresh.readUrl, PG.getUsername(), PG.getPassword())
-                .schemas(fresh.schema)
-                .defaultSchema(fresh.schema)
-                .locations("classpath:db/read/migration")
-                .placeholders(
-                        Map.of(
-                                "expectedDatabase",
-                                "i5_read",
-                                "expectedSchema",
-                                fresh.schema,
-                                "expectedAdmin",
-                                PG.getUsername(),
-                                "expectedRuntime",
-                                fresh.readRole))
-                .load()
-                .migrate();
-        assertEquals(
-                0,
-                fresh.read.queryForObject(
-                        "select count(*) from read_current_invitation", Integer.class));
-    }
-
     private UUID replayInvitationsOnFreshRead(ReadMonolithI8Fixture fresh) {
         var write = f.worker.write.getDataSource();
         var read = fresh.read.getDataSource();
         var sourceOwner = owner(write);
         var effects = owner(read);
-        var participant = ReadParticipants.invitation(write, read);
+        var participant = ReadParticipants.select("MaterializeInvitation", write, sourceOwner, read, effects);
         var definition = participant.definition();
         var settings = LifecycleSettings.pilot();
         var discoverySettings =

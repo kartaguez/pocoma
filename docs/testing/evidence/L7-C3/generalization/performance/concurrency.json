@@ -1,0 +1,1373 @@
+{
+  "windows": [
+    {
+      "profile": "COMMAND_RESULT",
+      "workers": 1,
+      "publish": false,
+      "n": 64,
+      "wall_ns": "1103586458",
+      "wal_bytes": "68360",
+      "pg_cpu_us": "853889",
+      "read_jdbc": "640",
+      "write_jdbc": "64",
+      "read_tx_commit": "128",
+      "write_tx_commit": "64",
+      "read_tx_rollback": "0",
+      "write_tx_rollback": "0",
+      "deadlocks": "0",
+      "read_sql_ms": "75.5625",
+      "write_sql_ms": "3.1872",
+      "utc_start": "2026-11-21T01:32:58.648595Z",
+      "utc_end": "2026-11-21T01:32:59.752189Z",
+      "events": 0,
+      "jobs_per_second": 57.9927,
+      "aggregates_per_family": {
+        "COMMAND_RESULT": {
+          "n": 64,
+          "partitions": {
+            "3": 13,
+            "2": 19,
+            "1": 15,
+            "0": 17
+          },
+          "final_ms": {
+            "50": 10.2034,
+            "95": 11.6144,
+            "99": 12.2023
+          },
+          "claim_and_final_ms": {
+            "50": 16.9701,
+            "95": 19.1794,
+            "99": 21.0142
+          },
+          "worker_cpu_ms_per_job": 3.1979
+        }
+      },
+      "counter_sql_ms_per_update": null,
+      "publication_sql_ms_per_event": null,
+      "publication_sql_wal_bytes_per_event": null,
+      "wait_samples": {
+        "IO:WalWrite:OTHER_SQL": 1,
+        "IO:WalSync:OTHER_SQL": 5
+      },
+      "sql_wal_fpi": 0,
+      "sql_wal_records": 806,
+      "waits_ge_threshold": {
+        "counter": {
+          "count": 0,
+          "ms": null,
+          "max_ms": null,
+          "sum_ms": 0
+        },
+        "other": {
+          "count": 0,
+          "ms": null,
+          "max_ms": null,
+          "sum_ms": 0
+        }
+      }
+    },
+    {
+      "profile": "IDENTITY_REQUEST_RESULT",
+      "workers": 1,
+      "publish": false,
+      "n": 64,
+      "wall_ns": "1222079125",
+      "wal_bytes": "67320",
+      "pg_cpu_us": "838224",
+      "read_jdbc": "640",
+      "write_jdbc": "64",
+      "read_tx_commit": "128",
+      "write_tx_commit": "64",
+      "read_tx_rollback": "0",
+      "write_tx_rollback": "0",
+      "deadlocks": "0",
+      "read_sql_ms": "74.3182",
+      "write_sql_ms": "3.3060",
+      "utc_start": "2026-11-21T01:33:00.197149Z",
+      "utc_end": "2026-11-21T01:33:01.419235Z",
+      "events": 0,
+      "jobs_per_second": 52.3698,
+      "aggregates_per_family": {
+        "IDENTITY_REQUEST_RESULT": {
+          "n": 64,
+          "partitions": {
+            "0": 17,
+            "1": 9,
+            "3": 16,
+            "2": 22
+          },
+          "final_ms": {
+            "50": 11.6647,
+            "95": 13.7677,
+            "99": 14.8392
+          },
+          "claim_and_final_ms": {
+            "50": 19.2623,
+            "95": 22.2178,
+            "99": 23.6671
+          },
+          "worker_cpu_ms_per_job": 5.2343
+        }
+      },
+      "counter_sql_ms_per_update": null,
+      "publication_sql_ms_per_event": null,
+      "publication_sql_wal_bytes_per_event": null,
+      "wait_samples": {
+        "IO:WalSync:OTHER_SQL": 4
+      },
+      "sql_wal_fpi": 0,
+      "sql_wal_records": 780,
+      "waits_ge_threshold": {
+        "counter": {
+          "count": 0,
+          "ms": null,
+          "max_ms": null,
+          "sum_ms": 0
+        },
+        "other": {
+          "count": 0,
+          "ms": null,
+          "max_ms": null,
+          "sum_ms": 0
+        }
+      }
+    },
+    {
+      "profile": "POT_VERSION",
+      "workers": 1,
+      "publish": false,
+      "n": 64,
+      "wall_ns": "2656067917",
+      "wal_bytes": "136968",
+      "pg_cpu_us": "1727109",
+      "read_jdbc": "1088",
+      "write_jdbc": "640",
+      "read_tx_commit": "192",
+      "write_tx_commit": "192",
+      "read_tx_rollback": "0",
+      "write_tx_rollback": "0",
+      "deadlocks": "0",
+      "read_sql_ms": "128.9448",
+      "write_sql_ms": "8.8770",
+      "utc_start": "2026-11-21T01:33:02.180792Z",
+      "utc_end": "2026-11-21T01:33:04.836872Z",
+      "events": 0,
+      "jobs_per_second": 24.0958,
+      "aggregates_per_family": {
+        "POT_VERSION": {
+          "n": 64,
+          "partitions": {
+            "2": 18,
+            "1": 22,
+            "0": 12,
+            "3": 12
+          },
+          "final_ms": {
+            "50": 33.3485,
+            "95": 40.0057,
+            "99": 53.5793
+          },
+          "claim_and_final_ms": {
+            "50": 40.8071,
+            "95": 47.4693,
+            "99": 61.888
+          },
+          "worker_cpu_ms_per_job": 10.9791
+        }
+      },
+      "counter_sql_ms_per_update": null,
+      "publication_sql_ms_per_event": null,
+      "publication_sql_wal_bytes_per_event": null,
+      "wait_samples": {},
+      "sql_wal_fpi": 0,
+      "sql_wal_records": 1484,
+      "waits_ge_threshold": {
+        "counter": {
+          "count": 0,
+          "ms": null,
+          "max_ms": null,
+          "sum_ms": 0
+        },
+        "other": {
+          "count": 0,
+          "ms": null,
+          "max_ms": null,
+          "sum_ms": 0
+        }
+      }
+    },
+    {
+      "profile": "POT_BALANCE",
+      "workers": 1,
+      "publish": false,
+      "n": 64,
+      "wall_ns": "1857804333",
+      "wal_bytes": "92024",
+      "pg_cpu_us": "1263152",
+      "read_jdbc": "896",
+      "write_jdbc": "640",
+      "read_tx_commit": "128",
+      "write_tx_commit": "128",
+      "read_tx_rollback": "0",
+      "write_tx_rollback": "0",
+      "deadlocks": "0",
+      "read_sql_ms": "95.8085",
+      "write_sql_ms": "7.7385",
+      "utc_start": "2026-11-21T01:33:05.438199Z",
+      "utc_end": "2026-11-21T01:33:07.296013Z",
+      "events": 0,
+      "jobs_per_second": 34.4493,
+      "aggregates_per_family": {
+        "POT_BALANCE": {
+          "n": 64,
+          "partitions": {
+            "2": 18,
+            "1": 22,
+            "0": 12,
+            "3": 12
+          },
+          "final_ms": {
+            "50": 21.1795,
+            "95": 25.2767,
+            "99": 36.7708
+          },
+          "claim_and_final_ms": {
+            "50": 28.474,
+            "95": 33.3413,
+            "99": 43.9907
+          },
+          "worker_cpu_ms_per_job": 6.7946
+        }
+      },
+      "counter_sql_ms_per_update": null,
+      "publication_sql_ms_per_event": null,
+      "publication_sql_wal_bytes_per_event": null,
+      "wait_samples": {
+        "IO:WalSync:OTHER_SQL": 4
+      },
+      "sql_wal_fpi": 0,
+      "sql_wal_records": 1162,
+      "waits_ge_threshold": {
+        "counter": {
+          "count": 0,
+          "ms": null,
+          "max_ms": null,
+          "sum_ms": 0
+        },
+        "other": {
+          "count": 0,
+          "ms": null,
+          "max_ms": null,
+          "sum_ms": 0
+        }
+      }
+    },
+    {
+      "profile": "COMMAND_RESULT",
+      "workers": 1,
+      "publish": true,
+      "n": 64,
+      "wall_ns": "1473090834",
+      "wal_bytes": "103480",
+      "pg_cpu_us": "1050178",
+      "read_jdbc": "832",
+      "write_jdbc": "64",
+      "read_tx_commit": "128",
+      "write_tx_commit": "64",
+      "read_tx_rollback": "0",
+      "write_tx_rollback": "0",
+      "deadlocks": "0",
+      "read_sql_ms": "109.5938",
+      "write_sql_ms": "3.3006",
+      "utc_start": "2026-11-21T01:33:18.998300Z",
+      "utc_end": "2026-11-21T01:33:20.471398Z",
+      "events": 64,
+      "jobs_per_second": 43.4461,
+      "aggregates_per_family": {
+        "COMMAND_RESULT": {
+          "n": 64,
+          "partitions": {
+            "3": 21,
+            "1": 21,
+            "0": 11,
+            "2": 11
+          },
+          "final_ms": {
+            "50": 14.8767,
+            "95": 17.8067,
+            "99": 32.2185
+          },
+          "claim_and_final_ms": {
+            "50": 22.2953,
+            "95": 26.3749,
+            "99": 40.108
+          },
+          "worker_cpu_ms_per_job": 5.4048
+        }
+      },
+      "counter_sql_ms_per_update": 0.3752,
+      "publication_sql_ms_per_event": 0.5616,
+      "publication_sql_wal_bytes_per_event": 540.0,
+      "wait_samples": {
+        "IO:WalSync:OTHER_SQL": 4
+      },
+      "sql_wal_fpi": 0,
+      "sql_wal_records": 1190,
+      "waits_ge_threshold": {
+        "counter": {
+          "count": 0,
+          "ms": null,
+          "max_ms": null,
+          "sum_ms": 0
+        },
+        "other": {
+          "count": 0,
+          "ms": null,
+          "max_ms": null,
+          "sum_ms": 0
+        }
+      }
+    },
+    {
+      "profile": "IDENTITY_REQUEST_RESULT",
+      "workers": 1,
+      "publish": true,
+      "n": 64,
+      "wall_ns": "1573556792",
+      "wal_bytes": "110176",
+      "pg_cpu_us": "1047819",
+      "read_jdbc": "832",
+      "write_jdbc": "64",
+      "read_tx_commit": "128",
+      "write_tx_commit": "64",
+      "read_tx_rollback": "0",
+      "write_tx_rollback": "0",
+      "deadlocks": "0",
+      "read_sql_ms": "110.3002",
+      "write_sql_ms": "3.1588",
+      "utc_start": "2026-11-21T01:33:20.975331Z",
+      "utc_end": "2026-11-21T01:33:22.548895Z",
+      "events": 64,
+      "jobs_per_second": 40.6722,
+      "aggregates_per_family": {
+        "IDENTITY_REQUEST_RESULT": {
+          "n": 64,
+          "partitions": {
+            "2": 20,
+            "3": 14,
+            "1": 13,
+            "0": 17
+          },
+          "final_ms": {
+            "50": 16.2795,
+            "95": 18.3183,
+            "99": 22.0337
+          },
+          "claim_and_final_ms": {
+            "50": 24.4462,
+            "95": 27.6508,
+            "99": 40.2093
+          },
+          "worker_cpu_ms_per_job": 6.9159
+        }
+      },
+      "counter_sql_ms_per_update": 0.356,
+      "publication_sql_ms_per_event": 0.5392,
+      "publication_sql_wal_bytes_per_event": 664.6406,
+      "wait_samples": {
+        "IO:WalSync:OTHER_SQL": 5
+      },
+      "sql_wal_fpi": 0,
+      "sql_wal_records": 1168,
+      "waits_ge_threshold": {
+        "counter": {
+          "count": 0,
+          "ms": null,
+          "max_ms": null,
+          "sum_ms": 0
+        },
+        "other": {
+          "count": 0,
+          "ms": null,
+          "max_ms": null,
+          "sum_ms": 0
+        }
+      }
+    },
+    {
+      "profile": "POT_VERSION",
+      "workers": 1,
+      "publish": true,
+      "n": 64,
+      "wall_ns": "2987778208",
+      "wal_bytes": "201928",
+      "pg_cpu_us": "1945117",
+      "read_jdbc": "1472",
+      "write_jdbc": "640",
+      "read_tx_commit": "192",
+      "write_tx_commit": "192",
+      "read_tx_rollback": "0",
+      "write_tx_rollback": "0",
+      "deadlocks": "0",
+      "read_sql_ms": "163.5484",
+      "write_sql_ms": "9.1963",
+      "utc_start": "2026-11-21T01:33:23.404701Z",
+      "utc_end": "2026-11-21T01:33:26.392492Z",
+      "events": 128,
+      "jobs_per_second": 21.4206,
+      "aggregates_per_family": {
+        "POT_VERSION": {
+          "n": 64,
+          "partitions": {
+            "3": 19,
+            "1": 11,
+            "2": 18,
+            "0": 16
+          },
+          "final_ms": {
+            "50": 38.1207,
+            "95": 43.8855,
+            "99": 60.2739
+          },
+          "claim_and_final_ms": {
+            "50": 45.8336,
+            "95": 52.2592,
+            "99": 67.5645
+          },
+          "worker_cpu_ms_per_job": 12.0056
+        }
+      },
+      "counter_sql_ms_per_update": 0.1044,
+      "publication_sql_ms_per_event": 0.2573,
+      "publication_sql_wal_bytes_per_event": 502.0469,
+      "wait_samples": {
+        "IO:WalSync:OTHER_SQL": 3
+      },
+      "sql_wal_fpi": 0,
+      "sql_wal_records": 2254,
+      "waits_ge_threshold": {
+        "counter": {
+          "count": 0,
+          "ms": null,
+          "max_ms": null,
+          "sum_ms": 0
+        },
+        "other": {
+          "count": 0,
+          "ms": null,
+          "max_ms": null,
+          "sum_ms": 0
+        }
+      }
+    },
+    {
+      "profile": "POT_BALANCE",
+      "workers": 1,
+      "publish": true,
+      "n": 64,
+      "wall_ns": "2021113542",
+      "wal_bytes": "340824",
+      "pg_cpu_us": "1539803",
+      "read_jdbc": "1088",
+      "write_jdbc": "640",
+      "read_tx_commit": "128",
+      "write_tx_commit": "128",
+      "read_tx_rollback": "0",
+      "write_tx_rollback": "0",
+      "deadlocks": "0",
+      "read_sql_ms": "132.0683",
+      "write_sql_ms": "7.9534",
+      "utc_start": "2026-11-21T01:33:26.978624Z",
+      "utc_end": "2026-11-21T01:33:28.999748Z",
+      "events": 64,
+      "jobs_per_second": 31.6657,
+      "aggregates_per_family": {
+        "POT_BALANCE": {
+          "n": 64,
+          "partitions": {
+            "3": 19,
+            "1": 11,
+            "2": 18,
+            "0": 16
+          },
+          "final_ms": {
+            "50": 23.8123,
+            "95": 29.4408,
+            "99": 33.1346
+          },
+          "claim_and_final_ms": {
+            "50": 30.9855,
+            "95": 36.0887,
+            "99": 40.4652
+          },
+          "worker_cpu_ms_per_job": 5.188
+        }
+      },
+      "counter_sql_ms_per_update": 0.3749,
+      "publication_sql_ms_per_event": 0.5584,
+      "publication_sql_wal_bytes_per_event": 621.1562,
+      "wait_samples": {
+        "IO:WalSync:OTHER_SQL": 3
+      },
+      "sql_wal_fpi": 0,
+      "sql_wal_records": 1551,
+      "waits_ge_threshold": {
+        "counter": {
+          "count": 0,
+          "ms": null,
+          "max_ms": null,
+          "sum_ms": 0
+        },
+        "other": {
+          "count": 0,
+          "ms": null,
+          "max_ms": null,
+          "sum_ms": 0
+        }
+      }
+    },
+    {
+      "profile": "COMMAND_RESULT",
+      "workers": 4,
+      "publish": true,
+      "n": 64,
+      "wall_ns": "489401041",
+      "wal_bytes": "313648",
+      "pg_cpu_us": "1246342",
+      "read_jdbc": "832",
+      "write_jdbc": "64",
+      "read_tx_commit": "128",
+      "write_tx_commit": "64",
+      "read_tx_rollback": "0",
+      "write_tx_rollback": "0",
+      "deadlocks": "0",
+      "read_sql_ms": "179.1396",
+      "write_sql_ms": "3.2990",
+      "utc_start": "2026-11-21T01:33:40.462572Z",
+      "utc_end": "2026-11-21T01:33:40.951976Z",
+      "events": 64,
+      "jobs_per_second": 130.7721,
+      "aggregates_per_family": {
+        "COMMAND_RESULT": {
+          "n": 64,
+          "partitions": {
+            "1": 18,
+            "3": 18,
+            "2": 13,
+            "0": 15
+          },
+          "final_ms": {
+            "50": 17.7668,
+            "95": 24.3532,
+            "99": 27.3468
+          },
+          "claim_and_final_ms": {
+            "50": 26.1142,
+            "95": 34.4909,
+            "99": 37.4048
+          },
+          "worker_cpu_ms_per_job": 3.5918
+        }
+      },
+      "counter_sql_ms_per_update": 1.3302,
+      "publication_sql_ms_per_event": 1.5391,
+      "publication_sql_wal_bytes_per_event": 540.0156,
+      "wait_samples": {
+        "Lock:tuple:COUNTER": 2,
+        "Lock:transactionid:COUNTER": 6,
+        "IO:WalSync:OTHER_SQL": 2
+      },
+      "sql_wal_fpi": 0,
+      "sql_wal_records": 1181,
+      "waits_ge_threshold": {
+        "counter": {
+          "count": 0,
+          "ms": null,
+          "max_ms": null,
+          "sum_ms": 0
+        },
+        "other": {
+          "count": 0,
+          "ms": null,
+          "max_ms": null,
+          "sum_ms": 0
+        }
+      }
+    },
+    {
+      "profile": "IDENTITY_REQUEST_RESULT",
+      "workers": 4,
+      "publish": true,
+      "n": 64,
+      "wall_ns": "548240833",
+      "wal_bytes": "110224",
+      "pg_cpu_us": "1328719",
+      "read_jdbc": "832",
+      "write_jdbc": "64",
+      "read_tx_commit": "128",
+      "write_tx_commit": "64",
+      "read_tx_rollback": "0",
+      "write_tx_rollback": "0",
+      "deadlocks": "0",
+      "read_sql_ms": "202.2901",
+      "write_sql_ms": "3.6313",
+      "utc_start": "2026-11-21T01:33:41.349133Z",
+      "utc_end": "2026-11-21T01:33:41.897378Z",
+      "events": 64,
+      "jobs_per_second": 116.737,
+      "aggregates_per_family": {
+        "IDENTITY_REQUEST_RESULT": {
+          "n": 64,
+          "partitions": {
+            "0": 20,
+            "2": 13,
+            "1": 19,
+            "3": 12
+          },
+          "final_ms": {
+            "50": 18.2602,
+            "95": 35.1363,
+            "99": 43.1455
+          },
+          "claim_and_final_ms": {
+            "50": 27.2455,
+            "95": 50.2656,
+            "99": 53.7488
+          },
+          "worker_cpu_ms_per_job": 3.4299
+        }
+      },
+      "counter_sql_ms_per_update": 1.3548,
+      "publication_sql_ms_per_event": 1.602,
+      "publication_sql_wal_bytes_per_event": 664.7344,
+      "wait_samples": {
+        "Lock:transactionid:COUNTER": 5,
+        "Lock:tuple:COUNTER": 1,
+        "IO:WalWrite:OTHER_SQL": 1,
+        "IO:WalSync:OTHER_SQL": 8
+      },
+      "sql_wal_fpi": 0,
+      "sql_wal_records": 1168,
+      "waits_ge_threshold": {
+        "counter": {
+          "count": 1,
+          "ms": {
+            "50": 18.347,
+            "95": 18.347,
+            "99": 18.347
+          },
+          "max_ms": 18.347,
+          "sum_ms": 18.347
+        },
+        "other": {
+          "count": 0,
+          "ms": null,
+          "max_ms": null,
+          "sum_ms": 0
+        }
+      }
+    },
+    {
+      "profile": "POT_VERSION",
+      "workers": 4,
+      "publish": true,
+      "n": 64,
+      "wall_ns": "1061325709",
+      "wal_bytes": "203512",
+      "pg_cpu_us": "2347988",
+      "read_jdbc": "1472",
+      "write_jdbc": "640",
+      "read_tx_commit": "192",
+      "write_tx_commit": "192",
+      "read_tx_rollback": "0",
+      "write_tx_rollback": "0",
+      "deadlocks": "0",
+      "read_sql_ms": "246.4316",
+      "write_sql_ms": "10.8289",
+      "utc_start": "2026-11-21T01:33:42.350326Z",
+      "utc_end": "2026-11-21T01:33:43.411657Z",
+      "events": 128,
+      "jobs_per_second": 60.3019,
+      "aggregates_per_family": {
+        "POT_VERSION": {
+          "n": 64,
+          "partitions": {
+            "0": 14,
+            "3": 15,
+            "2": 20,
+            "1": 15
+          },
+          "final_ms": {
+            "50": 44.8391,
+            "95": 53.166,
+            "99": 60.1582
+          },
+          "claim_and_final_ms": {
+            "50": 53.406,
+            "95": 62.9085,
+            "99": 72.6835
+          },
+          "worker_cpu_ms_per_job": 7.456
+        }
+      },
+      "counter_sql_ms_per_update": 0.5791,
+      "publication_sql_ms_per_event": 0.771,
+      "publication_sql_wal_bytes_per_event": 503.8906,
+      "wait_samples": {
+        "LWLock:LockManager:OTHER_SQL": 1,
+        "Lock:tuple:COUNTER": 2,
+        "Lock:transactionid:COUNTER": 10,
+        "IO:WalSync:OTHER_SQL": 7,
+        "IO:WalWrite:OTHER_SQL": 1
+      },
+      "sql_wal_fpi": 0,
+      "sql_wal_records": 2282,
+      "waits_ge_threshold": {
+        "counter": {
+          "count": 0,
+          "ms": null,
+          "max_ms": null,
+          "sum_ms": 0
+        },
+        "other": {
+          "count": 0,
+          "ms": null,
+          "max_ms": null,
+          "sum_ms": 0
+        }
+      }
+    },
+    {
+      "profile": "POT_BALANCE",
+      "workers": 4,
+      "publish": true,
+      "n": 64,
+      "wall_ns": "783104916",
+      "wal_bytes": "133568",
+      "pg_cpu_us": "1895393",
+      "read_jdbc": "1088",
+      "write_jdbc": "640",
+      "read_tx_commit": "128",
+      "write_tx_commit": "128",
+      "read_tx_rollback": "0",
+      "write_tx_rollback": "0",
+      "deadlocks": "0",
+      "read_sql_ms": "187.0019",
+      "write_sql_ms": "9.6042",
+      "utc_start": "2026-11-21T01:33:43.831893Z",
+      "utc_end": "2026-11-21T01:33:44.615002Z",
+      "events": 64,
+      "jobs_per_second": 81.726,
+      "aggregates_per_family": {
+        "POT_BALANCE": {
+          "n": 64,
+          "partitions": {
+            "0": 14,
+            "3": 15,
+            "2": 20,
+            "1": 15
+          },
+          "final_ms": {
+            "50": 31.5962,
+            "95": 40.5387,
+            "99": 47.376
+          },
+          "claim_and_final_ms": {
+            "50": 40.7208,
+            "95": 51.9955,
+            "99": 58.1931
+          },
+          "worker_cpu_ms_per_job": 4.9296
+        }
+      },
+      "counter_sql_ms_per_update": 0.9438,
+      "publication_sql_ms_per_event": 1.1692,
+      "publication_sql_wal_bytes_per_event": 621.1719,
+      "wait_samples": {
+        "Lock:tuple:COUNTER": 2,
+        "Lock:transactionid:COUNTER": 2,
+        "IO:WalSync:OTHER_SQL": 7
+      },
+      "sql_wal_fpi": 0,
+      "sql_wal_records": 1576,
+      "waits_ge_threshold": {
+        "counter": {
+          "count": 0,
+          "ms": null,
+          "max_ms": null,
+          "sum_ms": 0
+        },
+        "other": {
+          "count": 0,
+          "ms": null,
+          "max_ms": null,
+          "sum_ms": 0
+        }
+      }
+    },
+    {
+      "profile": "MIXED",
+      "workers": 4,
+      "publish": true,
+      "n": 192,
+      "wall_ns": "2325767125",
+      "wal_bytes": "729880",
+      "pg_cpu_us": "5905250",
+      "read_jdbc": "3392",
+      "write_jdbc": "1344",
+      "read_tx_commit": "448",
+      "write_tx_commit": "384",
+      "read_tx_rollback": "0",
+      "write_tx_rollback": "0",
+      "deadlocks": "0",
+      "read_sql_ms": "539.0124",
+      "write_sql_ms": "28.8811",
+      "utc_start": "2026-11-21T01:33:51.667204Z",
+      "utc_end": "2026-11-21T01:33:53.992982Z",
+      "events": 256,
+      "jobs_per_second": 82.5534,
+      "aggregates_per_family": {
+        "COMMAND_RESULT": {
+          "n": 64,
+          "partitions": {
+            "1": 17,
+            "3": 16,
+            "0": 22,
+            "2": 9
+          },
+          "final_ms": {
+            "50": 18.3451,
+            "95": 24.6228,
+            "99": 28.2548
+          },
+          "claim_and_final_ms": {
+            "50": 28.13,
+            "95": 35.4727,
+            "99": 41.2493
+          },
+          "worker_cpu_ms_per_job": 3.3535
+        },
+        "POT_VERSION": {
+          "n": 64,
+          "partitions": {
+            "0": 14,
+            "1": 13,
+            "2": 22,
+            "3": 15
+          },
+          "final_ms": {
+            "50": 46.6777,
+            "95": 55.6771,
+            "99": 66.6577
+          },
+          "claim_and_final_ms": {
+            "50": 56.5509,
+            "95": 65.3832,
+            "99": 79.0703
+          },
+          "worker_cpu_ms_per_job": 7.3291
+        },
+        "POT_BALANCE": {
+          "n": 64,
+          "partitions": {
+            "0": 14,
+            "1": 13,
+            "2": 22,
+            "3": 15
+          },
+          "final_ms": {
+            "50": 31.8331,
+            "95": 39.666,
+            "99": 46.4083
+          },
+          "claim_and_final_ms": {
+            "50": 41.1883,
+            "95": 53.4135,
+            "99": 61.7199
+          },
+          "worker_cpu_ms_per_job": 5.0337
+        }
+      },
+      "counter_sql_ms_per_update": 0.4183,
+      "publication_sql_ms_per_event": 0.6591,
+      "publication_sql_wal_bytes_per_event": 580.9609,
+      "wait_samples": {
+        "IO:WalWrite:OTHER_SQL": 2,
+        "IO:WalSync:OTHER_SQL": 20,
+        "LWLock:WALWrite:OTHER_SQL": 1,
+        "Lock:transactionid:COUNTER": 5
+      },
+      "sql_wal_fpi": 0,
+      "sql_wal_records": 5004,
+      "waits_ge_threshold": {
+        "counter": {
+          "count": 0,
+          "ms": null,
+          "max_ms": null,
+          "sum_ms": 0
+        },
+        "other": {
+          "count": 0,
+          "ms": null,
+          "max_ms": null,
+          "sum_ms": 0
+        }
+      }
+    },
+    {
+      "profile": "COMMAND_RESULT",
+      "workers": 4,
+      "publish": false,
+      "n": 64,
+      "wall_ns": "409785875",
+      "wal_bytes": "67400",
+      "pg_cpu_us": "906983",
+      "read_jdbc": "640",
+      "write_jdbc": "64",
+      "read_tx_commit": "128",
+      "write_tx_commit": "64",
+      "read_tx_rollback": "0",
+      "write_tx_rollback": "0",
+      "deadlocks": "0",
+      "read_sql_ms": "79.7076",
+      "write_sql_ms": "3.0748",
+      "utc_start": "2026-11-21T01:34:05.783331Z",
+      "utc_end": "2026-11-21T01:34:06.193120Z",
+      "events": 0,
+      "jobs_per_second": 156.1791,
+      "aggregates_per_family": {
+        "COMMAND_RESULT": {
+          "n": 64,
+          "partitions": {
+            "0": 17,
+            "1": 18,
+            "3": 12,
+            "2": 17
+          },
+          "final_ms": {
+            "50": 14.3381,
+            "95": 16.1985,
+            "99": 16.427
+          },
+          "claim_and_final_ms": {
+            "50": 23.2558,
+            "95": 25.2807,
+            "99": 25.5113
+          },
+          "worker_cpu_ms_per_job": 4.6769
+        }
+      },
+      "counter_sql_ms_per_update": null,
+      "publication_sql_ms_per_event": null,
+      "publication_sql_wal_bytes_per_event": null,
+      "wait_samples": {
+        "LWLock:WALWrite:OTHER_SQL": 3,
+        "IO:WalSync:OTHER_SQL": 2
+      },
+      "sql_wal_fpi": 0,
+      "sql_wal_records": 792,
+      "waits_ge_threshold": {
+        "counter": {
+          "count": 0,
+          "ms": null,
+          "max_ms": null,
+          "sum_ms": 0
+        },
+        "other": {
+          "count": 0,
+          "ms": null,
+          "max_ms": null,
+          "sum_ms": 0
+        }
+      }
+    },
+    {
+      "profile": "IDENTITY_REQUEST_RESULT",
+      "workers": 4,
+      "publish": false,
+      "n": 64,
+      "wall_ns": "452907583",
+      "wal_bytes": "67264",
+      "pg_cpu_us": "906527",
+      "read_jdbc": "640",
+      "write_jdbc": "64",
+      "read_tx_commit": "128",
+      "write_tx_commit": "64",
+      "read_tx_rollback": "0",
+      "write_tx_rollback": "0",
+      "deadlocks": "0",
+      "read_sql_ms": "77.6252",
+      "write_sql_ms": "3.1668",
+      "utc_start": "2026-11-21T01:34:06.537369Z",
+      "utc_end": "2026-11-21T01:34:06.990280Z",
+      "events": 0,
+      "jobs_per_second": 141.3092,
+      "aggregates_per_family": {
+        "IDENTITY_REQUEST_RESULT": {
+          "n": 64,
+          "partitions": {
+            "1": 12,
+            "0": 18,
+            "2": 14,
+            "3": 20
+          },
+          "final_ms": {
+            "50": 14.3728,
+            "95": 17.0914,
+            "99": 18.2899
+          },
+          "claim_and_final_ms": {
+            "50": 23.458,
+            "95": 25.986,
+            "99": 26.8252
+          },
+          "worker_cpu_ms_per_job": 4.9757
+        }
+      },
+      "counter_sql_ms_per_update": null,
+      "publication_sql_ms_per_event": null,
+      "publication_sql_wal_bytes_per_event": null,
+      "wait_samples": {
+        "LWLock:WALWrite:OTHER_SQL": 2,
+        "IO:WalSync:OTHER_SQL": 2,
+        "LWLock:BufferContent:OTHER_SQL": 1,
+        "LWLock:XidGen:OTHER_SQL": 1
+      },
+      "sql_wal_fpi": 0,
+      "sql_wal_records": 780,
+      "waits_ge_threshold": {
+        "counter": {
+          "count": 0,
+          "ms": null,
+          "max_ms": null,
+          "sum_ms": 0
+        },
+        "other": {
+          "count": 0,
+          "ms": null,
+          "max_ms": null,
+          "sum_ms": 0
+        }
+      }
+    },
+    {
+      "profile": "POT_VERSION",
+      "workers": 4,
+      "publish": false,
+      "n": 64,
+      "wall_ns": "801618000",
+      "wal_bytes": "139816",
+      "pg_cpu_us": "2025361",
+      "read_jdbc": "1088",
+      "write_jdbc": "640",
+      "read_tx_commit": "192",
+      "write_tx_commit": "192",
+      "read_tx_rollback": "0",
+      "write_tx_rollback": "0",
+      "deadlocks": "0",
+      "read_sql_ms": "141.2275",
+      "write_sql_ms": "9.6596",
+      "utc_start": "2026-11-21T01:34:07.397381Z",
+      "utc_end": "2026-11-21T01:34:08.199005Z",
+      "events": 0,
+      "jobs_per_second": 79.8385,
+      "aggregates_per_family": {
+        "POT_VERSION": {
+          "n": 64,
+          "partitions": {
+            "1": 17,
+            "0": 17,
+            "2": 13,
+            "3": 17
+          },
+          "final_ms": {
+            "50": 38.73,
+            "95": 43.2953,
+            "99": 43.4321
+          },
+          "claim_and_final_ms": {
+            "50": 47.5001,
+            "95": 50.9945,
+            "99": 52.0194
+          },
+          "worker_cpu_ms_per_job": 5.8569
+        }
+      },
+      "counter_sql_ms_per_update": null,
+      "publication_sql_ms_per_event": null,
+      "publication_sql_wal_bytes_per_event": null,
+      "wait_samples": {
+        "LWLock:WALWrite:OTHER_SQL": 6,
+        "IO:WalSync:OTHER_SQL": 5
+      },
+      "sql_wal_fpi": 0,
+      "sql_wal_records": 1531,
+      "waits_ge_threshold": {
+        "counter": {
+          "count": 0,
+          "ms": null,
+          "max_ms": null,
+          "sum_ms": 0
+        },
+        "other": {
+          "count": 0,
+          "ms": null,
+          "max_ms": null,
+          "sum_ms": 0
+        }
+      }
+    },
+    {
+      "profile": "POT_BALANCE",
+      "workers": 4,
+      "publish": false,
+      "n": 64,
+      "wall_ns": "620317167",
+      "wal_bytes": "96056",
+      "pg_cpu_us": "1382608",
+      "read_jdbc": "896",
+      "write_jdbc": "640",
+      "read_tx_commit": "128",
+      "write_tx_commit": "128",
+      "read_tx_rollback": "0",
+      "write_tx_rollback": "0",
+      "deadlocks": "0",
+      "read_sql_ms": "104.1942",
+      "write_sql_ms": "7.8834",
+      "utc_start": "2026-11-21T01:34:08.541443Z",
+      "utc_end": "2026-11-21T01:34:09.161764Z",
+      "events": 0,
+      "jobs_per_second": 103.173,
+      "aggregates_per_family": {
+        "POT_BALANCE": {
+          "n": 64,
+          "partitions": {
+            "1": 17,
+            "0": 17,
+            "2": 13,
+            "3": 17
+          },
+          "final_ms": {
+            "50": 27.1586,
+            "95": 29.6104,
+            "99": 29.829
+          },
+          "claim_and_final_ms": {
+            "50": 36.3525,
+            "95": 38.8639,
+            "99": 38.9134
+          },
+          "worker_cpu_ms_per_job": 7.1348
+        }
+      },
+      "counter_sql_ms_per_update": null,
+      "publication_sql_ms_per_event": null,
+      "publication_sql_wal_bytes_per_event": null,
+      "wait_samples": {
+        "IO:WalSync:OTHER_SQL": 3,
+        "LWLock:WALWrite:OTHER_SQL": 7,
+        "IO:WalWrite:OTHER_SQL": 1,
+        "LWLock:LockManager:OTHER_SQL": 1
+      },
+      "sql_wal_fpi": 0,
+      "sql_wal_records": 1229,
+      "waits_ge_threshold": {
+        "counter": {
+          "count": 0,
+          "ms": null,
+          "max_ms": null,
+          "sum_ms": 0
+        },
+        "other": {
+          "count": 0,
+          "ms": null,
+          "max_ms": null,
+          "sum_ms": 0
+        }
+      }
+    },
+    {
+      "profile": "MIXED",
+      "workers": 4,
+      "publish": false,
+      "n": 192,
+      "wall_ns": "1958959791",
+      "wal_bytes": "526120",
+      "pg_cpu_us": "4666259",
+      "read_jdbc": "2624",
+      "write_jdbc": "1344",
+      "read_tx_commit": "448",
+      "write_tx_commit": "384",
+      "read_tx_rollback": "0",
+      "write_tx_rollback": "0",
+      "deadlocks": "0",
+      "read_sql_ms": "346.9046",
+      "write_sql_ms": "26.1927",
+      "utc_start": "2026-11-21T01:34:16.281281Z",
+      "utc_end": "2026-11-21T01:34:18.240249Z",
+      "events": 0,
+      "jobs_per_second": 98.0112,
+      "aggregates_per_family": {
+        "COMMAND_RESULT": {
+          "n": 64,
+          "partitions": {
+            "2": 10,
+            "0": 19,
+            "3": 17,
+            "1": 18
+          },
+          "final_ms": {
+            "50": 13.008,
+            "95": 14.6134,
+            "99": 16.2638
+          },
+          "claim_and_final_ms": {
+            "50": 22.1436,
+            "95": 24.0893,
+            "99": 25.107
+          },
+          "worker_cpu_ms_per_job": 2.8233
+        },
+        "POT_VERSION": {
+          "n": 64,
+          "partitions": {
+            "3": 16,
+            "2": 17,
+            "1": 20,
+            "0": 11
+          },
+          "final_ms": {
+            "50": 38.7289,
+            "95": 45.3336,
+            "99": 68.6192
+          },
+          "claim_and_final_ms": {
+            "50": 47.7956,
+            "95": 55.2767,
+            "99": 77.3343
+          },
+          "worker_cpu_ms_per_job": 6.2698
+        },
+        "POT_BALANCE": {
+          "n": 64,
+          "partitions": {
+            "3": 16,
+            "2": 17,
+            "1": 20,
+            "0": 11
+          },
+          "final_ms": {
+            "50": 25.5064,
+            "95": 28.9728,
+            "99": 37.6387
+          },
+          "claim_and_final_ms": {
+            "50": 34.5239,
+            "95": 39.6777,
+            "99": 58.7833
+          },
+          "worker_cpu_ms_per_job": 4.3173
+        }
+      },
+      "counter_sql_ms_per_update": null,
+      "publication_sql_ms_per_event": null,
+      "publication_sql_wal_bytes_per_event": null,
+      "wait_samples": {
+        "IO:WalWrite:OTHER_SQL": 1,
+        "IO:WalSync:OTHER_SQL": 23,
+        "LWLock:WALWrite:OTHER_SQL": 1
+      },
+      "sql_wal_fpi": 0,
+      "sql_wal_records": 3451,
+      "waits_ge_threshold": {
+        "counter": {
+          "count": 0,
+          "ms": null,
+          "max_ms": null,
+          "sum_ms": 0
+        },
+        "other": {
+          "count": 0,
+          "ms": null,
+          "max_ms": null,
+          "sum_ms": 0
+        }
+      }
+    }
+  ],
+  "paired_deltas": [
+    {
+      "profile": "COMMAND_RESULT",
+      "workers": 1,
+      "events": 64,
+      "added_read_jdbc_per_event": 3.0,
+      "wal_delta_bytes_per_event": 548.75,
+      "added_transactions": 0
+    },
+    {
+      "profile": "IDENTITY_REQUEST_RESULT",
+      "workers": 1,
+      "events": 64,
+      "added_read_jdbc_per_event": 3.0,
+      "wal_delta_bytes_per_event": 669.625,
+      "added_transactions": 0
+    },
+    {
+      "profile": "POT_VERSION",
+      "workers": 1,
+      "events": 128,
+      "added_read_jdbc_per_event": 3.0,
+      "wal_delta_bytes_per_event": 507.5,
+      "added_transactions": 0
+    },
+    {
+      "profile": "POT_BALANCE",
+      "workers": 1,
+      "events": 64,
+      "added_read_jdbc_per_event": 3.0,
+      "wal_delta_bytes_per_event": 3887.5,
+      "added_transactions": 0
+    },
+    {
+      "profile": "COMMAND_RESULT",
+      "workers": 4,
+      "events": 64,
+      "added_read_jdbc_per_event": 3.0,
+      "wal_delta_bytes_per_event": 3847.625,
+      "added_transactions": 0
+    },
+    {
+      "profile": "IDENTITY_REQUEST_RESULT",
+      "workers": 4,
+      "events": 64,
+      "added_read_jdbc_per_event": 3.0,
+      "wal_delta_bytes_per_event": 671.25,
+      "added_transactions": 0
+    },
+    {
+      "profile": "POT_VERSION",
+      "workers": 4,
+      "events": 128,
+      "added_read_jdbc_per_event": 3.0,
+      "wal_delta_bytes_per_event": 497.625,
+      "added_transactions": 0
+    },
+    {
+      "profile": "POT_BALANCE",
+      "workers": 4,
+      "events": 64,
+      "added_read_jdbc_per_event": 3.0,
+      "wal_delta_bytes_per_event": 586.125,
+      "added_transactions": 0
+    },
+    {
+      "profile": "MIXED",
+      "workers": 4,
+      "events": 256,
+      "added_read_jdbc_per_event": 3.0,
+      "wal_delta_bytes_per_event": 795.9375,
+      "added_transactions": 0
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+2026-11-20 22:56:20.824 UTC [12252] LOG:  process 12252 still waiting for ShareLock on transaction 7656 after 5.196 ms
+2026-11-20 22:56:20.824 UTC [12252] STATEMENT:  update c3_bench_counter set position=position+1 where family=$1 returning position
+2026-11-20 22:56:20.825 UTC [12252] LOG:  process 12252 acquired ShareLock on transaction 7656 after 5.932 ms
+2026-11-20 22:56:20.825 UTC [12252] STATEMENT:  update c3_bench_counter set position=position+1 where family=$1 returning position
+2026-11-20 22:56:20.830 UTC [12255] LOG:  process 12255 still waiting for ShareLock on transaction 7655 after 5.479 ms
+2026-11-20 22:56:20.830 UTC [12255] STATEMENT:  update c3_bench_counter set position=position+1 where family=$1 returning position
+2026-11-20 22:56:20.831 UTC [12255] LOG:  process 12255 acquired ShareLock on transaction 7655 after 6.202 ms
+2026-11-20 22:56:20.831 UTC [12255] STATEMENT:  update c3_bench_counter set position=position+1 where family=$1 returning position

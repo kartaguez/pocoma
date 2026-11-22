@@ -1,0 +1,9 @@
+workers	publish	relation	rows	bytes_with_indexes
+1	true	read_availability_counter	1	32768
+1	true	read_availability_event	112	98304
+1	true	c3_bench_counter	3	32768
+1	true	c3_bench_event	336	196608
+4	true	read_availability_counter	1	32768
+4	true	read_availability_event	224	147456
+4	true	c3_bench_counter	3	32768
+4	true	c3_bench_event	336	196608

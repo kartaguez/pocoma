@@ -274,7 +274,13 @@ public final class ReadinessOracle {
         List<CheckpointEntry> checkpoints = fetchCheckpoints(readJdbc);
         List<SlotEntry> slots = fetchSlots(readJdbc, writeJdbc);
         List<String> integrityErrors = checkRelationalIntegrity(readJdbc);
-        return evaluatePure(targetPrefix, checkpoints, slots, integrityErrors);
+        var readiness = evaluatePure(targetPrefix, checkpoints, slots, integrityErrors);
+        if (readiness.ready() && !Boolean.TRUE.equals(readJdbc.queryForObject(
+                "select read_availability_schema_valid() and read_availability_valid()", Boolean.class))) {
+            integrityErrors.add("READ effects and availability or family positions diverge");
+            return evaluatePure(targetPrefix, checkpoints, slots, integrityErrors);
+        }
+        return readiness;
     }
 
     private static List<CheckpointEntry> fetchCheckpoints(JdbcTemplate readJdbc) {
@@ -364,12 +370,63 @@ public final class ReadinessOracle {
                 """
                 select count(*) from read_pot_version pv
                 left join read_pot_balance pb using (pot_id, pot_version)
-                where jsonb_typeof(pv.payload->'deleted') is distinct from 'boolean'
-                   or (pv.payload->'deleted' = 'false'::jsonb and pb.pot_id is null)
-                   or (pv.payload->'deleted' = 'true'::jsonb and pb.pot_id is not null)
+                where (not pv.deleted and pb.pot_id is null)
+                   or (pv.deleted and pb.pot_id is not null)
                 """,
-                "%d Pot versions with missing balance rows, unexpected terminal balances or"
-                        + " invalid deletion flags",
+                "%d Pot versions with missing balance rows or unexpected terminal balances",
+                integrityErrors);
+        addIfPositive(
+                readJdbc,
+                """
+                select count(*) from read_pot_balance pb
+                left join read_pot_balance_content bc on bc.content_hash = pb.content_hash
+                where bc.content_hash is null
+                """,
+                "read_pot_balance has %d dangling content_hash references",
+                integrityErrors);
+        addIfPositive(
+                readJdbc,
+                """
+                select count(*) from read_pot_balance_aggregate pba
+                left join read_pot_balance_aggregate_content bac on bac.content_hash = pba.content_hash
+                where bac.content_hash is null
+                """,
+                "read_pot_balance_aggregate has %d dangling content_hash references",
+                integrityErrors);
+        addIfPositive(
+                readJdbc,
+                """
+                select count(*) from read_pot_balance_content bc
+                left join read_pot_shareholder_set ss on ss.set_hash = bc.shareholder_set_hash
+                where ss.set_hash is null or ss.shareholders_count <> bc.shareholders_count
+                """,
+                "read_pot_balance_content has %d inconsistent shareholder_set_hash references",
+                integrityErrors);
+        addIfPositive(
+                readJdbc,
+                """
+                select count(*) from read_pot_balance_aggregate_content bac
+                left join read_pot_shareholder_set ss on ss.set_hash = bac.shareholder_set_hash
+                where ss.set_hash is null or ss.shareholders_count <> bac.shareholders_count
+                """,
+                "read_pot_balance_aggregate_content has %d inconsistent shareholder_set_hash references",
+                integrityErrors);
+        addIfPositive(
+                readJdbc,
+                """
+                select count(*) from read_pot_version pv
+                left join read_pot_version_node sh on sh.node_hash = pv.shareholders_root
+                left join read_pot_version_node ex on ex.node_hash = pv.expenses_root
+                where (pv.shareholders_root is not null
+                       and (sh.node_hash is null or sh.tree_kind <> 'S' or sh.entry_count <> pv.shareholders_count))
+                   or (pv.expenses_root is not null
+                       and (ex.node_hash is null or ex.tree_kind <> 'E' or ex.entry_count <> pv.expenses_count))
+                   or (pv.authorized_users_hash is not null
+                       and not exists (select 1 from read_pot_user_set u where u.set_hash = pv.authorized_users_hash))
+                   or (pv.attached_active_users_hash is not null
+                       and not exists (select 1 from read_pot_user_set u where u.set_hash = pv.attached_active_users_hash))
+                """,
+                "%d Pot versions with inconsistent Radix-16 roots or user sets",
                 integrityErrors);
         addIfPositive(
                 readJdbc,

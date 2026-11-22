@@ -135,7 +135,7 @@ class L7ReactorArchitectureTest {
             for (var d : cl.getDirectDependenciesFromSelf()) {
                 String type = d.getTargetClass().getName();
                 assertFalse(type.startsWith(BASE + "infra.postgres.write.") || type.startsWith(BASE + "engine.write."), d.toString());
-                if (type.startsWith(BASE + "engine.materialize.")) assertTrue(type.endsWith("Source"), d.toString());
+                if (type.startsWith(BASE + "engine.materialize.")) assertTrue(type.endsWith("Source") || type.contains("Source$"), d.toString());
                 assertFalse(type.matches(".*\\.(JdbcConsumptionSlotStore|JdbcPartitionOwnershipStore|JdbcDiscoveryAdmissionStore)"), d.toString());
             }
         }
@@ -194,8 +194,13 @@ class L7ReactorArchitectureTest {
         }
         assertEquals(
                 List.of(
+                        "infra-postgres-read/src/main/resources/db/read/availability/migration/V5__projection_availability.sql",
                         "infra-postgres-read/src/main/resources/db/read/migration/V1__initial_schema.sql",
-                        "infra-postgres-read/src/main/resources/db/read/migration/V2__server_assigned_pot_identities.sql"),
+                        "infra-postgres-read/src/main/resources/db/read/migration/V2__pot_balance_aggregate.sql",
+                        "infra-postgres-read/src/main/resources/db/read/migration/V3__pot_version_radix16.sql",
+                        "infra-postgres-read/src/main/resources/db/read/migration/V4__pot_balance_shared_storage.sql",
+                        "infra-postgres-read/src/main/resources/db/read/migration/V6__server_assigned_pot_identities.sql",
+                        "infra-postgres-read/src/main/resources/db/read/pilot/migration/V5__command_result_availability.sql"),
                 readMainSql);
         var resources=new HashSet<String>();
         try(var files=Files.walk(APP)) {

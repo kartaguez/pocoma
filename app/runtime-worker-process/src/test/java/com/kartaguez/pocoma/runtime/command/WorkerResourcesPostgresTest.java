@@ -1491,6 +1491,7 @@ class WorkerResourcesPostgresTest {
                                                             + "-control")
                                             == 4);
                     armed.set(true);
+                    if (write) pendingAtPartition(f, 61400, 0);
                     await(
                             () ->
                                     sql.queryForObject(

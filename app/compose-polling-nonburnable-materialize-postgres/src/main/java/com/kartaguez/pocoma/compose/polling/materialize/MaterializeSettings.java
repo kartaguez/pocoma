@@ -28,7 +28,10 @@ public record MaterializeSettings(
         Map<String, List<Integer>> partitions,
         MaterializePoolSettings pools,
         ConsumptionWorker.Settings polling,
-        LifecycleSettings lifecycle) {
+        LifecycleSettings lifecycle,
+        long potVersionMaxDeltaDistance,
+        com.kartaguez.pocoma.engine.materialize.pot.MaterializePotBalance.Settings
+                potBalanceSettings) {
     public static final String PROFILE = "v3-consumption-worker-dev";
     public static final String READ_PROFILE = "v3-read-worker";
     public static final List<String> READ_NAMES =
@@ -196,6 +199,37 @@ public record MaterializeSettings(
         int batch = requireValidBatchSize(env);
         var life = buildLifecycleSettings(env, batch);
         var settings = buildWorkerSettings(env, batch, life.renewalInterval());
+        long maxDeltaDistance =
+                env.getProperty(
+                        PREFIX + "pot-version.max-delta-distance",
+                        Long.class,
+                        com.kartaguez.pocoma.engine.materialize.pot.MaterializePotVersion
+                                .DEFAULT_MAX_DELTA_DISTANCE);
+        if (maxDeltaDistance < 0) {
+            throw new IllegalArgumentException("non-negative pot-version.max-delta-distance required");
+        }
+        var potBalanceSettings =
+                new com.kartaguez.pocoma.engine.materialize.pot.MaterializePotBalance.Settings(
+                        env.getProperty(
+                                PREFIX + "pot-balance.max-delta-distance",
+                                Long.class,
+                                com.kartaguez.pocoma.engine.materialize.pot.MaterializePotBalance
+                                        .DEFAULT_MAX_DELTA_DISTANCE),
+                        env.getProperty(
+                                PREFIX + "pot-balance.max-changed-expenses",
+                                Integer.class,
+                                com.kartaguez.pocoma.engine.materialize.pot.MaterializePotBalance
+                                        .DEFAULT_MAX_CHANGED_EXPENSES),
+                        env.getProperty(
+                                PREFIX + "pot-balance.max-aggregate-buckets",
+                                Integer.class,
+                                com.kartaguez.pocoma.engine.materialize.pot.MaterializePotBalance
+                                        .DEFAULT_MAX_AGGREGATE_BUCKETS),
+                        env.getProperty(
+                                PREFIX + "pot-balance.max-aggregate-bucket-entries",
+                                Integer.class,
+                                com.kartaguez.pocoma.engine.materialize.pot.MaterializePotBalance
+                                        .DEFAULT_MAX_AGGREGATE_BUCKET_ENTRIES));
         verifyTimingBounds(life, settings, partitions, ctx.mw());
         return new MaterializeSettings(
                 ctx.name(),
@@ -211,7 +245,9 @@ public record MaterializeSettings(
                 partitions,
                 pools,
                 settings,
-                life);
+                life,
+                maxDeltaDistance,
+                potBalanceSettings);
     }
 
     private static String requireValidWorkerName(Environment env) {

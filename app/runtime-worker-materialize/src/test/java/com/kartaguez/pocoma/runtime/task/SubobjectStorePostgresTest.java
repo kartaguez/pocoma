@@ -166,4 +166,44 @@ class SubobjectStorePostgresTest {
             assertEquals(0,f.count());
         }
     }
+
+    @Test void existingKeysAndRequireKeysPresent() throws Exception {
+        try (var f = new SubobjectPostgresFixture(PG, "existingKeys")) {
+            var p = UUID.randomUUID();
+            var batch = f.batch(p, 300);
+            var present = batch.subList(0, 270);
+            var missing = batch.subList(270, 300);
+            f.insert(present);
+
+            var allKeys = batch.stream().map(SubobjectVersion::key).toList();
+            assertEquals(Set.of(), f.tx.read(c -> f.store.existingKeys(List.of(), c)));
+            var found = f.tx.read(c -> f.store.existingKeys(allKeys, c));
+            assertEquals(
+                    present.stream().map(SubobjectVersion::key).collect(java.util.stream.Collectors.toSet()),
+                    found);
+            assertTrue(
+                    f.source.statements.stream()
+                            .filter(s -> s.startsWith("select pot_id,kind,object_id,local_version from read_subobject_version"))
+                            .noneMatch(s -> s.contains("payload")),
+                    "existingKeys must not fetch payload::text");
+
+            f.tx.write(() -> {
+                f.store.requireKeysPresent(List.of());
+                f.store.requireKeysPresent(found);
+                return null;
+            });
+
+            var missingFailure =
+                    assertThrows(
+                            AttemptTransactions.Failure.class,
+                            () ->
+                                    f.tx.write(
+                                            () -> {
+                                                f.store.requireKeysPresent(allKeys);
+                                                return null;
+                                            }));
+            assertInstanceOf(CorruptSubobjectException.class, missingFailure.getCause());
+            assertThrows(RuntimeException.class, () -> f.store.requireKeysPresent(found));
+        }
+    }
 }

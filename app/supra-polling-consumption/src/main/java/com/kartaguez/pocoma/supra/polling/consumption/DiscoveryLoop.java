@@ -1,7 +1,7 @@
 package com.kartaguez.pocoma.supra.polling.consumption;
 import com.kartaguez.pocoma.contract.consumption.invocation.DiscoveryReports;
-
 import com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation.*;
+import com.kartaguez.pocoma.domain.consumption.ConsumableFamily;
 
 import java.time.Duration;
 import java.util.*;
@@ -13,11 +13,20 @@ public final class DiscoveryLoop {
     private final long[] errorUntilNanos;
     private int nextConsumption;
     private final Set<ConsumptionWorker.Pair> saturated = new HashSet<>();
+    private final Map<ConsumptionWorker.Pair, Long> pairCheckpoints = new HashMap<>();
+    private final Map<ConsumableFamily, Long> emptyFamilyCheckpointThisTour = new EnumMap<>(ConsumableFamily.class);
+    private int tourRemaining;
 
     DiscoveryLoop(ConsumptionWorker worker) {
         this.worker = worker;
         nextPartitions = new int[worker.bindings.size()];
         errorUntilNanos = new long[worker.bindings.size()];
+        this.tourRemaining =
+                worker.bindings.size()
+                        * worker.bindings.stream()
+                                .mapToInt(b -> b.partitions().size())
+                                .max()
+                                .orElse(1);
     }
 
     boolean hasReadyBinding() {
@@ -76,9 +85,45 @@ public final class DiscoveryLoop {
     private boolean executeDiscoveryPass(
             int selected, ConsumptionWorker.Binding binding, int p, DiscoveryState state) {
         var pair = new ConsumptionWorker.Pair(binding, p);
+        var family = binding.definition().family();
+        if (--tourRemaining <= 0) {
+            emptyFamilyCheckpointThisTour.clear();
+            tourRemaining =
+                    worker.bindings.size()
+                            * worker.bindings.stream()
+                                    .mapToInt(b -> b.partitions().size())
+                                    .max()
+                                    .orElse(1);
+        }
+        Long knownK = pairCheckpoints.get(pair);
+        if (knownK != null && knownK.equals(emptyFamilyCheckpointThisTour.get(family))) {
+            state.outcome = Outcome.CONFIRMED;
+            return false;
+        }
         var result = discoverLocked(binding, pair, p);
-        if (result == null) return false;
-        if (result.committedAdmissions() > 0) worker.consumptionWait.signal();
+        if (result == null) {
+            pairCheckpoints.remove(pair);
+            emptyFamilyCheckpointThisTour.remove(family);
+            return false;
+        }
+        if (result.checkpoint().isPresent()) {
+            long cp = result.checkpoint().getAsLong();
+            pairCheckpoints.put(pair, cp);
+            if (result.status() == DiscoveryReports.Status.COMMITTED
+                    && result.examined() == 0
+                    && result.committedAdmissions() == 0) {
+                emptyFamilyCheckpointThisTour.put(family, cp);
+            } else {
+                emptyFamilyCheckpointThisTour.remove(family);
+            }
+        } else {
+            pairCheckpoints.remove(pair);
+            emptyFamilyCheckpointThisTour.remove(family);
+        }
+        if (result.committedAdmissions() > 0) {
+            worker.markPairDirty(pair);
+            worker.consumptionWait.signal();
+        }
         updateSoftCapSaturation(binding, pair, result.status());
         state.outcome = mapDiscoveryOutcome(result.status());
         recordDiscoveryCounts(binding, result);
@@ -91,7 +136,7 @@ public final class DiscoveryLoop {
         synchronized (worker.pairLock(pair)) {
             var lease = worker.lease(binding, partition);
             if (lease == null) return null;
-            var result = binding.protocol().discover(lease);
+            var result = binding.protocol().discover(lease, false);
             if (result.status() == DiscoveryReports.Status.BUSY_OR_NOT_OWNER) {
                 worker.suspend(binding, lease);
             }

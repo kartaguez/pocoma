@@ -1,0 +1,334 @@
+{
+  "postgresImage": "postgres@sha256:a77aa70e641402a21411b92b721c58d10f23b50ae5fdd2333efd22d166e1e5f7",
+  "shareholders": 500,
+  "sitDVersions": 100,
+  "sitAVersions": 50,
+  "C2": {
+    "sitDWriteMs": {
+      "n": 100,
+      "p50": 2.546,
+      "p95": 3.806,
+      "p99": 7.502,
+      "max": 22.924
+    },
+    "sitDWalBytes": 444288,
+    "sitDWalPerVerBytes": 4443,
+    "storageAfterSitD": {
+      "read_pot_shareholder_set": {
+        "rows": 1,
+        "heapBytes": 8192,
+        "indexBytes": 16384,
+        "toastBytes": 57344,
+        "totalBytes": 81920
+      },
+      "read_pot_balance": {
+        "rows": 100,
+        "heapBytes": 16384,
+        "indexBytes": 16384,
+        "toastBytes": 32768,
+        "totalBytes": 65536
+      },
+      "read_pot_balance_content": {
+        "rows": 100,
+        "heapBytes": 40960,
+        "indexBytes": 16384,
+        "toastBytes": 32768,
+        "totalBytes": 90112
+      },
+      "read_pot_balance_aggregate": {
+        "rows": 100,
+        "heapBytes": 16384,
+        "indexBytes": 16384,
+        "toastBytes": 32768,
+        "totalBytes": 65536
+      },
+      "read_pot_balance_aggregate_content": {
+        "rows": 100,
+        "heapBytes": 16384,
+        "indexBytes": 16384,
+        "toastBytes": 344064,
+        "totalBytes": 376832
+      }
+    },
+    "readCurrentMs": {
+      "n": 30,
+      "p50": 1.53,
+      "p95": 2.672,
+      "p99": 2.742,
+      "max": 2.742
+    },
+    "readMidMs": {
+      "n": 30,
+      "p50": 1.55,
+      "p95": 3.163,
+      "p99": 3.305,
+      "max": 3.305
+    },
+    "readV1Ms": {
+      "n": 30,
+      "p50": 1.538,
+      "p95": 2.21,
+      "p99": 3.085,
+      "max": 3.085
+    },
+    "sitAWriteMs": {
+      "n": 50,
+      "p50": 2.215,
+      "p95": 3.008,
+      "p99": 5.158,
+      "max": 5.158
+    },
+    "sitAWalBytes": 34496,
+    "sitAWalPerVerBytes": 690,
+    "storageAfterSitA": {
+      "read_pot_shareholder_set": {
+        "rows": 1,
+        "heapBytes": 8192,
+        "indexBytes": 16384,
+        "toastBytes": 57344,
+        "totalBytes": 81920
+      },
+      "read_pot_balance": {
+        "rows": 150,
+        "heapBytes": 16384,
+        "indexBytes": 16384,
+        "toastBytes": 32768,
+        "totalBytes": 65536
+      },
+      "read_pot_balance_content": {
+        "rows": 100,
+        "heapBytes": 40960,
+        "indexBytes": 16384,
+        "toastBytes": 32768,
+        "totalBytes": 90112
+      },
+      "read_pot_balance_aggregate": {
+        "rows": 150,
+        "heapBytes": 16384,
+        "indexBytes": 16384,
+        "toastBytes": 32768,
+        "totalBytes": 65536
+      },
+      "read_pot_balance_aggregate_content": {
+        "rows": 100,
+        "heapBytes": 16384,
+        "indexBytes": 16384,
+        "toastBytes": 344064,
+        "totalBytes": 376832
+      }
+    },
+    "f4Diagnostic": {
+      "balanceContents": {
+        "content_heap_bytes": 40960,
+        "version_heap_bytes": 16384,
+        "content_index_bytes": 16384,
+        "content_toast_bytes": 32768,
+        "content_total_bytes": 90112,
+        "total_content_count": 100,
+        "version_index_bytes": 16384,
+        "version_total_bytes": 65536,
+        "reachable_content_count": 100,
+        "total_content_row_bytes": 36053,
+        "unreachable_content_bytes": 0,
+        "unreachable_content_count": 0,
+        "published_balance_versions": 150,
+        "reachable_content_row_bytes": 36053
+      },
+      "shareholderSets": {
+        "set_heap_bytes": 8192,
+        "set_index_bytes": 16384,
+        "set_toast_bytes": 57344,
+        "set_total_bytes": 81920,
+        "total_set_count": 1,
+        "reachable_set_count": 1,
+        "total_set_row_bytes": 8076,
+        "unreachable_set_bytes": 0,
+        "unreachable_set_count": 0,
+        "reachable_set_row_bytes": 8076
+      },
+      "aggregateContents": {
+        "content_heap_bytes": 16384,
+        "version_heap_bytes": 16384,
+        "content_index_bytes": 16384,
+        "content_toast_bytes": 344064,
+        "content_total_bytes": 376832,
+        "total_content_count": 100,
+        "version_index_bytes": 16384,
+        "version_total_bytes": 65536,
+        "reachable_content_count": 100,
+        "total_content_row_bytes": 259248,
+        "unreachable_content_bytes": 0,
+        "unreachable_content_count": 0,
+        "reachable_content_row_bytes": 259248,
+        "published_aggregate_versions": 150
+      },
+      "publishedVersions": 0
+    }
+  },
+  "C3": {
+    "sitDWriteMs": {
+      "n": 100,
+      "p50": 4.01,
+      "p95": 5.963,
+      "p99": 9.579,
+      "max": 26.817
+    },
+    "sitDWalBytes": 498152,
+    "sitDWalPerVerBytes": 4982,
+    "storageAfterSitD": {
+      "read_pot_shareholder_set": {
+        "rows": 1,
+        "heapBytes": 8192,
+        "indexBytes": 16384,
+        "toastBytes": 57344,
+        "totalBytes": 81920
+      },
+      "read_pot_balance": {
+        "rows": 100,
+        "heapBytes": 16384,
+        "indexBytes": 16384,
+        "toastBytes": 32768,
+        "totalBytes": 65536
+      },
+      "read_pot_balance_content": {
+        "rows": 100,
+        "heapBytes": 40960,
+        "indexBytes": 16384,
+        "toastBytes": 32768,
+        "totalBytes": 90112
+      },
+      "read_pot_balance_aggregate": {
+        "rows": 100,
+        "heapBytes": 16384,
+        "indexBytes": 16384,
+        "toastBytes": 32768,
+        "totalBytes": 65536
+      },
+      "read_pot_balance_aggregate_content": {
+        "rows": 100,
+        "heapBytes": 16384,
+        "indexBytes": 16384,
+        "toastBytes": 344064,
+        "totalBytes": 376832
+      }
+    },
+    "readCurrentMs": {
+      "n": 30,
+      "p50": 1.531,
+      "p95": 1.848,
+      "p99": 2.375,
+      "max": 2.375
+    },
+    "readMidMs": {
+      "n": 30,
+      "p50": 1.517,
+      "p95": 1.821,
+      "p99": 2.006,
+      "max": 2.006
+    },
+    "readV1Ms": {
+      "n": 30,
+      "p50": 1.56,
+      "p95": 2.132,
+      "p99": 4.736,
+      "max": 4.736
+    },
+    "sitAWriteMs": {
+      "n": 50,
+      "p50": 3.229,
+      "p95": 4.108,
+      "p99": 4.897,
+      "max": 4.897
+    },
+    "sitAWalBytes": 62256,
+    "sitAWalPerVerBytes": 1245,
+    "storageAfterSitA": {
+      "read_pot_shareholder_set": {
+        "rows": 1,
+        "heapBytes": 8192,
+        "indexBytes": 16384,
+        "toastBytes": 57344,
+        "totalBytes": 81920
+      },
+      "read_pot_balance": {
+        "rows": 150,
+        "heapBytes": 16384,
+        "indexBytes": 16384,
+        "toastBytes": 32768,
+        "totalBytes": 65536
+      },
+      "read_pot_balance_content": {
+        "rows": 100,
+        "heapBytes": 40960,
+        "indexBytes": 16384,
+        "toastBytes": 32768,
+        "totalBytes": 90112
+      },
+      "read_pot_balance_aggregate": {
+        "rows": 150,
+        "heapBytes": 16384,
+        "indexBytes": 16384,
+        "toastBytes": 32768,
+        "totalBytes": 65536
+      },
+      "read_pot_balance_aggregate_content": {
+        "rows": 100,
+        "heapBytes": 16384,
+        "indexBytes": 16384,
+        "toastBytes": 344064,
+        "totalBytes": 376832
+      }
+    },
+    "f4Diagnostic": {
+      "balanceContents": {
+        "content_heap_bytes": 40960,
+        "version_heap_bytes": 16384,
+        "content_index_bytes": 16384,
+        "content_toast_bytes": 32768,
+        "content_total_bytes": 90112,
+        "total_content_count": 100,
+        "version_index_bytes": 16384,
+        "version_total_bytes": 65536,
+        "reachable_content_count": 100,
+        "total_content_row_bytes": 36053,
+        "unreachable_content_bytes": 0,
+        "unreachable_content_count": 0,
+        "published_balance_versions": 150,
+        "reachable_content_row_bytes": 36053
+      },
+      "shareholderSets": {
+        "set_heap_bytes": 8192,
+        "set_index_bytes": 16384,
+        "set_toast_bytes": 57344,
+        "set_total_bytes": 81920,
+        "total_set_count": 1,
+        "reachable_set_count": 1,
+        "total_set_row_bytes": 8076,
+        "unreachable_set_bytes": 0,
+        "unreachable_set_count": 0,
+        "reachable_set_row_bytes": 8076
+      },
+      "aggregateContents": {
+        "content_heap_bytes": 16384,
+        "version_heap_bytes": 16384,
+        "content_index_bytes": 16384,
+        "content_toast_bytes": 344064,
+        "content_total_bytes": 376832,
+        "total_content_count": 100,
+        "version_index_bytes": 16384,
+        "version_total_bytes": 65536,
+        "reachable_content_count": 100,
+        "total_content_row_bytes": 259248,
+        "unreachable_content_bytes": 0,
+        "unreachable_content_count": 0,
+        "reachable_content_row_bytes": 259248,
+        "published_aggregate_versions": 150
+      },
+      "publishedVersions": 0
+    },
+    "availability": {
+      "bytes": 172032,
+      "historicalEvents": 150
+    }
+  }
+}

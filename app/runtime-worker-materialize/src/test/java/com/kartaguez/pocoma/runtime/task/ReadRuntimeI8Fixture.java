@@ -111,6 +111,10 @@ public final class ReadRuntimeI8Fixture implements AutoCloseable {
     final List<ConfigurableApplicationContext> contexts = new ArrayList<>();
 
     ReadRuntimeI8Fixture(PostgreSQLContainer pg) throws Exception {
+        this(pg, true);
+    }
+
+    ReadRuntimeI8Fixture(PostgreSQLContainer pg, boolean availability) throws Exception {
         this.pg = pg;
         writeUrl =
                 "jdbc:postgresql://"
@@ -149,9 +153,9 @@ public final class ReadRuntimeI8Fixture implements AutoCloseable {
                                     ? new String[] {
                                         "classpath:db/write/migration"
                                     }
-                                    : new String[] {
-                                        "classpath:db/read/migration"
-                                    })
+                                    : availability
+                                            ? new String[] {"classpath:db/read/migration", "classpath:db/read/availability/migration"}
+                                            : new String[] {"classpath:db/read/migration"})
                     .placeholders(
                             Map.of(
                                     "expectedDatabase",
@@ -607,9 +611,15 @@ public final class ReadRuntimeI8Fixture implements AutoCloseable {
         for (var table :
                 List.of(
                         "read_subobject_version",
+                        "read_pot_user_set",
+                        "read_pot_version_node",
                         "read_pot_version",
                         "read_current_pot",
+                        "read_pot_shareholder_set",
+                        "read_pot_balance_content",
                         "read_pot_balance",
+                        "read_pot_balance_aggregate_content",
+                        "read_pot_balance_aggregate",
                         "read_pot_visibility_state",
                         "read_user_pot",
                         "read_current_binding",

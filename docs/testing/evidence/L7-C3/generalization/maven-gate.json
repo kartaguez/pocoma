@@ -1,0 +1,587 @@
+{
+  "canonicalPrefix": {
+    "command": "cd app && ./mvnw --batch-mode --no-transfer-progress -pl runtime-worker-materialize,runtime-web-write,runtime-web-read,architecture-tests -am test",
+    "outcome": "INTERRUPTED",
+    "completedModulesBeforeWorkerMetrics": [
+      "pocoma",
+      "pocoma-domain-pot",
+      "pocoma-domain-identity",
+      "pocoma-domain-projection",
+      "pocoma-domain-consumption",
+      "pocoma-contract-authentication",
+      "pocoma-contract-write-admission",
+      "pocoma-port-transaction",
+      "pocoma-contract-read-query",
+      "pocoma-port-projection",
+      "pocoma-engine-admit-command",
+      "pocoma-engine-admit-identity",
+      "pocoma-contract-consumption",
+      "pocoma-engine-write-pot",
+      "pocoma-engine-write-identity",
+      "pocoma-engine-materialize-pot",
+      "pocoma-engine-materialize-identity",
+      "pocoma-engine-materialize-results",
+      "pocoma-engine-read-pot",
+      "pocoma-engine-read-identity",
+      "pocoma-engine-read-results",
+      "pocoma-orchestrator-consumption",
+      "pocoma-supra-polling-consumption",
+      "pocoma-supra-web-write",
+      "pocoma-infra-tx-spring",
+      "pocoma-infra-postgres-core",
+      "pocoma-infra-postgres-read",
+      "pocoma-supra-web-read",
+      "pocoma-infra-security-spring",
+      "pocoma-infra-postgres-write-source-read",
+      "pocoma-infra-postgres-write",
+      "pocoma-infra-observability-micrometer",
+      "pocoma-compose-web-write-postgres",
+      "pocoma-compose-polling-burnable-write-postgres",
+      "pocoma-compose-polling-nonburnable-materialize-postgres",
+      "pocoma-engine-read-execution",
+      "pocoma-compose-web-read-postgres",
+      "pocoma-runtime-web-write",
+      "pocoma-runtime-web-read"
+    ],
+    "interruptedModule": "pocoma-runtime-worker-process",
+    "lastStartedClass": "WorkerMetricsTest"
+  },
+  "resumePhases": [
+    {
+      "phase": "resume-install",
+      "command": "./mvnw --batch-mode --no-transfer-progress -Dmaven.repo.local=/tmp/pocoma-c3-gates.rkf5oS/maven-repository -pl runtime-worker-materialize\\,runtime-web-write\\,runtime-web-read\\,architecture-tests -am -DskipTests install",
+      "exit": 0
+    },
+    {
+      "phase": "resume-worker-metrics",
+      "command": "./mvnw --batch-mode --no-transfer-progress -Dmaven.repo.local=/tmp/pocoma-c3-gates.rkf5oS/maven-repository -pl runtime-worker-process -am -Dtest=WorkerMetricsTest -Dsurefire.failIfNoSpecifiedTests=false test",
+      "exit": 0
+    },
+    {
+      "phase": "resume-canonical",
+      "command": "./mvnw --batch-mode --no-transfer-progress -Dmaven.repo.local=/tmp/pocoma-c3-gates.rkf5oS/maven-repository -pl runtime-worker-materialize\\,runtime-web-write\\,runtime-web-read\\,architecture-tests -am -rf :pocoma-runtime-worker-materialize test",
+      "exit": 1
+    },
+    {
+      "phase": "replay-monolith",
+      "command": "./mvnw --batch-mode --no-transfer-progress -Dmaven.repo.local=/tmp/pocoma-c3-gates.rkf5oS/maven-repository -pl runtime-worker-materialize\\,runtime-web-write\\,runtime-web-read\\,architecture-tests -am -rf :pocoma-runtime-monolith test",
+      "exit": 0
+    }
+  ],
+  "firstResumeModuleStatuses": {
+    "pocoma-runtime-worker-materialize": "SUCCESS",
+    "pocoma-runtime-monolith": "FAILURE",
+    "pocoma-architecture-tests": "SKIPPED"
+  },
+  "resumedModuleStatuses": {
+    "pocoma-runtime-worker-materialize": "SUCCESS",
+    "pocoma-runtime-monolith": "SUCCESS",
+    "pocoma-architecture-tests": "SUCCESS"
+  },
+  "fixtureOnlyChangesAfterFirstResume": [
+    "app/runtime-monolith/src/test/java/com/kartaguez/pocoma/InvitationReadPostgresTest.java",
+    "app/runtime-monolith/src/test/java/com/kartaguez/pocoma/ReadWorkerResourcesPostgresTest.java"
+  ],
+  "coverage": "COMPLETE",
+  "expectedModules": 43,
+  "expectedTests": 1169,
+  "observedTests": 1169,
+  "testProblems": [],
+  "missingTests": [],
+  "unexpectedTests": [],
+  "changedAppInputs": [],
+  "bruno": {
+    "brunoB2PublicProtocol": {
+      "status": [
+        "passed"
+      ],
+      "receiptValidated": true
+    },
+    "brunoB4StandaloneCorpus": {
+      "status": [
+        "passed"
+      ],
+      "receiptValidated": true
+    }
+  },
+  "byModule": {
+    "domain-pot": {
+      "tests": 46,
+      "failure": 0,
+      "error": 0,
+      "skipped": 0
+    },
+    "domain-identity": {
+      "tests": 20,
+      "failure": 0,
+      "error": 0,
+      "skipped": 0
+    },
+    "domain-projection": {
+      "tests": 36,
+      "failure": 0,
+      "error": 0,
+      "skipped": 0
+    },
+    "domain-consumption": {
+      "tests": 1,
+      "failure": 0,
+      "error": 0,
+      "skipped": 0
+    },
+    "contract-authentication": {
+      "tests": 0,
+      "failure": 0,
+      "error": 0,
+      "skipped": 0
+    },
+    "contract-write-admission": {
+      "tests": 0,
+      "failure": 0,
+      "error": 0,
+      "skipped": 0
+    },
+    "port-transaction": {
+      "tests": 0,
+      "failure": 0,
+      "error": 0,
+      "skipped": 0
+    },
+    "contract-read-query": {
+      "tests": 0,
+      "failure": 0,
+      "error": 0,
+      "skipped": 0
+    },
+    "port-projection": {
+      "tests": 0,
+      "failure": 0,
+      "error": 0,
+      "skipped": 0
+    },
+    "engine-admit-command": {
+      "tests": 0,
+      "failure": 0,
+      "error": 0,
+      "skipped": 0
+    },
+    "engine-admit-identity": {
+      "tests": 4,
+      "failure": 0,
+      "error": 0,
+      "skipped": 0
+    },
+    "contract-consumption": {
+      "tests": 0,
+      "failure": 0,
+      "error": 0,
+      "skipped": 0
+    },
+    "engine-write-pot": {
+      "tests": 14,
+      "failure": 0,
+      "error": 0,
+      "skipped": 0
+    },
+    "engine-write-identity": {
+      "tests": 13,
+      "failure": 0,
+      "error": 0,
+      "skipped": 0
+    },
+    "engine-materialize-pot": {
+      "tests": 7,
+      "failure": 0,
+      "error": 0,
+      "skipped": 0
+    },
+    "engine-materialize-identity": {
+      "tests": 0,
+      "failure": 0,
+      "error": 0,
+      "skipped": 0
+    },
+    "engine-materialize-results": {
+      "tests": 2,
+      "failure": 0,
+      "error": 0,
+      "skipped": 0
+    },
+    "engine-read-pot": {
+      "tests": 0,
+      "failure": 0,
+      "error": 0,
+      "skipped": 0
+    },
+    "engine-read-identity": {
+      "tests": 1,
+      "failure": 0,
+      "error": 0,
+      "skipped": 0
+    },
+    "engine-read-results": {
+      "tests": 0,
+      "failure": 0,
+      "error": 0,
+      "skipped": 0
+    },
+    "orchestrator-consumption": {
+      "tests": 38,
+      "failure": 0,
+      "error": 0,
+      "skipped": 0
+    },
+    "supra-polling-consumption": {
+      "tests": 0,
+      "failure": 0,
+      "error": 0,
+      "skipped": 0
+    },
+    "supra-web-write": {
+      "tests": 0,
+      "failure": 0,
+      "error": 0,
+      "skipped": 0
+    },
+    "infra-tx-spring": {
+      "tests": 28,
+      "failure": 0,
+      "error": 0,
+      "skipped": 0
+    },
+    "infra-postgres-core": {
+      "tests": 12,
+      "failure": 0,
+      "error": 0,
+      "skipped": 0
+    },
+    "infra-postgres-read": {
+      "tests": 39,
+      "failure": 0,
+      "error": 0,
+      "skipped": 0
+    },
+    "supra-web-read": {
+      "tests": 17,
+      "failure": 0,
+      "error": 0,
+      "skipped": 0
+    },
+    "infra-security-spring": {
+      "tests": 0,
+      "failure": 0,
+      "error": 0,
+      "skipped": 0
+    },
+    "infra-postgres-write-source-read": {
+      "tests": 0,
+      "failure": 0,
+      "error": 0,
+      "skipped": 0
+    },
+    "infra-postgres-write": {
+      "tests": 473,
+      "failure": 0,
+      "error": 0,
+      "skipped": 0
+    },
+    "infra-observability-micrometer": {
+      "tests": 6,
+      "failure": 0,
+      "error": 0,
+      "skipped": 0
+    },
+    "compose-web-write-postgres": {
+      "tests": 18,
+      "failure": 0,
+      "error": 0,
+      "skipped": 0
+    },
+    "compose-polling-burnable-write-postgres": {
+      "tests": 13,
+      "failure": 0,
+      "error": 0,
+      "skipped": 0
+    },
+    "compose-polling-nonburnable-materialize-postgres": {
+      "tests": 13,
+      "failure": 0,
+      "error": 0,
+      "skipped": 0
+    },
+    "engine-read-execution": {
+      "tests": 2,
+      "failure": 0,
+      "error": 0,
+      "skipped": 0
+    },
+    "compose-web-read-postgres": {
+      "tests": 0,
+      "failure": 0,
+      "error": 0,
+      "skipped": 0
+    },
+    "runtime-web-write": {
+      "tests": 0,
+      "failure": 0,
+      "error": 0,
+      "skipped": 0
+    },
+    "runtime-web-read": {
+      "tests": 42,
+      "failure": 0,
+      "error": 0,
+      "skipped": 0
+    },
+    "runtime-worker-process": {
+      "tests": 98,
+      "failure": 0,
+      "error": 0,
+      "skipped": 0
+    },
+    "runtime-worker-materialize": {
+      "tests": 134,
+      "failure": 0,
+      "error": 0,
+      "skipped": 0
+    },
+    "runtime-monolith": {
+      "tests": 40,
+      "failure": 0,
+      "error": 0,
+      "skipped": 0
+    },
+    "architecture-tests": {
+      "tests": 52,
+      "failure": 0,
+      "error": 0,
+      "skipped": 0
+    }
+  },
+  "checks": {
+    "prefix": true,
+    "suffix": true,
+    "workerMetrics": true,
+    "architecture": true
+  },
+  "rawArchive": {
+    "sha256": "3de769914998f95a79264d056a90bc8ad834f697e3010c39d93d24f8567baa68",
+    "members": {
+      "maven.log": "d101fd6a98278891286fc1061e1c58ee64ab7b71fbca369fa67c1dc33864eb24",
+      "app-inputs.json": "fe080a88d08fd3ce1b6d7f7955dac353edb33587a4aa27522231d49cc38e2f4b",
+      "app-inputs-final.json": "8c8c0f96d9c52be18eea4a53e1f4db81536a7770bd6a9645b686b29738fa1d4e",
+      "status.txt": "04d08da8f26764450bc7b91b81a8434c34296479fc1970edf254f29c8fe82942",
+      "head.txt": "1003747f175a47ce1d7be98e66d4bc421c76ef3b48ad37bc00dabef87f0ea63c",
+      "resume.sh": "a562174dc5a4e06d38a094dfbadebeccb709b85900a60c46528828a01f6cee0f",
+      "replay-monolith.sh": "b916d8e9541b897c3e76c9374606e4a7a8f338fd0f041cc5a09d435c859bf12c",
+      "old-monolith-xml.tar.gz": "a2f6f66d741784e6ed3bcd62174e9ba22dd7014966e65a05b39d959f05689790",
+      "invitation-v5-fix.log": "646002d08ca4c3070e8705ab7beeeaea1b28f31f4fb7deace6c1194481ffbefd",
+      "resume-install.exit": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "resume-install.command": "18f43cf3474a109a780a559d6f676b757f8cc00a637080b9a29fbba05a8051cd",
+      "resume-install.log": "4373f4e0216ef445298516ac5d1c1b4a104cc02db5fed8b87bbcda3567ecf421",
+      "resume-worker-metrics.exit": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "resume-worker-metrics.command": "d8c41f972bfe3f2639b5f4b892e6b2cd82c723792b709208c4519cac611b7247",
+      "resume-worker-metrics.log": "0dadd1f28057f16780c8292cba485c02809b090920cc86e1a3cb76711edda709",
+      "resume-canonical.exit": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+      "resume-canonical.command": "46075411bcf0b4ad2205519a3559374fc1d6a82d681809158f1d999517349e29",
+      "resume-canonical.log": "873d363ad41e2523c8cffcb0a48c397a6f7a9ea949a0da48dc2075c334f1c054",
+      "replay-monolith.exit": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "replay-monolith.command": "2c3eaf14a3343e36a89035e1a38c9a1df172fec453f7f152e4430f633110e5b6",
+      "replay-monolith.log": "825c9b8f84bc32db4c09cd0bf83dc187fbf85d236a06e5e39aa5c6841024a6df",
+      "reports/domain-pot/TEST-com.kartaguez.pocoma.domain.pot.InvitationAttachmentTest.xml": "96430e02cb3cb8693499180142bb3733ed6687f164296d322bc4459adf5c7a84",
+      "reports/domain-pot/TEST-com.kartaguez.pocoma.domain.pot.PotAuthorizationTest.xml": "a3bf170d2f16218518c6e94795519290732cbd68664fa759eee78f08bfd33dce",
+      "reports/domain-pot/TEST-com.kartaguez.pocoma.domain.pot.PotBalanceCalculatorTest.xml": "26b361acd73d62a7ef307e525a0d000874f2ee76b17f1009ae6bb42bcc2bb74d",
+      "reports/domain-pot/TEST-com.kartaguez.pocoma.domain.pot.PotTransitionsTest.xml": "c564f134cc71f89c865f540e5fd48f06f4a5c2024cbd6c1829e70823210f8515",
+      "reports/domain-pot/TEST-com.kartaguez.pocoma.domain.pot.PotVisibilityRulesTest.xml": "6727f4b620b47fe6246809bc90867ede4453e761d3947eb0a6911c3ff0e65385",
+      "reports/domain-pot/TEST-com.kartaguez.pocoma.domain.pot.value.LabelTest.xml": "0802e748c7a77152fe1bec19b20233e80e18a67297cff907976979ba466ab7a3",
+      "reports/domain-pot/TEST-com.kartaguez.pocoma.domain.pot.value.NameTest.xml": "2dd5e56d42419550496ee1b62339a95c393b0bf45a0c52f75995fd4e9dfb3392",
+      "reports/domain-pot/TEST-com.kartaguez.pocoma.domain.pot.value.UserIdTest.xml": "65b0485b26fa09d3f5805c0e64eeeda03a7841bf0cbc8066249904a87debee1d",
+      "reports/domain-pot/TEST-com.kartaguez.pocoma.domain.pot.value.id.EntityIdTest.xml": "d4e63cbd7fb2c6d7c01ce7f173ea6f520166184df90b9b9fb17b125ec30e67a0",
+      "reports/domain-pot/TEST-com.kartaguez.pocoma.domain.pot.value.id.ExpenseIdTest.xml": "db976be0fdcaa25b54a23e8fa94a1ec24b9316aec30ea6c57a35db072b72f97c",
+      "reports/domain-pot/TEST-com.kartaguez.pocoma.domain.pot.value.id.PotIdTest.xml": "655bf62efffa31bf8ce2c2b7fabe8677688faafe69ed4da5137e522ab0e8be60",
+      "reports/domain-pot/TEST-com.kartaguez.pocoma.domain.pot.value.id.ShareholderIdTest.xml": "de7a568cda511f006a4d754a5b38da5ea94ff5331a058038c16b284be3472991",
+      "reports/domain-identity/TEST-com.kartaguez.pocoma.domain.identity.IdentityTransitionsTest.xml": "98abcd34b6e672f85a3b0b1c4b5c8b9853d98386c9d34448d6d436b6d81da5e6",
+      "reports/domain-identity/TEST-com.kartaguez.pocoma.domain.identity.IdentityValueContractsTest.xml": "d3d116922f4afa6f62077da35ce4886b570aceae67a46edb6e6d303a2888d37a",
+      "reports/domain-projection/TEST-com.kartaguez.pocoma.domain.projection.PotBalanceAggregateEquivalenceTest.xml": "125c548b4ae957af44089f0f748e1fe297b5c4d15e65d543adaced8ea56a0408",
+      "reports/domain-projection/TEST-com.kartaguez.pocoma.domain.projection.PotVersionContractTest.xml": "191a33d4263ac4e4f095a1ee71832ea564426f26e4d190fbd99f108681a7ac07",
+      "reports/domain-projection/TEST-com.kartaguez.pocoma.domain.projection.SubobjectVersionTest.xml": "3f4a4fb52a2be273acc7313c707ae6e4657e41f48e68cda445f5cd8360893249",
+      "reports/domain-projection/TEST-com.kartaguez.pocoma.domain.projection.balance.PotBalanceAggregateBinaryCodecTest.xml": "0ec84cbfa4ee4d8bd94f67959aaf01c2ff244152ca9b6cea19e6b0113b19a840",
+      "reports/domain-projection/TEST-com.kartaguez.pocoma.domain.projection.balance.PotBalanceBinaryCodecTest.xml": "12c9239db23bad8418e4a321ebab5ba5a9df2a39cb3c4e987a13416ac5bf8ae9",
+      "reports/domain-projection/TEST-com.kartaguez.pocoma.domain.projection.balance.PotShareholderSetBinaryCodecTest.xml": "9d80df72ee039a9ba00c49eee41023b8e1cb448eca8148630431866c3bbd01df",
+      "reports/domain-projection/TEST-com.kartaguez.pocoma.domain.projection.radix.Radix16CodecTest.xml": "f9a9f6a157bbc631d36450267009eb825e564f0ca76ba6c33d800aeb3b2c98fd",
+      "reports/domain-projection/TEST-com.kartaguez.pocoma.domain.projection.radix.Radix16TreeTest.xml": "acf0dc50e48eb709122e79b4a62fbd6bb1aca7e676220bb4e895098af3acf000",
+      "reports/domain-consumption/TEST-com.kartaguez.pocoma.domain.consumption.RoutingV1Test.xml": "1e94fb2ab86b2e848a1e6d0cc9f557c3c95f290c790599a0c478f91e8ddb44a8",
+      "reports/engine-admit-identity/TEST-com.kartaguez.pocoma.engine.admit.identity.IdentityAdmissionInputTest.xml": "f2b88c4c55d8f35014c99a703fd90cd8c91111dc966218d47b919d1da199737d",
+      "reports/engine-write-pot/TEST-com.kartaguez.pocoma.engine.write.pot.ExecutePotCommandTest.xml": "d3c3b48dcad34b872883485b3133a52c41d154839b1f7cb18f7e6dd7dfc6a233",
+      "reports/engine-write-pot/TEST-com.kartaguez.pocoma.engine.write.pot.PotCommandIntentTest.xml": "f671c4729635374c92671cdc3a46f8be2161218d48b688443f06eb34f517e66c",
+      "reports/engine-write-identity/TEST-com.kartaguez.pocoma.engine.write.identity.ExecuteIdentityRequestTest.xml": "87d407639abe4c16642c0d8b940119f24041603acf6eff084ad3fcee228ae429",
+      "reports/engine-write-identity/TEST-com.kartaguez.pocoma.engine.write.identity.IdentityRequestContractTest.xml": "58a2989bf138b8d877774af2de9db7c7191b967e15a6548e29f1787ff51560bc",
+      "reports/engine-materialize-pot/TEST-com.kartaguez.pocoma.engine.materialize.pot.MaterializePotBalanceIncrementalTest.xml": "25831592c57acba9d19c19aa633bbe4ce72ecc6f9fa6e66f9e42abcfb5bc4d22",
+      "reports/engine-materialize-pot/TEST-com.kartaguez.pocoma.engine.materialize.pot.MaterializePotVersionIncrementalTest.xml": "d0ee402cf74f7a2ef67dd72167308c256eb8d30a9f370b2651f70f15251d523d",
+      "reports/engine-materialize-pot/TEST-com.kartaguez.pocoma.engine.materialize.pot.MaterializePotVersionTest.xml": "bf48df9a5c1e368466a4be926668052322f14efa66245fe10afed9b71161ab7f",
+      "reports/engine-materialize-results/TEST-com.kartaguez.pocoma.engine.materialize.results.CommandResultContractTest.xml": "5cc0c30193e1a57ec1c15871cbf2d90c7bd48c711a039493004cc15898575604",
+      "reports/engine-materialize-results/TEST-com.kartaguez.pocoma.engine.materialize.results.IdentityRequestResultContractTest.xml": "3d6499409949886228fcd2c06656533fb7b674be6eb1f07a071429eeb79567aa",
+      "reports/engine-read-identity/TEST-com.kartaguez.pocoma.engine.read.identity.CurrentBindingContractTest.xml": "eb5030851775f40afd1f47ebe839411b7b1b567447dd6c99f9518812bb04e0db",
+      "reports/orchestrator-consumption/TEST-com.kartaguez.pocoma.orchestrator.consumption.ConsumptionFailureClassificationTest.xml": "e9d9fa9f83a36aca32aace3c39bb80428df4902b39480178a8e7fbbd467b9199",
+      "reports/orchestrator-consumption/TEST-com.kartaguez.pocoma.orchestrator.consumption.ConsumptionInvocationContractTest.xml": "a530e0e06add5612f863680e1a9a9eb50601102acf08f2a068c2a6a928b99ea5",
+      "reports/orchestrator-consumption/TEST-com.kartaguez.pocoma.orchestrator.consumption.DiscoveryEngineTest.xml": "c4fd3c26353c2bbdadcba1e972f4e89e26872defc55a18f046bfc159768c1ec5",
+      "reports/orchestrator-consumption/TEST-com.kartaguez.pocoma.orchestrator.consumption.PreparationReadsTest.xml": "16c5ef3df2b00b372ab8ee71be2765cb15d012a3763b9d3f27947f865999c540",
+      "reports/orchestrator-consumption/TEST-com.kartaguez.pocoma.orchestrator.consumption.WorkerCapacityTest.xml": "d7b878cef0414274c2562332f6bb7e4dc8690256357fb7599f6f4dea94fe201d",
+      "reports/infra-tx-spring/TEST-com.kartaguez.pocoma.infra.tx.spring.AttemptTransactionsPostgresTest.xml": "d9fd211b1bc967771c71155cd989467c92a41db94af4f406ad7282dd455a6600",
+      "reports/infra-tx-spring/TEST-com.kartaguez.pocoma.infra.tx.spring.FoundationCompositionTest.xml": "2bada1fafc7e38663fbffc65faaee7276ee7dc0595d0d3c93b11c19fc30d3ff4",
+      "reports/infra-tx-spring/TEST-com.kartaguez.pocoma.infra.tx.spring.HistoricalIntervalPostgresTest.xml": "5cda73f531cb17a8bb74bb7f31a9b0b5649ab1f149e5d06d8094207934524157",
+      "reports/infra-tx-spring/TEST-com.kartaguez.pocoma.infra.tx.spring.SchemaIsolationPostgresTest.xml": "eadcf61cb2a12b3cc9814265587cb5e385b8626b832b95d28b9fa8e26563d914",
+      "reports/infra-tx-spring/TEST-com.kartaguez.pocoma.infra.tx.spring.TransactionFoundationPostgresTest.xml": "0cadd28c9ec853b9fc031d2061fdb25f5f0ceee84f91f8b701c525956d44f505",
+      "reports/infra-postgres-core/TEST-com.kartaguez.pocoma.infra.postgres.core.bootstrap.WriteSourceReadPrivilegesPostgresTest.xml": "bdf8cc49e7f8efaf9e2275e9ce484be4a36cc95e98cffdc5f9f90248287c77b3",
+      "reports/infra-postgres-core/TEST-com.kartaguez.pocoma.infra.postgres.core.consumption.BatchLeaseRenewalPostgresTest.xml": "8e45fb57fd59d78b3351866f14dca5f7b5c4ba9bba79342ee9d0261303a17170",
+      "reports/infra-postgres-core/TEST-com.kartaguez.pocoma.infra.postgres.core.history.OpenComponentExplainPostgresTest.xml": "f0e4dcaf31bf6715049d3881d3f6043b0f5c2a46e9923c929aaef38f2559dbb3",
+      "reports/infra-postgres-read/TEST-com.kartaguez.pocoma.infra.postgres.read.CurrentBindingReadStorePostgresTest.xml": "38a3820cabb0142336ef2b676da29f2ab78ded02ba85c6821426627ee6abc051",
+      "reports/infra-postgres-read/TEST-com.kartaguez.pocoma.infra.postgres.read.PotBalanceReadStorePostgresTest.xml": "8ee6ea0a22093bd11686f803753c341f39036fbffa1ce65c2f933ec73f63bbc9",
+      "reports/infra-postgres-read/TEST-com.kartaguez.pocoma.infra.postgres.read.PotBalanceSharedSchemaPostgresTest.xml": "175a742bdee88b6511ddd4bf7a1e11a65e9d2feb80c2daf730f1b17bb5d2e058",
+      "reports/infra-postgres-read/TEST-com.kartaguez.pocoma.infra.postgres.read.PotVersionRadixSchemaPostgresTest.xml": "f3ee21695ecc9e00e23b713ae6420a296ae2db45568b088b64dfebd3e6ae3d3c",
+      "reports/infra-postgres-read/TEST-com.kartaguez.pocoma.infra.postgres.read.PotVersionReadStorePostgresTest.xml": "b2b0976b287c77c6daf13c3da602b9343ccace1b61db41003d4f3ef69958b780",
+      "reports/infra-postgres-read/TEST-com.kartaguez.pocoma.infra.postgres.read.PotVersionTargetedReadPostgresTest.xml": "8ff2ef0948ef5f49a7501619f45d7ca37a2d0cef5a600c2c466c26fe94f2b65b",
+      "reports/infra-postgres-read/TEST-com.kartaguez.pocoma.infra.postgres.read.PotVisibilityReadStorePostgresTest.xml": "aca1855b062fdf44cd33b309978ef060ba981742ebc830ec26f1d17b5888e804",
+      "reports/infra-postgres-read/TEST-com.kartaguez.pocoma.infra.postgres.read.SubobjectJsonTest.xml": "46b487c7dde4a784717a8521eee43ce826ac526b3c86ff97ffcf9a0bdb1a3d19",
+      "reports/infra-postgres-read/TEST-com.kartaguez.pocoma.infra.postgres.read.TerminalResultsReadStorePostgresTest.xml": "68f5c73a34340dab10e2119c067999c3e9d94384db0fc322d625032b394dc020",
+      "reports/infra-postgres-read/TEST-com.kartaguez.pocoma.infra.postgres.read.consumption.ReadConsumptionFoundationPostgresTest.xml": "d75679037e9c815215d0805b00ca4d23689830b5da4a73c3dcd88acc8b79b4b2",
+      "reports/infra-postgres-read/TEST-com.kartaguez.pocoma.infra.postgres.read.consumption.ReadConsumptionLifecyclePrivilegesPostgresTest.xml": "6c36cb96a0655e0326e71ad3ec107c113466d00fc06040581e9107c59adf72b0",
+      "reports/infra-postgres-read/TEST-com.kartaguez.pocoma.infra.postgres.read.consumption.ReadDiscoveryPrivilegesPostgresTest.xml": "aed739cdc9015a3e649d3a818e8b817e5ce7c78e4a6fadb0a3ede1fb7cbd804c",
+      "reports/supra-web-read/TEST-com.kartaguez.pocoma.supra.web.read.ReadTransportUnitTest.xml": "6325153b45d4c6c8bdb258da9485773f80771f2265ed6e9e2bb826629b330344",
+      "reports/supra-web-read/TEST-com.kartaguez.pocoma.supra.web.read.maintenance.ReadMaintenanceBarrierTest.xml": "677964f89444b0a05c5d161e0fdbbbabe8dad2dca337bb0ded2c2e235906e8c8",
+      "reports/infra-postgres-write/TEST-com.kartaguez.pocoma.infra.postgres.write.AdmissionPostgresTest.xml": "31fe5d3238e51d2b3e41bbe504d24845973621b7b1e77337acc23cd91e90b478",
+      "reports/infra-postgres-write/TEST-com.kartaguez.pocoma.infra.postgres.write.CommandExecutionPostgresTest.xml": "6dc270f75ba2d5e15f835c69e7aae987bb0db9c8f8c0463f6857b707d8067bec",
+      "reports/infra-postgres-write/TEST-com.kartaguez.pocoma.infra.postgres.write.ConsumptionLifecyclePostgresTest.xml": "b3e5e3df7f9ab66544465d36ae91ef2db42241023fad7c17cd45a63c5dcd7348",
+      "reports/infra-postgres-write/TEST-com.kartaguez.pocoma.infra.postgres.write.DiscoveryPostgresTest.xml": "f9512bb88bf5c1d0972020217be96351b56aa368e6dcf68ef96ad1096612e48f",
+      "reports/infra-postgres-write/TEST-com.kartaguez.pocoma.infra.postgres.write.L1IntegrationPostgresTest.xml": "5deda55ad6c845ae081eadaa14b70c25dc3e7502ea552a06338842b818ee7597",
+      "reports/infra-postgres-write/TEST-com.kartaguez.pocoma.infra.postgres.write.L2ManifestProof.xml": "8262bd38916a1e0826705416e5344a9aec43e5bd494dad0b4ebcba994b9e962e",
+      "reports/infra-postgres-write/TEST-com.kartaguez.pocoma.infra.postgres.write.L73TerminationWritePostgresTest.xml": "decc836b6f96417a14b98009d7047fbd49e68f52ee293b34c540622e2bffb78d",
+      "reports/infra-postgres-write/TEST-com.kartaguez.pocoma.infra.postgres.write.PotBalanceSourcePostgresTest.xml": "bb87d5153933256244480172ffe4a069761a28ef7a7a6063058644358786c50a",
+      "reports/infra-postgres-write/TEST-com.kartaguez.pocoma.infra.postgres.write.PotCommandJsonTest.xml": "773a65f35c9c1d14eb1b66453768e363390608dfa7ac71c253775495f60e59ac",
+      "reports/infra-postgres-write/TEST-com.kartaguez.pocoma.infra.postgres.write.PotFinancePostgresTest.xml": "249f7bea11d39d6e43ccc48b4d7c3a1dce22c4fbbe495da4a5c0753dc6ba2be3",
+      "reports/infra-postgres-write/TEST-com.kartaguez.pocoma.infra.postgres.write.PotHistoryCardinalityPostgresTest.xml": "17cb3d156bbbcba0fd533557790fc794acbf95142a311cce35ca9d834cf3a0f8",
+      "reports/infra-postgres-write/TEST-com.kartaguez.pocoma.infra.postgres.write.PotHistoryPostgresTest.xml": "41dc2951618a921b6572e3b18175075fcf538ca52afed654f9bb2936b502d20c",
+      "reports/infra-postgres-write/TEST-com.kartaguez.pocoma.infra.postgres.write.PotVersionSourcePostgresTest.xml": "37194a0d44be9560f496051a539b088dcc375968766c71ec05dc3beadb8d9b8b",
+      "reports/infra-postgres-write/TEST-com.kartaguez.pocoma.infra.postgres.write.PotVisibilitySourcePostgresTest.xml": "5027f82e8edb9b49d970d03a55c6c4e4e6e6f9588e5d4f3289fd222b93a5339c",
+      "reports/infra-postgres-write/TEST-com.kartaguez.pocoma.infra.postgres.write.QuarantineDiscoveryFilterPostgresTest.xml": "8f518c2598517f5b9ad58c9b352b7ea99dd1364cbbb976fa6e26e0a3e6aaccae",
+      "reports/infra-postgres-write/TEST-com.kartaguez.pocoma.infra.postgres.write.SlotNavigationPostgresTest.xml": "53ead0933360331a252b36af41164e7960fac40298c711e1d9c56aee6ac29f87",
+      "reports/infra-postgres-write/TEST-com.kartaguez.pocoma.infra.postgres.write.WriteRevisionPerformancePostgresTest.xml": "54d9d3938275ea694e2c0e408eeba10905b03079df88747557ea9e6f6bb62712",
+      "reports/infra-postgres-write/TEST-com.kartaguez.pocoma.infra.postgres.write.WriteRevisionPostgresTest.xml": "60dd8bf970a3d2f8507257a1243cbc924d0a757d956096fc63fb2e8cffff3ad1",
+      "reports/infra-postgres-write/TEST-com.kartaguez.pocoma.infra.postgres.write.consumption.ConsumptionFoundationPostgresTest.xml": "c73529d8e59a9be1662242bc3f6151fb2087a5707d3ca8b765b8fa3504337c63",
+      "reports/infra-postgres-write/TEST-com.kartaguez.pocoma.infra.postgres.write.identity.BindingTokenGeneratorTest.xml": "35a02136ac8ae8288b150ed3ceff39c8223824ebe36a83480cee33470e00f904",
+      "reports/infra-postgres-write/TEST-com.kartaguez.pocoma.infra.postgres.write.identity.CurrentBindingSourcePostgresTest.xml": "a084eff44a31d8f4fab062b207881cfeeb30d32466977baaf0df4ff59453952a",
+      "reports/infra-postgres-write/TEST-com.kartaguez.pocoma.infra.postgres.write.identity.IdentityAuthorityPostgresTest.xml": "9b95c0e08b1d2259ebd9ed5f160d90951a183985b8c12ae0f1a39681e9134c60",
+      "reports/infra-postgres-write/TEST-com.kartaguez.pocoma.infra.postgres.write.identity.IdentityConcurrencyPostgresTest.xml": "951bc59b92f5683f6bfc0ce764847e193a617315ec019ca0530e3bf9c59dc72e",
+      "reports/infra-postgres-write/TEST-com.kartaguez.pocoma.infra.postgres.write.identity.IdentityDiscoveryPostgresTest.xml": "c87421066470b3b8bde5e44e397b2dfb693b22c8c7c8a410072bb270ad05f8db",
+      "reports/infra-postgres-write/TEST-com.kartaguez.pocoma.infra.postgres.write.identity.IdentityPotAuthorityPostgresTest.xml": "8fbfe73f5b20f1904fadba31e2d83c44dd1d4cea3b532ea30c3ab89e17ae912b",
+      "reports/infra-postgres-write/TEST-com.kartaguez.pocoma.infra.postgres.write.identity.IdentityPrivilegesPostgresTest.xml": "f8112f6af31d1c33aa78e3128440ae41e465b33ab6ea88473206893b81a700bc",
+      "reports/infra-postgres-write/TEST-com.kartaguez.pocoma.infra.postgres.write.identity.IdentityPublicationPostgresTest.xml": "23be1fab12263dc21a9d75c47eb58740eff255e219633e6ee6ac31da1754bbdc",
+      "reports/infra-postgres-write/TEST-com.kartaguez.pocoma.infra.postgres.write.identity.IdentityRequestExecutionPostgresTest.xml": "a7f205fb3d922adb7a20063acd184b46526e31267ae3784ccbf1206a37fed25b",
+      "reports/infra-postgres-write/TEST-com.kartaguez.pocoma.infra.postgres.write.identity.IdentitySchemaPostgresTest.xml": "c2a6739ae2cad85ba4191c9393345d13d08dae24657ddc586d09cddbf5419dbe",
+      "reports/infra-postgres-write/TEST-com.kartaguez.pocoma.infra.postgres.write.identity.L73TerminationIdentityPostgresTest.xml": "40505f720c955d96997395afd4900725bc6ac8be4dfc0e3bbca79b8ebbf6c4c5",
+      "reports/infra-postgres-write/TEST-com.kartaguez.pocoma.infra.postgres.write.identity.TerminalResultSourcesPostgresTest.xml": "1d7414902bbbbd6d9f0b2e67cb7341063e85b831437add5ad79668fc3b9f31c9",
+      "reports/infra-postgres-write/TEST-com.kartaguez.pocoma.infra.postgres.write.migration.CanonicalBusinessEventTypesMigrationPostgresTest.xml": "89b391c38371f598f4cda04e457aef4dbe9c991dd4632eaa97200e7b055c91e7",
+      "reports/infra-postgres-write/TEST-com.kartaguez.pocoma.infra.postgres.write.migration.CommandResultBackfillMigrationPostgresTest.xml": "18677d09eacf2ef245bd486f6719cb617d5b2d08f9b3520480ed1c4511e450a1",
+      "reports/infra-postgres-write/TEST-com.kartaguez.pocoma.infra.postgres.write.migration.ExternalIdentityBindingCanonicalMigrationPostgresTest.xml": "b601c400db10ff5d55d146f4ced11306b774cfab64e9182ba1375c66708a2ed4",
+      "reports/infra-postgres-write/TEST-com.kartaguez.pocoma.infra.postgres.write.migration.ExternalIdentityBindingLifecycleMigrationPostgresTest.xml": "78e82d24c1d3e4547eaf3bce7171e12170a7b60dc67770874f4bd0604c38e164",
+      "reports/infra-postgres-write/TEST-com.kartaguez.pocoma.infra.postgres.write.migration.PrimaryMigrationsPostgresTest.xml": "b8cbeea24278eff4ac10c9ac1f227be630427dd1aed68c3fbe0d00f8e6dfcd8f",
+      "reports/infra-postgres-write/TEST-com.kartaguez.pocoma.infra.postgres.write.migration.RecordedCommandContractionMigrationPostgresTest.xml": "94b7092ad122c09f41126a88785ceef7753487c22d3481ecf1a2c6c81d3250ca",
+      "reports/infra-observability-micrometer/TEST-com.kartaguez.pocoma.infra.observability.micrometer.StageHandoffTrackerTest.xml": "30f6e42e0ec2ce44448e2114f2ebf6b58b57081a437a0896b5c2a17eb3fbbe6b",
+      "reports/compose-web-write-postgres/TEST-com.kartaguez.pocoma.compose.web.write.AdmissionHttpConfigurationTest.xml": "1e79c57938b75963ab6f6d40baddd4eaefb37563372bf96a111289aedf58e604",
+      "reports/compose-web-write-postgres/TEST-com.kartaguez.pocoma.engine.admit.command.AdmissionCanonicalizationTest.xml": "180e24cc2f0cd1f952a9e10e6c31f440cd2db68ac9392b0960410e1e0c3d7926",
+      "reports/compose-web-write-postgres/TEST-com.kartaguez.pocoma.engine.admit.command.AdmissionInputTest.xml": "10292086f8136f5e751eab4b062565e65102cd2f049631286d803c616b8ff241",
+      "reports/compose-web-write-postgres/TEST-com.kartaguez.pocoma.supra.web.write.AdmissionTransportTest.xml": "bb22f59ed2d39c96d1edce5e35b25f9c2f632511e31e3359ded70f0fe164b7af",
+      "reports/compose-web-write-postgres/TEST-com.kartaguez.pocoma.supra.web.write.D4AdmissionCalibrationTest.xml": "0a2b3272100d3aab9bc4fafd9cb2a1c3b73a20713d1cc6e077295684bcb9eb59",
+      "reports/compose-polling-burnable-write-postgres/TEST-com.kartaguez.pocoma.supra.polling.consumption.ConsumptionWorkerTest.xml": "69ef98480610b3e213ee8248ba7e2bd8e62fa23f1e35e3263766f80995b54910",
+      "reports/compose-polling-nonburnable-materialize-postgres/TEST-com.kartaguez.pocoma.compose.polling.materialize.maintenance.ReadinessOracleTest.xml": "99fa14fbdf670ff13edeecda80d547291c962701f7fec7c4685bb165ee80d9ac",
+      "reports/engine-read-execution/TEST-com.kartaguez.pocoma.engine.read.execution.ReadExecutionTest.xml": "880a1c018fb086a42a2cd8086c7d3d5cc58139f24cab95b43c273baa128877d3",
+      "reports/runtime-web-read/TEST-com.kartaguez.pocoma.AdmissionHttpTest.xml": "79fedad70fd5d0526e418611a165d78d932ba381befe9af24c76d111bb137749",
+      "reports/runtime-web-read/TEST-com.kartaguez.pocoma.HttpCompositionPostgresTest.xml": "1df50b3db24d05d11155d7fed9ca7c077ba548a57d8912d1bec4b4bb6c6cb82c",
+      "reports/runtime-web-read/TEST-com.kartaguez.pocoma.InvitationStandaloneWebPostgresTest.xml": "1896a6f88d800a7478d7c485a59581eeaa91a97c144b6f3500608beb1ffd4898",
+      "reports/runtime-web-read/TEST-com.kartaguez.pocoma.LinkRetirementHttpTest.xml": "ce97bff17d5df3c123c6eea42f2537a544debf755ab4ed035cb805b5edf3de55",
+      "reports/runtime-web-read/TEST-com.kartaguez.pocoma.ReadHttpContractTest.xml": "4576f983580775cc629e8efff1b0c472d9877652d9e6089a59111e3b7364059f",
+      "reports/runtime-web-read/TEST-com.kartaguez.pocoma.StageHandoffsHttpTest.xml": "490e02aa98c3f73fc3b54466211cd0c14b315f9fe0343bec5bca7531c6d9a351",
+      "reports/runtime-worker-process/TEST-com.kartaguez.pocoma.runtime.command.ConsumptionBootstrapPostgresTest.xml": "897d638faba3f08a7830205c1f3729b933167856202a6ab08be3fc31db151130",
+      "reports/runtime-worker-process/TEST-com.kartaguez.pocoma.runtime.command.ConsumptionCompositeClassificationTest.xml": "f0e9dda2ab7a3f92e681d33844038718f8f00abf18283458b96bc9e57b796992",
+      "reports/runtime-worker-process/TEST-com.kartaguez.pocoma.runtime.command.ConsumptionLifecycleCompositionPostgresTest.xml": "bf774bdbce0225ab196713b7d2c26e76a70f073a42ae85ba5076f738d858296d",
+      "reports/runtime-worker-process/TEST-com.kartaguez.pocoma.runtime.command.DiscoveryCompositionPostgresTest.xml": "ae92f10fa26b71809ddc1869f751a1de87d2a28699ca8ed9c7e9d2f38bba8702",
+      "reports/runtime-worker-process/TEST-com.kartaguez.pocoma.runtime.command.I5PhysicalWindowTest.xml": "94f177611d65134fef269dfbc5b57355d4c2615ad67e145f4a118b6197b6229a",
+      "reports/runtime-worker-process/TEST-com.kartaguez.pocoma.runtime.command.I5TemporalBudgetTest.xml": "4632d51c8694da260fe6fd3a5883b1fd33f46d8687eb2433b57986954c44da0a",
+      "reports/runtime-worker-process/TEST-com.kartaguez.pocoma.runtime.command.I5TemporalV2Test.xml": "18f7176199a9f6230835cb113f76257a78405838320661ed579d36de1adbb11c",
+      "reports/runtime-worker-process/TEST-com.kartaguez.pocoma.runtime.command.IdentityPotCommandPostgresTest.xml": "5212cff4d16f32e6b431058a618db636ae84dbb39649f3f845d2b1b7dfaf1cea",
+      "reports/runtime-worker-process/TEST-com.kartaguez.pocoma.runtime.command.IdentityRequestCompositionPostgresTest.xml": "2c77c8f2e17f8762dc8b2c8a04fcbe8f364c3b710c17ed4809bcdf9f3de196ab",
+      "reports/runtime-worker-process/TEST-com.kartaguez.pocoma.runtime.command.PotCommandCompositionPostgresTest.xml": "eaec64d74cd8949c8524f38c9cff008b6452ed819f9134dc1de4aa0f7402b5d1",
+      "reports/runtime-worker-process/TEST-com.kartaguez.pocoma.runtime.command.WorkerAwaitTest.xml": "bcdca8c8f2f967056735e088eb09bde333eec3c1bc847e820f0a603f264dbef7",
+      "reports/runtime-worker-process/TEST-com.kartaguez.pocoma.runtime.command.WorkerCompositionPostgresTest.xml": "cb469b07038993acb2e2dbc3b520cc7c31afec510cfa7992ed198a8115bf27dc",
+      "reports/runtime-worker-process/TEST-com.kartaguez.pocoma.runtime.command.WorkerMetricsTest.xml": "f825c45490c66b1cdd4e19e1fc965649ddb7734dbbc5a1b0d9ccfa37ae379fa3",
+      "reports/runtime-worker-process/TEST-com.kartaguez.pocoma.runtime.command.WorkerPostgresTest.xml": "2027f6cfee6d39a97965b6899f214b72b10c670848d949e886732d8d7e69c73c",
+      "reports/runtime-worker-process/TEST-com.kartaguez.pocoma.runtime.command.WorkerResourcesPostgresTest.xml": "ea920c709958e141a1547ed5a31f8039c0a96b2e946a7834ef35acf5dc623775",
+      "reports/runtime-worker-materialize/TEST-com.kartaguez.pocoma.runtime.task.CommandResultAvailabilityPostgresTest.xml": "72a2f21e67afdd660ffafb5086659e3e1f279addfc476d87223b8c036a4c3c3d",
+      "reports/runtime-worker-materialize/TEST-com.kartaguez.pocoma.runtime.task.InterAuthorityPreparationPostgresTest.xml": "27f73726f3c9de5c15a60511c5fdcd62a539dbce04db3a08ee585c7b1c59abca",
+      "reports/runtime-worker-materialize/TEST-com.kartaguez.pocoma.runtime.task.InterAuthorityRecoveryPostgresTest.xml": "40913baed076a8960ade43131c7ee88899365e72337bec1a186ed046551288f4",
+      "reports/runtime-worker-materialize/TEST-com.kartaguez.pocoma.runtime.task.L73TerminationReadPostgresTest.xml": "3a1ca740216164015033a73d9fb39fe44c20df424e4e59bde61795c2faa0d678",
+      "reports/runtime-worker-materialize/TEST-com.kartaguez.pocoma.runtime.task.PotBalanceIncrementalPostgresTest.xml": "55f1ec4a0010fa632fcd1269c315185a7d2ff270e5ab6667e4c368b436ba585a",
+      "reports/runtime-worker-materialize/TEST-com.kartaguez.pocoma.runtime.task.PotVersionAndBalanceJointIncrementalPostgresTest.xml": "e71a306b84cfe8b2cd20f253b008474bed4d10b2905101f978e1cbcb137f68b6",
+      "reports/runtime-worker-materialize/TEST-com.kartaguez.pocoma.runtime.task.PotVersionIncrementalPostgresTest.xml": "6f431c3427b3cd7c9efcfd00cd3903b74f230b1fdd7351ac8249f72cef3b7db4",
+      "reports/runtime-worker-materialize/TEST-com.kartaguez.pocoma.runtime.task.ReadActivationSettingsTest.xml": "6d302971e6a5c61a1685cad01cbf9a16306ddc5e810db6620b226d3c39b968ae",
+      "reports/runtime-worker-materialize/TEST-com.kartaguez.pocoma.runtime.task.ReadAvailabilityPostgresTest.xml": "4d881fbaf6789b30a5c90ab56ef5e9523297a9ac4fb04df5c8c87624f892c6c1",
+      "reports/runtime-worker-materialize/TEST-com.kartaguez.pocoma.runtime.task.ReadFacadesPostgresTest.xml": "77d497f30ee9de2c6e6e353109b587962c5f21cd7b701849a5de2d426fe9d708",
+      "reports/runtime-worker-materialize/TEST-com.kartaguez.pocoma.runtime.task.ReadParticipantsIntegrationPostgresTest.xml": "d138f7f2418237e4c7719cf95c26d0bb4e078cd365746b4c602002f37534e78a",
+      "reports/runtime-worker-materialize/TEST-com.kartaguez.pocoma.runtime.task.ReadQuotaPostgresTest.xml": "fd70cc39941c28d25305bd4c490dccc7b8638d49de73d86ddf2d5ccce6119ca0",
+      "reports/runtime-worker-materialize/TEST-com.kartaguez.pocoma.runtime.task.ReadReconstructionPostgresTest.xml": "b23527c4974a35f059ef4bca00d66e7b67a13d498c04fd42d5532e7eb0219c00",
+      "reports/runtime-worker-materialize/TEST-com.kartaguez.pocoma.runtime.task.ReadRuntimeAssemblyPostgresTest.xml": "08ba22407eeb20d5ea0f8107823eecbdfb14f3271ad35a17287d5d1642a1fe96",
+      "reports/runtime-worker-materialize/TEST-com.kartaguez.pocoma.runtime.task.SubobjectAtomicityPostgresTest.xml": "a76397b0377938f4506fecd132f2d2b873d7ca056f32e68f71efa502a2e77260",
+      "reports/runtime-worker-materialize/TEST-com.kartaguez.pocoma.runtime.task.SubobjectMigrationPostgresTest.xml": "3311ecd7b2ee2d44f505e8227b7cdaf8034b6d5c04b17348cbdccdcb7d809e54",
+      "reports/runtime-worker-materialize/TEST-com.kartaguez.pocoma.runtime.task.SubobjectStorePostgresTest.xml": "b2cd893564aa51b76ed9b73d5d144c8aae7db0096d331d1eae03741932cef129",
+      "reports/runtime-monolith/TEST-com.kartaguez.pocoma.AdmissionFlowPostgresTest.xml": "703c8f2136ab97eca645fad965f3a12413e925e07333644a89981190cb2fca88",
+      "reports/runtime-monolith/TEST-com.kartaguez.pocoma.ConsumptionPilotIsolationTest.xml": "fd001812e16bf0c05545027b3d43271c9e9f09143be7045fc19b10c159e6bfab",
+      "reports/runtime-monolith/TEST-com.kartaguez.pocoma.IdentityRequestMonolithPostgresTest.xml": "230ec109e95094a49e36d32d80cfb7c66736648e3c1beebb2f8b4a4090f8cffb",
+      "reports/runtime-monolith/TEST-com.kartaguez.pocoma.InvitationHttpTest.xml": "c1e3318846dc643dc7f5b1241af0558f82cab7135d095a3ddb16e297114c6752",
+      "reports/runtime-monolith/TEST-com.kartaguez.pocoma.InvitationReadPostgresTest.xml": "c9f4b7ac57ea3f1f965ce15404d0e82c5223fe6a8cf993fbaf742232fa8db31f",
+      "reports/runtime-monolith/TEST-com.kartaguez.pocoma.InvitationTopologyPostgresTest.xml": "7d03a718b4d7a490cfab3da27f8ac6405d39795f7c85b260a3170c9a1ad8fcb0",
+      "reports/runtime-monolith/TEST-com.kartaguez.pocoma.L73TerminationCrashAndCompositePostgresTest.xml": "21795fb04d1f6e50ea602fffe34b6325c2d9b011d423bf80166422c2fec07b6f",
+      "reports/runtime-monolith/TEST-com.kartaguez.pocoma.MonolithHttpCompositionPostgresTest.xml": "4a514fb74ce79faf928d784da456a706b3d39fa1865999b06bc3b144ae816d35",
+      "reports/runtime-monolith/TEST-com.kartaguez.pocoma.ReadRootsCoexistencePostgresTest.xml": "74b3f608b5cb7192329e873172d97461462225118d7c1c11386062aa2058a722",
+      "reports/runtime-monolith/TEST-com.kartaguez.pocoma.ReadWorkerResourcesPostgresTest.xml": "ff11a0fa49899fb1a7f896f5a626c736072311866204b0635a82a3ec3703d420",
+      "reports/runtime-monolith/TEST-com.kartaguez.pocoma.WorkerMonolithPostgresTest.xml": "7e964148893fef9203c10998c50a6ddda513f511acbca1e27fd54119614d1b11",
+      "reports/architecture-tests/TEST-com.kartaguez.pocoma.architecture.AdmissionArchitectureTest.xml": "0d3f8474f36e39b9e655d9695d61f715a826b2ce13b84beb9fa6b8d8ded8b5b8",
+      "reports/architecture-tests/TEST-com.kartaguez.pocoma.architecture.ConsumptionEngineArchitectureTest.xml": "e59c7e40caf24a1f4d1c1422ab28e74487e86daa0acb4e19ee16687d78816254",
+      "reports/architecture-tests/TEST-com.kartaguez.pocoma.architecture.ConsumptionFoundationArchitectureTest.xml": "2bbc0c6439547cb7cce823ec086e47be43348f4db3236a00af9d4b165bb5373e",
+      "reports/architecture-tests/TEST-com.kartaguez.pocoma.architecture.FoundationArchitectureTest.xml": "224569dd384af6d83a43699ade217c5f70b8684d5ca180d86139572f2db14a36",
+      "reports/architecture-tests/TEST-com.kartaguez.pocoma.architecture.HexagonalArchitectureTest.xml": "6f2bde11e675cb7b625a9b9c37fe099bb072c54d97db0f9dfb7d2b4c89e72434",
+      "reports/architecture-tests/TEST-com.kartaguez.pocoma.architecture.IdentityAuthorityArchitectureTest.xml": "cf821b49362ad456895f5477035e803d66c83cc0ec9eb4144e924e01c390a3ca",
+      "reports/architecture-tests/TEST-com.kartaguez.pocoma.architecture.PotExecutionArchitectureTest.xml": "709c3dc4ed9d16fb6267c8532a25b3afb2e5b71680690e9f8cc387a495fa8cfd",
+      "reports/architecture-tests/TEST-com.kartaguez.pocoma.architecture.l7.L7DeploymentArchitectureTest.xml": "184259d722fdafb196714a3ff96a63a745c3366b524ed97ec656785dfb235148",
+      "reports/architecture-tests/TEST-com.kartaguez.pocoma.architecture.l7.L7ReactorArchitectureTest.xml": "9b31e6004bc06d78fdcee70cf89ff52c47aa0d3f7157438a8bba9cdf9ad1581a",
+      "reports/architecture-tests/TEST-com.kartaguez.pocoma.runtime.command.dev.WorkerDevelopmentToolsTest.xml": "3af298d3174db91a145ceaa54eee95230ee415dc7332330791ad735bd2f04215",
+      "bruno/bruno-b2-5453079467400029200/receipt.json": "65d0943c578b6cabe84c77dba2802d2858548e3e2cd3b68b1ab96cedd0543ce4",
+      "bruno/bruno-b2-5453079467400029200/bruno.json": "900e19fc062b1b2d1699c1b1a34e6bbdd0f01989b18d81d832c4fb8d544748ce",
+      "bruno/bruno-b2-13871051399600495966/receipt.json": "684f8f41a6c5cea6062a7965c429006df70cd58c39bba8df9df49a564cd1e764",
+      "bruno/bruno-b2-13871051399600495966/bruno.json": "ebf24ef7a3ffa219fa5fd4d0a20bcb56c1f5c4f3f053f898b33c8719adc5b26d",
+      "bruno/bruno-b4/receipt.json": "8857e4770c01735efc42f31978f2a702c790aae9f40a6ae5176f6c875e35453a",
+      "bruno/bruno-b4/bruno.json": "ffe2159f8007631bc7304dcf9d91da0b0f1924113ccffdcd67281745d427478b",
+      "physical/I2-L4-c3-populated-v4-i1_c4eb456893534ab488ad7e1fbc2fbecd.txt": "a20f6d9a5c450a8bad9b0eaefb22cbcbe35ff52cd922ddc1e36c46faa6b4bf02",
+      "physical/c3-measure-1-baseline-i1_945f4dbed6d84001a98b46c4d70dc052.txt": "de8f8b4941703755860a1189e1d9b67db3a303f89ff92eac2f4762b0c52c8c2f",
+      "physical/I2-L4-c3-fencing-i1_f3ef177fbaed448d9295ab58e7c05df7.txt": "2bad1013ced4898e26273684d05936405d5e2b6f9e977d1943b732c96b85b3ab",
+      "physical/I2-L4-c3-counter-concurrency-true-i1_3b026f74696442889d7ef7e7f8fc9a3c.txt": "c783d32ebb191c69082ba8794f65dc8289762ebe5135a8f46549b5aa8d925134",
+      "physical/I2-L4-c3-caught-suffix-failure-i1_a64f8aa968d84578939e220cb0ee96ab.txt": "747061429948bbf7d4e7d6b9cd56f7ba4ea7e6c9f742473e3148b12fb0bec892",
+      "physical/I2-L4-c3-duplicate-and-result-shapes-i1_2ed31f47db434e378cc1c95e699597b4.txt": "6ad149566cc50acff2b19d374aacfa165e521f5d31f076890b1de2b3e9470716",
+      "physical/I2-L4-c3-dual-lost-ack-i1_d06ab64515eb4ed9999e81c24b1de9a6.txt": "1f4b4bee13e12c803d67ef2e6972736a29311e06ed6490094337a7ba541325f7",
+      "physical/c3-measure-2-pilot-i1_85c2ad99328043b6b69dc5367555ab4c.txt": "af8405e94ee9393b5ebc7e01dd8c9c15c1ea5f7ea0eed295c87dcb34c09bfbde",
+      "physical/I2-L4-c3-ack-AFTER_COMMIT-i1_d0872dc1b9cf46eaa751542bba3d64bc.txt": "8ddc56af65572263d3895a62b61c200cf53bec64cda8dd9514b4e065322632b3",
+      "physical/c3-measure-0-baseline-i1_2fedf00d1b114dbcac5985e394423186.txt": "fdc9bb553c95cee25a23e0fa5faa938e6cac29e2bd722f885b4396d02376d62b",
+      "physical/c3-measure-3-pilot-i1_274c43b032e74e44b3bedc4a19b20d2f.txt": "37a94d8ee741747c40d19132ac8e4a016c094ad118baedbbdc4d757d8083696b",
+      "physical/c3-measure-3-baseline-i1_03a895640ad44736b5e80cae07441d04.txt": "5168c15750a21b349e2ee2daae2d0e680c59ec07a3658e79a95fa0aca9ffb677",
+      "physical/I2-L4-c3-terminal-out-of-order-i1_f0cfcbb52f3d46ec914bac30fc5dade4.txt": "ca82302a6c8fb6d4cb9a14226f960b64270b50dca9968f4940e76abaa7d4d7b2",
+      "physical/I2-L4-c3-dual-rollback-i1_840b398eda0143fbbcfc2f5e90f84863.txt": "8c2829645ff03456536ed94ddb5b476259d15d9663bd3f4499eee4635ffdf56a",
+      "physical/c3-measure-2-baseline-i1_27e8a84a757f429585c5d4f0f1f10268.txt": "11017cc0a0f74a3d82b4de915c3cf5a14cf05c8ce534bb863fe89e4f3b10f24b",
+      "physical/c3-measure-0-pilot-i1_458c82a1ccc04f22a38bbb0cf325bc31.txt": "8f8cd6a153f1854d5ede636cf217f1e2fd9ab3ea58ae8c43fc1c15f2f176b6e3",
+      "physical/I2-L4-c3-missing-suffix-i1_5df4f740333f46099892f15bdde21b8e.txt": "cb80c2c23ad2b88accda1da449f123c1a1a78b1f1876b551d85720b86b21de78",
+      "physical/I2-L4-c3-ack-BEFORE_COMMIT-i1_3c2c6bd7b0704ba4a8ead0c18f8b3679.txt": "a57899f8d7fd73060bdc21707c2d7979b89082b0689760722c16fac15e727f53",
+      "physical/c3-measure-1-pilot-i1_edaef169747b4b5fae7db9b62dcd9ef2.txt": "b6b1c40e5cf95a30077d447266f10d449c9da9a04f41e912e547a5d21b375cd8",
+      "physical/I2-L4-c3-sql-guards-i1_bc962026dea142b2aeba2d40df57c090.txt": "0dfce6581b1254bffbd7c564311c0f4cb78c7894c93b27f96c5275c4f38c7ee7",
+      "physical/I2-L4-c3-counter-concurrency-false-i1_807199d15a8c49c1a235c41521756b0f.txt": "2585c87c7ca616147748303ec6be983d3ac969502778b3347f7e5f2b7700c14e",
+      "physical/I2-L4-c3-atomic-idempotent-i1_5d6754c7e68a40808e706be0698a325b.txt": "3a399b4535ecd97834848de01736ca965b60503994720ae0705910afe22a7b60"
+    }
+  }
+}

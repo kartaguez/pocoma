@@ -1,0 +1,138 @@
+{
+  "version": 1,
+  "reference": "docs/v3/L7_SPEC09_Local_Qualification_Protocol.md",
+  "topology": {
+    "kind": "LOCAL_DOCKER_SINGLE_HOST",
+    "postgres": {
+      "cpus": 2.0,
+      "memLimit": "2048m",
+      "tmpfsSize": "1536m"
+    },
+    "runtimes": {
+      "http-write": {
+        "module": "runtime-web-write",
+        "profile": "v3-http-admission",
+        "managementPort": 18080,
+        "httpPort": 8080,
+        "cpus": 0.5,
+        "memLimit": "512m"
+      },
+      "http-read": {
+        "module": "runtime-web-read",
+        "profile": "v3-http-read",
+        "managementPort": 18082,
+        "httpPort": 8082,
+        "cpus": 0.5,
+        "memLimit": "768m"
+      },
+      "command-worker": {
+        "module": "runtime-worker-process",
+        "profile": "v3-consumption-worker-dev",
+        "managementPort": 18083,
+        "cpus": 0.5,
+        "memLimit": "512m"
+      },
+      "results-worker": {
+        "module": "runtime-worker-materialize",
+        "profile": "v3-read-worker",
+        "managementPort": 18084,
+        "cpus": 0.5,
+        "memLimit": "512m"
+      },
+      "business-read-worker": {
+        "module": "runtime-worker-materialize",
+        "profile": "v3-read-worker",
+        "managementPort": 18085,
+        "cpus": 2.0,
+        "memLimit": "1024m"
+      }
+    },
+    "javaOptions": "-Xms64m -Xmx512m -XX:+UseSerialGC"
+  },
+  "guardrails": {
+    "minDockerMemBytes": 4294967296,
+    "minDiskFreeBytes": 2147483648,
+    "maxContainerMemPercent": 92.0,
+    "maxOfferLagMs": 100.0,
+    "observationDeadlineMs": 15000,
+    "readPollIntervalMs": 25,
+    "resourceSampleIntervalSeconds": 2
+  },
+  "profiles": {
+    "medium": {
+      "shareholders": 20,
+      "expenses": 200,
+      "expectedInitialVersion": 202
+    },
+    "large": {
+      "shareholders": 100,
+      "expenses": 2000,
+      "expectedInitialVersion": 2002
+    }
+  },
+  "campaigns": {
+    "smoke-medium": {
+      "profile": "medium",
+      "potCount": 2,
+      "producers": 2,
+      "rate": 1.0,
+      "warmupCount": 2,
+      "sampleCount": 10,
+      "seedId": "l74a-smoke-medium-v1",
+      "isValidation": true
+    },
+    "med-1": {
+      "profile": "medium",
+      "potCount": 5,
+      "producers": 5,
+      "rate": 1.0,
+      "warmupCount": 10,
+      "sampleCount": 60,
+      "seedId": "l74a-med-1-v1",
+      "isValidation": false
+    },
+    "med-5": {
+      "profile": "medium",
+      "potCount": 5,
+      "producers": 5,
+      "rate": 5.0,
+      "warmupCount": 15,
+      "sampleCount": 150,
+      "seedId": "l74a-med-5-v1",
+      "isValidation": false
+    },
+    "smoke-large": {
+      "profile": "large",
+      "potCount": 2,
+      "producers": 2,
+      "rate": 1.0,
+      "warmupCount": 2,
+      "sampleCount": 10,
+      "observationDeadlineMs": 30000,
+      "seedId": "l74a-smoke-large-v1",
+      "isValidation": true
+    },
+    "large-1": {
+      "profile": "large",
+      "potCount": 2,
+      "producers": 2,
+      "rate": 1.0,
+      "warmupCount": 5,
+      "sampleCount": 60,
+      "observationDeadlineMs": 30000,
+      "seedId": "l74a-large-1-v1",
+      "isValidation": false
+    },
+    "large-5": {
+      "profile": "large",
+      "potCount": 3,
+      "producers": 10,
+      "rate": 5.0,
+      "warmupCount": 5,
+      "sampleCount": 50,
+      "observationDeadlineMs": 60000,
+      "seedId": "l74a-large-5-v1",
+      "isValidation": false
+    }
+  }
+}

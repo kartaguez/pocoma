@@ -161,6 +161,7 @@ public final class ConsumptionWorker implements com.kartaguez.pocoma.contract.co
                     if (start) phase = Phase.EXITED;
                     wrapperExited = true;
                 }
+                markPairDirty(new Pair(binding, handle.partitionId()));
                 prune();
                 signal();
             }
@@ -178,6 +179,7 @@ public final class ConsumptionWorker implements com.kartaguez.pocoma.contract.co
     final ConsumptionObservation observation;
     final Map<Pair, LeaseEntry> leases = new LinkedHashMap<>();
     private final Map<Pair, Object> pairLocks = new ConcurrentHashMap<>();
+    private final Map<Pair, Long> cleanUntilNanos = new ConcurrentHashMap<>();
     final List<Envelope> envelopes = new ArrayList<>();
     final List<RenewalService.Call> renewalCalls = new ArrayList<>();
     final ConditionConsumptionWaiter discoveryWait = new ConditionConsumptionWaiter();
@@ -457,6 +459,20 @@ public final class ConsumptionWorker implements com.kartaguez.pocoma.contract.co
                             + settings.minPoll().toNanos();
             return true;
         }
+    }
+
+    void markPairDirty(Pair pair) {
+        cleanUntilNanos.remove(pair);
+    }
+
+    void markPairClean(Pair pair) {
+        long ttl = Math.min(settings.settleInterval().toNanos(), Duration.ofMillis(500).toNanos());
+        cleanUntilNanos.put(pair, System.nanoTime() + ttl);
+    }
+
+    boolean isPairClean(Pair pair, long now) {
+        Long until = cleanUntilNanos.get(pair);
+        return until != null && now - until < 0;
     }
 
     boolean dispatchAvailable() {

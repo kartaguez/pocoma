@@ -2,7 +2,9 @@ package com.kartaguez.pocoma.port.projection;
 
 import com.kartaguez.pocoma.domain.pot.invitation.Invitation;
 
-import java.util.*;
+import com.kartaguez.pocoma.port.transaction.RecoveryReadContext;
+import java.util.Optional;
+import java.util.UUID;
 
 /** READ-only queries and monotone materialization use their caller's READ transaction. */
 public interface InvitationStore {
@@ -10,7 +12,11 @@ public interface InvitationStore {
 
     Optional<Invitation> byHash(String tokenHash);
 
-    void put(Invitation expected);
+    boolean put(Invitation expected);
 
-    void closePublication();
+    void requireCompletionReady(Invitation expected, boolean advanced);
+
+    ReadEvidence evidence(Invitation expected, RecoveryReadContext context);
+
+    void closePublication(Invitation expected, boolean advanced);
 }

@@ -242,7 +242,7 @@ class ReadQuotaPostgresTest {
         String normalized=query.replaceAll("\\s+", " ").trim().toLowerCase(Locale.ROOT);
         // Keep every business SELECT visible; exclude only the exact maintenance gate probe.
         if(normalized.equals("select state, phase, target_prefix::text as target_prefix_text, operator_id, operation_id, started_at, updated_at, error_detail from public.read_maintenance_state where id = $1")) return false;
-        return normalized.startsWith("select") && normalized.contains("read_");
+        return (normalized.startsWith("select") || normalized.startsWith("with ")) && normalized.contains("read_");
     }
     long businessCalls() { return f.sqlStats().stream().filter(s -> isBusinessQuery(s.get("query").toString())).mapToLong(s -> ((Number) s.get("calls")).longValue()).sum(); }
     @Test void jdbcCountsAndCosts() throws Exception {
@@ -270,8 +270,20 @@ class ReadQuotaPostgresTest {
             workerFixture.read.execute("grant usage on schema " + workerFixture.schema + " to " + f.role);
             workerFixture.read.execute("grant select on read_current_binding to " + f.role);
             workerFixture.read.execute("grant select on public.read_maintenance_state to " + f.role);
-            workerFixture.read.update("insert into read_current_binding values (?,?,?,1,?,?)",
-                    f.issuer, "owner", UUID.randomUUID(), OWNER, TOKEN);
+            var readAdmin = workerFixture.read.getDataSource();
+            var seedOwner = SubobjectPostgresFixture.owner(readAdmin);
+            var seedStore = new com.kartaguez.pocoma.infra.postgres.read.JdbcCurrentBindingStore(
+                    readAdmin, seedOwner, true);
+            var binding = new com.kartaguez.pocoma.domain.identity.ExternalUserIdentity(
+                    new com.kartaguez.pocoma.domain.identity.ExternalUserIdentityId(UUID.randomUUID()),
+                    f.eui("owner"), 1, new com.kartaguez.pocoma.domain.identity.PocomaUserId(OWNER),
+                    new com.kartaguez.pocoma.domain.identity.BindingToken(TOKEN));
+            seedOwner.write(() -> {
+                boolean advanced = seedStore.apply(binding);
+                seedStore.requireCompletionReady(binding, advanced);
+                seedStore.closePublication(binding, advanced);
+                return null;
+            });
             f.context.close();
             f.properties.put("pocoma.v3.http.read.url", workerFixture.readUrl);
             f.start(HttpRoot.class);

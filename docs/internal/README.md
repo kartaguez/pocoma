@@ -23,6 +23,8 @@ Les spécifications fonctionnelles et techniques du programme V3 sont conservée
 
 ## 3. Rapports d'implémentation, lots et décisions
 
+- **L7-C4 — Diagnostic du débit utile, des facteurs limitants et de l'organisation des runtimes de workers** : [dossier de cadrage et plan d'exécution](../v3/L7_C4/README.md), [plan directeur](../v3/L7_C4/plan.md) et [protocole de diagnostic](../v3/L7_C4/diagnostic-protocol.md).
+- **L7-C3 — Disponibilités de matérialisation** : [dossier de qualification](../v3/L7_C3/README.md), [décisions](../v3/L7_C3/arbitrages.md) et [architecture courante en anglais](../architecture/read-availability.md).
 - **Distribution locale (`L7-LB`)** :
   - **[Acte de clôture formel `L7_LB_CLOSED`](../v3/L7_LB_Closure_Act.md)** (`main` @ `59f68956`)
   - [L7-LB S1 — Java Naming Stabilization](../v3/L7_LB_S1_Java_Naming_Stabilization_Report.md)

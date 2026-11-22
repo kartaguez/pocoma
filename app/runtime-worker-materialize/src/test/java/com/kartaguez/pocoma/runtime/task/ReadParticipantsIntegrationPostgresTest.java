@@ -42,7 +42,7 @@ class ReadParticipantsIntegrationPostgresTest {
                     "select binding_token from v3_eui_version where version=1", String.class);
             UUID changedIdentity = f.publishIdentity(new IdentityRequest.Unlink(f.eui), new BindingToken(token));
             var next = new EnumMap<Name, UUID>(Name.class);
-            for (var name : Name.values()) {
+            for (var name : ReadParticipantsFixture.PROJECTIONS_WITH_SEEDED_EVENTS) {
                 next.put(name, switch (name) {
                     case POT_VERSION, POT_BALANCE, POT_VISIBILITY -> changedPot;
                     case COMMAND_RESULT -> f.f.oracle.queryForObject(
@@ -52,10 +52,11 @@ class ReadParticipantsIntegrationPostgresTest {
                             "select event_id from v3_identity_event where request_id=?", UUID.class, changedIdentity);
                     case IDENTITY_REQUEST_RESULT -> f.f.oracle.queryForObject(
                             "select event_id from v3_identity_completion_event where subject_id=?", UUID.class, changedIdentity);
+                    case INVITATION -> throw new AssertionError("Invitation uses a dedicated fixture");
                 });
             }
             f.enroll();
-            for (var name : Name.values()) {
+            for (var name : ReadParticipantsFixture.PROJECTIONS_WITH_SEEDED_EVENTS) {
                 assertEquals(1, f.slots(name, f.event(name)));
                 assertEquals(1, f.slots(name, next.get(name)));
                 f.execute(name, f.event(name));
@@ -64,11 +65,11 @@ class ReadParticipantsIntegrationPostgresTest {
                     "select consumption_id,partition_id,position from discovery_checkpoint order by consumption_id,partition_id");
             var slots = f.f.read.oracle.queryForList(
                     "select * from consumption_slot order by consumption_id,consumable_id");
-            assertEquals(Name.values().length, slots.size());
+            assertEquals(ReadParticipantsFixture.PROJECTIONS_WITH_SEEDED_EVENTS.size(), slots.size());
             var business = new LinkedHashMap<String, Object>();
             for (String table : f.businessTables) business.put(table, f.f.read.oracle.queryForList("select row_to_json(t)::text as value from " + table + " t order by value"));
             // enroll constructs a fresh real DiscoveryEngine for every participant.
-            for (var name : Name.values()) f.engines.put(name,
+            for (var name : ReadParticipantsFixture.PROJECTIONS_WITH_SEEDED_EVENTS) f.engines.put(name,
                     f.engine(name, f.participants.get(name).participant(), f.f.read.source, f.f.read.tx));
             f.enroll();
             assertEquals(checkpoints, f.f.read.oracle.queryForList(
@@ -77,7 +78,7 @@ class ReadParticipantsIntegrationPostgresTest {
                     "select * from consumption_slot order by consumption_id,consumable_id"));
             for (String table : f.businessTables) assertEquals(business.get(table),
                     f.f.read.oracle.queryForList("select row_to_json(t)::text as value from " + table + " t order by value"));
-            for (var name : Name.values()) {
+            for (var name : ReadParticipantsFixture.PROJECTIONS_WITH_SEEDED_EVENTS) {
                 assertEquals(0, f.slots(name, f.event(name)));
                 f.execute(name, next.get(name));
             }
@@ -244,8 +245,18 @@ class ReadParticipantsIntegrationPostgresTest {
     void participantConformance(String participant) throws Exception {
         var name=Name.valueOf(participant);
         for(var mode:List.of("missing","afterComplete","success")) try(var f=new ReadParticipantsFixture(PG,participant+"-"+mode)) {
+            boolean terminal = isTerminalResult(name);
+            var db = f.f.read;
+            if (terminal) ReadAvailabilityPostgresTest.install(db);
             f.enroll(); f.witnesses(); var sourceDuringFinal=new AtomicInteger();
-            var real=f.participants.get(name).participant(); var engine=f.engine(name,decorated(real,f,mode,sourceDuringFinal),f.f.read.source,f.f.read.tx);
+            var real = f.participants.get(name).participant();
+            if (terminal) {
+                real = ReadParticipants.select(real.getClass().getSimpleName(),
+                        f.f.primary, f.f.sourceOwner, db.source, db.tx).participant();
+                db.oracle.execute("create trigger l4_availability_witness after insert on read_availability_event "
+                        + "for each row execute function l4_witness()");
+            }
+            var engine=f.engine(name,decorated(real,f,mode,sourceDuringFinal),db.source,db.tx);
             if(name==Name.CURRENT_BINDING) {
                 var ignored=f.f.oracle.queryForObject("select event_id from v3_identity_event where subject_type='POCOMA_USER' and request_id=?",UUID.class,f.identityRequest);
                 assertEquals(0,f.slots(name,ignored),"POCOMA_USER filtered before slot enrollment");
@@ -259,6 +270,7 @@ class ReadParticipantsIntegrationPostgresTest {
                 assertEquals(AttemptTransactions.Resolution.ROLLED_BACK,result.resolution(),()->String.valueOf(result));
                 assertEquals(before,f.vector(),participant+" no partial business prefix "+mode); assertEquals(1,f.slots(name,event));
                 assertEquals(0,f.f.read.oracle.queryForObject("select count(*) from l4_witness",Integer.class));
+                if (terminal) assertEquals(0, terminalPublications(f, name).size());
             } else {
                 assertEquals(ConsumptionProtocol.Status.COMMITTED,result.status(),()->String.valueOf(result.cause()));
                 assertEquals(0,f.slots(name,event));
@@ -274,18 +286,32 @@ class ReadParticipantsIntegrationPostgresTest {
                 var d=f.participants.get(name).definition();
                 f.f.read.oracle.update("insert into consumption_slot(consumption_id,consumable_id,partition_hash,partition_id) select ?,?,h,((h::bigint%4+4)%4)::int from(select consumption_hash_v1(?,?) h)x",d.id().value(),event,d.family().name(),event);
                 assertEquals(RecoveryObservation.NOT_COMPLETED,engine.observe(acquired.claim()),"effect alone never proves completion");
+                if (terminal) {
+                    String table = name == Name.COMMAND_RESULT ? "read_command_result" : "read_identity_request_result";
+                    assertEquals(Set.of(table, "consumption_slot", "read_availability_event"),
+                            new HashSet<>(db.oracle.queryForList("select t from l4_witness", String.class)));
+                    var publications = terminalPublications(f, name);
+                    assertEquals(1, publications.size());
+                    assertEquals(ConsumptionProtocol.Status.COMMITTED, engine.execute(f.acquire(name,engine,event)).status());
+                    assertEquals(publications, terminalPublications(f, name));
+                    assertEquals(0, f.slots(name, event));
+                    assertEquals(RecoveryObservation.COMPLETED, engine.observe(acquired.claim()));
+                    setRecoverySlot(f, name, event, true);
+                }
                 f.tamper(name);
                 assertEquals(RecoveryObservation.INCONSISTENT,engine.observe(acquired.claim()),participant+" divergent full business content");
                 if(name==Name.POT_VERSION) {
-                    f.f.read.oracle.update("update read_pot_version set payload='{}'::jsonb");
-                    assertEquals(RecoveryObservation.INCONSISTENT,engine.observe(acquired.claim()),"malformed JSON is positive corruption, not SQL unavailability");
+                    f.f.read.oracle.execute("alter table read_pot_version drop constraint read_pot_version_schema_version_check");
+                    f.f.read.oracle.update("update read_pot_version set schema_version=99");
+                    assertEquals(RecoveryObservation.INCONSISTENT,engine.observe(acquired.claim()),"malformed schema_version is positive corruption, not SQL unavailability");
                     var expected=f.f.sourceOwner.read(c -> new com.kartaguez.pocoma.infra.postgres.source.JdbcPotVersionSource(f.f.primary).composition(event,c));
-                    f.f.read.oracle.update("update read_pot_version set payload=?::jsonb",PotVersionJson.encode(expected));
+                    f.f.read.oracle.update("update read_pot_version set schema_version=1, deleted=?",expected.deleted());
                     f.f.read.oracle.execute("alter table read_subobject_version disable trigger user");
                     f.f.read.oracle.update("update read_subobject_version set payload=jsonb_set(payload,'{label}','\"\"') where kind='POT_DETAILS'");
                     assertEquals(RecoveryObservation.INCONSISTENT,engine.observe(acquired.claim()),"malformed subobject proof cannot become unavailable/satisfied");
                 } else if(name==Name.POT_BALANCE) {
-                    f.f.read.oracle.update("update read_pot_balance set payload='[{}]'::jsonb");
+                    f.f.read.oracle.execute("alter table read_pot_balance_content disable trigger user");
+                    f.f.read.oracle.update("update read_pot_balance_content set payload=decode('deadbeef','hex')");
                     assertEquals(RecoveryObservation.INCONSISTENT,engine.observe(acquired.claim()),"malformed balance proof");
                 }
                 f.f.read.trace.add(participant+" physical PID/XID="+witness);
@@ -311,6 +337,15 @@ class ReadParticipantsIntegrationPostgresTest {
             }
     }
 
+    private static boolean isTerminalResult(Name name) {
+        return name == Name.COMMAND_RESULT || name == Name.IDENTITY_REQUEST_RESULT;
+    }
+
+    private static List<Map<String, Object>> terminalPublications(ReadParticipantsFixture fixture, Name name) {
+        return fixture.f.read.oracle.queryForList(
+                "select * from read_availability_event where family = ? order by position", name + "_AVAILABLE");
+    }
+
     /** Explicit bounded entry point: execute the unchanged conformance body for these three only. */
     @Test void recoveryAffectedParticipantConformance() throws Exception {
         for(var name:List.of("POT_VERSION","POT_VISIBILITY","CURRENT_BINDING")) participantConformance(name);
@@ -323,18 +358,18 @@ class ReadParticipantsIntegrationPostgresTest {
             var v3=f.mutatePot(new PotCommand.UpdatePotDetails(new Label("V3")),2);
             f.enroll();
             for(var event:List.of(f.pot.event(),v2,v3)) f.execute(name,event);
-            var original=f.f.read.oracle.queryForObject("select payload::text from read_pot_version where pot_version=3",String.class);
             f.f.read.oracle.execute("alter table read_pot_version disable trigger user");
+            f.f.read.oracle.execute("alter table read_pot_version drop constraint read_pot_version_schema_version_check");
             // All corruptions below are administrative fault injections, never production writes.
             assertAll(List.of("absent","lower","equal","higher","malformed-target","mixed-target","invalid-reference").stream().map(state -> (org.junit.jupiter.api.function.Executable) () -> {
-                f.f.read.oracle.update("update read_pot_version set payload=?::jsonb where pot_version=3",original);
+                f.f.read.oracle.update("update read_pot_version set schema_version=1 where pot_version=3");
                 f.f.read.oracle.update("delete from read_current_pot");
                 if(!state.equals("absent")) {
                     long pointer=state.equals("lower")?1:state.equals("equal")?2:3;
                     f.f.read.oracle.update("insert into read_current_pot values (?,?)",f.pot.pot(),pointer);
                 }
-                if(state.equals("malformed-target")) f.f.read.oracle.update("update read_pot_version set payload='{}'::jsonb where pot_version=3");
-                if(state.equals("mixed-target")) f.f.read.oracle.update("update read_pot_version set payload=jsonb_set(payload,'{version}','2') where pot_version=3");
+                if(state.equals("malformed-target")) f.f.read.oracle.update("update read_pot_version set schema_version=99 where pot_version=3");
+                if(state.equals("mixed-target")) f.f.read.oracle.update("update read_pot_version set schema_version=2 where pot_version=3");
                 if(state.equals("invalid-reference")) {
                     assertThrows(org.springframework.dao.DataIntegrityViolationException.class,() -> f.f.read.oracle.update("update read_current_pot set pot_version=99"),"FK normally excludes a dangling pointer");
                     f.f.read.oracle.execute("alter table read_current_pot drop constraint read_current_pot_pot_id_pot_version_fkey");
@@ -346,12 +381,22 @@ class ReadParticipantsIntegrationPostgresTest {
                     () -> { setRecoverySlot(f,name,v2,false); recoveryObservation(f,name,v2,state+"/absent",valid?RecoveryObservation.COMPLETED:RecoveryObservation.INCONSISTENT); });
             }));
             // A coherent higher pointer cannot replace the exact historical root or subobjects.
-            f.f.read.oracle.update("update read_pot_version set payload=?::jsonb where pot_version=3",original);
+            f.f.read.oracle.update("update read_pot_version set schema_version=1 where pot_version=3");
             f.f.read.oracle.update("update read_current_pot set pot_version=3");
-            var historical=f.f.read.oracle.queryForObject("select payload::text from read_pot_version where pot_version=2",String.class);
+            var historical=f.f.read.oracle.queryForMap("select * from read_pot_version where pot_version=2");
             f.f.read.oracle.update("delete from read_pot_version where pot_version=2");
             recoveryObservation(f,name,v2,"higher/missing-historical-root",RecoveryObservation.INCONSISTENT);
-            f.f.read.oracle.update("insert into read_pot_version values (?,2,1,?::jsonb)",f.pot.pot(),historical);
+            f.f.read.oracle.update("""
+                    insert into read_pot_version(
+                      pot_id,pot_version,schema_version,header_version,details_version,deleted,
+                      shareholders_count,expenses_count,shareholders_root,expenses_root,
+                      authorized_users_hash,attached_active_users_hash)
+                    values (?,?,?,?,?,?,?,?,?,?,?,?)""",
+                    historical.get("pot_id"),historical.get("pot_version"),historical.get("schema_version"),
+                    historical.get("header_version"),historical.get("details_version"),historical.get("deleted"),
+                    historical.get("shareholders_count"),historical.get("expenses_count"),
+                    historical.get("shareholders_root"),historical.get("expenses_root"),
+                    historical.get("authorized_users_hash"),historical.get("attached_active_users_hash"));
             f.f.read.oracle.execute("alter table read_subobject_version disable trigger user");
             f.f.read.oracle.update("delete from read_subobject_version where kind='POT_DETAILS' and local_version=2");
             recoveryObservation(f,name,v2,"higher/missing-historical-subobject",RecoveryObservation.INCONSISTENT);
@@ -444,15 +489,15 @@ class ReadParticipantsIntegrationPostgresTest {
 
     @Test void independentProgression() throws Exception {
         var expected=Map.of(Name.POT_VERSION,"3dec1c8b-6e3e-57e1-82aa-aa0b5f297a4a",Name.POT_BALANCE,"190a93c6-b8af-5ac7-8001-72e2ec53c2df",Name.POT_VISIBILITY,"b4d04cce-b5da-5d1b-9698-5ff9af9a46fa",Name.CURRENT_BINDING,"7b8d2838-bf7a-5117-868a-e5c14b4c0221",Name.COMMAND_RESULT,"63664303-d33e-5d42-8cce-c4dae8023311",Name.IDENTITY_REQUEST_RESULT,"1d8ff246-358f-5ddd-a7f5-416efcfd7445");
-        for(var disabled:Name.values()) try(var f=new ReadParticipantsFixture(PG,"disabled-"+disabled)) {
+        for(var disabled:ReadParticipantsFixture.PROJECTIONS_WITH_SEEDED_EVENTS) try(var f=new ReadParticipantsFixture(PG,"disabled-"+disabled)) {
             f.enroll();
-            for(var name:Name.values()) {
+            for(var name:ReadParticipantsFixture.PROJECTIONS_WITH_SEEDED_EVENTS) {
                 var d=f.participants.get(name).definition(); assertEquals(UUID.fromString(expected.get(name)),d.id().value()); assertEquals(ConsumptionDefinition.Authority.READ,d.authority());
                 assertEquals(name==Name.CURRENT_BINDING?ConsumableFamily.IDENTITY_EVENT:name==Name.COMMAND_RESULT?ConsumableFamily.COMMAND_COMPLETION_EVENT:name==Name.IDENTITY_REQUEST_RESULT?ConsumableFamily.IDENTITY_COMPLETION_EVENT:ConsumableFamily.POT_EVENT,d.family());
                 if(name!=disabled) f.execute(name,f.event(name));
             }
             assertEquals(1,f.slots(disabled,f.event(disabled)));
-            for(var name:Name.values()) if(name!=disabled) assertEquals(0,f.slots(name,f.event(name)),disabled+" cannot block "+name);
+            for(var name:ReadParticipantsFixture.PROJECTIONS_WITH_SEEDED_EVENTS) if(name!=disabled) assertEquals(0,f.slots(name,f.event(name)),disabled+" cannot block "+name);
             assertEquals(3,f.f.read.oracle.queryForObject("select count(distinct consumption_id) from discovery_checkpoint where consumption_id in ('3dec1c8b-6e3e-57e1-82aa-aa0b5f297a4a','190a93c6-b8af-5ac7-8001-72e2ec53c2df','b4d04cce-b5da-5d1b-9698-5ff9af9a46fa')",Integer.class));
             f.f.read.trace.add("six independent consumptions; disabled="+disabled);
         }
@@ -488,11 +533,17 @@ class ReadParticipantsIntegrationPostgresTest {
     }
 
     @Test void l73_allReadParticipantsRetainUncertainCapacityAndExactEffects() throws Exception {
-        for(var name:Name.values()) for(var fault:List.of(CommitAcknowledgementProxy.Fault.BEFORE_COMMIT,CommitAcknowledgementProxy.Fault.AFTER_COMMIT))
+        for(var name:ReadParticipantsFixture.PROJECTIONS_WITH_SEEDED_EVENTS) for(var fault:List.of(CommitAcknowledgementProxy.Fault.BEFORE_COMMIT,CommitAcknowledgementProxy.Fault.AFTER_COMMIT))
             try(var f=new ReadParticipantsFixture(PG,"l73-unknown-"+name+"-"+fault);var proxy=new CommitAcknowledgementProxy(PG.getHost(),PG.getMappedPort(5432))) {
+                boolean terminal = isTerminalResult(name);
+                if (terminal) ReadAvailabilityPostgresTest.install(f.f.read);
                 f.enroll(); var beforeVector=f.vector();
                 var ds=new DriverManagerDataSource("jdbc:postgresql://127.0.0.1:"+proxy.localPort()+"/"+PG.getDatabaseName()+"?sslmode=disable&gssEncMode=disable&preferQueryMode=simple&socketTimeout=5&currentSchema="+f.f.read.schema,f.f.read.runtimeRole,"i1-fixture");
-                var tx=SubobjectPostgresFixture.owner(ds); var real=ReadParticipants.create(f.f.primary,f.f.sourceOwner,ds,tx).get(name).participant();
+                var tx=SubobjectPostgresFixture.owner(ds);
+                var real = terminal
+                        ? ReadParticipants.select(f.participants.get(name).participant().getClass().getSimpleName(),
+                                f.f.primary, f.f.sourceOwner, ds, tx).participant()
+                        : ReadParticipants.create(f.f.primary, f.f.sourceOwner, ds, tx).get(name).participant();
                 var p=new ConsumptionParticipant() {
                     public Optional<Prepared> prepare(UUID id,PreparationReads reads) { return real.prepare(id,reads).map(actual -> new Prepared() {
                         public void requireCompletionReady() { actual.requireCompletionReady(); }
@@ -505,6 +556,7 @@ class ReadParticipantsIntegrationPostgresTest {
                 assertEquals(1,proxy.interceptedCount()); assertEquals(committed?1:0,proxy.committedReplyCount());
                 assertEquals(AttemptTransactions.Resolution.UNKNOWN,result.resolution()); assertNull(result.cession()); assertNull(result.cessionResolution());
                 assertEquals(committed?RecoveryObservation.COMPLETED:RecoveryObservation.NOT_COMPLETED,result.observation());
+                if (terminal) assertEquals(committed ? 1 : 0, terminalPublications(f, name).size());
                 if(name==Name.POT_VERSION) {
                 assertEquals(committed?1:0,f.f.read.oracle.queryForObject("select count(*) from read_current_pot",Integer.class));
                 assertEquals(committed?2:0,f.f.read.oracle.queryForObject("select count(*) from read_subobject_version",Integer.class));
@@ -586,7 +638,7 @@ class ReadParticipantsIntegrationPostgresTest {
                 assertEquals(ConsumptionProtocol.Status.COMMITTED,a.get(20,TimeUnit.SECONDS).status()); assertEquals(ConsumptionProtocol.Status.COMMITTED,b.get(20,TimeUnit.SECONDS).status());
             }
             assertEquals(0,f.capacity.snapshot().worker());
-            for(var name:Name.values()) assertTrue(f.capacity.supports(f.participants.get(name).definition().id()));
+            for(var name:ReadParticipantsFixture.PROJECTIONS_WITH_SEEDED_EVENTS) assertTrue(f.capacity.supports(f.participants.get(name).definition().id()));
             f.f.read.trace.add("bounded M_W=2; six declared consumptions; renewals while two real WRITE snapshots retained; productive pool/load proof remains I8");
         }
     }

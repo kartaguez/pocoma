@@ -1,0 +1,8 @@
+with allocation as (
+    update read_availability_counter set position=position+1 where family=? returning family, position
+)
+insert into read_availability_event(family,position,event_id,projection_key)
+select family,position,?,? from allocation returning position
+
+PASS actual pilot V5 triggers: first position=1, duplicate UUID SQLSTATE 23505 rolled back effect and counter, next committed position=2.
+Direct store fixture, no slot or concurrent qualification of this SQL variant.

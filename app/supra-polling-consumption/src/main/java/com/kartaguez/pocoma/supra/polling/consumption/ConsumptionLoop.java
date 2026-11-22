@@ -133,6 +133,9 @@ public final class ConsumptionLoop {
         consumptionSaturated[slot.index()] = false;
         state.outcome = Outcome.CONFIRMED;
         var pair = new ConsumptionWorker.Pair(slot.binding(), slot.partition());
+        if (worker.isPairClean(pair, System.nanoTime())) {
+            return false;
+        }
         synchronized (worker.pairLock(pair)) {
             return acquireOnPair(slot.index(), slot.binding(), pair);
         }
@@ -158,6 +161,9 @@ public final class ConsumptionLoop {
         var page = binding.engine().navigate(lease, previous, worker.settings.pageSize());
         walks.put(pair, page.continuation());
         if (page.tourComplete()) {
+            if (page.keys().isEmpty()) {
+                worker.markPairClean(pair);
+            }
             worker.event(binding, Phase.CONSUMPTION_TOUR, Outcome.CONFIRMED, 1, Duration.ZERO);
             errorUntilNanos[selected] = 0;
             return false;

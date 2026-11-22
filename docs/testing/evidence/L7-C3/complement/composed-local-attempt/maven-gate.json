@@ -1,0 +1,1665 @@
+{
+  "command": "cd app && ./mvnw --fail-at-end -pl runtime-worker-materialize,architecture-tests -am test",
+  "maven_exit": 1,
+  "verdict": "FAIL",
+  "selection_exclusions": [],
+  "historical_inventory_missing": [
+    [
+      "architecture-tests",
+      "com.kartaguez.pocoma.architecture.AdmissionArchitectureTest",
+      "admissionHasNoBusinessAuthorityOrFramework"
+    ],
+    [
+      "architecture-tests",
+      "com.kartaguez.pocoma.architecture.AdmissionArchitectureTest",
+      "dedicatedWriterUsesExistingPhysicalOwner"
+    ],
+    [
+      "architecture-tests",
+      "com.kartaguez.pocoma.architecture.AdmissionArchitectureTest",
+      "httpAssemblyRemainsExplicitAndLinkProposalTypesAreAbsent"
+    ],
+    [
+      "architecture-tests",
+      "com.kartaguez.pocoma.architecture.ConsumptionEngineArchitectureTest",
+      "businessIdentityAndEnginesAreRejectedByEngineAndWorkerGuards"
+    ],
+    [
+      "architecture-tests",
+      "com.kartaguez.pocoma.architecture.ConsumptionEngineArchitectureTest",
+      "discoveryPortsAndWritersRemainBounded"
+    ],
+    [
+      "architecture-tests",
+      "com.kartaguez.pocoma.architecture.ConsumptionEngineArchitectureTest",
+      "engineAndContractsPureAndAgnostic"
+    ],
+    [
+      "architecture-tests",
+      "com.kartaguez.pocoma.architecture.ConsumptionEngineArchitectureTest",
+      "i2ParticipantCapabilitiesCannotReceiveTheSharedGuardOrAResource"
+    ],
+    [
+      "architecture-tests",
+      "com.kartaguez.pocoma.architecture.ConsumptionEngineArchitectureTest",
+      "i5WorkerHasNoTransactionOwnerSqlOrTicketAuthority"
+    ],
+    [
+      "architecture-tests",
+      "com.kartaguez.pocoma.architecture.ConsumptionEngineArchitectureTest",
+      "i8QueriesHaveOnlyReadPortsAndNoWriteOrInfrastructureDependencies"
+    ],
+    [
+      "architecture-tests",
+      "com.kartaguez.pocoma.architecture.ConsumptionEngineArchitectureTest",
+      "i8ReadRootsUseExplicitCompositionAndExcludeLegacyScanning"
+    ],
+    [
+      "architecture-tests",
+      "com.kartaguez.pocoma.architecture.ConsumptionEngineArchitectureTest",
+      "lifecycleHasOneHandleAndNoSchedulerOrOwner"
+    ],
+    [
+      "architecture-tests",
+      "com.kartaguez.pocoma.architecture.ConsumptionEngineArchitectureTest",
+      "negativeExamplesReallyFailRules"
+    ],
+    [
+      "architecture-tests",
+      "com.kartaguez.pocoma.architecture.ConsumptionEngineArchitectureTest",
+      "persistenceParticipantsCannotOpenTransactionsOrRawEntityManagers"
+    ],
+    [
+      "architecture-tests",
+      "com.kartaguez.pocoma.architecture.ConsumptionEngineArchitectureTest",
+      "rejectedAbstractionsAndPotOwnerAbsent"
+    ],
+    [
+      "architecture-tests",
+      "com.kartaguez.pocoma.architecture.ConsumptionFoundationArchitectureTest",
+      "commonSqlIsByteIdenticalAndHistoricalMigrationsAreUnmodifiedByConstruction"
+    ],
+    [
+      "architecture-tests",
+      "com.kartaguez.pocoma.architecture.ConsumptionFoundationArchitectureTest",
+      "discoveryFactoryIsExplicitAndKeepsTheNineDefinitions"
+    ],
+    [
+      "architecture-tests",
+      "com.kartaguez.pocoma.architecture.ConsumptionFoundationArchitectureTest",
+      "routingDomainRemainsPure"
+    ],
+    [
+      "architecture-tests",
+      "com.kartaguez.pocoma.architecture.FoundationArchitectureTest",
+      "eachForbiddenDependencyIsActuallyDetected"
+    ],
+    [
+      "architecture-tests",
+      "com.kartaguez.pocoma.architecture.FoundationArchitectureTest",
+      "nestedPortsCannotEscapeTheSelectorOrLeakImplementations"
+    ],
+    [
+      "architecture-tests",
+      "com.kartaguez.pocoma.architecture.FoundationArchitectureTest",
+      "positiveFixturesSatisfyTheSameRules"
+    ],
+    [
+      "architecture-tests",
+      "com.kartaguez.pocoma.architecture.FoundationArchitectureTest",
+      "productionImportsAreNonemptyAndExcludeFixtures"
+    ],
+    [
+      "architecture-tests",
+      "com.kartaguez.pocoma.architecture.FoundationArchitectureTest",
+      "productionKeepsPureDomainsAndInwardApplicationPorts"
+    ],
+    [
+      "architecture-tests",
+      "com.kartaguez.pocoma.architecture.HexagonalArchitectureTest",
+      "admissionAndAuthenticationUseProviderNeutralContracts"
+    ],
+    [
+      "architecture-tests",
+      "com.kartaguez.pocoma.architecture.HexagonalArchitectureTest",
+      "discoveryReadsReferencesWithoutDecodingBusinessPayloads"
+    ],
+    [
+      "architecture-tests",
+      "com.kartaguez.pocoma.architecture.HexagonalArchitectureTest",
+      "domainPotPackagesAreAcyclicAndRespectHybridBoundaries"
+    ],
+    [
+      "architecture-tests",
+      "com.kartaguez.pocoma.architecture.HexagonalArchitectureTest",
+      "durableBusinessModelsDoNotCarryLocalClaimsOrLeases"
+    ],
+    [
+      "architecture-tests",
+      "com.kartaguez.pocoma.architecture.HexagonalArchitectureTest",
+      "genericConsumptionDoesNotKnowBusinessFamiliesOrConcreteAdapters"
+    ],
+    [
+      "architecture-tests",
+      "com.kartaguez.pocoma.architecture.HexagonalArchitectureTest",
+      "httpSupraDoesNotOwnPersistenceOrBusinessExecution"
+    ],
+    [
+      "architecture-tests",
+      "com.kartaguez.pocoma.architecture.HexagonalArchitectureTest",
+      "infraPostgresCoreAndWritePackagesAreAcyclicAndRespectBoundaries"
+    ],
+    [
+      "architecture-tests",
+      "com.kartaguez.pocoma.architecture.HexagonalArchitectureTest",
+      "negativeFixturesProveWriteReadAndCycleRules"
+    ],
+    [
+      "architecture-tests",
+      "com.kartaguez.pocoma.architecture.HexagonalArchitectureTest",
+      "potAndIdentityDomainsOwnTheirCanonicalTypesAndPureFunctions"
+    ],
+    [
+      "architecture-tests",
+      "com.kartaguez.pocoma.architecture.HexagonalArchitectureTest",
+      "projectionContractsDependOnlyOnPureValuesAndTheNarrowReadContext"
+    ],
+    [
+      "architecture-tests",
+      "com.kartaguez.pocoma.architecture.HexagonalArchitectureTest",
+      "readPersistenceDoesNotDependOnWriteAuthorityOrApplicationServices"
+    ],
+    [
+      "architecture-tests",
+      "com.kartaguez.pocoma.architecture.HexagonalArchitectureTest",
+      "reorganizedClassesResideInExpectedPackages"
+    ],
+    [
+      "architecture-tests",
+      "com.kartaguez.pocoma.architecture.HexagonalArchitectureTest",
+      "terminalResultQueriesUseOnlyTheirOwnReadStore"
+    ],
+    [
+      "architecture-tests",
+      "com.kartaguez.pocoma.architecture.HexagonalArchitectureTest",
+      "v2TaskSchedulingAndSynchronousDispatchTypesAreAbsent"
+    ],
+    [
+      "architecture-tests",
+      "com.kartaguez.pocoma.architecture.HexagonalArchitectureTest",
+      "writeAndReadSidesDoNotCrossForbiddenBoundaries"
+    ],
+    [
+      "architecture-tests",
+      "com.kartaguez.pocoma.architecture.IdentityAuthorityArchitectureTest",
+      "l3_canonical_acquisition_is_the_only_eui_writer_path"
+    ],
+    [
+      "architecture-tests",
+      "com.kartaguez.pocoma.architecture.IdentityAuthorityArchitectureTest",
+      "l3_identity_authority_has_no_owner_or_runtime"
+    ],
+    [
+      "architecture-tests",
+      "com.kartaguez.pocoma.architecture.IdentityAuthorityArchitectureTest",
+      "l3_identity_participant_and_factory_keep_l2_ownership"
+    ],
+    [
+      "architecture-tests",
+      "com.kartaguez.pocoma.architecture.IdentityAuthorityArchitectureTest",
+      "l3_real_authority_delegates_without_a_second_lock_protocol"
+    ],
+    [
+      "architecture-tests",
+      "com.kartaguez.pocoma.architecture.PotExecutionArchitectureTest",
+      "carch01OrchestrationAndContractsRemainPure"
+    ],
+    [
+      "architecture-tests",
+      "com.kartaguez.pocoma.architecture.PotExecutionArchitectureTest",
+      "carch02AllExecutionAndRevisionWritersUsePhysicalOwnerGuards"
+    ],
+    [
+      "architecture-tests",
+      "com.kartaguez.pocoma.architecture.PotExecutionArchitectureTest",
+      "carch03ExplicitCompositionAndNoIdentityFixtureInProduction"
+    ],
+    [
+      "architecture-tests",
+      "com.kartaguez.pocoma.architecture.l7.L7DeploymentArchitectureTest",
+      "fiveProcessesSelectFourActualArtifactsAndSeparatePrincipals"
+    ],
+    [
+      "architecture-tests",
+      "com.kartaguez.pocoma.architecture.l7.L7ReactorArchitectureTest",
+      "domainsAndContractsAreNeutralAndSuprasUseOnlyCapabilities"
+    ],
+    [
+      "architecture-tests",
+      "com.kartaguez.pocoma.architecture.l7.L7ReactorArchitectureTest",
+      "exactCatalogueScopesAndAcyclicReactor"
+    ],
+    [
+      "architecture-tests",
+      "com.kartaguez.pocoma.architecture.l7.L7ReactorArchitectureTest",
+      "migrationBytesAndResourceOwnershipAreConserved"
+    ],
+    [
+      "architecture-tests",
+      "com.kartaguez.pocoma.architecture.l7.L7ReactorArchitectureTest",
+      "sourceAdaptersCannotInvokeMutatorsAndRuntimesOnlyHostCompose"
+    ],
+    [
+      "architecture-tests",
+      "com.kartaguez.pocoma.architecture.l7.L7ReactorArchitectureTest",
+      "v2RootsAndImplicitPersistenceActivationAreAbsent"
+    ],
+    [
+      "architecture-tests",
+      "com.kartaguez.pocoma.runtime.command.dev.WorkerDevelopmentToolsTest",
+      "l3_canonical_internal_intention"
+    ],
+    [
+      "architecture-tests",
+      "com.kartaguez.pocoma.runtime.command.dev.WorkerDevelopmentToolsTest",
+      "l3_private_intention_files"
+    ],
+    [
+      "runtime-monolith",
+      "com.kartaguez.pocoma.AdmissionFlowPostgresTest",
+      "allElevenPotOperationsThroughWorker"
+    ],
+    [
+      "runtime-monolith",
+      "com.kartaguez.pocoma.AdmissionFlowPostgresTest",
+      "brunoB2PublicProtocol"
+    ],
+    [
+      "runtime-monolith",
+      "com.kartaguez.pocoma.AdmissionFlowPostgresTest",
+      "invalidBusinessIntentsAreAdmittedThenRejected"
+    ],
+    [
+      "runtime-monolith",
+      "com.kartaguez.pocoma.AdmissionFlowPostgresTest",
+      "registrationAndUnlinkThroughWorker"
+    ],
+    [
+      "runtime-monolith",
+      "com.kartaguez.pocoma.AdmissionFlowPostgresTest",
+      "resultsAndReadProgressIndependently"
+    ],
+    [
+      "runtime-monolith",
+      "com.kartaguez.pocoma.AdmissionFlowPostgresTest",
+      "selfUsesWriteAndSurvivesBindingChange"
+    ],
+    [
+      "runtime-monolith",
+      "com.kartaguez.pocoma.AdmissionFlowPostgresTest",
+      "voluntaryDeparturePreservesHistoryAndIdentity"
+    ],
+    [
+      "runtime-monolith",
+      "com.kartaguez.pocoma.ConsumptionPilotIsolationTest",
+      "monolithRefusesIncompleteReadBootstrapBeforeRefresh"
+    ],
+    [
+      "runtime-monolith",
+      "com.kartaguez.pocoma.ConsumptionPilotIsolationTest",
+      "monolithStartsInertAndRestartsWithoutAnyLegacyWriterOrMigration"
+    ],
+    [
+      "runtime-monolith",
+      "com.kartaguez.pocoma.ConsumptionPilotIsolationTest",
+      "monolithWithIndirectOldRuntimeFailsBeforeProcessing"
+    ],
+    [
+      "runtime-monolith",
+      "com.kartaguez.pocoma.IdentityRequestMonolithPostgresTest",
+      "l3_command_only_preflight"
+    ],
+    [
+      "runtime-monolith",
+      "com.kartaguez.pocoma.IdentityRequestMonolithPostgresTest",
+      "l3_delivered_jpa_rejects_prebound_holder"
+    ],
+    [
+      "runtime-monolith",
+      "com.kartaguez.pocoma.IdentityRequestMonolithPostgresTest",
+      "l3_indirect_exposure_refused"
+    ],
+    [
+      "runtime-monolith",
+      "com.kartaguez.pocoma.IdentityRequestMonolithPostgresTest",
+      "l3_logging_override_refused"
+    ],
+    [
+      "runtime-monolith",
+      "com.kartaguez.pocoma.IdentityRequestMonolithPostgresTest",
+      "l3_preflight_negative"
+    ],
+    [
+      "runtime-monolith",
+      "com.kartaguez.pocoma.IdentityRequestMonolithPostgresTest",
+      "l3_registration_command_and_relink_restart"
+    ],
+    [
+      "runtime-monolith",
+      "com.kartaguez.pocoma.IdentityRequestMonolithPostgresTest",
+      "l3_runtime_identity"
+    ],
+    [
+      "runtime-monolith",
+      "com.kartaguez.pocoma.InvitationHttpTest",
+      "brunoB4StandaloneCorpus"
+    ],
+    [
+      "runtime-monolith",
+      "com.kartaguez.pocoma.InvitationHttpTest",
+      "concurrentUnlinkAndAttachmentSerializeAtIdentity"
+    ],
+    [
+      "runtime-monolith",
+      "com.kartaguez.pocoma.InvitationHttpTest",
+      "confidentialLinkAndRestrictedPlaces"
+    ],
+    [
+      "runtime-monolith",
+      "com.kartaguez.pocoma.InvitationHttpTest",
+      "finalNonCreatorDeparturePreservesOtherPotAndHistoricalReads"
+    ],
+    [
+      "runtime-monolith",
+      "com.kartaguez.pocoma.InvitationHttpTest",
+      "l73_concurrentInvitationAcceptanceAttachesEachActorToTheirOwnPlace"
+    ],
+    [
+      "runtime-monolith",
+      "com.kartaguez.pocoma.InvitationHttpTest",
+      "l73_concurrentInvitationAcceptanceHasOneWinnerForOnePlace"
+    ],
+    [
+      "runtime-monolith",
+      "com.kartaguez.pocoma.InvitationHttpTest",
+      "unlinkCannotPreserveStaleInvitationAuthority"
+    ],
+    [
+      "runtime-monolith",
+      "com.kartaguez.pocoma.InvitationReadPostgresTest",
+      "authenticatedEncryptionAndOldKeyRestoration"
+    ],
+    [
+      "runtime-monolith",
+      "com.kartaguez.pocoma.InvitationReadPostgresTest",
+      "createInvitationRollsBackEffectsAndPositionsBeforeRetry"
+    ],
+    [
+      "runtime-monolith",
+      "com.kartaguez.pocoma.InvitationReadPostgresTest",
+      "invitationPublicationRejectsMissingUnknownAndWrongRequests"
+    ],
+    [
+      "runtime-monolith",
+      "com.kartaguez.pocoma.InvitationReadPostgresTest",
+      "monotoneDuplicateAndDivergence"
+    ],
+    [
+      "runtime-monolith",
+      "com.kartaguez.pocoma.InvitationReadPostgresTest",
+      "reconstructOnFreshReadWithoutProducer"
+    ],
+    [
+      "runtime-monolith",
+      "com.kartaguez.pocoma.InvitationTopologyPostgresTest",
+      "invitationPrivilegePreflightsRejectColumnEscalation"
+    ],
+    [
+      "runtime-monolith",
+      "com.kartaguez.pocoma.InvitationTopologyPostgresTest",
+      "targetThreeFourPartitionsConnectionsRenewalAndRestart"
+    ],
+    [
+      "runtime-monolith",
+      "com.kartaguez.pocoma.L73TerminationCrashAndCompositePostgresTest",
+      "l2m_c03_j_crash_sigkillDuringInFlightWriteRollsBackAndRecovers"
+    ],
+    [
+      "runtime-monolith",
+      "com.kartaguez.pocoma.L73TerminationCrashAndCompositePostgresTest",
+      "l2m_c04_k_compositeCommandAndReadCorpusWithTakeoverRollbackAndCrash"
+    ],
+    [
+      "runtime-monolith",
+      "com.kartaguez.pocoma.L73TerminationCrashAndCompositePostgresTest",
+      "l2m_con_05_crash_sigkillWithClaimAcquiredRecoversAfterSqlLeaseExpiry"
+    ],
+    [
+      "runtime-monolith",
+      "com.kartaguez.pocoma.L73TerminationCrashAndCompositePostgresTest",
+      "l2m_e01_h_report_mixedProducersSafetyLoadAllFamiliesDense"
+    ],
+    [
+      "runtime-monolith",
+      "com.kartaguez.pocoma.MonolithHttpCompositionPostgresTest",
+      "monolithRoot"
+    ],
+    [
+      "runtime-monolith",
+      "com.kartaguez.pocoma.ReadRootsCoexistencePostgresTest",
+      "projectionAndMonolithSharePartitionsSafely"
+    ],
+    [
+      "runtime-monolith",
+      "com.kartaguez.pocoma.ReadWorkerResourcesPostgresTest",
+      "allParticipantsFitPoolsAndRenewalEnvelope"
+    ],
+    [
+      "runtime-monolith",
+      "com.kartaguez.pocoma.ReadWorkerResourcesPostgresTest",
+      "drainAndRestartPreserveDurableProgress"
+    ],
+    [
+      "runtime-monolith",
+      "com.kartaguez.pocoma.WorkerMonolithPostgresTest",
+      "i5_mono01"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.CommandResultAvailabilityPostgresTest",
+      "caughtSqlFailureAfterAllocationStillRollsBackTheSlotAndPosition"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.CommandResultAvailabilityPostgresTest",
+      "commitUncertaintyIsRecoveredFromResultEventSlotAndCheckpoint(Fault)[1]"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.CommandResultAvailabilityPostgresTest",
+      "commitUncertaintyIsRecoveredFromResultEventSlotAndCheckpoint(Fault)[2]"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.CommandResultAvailabilityPostgresTest",
+      "concurrentAllocationWaitsForCommitOrReusesRolledBackPosition(boolean)[1]"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.CommandResultAvailabilityPostgresTest",
+      "concurrentAllocationWaitsForCommitOrReusesRolledBackPosition(boolean)[2]"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.CommandResultAvailabilityPostgresTest",
+      "concurrentDuplicateAttemptsAndAdditionalResultShapesPublishOneEventPerRequest"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.CommandResultAvailabilityPostgresTest",
+      "expiresBeforeFinalLockAndPublishesOnlyAfterTakeover"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.CommandResultAvailabilityPostgresTest",
+      "measuresSerialReadFinalizationWithAndWithoutAvailability"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.CommandResultAvailabilityPostgresTest",
+      "missingSuffixCannotCommitResultOrDeleteSlot"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.CommandResultAvailabilityPostgresTest",
+      "rejectsInvalidSqlAndV4Progress"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.CommandResultAvailabilityPostgresTest",
+      "resultPublicationAndSlotShareOneTransactionAndRetryPreservesIdentity"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.InterAuthorityPreparationPostgresTest",
+      "p01ConsecutiveAuthoritiesPhysicalSnapshotsAndAtomicFinalization"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.InterAuthorityPreparationPostgresTest",
+      "p02CaughtNestedAndForeignScopesNeverOpenAnotherAuthority"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.InterAuthorityPreparationPostgresTest",
+      "p03CounterOracleDetectsAForwarderThatDropsTheSharedGuard"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.InterAuthorityPreparationPostgresTest",
+      "p03ExpiredSourceContextPoisonsEffectsAndFinalEvenWhenCaught"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.InterAuthorityPreparationPostgresTest",
+      "p04AndP07PhysicalReadAckLossNeverAllowsNextScopeOrCapacitySettlement"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.InterAuthorityPreparationPostgresTest",
+      "p05AllPublicHistoryReadsPoisonCaughtForeignAuthorityAccess"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.InterAuthorityPreparationPostgresTest",
+      "p05CaughtSqlAndJavaDecodeFailuresKeepOriginalClassification"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.InterAuthorityPreparationPostgresTest",
+      "p05WrongAuthorityWriterIsRefusedBeforeAnySourceSql"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.InterAuthorityPreparationPostgresTest",
+      "p06CancelledFutureDoesNotMeanBlockedSourceCallbackExited"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.InterAuthorityPreparationPostgresTest",
+      "p06InterruptedPreparationPreservesFlagAndRejectsBeforeNextBegin"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.InterAuthorityPreparationPostgresTest",
+      "p07ConfirmedReadCleanupLossAndRawErrorKeepDifferentResponsibilities"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.InterAuthorityPreparationPostgresTest",
+      "p08DetachedValuesClosedCursorAndNoSourceAccessDuringFinalization"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.InterAuthorityPreparationPostgresTest",
+      "p08RetainedSourceSupplierCannotRunInsideReadFinalization"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.InterAuthorityPreparationPostgresTest",
+      "w01CommandLoadAuthorityAndHistoryKeepOnePhysicalSnapshot"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.InterAuthorityPreparationPostgresTest",
+      "w03CaughtSpringCallbacksRollbackBeforeCommitAndPreserveCommitAfterCompletion"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.InterAuthorityRecoveryPostgresTest",
+      "c03AndC04RenewalsContinueAcrossLongScopesAndDrainWaitsForPhysicalExit"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.InterAuthorityRecoveryPostgresTest",
+      "r01AndR03PresentPreexistingAndAbsentExactOrDivergentEvidence"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.InterAuthorityRecoveryPostgresTest",
+      "r02CoverageIsExactConsumptionPartitionAndSourcePosition"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.InterAuthorityRecoveryPostgresTest",
+      "r04AllFourDeliveredFamiliesUseTheirRealPublicationMapping"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.InterAuthorityRecoveryPostgresTest",
+      "r04ExactSqlLookupDistinguishesAbsenceCorruptionAndTechnicalFailure"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.InterAuthorityRecoveryPostgresTest",
+      "r05OneSnapshotRejectsTheTwoSnapshotFalseCompletedCounterexample"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.InterAuthorityRecoveryPostgresTest",
+      "r06FinalLostAckHasIndependentBusinessProofAndSeparateCapacityResolution"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.InterAuthorityRecoveryPostgresTest",
+      "r07UnknownRecoveryDiscardsCalculatedVerdictAndPermanentlyExcludesEngine"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.InterAuthorityRecoveryPostgresTest",
+      "r08TechnicalModelsRequireCompleteContentAndRespectConformingAbsence"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.InterAuthorityRecoveryPostgresTest",
+      "r09WriteBurnableMatrixNeverConsultsCheckpoint"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.L73TerminationReadPostgresTest",
+      "l2m_c01_a_report_multipartitionIdentityDiscoveryExactSlotsAndK"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.L73TerminationReadPostgresTest",
+      "l2m_c01_d_report_concurrentRetainedPublicationCoupledWithReadDiscovery"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.PotBalanceIncrementalPostgresTest",
+      "incrementalNMinusMMatchesOracleAcrossOutOfOrderConcurrencyWeightUpdatesAndDeleteShareholder"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.PotBalanceIncrementalPostgresTest",
+      "nonFinancialAndZeroDeltaPhysicalDedupAndMicrometerObservability"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.PotBalanceIncrementalPostgresTest",
+      "weightUpdateReadsZeroExpensesAndBucketCapSkipsAggregatePersistence"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.PotVersionAndBalanceJointIncrementalPostgresTest",
+      "independentFallbacksForBucketCapAndAsymmetricMaxDeltaDistance"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.PotVersionAndBalanceJointIncrementalPostgresTest",
+      "jointLeaseRevocationAndInterruptionPreserveAtomicityAndIndependence"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.PotVersionAndBalanceJointIncrementalPostgresTest",
+      "jointOutOfOrderConcurrencyRecoveryIdempotenceAndReconstructionMatchBothOracles"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.PotVersionIncrementalPostgresTest",
+      "incrementalNMinusMMatchesFullOracleAcrossOutOfOrderConcurrencyAndGlobalEffects"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.PotVersionIncrementalPostgresTest",
+      "maxDeltaDistanceFallbackTriggersFullPathWhenKIsTooFar"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.ReadActivationSettingsTest",
+      "dockerFiveRuntimesPropertiesRespectNewLeaseAndSemaphoreBounds"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.ReadActivationSettingsTest",
+      "fiveRuntimeParticipantIsolation"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.ReadActivationSettingsTest",
+      "independentSelectionAndTemporalPreflight"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.ReadActivationSettingsTest",
+      "poolKeysAndReservesMatchAssembly"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.ReadFacadesPostgresTest",
+      "bindingAndResultsKeepTheirOwnAuthorities"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.ReadFacadesPostgresTest",
+      "currentHistoryAndConcurrentAdvanceStayExact"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.ReadFacadesPostgresTest",
+      "expenseBatchesRespectExactManifestAndBounds"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.ReadFacadesPostgresTest",
+      "navigationIsKeysetAndNeverAuthorizes"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.ReadFacadesPostgresTest",
+      "readinessDoesNotInventFreshness"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.ReadParticipantsIntegrationPostgresTest",
+      "boundedCapacityAndRenewal"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.ReadParticipantsIntegrationPostgresTest",
+      "currentBindingRecoverySupersession"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.ReadParticipantsIntegrationPostgresTest",
+      "independentProgression"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.ReadParticipantsIntegrationPostgresTest",
+      "l73_allReadParticipantsRetainUncertainCapacityAndExactEffects"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.ReadParticipantsIntegrationPostgresTest",
+      "l73_quarantinedOldVersionsResumeWithoutRegressingRealProjections"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.ReadParticipantsIntegrationPostgresTest",
+      "l73_recreatedDiscoveryAndEnginesPreserveOnlyUnfinishedSlots"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.ReadParticipantsIntegrationPostgresTest",
+      "l73_twoFailedReadTransactionsDoNotBlockTheThirdConsumption"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.ReadParticipantsIntegrationPostgresTest",
+      "participantConformance(String)[1]"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.ReadParticipantsIntegrationPostgresTest",
+      "participantConformance(String)[2]"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.ReadParticipantsIntegrationPostgresTest",
+      "participantConformance(String)[3]"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.ReadParticipantsIntegrationPostgresTest",
+      "participantConformance(String)[4]"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.ReadParticipantsIntegrationPostgresTest",
+      "participantConformance(String)[5]"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.ReadParticipantsIntegrationPostgresTest",
+      "participantConformance(String)[6]"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.ReadParticipantsIntegrationPostgresTest",
+      "potVersionRecoveryRequiresCurrentPot"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.ReadParticipantsIntegrationPostgresTest",
+      "recoveryAffectedParticipantConformance"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.ReadParticipantsIntegrationPostgresTest",
+      "resultsBeforeDomain"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.ReadParticipantsIntegrationPostgresTest",
+      "uncertainCommitHasNoSpeculativeSettlement"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.ReadParticipantsIntegrationPostgresTest",
+      "visibilityRecoverySupersession"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.ReadQuotaPostgresTest",
+      "cancellationDuringJdbc"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.ReadQuotaPostgresTest",
+      "disconnectDuringEncodingAndSend"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.ReadQuotaPostgresTest",
+      "httpInFlightUntilSendEnds"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.ReadQuotaPostgresTest",
+      "invalidInputBeforeQuota"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.ReadQuotaPostgresTest",
+      "jdbcCountsAndCosts"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.ReadQuotaPostgresTest",
+      "memoryAndCopies"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.ReadQuotaPostgresTest",
+      "permitsAndConnectionsReleased"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.ReadQuotaPostgresTest",
+      "sqlTimeoutPhysicalResolution"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.ReadQuotaPostgresTest",
+      "twoReadersAndImmediateRefusal"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.ReadQuotaPostgresTest",
+      "workersProgressWithoutControlBorrow"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.ReadReconstructionPostgresTest",
+      "rcv01A_fullResetOnPopulatedRead_writeRemainsIntact"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.ReadReconstructionPostgresTest",
+      "rcv01B_lateWorkerExclusion_commitFailsAndDoesNotCorruptNewGeneration"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.ReadReconstructionPostgresTest",
+      "rcv01C_explicitUnavailabilityAfterResetBeforeReplay"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.ReadReconstructionPostgresTest",
+      "rcv01D_rebuildReplaysFromFiveWriteFamiliesToConvergence"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.ReadReconstructionPostgresTest",
+      "rcv01G_crashRecoveryAndResume"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.ReadReconstructionPostgresTest",
+      "rcv01H_quarantineAndIntegrityViolations_blockReady"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.ReadReconstructionPostgresTest",
+      "rcv01I_concurrentAcquisitionExclusion"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.ReadReconstructionPostgresTest",
+      "rcv01J_writePermissionIsolation"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.ReadReconstructionPostgresTest",
+      "rcv01K_crashDuringDdl_safeResumeWithoutDestruction"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.ReadReconstructionPostgresTest",
+      "rcv01L_sessionAdvisoryLockExclusion"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.ReadReconstructionPostgresTest",
+      "rcv01M_resumeFromConvergedRequiresValidOracle"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.ReadReconstructionPostgresTest",
+      "rcv01N_destructiveRecoveryFromFailed"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.ReadReconstructionPostgresTest",
+      "readReplayPreservesExactValuesAndCatchesUpWithNewWritePublication"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.ReadRuntimeAssemblyPostgresTest",
+      "rootsAndPrivilegesAreClosed"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.ReadRuntimeAssemblyPostgresTest",
+      "sixParticipantsProgressThroughWorkers"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.SubobjectAtomicityPostgresTest",
+      "actualReadiness"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.SubobjectAtomicityPostgresTest",
+      "caughtFailurePoisons"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.SubobjectAtomicityPostgresTest",
+      "concurrentIdenticalAndDivergentSlots"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.SubobjectAtomicityPostgresTest",
+      "deferredCommitRejection"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.SubobjectAtomicityPostgresTest",
+      "effectsAndSlotSameUnit"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.SubobjectAtomicityPostgresTest",
+      "faultBetweenReadinessAndDelete"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.SubobjectAtomicityPostgresTest",
+      "lateCaughtCallbackCannotCommit"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.SubobjectAtomicityPostgresTest",
+      "lostCommitAck"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.SubobjectAtomicityPostgresTest",
+      "physicalOracleRejectsIndependentTransactions"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.SubobjectAtomicityPostgresTest",
+      "publicationClosure"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.SubobjectAtomicityPostgresTest",
+      "rollbackAfterDeleteAndEveryBoundary"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.SubobjectAtomicityPostgresTest",
+      "rollbackAfterFirstChunkAndBeforeCommit"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.SubobjectMigrationPostgresTest",
+      "auxiliaryDefinerCannotExposeMutation"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.SubobjectMigrationPostgresTest",
+      "freshAndExtension"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.SubobjectMigrationPostgresTest",
+      "keyAndKindAndSqlShapes"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.SubobjectMigrationPostgresTest",
+      "physicalImmutability"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.SubobjectMigrationPostgresTest",
+      "populatedV1CannotBeReplayedWithoutHistory"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.SubobjectMigrationPostgresTest",
+      "wrongTargetAndUnsafeRoles"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.SubobjectStorePostgresTest",
+      "allFieldsMatter"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.SubobjectStorePostgresTest",
+      "batchAllOrNothing"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.SubobjectStorePostgresTest",
+      "concurrentDivergent"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.SubobjectStorePostgresTest",
+      "concurrentIdentical"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.SubobjectStorePostgresTest",
+      "conflictThenCommittedRead"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.SubobjectStorePostgresTest",
+      "divergentInsert"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.SubobjectStorePostgresTest",
+      "existingKeysAndRequireKeysPresent"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.SubobjectStorePostgresTest",
+      "identicalInsert"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.SubobjectStorePostgresTest",
+      "ownerAndContext"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.SubobjectStorePostgresTest",
+      "postgresUuidOrder"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.SubobjectStorePostgresTest",
+      "reversedBatchesUseTotalOrder"
+    ],
+    [
+      "runtime-worker-materialize",
+      "com.kartaguez.pocoma.runtime.task.SubobjectStorePostgresTest",
+      "strictCodec"
+    ]
+  ],
+  "new_cases_vs_historical_inventory": [],
+  "modules": {
+    "pocoma": {
+      "tests": 0,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "status": "SUCCESS",
+      "suites": 0,
+      "entered": true
+    },
+    "pocoma-domain-pot": {
+      "tests": 46,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "status": "SUCCESS",
+      "suites": 12,
+      "entered": true
+    },
+    "pocoma-domain-identity": {
+      "tests": 20,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "status": "SUCCESS",
+      "suites": 2,
+      "entered": true
+    },
+    "pocoma-domain-projection": {
+      "tests": 36,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "status": "SUCCESS",
+      "suites": 8,
+      "entered": true
+    },
+    "pocoma-domain-consumption": {
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "status": "SUCCESS",
+      "suites": 1,
+      "entered": true
+    },
+    "pocoma-contract-authentication": {
+      "tests": 0,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "status": "SUCCESS",
+      "suites": 0,
+      "entered": true
+    },
+    "pocoma-contract-write-admission": {
+      "tests": 0,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "status": "SUCCESS",
+      "suites": 0,
+      "entered": true
+    },
+    "pocoma-port-transaction": {
+      "tests": 0,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "status": "SUCCESS",
+      "suites": 0,
+      "entered": true
+    },
+    "pocoma-contract-read-query": {
+      "tests": 0,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "status": "SUCCESS",
+      "suites": 0,
+      "entered": true
+    },
+    "pocoma-port-projection": {
+      "tests": 0,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "status": "SUCCESS",
+      "suites": 0,
+      "entered": true
+    },
+    "pocoma-engine-admit-command": {
+      "tests": 0,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "status": "SUCCESS",
+      "suites": 0,
+      "entered": true
+    },
+    "pocoma-engine-admit-identity": {
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "status": "SUCCESS",
+      "suites": 1,
+      "entered": true
+    },
+    "pocoma-contract-consumption": {
+      "tests": 0,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "status": "SUCCESS",
+      "suites": 0,
+      "entered": true
+    },
+    "pocoma-engine-write-pot": {
+      "tests": 14,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "status": "SUCCESS",
+      "suites": 2,
+      "entered": true
+    },
+    "pocoma-engine-write-identity": {
+      "tests": 13,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "status": "SUCCESS",
+      "suites": 2,
+      "entered": true
+    },
+    "pocoma-engine-materialize-pot": {
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "status": "SUCCESS",
+      "suites": 3,
+      "entered": true
+    },
+    "pocoma-engine-materialize-identity": {
+      "tests": 0,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "status": "SUCCESS",
+      "suites": 0,
+      "entered": true
+    },
+    "pocoma-engine-materialize-results": {
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "status": "SUCCESS",
+      "suites": 2,
+      "entered": true
+    },
+    "pocoma-engine-read-pot": {
+      "tests": 0,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "status": "SUCCESS",
+      "suites": 0,
+      "entered": true
+    },
+    "pocoma-engine-read-identity": {
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "status": "SUCCESS",
+      "suites": 1,
+      "entered": true
+    },
+    "pocoma-engine-read-results": {
+      "tests": 0,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "status": "SUCCESS",
+      "suites": 0,
+      "entered": true
+    },
+    "pocoma-orchestrator-consumption": {
+      "tests": 38,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "status": "SUCCESS",
+      "suites": 5,
+      "entered": true
+    },
+    "pocoma-supra-polling-consumption": {
+      "tests": 0,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "status": "SUCCESS",
+      "suites": 0,
+      "entered": true
+    },
+    "pocoma-supra-web-write": {
+      "tests": 0,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "status": "SUCCESS",
+      "suites": 0,
+      "entered": true
+    },
+    "pocoma-infra-tx-spring": {
+      "tests": 28,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "status": "SUCCESS",
+      "suites": 5,
+      "entered": true
+    },
+    "pocoma-infra-postgres-core": {
+      "tests": 12,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "status": "SUCCESS",
+      "suites": 3,
+      "entered": true
+    },
+    "pocoma-infra-postgres-read": {
+      "tests": 39,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "status": "SUCCESS",
+      "suites": 12,
+      "entered": true
+    },
+    "pocoma-supra-web-read": {
+      "tests": 17,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "status": "SUCCESS",
+      "suites": 2,
+      "entered": true
+    },
+    "pocoma-infra-security-spring": {
+      "tests": 0,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "status": "SUCCESS",
+      "suites": 0,
+      "entered": true
+    },
+    "pocoma-infra-postgres-write-source-read": {
+      "tests": 0,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "status": "SUCCESS",
+      "suites": 0,
+      "entered": true
+    },
+    "pocoma-infra-postgres-write": {
+      "tests": 473,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "status": "SUCCESS",
+      "suites": 37,
+      "entered": true
+    },
+    "pocoma-infra-observability-micrometer": {
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "status": "SUCCESS",
+      "suites": 1,
+      "entered": true
+    },
+    "pocoma-compose-web-write-postgres": {
+      "tests": 18,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "status": "SUCCESS",
+      "suites": 5,
+      "entered": true
+    },
+    "pocoma-compose-polling-burnable-write-postgres": {
+      "tests": 13,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "status": "SUCCESS",
+      "suites": 1,
+      "entered": true
+    },
+    "pocoma-compose-polling-nonburnable-materialize-postgres": {
+      "tests": 13,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "status": "SUCCESS",
+      "suites": 1,
+      "entered": true
+    },
+    "pocoma-engine-read-execution": {
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "status": "SUCCESS",
+      "suites": 1,
+      "entered": true
+    },
+    "pocoma-compose-web-read-postgres": {
+      "tests": 0,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "status": "SUCCESS",
+      "suites": 0,
+      "entered": true
+    },
+    "pocoma-runtime-web-write": {
+      "tests": 0,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "status": "SUCCESS",
+      "suites": 0,
+      "entered": true
+    },
+    "pocoma-runtime-web-read": {
+      "tests": 42,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "status": "SUCCESS",
+      "suites": 6,
+      "entered": true
+    },
+    "pocoma-runtime-worker-process": {
+      "tests": 98,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "status": "SUCCESS",
+      "suites": 15,
+      "entered": true
+    },
+    "pocoma-runtime-worker-materialize": {
+      "tests": 0,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "status": "FAILURE",
+      "suites": 0,
+      "entered": true
+    },
+    "pocoma-runtime-monolith": {
+      "tests": 0,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "status": "SKIPPED",
+      "suites": 0,
+      "entered": false
+    },
+    "pocoma-architecture-tests": {
+      "tests": 0,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "status": "SKIPPED",
+      "suites": 0,
+      "entered": false
+    }
+  },
+  "totals": {
+    "tests": 943,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "bruno": {
+    "brunoB2PublicProtocol": {
+      "outcome": null,
+      "receipts": [],
+      "validated": false
+    },
+    "brunoB4StandaloneCorpus": {
+      "outcome": null,
+      "receipts": [],
+      "validated": false
+    }
+  },
+  "problem_cases": [],
+  "maven_total_time": "50:38 min",
+  "archive": {
+    "sha256": "88442bb107733f03ca9b58e3973eca37386ef9c1145faab0855eb152bf5ebd04",
+    "members": {
+      "app-inputs.sha256": "1a13f9f7c5ce95487daddacd01f638b51ec3836bc89a952ad4c04778f998f355",
+      "gate-environment.txt": "3765a92f7942c2a5ab1cece15b5547b14ed56c7bf7232226c026f0ced071c7f3",
+      "git-status-before.txt": "f31bf577f2fe3891bcbaf1c8bc3a70563463020c352770edf5228958ffd0e156",
+      "maven.exit": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+      "maven.log": "96ef481d3ddddb9761186e0028b4bdedc33763945463487e9f1f6a67c91af0ed",
+      "reports/compose-polling-burnable-write-postgres/TEST-com.kartaguez.pocoma.supra.polling.consumption.ConsumptionWorkerTest.xml": "66b23b7e2e5c16af067b81a69a675ac89305e14f36f5200e2159d4f4e46d5ef2",
+      "reports/compose-polling-nonburnable-materialize-postgres/TEST-com.kartaguez.pocoma.compose.polling.materialize.maintenance.ReadinessOracleTest.xml": "be8c82101758b69f1271f74e3dbd4bb6fadeb73d05498ca84fc4d0999680321c",
+      "reports/compose-web-write-postgres/TEST-com.kartaguez.pocoma.compose.web.write.AdmissionHttpConfigurationTest.xml": "b4aefadb909ac8069698623301080acf4121a00086e09700881f0a9d56ae69c2",
+      "reports/compose-web-write-postgres/TEST-com.kartaguez.pocoma.engine.admit.command.AdmissionCanonicalizationTest.xml": "8f5b950586bb7183934f1fd36da8227bda1388846340ed50256dbddbbecc8704",
+      "reports/compose-web-write-postgres/TEST-com.kartaguez.pocoma.engine.admit.command.AdmissionInputTest.xml": "ad74d2cb18d6bafa74266ae7bdf61f835ba8a3f8907d0daff98febc2fde48ef1",
+      "reports/compose-web-write-postgres/TEST-com.kartaguez.pocoma.supra.web.write.AdmissionTransportTest.xml": "8975ee883195ddd6bed32b217e493d17f446acc4ed0ea719de6bd10836134bb4",
+      "reports/compose-web-write-postgres/TEST-com.kartaguez.pocoma.supra.web.write.D4AdmissionCalibrationTest.xml": "d890ed85cdcb0c2457c4e551eb0825b4c99d04871e97ae10645ad64d5f9b0d86",
+      "reports/domain-consumption/TEST-com.kartaguez.pocoma.domain.consumption.RoutingV1Test.xml": "6f0e5e18e500af004072a86d54e66846d33c6b7f62493bb4f74ebe46217fb1e7",
+      "reports/domain-identity/TEST-com.kartaguez.pocoma.domain.identity.IdentityTransitionsTest.xml": "680858dbef2d0158a44023d4a867a4ef1a9ed7513b9b7eddc37d25666188ebe2",
+      "reports/domain-identity/TEST-com.kartaguez.pocoma.domain.identity.IdentityValueContractsTest.xml": "2da24486152da3b98d932dab4b1d1788b2ffa704499f7503b5c7d24901887453",
+      "reports/domain-pot/TEST-com.kartaguez.pocoma.domain.pot.InvitationAttachmentTest.xml": "814cb0878d00af55c5984629a977824ee3a4b3240477e667db98b79e5a7799fe",
+      "reports/domain-pot/TEST-com.kartaguez.pocoma.domain.pot.PotAuthorizationTest.xml": "2732ba7eec808b435a7aad792cb13ee2e43d970f35664c6cda90c1d9f4c4b1cc",
+      "reports/domain-pot/TEST-com.kartaguez.pocoma.domain.pot.PotBalanceCalculatorTest.xml": "3ddd1688dc616e8d5a50e1b1a57d30ea9c3bc386a6d5e0f15ae5311785cda2dc",
+      "reports/domain-pot/TEST-com.kartaguez.pocoma.domain.pot.PotTransitionsTest.xml": "31947ea62cc4d3a8be9ff838c8c7901de917bba511547367f12f6bc6568ef126",
+      "reports/domain-pot/TEST-com.kartaguez.pocoma.domain.pot.PotVisibilityRulesTest.xml": "7caeb2f6d0dfa902c21f0c61ab266cca9480c78be71f32cf3b7e8970d39797fa",
+      "reports/domain-pot/TEST-com.kartaguez.pocoma.domain.pot.value.LabelTest.xml": "1a7b88b218591fdd6a05fb7f03fd00abda02a184f207b87133abbea90e2f24bc",
+      "reports/domain-pot/TEST-com.kartaguez.pocoma.domain.pot.value.NameTest.xml": "28758c701f23050e85a1f236a190c6918ad1e20d92f6c78e9bbace5cd12b1d3b",
+      "reports/domain-pot/TEST-com.kartaguez.pocoma.domain.pot.value.UserIdTest.xml": "2afd98ad42f83f71581eae2d189b711c1ba5ec814b32aa9b6fc5a301b62d2a9d",
+      "reports/domain-pot/TEST-com.kartaguez.pocoma.domain.pot.value.id.EntityIdTest.xml": "cec88d3f8f94b211a7dcc9519179172127a347f08b9ebc45e2513de3bc336149",
+      "reports/domain-pot/TEST-com.kartaguez.pocoma.domain.pot.value.id.ExpenseIdTest.xml": "e9bacf3c66c66ad09b7d7d2d207c9564f2db0a1417abbe7d7240442c549ebad1",
+      "reports/domain-pot/TEST-com.kartaguez.pocoma.domain.pot.value.id.PotIdTest.xml": "34bc012a9b26106b1e0f55df804737eafe8fbe6732de7d52f0171d154f7dc647",
+      "reports/domain-pot/TEST-com.kartaguez.pocoma.domain.pot.value.id.ShareholderIdTest.xml": "df7ff6b34cb03ebce476eb7dd4671dcfb28b1c0231dce917162c194ce014f2a0",
+      "reports/domain-projection/TEST-com.kartaguez.pocoma.domain.projection.PotBalanceAggregateEquivalenceTest.xml": "de55958b9fdadb3ad6ae68b1a932244f559205872f6d6bf18fb8cdb0004bcb9a",
+      "reports/domain-projection/TEST-com.kartaguez.pocoma.domain.projection.PotVersionContractTest.xml": "30ab35b9d1dfc14fe720ae9d360372abe1d4024d5f865cd2d7cea56fd66e3ab2",
+      "reports/domain-projection/TEST-com.kartaguez.pocoma.domain.projection.SubobjectVersionTest.xml": "9bfec785a1d1ec6fab37fd3f9dc1682f2843b591c8f65c36c5552d4ecd88fd87",
+      "reports/domain-projection/TEST-com.kartaguez.pocoma.domain.projection.balance.PotBalanceAggregateBinaryCodecTest.xml": "6fa1b343514038dbc6f53719f7d9dd08833f8f46a98a1ce9bf515bdf079c0ea1",
+      "reports/domain-projection/TEST-com.kartaguez.pocoma.domain.projection.balance.PotBalanceBinaryCodecTest.xml": "fe4927d0aa3aacbfe9b70cc226565bc0b91ad263e1b45fc47f232e1497c04ac9",
+      "reports/domain-projection/TEST-com.kartaguez.pocoma.domain.projection.balance.PotShareholderSetBinaryCodecTest.xml": "d332d3a8ca28369dada0799c5edd01d5c4eca470bf95cf582cf7e4d0347d8fb3",
+      "reports/domain-projection/TEST-com.kartaguez.pocoma.domain.projection.radix.Radix16CodecTest.xml": "2acc041604a0f875e15dbe42b407b66121bd4524437b37166dbc97b9b2d33681",
+      "reports/domain-projection/TEST-com.kartaguez.pocoma.domain.projection.radix.Radix16TreeTest.xml": "72f9b0bf481e43a78545b0e9df02f6a059ba51a02ba8112ce310c795f7a93c27",
+      "reports/engine-admit-identity/TEST-com.kartaguez.pocoma.engine.admit.identity.IdentityAdmissionInputTest.xml": "f9ae6407d7e9f1eff30a23c30d646629f57de0871021e8435637bd0d3e060a0c",
+      "reports/engine-materialize-pot/TEST-com.kartaguez.pocoma.engine.materialize.pot.MaterializePotBalanceIncrementalTest.xml": "a788e223f421a788663dd28ea71f0c11b61d37089b4160a242440a312dafb3b5",
+      "reports/engine-materialize-pot/TEST-com.kartaguez.pocoma.engine.materialize.pot.MaterializePotVersionIncrementalTest.xml": "0fcfe32fc3e91998f900a392ffb637d1c072379ce4ce2a5e9ee622868f8d45ed",
+      "reports/engine-materialize-pot/TEST-com.kartaguez.pocoma.engine.materialize.pot.MaterializePotVersionTest.xml": "dc9be0c97e66d3fd7296c0038761b3f92d672433bb602247eff93b86b5bd0a91",
+      "reports/engine-materialize-results/TEST-com.kartaguez.pocoma.engine.materialize.results.CommandResultContractTest.xml": "1bf56605372ca7abfbb61c449d5c1166a796acd98ddb6170f034ea6ecf2253fd",
+      "reports/engine-materialize-results/TEST-com.kartaguez.pocoma.engine.materialize.results.IdentityRequestResultContractTest.xml": "1ba9623f7b1ecebbb1455d7fc898fd8938627970b6071f3383368003ed8f8c43",
+      "reports/engine-read-execution/TEST-com.kartaguez.pocoma.engine.read.execution.ReadExecutionTest.xml": "5edc89b26287320b6c50e99b890c85a2d62c19cf736ebe3d698b3b1871f79362",
+      "reports/engine-read-identity/TEST-com.kartaguez.pocoma.engine.read.identity.CurrentBindingContractTest.xml": "552db62da92e2e82aaf30c4668ea67e2d3601d32d9f5ad1c1cba4336d6fdab0a",
+      "reports/engine-write-identity/TEST-com.kartaguez.pocoma.engine.write.identity.ExecuteIdentityRequestTest.xml": "817185c7732aeb631beff6089332e45b9831cd4454fe40797af188695e694bd7",
+      "reports/engine-write-identity/TEST-com.kartaguez.pocoma.engine.write.identity.IdentityRequestContractTest.xml": "46500af757a0d80effbd53c3a982c4c502b408556abf51b55016c00ec20d7496",
+      "reports/engine-write-pot/TEST-com.kartaguez.pocoma.engine.write.pot.ExecutePotCommandTest.xml": "bd6cc9e3859cf680d3f9f4cdd3c7e177cd8f8e52630c06a2b6c3e8a60cb06549",
+      "reports/engine-write-pot/TEST-com.kartaguez.pocoma.engine.write.pot.PotCommandIntentTest.xml": "5a17391ccc054c15356cd652682fc8f04ec80ff34476542575bc1e6a55225c88",
+      "reports/infra-observability-micrometer/TEST-com.kartaguez.pocoma.infra.observability.micrometer.StageHandoffTrackerTest.xml": "c7cfecd1427c6112f50fa8492f4d5c7330064690c770f174ed9eb8f49329834c",
+      "reports/infra-postgres-core/TEST-com.kartaguez.pocoma.infra.postgres.core.bootstrap.WriteSourceReadPrivilegesPostgresTest.xml": "97d4b40816bd977bf53c4f46b6b22ddbea156507b055d4c2893a4216ff598312",
+      "reports/infra-postgres-core/TEST-com.kartaguez.pocoma.infra.postgres.core.consumption.BatchLeaseRenewalPostgresTest.xml": "4d00683ceb645502fb31ac89f04793a6b6d648be2c4b27d4c558da6aff1592a9",
+      "reports/infra-postgres-core/TEST-com.kartaguez.pocoma.infra.postgres.core.history.OpenComponentExplainPostgresTest.xml": "1af1fb639150ccece260c5eb6ad9495cdf6170839903b1267fe63aa117c8737a",
+      "reports/infra-postgres-read/TEST-com.kartaguez.pocoma.infra.postgres.read.CurrentBindingReadStorePostgresTest.xml": "a59de732e2f3a6cec3d2df82d8bbfb7675ef12f475589fc60c684e66d59714c3",
+      "reports/infra-postgres-read/TEST-com.kartaguez.pocoma.infra.postgres.read.PotBalanceReadStorePostgresTest.xml": "7093ca693eca08987c95db73c694d74e1ecf336d1adc5abbc84cc9b952311f81",
+      "reports/infra-postgres-read/TEST-com.kartaguez.pocoma.infra.postgres.read.PotBalanceSharedSchemaPostgresTest.xml": "5c6e20f35328da3db884ede43a28c2327eafb0b82a9be05da0ac9e786390451b",
+      "reports/infra-postgres-read/TEST-com.kartaguez.pocoma.infra.postgres.read.PotVersionRadixSchemaPostgresTest.xml": "7992ec641af056c465fbc8859984daaec6c72f8dd9cf9938a62c1f51d7299916",
+      "reports/infra-postgres-read/TEST-com.kartaguez.pocoma.infra.postgres.read.PotVersionReadStorePostgresTest.xml": "70e20d10f18e045f5eabf6bc964077eacba40f7e0477f6b64c141ab1366e6674",
+      "reports/infra-postgres-read/TEST-com.kartaguez.pocoma.infra.postgres.read.PotVersionTargetedReadPostgresTest.xml": "213c96fd98585a21da470fc4ba5f0f9c2f6491bad5638f287aa6ce37775ec018",
+      "reports/infra-postgres-read/TEST-com.kartaguez.pocoma.infra.postgres.read.PotVisibilityReadStorePostgresTest.xml": "9a2f10c8821ef7909274e09d682a6107193b9797865592332b19e5752ee67bdb",
+      "reports/infra-postgres-read/TEST-com.kartaguez.pocoma.infra.postgres.read.SubobjectJsonTest.xml": "469e53ebbc6c08994d837d97e7f4a1767530f6f5f0b1fba02d5aeed002768e95",
+      "reports/infra-postgres-read/TEST-com.kartaguez.pocoma.infra.postgres.read.TerminalResultsReadStorePostgresTest.xml": "c6b2e5a22d8914b469c2f832b38061ff8a320be974c829283c1032bc1149740c",
+      "reports/infra-postgres-read/TEST-com.kartaguez.pocoma.infra.postgres.read.consumption.ReadConsumptionFoundationPostgresTest.xml": "f3f7f01bd46cdee239a3ba28857deae0acac5dc1b1a2ee80f35505be8788534c",
+      "reports/infra-postgres-read/TEST-com.kartaguez.pocoma.infra.postgres.read.consumption.ReadConsumptionLifecyclePrivilegesPostgresTest.xml": "30a52107b1d23b155f1290685d9c345eae5c7e702a6fc8f1ef8788079b9000e4",
+      "reports/infra-postgres-read/TEST-com.kartaguez.pocoma.infra.postgres.read.consumption.ReadDiscoveryPrivilegesPostgresTest.xml": "462e3600a6d82c05aebfcd0d3ff9e9fe556336d6c5f58b5e4a020179d9802901",
+      "reports/infra-postgres-write/TEST-com.kartaguez.pocoma.infra.postgres.write.AdmissionPostgresTest.xml": "bf0dca76a7d864aa184d4ad064670aa94c01daca37c13ee2aa1b3981e2b45eff",
+      "reports/infra-postgres-write/TEST-com.kartaguez.pocoma.infra.postgres.write.CommandExecutionPostgresTest.xml": "6b4515f2fd7e281855573e3aa8a058e8833b00f2e8496af5b8e37199ceebdf74",
+      "reports/infra-postgres-write/TEST-com.kartaguez.pocoma.infra.postgres.write.ConsumptionLifecyclePostgresTest.xml": "70d8cd2cb1d249d9c3eaa0f082af8329a0117a86eb9eabe710036dd9afe6406a",
+      "reports/infra-postgres-write/TEST-com.kartaguez.pocoma.infra.postgres.write.DiscoveryPostgresTest.xml": "d736558e9f9576d3627f544c945e4f3979a9e9847f734ce734910512bd80089d",
+      "reports/infra-postgres-write/TEST-com.kartaguez.pocoma.infra.postgres.write.L1IntegrationPostgresTest.xml": "26d9679eb1ea67f00bd0768a457d8369110ce6ca6953e1c1fa5d4a31c6b000fe",
+      "reports/infra-postgres-write/TEST-com.kartaguez.pocoma.infra.postgres.write.L2ManifestProof.xml": "2c48fba0242aa22f761021bdb66d5d309f98b0fdb728c7b2ae105f32637272e1",
+      "reports/infra-postgres-write/TEST-com.kartaguez.pocoma.infra.postgres.write.L73TerminationWritePostgresTest.xml": "d78dc34059d085d5ef35c25bf18cd082404390a88af86f7fa1a39ed87692f5fe",
+      "reports/infra-postgres-write/TEST-com.kartaguez.pocoma.infra.postgres.write.PotBalanceSourcePostgresTest.xml": "f4e8d135054c7c01654feebace3b550a5a4ad614e39413851f3231c4b4858532",
+      "reports/infra-postgres-write/TEST-com.kartaguez.pocoma.infra.postgres.write.PotCommandJsonTest.xml": "bb2339e0a5cf26bdfd41dbbe35006bf094a03063d83e85c8a985e7996e52b67f",
+      "reports/infra-postgres-write/TEST-com.kartaguez.pocoma.infra.postgres.write.PotFinancePostgresTest.xml": "463fed68c17bf420866f28ef23a2d591219ee5f827b681c42dd2ea4d3ea0f132",
+      "reports/infra-postgres-write/TEST-com.kartaguez.pocoma.infra.postgres.write.PotHistoryCardinalityPostgresTest.xml": "aab0aa7e00f87245518136ec67715472ff0a7c7e13f572efc3d7f7bd5200206b",
+      "reports/infra-postgres-write/TEST-com.kartaguez.pocoma.infra.postgres.write.PotHistoryPostgresTest.xml": "39af4832ec06ee330eb9faeb05a9319990da8202d2fa2f1e7178071ac9ff001f",
+      "reports/infra-postgres-write/TEST-com.kartaguez.pocoma.infra.postgres.write.PotVersionSourcePostgresTest.xml": "2ee72c51431ecf82180025a8de2f889ad496e4eaf40afc4cfe340070306a97e0",
+      "reports/infra-postgres-write/TEST-com.kartaguez.pocoma.infra.postgres.write.PotVisibilitySourcePostgresTest.xml": "28967e2095b6c08a586d7c4aa0710232bc939a0d947c63fc8e234654eada5776",
+      "reports/infra-postgres-write/TEST-com.kartaguez.pocoma.infra.postgres.write.QuarantineDiscoveryFilterPostgresTest.xml": "71e0ec92f9be1eefe8dd4b191106928f86174aef74a82c83f7104338a535a317",
+      "reports/infra-postgres-write/TEST-com.kartaguez.pocoma.infra.postgres.write.SlotNavigationPostgresTest.xml": "63ff15de779b3d3f59d87fa1c27d63a5fc148681bea3dc7e70b18ce06ee2ec6c",
+      "reports/infra-postgres-write/TEST-com.kartaguez.pocoma.infra.postgres.write.WriteRevisionPerformancePostgresTest.xml": "d672eccc08b26f011646325bb5ea41712709a3bda34b0177dde945cf3646837f",
+      "reports/infra-postgres-write/TEST-com.kartaguez.pocoma.infra.postgres.write.WriteRevisionPostgresTest.xml": "91a09dd87607ad46fa9211057a3d3e3258fa59c3efc360e4be2e4293f1039813",
+      "reports/infra-postgres-write/TEST-com.kartaguez.pocoma.infra.postgres.write.consumption.ConsumptionFoundationPostgresTest.xml": "027a59dacdd9b7acb2c8373e624d3d146716cb79097f7a5107436099312a7d06",
+      "reports/infra-postgres-write/TEST-com.kartaguez.pocoma.infra.postgres.write.identity.BindingTokenGeneratorTest.xml": "2cd70806699e59883e2d88f11c76bdbc8b868751982269f05fdca27a515cd787",
+      "reports/infra-postgres-write/TEST-com.kartaguez.pocoma.infra.postgres.write.identity.CurrentBindingSourcePostgresTest.xml": "9047406467d2de6c58ed2c0011a7386a83abd4c0dc89db987f2c2393ed0de44b",
+      "reports/infra-postgres-write/TEST-com.kartaguez.pocoma.infra.postgres.write.identity.IdentityAuthorityPostgresTest.xml": "c423dd276ce6198561c3a4e21943fdb1a9e16e1810db0b8066d0d030dfbc8ac3",
+      "reports/infra-postgres-write/TEST-com.kartaguez.pocoma.infra.postgres.write.identity.IdentityConcurrencyPostgresTest.xml": "6bda90eb56cefe5687f83f73cf576b7dd4b520883edcde40717baceb1c1fe573",
+      "reports/infra-postgres-write/TEST-com.kartaguez.pocoma.infra.postgres.write.identity.IdentityDiscoveryPostgresTest.xml": "267eb7beea0497def46fab585a56387fabdc6e6bff0fab5cc2998c32bf3d4118",
+      "reports/infra-postgres-write/TEST-com.kartaguez.pocoma.infra.postgres.write.identity.IdentityPotAuthorityPostgresTest.xml": "37fdffaf5ad4f43719ffe11896bb1042af48889e32003361abf4389e0981f427",
+      "reports/infra-postgres-write/TEST-com.kartaguez.pocoma.infra.postgres.write.identity.IdentityPrivilegesPostgresTest.xml": "187670d2eab7a76d2337c83b0751efd2b844aae9bfb5ef509edccb9ee6df7a79",
+      "reports/infra-postgres-write/TEST-com.kartaguez.pocoma.infra.postgres.write.identity.IdentityPublicationPostgresTest.xml": "2d5f62d41f450dfc684b58341a521fb1cede65fa2de5a9e832f342d4a061f0df",
+      "reports/infra-postgres-write/TEST-com.kartaguez.pocoma.infra.postgres.write.identity.IdentityRequestExecutionPostgresTest.xml": "b3cc3a6d3145eeb117e3365d1cb8452629cac0ea65b0e48a647f27e4c3cfc5b2",
+      "reports/infra-postgres-write/TEST-com.kartaguez.pocoma.infra.postgres.write.identity.IdentitySchemaPostgresTest.xml": "82781de73a408285117db55891a3d5277421ba187094810204fc9eb15957091f",
+      "reports/infra-postgres-write/TEST-com.kartaguez.pocoma.infra.postgres.write.identity.L73TerminationIdentityPostgresTest.xml": "912cb4a1f19ee109782657d4c370a34d24327b1105db61a570489b44004842b9",
+      "reports/infra-postgres-write/TEST-com.kartaguez.pocoma.infra.postgres.write.identity.TerminalResultSourcesPostgresTest.xml": "2bd9e3fe5d9c4ee264566356cd2ef66ef44e57f2a215ba60b83d7cc408410d44",
+      "reports/infra-postgres-write/TEST-com.kartaguez.pocoma.infra.postgres.write.migration.CanonicalBusinessEventTypesMigrationPostgresTest.xml": "04bb298d8b5ecab930f069a899a1629f2cb785211de9915f95ed2027bfc878c8",
+      "reports/infra-postgres-write/TEST-com.kartaguez.pocoma.infra.postgres.write.migration.CommandResultBackfillMigrationPostgresTest.xml": "1c7d3019238fa531848a50e9733fb813841cf6e770b621df3c2a88a3de98a349",
+      "reports/infra-postgres-write/TEST-com.kartaguez.pocoma.infra.postgres.write.migration.ExternalIdentityBindingCanonicalMigrationPostgresTest.xml": "4c649a0d54f4aebeb03ba9635b7e7470fd2924e4f8641d026fbd10e686260499",
+      "reports/infra-postgres-write/TEST-com.kartaguez.pocoma.infra.postgres.write.migration.ExternalIdentityBindingLifecycleMigrationPostgresTest.xml": "5856a123ab0c544bfac423681c351bf4924980222923d5822d0f885ee77882e5",
+      "reports/infra-postgres-write/TEST-com.kartaguez.pocoma.infra.postgres.write.migration.PrimaryMigrationsPostgresTest.xml": "50a3d5fd17ce411ac1d1e7326af952b7c250574b9c0edc592e5960a52d8e44b6",
+      "reports/infra-postgres-write/TEST-com.kartaguez.pocoma.infra.postgres.write.migration.RecordedCommandContractionMigrationPostgresTest.xml": "40b29b2db10c28a118c76391ca01e5e21856e21693711927ea34e7eb7e070a2f",
+      "reports/infra-tx-spring/TEST-com.kartaguez.pocoma.infra.tx.spring.AttemptTransactionsPostgresTest.xml": "ecf3003d999b96db65869b7b0b76bf78964a3f09cf87a5a0313716807f9a051f",
+      "reports/infra-tx-spring/TEST-com.kartaguez.pocoma.infra.tx.spring.FoundationCompositionTest.xml": "b7c80ba5c6afe48e8faf432ca2eee9ee216c291afd8ff67fc5747949d0a4cea1",
+      "reports/infra-tx-spring/TEST-com.kartaguez.pocoma.infra.tx.spring.HistoricalIntervalPostgresTest.xml": "6d9d7e053093a70ac0b7476e98fda4bf098811686bfc053d49f7eef0613d8fa7",
+      "reports/infra-tx-spring/TEST-com.kartaguez.pocoma.infra.tx.spring.SchemaIsolationPostgresTest.xml": "46feee569c5b7c9b4248b90d1d84e440f4cf5c7ef745d92c78e82955af1b5be1",
+      "reports/infra-tx-spring/TEST-com.kartaguez.pocoma.infra.tx.spring.TransactionFoundationPostgresTest.xml": "0d16d31a6e5aa009000dd7d14567fc7b21dfb05d3432b89bea8dc23d0d53f49f",
+      "reports/orchestrator-consumption/TEST-com.kartaguez.pocoma.orchestrator.consumption.ConsumptionFailureClassificationTest.xml": "508b7723e6e15a0dd55859a972f38f437329389784fb54e7a1d9b2f688f45f75",
+      "reports/orchestrator-consumption/TEST-com.kartaguez.pocoma.orchestrator.consumption.ConsumptionInvocationContractTest.xml": "cf47c8509aad8a18da534d2448e61a5bb00282b0c48ef6cf2f91e4f3443b2ab3",
+      "reports/orchestrator-consumption/TEST-com.kartaguez.pocoma.orchestrator.consumption.DiscoveryEngineTest.xml": "9504d428d8d01a8a368d935d0d5db0741e064920e9bec8c67f5397995f186a6a",
+      "reports/orchestrator-consumption/TEST-com.kartaguez.pocoma.orchestrator.consumption.PreparationReadsTest.xml": "86cf8c7ec636f7c316e24d14e7dbff8a3372c8552681d5f80a1a6ed1a4c1139d",
+      "reports/orchestrator-consumption/TEST-com.kartaguez.pocoma.orchestrator.consumption.WorkerCapacityTest.xml": "9148e1e254e6a8d726a0adbd4bb2336252ea2a68ab9362b9c92d2bdd86ced46f",
+      "reports/runtime-web-read/TEST-com.kartaguez.pocoma.AdmissionHttpTest.xml": "a628e1ec04f1d3610a6140c405a89e85fed7f119698602e984716a27c4831dfd",
+      "reports/runtime-web-read/TEST-com.kartaguez.pocoma.HttpCompositionPostgresTest.xml": "f39c76fb4cd3fa7f1fce76363d2a52c999c1904ac4b2acb27eccff08c94f13df",
+      "reports/runtime-web-read/TEST-com.kartaguez.pocoma.InvitationStandaloneWebPostgresTest.xml": "6a90dacbf12f81cba41e9659cc328da280365e26d6e09ee3ab15820426d7c5bf",
+      "reports/runtime-web-read/TEST-com.kartaguez.pocoma.LinkRetirementHttpTest.xml": "246a24ec12c5d50bf334537d2b5e82df5fb681ff010e38d588f856a079f66a74",
+      "reports/runtime-web-read/TEST-com.kartaguez.pocoma.ReadHttpContractTest.xml": "fe28313afeb285f7169f949154b0f5b32b6cd39d8cb941dd281b8600eca678f1",
+      "reports/runtime-web-read/TEST-com.kartaguez.pocoma.StageHandoffsHttpTest.xml": "cce071467bdcc864f9ec46102ba095e25856e9fe4eb9c94f16dd2c9e7bb43561",
+      "reports/runtime-worker-process/TEST-com.kartaguez.pocoma.runtime.command.ConsumptionBootstrapPostgresTest.xml": "42a619b24e761848d6b1466caa483cdcd3ca21a2af1688ab821e2eab7161cbef",
+      "reports/runtime-worker-process/TEST-com.kartaguez.pocoma.runtime.command.ConsumptionCompositeClassificationTest.xml": "22439355bc5a83468d1dccabd7aa8b6d08be392383d0a7f6f3a061568ff6a08b",
+      "reports/runtime-worker-process/TEST-com.kartaguez.pocoma.runtime.command.ConsumptionLifecycleCompositionPostgresTest.xml": "e55f37f599630615242504f0b66192499a04ab770ca5a8da4980198bad2c4290",
+      "reports/runtime-worker-process/TEST-com.kartaguez.pocoma.runtime.command.DiscoveryCompositionPostgresTest.xml": "deddc527ed3b49663f1dcd4bbd286bdd9c2107f3caa966b5afb3100ab5abb2f8",
+      "reports/runtime-worker-process/TEST-com.kartaguez.pocoma.runtime.command.I5PhysicalWindowTest.xml": "09ed9d1c9bc148e0d6423ee2d5bef49f484ad8b50e919790b76f65d01bd7d278",
+      "reports/runtime-worker-process/TEST-com.kartaguez.pocoma.runtime.command.I5TemporalBudgetTest.xml": "1d46f7b1da597a34cbdf550d87ecd9f18f5ebc947f2f2bc1fc8fc1d2802737d2",
+      "reports/runtime-worker-process/TEST-com.kartaguez.pocoma.runtime.command.I5TemporalV2Test.xml": "5e8fda18fbcaca4bce55a12dac601be20cf61dff1141bd6c90e8effe56c56c6f",
+      "reports/runtime-worker-process/TEST-com.kartaguez.pocoma.runtime.command.IdentityPotCommandPostgresTest.xml": "c37e9fb215096781968b0dd0222b06f65ca76419c7b453c84973ba2ccc677f7b",
+      "reports/runtime-worker-process/TEST-com.kartaguez.pocoma.runtime.command.IdentityRequestCompositionPostgresTest.xml": "aabe923ebaebf0973f52d9f87217ebeec8a50caa070a59a4d6510f7ce8cd6d9d",
+      "reports/runtime-worker-process/TEST-com.kartaguez.pocoma.runtime.command.PotCommandCompositionPostgresTest.xml": "880c9c07e0c8d225d64f0a789d1885d180daf45f470cb63e6ea32b2b93823271",
+      "reports/runtime-worker-process/TEST-com.kartaguez.pocoma.runtime.command.WorkerAwaitTest.xml": "6d14ce27debba1306c12a3c2853ca53a62ccc58a098831bd436e3487905336a9",
+      "reports/runtime-worker-process/TEST-com.kartaguez.pocoma.runtime.command.WorkerCompositionPostgresTest.xml": "f9be08f13ee59078488500fc471b0abcb716fc379b124cb948006a820117b54d",
+      "reports/runtime-worker-process/TEST-com.kartaguez.pocoma.runtime.command.WorkerMetricsTest.xml": "026f73bec01dfbda788b2eff445253c5cef621a3c3fb949e1b006c0cbb1df621",
+      "reports/runtime-worker-process/TEST-com.kartaguez.pocoma.runtime.command.WorkerPostgresTest.xml": "4ef2c80cb701cd32c186e5b4cbb135945666b48fb39571a00fce27bc031bef5a",
+      "reports/runtime-worker-process/TEST-com.kartaguez.pocoma.runtime.command.WorkerResourcesPostgresTest.xml": "1433b95cecde6c9425b43ba699571f51af187c4a1d93048a42e55da3d9088eb0",
+      "reports/supra-web-read/TEST-com.kartaguez.pocoma.supra.web.read.ReadTransportUnitTest.xml": "bc00f9aafaf0c49a7f25a547be2d3fd869f142f5b0e73296241a88b17929283a",
+      "reports/supra-web-read/TEST-com.kartaguez.pocoma.supra.web.read.maintenance.ReadMaintenanceBarrierTest.xml": "2aeae102d6087312f7f770a475f1ceecc15ba71d246aac28c9d90655bb0f8584",
+      "surefire-before.sha256": "0b389cf2afbc0594cd26b23392f8846719410617bad90a60f1f6df8ff0039166",
+      "toolchain.txt": "424db8cba20913e5a065874c07dc1c041ff92cc77ba4a5690ca0e27f1cab3ae2",
+      "untracked-before.sha256": "306767970313c858b70cc48f474f408fc79713887fc13b4b34945b6889f68c40"
+    }
+  },
+  "reactor_error": {
+    "module": "pocoma-runtime-worker-materialize",
+    "phase": "Surefire/JUnit discovery",
+    "cause": "NoClassDefFoundError: ReadParticipantsFixture",
+    "detail": "The pre-existing compiled pilot test refers to an unqualified fixture descriptor."
+  }
+}

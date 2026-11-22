@@ -58,24 +58,213 @@ import com.kartaguez.pocoma.port.transaction.RecoveryReadContext;
 public final class JdbcPotVersionSource implements PotVersionSource {
     private final PotHistoryRows rows;
     public JdbcPotVersionSource(DataSource source) { rows=new PotHistoryRows(source); }
+    @Override
+    public EventRef eventRef(UUID event, RecoveryReadContext context) {
+        return SpringAttemptTransactions.observed(
+                rows.dataSource,
+                context,
+                () -> {
+                    rows.requireTransaction(true);
+                    return loadPublishedEvent(event);
+                });
+    }
+
+    @Override
+    public StateDelta stateDelta(
+            UUID potId,
+            long afterVersionExclusive,
+            long targetVersionInclusive,
+            RecoveryReadContext context) {
+        return SpringAttemptTransactions.observed(
+                rows.dataSource,
+                context,
+                () -> {
+                    rows.requireTransaction(true);
+                    if (afterVersionExclusive < 1 || targetVersionInclusive <= afterVersionExclusive) {
+                        throw new IllegalArgumentException("Invalid delta version bounds");
+                    }
+                    var pot = new PotId(potId);
+                    var metadata = rows.version(pot, targetVersionInclusive);
+                    if (metadata == null) throw bad("Missing target Pot version");
+                    long latest = number(metadata, "latest");
+                    var potHeader =
+                            loadPotSingleDelta(
+                                    "pot_header",
+                                    "deleted",
+                                    potId,
+                                    afterVersionExclusive,
+                                    targetVersionInclusive,
+                                    latest,
+                                    r -> new PotHeaderChange(number(r, "local_version"), (boolean) r.get("deleted")));
+                    var potDetails =
+                            loadPotSingleDelta(
+                                    "pot_details",
+                                    "creator_id",
+                                    potId,
+                                    afterVersionExclusive,
+                                    targetVersionInclusive,
+                                    latest,
+                                    r -> new PotDetailsChange(number(r, "local_version"), uuid(r, "creator_id")));
+                    var shHeaders =
+                            loadObjectDelta(
+                                    "shareholder_header",
+                                    "deleted",
+                                    potId,
+                                    afterVersionExclusive,
+                                    targetVersionInclusive,
+                                    latest,
+                                    (id, r) ->
+                                            new ShareholderHeaderChange(
+                                                    id, number(r, "local_version"), (boolean) r.get("deleted")));
+                    var shDetails =
+                            loadObjectDelta(
+                                    "shareholder_details",
+                                    "user_id",
+                                    potId,
+                                    afterVersionExclusive,
+                                    targetVersionInclusive,
+                                    latest,
+                                    (id, r) ->
+                                            new ShareholderDetailsChange(
+                                                    id, number(r, "local_version"), uuid(r, "user_id")));
+                    var shWeights =
+                            loadObjectDelta(
+                                    "shareholder_weight",
+                                    null,
+                                    potId,
+                                    afterVersionExclusive,
+                                    targetVersionInclusive,
+                                    latest,
+                                    (id, r) -> new ShareholderWeightChange(id, number(r, "local_version")));
+                    var expHeaders =
+                            loadObjectDelta(
+                                    "expense_header",
+                                    "deleted",
+                                    potId,
+                                    afterVersionExclusive,
+                                    targetVersionInclusive,
+                                    latest,
+                                    (id, r) ->
+                                            new ExpenseHeaderChange(
+                                                    id, number(r, "local_version"), (boolean) r.get("deleted")));
+                    var expDetails =
+                            loadObjectDelta(
+                                    "expense_details",
+                                    null,
+                                    potId,
+                                    afterVersionExclusive,
+                                    targetVersionInclusive,
+                                    latest,
+                                    (id, r) -> new ExpenseDetailsChange(id, number(r, "local_version")));
+                    var expFinancials =
+                            loadObjectDelta(
+                                    "expense_financials",
+                                    null,
+                                    potId,
+                                    afterVersionExclusive,
+                                    targetVersionInclusive,
+                                    latest,
+                                    (id, r) -> new ExpenseFinancialsChange(id, number(r, "local_version")));
+                    return new StateDelta(
+                            potHeader,
+                            potDetails,
+                            shHeaders,
+                            shDetails,
+                            shWeights,
+                            expHeaders,
+                            expDetails,
+                            expFinancials);
+                });
+    }
+
+    private EventRef loadPublishedEvent(UUID event) {
+        var eventRows =
+                rows.jdbc.queryForList(
+                        "select e.pot_id,e.subject_version from v3_pot_event e join"
+                            + " v3_event_position p on p.event_id=e.event_id and"
+                            + " p.family='POT' join v3_event_counter c on"
+                            + " c.family=p.family and c.position>=p.position where"
+                            + " e.event_id=? and e.subject_type='POT'",
+                        event);
+        if (eventRows.size() != 1) throw bad("Missing exact published Pot event");
+        var e = eventRows.getFirst();
+        return new EventRef(uuid(e, "pot_id"), number(e, "subject_version"));
+    }
+
+    private <T> Optional<T> loadPotSingleDelta(
+            String table,
+            String extraColumn,
+            UUID potId,
+            long afterExclusive,
+            long targetInclusive,
+            long latest,
+            java.util.function.Function<Map<String, Object>, T> mapper) {
+        var entries =
+                loadObjectDelta(
+                        table,
+                        extraColumn,
+                        potId,
+                        afterExclusive,
+                        targetInclusive,
+                        latest,
+                        (id, r) -> {
+                            if (!potId.equals(id)) throw bad("Foreign Pot revision in " + table);
+                            return mapper.apply(r);
+                        });
+        return Optional.ofNullable(entries.get(potId));
+    }
+
+    private <T> Map<UUID, T> loadObjectDelta(
+            String table,
+            String extraColumn,
+            UUID potId,
+            long afterExclusive,
+            long targetInclusive,
+            long latest,
+            java.util.function.BiFunction<UUID, Map<String, Object>, T> mapper) {
+        String cols =
+                extraColumn == null
+                        ? "object_id,local_version,active_from,active_to"
+                        : "object_id,local_version,active_from,active_to," + extraColumn;
+        var found =
+                rows.jdbc.queryForList(
+                        "select "
+                                + cols
+                                + " from v3_"
+                                + table
+                                + " where pot_id=? and active_from>? and active_from<=?"
+                                + " and (active_to is null or active_to>?)",
+                        potId,
+                        afterExclusive,
+                        targetInclusive,
+                        targetInclusive);
+        if (found.isEmpty()) return Map.of();
+        var result = new HashMap<UUID, T>(found.size() * 2);
+        for (var row : found) {
+            long from = number(row, "active_from");
+            Long to = (Long) row.get("active_to");
+            if (from <= afterExclusive
+                    || from > targetInclusive
+                    || (to != null && (to <= targetInclusive || to > latest))) {
+                throw bad("Invalid applicable delta revision in " + table);
+            }
+            UUID id = uuid(row, "object_id");
+            if (result.put(id, mapper.apply(id, row)) != null) {
+                throw bad("Multiple applicable delta revisions in " + table);
+            }
+        }
+        return result;
+    }
+
     public PotVersion composition(UUID event, RecoveryReadContext context) {
         return SpringAttemptTransactions.observed(
                 rows.dataSource,
                 context,
                 () -> {
                     rows.requireTransaction(true);
-                    var eventRows =
-                            rows.jdbc.queryForList(
-                                    "select e.pot_id,e.subject_version from v3_pot_event e join"
-                                        + " v3_event_position p on p.event_id=e.event_id and"
-                                        + " p.family='POT' join v3_event_counter c on"
-                                        + " c.family=p.family and c.position>=p.position where"
-                                        + " e.event_id=? and e.subject_type='POT'",
-                                    event);
-                    if (eventRows.size() != 1) throw bad("Missing exact published Pot event");
-                    var e = eventRows.getFirst();
-                    var pot = new PotId(uuid(e, "pot_id"));
-                    long v = number(e, "subject_version");
+                    var ref = loadPublishedEvent(event);
+                    var pot = new PotId(ref.potId());
+                    long v = ref.version();
                     var metadata = rows.version(pot, v);
                     if (metadata == null) throw bad("Missing event version");
                     long latest = number(metadata, "latest");
