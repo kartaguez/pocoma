@@ -63,7 +63,11 @@ During a prolonged PostgreSQL outage, the three workers (`command-worker`, `resu
 
 ## 4. Recovering After an Ungraceful Stop (Docker crash / kill) or Core NATS Outage
 
-- **Core NATS outage (no data loss, automatic fallback)**: Core NATS carries zero durable state (`jetstream: false`). Stopping or restarting `nats` never modifies PostgreSQL state, never aborts a commit, and never fails HTTP `202 Accepted` admissions. Workers switch automatically from `CONNECTED` (`reconcile-poll=2000 ms`) to `DEGRADED` (`fallback-max-poll=20 ms`) within `≤ 4 s`, continue processing via PostgreSQL polling, and trigger an immediate full reconciliation (`onExternalReconnect`) upon broker recovery.
+- **Core NATS outage (automatic fallback, no restart, no data loss)**: Core NATS carries zero durable state (`jetstream: false`). Stopping or restarting `nats` never modifies PostgreSQL state, never aborts a commit, and never fails HTTP `202 Accepted` admissions. Workers switch automatically from `CONNECTED` (`reconcile-poll=2000 ms`) to `DEGRADED` (`fallback-max-poll=20 ms`) within `≤ 4 s`, continue processing via PostgreSQL polling, and trigger an immediate full reconciliation (`onExternalReconnect`) upon broker recovery once subscriptions are confirmed via `flush()`.
+- **Voluntary NATS deactivation (`NOOP`) vs durable instance reconfiguration (controlled restart, non-destructive)**:
+  - Switching an existing `pocoma-local` instance to `NOOP` (`./pocoma-local start --instance <name> --wakeup-mode noop`) or back to `NATS` (`./pocoma-local start --instance <name> --wakeup-mode nats`) is **non-destructive** and **requires a controlled restart of the 4 wakeup runtimes** (`http-write`, `command-worker`, `critical-read-worker`, `pot-read-worker`) — it is not a hot no-restart toggle.
+  - PostgreSQL data, Keycloak, `http-read`, Prometheus, Grafana, ports, and `secrets.json` are strictly preserved and never recreated.
+  - The new mode is persisted durably in `manifest.json`: subsequent `./pocoma-local start --instance <name>` calls without `--wakeup-mode` stay in the configured mode.
 - **Ungraceful worker/PostgreSQL stop**:
   - The nominal SQL TTL for partition leases is **`30 s`** (`lease-duration-ms=30000`), with batched renewal (`renewBatch`) every **`10 s`**.
   - Full recovery combines lease expiration (`30 s`), worker polling cycles (`min-poll=2 ms`, `max-poll=20 ms`), any `claim-duration-ms=60000` if a slot was claimed, and projection convergence.

@@ -294,9 +294,49 @@ def wakeup_diagnostics(rt, path, m):
     )
 
 
-def start_distribution(rt, path, m, evidence, *, force_recreate_runtimes=None):
+def _reconfigure_wakeup_mode(rt, path, m, evidence, wakeup_mode, force_recreate_runtimes):
+    """Non-destructively switch an existing instance between nats and noop wakeup modes.
+
+    Preserves PostgreSQL data, Keycloak state, secrets, ports, and deployment identity.
+    Only stops/removes NATS (when switching to noop) or starts NATS (when switching to nats)
+    and force-recreates the affected WAKEUP_RUNTIMES.
+    """
+    previous_mode = m.get('wakeupMode', 'nats')
+    target_mode = wakeup_mode if wakeup_mode is not None else previous_mode
+    if target_mode == previous_mode:
+        return False, previous_mode, force_recreate_runtimes
+    if previous_mode == 'nats' and target_mode == 'noop':
+        if (path / 'compose.json').exists():
+            rt.compose(path, m, 'rm', '-f', '-s', 'nats', log=evidence / 'nats-remove.log')
+        nats_conf = path / 'nats.conf'
+        if nats_conf.exists():
+            nats_conf.unlink()
+    m['wakeupMode'] = target_mode
+    rt.save(path / 'manifest.json', m)
+    rt.save(
+        evidence / 'wakeup-mode-change.json',
+        dict(
+            previousMode=previous_mode,
+            targetMode=target_mode,
+            recreatedRuntimes=list(rt.WAKEUP_RUNTIMES),
+            observedAt=time.time(),
+        ),
+    )
+    if force_recreate_runtimes is True:
+        merged_recreate = True
+    elif force_recreate_runtimes:
+        merged_recreate = tuple(dict.fromkeys((*force_recreate_runtimes, *rt.WAKEUP_RUNTIMES)))
+    else:
+        merged_recreate = tuple(rt.WAKEUP_RUNTIMES)
+    return True, previous_mode, merged_recreate
+
+
+def start_distribution(rt, path, m, evidence, *, force_recreate_runtimes=None, wakeup_mode=None):
     before, credentials = _prepare_distribution_runtime(rt, path, m, evidence)
-    auth_checks, tokens = _boot_distribution_stack(rt, path, m, (evidence, credentials, force_recreate_runtimes))
+    mode_changed, previous_mode, effective_recreate = _reconfigure_wakeup_mode(
+        rt, path, m, evidence, wakeup_mode, force_recreate_runtimes
+    )
+    auth_checks, tokens = _boot_distribution_stack(rt, path, m, (evidence, credentials, effective_recreate))
     rt.recover_fail_closed_runtimes(path, m, evidence)
     checks = rt.current(path, m, wait=True)
     checks.update(auth_checks)
@@ -309,7 +349,11 @@ def start_distribution(rt, path, m, evidence, *, force_recreate_runtimes=None):
     m.update(state='RUNNING', startedAt=time.time())
     rt.save(path / 'manifest.json', m)
     result = rt.verdict(checks, True, tools, canary_result)
-    result['wakeup'] = wakeup_diagnostics(rt, path, m)
+    wakeup = wakeup_diagnostics(rt, path, m)
+    wakeup['modeChanged'] = mode_changed
+    if mode_changed:
+        wakeup['previousMode'] = previous_mode
+    result['wakeup'] = wakeup
     if grafana_diagnostics:
         result['grafanaDiagnostics'] = grafana_diagnostics
     return result

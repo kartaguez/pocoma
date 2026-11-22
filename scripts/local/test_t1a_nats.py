@@ -80,6 +80,72 @@ class T1ANatsLocalTests(unittest.TestCase):
             self.assertEqual('DEGRADED', diag['runtimes']['command-worker']['state'])
             self.assertEqual(1.0, diag['runtimes']['command-worker']['fallbackTransitions'])
 
+    def test_non_destructive_switch_nats_to_noop_and_back_preserves_identity_and_recreates_only_wakeup_runtimes(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory)
+            evidence = path / 'evidence'
+            evidence.mkdir()
+            m, creds = self._fixture(path, wakeup_mode='nats')
+            rt.save(path / 'manifest.json', m)
+            original_owner = m['owner']
+            original_project = m['project']
+            original_ports = dict(m['ports'])
+            original_nats_token = creds['passwords']['nats']
+
+            # 1. Switch NATS -> NOOP
+            compose_calls = []
+            with patch.object(rt, 'compose', side_effect=lambda *a, **kw: compose_calls.append(a[2:])):
+                changed, prev, recreate = rl._reconfigure_wakeup_mode(rt, path, m, evidence, 'noop', None)
+            self.assertTrue(changed)
+            self.assertEqual('nats', prev)
+            self.assertEqual('noop', m['wakeupMode'])
+            self.assertEqual(tuple(rt.WAKEUP_RUNTIMES), recreate)
+            self.assertIn(('rm', '-f', '-s', 'nats'), compose_calls)
+            self.assertFalse((path / 'nats.conf').exists())
+            self.assertEqual(original_owner, m['owner'])
+            self.assertEqual(original_project, m['project'])
+            self.assertEqual(original_ports, m['ports'])
+            self.assertEqual('noop', rt.read(path / 'manifest.json')['wakeupMode'])
+            # Re-render verifies 9 services without nats, postgres/keycloak unchanged
+            rt.render(path, m, creds)
+            compose_noop = rt.read(path / 'compose.json')
+            self.assertEqual(9, len(compose_noop['services']))
+            self.assertNotIn('nats', compose_noop['services'])
+
+            # 2. Restart without --wakeup-mode (wakeup_mode=None) preserves durable NOOP mode
+            changed_same, prev_same, recreate_same = rl._reconfigure_wakeup_mode(rt, path, m, evidence, None, None)
+            self.assertFalse(changed_same)
+            self.assertEqual('noop', prev_same)
+            self.assertEqual('noop', m['wakeupMode'])
+            self.assertIsNone(recreate_same)
+
+            # 3. Switch NOOP -> NATS
+            compose_calls.clear()
+            with patch.object(rt, 'compose', side_effect=lambda *a, **kw: compose_calls.append(a[2:])):
+                changed_back, prev_back, recreate_back = rl._reconfigure_wakeup_mode(rt, path, m, evidence, 'nats', None)
+            self.assertTrue(changed_back)
+            self.assertEqual('noop', prev_back)
+            self.assertEqual('nats', m['wakeupMode'])
+            self.assertEqual(tuple(rt.WAKEUP_RUNTIMES), recreate_back)
+            self.assertEqual([], compose_calls)
+            self.assertEqual('nats', rt.read(path / 'manifest.json')['wakeupMode'])
+            rt.render(path, m, creds)
+            compose_nats = rt.read(path / 'compose.json')
+            self.assertEqual(10, len(compose_nats['services']))
+            self.assertIn('nats', compose_nats['services'])
+            self.assertIn(original_nats_token, (path / 'nats.conf').read_text())
+
+    def test_cli_wakeup_mode_validation_and_default_none(self):
+        with patch.object(sys, 'argv', ['pocoma-local', 'start', '--instance', 'demo']):
+            args = rt._parse_cli_args()
+            self.assertIsNone(args.wakeup_mode)
+        with patch.object(sys, 'argv', ['pocoma-local', 'start', '--instance', 'demo', '--wakeup-mode', 'noop']):
+            args = rt._parse_cli_args()
+            self.assertEqual('noop', args.wakeup_mode)
+        with patch.object(sys, 'argv', ['pocoma-local', 'status', '--instance', 'demo', '--wakeup-mode', 'noop']):
+            with self.assertRaises(SystemExit):
+                rt._parse_cli_args()
+
 
 if __name__ == '__main__':
     unittest.main()

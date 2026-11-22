@@ -20,7 +20,7 @@ All wakeup parameters are independently configurable (defaults in `docker/v3-fiv
 
 | Property | Default | Role |
 | :--- | :---: | :--- |
-| `pocoma.v3.wakeup.mode` | `nats` (or `noop`) | `nats` enables Core NATS wakeup; `noop` disables broker usage (autonomous polling) |
+| `pocoma.v3.wakeup.mode` | `nats` (or `noop`) | `nats` enables Core NATS wakeup; `noop` disables broker usage (autonomous polling). In `pocoma-local`, the chosen mode is persisted in `manifest.json` and can be switched non-destructively via `start --instance <name> --wakeup-mode {nats,noop}` (controlled restart of the 4 wakeup runtimes, zero PostgreSQL/Keycloak recreation). |
 | `pocoma.v3.wakeup.url` | `nats://nats:4222` | Internal Core NATS broker URL |
 | `pocoma.v3.wakeup.auth-token` | *(per-instance secret)* | Technical auth token matching `nats.conf` (`authorization { token: ... }`) |
 | `pocoma.v3.wakeup.reconcile-poll-ms` | `2000` | Permanent slow reconciliation polling interval in `CONNECTED` state |

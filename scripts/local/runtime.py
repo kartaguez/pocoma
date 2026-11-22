@@ -713,7 +713,7 @@ def reload_instance(path, m, evidence, *, runtimes=None):
     return start(path, m, evidence, force_recreate_runtimes=selected_runtimes)
 
 
-def start(path, m, evidence, *, force_recreate_runtimes=None):
+def start(path, m, evidence, *, force_recreate_runtimes=None, wakeup_mode=None):
     history_file = path / 'start-history.json'
     history = read(history_file) if history_file.exists() else {}
     attempt = dict(runId=evidence.name, startedAt=time.time(), state='STARTING',
@@ -722,7 +722,11 @@ def start(path, m, evidence, *, force_recreate_runtimes=None):
     save(history_file, history)
     save(evidence / 'start-attempt.json', attempt)
     try:
-        result = start_distribution(path, m, evidence, force_recreate_runtimes=force_recreate_runtimes)
+        result = start_distribution(
+            path, m, evidence,
+            force_recreate_runtimes=force_recreate_runtimes,
+            wakeup_mode=wakeup_mode,
+        )
         attempt.update(state='SUCCEEDED' if result['exit'] == 0 else 'FAILED',
                        completedAt=time.time(), generationId=result['canaryProof']['generationId'])
         if result['exit'] == 0:
@@ -758,9 +762,11 @@ def start(path, m, evidence, *, force_recreate_runtimes=None):
         save(evidence / 'start-attempt.json', attempt)
 
 
-def start_distribution(path, m, evidence, *, force_recreate_runtimes=None):
+def start_distribution(path, m, evidence, *, force_recreate_runtimes=None, wakeup_mode=None):
     return runtime_lifecycle.start_distribution(
-        sys.modules[__name__], path, m, evidence, force_recreate_runtimes=force_recreate_runtimes
+        sys.modules[__name__], path, m, evidence,
+        force_recreate_runtimes=force_recreate_runtimes,
+        wakeup_mode=wakeup_mode,
     )
 
 
@@ -996,8 +1002,9 @@ def _parse_cli_args():
     parser.add_argument('--run', help='status only: read the late result of a timed-out run')
     parser.add_argument('--runtime', action='append', choices=sorted(RUNTIMES),
                         help='reload only: rebuild and recreate only the selected runtime(s)')
-    parser.add_argument('--wakeup-mode', choices=['nats', 'noop'], default='nats',
-                        help='start/reset only: event-driven wakeup transport (default: nats; noop disables broker)')
+    parser.add_argument('--wakeup-mode', choices=['nats', 'noop'], default=None,
+                        help='start/reset only: event-driven wakeup transport (default on new instance: nats; '
+                             'on existing instance: preserves current mode unless explicitly changed non-destructively)')
     parser.add_argument('--service', action='append',
                         help='logs only: filter container logs to specific service(s), e.g. nats, critical-read-worker')
     parser.add_argument('--tail', type=int, default=150,
@@ -1007,6 +1014,8 @@ def _parse_cli_args():
         parser.error('--run is only valid with status')
     if args.runtime and args.command != 'reload':
         parser.error('--runtime is only valid with reload')
+    if args.wakeup_mode and args.command not in ('start', 'reset'):
+        parser.error('--wakeup-mode is only valid with start or reset')
     if args.service and args.command != 'logs':
         parser.error('--service is only valid with logs')
     if args.dry_run and args.command not in ('reset', 'destroy'):
@@ -1032,7 +1041,7 @@ def _execute_reset(path, m, evidence, instance, wakeup_mode='nats'):
 
 def _dispatch_command(args, path, m, evidence, instance):
     handlers = {
-        'start': lambda: start(path, m, evidence),
+        'start': lambda: start(path, m, evidence, wakeup_mode=args.wakeup_mode),
         'reload': lambda: reload_instance(path, m, evidence, runtimes=args.runtime),
         'upgrade-grafana': lambda: upgrade_grafana(path, m, evidence),
         'status': lambda: status(path, m, evidence, args.run),
@@ -1048,7 +1057,7 @@ def _dispatch_command(args, path, m, evidence, instance):
     if args.dry_run:
         ownership(m)
         return m, dict(state='RESET_PLAN', exit=0, project=m['project'], volume=m['project'] + '-data')
-    return _execute_reset(path, m, evidence, instance, wakeup_mode=args.wakeup_mode)
+    return _execute_reset(path, m, evidence, instance, wakeup_mode=args.wakeup_mode or 'nats')
 
 
 def _handle_cli_error(error, instance, path, m, evidence):
@@ -1088,7 +1097,7 @@ def main():
             if not (path / 'manifest.json').exists():
                 if args.command != 'start':
                     raise Refusal('PRE-MANIFEST-MISSING')
-                save(path / 'manifest.json', new_manifest(path, instance, wakeup_mode=args.wakeup_mode))
+                save(path / 'manifest.json', new_manifest(path, instance, wakeup_mode=args.wakeup_mode or 'nats'))
                 private(path, create=True)
             m = load_manifest(path)
             evidence = path / 'runs' / (str(int(time.time())) + '-' + uuid4().hex[:8])
