@@ -546,8 +546,11 @@ class ReadReconstructionPostgresTest {
             var ctx = f.start();
             await(() -> {
                 Integer count = f.read.queryForObject("SELECT count(*) FROM read_current_pot", Integer.class);
+                Integer cmdResults = f.read.queryForObject("SELECT count(*) FROM read_command_result", Integer.class);
                 Integer slotCount = f.read.queryForObject("SELECT count(*) FROM consumption_slot", Integer.class);
-                return count != null && count >= 1 && slotCount != null && slotCount == 0;
+                return count != null && count >= 1
+                        && cmdResults != null && cmdResults >= 1
+                        && slotCount != null && slotCount == 0;
             }, Duration.ofSeconds(30));
             f.drain(ctx);
 
