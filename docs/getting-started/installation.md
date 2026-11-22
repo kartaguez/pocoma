@@ -34,7 +34,10 @@ To guarantee reproducible builds:
 ./pocoma-local doctor
 ```
 
-`doctor` performs a read-only check of Docker (daemon + allocated RAM), Python, JDK 21, Node ≥ 22, npm/Bruno CLI, and whether the Maven build or Docker images are already cached — without creating any instance state.
+`doctor` performs a read-only check of Docker (daemon + allocated RAM), host free disk space (`PRE-DISK`), Python, JDK 21, Node ≥ 22, npm/Bruno CLI, and whether the Maven build or Docker images are already cached — without creating any instance state.
+
+> [!NOTE]
+> **Platform scope**: `./pocoma-local` has been verified on **macOS (Apple Silicon / ARM64)** with Docker Desktop. On a fresh machine without local caches, the first `./pocoma-local start` also downloads Maven dependencies into `~/.m2`, pulls the 5 Docker base images (~1.5–2 GB), and `./pocoma-local bruno` installs Bruno CLI `4.3.0` via `npm` inside `scripts/bruno-v3/`. Local `./pocoma-local` execution on Linux and Windows (WSL2) has not been independently qualified yet.
 
 ## 2. Installation & First Startup
 
@@ -93,14 +96,14 @@ The output of `status` (and `start`) prints the instance's local endpoints:
 - **Reset data** (recreate fresh WRITE/READ databases):
 
   ```bash
-  ./pocoma-local reset --instance demo --dry-run
+  ./pocoma-local reset --instance demo --confirm RESET:demo --dry-run
   ./pocoma-local reset --instance demo --confirm RESET:demo
   ```
 
 - **Completely destroy the instance** (containers, volumes, state, and secrets):
 
   ```bash
-  ./pocoma-local destroy --instance demo --dry-run
+  ./pocoma-local destroy --instance demo --confirm DESTROY:demo --dry-run
   ./pocoma-local destroy --instance demo --confirm DESTROY:demo
   ```
 

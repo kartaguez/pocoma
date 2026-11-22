@@ -43,12 +43,12 @@ If an earlier command timed out and printed a `--run` identifier (`[0-9]{10}-[0-
 
 | Symptom / Code | Verified Cause | Resolution |
 | :--- | :--- | :--- |
-| Toolchain prerequisite failure | Docker stopped or version outside contract ([`scripts/local/toolchain.json`](../../scripts/local/toolchain.json): Python ≥ `3.11`, JDK `21`, Node `24`, npm ≥ `7`, Bruno `4.3.0`) | Start Docker; align JDK/Node/Python in the current shell |
-| Global variable detected (`PRE-*`) | Presence of `MAVEN_ARGS`, `MAVEN_OPTS`, `JAVA_TOOL_OPTIONS`, `JDK_JAVA_OPTIONS`, or `_JAVA_OPTIONS` | `unset MAVEN_ARGS MAVEN_OPTS JAVA_TOOL_OPTIONS JDK_JAVA_OPTIONS _JAVA_OPTIONS` |
-| Forbidden `.mvn` file (`PRE-*`) | Presence of `maven.config`, `jvm.config`, or `extensions.xml` under `app/.mvn/` | Remove the unauthorized local file from `app/.mvn/` |
+| Toolchain prerequisite failure | Docker stopped or version outside contract ([`scripts/local/toolchain.json`](../../scripts/local/toolchain.json): Python ≥ `3.11`, JDK `21`, Node ≥ `22` / preferred `24`, npm ≥ `7`, Bruno `4.3.0`) | Start Docker; align JDK/Node/Python in the current shell |
+| `PRE-DISK` | Insufficient free disk space on the host filesystem (checked by `doctor` and `start`) | Free disk space on the host volume (at least 2 GiB when build/images are cached, more on a cold cache) |
+| Forbidden `.mvn` file (`PRE-UNREVIEWED-MAVEN-CONFIG`) | Presence of `maven.config`, `jvm.config`, or `extensions.xml` under `app/.mvn/` | Remove the unauthorized local file from `app/.mvn/` (note: global `MAVEN_ARGS`, `MAVEN_OPTS`, `JAVA_TOOL_OPTIONS`, `JDK_JAVA_OPTIONS`, and `_JAVA_OPTIONS` shell variables are automatically stripped by `./pocoma-local` during build and probe subprocesses) |
 | `PRE-*-LOCKED` | Concurrent operation or active lock (`exit code 3`) | Wait until the lock is released before retrying |
-| `PRE-SECRETS-MISSING` | Existing instance directory missing its expected private secrets | Reset (`reset --confirm RESET:<instance>`) or destroy (`destroy`) the instance |
-| `PRE-INPUT-DRIFT` | Source code, SQL schemas, or config modified since instance creation | Use another `--instance <name>` or reset with `reset` |
+| `PRE-SECRETS-MISSING` | Existing instance directory missing its expected private secrets | Reset (`reset --confirm RESET:<instance>`) or destroy (`destroy --confirm DESTROY:<instance>`) the instance |
+| `PRE-INPUT-DRIFT` | Source code, SQL schemas, or config modified since instance creation | Use `./pocoma-local reload --instance <name>` for Java-only changes, or `reset` / a new `--instance <name>` |
 
 ## 4. Database & Drift Incidents
 
@@ -70,6 +70,6 @@ If an earlier command timed out and printed a `--run` identifier (`[0-9]{10}-[0-
 
 ## 6. Known Limits of the Local Distribution
 
-- **Nominal load envelope (`25 cmd/s`)**: with `pocoma.v3.http.admission.capacity=4`, WRITE admission sustains `50 cmd/s` without `503` rejections or data loss, but `business-read-worker` queuing degrades visible READ latency at continuous `50 cmd/s` (`p95 ~ 25.2 s`). **`25 cmd/s`** is the sustainable nominal envelope on the local distribution.
+- **Local load envelope (Apple M4 Docker, 6 CPUs)**: sustained load is locally qualified up to **`35 cmd/s`** (`p95 = 134 ms`), with a single-host throughput ceiling around **`36.83 cmd/s`** (`RES-L7LB-S6-01`). Sustained `50 cmd/s` peak and `SPEC-09` Configuration A/B require dedicated multi-node infrastructure (deferred to L8; see [L7 Final Global Qualification Dossier](../v3/L7_Final_Global_Qualification_Dossier.md)).
 - **Single-worker topology & shared PostgreSQL**: each role has a single worker container sharing the local PostgreSQL instance; multi-node high-availability failover is outside the scope of the local distribution.
 - **Logs**: secrets and tokens are redacted in logs stored under `.pocoma-local/instances/<instance>/`.

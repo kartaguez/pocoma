@@ -93,14 +93,14 @@ If a command hits a client-side timeout, inspect the final outcome using the pri
 - **Reset databases with the current schema** (all local business data is wiped):
 
   ```bash
-  ./pocoma-local reset --instance <name> --dry-run
+  ./pocoma-local reset --instance <name> --confirm RESET:<name> --dry-run
   ./pocoma-local reset --instance <name> --confirm RESET:<name>
   ```
 
 - **Completely destroy the instance** (containers, volumes, and `.pocoma-local/instances/<name>/` directory):
 
   ```bash
-  ./pocoma-local destroy --instance <name> --dry-run
+  ./pocoma-local destroy --instance <name> --confirm DESTROY:<name> --dry-run
   ./pocoma-local destroy --instance <name> --confirm DESTROY:<name>
   ```
 

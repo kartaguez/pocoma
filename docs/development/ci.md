@@ -24,16 +24,26 @@ Every commit intended to become the head of a Pocoma working branch must be vali
 GitHub CI. Changing or removing the workflow is an explicit infrastructure change; it must not be done
 as incidental cleanup.
 
-## Required branch check
+## Required branch checks
 
-The workflow creates the stable `build-and-test` check, displayed as `Pocoma CI / build-and-test` in
-the Actions UI. To make it mandatory on a protected branch in GitHub:
+The workflow produces the following job checks under `Pocoma CI`:
 
-1. open **Settings → Branches → Branch protection rules**;
+- `core-web-and-architecture`
+- `infra-postgres-write-discovery`
+- `infra-postgres-write-rest`
+- `worker-process-e2e`
+- `worker-process-rest`
+- `worker-materialize`
+- `monolith-resources`
+- `monolith-rest`
+
+To make them mandatory on a protected branch in GitHub:
+
+1. open **Settings → Branches → Branch protection rules** (or **Rules → Rulesets**);
 2. create or edit the rule covering the target branch, for example `main`;
 3. enable **Require status checks to pass before merging**;
-4. select the `build-and-test` check produced by `Pocoma CI`;
+4. select the `Pocoma CI` checks listed above;
 5. optionally enable **Require branches to be up to date before merging**;
 6. save the rule.
 
-The check becomes selectable after the workflow has run at least once with this stable name.
+Each check becomes selectable after the workflow has run at least once on the repository.

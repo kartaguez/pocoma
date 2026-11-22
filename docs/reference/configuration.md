@@ -47,9 +47,9 @@ Coordination parameters defined across `ProcessSettings`, `MaterializeSettings`,
 
 Per [`scripts/local/prerequisites.py`](../../scripts/local/prerequisites.py):
 
-- **Forbidden in environment**: `MAVEN_ARGS`, `MAVEN_OPTS`, `JAVA_TOOL_OPTIONS`, `JDK_JAVA_OPTIONS`, `_JAVA_OPTIONS`.
-- **Forbidden in `app/.mvn/`**: `maven.config`, `jvm.config`, `extensions.xml`.
-- **Checked versions (`scripts/local/toolchain.json`)**: Python ≥ `3.11`, Java `21`, Node `24`, npm ≥ `7`, Bruno CLI `4.3.0`.
+- **Automatically isolated shell variables**: `MAVEN_ARGS`, `MAVEN_OPTS`, `JAVA_TOOL_OPTIONS`, `JDK_JAVA_OPTIONS`, `_JAVA_OPTIONS` (stripped automatically from `./pocoma-local` build and probe subprocesses).
+- **Forbidden in `app/.mvn/`**: `maven.config`, `jvm.config`, `extensions.xml` (`PRE-UNREVIEWED-MAVEN-CONFIG`).
+- **Checked versions (`scripts/local/toolchain.json`)**: Python ≥ `3.11`, Java `21`, Node ≥ `22` (preferred `24`), npm ≥ `7`, Bruno CLI `4.3.0`.
 
 ## Historical Nomenclature (Retained Technical Identifiers)
 

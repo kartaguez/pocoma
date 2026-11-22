@@ -69,6 +69,17 @@ To run your first end-to-end API call: [First Steps](docs/getting-started/first-
 
 ## Documentation
 
+### Recommended 30-Minute Onboarding Path
+
+New to Pocoma? Read these six short documents in order (no historical build reports required):
+
+1. **[Architecture Overview](docs/architecture/overview.md)** — domain concepts, WRITE/READ separation, async flow, and the 9-container topology.
+2. **[Installation & Prerequisites](docs/getting-started/installation.md)** — workstation check (`./pocoma-local doctor`), startup, and cleanup.
+3. **[First Steps](docs/getting-started/first-steps.md)** — end-to-end HTTP walkthrough: OIDC login → `Registration` → `CreatePot` → command result → READ projection.
+4. **[Maven Modules (42 modules)](docs/architecture/modules.md)** — Domain / Contract / Port / Engine / Supra / Infra / Compose / Runtime boundaries and where to place code.
+5. **[JVM Runtimes & Concurrency](docs/architecture/runtimes.md)** & **[PostgreSQL Persistence](docs/architecture/persistence.md)** — the 5 runtimes, 36 partitions, SQL leases, fencing, and `pocoma_write` / `pocoma_read` isolation.
+6. **[CONTRIBUTING.md](CONTRIBUTING.md)** & **[Local Development & Bruno](docs/guides/local-development.md)** — daily inner loop, Bruno playground, and targeted Maven slice verification.
+
 | Topic | Entry Point |
 | :--- | :--- |
 | Documentation portal | [docs/README.md](docs/README.md) |
@@ -78,6 +89,11 @@ To run your first end-to-end API call: [First Steps](docs/getting-started/first-
 | Architecture (CQRS, 42 modules, runtimes, persistence, security) | [docs/architecture/overview.md](docs/architecture/overview.md) |
 | Reference (CLI, configuration, `/api/v3` API) | [docs/reference/README.md](docs/reference/README.md) |
 | Operations (troubleshooting, crash recovery) | [docs/operations/README.md](docs/operations/README.md) |
+
+## Qualification Scope & Platform Status
+
+- **Current reference status**: **`L7_LOCAL_CERTIFIED_WITH_RESERVES`** — functional, security, architectural, and PostgreSQL 17 transactional compliance are certified locally (`1 173/1 173` Maven reactor tests `PASS`, `50/50` `architecture-tests` `PASS`, Bruno E2E `118/118` `PASS`). Multi-node HA, TLS/mTLS, `SPEC-09` dedicated Config A/B infrastructure, `50 cmd/s` sustained peak, and `10k/1M`–`100k/10M` global volumes remain explicitly deferred to L8 / target production infrastructure. See [L7 Final Global Qualification Dossier](docs/v3/L7_Final_Global_Qualification_Dossier.md).
+- **Verified host platforms**: local `./pocoma-local` installation and runtime orchestration have been verified on **macOS (Apple Silicon / ARM64)** with Docker Desktop. Automated CI runs the Maven reactor and Testcontainers on **Linux (`ubuntu-24.04`)**. Local `./pocoma-local` usage on Linux and Windows (WSL2) has not been independently qualified yet.
 
 ## Contributing, Security, and License
 

@@ -2,6 +2,9 @@
 
 Welcome to the **Pocoma** product documentation. It covers how to install, understand, use, and operate Pocoma locally without prior knowledge of its build history.
 
+> [!TIP]
+> **New to Pocoma?** Follow the short onboarding path: [Architecture Overview](architecture/overview.md) → [Installation](getting-started/installation.md) → [First Steps](getting-started/first-steps.md) → [Maven Modules](architecture/modules.md) → [JVM Runtimes](architecture/runtimes.md) → [PostgreSQL Persistence](architecture/persistence.md) → [Local Development](guides/local-development.md). Historical build reports and L7 certification evidence live in [Internal Documentation](internal/README.md) and are **not** required to get started.
+
 ## Getting Started
 
 - [Getting Started Overview](getting-started/README.md)
@@ -30,7 +33,7 @@ Welcome to the **Pocoma** product documentation. It covers how to install, under
 ## Reference
 
 - [Reference Index](reference/README.md)
-- [`./pocoma-local` CLI](reference/cli.md) — full syntax, 9 subcommands, options, and exit codes.
+- [`./pocoma-local` CLI](reference/cli.md) — full syntax, 11 subcommands, options, and exit codes.
 - [Runtime Configuration](reference/configuration.md) — Spring profiles, Hikari pools, leases, polling (ms), containers, and limits.
 - [Public API `/api/v3`](reference/api.md) — WRITE/READ routes, headers, payloads, HTTP statuses, and error format.
 - [READ Availability Reference](reference/read-availability.md) — internal PostgreSQL records, family cursors and retention.
