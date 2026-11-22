@@ -25,5 +25,7 @@ tests {
     expect(res.body).to.have.property('outcome');
     expect(res.body.outcome).to.equal('COMPLETED');
     expect(res.body.resultingPotVersion).to.be.at.least(1);
+    expect(res.body.potId).to.be.a('string');
+    bru.setVar('potId', res.body.potId);
   }
 }

@@ -48,9 +48,6 @@ function initScenarioDefaults(bru, options) {
   for (const key of scenarioVars) bru.deleteVar(key);
   bru.setVar('potVersion', 0);
   bru.setVar('historyVersion', 1);
-  for (const key of ['potId', 'shareholderOwnerId', 'shareholderGuestId', 'expenseId']) {
-    bru.setVar(key, crypto.randomUUID());
-  }
 }
 
 function validatePotVersionIfNeeded(bru, options) {
@@ -187,9 +184,8 @@ function recordCommandAdmission(ctx, body) {
   bru.setVar('commandOutcome', options.outcome || 'COMPLETED');
   bru.setVar('commandRejection', options.rejection || null);
   bru.setVar('replayAdmission', { body: JSON.stringify(body), key: req.getHeader('Idempotency-Key'), role, requestId: d.requestId });
-  if (body.operation === 'CreatePot') {
-    bru.setVar('potId', body.potId);
-    if (role === 'guest') bru.setVar('historicalCommandRequestId', d.requestId);
+  if (body.operation === 'CreatePot' && role === 'guest') {
+    bru.setVar('historicalCommandRequestId', d.requestId);
   }
   if (body.operation === 'CreateInvitation' && !options.rejection) bru.setVar('invitationRequestId', d.requestId);
 }
@@ -228,6 +224,18 @@ function verifyCommandResult({ bru, check, d }) {
   if (d.outcome === 'REJECTED') {
     check(d.rejection === bru.getVar('commandRejection'), 'Raison metier attendue');
     return;
+  }
+  if (d.operation === 'CreatePot') {
+    check(isUuid(d.potId) && d.createdResources && d.createdResources.potId === d.potId, 'CreatePot : potId assigne par le serveur');
+    bru.setVar('potId', d.potId);
+  } else if (d.operation === 'AddShareholders' && d.createdResources && Array.isArray(d.createdResources.shareholders)) {
+    const shs = d.createdResources.shareholders;
+    check(shs.every((s, idx) => s.inputIndex === idx && isUuid(s.shareholderId)), 'AddShareholders : correspondance exacte inputIndex -> shareholderId');
+    if (shs.length >= 1) bru.setVar('shareholderOwnerId', shs[0].shareholderId);
+    if (shs.length >= 2) bru.setVar('shareholderGuestId', shs[1].shareholderId);
+  } else if (d.operation === 'CreateExpense') {
+    check(d.createdResources && isUuid(d.createdResources.expenseId), 'CreateExpense : expenseId assigne par le serveur');
+    bru.setVar('expenseId', d.createdResources.expenseId);
   }
   if (d.resultingPotVersion != null) {
     check(Number.isInteger(d.resultingPotVersion) && d.resultingPotVersion > 0, 'Version Pot terminale positive');

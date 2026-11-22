@@ -130,6 +130,7 @@ def initialize_v3_write():
 
     write_migrations = [
         "app/infra-postgres-write/src/main/resources/db/write/migration/V1__initial_schema.sql",
+        "app/infra-postgres-write/src/main/resources/db/write/migration/V2__server_assigned_pot_identities.sql",
     ]
     apply_migrations("pocoma_write", "v3_write", "pocoma", "pocoma_write", write_migrations)
 
@@ -195,6 +196,7 @@ def initialize_v3_read():
 
     read_migrations = [
         "app/infra-postgres-read/src/main/resources/db/read/migration/V1__initial_schema.sql",
+        "app/infra-postgres-read/src/main/resources/db/read/migration/V2__server_assigned_pot_identities.sql",
     ]
     apply_migrations("pocoma_read", "v3_read", "pocoma", "pocoma_read", read_migrations)
 

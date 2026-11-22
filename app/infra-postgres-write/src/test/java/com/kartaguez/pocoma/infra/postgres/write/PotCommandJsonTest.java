@@ -76,7 +76,7 @@ class PotCommandJsonTest {
         var id = new ShareholderId(UUID.randomUUID());
         var valid =
                 List.of(
-                        new AddShareholders(
+                        AddShareholders.legacy(
                                 List.of(
                                         new ShareholderTransitions.Creation(
                                                 id,

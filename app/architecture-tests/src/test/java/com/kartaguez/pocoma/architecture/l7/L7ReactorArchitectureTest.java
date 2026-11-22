@@ -183,12 +183,20 @@ class L7ReactorArchitectureTest {
         try(var files=Files.walk(APP.resolve("infra-postgres-write/src/main/resources"))) {
             writeMainSql=files.filter(p->p.toString().endsWith(".sql")).map(p->APP.relativize(p).toString()).sorted().toList();
         }
-        assertEquals(List.of("infra-postgres-write/src/main/resources/db/write/migration/V1__initial_schema.sql"),writeMainSql);
+        assertEquals(
+                List.of(
+                        "infra-postgres-write/src/main/resources/db/write/migration/V1__initial_schema.sql",
+                        "infra-postgres-write/src/main/resources/db/write/migration/V2__server_assigned_pot_identities.sql"),
+                writeMainSql);
         List<String> readMainSql;
         try(var files=Files.walk(APP.resolve("infra-postgres-read/src/main/resources"))) {
             readMainSql=files.filter(p->p.toString().endsWith(".sql")).map(p->APP.relativize(p).toString()).sorted().toList();
         }
-        assertEquals(List.of("infra-postgres-read/src/main/resources/db/read/migration/V1__initial_schema.sql"),readMainSql);
+        assertEquals(
+                List.of(
+                        "infra-postgres-read/src/main/resources/db/read/migration/V1__initial_schema.sql",
+                        "infra-postgres-read/src/main/resources/db/read/migration/V2__server_assigned_pot_identities.sql"),
+                readMainSql);
         var resources=new HashSet<String>();
         try(var files=Files.walk(APP)) {
             for(var p:files.filter(p->p.toString().contains("/src/main/resources/") && p.toString().endsWith(".sql")).toList())

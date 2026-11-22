@@ -101,8 +101,10 @@ class PublicAPI:
                          d['euiVersion'] >= result['targetVersion'])['bindingToken']
 
     def command(self, pot, binding, operation, version, payload, key):
-        return self.submit('/commands', dict(operation=operation, potId=pot, bindingToken=binding,
-                                            observedVersion=version, payload=payload), key)
+        body = dict(operation=operation, bindingToken=binding, observedVersion=version, payload=payload)
+        if operation != 'CreatePot':
+            body['potId'] = pot
+        return self.submit('/commands', body, key)
 
     def pot(self, pot, binding, version):
         return self.poll('/pots/' + pot + '?minVersion=' + str(version), binding,
@@ -119,27 +121,26 @@ def exact_balances(data):
     return result
 
 
-def identifier(owner, name):
-    return str(uuid5(UUID(owner), name))
-
-
 def seed(owner_id, owner, guest, state, save):
     """Checkpointed seed. Stable intents replay after interruption; never overwrite user edits."""
     if state.get('complete'):
         return state
     b, g = owner.binding(), guest.binding()
-    pot, deleted = identifier(owner_id, 'demo'), identifier(owner_id, 'deleted')
-    first, second, expense = [identifier(owner_id, n) for n in ('first', 'second', 'expense')]
     if 'expiresAt' not in state:
         state['expiresAt'] = (datetime.now(timezone.utc) + timedelta(days=1)).isoformat().replace('+00:00', 'Z')
         save(state)
+    _, created_pot = owner.command(None, b, 'CreatePot', 0, {'label': 'Pocoma playground'}, 'seed-v1-create')
+    pot = created_pot['potId']
     def cmd(operation, version, payload, name, target=pot):
         return owner.command(target, b, operation, version, payload, 'seed-v1-' + name)
-    cmd('CreatePot', 0, {'label': 'Pocoma playground'}, 'create')
     weight = {'numerator': '1', 'denominator': '1'}
-    cmd('AddShareholders', 1, {'targets': [dict(id=first, name='Owner', attachment='SELF', weight=weight),
-        dict(id=second, name='Guest', attachment='FREE', weight=weight)]}, 'shares')
-    cmd('CreateExpense', 2, dict(id=expense, label='Demo 10/3', date='2026-11-13',
+    _, created_shares = cmd('AddShareholders', 1, {'targets': [
+        dict(name='Owner', attachment='SELF', weight=weight),
+        dict(name='Guest', attachment='FREE', weight=weight)]}, 'shares')
+    shareholders = created_shares['createdResources']['shareholders']
+    first = shareholders[0]['shareholderId']
+    second = shareholders[1]['shareholderId']
+    cmd('CreateExpense', 2, dict(label='Demo 10/3', date='2026-11-13',
         amount={'numerator': '10', 'denominator': '3'}, payerId=first,
         participants=[{'id': first, 'weight': None}, {'id': second, 'weight': None}]), 'expense')
     request, _ = cmd('CreateInvitation', 0, {'expiresAt': state['expiresAt']}, 'invite')
@@ -149,7 +150,8 @@ def seed(owner_id, owner, guest, state, save):
     view = owner.pot(pot, b, 4)
     require(view['potVersion'] == 4 and exact_balances(view) == {first: Fraction(5, 3), second: Fraction(-5, 3)}, 'DEMO-BALANCE')
     guest.pot(pot, g, 4)
-    cmd('CreatePot', 0, {'label': 'Deleted demo history'}, 'deleted-create', deleted)
+    _, created_deleted = owner.command(None, b, 'CreatePot', 0, {'label': 'Deleted demo history'}, 'seed-v1-deleted-create')
+    deleted = created_deleted['potId']
     cmd('DeletePot', 1, {}, 'deleted-delete', deleted)
     owner.poll('/pots/' + deleted + '/versions/1', b)
     state.update(complete=True, potId=pot, deletedPotId=deleted, expectedVersion=4,
@@ -160,8 +162,8 @@ def seed(owner_id, owner, guest, state, save):
 
 def canary(owner_id, api, run_id, state, save):
     binding = api.binding()
-    pot = identifier(owner_id, 'canary')
-    api.command(pot, binding, 'CreatePot', 0, {'label': 'Pipeline canary'}, 'canary-create-v1')
+    _, created = api.command(None, binding, 'CreatePot', 0, {'label': 'Pipeline canary'}, 'canary-create-v1')
+    pot = created['potId']
     view = api.pot(pot, binding, 1)
     if 'observed' not in state:
         state['observed'] = view['potVersion']

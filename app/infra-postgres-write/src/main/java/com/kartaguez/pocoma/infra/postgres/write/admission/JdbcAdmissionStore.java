@@ -97,7 +97,7 @@ values (?,?,?,?,?,?,?,?,?,?,?) on conflict (scope_key_fingerprint) do nothing re
                             c.requester().issuer(),
                             c.requester().subject(),
                             c.bindingToken(),
-                            c.potId().value(),
+                            c.potId() == null ? null : c.potId().value(),
                             c.observedVersion(),
                             c.intent().getClass().getSimpleName(),
                             PotCommandJson.encode(c));

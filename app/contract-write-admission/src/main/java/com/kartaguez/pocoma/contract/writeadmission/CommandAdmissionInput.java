@@ -85,9 +85,20 @@ public final class CommandAdmissionInput {
     public static CommandAdmissionInput decode(
             Object raw, PotCommand.Eui requester, int rationalDigits) {
         try {
-            var n = object(raw, "operation", "potId", "observedVersion", "bindingToken", "payload");
+            require(raw instanceof Map<?, ?> rawMap && rawMap.get("operation") instanceof String);
+            String rawOp = (String) ((Map<?, ?>) raw).get("operation");
+            var n =
+                    "CreatePot".equals(rawOp)
+                            ? object(raw, "operation", "observedVersion", "bindingToken", "payload")
+                            : object(
+                                    raw,
+                                    "operation",
+                                    "potId",
+                                    "observedVersion",
+                                    "bindingToken",
+                                    "payload");
             String op = text(n, "operation");
-            var pot = new PotId(uuid(n, "potId"));
+            PotId pot = "CreatePot".equals(op) ? null : new PotId(uuid(n, "potId"));
             String token = nonblank(n, "bindingToken");
             Object observation = n.get("observedVersion");
             require(observation instanceof Integer || observation instanceof Long);
@@ -182,20 +193,15 @@ public final class CommandAdmissionInput {
     private static DecodedPayload decodeAddShareholders(
             Object rawPayload, int rationalDigits, Map<ShareholderId, Attachment> modes) {
         var p = object(rawPayload, "targets");
-        var values = new ArrayList<ShareholderTransitions.Creation>();
+        var values = new ArrayList<PotCommand.ShareholderCreation>();
         var normalized = new ArrayList<Object>();
         for (var rawTarget : list(p, "targets")) {
-            var t = object(rawTarget, "id", "name", "attachment", "weight");
-            var id = new ShareholderId(uuid(t, "id"));
+            var t = object(rawTarget, "name", "attachment", "weight");
             var mode = Attachment.valueOf(text(t, "attachment"));
             require(mode == Attachment.FREE || mode == Attachment.SELF);
-            modes.put(id, mode);
             values.add(
-                    new ShareholderTransitions.Creation(
-                            id,
-                            new Name(text(t, "name")),
-                            Optional.empty(),
-                            weight(t, "weight", rationalDigits)));
+                    PotCommand.ShareholderCreation.of(
+                            new Name(text(t, "name")), mode, weight(t, "weight", rationalDigits)));
             normalized.add(t);
         }
         p.put("targets", normalized);
@@ -244,23 +250,29 @@ public final class CommandAdmissionInput {
 
     private static DecodedPayload decodeCreateExpense(
             Object rawPayload, PotId pot, int rationalDigits) {
-        var p = object(rawPayload, "id", "label", "date", "amount", "payerId", "participants");
-        var id = new ExpenseId(uuid(p, "id"));
+        var p = object(rawPayload, "label", "date", "amount", "payerId", "participants");
+        var amount = new com.kartaguez.pocoma.domain.pot.value.Amount(fraction(p, "amount", rationalDigits));
+        var payer = new ShareholderId(uuid(p, "payerId"));
+        var entries = participations(p, rationalDigits);
         return new DecodedPayload(
                 p,
                 new CreateExpense(
-                        new ExpenseDetails(
-                                pot,
-                                id,
-                                new Label(text(p, "label")),
-                                LocalDate.parse(text(p, "date"))),
-                        financials(p, pot, id, rationalDigits)));
+                        new Label(text(p, "label")),
+                        LocalDate.parse(text(p, "date")),
+                        amount,
+                        payer,
+                        entries));
     }
 
     private static ExpenseFinancials financials(
             Map<String, Object> p, PotId pot, ExpenseId id, int digits) {
         var amount = new com.kartaguez.pocoma.domain.pot.value.Amount(fraction(p, "amount", digits));
         var payer = new ShareholderId(uuid(p, "payerId"));
+        return ExpenseFinancials.of(pot, id, amount, payer, participations(p, digits));
+    }
+
+    private static List<ExpenseFinancials.Participation> participations(
+            Map<String, Object> p, int digits) {
         var entries = new ArrayList<ExpenseFinancials.Participation>();
         var normalized = new ArrayList<Map<String, Object>>();
         for (var raw : list(p, "participants")) {
@@ -276,7 +288,7 @@ public final class CommandAdmissionInput {
         }
         normalized.sort(Comparator.comparing(t -> (String) t.get("id")));
         p.put("participants", normalized);
-        return ExpenseFinancials.of(pot, id, amount, payer, entries);
+        return entries;
     }
 
     private static com.kartaguez.pocoma.domain.pot.value.Weight weight(

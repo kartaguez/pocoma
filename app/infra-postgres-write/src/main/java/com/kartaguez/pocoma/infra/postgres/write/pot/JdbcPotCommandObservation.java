@@ -108,7 +108,14 @@ public final class JdbcPotCommandObservation implements PotCommandObservation {
 
     private static boolean isValidRejected(
             Map<String, Object> result, CommandEvidence evidence) {
-        if (result.get("rejection") == null || result.get("resulting_pot_version") != null) {
+        if (result.get("rejection") == null
+                || result.get("resulting_pot_version") != null
+                || result.get("created_resources") != null) {
+            return false;
+        }
+        if ("CreatePot".equals(evidence.command().get("operation"))
+                && evidence.command().get("pot_id") == null
+                && result.get("pot_id") != null) {
             return false;
         }
         return evidence.events().isEmpty() && evidence.invitationEffects() == 0;
@@ -148,10 +155,17 @@ public final class JdbcPotCommandObservation implements PotCommandObservation {
                 || version.longValue() < 1) {
             return RecoveryObservation.INCONSISTENT;
         }
-        UUID pot = (UUID) evidence.command().get("pot_id");
-        if (!potVersionExists(pot, version.longValue())) return RecoveryObservation.INCONSISTENT;
+        UUID commandPot = (UUID) evidence.command().get("pot_id");
+        UUID resultPot = (UUID) result.get("pot_id");
+        if (commandPot != null && resultPot != null && !commandPot.equals(resultPot)) {
+            return RecoveryObservation.INCONSISTENT;
+        }
+        UUID pot = resultPot != null ? resultPot : commandPot;
+        if (pot == null || !potVersionExists(pot, version.longValue())) {
+            return RecoveryObservation.INCONSISTENT;
+        }
         if ("UNCHANGED".equals(outcome)) {
-            return evidence.events().isEmpty()
+            return evidence.events().isEmpty() && result.get("created_resources") == null
                     ? RecoveryObservation.COMPLETED
                     : RecoveryObservation.INCONSISTENT;
         }

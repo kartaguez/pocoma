@@ -79,7 +79,7 @@ class AdmissionTransportTest {
             request.setContentType("application/json");
             request.addHeader("Idempotency-Key", "key");
             request.setContent(
-                    "{\"operation\":\"CreatePot\",\"potId\":\"00000000-0000-0000-0000-000000000001\",\"observedVersion\":0,\"bindingToken\":\"token\",\"payload\":{\"label\":\"A\"}}"
+                    "{\"operation\":\"CreatePot\",\"observedVersion\":0,\"bindingToken\":\"token\",\"payload\":{\"label\":\"A\"}}"
                             .getBytes(StandardCharsets.UTF_8));
             var response = new MockHttpServletResponse();
             transport.doFilter(

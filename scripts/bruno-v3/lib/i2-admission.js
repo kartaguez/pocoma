@@ -37,25 +37,30 @@ exports.run = async function (scenario, bru, expect) {
     while(calls++<200&&performance.now()-start<20000){const r=await call('GET','/me/binding');if(r.status===200&&r.data.active&&r.data.euiVersion>=minimumVersion){bru.setVar('i2Binding',r.data.bindingToken);return;}expect([200,404]).to.include(r.status);await bru.sleep(50);}
     throw new Error('B2 bounded binding polling deadline');
   };
+  const pot=()=>bru.getVar('i2PotId')||id(700), share=()=>bru.getVar('i2ShareId')||id(701), expense=()=>bru.getVar('i2ExpenseId')||id(702);
   const fraction=(n,d)=>({numerator:String(n),denominator:String(d)});
-  const body=(operation,payload,potId=pot)=>({operation,potId,observedVersion:operation==='CreatePot'?0:Number(bru.getVar('i2Version')),bindingToken:token(),payload});
-  const command=async(operation,payload,key=scenario,potId=pot)=>{
+  const body=(operation,payload,potId=pot())=>{
+    const b={operation,observedVersion:operation==='CreatePot'?0:Number(bru.getVar('i2Version')),bindingToken:token(),payload};
+    if(operation!=='CreatePot') b.potId=potId;
+    return b;
+  };
+  const command=async(operation,payload,key=scenario,potId=pot())=>{
     const b=body(operation,payload,potId),r=await call('POST','/commands',b,key);const requestId=accepted(r);const result=await poll('/commands/'+requestId+'/result');bru.setVar('i2Version',result.resultingPotVersion);return {requestId,body:b,result};
   };
-  const participants=()=>[{id:share,weight:null}];
+  const participants=()=>[{id:share(),weight:null}];
   switch(scenario){
     case 'B201': {
       const request=accepted(await call('POST','/identity/requests',{operation:'Registration'},scenario));const result=await poll('/identity/requests/'+request+'/result');await binding(result.targetVersion);bru.setVar('i2Registration',request);break;
     }
-    case 'B202': {const c=await command('CreatePot',{label:'Bruno I2'},'original-create');bru.setVar('i2CreateBody',JSON.stringify(c.body));bru.setVar('i2CreateId',c.requestId);break;}
+    case 'B202': {const c=await command('CreatePot',{label:'Bruno I2'},'original-create');bru.setVar('i2PotId',c.result.potId);bru.setVar('i2CreateBody',JSON.stringify(c.body));bru.setVar('i2CreateId',c.requestId);break;}
     case 'B203':await command('UpdatePotDetails',{label:'Edited'});break;
-    case 'B204':await command('AddShareholders',{targets:[{id:share,name:'Owner',attachment:'SELF',weight:fraction(1,1)}]});break;
-    case 'B205':await command('UpdateShareholderDetails',{targets:[{id:share,name:'Renamed',attachment:'KEEP'}]});break;
-    case 'B206':await command('UpdateShareholderWeights',{targets:[{id:share,weight:fraction(2,1)}]});break;
-    case 'B207':await command('CreateExpense',{id:expense,label:'Expense',date:'2026-11-04',amount:fraction(10,3),payerId:share,participants:participants()});break;
-    case 'B208':await command('UpdateExpenseDetails',{id:expense,label:'Edited expense',date:'2026-11-05'});break;
+    case 'B204':{const c=await command('AddShareholders',{targets:[{name:'Owner',attachment:'SELF',weight:fraction(1,1)}]});bru.setVar('i2ShareId',c.result.createdResources.shareholders[0].shareholderId);break;}
+    case 'B205':await command('UpdateShareholderDetails',{targets:[{id:share(),name:'Renamed',attachment:'KEEP'}]});break;
+    case 'B206':await command('UpdateShareholderWeights',{targets:[{id:share(),weight:fraction(2,1)}]});break;
+    case 'B207':{const c=await command('CreateExpense',{label:'Expense',date:'2026-11-04',amount:fraction(10,3),payerId:share(),participants:participants()});bru.setVar('i2ExpenseId',c.result.createdResources.expenseId);break;}
+    case 'B208':await command('UpdateExpenseDetails',{id:expense(),label:'Edited expense',date:'2026-11-05'});break;
     case 'B209': {
-      const c=await command('UpdateExpenseFinancials',{id:expense,amount:fraction(20,3),payerId:share,participants:participants()});
+      const c=await command('UpdateExpenseFinancials',{id:expense(),amount:fraction(20,3),payerId:share(),participants:participants()});
       if(fresh) {
         const v=c.result.resultingPotVersion;
         const headers={'X-Pocoma-Binding-Token':token()};
@@ -69,15 +74,15 @@ exports.run = async function (scenario, bru, expect) {
           }
           throw new Error('B209 READ availability deadline: '+path);
         };
-        const path='/pots/'+pot;
+        const path='/pots/'+pot();
         const current=await read(path+'?minVersion='+v);
         expect(current.potVersion).to.equal(v);
-        expect(current.expenses.map(e=>e.id)).to.include(expense);
+        expect(current.expenses.map(e=>e.id)).to.include(expense());
         const history=await read(path+'/versions/'+(v-1));
         expect(history.potVersion).to.equal(v-1);
-        expect(history.expenses.map(e=>e.id)).to.include(expense);
+        expect(history.expenses.map(e=>e.id)).to.include(expense());
         for(const [manifest,amount] of [[current,{n:'20',d:'3'}],[history,{n:'10',d:'3'}]]) {
-          const reference=manifest.expenses.find(e=>e.id===expense);
+          const reference=manifest.expenses.find(e=>e.id===expense());
           const batch=await read(path+'/versions/'+manifest.potVersion+'/expenses/query','POST',{references:[reference]});
           expect(batch.expenses).to.have.length(1);
           expect(batch.expenses[0].reference).to.deep.equal(reference);
@@ -93,8 +98,8 @@ exports.run = async function (scenario, bru, expect) {
       }
       break;
     }
-    case 'B210':await command('DeleteExpense',{id:expense});break;
-    case 'B211':await command('DeleteShareholder',{id:share});break;
+    case 'B210':await command('DeleteExpense',{id:expense()});break;
+    case 'B211':await command('DeleteShareholder',{id:share()});break;
     case 'B212':await command('DeletePot',{});break;
     case 'B213':expect(accepted(await call('POST','/commands',JSON.parse(bru.getVar('i2CreateBody')),'original-create'))).to.equal(bru.getVar('i2CreateId'));break;
     case 'B214':{const b=JSON.parse(bru.getVar('i2CreateBody'));b.payload.label='DIFFERENT-INTENT';error(await call('POST','/commands',b,'original-create'),409);break;}
@@ -107,9 +112,11 @@ exports.run = async function (scenario, bru, expect) {
     case 'B217':{error(await call('POST','/commands',{...JSON.parse(bru.getVar('i2CreateBody')),requesterEui:{}},scenario),400);error(await call('POST','/identity/requests',{operation:'Registration'},scenario,null),401);if(fresh)error(await call('POST','/identity/requests',{operation:'Registration'},'invalid key'),400);break;}
     case 'B218':{const r=accepted(await call('POST','/commands',body('UpdatePotDetails',{label:'missing'},id(799)),scenario));const result=await poll('/commands/'+r+'/result','REJECTED');expect(result.rejection).to.equal('NOT_FOUND');break;}
     case 'B219':{
-      await command('CreatePot',{label:'101 atomic targets'},'large-create',large);
-      const targets=Array.from({length:101},(_,n)=>({id:id(1000+n),name:'Self '+n,attachment:'SELF',weight:fraction(2,2)}));const c=await command('AddShareholders',{targets},scenario,large);bru.setVar('i2LargeId',c.requestId);
-      const start=performance.now();let got=false;for(let n=0;n<200&&performance.now()-start<20000;n++){const r=await call('GET','/pots/'+large+'?minVersion=2',undefined,null,owner,{'X-Pocoma-Binding-Token':token()});if(r.status===200){expect(r.data.shareholders.length).to.equal(101);expect(r.data.shareholders.every(s=>s.isFree===false)).to.equal(true);got=true;break;}expect([404,503]).to.include(r.status);await bru.sleep(50);}expect(got).to.equal(true);break;
+      const created=await command('CreatePot',{label:'101 atomic targets'},'large-create');
+      const largePot=created.result.potId;
+      const targets=Array.from({length:101},(_,n)=>({name:'Self '+n,attachment:'SELF',weight:fraction(2,2)}));const c=await command('AddShareholders',{targets},scenario,largePot);bru.setVar('i2LargeId',c.requestId);
+      expect(c.result.createdResources.shareholders).to.have.length(101);
+      const start=performance.now();let got=false;for(let n=0;n<200&&performance.now()-start<20000;n++){const r=await call('GET','/pots/'+largePot+'?minVersion=2',undefined,null,owner,{'X-Pocoma-Binding-Token':token()});if(r.status===200){expect(r.data.shareholders.length).to.equal(101);expect(r.data.shareholders.every(s=>s.isFree===false)).to.equal(true);got=true;break;}expect([404,503]).to.include(r.status);await bru.sleep(50);}expect(got).to.equal(true);break;
     }
     case 'B220':{
       if(!fresh) {

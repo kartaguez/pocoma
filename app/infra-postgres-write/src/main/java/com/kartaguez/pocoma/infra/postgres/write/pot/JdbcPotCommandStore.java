@@ -70,13 +70,18 @@ public final class JdbcPotCommandStore implements PotCommandStore {
                     requireTransaction();
                     var rows =
                             jdbc.queryForList(
-                                    "select c.*,r.outcome,r.resulting_pot_version,r.rejection from"
+                                    "select c.requester_issuer,c.requester_subject,c.binding_token,"
+                                            + "c.pot_id as cmd_pot_id,c.observed_version,c.operation,"
+                                            + "c.payload,c.status,r.outcome,r.resulting_pot_version,"
+                                            + "r.rejection,r.pot_id as result_pot_id,"
+                                            + "r.created_resources::text as created_resources from"
                                             + " v3_command c left join v3_command_result r"
                                             + " using(request_id) where c.request_id=?",
                                     requestId);
                     if (rows.size() != 1)
                         throw new InconsistentPotFactsException("Durable Command missing");
                     var row = rows.getFirst();
+                    UUID cmdPot = (UUID) row.get("cmd_pot_id");
                     var command =
                             PotCommandJson.decodeCommand(
                                     requestId,
@@ -84,7 +89,7 @@ public final class JdbcPotCommandStore implements PotCommandStore {
                                             (String) row.get("requester_issuer"),
                                             (String) row.get("requester_subject")),
                                     (String) row.get("binding_token"),
-                                    new PotId((UUID) row.get("pot_id")),
+                                    cmdPot == null ? null : new PotId(cmdPot),
                                     ((Number) row.get("observed_version")).longValue(),
                                     (String) row.get("operation"),
                                     row.get("payload").toString());
@@ -93,13 +98,19 @@ public final class JdbcPotCommandStore implements PotCommandStore {
                         throw new InconsistentPotFactsException("Terminal/result mismatch");
                     if (!terminal) return new Stored(command, Optional.empty());
                     var version = (Number) row.get("resulting_pot_version");
+                    UUID resultPot = (UUID) row.get("result_pot_id");
+                    var created =
+                            PotCommandJson.decodeCreatedResources(
+                                    (String) row.get("created_resources"));
                     return new Stored(
                             command,
                             Optional.of(
                                     new Result(
                                             Outcome.valueOf((String) row.get("outcome")),
                                             version == null ? null : version.longValue(),
-                                            (String) row.get("rejection"))));
+                                            (String) row.get("rejection"),
+                                            resultPot == null ? null : new PotId(resultPot),
+                                            created)));
                 });
     }
 
@@ -151,14 +162,17 @@ public final class JdbcPotCommandStore implements PotCommandStore {
     public void finishTerminal(PotCommand command, Result result) {
         guarded(
                 () -> {
+                    PotId resultPot = result.effectivePotId(command);
                     jdbc.update(
                             "insert into"
-                                + " v3_command_result(request_id,outcome,resulting_pot_version,rejection)"
-                                + " values (?,?,?,?)",
+                                + " v3_command_result(request_id,outcome,resulting_pot_version,rejection,pot_id,created_resources)"
+                                + " values (?,?,?,?,?,?::jsonb)",
                             command.requestId(),
                             result.outcome().name(),
                             result.resultingPotVersion(),
-                            result.rejection());
+                            result.rejection(),
+                            resultPot == null ? null : resultPot.value(),
+                            PotCommandJson.encodeCreatedResources(result.createdResources()));
                     if (jdbc.update(
                                     "update v3_command set status='TERMINAL' where request_id=? and"
                                             + " status='PENDING'",
@@ -179,7 +193,8 @@ public final class JdbcPotCommandStore implements PotCommandStore {
                                 "Completion requires the exact terminal result");
                     }
                     verifyOutcomeEffects(command, result, changed);
-                    if (result.outcome() != Outcome.CHANGED) verifyNoCandidateInAttempt(command);
+                    if (result.outcome() != Outcome.CHANGED)
+                        verifyNoCandidateInAttempt(command, result);
                     return null;
                 });
     }
@@ -221,7 +236,11 @@ public final class JdbcPotCommandStore implements PotCommandStore {
 
     private void verifyChangedCompletion(
             PotCommand command, Result result, List<Component> changed) {
-        var actual = changedComponents(command.potId(), result.resultingPotVersion());
+        PotId effectivePot = result.effectivePotId(command);
+        if (effectivePot == null) {
+            throw new InconsistentPotFactsException("Changed completion requires effective PotId");
+        }
+        var actual = changedComponents(effectivePot, result.resultingPotVersion());
         if (changed.isEmpty() || changed.size() != new HashSet<>(changed).size()) {
             throw new InconsistentPotFactsException(
                     "Publication differs from exact persisted proposal");
@@ -232,14 +251,20 @@ public final class JdbcPotCommandStore implements PotCommandStore {
         }
     }
 
-    private void verifyNoCandidateInAttempt(PotCommand command) {
+    private void verifyNoCandidateInAttempt(PotCommand command, Result result) {
+        PotId effectivePot = result.effectivePotId(command);
         Boolean hasCandidate =
-                jdbc.queryForObject(
-                        "select coalesce((select writer_xid=pg_current_xact_id() from"
-                                + " v3_pot_version where pot_id=? order by version desc limit"
-                                + " 1),false)",
-                        Boolean.class,
-                        command.potId().value());
+                effectivePot != null
+                        ? jdbc.queryForObject(
+                                "select coalesce((select writer_xid=pg_current_xact_id() from"
+                                        + " v3_pot_version where pot_id=? order by version desc"
+                                        + " limit 1),false)",
+                                Boolean.class,
+                                effectivePot.value())
+                        : jdbc.queryForObject(
+                                "select exists(select 1 from v3_pot_version where"
+                                        + " writer_xid=pg_current_xact_id())",
+                                Boolean.class);
         if (Boolean.TRUE.equals(hasCandidate)) {
             throw new InconsistentPotFactsException(
                     "No-effect completion has a candidate in this attempt");
@@ -250,14 +275,19 @@ public final class JdbcPotCommandStore implements PotCommandStore {
     public void publish(PotCommand command, Result result, List<Component> changed) {
         guarded(
                 () -> {
+                    PotId effectivePot = result.effectivePotId(command);
                     UUID potEvent = result.outcome() == Outcome.CHANGED ? UUID.randomUUID() : null;
                     if (potEvent != null) {
+                        if (effectivePot == null) {
+                            throw new InconsistentPotFactsException(
+                                    "Changed publication requires effective PotId");
+                        }
                         jdbc.update(
                                 "insert into"
                                     + " v3_pot_event(event_id,pot_id,subject_version,request_id,recorded_at)"
                                     + " values (?,?,?,?,clock_timestamp())",
                                 potEvent,
-                                command.potId().value(),
+                                effectivePot.value(),
                                 result.resultingPotVersion(),
                                 command.requestId());
                         changed.stream()
@@ -305,7 +335,7 @@ public final class JdbcPotCommandStore implements PotCommandStore {
                     position("COMMAND_COMPLETION", completion);
                     publicationListener.onPublished(
                             command.requestId(),
-                            command.potId().value(),
+                            effectivePot == null ? null : effectivePot.value(),
                             result.resultingPotVersion(),
                             potEvent,
                             completion);

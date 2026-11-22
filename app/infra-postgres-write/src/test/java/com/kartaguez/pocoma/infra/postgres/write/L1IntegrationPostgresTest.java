@@ -44,8 +44,7 @@ class L1IntegrationPostgresTest {
         f.run(
                 f.command(
                         1,
-                        new AddShareholders(
-                                List.of(
+                        AddShareholders.legacy(List.of(
                                         new ShareholderTransitions.Creation(
                                                 f.a, new Name("A"), Optional.empty(), f.one),
                                         new ShareholderTransitions.Creation(
@@ -230,8 +229,7 @@ class L1IntegrationPostgresTest {
         f.run(
                 f.command(
                         1,
-                        new AddShareholders(
-                                List.of(
+                        AddShareholders.legacy(List.of(
                                         new ShareholderTransitions.Creation(
                                                 f.a, new Name("A"), Optional.empty(), f.one)))));
         var old = f.tx.read(context -> f.history.atVersion(f.p, 2).orElseThrow());
@@ -369,8 +367,7 @@ class L1IntegrationPostgresTest {
                 f.run(
                                 f.command(
                                         2,
-                                        new AddShareholders(
-                                                List.of(
+                                        AddShareholders.legacy(List.of(
                                                         new ShareholderTransitions.Creation(
                                                                 late,
                                                                 new Name("late"),

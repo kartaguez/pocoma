@@ -83,6 +83,19 @@ public final class PotCommandJson {
 
     private static void encodeAddShareholders(ObjectNode n, AddShareholders i) {
         var targets = n.withArray("targets");
+        if (i.serverAssigned()) {
+            n.put("payloadVersion", 3);
+            i.creations()
+                    .forEach(
+                            t -> {
+                                var target =
+                                        targets.addObject()
+                                                .put("name", t.name().value())
+                                                .put("attachment", t.attachment().name());
+                                target.set("weight", fraction(t.defaultWeight().value()));
+                            });
+            return;
+        }
         i.targets()
                 .forEach(
                         t -> {
@@ -125,8 +138,22 @@ public final class PotCommandJson {
     }
 
     private static void encodeCreateExpense(ObjectNode n, CreateExpense i) {
-        n.set("details", details(i.details()));
-        n.set("financials", financials(i.financials()));
+        if (i.serverAssigned()) {
+            n.put("payloadVersion", 3);
+            n.put("label", i.label().value());
+            n.put("date", i.date().toString());
+            n.put("payerId", i.payerId().toString());
+            n.set("amount", fraction(i.amount().value()));
+            encodeParticipants(n, i.participants());
+            return;
+        }
+        // Historical v1 format requires legacy potId; preserve exact historical shape when legacyId present.
+        throw new IllegalStateException("Legacy CreateExpense requires PotId context");
+    }
+
+    private static void encodeCreateExpenseLegacy(ObjectNode n, PotId potId, CreateExpense i) {
+        n.set("details", details(i.details(potId, i.legacyId())));
+        n.set("financials", financials(i.financials(potId, i.legacyId())));
     }
 
     private static void encodeUpdateExpenseDetails(ObjectNode n, UpdateExpenseDetails i) {
@@ -140,6 +167,11 @@ public final class PotCommandJson {
      * activation.
      */
     public static String encode(PotCommand command) {
+        if (command.intent() instanceof CreateExpense e && !e.serverAssigned()) {
+            var n = JSON.createObjectNode();
+            encodeCreateExpenseLegacy(n, command.potId(), e);
+            return n.toString();
+        }
         if (command.attachments().isEmpty()) return encode(command.intent());
         var n = JSON.createObjectNode().put("payloadVersion", 2);
         try {
@@ -166,13 +198,56 @@ public final class PotCommandJson {
             var n = JSON.readTree(payload);
             var modes = new HashMap<ShareholderId, Attachment>();
             if (n.has("payloadVersion")) {
-                modes.putAll(decodeAttachmentsV2(n));
-                payload = n.required("intention").toString();
+                var version = n.required("payloadVersion");
+                if (!isIntegerNode(version)) throw new IllegalArgumentException();
+                int v = version.intValue();
+                if (v == 2) {
+                    modes.putAll(decodeAttachmentsV2(n));
+                    payload = n.required("intention").toString();
+                    return new PotCommand(
+                            id, eui, token, pot, observed, decode(operation, payload), modes);
+                }
+                if (v == 3) {
+                    return new PotCommand(
+                            id, eui, token, pot, observed, decodeV3(operation, n), modes);
+                }
+                throw new IllegalArgumentException();
             }
             return new PotCommand(id, eui, token, pot, observed, decode(operation, payload), modes);
         } catch (Exception invalid) {
             throw new InconsistentPotFactsException("Invalid durable Command envelope");
         }
+    }
+
+    private static Intent decodeV3(String operation, JsonNode n) {
+        return switch (operation) {
+            case "AddShareholders" -> {
+                if (n.size() != 2) throw new IllegalArgumentException();
+                yield new AddShareholders(list(n, "targets", PotCommandJson::readServerCreation));
+            }
+            case "CreateExpense" -> {
+                if (n.size() != 6) throw new IllegalArgumentException();
+                yield new CreateExpense(
+                        new Label(text(n, "label")),
+                        LocalDate.parse(text(n, "date")),
+                        new com.kartaguez.pocoma.domain.pot.value.Amount(
+                                readFraction(n.required("amount"))),
+                        new ShareholderId(UUID.fromString(text(n, "payerId"))),
+                        readParticipants(n));
+            }
+            default -> throw new IllegalArgumentException("Unsupported payloadVersion 3 operation");
+        };
+    }
+
+    private static ShareholderCreation readServerCreation(JsonNode t) {
+        if (t.size() != 3 || t.has("id") || t.has("userId")) {
+            throw new IllegalArgumentException("Invalid v3 shareholder target");
+        }
+        return ShareholderCreation.of(
+                new Name(text(t, "name")),
+                Attachment.valueOf(text(t, "attachment")),
+                new com.kartaguez.pocoma.domain.pot.value.Weight(
+                        readFraction(t.required("weight"))));
     }
 
     private static Map<ShareholderId, Attachment> decodeAttachmentsV2(JsonNode n) {
@@ -237,7 +312,8 @@ public final class PotCommandJson {
 
     private static Intent decodeShareholderIntent(String operation, JsonNode n) {
         return switch (operation) {
-            case "AddShareholders" -> new AddShareholders(list(n, "targets", PotCommandJson::readCreation));
+            case "AddShareholders" ->
+                    AddShareholders.legacy(list(n, "targets", PotCommandJson::readCreation));
             case "UpdateShareholderDetails" ->
                     new UpdateShareholderDetails(list(n, "targets", PotCommandJson::readDetailsIntent));
             case "UpdateShareholderWeights" ->
@@ -298,6 +374,64 @@ public final class PotCommandJson {
         };
     }
 
+    public static String encodeCreatedResources(
+            com.kartaguez.pocoma.engine.write.pot.port.execution.PotCommandStore.CreatedResources
+                    created) {
+        if (created == null) return null;
+        var n = JSON.createObjectNode();
+        if (created.potId() != null) {
+            n.put("potId", created.potId().toString());
+        } else if (created.expenseId() != null) {
+            n.put("expenseId", created.expenseId().toString());
+        } else if (created.shareholders() != null) {
+            var arr = n.withArray("shareholders");
+            for (var s : created.shareholders()) {
+                arr.addObject()
+                        .put("inputIndex", s.inputIndex())
+                        .put("shareholderId", s.shareholderId().toString());
+            }
+        }
+        return n.toString();
+    }
+
+    public static com.kartaguez.pocoma.engine.write.pot.port.execution.PotCommandStore.CreatedResources
+            decodeCreatedResources(String raw) {
+        if (raw == null) return null;
+        try {
+            var n = JSON.readTree(raw);
+            if (!n.isObject() || n.size() != 1) throw new IllegalArgumentException();
+            if (n.has("potId")) {
+                return com.kartaguez.pocoma.engine.write.pot.port.execution.PotCommandStore
+                        .CreatedResources.pot(UUID.fromString(text(n, "potId")));
+            }
+            if (n.has("expenseId")) {
+                return com.kartaguez.pocoma.engine.write.pot.port.execution.PotCommandStore
+                        .CreatedResources.expense(UUID.fromString(text(n, "expenseId")));
+            }
+            if (n.has("shareholders")) {
+                var items =
+                        list(
+                                n,
+                                "shareholders",
+                                s -> {
+                                    if (!s.isObject() || s.size() != 2)
+                                        throw new IllegalArgumentException();
+                                    var idx = s.required("inputIndex");
+                                    if (!isIntegerNode(idx)) throw new IllegalArgumentException();
+                                    return new com.kartaguez.pocoma.engine.write.pot.port.execution
+                                            .PotCommandStore.CreatedShareholder(
+                                            idx.intValue(),
+                                            UUID.fromString(text(s, "shareholderId")));
+                                });
+                return com.kartaguez.pocoma.engine.write.pot.port.execution.PotCommandStore
+                        .CreatedResources.shareholders(items);
+            }
+            throw new IllegalArgumentException();
+        } catch (Exception invalid) {
+            throw new InconsistentPotFactsException("Invalid durable CreatedResources");
+        }
+    }
+
     private static ObjectNode fraction(com.kartaguez.pocoma.domain.pot.value.Fraction f) {
         return JSON.createObjectNode()
                 .put("numerator", f.numerator().toString())
@@ -338,7 +472,13 @@ public final class PotCommandJson {
                         .put("id", f.expenseId().toString())
                         .put("payerId", f.payerId().toString());
         n.set("amount", fraction(f.amount().value()));
-        f.participants().entrySet().stream()
+        encodeParticipants(n, f.participants());
+        return n;
+    }
+
+    private static void encodeParticipants(
+            ObjectNode n, Map<ShareholderId, Optional<com.kartaguez.pocoma.domain.pot.value.Weight>> participants) {
+        participants.entrySet().stream()
                 .sorted(Comparator.comparing(e -> e.getKey().toString()))
                 .forEach(
                         e -> {
@@ -350,30 +490,29 @@ public final class PotCommandJson {
                                     "weight",
                                     e.getValue().map(w -> fraction(w.value())).orElse(null));
                         });
-        return n;
+    }
+
+    private static List<ExpenseFinancials.Participation> readParticipants(JsonNode n) {
+        return list(
+                n,
+                "participants",
+                p ->
+                        new ExpenseFinancials.Participation(
+                                sid(p),
+                                p.required("weight").isNull()
+                                        ? Optional.empty()
+                                        : Optional.of(
+                                                new com.kartaguez.pocoma.domain.pot.value.Weight(
+                                                        readFraction(p.required("weight"))))));
     }
 
     private static ExpenseFinancials readFinancials(JsonNode n) {
-        var participants =
-                list(
-                        n,
-                        "participants",
-                        p ->
-                                new ExpenseFinancials.Participation(
-                                        sid(p),
-                                        p.required("weight").isNull()
-                                                ? Optional.empty()
-                                                : Optional.of(
-                                                        new com.kartaguez.pocoma.domain.pot.value
-                                                                .Weight(
-                                                                readFraction(
-                                                                        p.required("weight"))))));
         return ExpenseFinancials.of(
                 new PotId(UUID.fromString(text(n, "potId"))),
                 eid(n),
                 new com.kartaguez.pocoma.domain.pot.value.Amount(readFraction(n.required("amount"))),
                 new ShareholderId(UUID.fromString(text(n, "payerId"))),
-                participants);
+                readParticipants(n));
     }
 
     private static String text(JsonNode n, String key) {

@@ -162,7 +162,7 @@ class ExecutePotCommandTest {
                                 new ComponentRead.Absent<>(),
                                 new ComponentRead.Absent<>()));
         var intent =
-                new PotCommand.AddShareholders(
+                PotCommand.AddShareholders.legacy(
                         List.of(
                                 new ShareholderTransitions.Creation(
                                         id,

@@ -45,15 +45,19 @@ exports.run = async function (scenario, bru, expect) {
     return state.bindingToken;
   };
   const ownerBinding = await binding(owner), guestBinding = await binding(guest), secondBinding = await binding(second);
-  const pot = crypto.randomUUID(), share = crypto.randomUUID(), another = crypto.randomUUID();
+  let pot = null;
   const command = async (who, token, operation, payload, version, key = crypto.randomUUID()) => {
-    const body = {operation,potId:pot,observedVersion:version,bindingToken:token,payload};
+    const body = {operation,observedVersion:version,bindingToken:token,payload};
+    if (operation !== 'CreatePot') body.potId = pot;
     const id = accepted(await call(who, 'POST', '/commands', body, key));
     return {id, body, result:await terminal(who,id)};
   };
-  await command(owner, ownerBinding, 'CreatePot', {label:'B4 ' + scenario}, 0);
+  const createdPot = await command(owner, ownerBinding, 'CreatePot', {label:'B4 ' + scenario}, 0);
+  pot = createdPot.result.potId;
   const added = await command(owner, ownerBinding, 'AddShareholders',
-    {targets:[share,another].map(id=>({id,name:'Free',attachment:'FREE',weight:{numerator:'1',denominator:'1'}}))}, 1);
+    {targets:[0,1].map(()=>({name:'Free',attachment:'FREE',weight:{numerator:'1',denominator:'1'}}))}, 1);
+  const share = added.result.createdResources.shareholders[0].shareholderId;
+  const another = added.result.createdResources.shareholders[1].shareholderId;
   const addedVersion = added.result.resultingPotVersion;
   await wait(owner, '/pots/' + pot + '?minVersion=' + addedVersion, view =>
     view.potVersion >= addedVersion && [share,another].every(
