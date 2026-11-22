@@ -1,5 +1,6 @@
 """Lifecycle operations (health, start, status, destroy) for local playground instances."""
 import hashlib
+import math
 from pathlib import Path
 import sys
 import time
@@ -263,7 +264,7 @@ def wakeup_diagnostics(rt, path, m):
             runtimes[name] = dict(state='UNOBSERVABLE')
             continue
         code_raw = rt.recovery.metric(text, 'pocoma_v3_wakeup_state')
-        code = int(code_raw) if code_raw is not None else None
+        code = int(code_raw) if (code_raw is not None and math.isfinite(code_raw)) else None
         runtimes[name] = dict(
             state=WAKEUP_STATE_LABELS.get(code, 'UNKNOWN'),
             published=rt.recovery.metric(text, 'pocoma_v3_wakeup_published_total'),

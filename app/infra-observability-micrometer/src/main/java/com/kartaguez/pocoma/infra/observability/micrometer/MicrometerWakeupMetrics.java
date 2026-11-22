@@ -46,6 +46,7 @@ public final class MicrometerWakeupMetrics implements WakeupMetrics {
                         .tags(tags)
                         .register(registry);
         Gauge.builder("pocoma.v3.wakeup.state", stateCode, AtomicInteger::get)
+                .strongReference(true)
                 .tags(tags)
                 .register(registry);
     }
