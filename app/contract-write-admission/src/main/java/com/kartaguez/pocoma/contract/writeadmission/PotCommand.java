@@ -43,18 +43,24 @@ public record PotCommand(
     public PotCommand {
         Objects.requireNonNull(requestId);
         Objects.requireNonNull(requester);
-        Objects.requireNonNull(potId);
         Objects.requireNonNull(intent);
+        if (potId == null && !(intent instanceof CreatePot)) {
+            throw new NullPointerException("PotId required");
+        }
         attachments = Map.copyOf(attachments);
         if (!attachments.isEmpty()) {
             Set<ShareholderId> ids;
             if (intent instanceof AddShareholders additions) {
+                if (additions.serverAssigned()) {
+                    throw new IllegalArgumentException(
+                            "Server-assigned AddShareholders carries attachments per target");
+                }
                 ids = new HashSet<>();
-                for (var t : additions.targets()) {
-                    ids.add(t.id());
-                    if (t.userId().isPresent()
+                for (var t : additions.creations()) {
+                    ids.add(t.legacyId());
+                    if (t.legacyUserId().isPresent()
                             || !Set.of(Attachment.FREE, Attachment.SELF)
-                                    .contains(attachments.get(t.id())))
+                                    .contains(attachments.get(t.legacyId())))
                         throw new IllegalArgumentException("Invalid creation attachment");
                 }
             } else if (intent instanceof UpdateShareholderDetails details) {
@@ -152,9 +158,101 @@ public record PotCommand(
 
     public record DeletePot() implements Intent {}
 
-    public record AddShareholders(List<ShareholderTransitions.Creation> targets) implements Intent {
+    /**
+     * Ordered Shareholder creation target. New admissions omit {@code legacyId} and carry an
+     * explicit {@code attachment} ({@link Attachment#FREE} or {@link Attachment#SELF}); historical
+     * durable commands may still carry {@code legacyId} and optional {@code legacyUserId}.
+     */
+    public record ShareholderCreation(
+            ShareholderId legacyId,
+            Name name,
+            Optional<UserId> legacyUserId,
+            Attachment attachment,
+            Weight defaultWeight) {
+        public ShareholderCreation {
+            Objects.requireNonNull(name);
+            Objects.requireNonNull(legacyUserId);
+            Objects.requireNonNull(defaultWeight);
+            if (legacyId == null) {
+                if (legacyUserId.isPresent()
+                        || (attachment != Attachment.FREE && attachment != Attachment.SELF)) {
+                    throw new IllegalArgumentException("Invalid server-assigned creation target");
+                }
+            } else if (attachment != null
+                    && attachment != Attachment.FREE
+                    && attachment != Attachment.SELF) {
+                throw new IllegalArgumentException("Invalid creation attachment");
+            }
+        }
+
+        public static ShareholderCreation of(
+                Name name, Attachment attachment, Weight defaultWeight) {
+            return new ShareholderCreation(
+                    null, name, Optional.empty(), Objects.requireNonNull(attachment), defaultWeight);
+        }
+
+        public static ShareholderCreation legacy(ShareholderTransitions.Creation target) {
+            if (target == null) throw new IllegalArgumentException("Null target");
+            return new ShareholderCreation(
+                    target.id(), target.name(), target.userId(), null, target.defaultWeight());
+        }
+
+        public boolean serverAssigned() {
+            return legacyId == null;
+        }
+    }
+
+    public record AddShareholders(List<ShareholderCreation> creations) implements Intent {
         public AddShareholders {
-            targets = PotCommand.targets(targets, ShareholderTransitions.Creation::id);
+            if (creations == null || creations.isEmpty())
+                throw new IllegalArgumentException("Targets required");
+            boolean serverAssigned = false;
+            boolean first = true;
+            var seen = new HashSet<ShareholderId>();
+            for (var target : creations) {
+                if (target == null) throw new IllegalArgumentException("Null target");
+                if (first) {
+                    serverAssigned = target.serverAssigned();
+                    first = false;
+                } else if (target.serverAssigned() != serverAssigned) {
+                    throw new IllegalArgumentException("Mixed server-assigned and legacy targets");
+                }
+                if (!serverAssigned && !seen.add(target.legacyId())) {
+                    throw new IllegalArgumentException("Duplicate target");
+                }
+            }
+            creations = List.copyOf(creations);
+        }
+
+        public static AddShareholders of(List<ShareholderCreation> creations) {
+            return new AddShareholders(creations);
+        }
+
+        public static AddShareholders legacy(List<ShareholderTransitions.Creation> targets) {
+            if (targets == null || targets.isEmpty())
+                throw new IllegalArgumentException("Targets required");
+            return new AddShareholders(
+                    targets.stream().map(ShareholderCreation::legacy).toList());
+        }
+
+        public boolean serverAssigned() {
+            return creations.getFirst().serverAssigned();
+        }
+
+        /** Legacy view for historical commands with pre-assigned ShareholderIds. */
+        public List<ShareholderTransitions.Creation> targets() {
+            if (serverAssigned()) {
+                throw new IllegalStateException("Server-assigned AddShareholders has no input IDs");
+            }
+            return creations.stream()
+                    .map(
+                            c ->
+                                    new ShareholderTransitions.Creation(
+                                            c.legacyId(),
+                                            c.name(),
+                                            c.legacyUserId(),
+                                            c.defaultWeight()))
+                    .toList();
         }
     }
 
@@ -190,11 +288,89 @@ public record PotCommand(
         }
     }
 
-    public record CreateExpense(ExpenseDetails details, ExpenseFinancials financials)
+    public record CreateExpense(
+            PotId legacyPotId,
+            ExpenseId legacyId,
+            Label label,
+            LocalDate date,
+            Amount amount,
+            ShareholderId payerId,
+            Map<ShareholderId, Optional<Weight>> participants)
             implements Intent {
         public CreateExpense {
-            Objects.requireNonNull(details);
-            Objects.requireNonNull(financials);
+            if ((legacyPotId == null) != (legacyId == null)) {
+                throw new IllegalArgumentException(
+                        "Legacy CreateExpense requires both legacyPotId and legacyId");
+            }
+            Objects.requireNonNull(label);
+            Objects.requireNonNull(date);
+            Objects.requireNonNull(amount);
+            Objects.requireNonNull(payerId);
+            if (participants == null || participants.isEmpty())
+                throw new IllegalArgumentException("Participants required");
+            var copy = new LinkedHashMap<ShareholderId, Optional<Weight>>();
+            for (var entry : participants.entrySet()) {
+                Objects.requireNonNull(entry.getKey());
+                Objects.requireNonNull(entry.getValue());
+                copy.put(entry.getKey(), entry.getValue());
+            }
+            participants = Collections.unmodifiableMap(copy);
+        }
+
+        /** Server-assigned Expense creation (no client-supplied ExpenseId). */
+        public CreateExpense(
+                Label label,
+                LocalDate date,
+                Amount amount,
+                ShareholderId payerId,
+                List<ExpenseFinancials.Participation> participations) {
+            this(null, null, label, date, amount, payerId, toParticipantMap(participations));
+        }
+
+        /** Historical Expense creation retaining a pre-assigned ExpenseId. */
+        public CreateExpense(ExpenseDetails details, ExpenseFinancials financials) {
+            this(
+                    Objects.requireNonNull(details).potId(),
+                    details.expenseId(),
+                    details.label(),
+                    details.date(),
+                    Objects.requireNonNull(financials).amount(),
+                    financials.payerId(),
+                    financials.participants());
+            if (!details.potId().equals(financials.potId())
+                    || !details.expenseId().equals(financials.expenseId())) {
+                throw new IllegalArgumentException("Expense details/financials mismatch");
+            }
+        }
+
+        private static Map<ShareholderId, Optional<Weight>> toParticipantMap(
+                List<ExpenseFinancials.Participation> participations) {
+            if (participations == null || participations.isEmpty())
+                throw new IllegalArgumentException("Participants required");
+            var map = new LinkedHashMap<ShareholderId, Optional<Weight>>();
+            for (var p : participations) {
+                Objects.requireNonNull(p);
+                if (map.put(p.shareholderId(), p.specificWeight()) != null) {
+                    throw new IllegalArgumentException("Duplicate participant");
+                }
+            }
+            return map;
+        }
+
+        public boolean serverAssigned() {
+            return legacyId == null;
+        }
+
+        public ExpenseDetails details(PotId potId, ExpenseId expenseId) {
+            return new ExpenseDetails(potId, expenseId, label, date);
+        }
+
+        public ExpenseFinancials financials(PotId potId, ExpenseId expenseId) {
+            var entries =
+                    participants.entrySet().stream()
+                            .map(e -> new ExpenseFinancials.Participation(e.getKey(), e.getValue()))
+                            .toList();
+            return ExpenseFinancials.of(potId, expenseId, amount, payerId, entries);
         }
     }
 

@@ -183,8 +183,6 @@ class AdmissionPostgresTest {
                 Map.of(
                         "operation",
                         "CreatePot",
-                        "potId",
-                        pot,
                         "observedVersion",
                         0,
                         "bindingToken",
@@ -1053,8 +1051,8 @@ class AdmissionPostgresTest {
         var resources = Path.of("../../docs/archive/v3-sql-migrations/infra-postgres-write/db");
         var command =
                 Files.readString(
-                        resources.resolve(
-                                "v3-invitation/migration/V10__invitation_history.sql"));
+                        Path.of(
+                                "src/main/resources/db/write/migration/V2__server_assigned_pot_identities.sql"));
         var identity =
                 Files.readString(
                         resources.resolve(
@@ -1241,7 +1239,7 @@ class AdmissionPostgresTest {
                                 c.requester().issuer(),
                                 c.requester().subject(),
                                 c.bindingToken(),
-                                c.potId().value(),
+                                c.potId() == null ? null : c.potId().value(),
                                 c.observedVersion(),
                                 c.intent().getClass().getSimpleName(),
                                 PotCommandJson.encode(c));

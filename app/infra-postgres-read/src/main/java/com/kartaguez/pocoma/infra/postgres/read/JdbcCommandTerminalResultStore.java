@@ -1,5 +1,7 @@
 package com.kartaguez.pocoma.infra.postgres.read;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kartaguez.pocoma.domain.identity.ExternalIdentity;
 import com.kartaguez.pocoma.domain.projection.CommandTerminalResult;
 import com.kartaguez.pocoma.infra.tx.spring.SpringAttemptTransactions;
@@ -7,11 +9,13 @@ import com.kartaguez.pocoma.port.projection.CommandTerminalResultStore;
 import com.kartaguez.pocoma.port.projection.ReadEvidence;
 import com.kartaguez.pocoma.port.transaction.RecoveryReadContext;
 
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.UUID;
 import javax.sql.DataSource;
 
 public final class JdbcCommandTerminalResultStore implements CommandTerminalResultStore {
+    private static final ObjectMapper JSON = new ObjectMapper();
     private static final ReadAvailability.Family FAMILY = ReadAvailability.Family.COMMAND_RESULT_AVAILABLE;
 
     private final ReadJdbc db;
@@ -47,8 +51,9 @@ public final class JdbcCommandTerminalResultStore implements CommandTerminalResu
                                             """
                                             insert into read_command_result (
                                                 request_id, operation, requester_issuer, requester_subject,
-                                                pot_id, write_outcome, resulting_pot_version, rejection
-                                            ) values (?,?,?,?,?,?,?,?)
+                                                pot_id, write_outcome, resulting_pot_version, rejection,
+                                                created_resources
+                                            ) values (?,?,?,?,?,?,?,?,?::jsonb)
                                             on conflict (request_id) do nothing
                                             """,
                                             value.requestId(),
@@ -58,7 +63,8 @@ public final class JdbcCommandTerminalResultStore implements CommandTerminalResu
                                             value.potId(),
                                             value.writeOutcome(),
                                             value.resultingPotVersion(),
-                                            value.rejection())
+                                            value.rejection(),
+                                            encodeCreatedResources(value.createdResources()))
                                     == 1;
                     ReadJdbc.same(value, load(value.requestId()).orElse(null));
                     return inserted;
@@ -105,7 +111,7 @@ public final class JdbcCommandTerminalResultStore implements CommandTerminalResu
                 .query(
                         """
                         select operation, requester_issuer, requester_subject, pot_id, write_outcome,
-                               resulting_pot_version, rejection
+                               resulting_pot_version, rejection, created_resources::text
                         from read_command_result where request_id = ?
                         """,
                         (row, index) ->
@@ -116,10 +122,68 @@ public final class JdbcCommandTerminalResultStore implements CommandTerminalResu
                                         row.getObject(4, UUID.class),
                                         row.getString(5),
                                         row.getObject(6, Long.class),
-                                        row.getString(7)),
+                                        row.getString(7),
+                                        decodeCreatedResources(row.getString(8))),
                         requestId)
                 .stream()
                 .findFirst();
     }
 
+    private static String encodeCreatedResources(CommandTerminalResult.CreatedResources created) {
+        if (created == null) {
+            return null;
+        }
+        var n = JSON.createObjectNode();
+        if (created.potId() != null) {
+            n.put("potId", created.potId().toString());
+        } else if (created.expenseId() != null) {
+            n.put("expenseId", created.expenseId().toString());
+        } else if (created.shareholders() != null) {
+            var arr = n.withArray("shareholders");
+            for (var s : created.shareholders()) {
+                arr.addObject()
+                        .put("inputIndex", s.inputIndex())
+                        .put("shareholderId", s.shareholderId().toString());
+            }
+        }
+        return n.toString();
+    }
+
+    private static CommandTerminalResult.CreatedResources decodeCreatedResources(String raw) {
+        if (raw == null) {
+            return null;
+        }
+        try {
+            JsonNode n = JSON.readTree(raw);
+            if (!n.isObject() || n.size() != 1) {
+                throw new IllegalArgumentException();
+            }
+            if (n.has("potId")) {
+                return CommandTerminalResult.CreatedResources.pot(
+                        UUID.fromString(n.required("potId").textValue()));
+            }
+            if (n.has("expenseId")) {
+                return CommandTerminalResult.CreatedResources.expense(
+                        UUID.fromString(n.required("expenseId").textValue()));
+            }
+            if (n.has("shareholders") && n.required("shareholders").isArray()) {
+                var items = new ArrayList<CommandTerminalResult.CreatedShareholder>();
+                for (JsonNode s : n.required("shareholders")) {
+                    if (!s.isObject()
+                            || s.size() != 2
+                            || !s.required("inputIndex").isIntegralNumber()) {
+                        throw new IllegalArgumentException();
+                    }
+                    items.add(
+                            new CommandTerminalResult.CreatedShareholder(
+                                    s.required("inputIndex").intValue(),
+                                    UUID.fromString(s.required("shareholderId").textValue())));
+                }
+                return CommandTerminalResult.CreatedResources.shareholders(items);
+            }
+            throw new IllegalArgumentException();
+        } catch (Exception invalid) {
+            throw new IllegalStateException("Invalid READ Command createdResources");
+        }
+    }
 }

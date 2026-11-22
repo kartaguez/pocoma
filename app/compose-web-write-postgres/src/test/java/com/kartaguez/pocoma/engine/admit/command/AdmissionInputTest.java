@@ -38,18 +38,15 @@ class AdmissionInputTest {
     }
 
     static Map<String, Object> input(String op, Object payload) {
-        return new LinkedHashMap<>(
-                Map.of(
-                        "operation",
-                        op,
-                        "potId",
-                        POT,
-                        "observedVersion",
-                        op.equals("CreatePot") ? 0 : 1,
-                        "bindingToken",
-                        "binding-token",
-                        "payload",
-                        payload));
+        var map = new LinkedHashMap<String, Object>();
+        map.put("operation", op);
+        if (!op.equals("CreatePot")) {
+            map.put("potId", POT);
+        }
+        map.put("observedVersion", op.equals("CreatePot") ? 0 : 1);
+        map.put("bindingToken", "binding-token");
+        map.put("payload", payload);
+        return map;
     }
 
     private static final Map<String, Map<String, Object>> OPERATION_PAYLOADS =
@@ -63,7 +60,6 @@ class AdmissionInputTest {
                                     "targets",
                                     List.of(
                                             Map.of(
-                                                    "id", SID,
                                                     "name", "A",
                                                     "attachment", "SELF",
                                                     "weight", fraction("2", "4"))))),
@@ -82,7 +78,6 @@ class AdmissionInputTest {
                     Map.entry(
                             "CreateExpense",
                             Map.of(
-                                    "id", EID,
                                     "label", "E",
                                     "date", "2026-11-04",
                                     "amount", fraction("10", "3"),

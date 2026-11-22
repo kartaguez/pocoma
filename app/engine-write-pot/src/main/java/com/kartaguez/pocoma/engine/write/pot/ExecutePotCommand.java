@@ -44,6 +44,7 @@ public final class ExecutePotCommand implements ConsumptionParticipant {
     private final PotHistoryPort history;
     private final PotRevisionPort revisions;
     private final Clock clock;
+    private final Supplier<UUID> ids;
     private InvitationStore invitations;
 
     public ExecutePotCommand(
@@ -53,12 +54,24 @@ public final class ExecutePotCommand implements ConsumptionParticipant {
             PotHistoryPort history,
             PotRevisionPort revisions,
             Clock clock) {
+        this(store, observation, authority, history, revisions, clock, UUID::randomUUID);
+    }
+
+    public ExecutePotCommand(
+            PotCommandStore store,
+            PotCommandObservation observation,
+            PotActorAuthority authority,
+            PotHistoryPort history,
+            PotRevisionPort revisions,
+            Clock clock,
+            Supplier<UUID> ids) {
         this.store = Objects.requireNonNull(store);
         this.observation = Objects.requireNonNull(observation);
         this.authority = Objects.requireNonNull(authority);
         this.history = Objects.requireNonNull(history);
         this.revisions = Objects.requireNonNull(revisions);
         this.clock = Objects.requireNonNull(clock);
+        this.ids = Objects.requireNonNull(ids);
     }
 
     public ExecutePotCommand(
@@ -69,7 +82,20 @@ public final class ExecutePotCommand implements ConsumptionParticipant {
             PotRevisionPort revisions,
             Clock clock,
             InvitationStore invitations) {
-        this(store, observation, authority, history, revisions, clock);
+        this(store, observation, authority, history, revisions, clock, UUID::randomUUID);
+        this.invitations = Objects.requireNonNull(invitations);
+    }
+
+    public ExecutePotCommand(
+            PotCommandStore store,
+            PotCommandObservation observation,
+            PotActorAuthority authority,
+            PotHistoryPort history,
+            PotRevisionPort revisions,
+            Clock clock,
+            InvitationStore invitations,
+            Supplier<UUID> ids) {
+        this(store, observation, authority, history, revisions, clock, ids);
         this.invitations = Objects.requireNonNull(invitations);
     }
 
@@ -132,8 +158,10 @@ public final class ExecutePotCommand implements ConsumptionParticipant {
             throw new InconsistentPotFactsException("Request changed after preparation");
         }
         if (!authority.protect(command, prepared.actor())) throw new Collision();
+        PotId targetPot = prepared.result().effectivePotId(command);
         if (prepared.actor().actor().isPresent()
-                && !store.protectPot(command.potId(), prepared.workingVersion())) {
+                && targetPot != null
+                && !store.protectPot(targetPot, prepared.workingVersion())) {
             throw new Collision();
         }
     }
@@ -164,11 +192,19 @@ public final class ExecutePotCommand implements ConsumptionParticipant {
         var actor = authority.observe(c);
         // Even invalid authority must be protected until its rejection commits.
         if (actor.actor().isEmpty()) return rejected(c, actor, 0, "INVALID_BINDING");
+        if (c.intent() instanceof CreatePot intent && c.potId() == null) {
+            PotId assigned = new PotId(ids.get());
+            var existing = history.current(assigned, actor.actor().get(), selection(c.intent()));
+            if (existing.isPresent()) {
+                throw new Collision();
+            }
+            return prepareCreatePot(new ProposalContext(c, actor, 0L), intent, assigned, false);
+        }
         var selected = history.current(c.potId(), actor.actor().get(), selection(c.intent()));
         long version = selected.map(p -> p.facts().workingVersion()).orElse(0L);
         var ctx = new ProposalContext(c, actor, version);
         if (c.intent() instanceof CreatePot intent) {
-            return prepareCreatePot(ctx, intent, selected.isPresent());
+            return prepareCreatePot(ctx, intent, c.potId(), selected.isPresent());
         }
         if (selected.isEmpty()) return rejected(c, actor, 0, "NOT_FOUND");
         if (c.intent() instanceof CreateInvitation i) {
@@ -181,17 +217,18 @@ public final class ExecutePotCommand implements ConsumptionParticipant {
     }
 
     private Proposal prepareCreatePot(
-            ProposalContext ctx, CreatePot intent, boolean alreadyPresent) {
-        var c = ctx.command();
+            ProposalContext ctx, CreatePot intent, PotId targetPotId, boolean alreadyPresent) {
         return decision(
                 ctx,
+                targetPotId,
                 PotTransitions.create(
-                        c.potId(), intent.label(), ctx.actor().actor().get(), alreadyPresent),
+                        targetPotId, intent.label(), ctx.actor().actor().get(), alreadyPresent),
                 p -> revisions.createPot(p, clock.instant()),
                 p ->
                         List.of(
-                                component("POT_HEADER", c.potId(), p.header()),
-                                component("POT_DETAILS", c.potId(), p.details())));
+                                component("POT_HEADER", targetPotId, p.header()),
+                                component("POT_DETAILS", targetPotId, p.details())),
+                p -> CreatedResources.pot(targetPotId.value()));
     }
 
     private Proposal prepareCreateInvitation(
@@ -207,7 +244,7 @@ public final class ExecutePotCommand implements ConsumptionParticipant {
                 ctx.command(),
                 ctx.actor(),
                 ctx.workingVersion(),
-                new Result(Outcome.INVITATION_CREATED, null, null),
+                new Result(Outcome.INVITATION_CREATED, null, null, ctx.command().potId(), null),
                 () -> requireInvitations().insert(invitation),
                 List.of());
     }
@@ -295,15 +332,56 @@ public final class ExecutePotCommand implements ConsumptionParticipant {
             AddShareholders i,
             Map<ShareholderId, ShareholderReference> refs) {
         var c = ctx.command();
+        var actor = ctx.actor().actor().orElseThrow();
+        List<ShareholderTransitions.Creation> targets;
+        Map<ShareholderId, ShareholderReference> existence;
+        if (i.serverAssigned()) {
+            var allocated = new ArrayList<ShareholderTransitions.Creation>(i.creations().size());
+            var syntheticRefs = new HashMap<ShareholderId, ShareholderReference>();
+            var used = new HashSet<ShareholderId>();
+            for (var item : i.creations()) {
+                ShareholderId generated;
+                do {
+                    generated = new ShareholderId(ids.get());
+                } while (!used.add(generated));
+                allocated.add(
+                        new ShareholderTransitions.Creation(
+                                generated,
+                                item.name(),
+                                item.attachment() == Attachment.SELF
+                                        ? Optional.of(actor)
+                                        : Optional.empty(),
+                                item.defaultWeight()));
+                syntheticRefs.put(
+                        generated,
+                        new ShareholderReference(
+                                p.facts().potId(),
+                                p.facts().workingVersion(),
+                                generated,
+                                0L,
+                                Optional.empty()));
+            }
+            targets = List.copyOf(allocated);
+            existence = Map.copyOf(syntheticRefs);
+        } else {
+            targets = creationTargets(c, i, actor);
+            existence = refs;
+        }
         return decision(
                 ctx,
-                ShareholderTransitions.create(
-                        p.facts(),
-                        c.observedVersion(),
-                        creationTargets(c, i, ctx.actor().actor().orElseThrow()),
-                        refs),
+                c.potId(),
+                ShareholderTransitions.create(p.facts(), c.observedVersion(), targets, existence),
                 r -> revisions.createShareholders(c.potId(), r),
-                ExecutePotCommand::shareholderCreatedComponents);
+                ExecutePotCommand::shareholderCreatedComponents,
+                states -> {
+                    var created = new ArrayList<CreatedShareholder>(states.size());
+                    for (int idx = 0; idx < states.size(); idx++) {
+                        created.add(
+                                new CreatedShareholder(
+                                        idx, states.get(idx).header().value().shareholderId().value()));
+                    }
+                    return CreatedResources.shareholders(created);
+                });
     }
 
     private static List<Component> shareholderCreatedComponents(List<ShareholderState> states) {
@@ -388,26 +466,27 @@ public final class ExecutePotCommand implements ConsumptionParticipant {
             CreateExpense i,
             Map<ShareholderId, ShareholderReference> refs) {
         var c = ctx.command();
+        ExpenseId targetId = i.serverAssigned() ? new ExpenseId(ids.get()) : i.legacyId();
         boolean exists =
-                p.expenses().get(i.details().expenseId()).header() instanceof ComponentRead.Present<?>;
+                !i.serverAssigned()
+                        && p.expenses().get(targetId).header() instanceof ComponentRead.Present<?>;
         return decision(
                 ctx,
+                c.potId(),
                 ExpenseTransitions.create(
                         p.facts(),
                         c.observedVersion(),
-                        i.details(),
-                        i.financials(),
+                        i.details(c.potId(), targetId),
+                        i.financials(c.potId(), targetId),
                         exists,
                         refs),
                 r -> revisions.createExpense(c.potId(), r),
                 s ->
                         List.of(
-                                component("EXPENSE_HEADER", i.details().expenseId(), s.header()),
-                                component("EXPENSE_DETAILS", i.details().expenseId(), s.details()),
-                                component(
-                                        "EXPENSE_FINANCIALS",
-                                        i.details().expenseId(),
-                                        s.financials())));
+                                component("EXPENSE_HEADER", targetId, s.header()),
+                                component("EXPENSE_DETAILS", targetId, s.details()),
+                                component("EXPENSE_FINANCIALS", targetId, s.financials())),
+                s -> CreatedResources.expense(targetId.value()));
     }
 
     private Proposal decideUpdateExpenseDetails(
@@ -524,6 +603,16 @@ public final class ExecutePotCommand implements ConsumptionParticipant {
             TransitionResult<T> result,
             Consumer<TransitionResult.Changed<T>> apply,
             Function<T, List<Component>> components) {
+        return decision(ctx, ctx.command().potId(), result, apply, components, unused -> null);
+    }
+
+    private <T> Proposal decision(
+            ProposalContext ctx,
+            PotId targetPotId,
+            TransitionResult<T> result,
+            Consumer<TransitionResult.Changed<T>> apply,
+            Function<T, List<Component>> components,
+            Function<T, CreatedResources> createdResources) {
         var c = ctx.command();
         var actor = ctx.actor();
         long version = ctx.workingVersion();
@@ -535,20 +624,23 @@ public final class ExecutePotCommand implements ConsumptionParticipant {
                     c,
                     actor,
                     version,
-                    new Result(Outcome.UNCHANGED, unchanged.currentPotVersion(), null),
+                    new Result(
+                            Outcome.UNCHANGED, unchanged.currentPotVersion(), null, targetPotId, null),
                     () -> {},
                     List.of());
         }
         var changed = (TransitionResult.Changed<T>) result;
+        var created = createdResources.apply(changed.changes());
         return new Proposal(
                 c,
                 actor,
                 version,
-                new Result(Outcome.CHANGED, changed.candidatePotVersion(), null),
+                new Result(
+                        Outcome.CHANGED, changed.candidatePotVersion(), null, targetPotId, created),
                 () -> {
                     if (!(c.intent() instanceof CreatePot))
                         revisions.recordVersion(
-                                c.potId(),
+                                targetPotId,
                                 changed.expectedPotVersion(),
                                 changed.candidatePotVersion(),
                                 clock.instant());
@@ -559,7 +651,8 @@ public final class ExecutePotCommand implements ConsumptionParticipant {
 
     private static Proposal rejected(
             PotCommand c, PotActorAuthority.Witness actor, long version, String reason) {
-        return new Proposal(c, actor, version, Result.rejected(reason), () -> {}, List.of());
+        return new Proposal(
+                c, actor, version, Result.rejected(reason, c.potId()), () -> {}, List.of());
     }
 
     private static Component component(String kind, EntityId id, Versioned<?> revision) {
@@ -608,9 +701,11 @@ public final class ExecutePotCommand implements ConsumptionParticipant {
         return switch (intent) {
             case PotCommand.AttachShareholderViaInvitation i -> Set.of(i.shareholderId());
             case AddShareholders i ->
-                    i.targets().stream()
-                            .map(ShareholderTransitions.Creation::id)
-                            .collect(Collectors.toSet());
+                    i.serverAssigned()
+                            ? Set.of()
+                            : i.creations().stream()
+                                    .map(PotCommand.ShareholderCreation::legacyId)
+                                    .collect(Collectors.toSet());
             case UpdateShareholderDetails i ->
                     i.targets().stream()
                             .map(ShareholderTransitions.DetailsIntent::id)
@@ -620,15 +715,16 @@ public final class ExecutePotCommand implements ConsumptionParticipant {
                             .map(ShareholderTransitions.WeightIntent::id)
                             .collect(Collectors.toSet());
             case DeleteShareholder i -> Set.of(i.id());
-            case CreateExpense i -> referenceIds(i.financials());
-            case UpdateExpenseFinancials i -> referenceIds(i.financials());
+            case CreateExpense i -> referenceIds(i.payerId(), i.participants().keySet());
+            case UpdateExpenseFinancials i ->
+                    referenceIds(i.financials().payerId(), i.financials().participants().keySet());
             default -> Set.of();
         };
     }
 
     private static Set<ExpenseId> selectedExpenses(Intent intent) {
         return switch (intent) {
-            case CreateExpense i -> Set.of(i.details().expenseId());
+            case CreateExpense i -> i.serverAssigned() ? Set.of() : Set.of(i.legacyId());
             case UpdateExpenseDetails i -> Set.of(i.id());
             case UpdateExpenseFinancials i -> Set.of(i.financials().expenseId());
             case DeleteExpense i -> Set.of(i.id());
@@ -642,9 +738,10 @@ public final class ExecutePotCommand implements ConsumptionParticipant {
         return invitations;
     }
 
-    private static Set<ShareholderId> referenceIds(ExpenseFinancials f) {
-        var ids = new HashSet<>(f.participants().keySet());
-        ids.add(f.payerId());
+    private static Set<ShareholderId> referenceIds(
+            ShareholderId payerId, Set<ShareholderId> participants) {
+        var ids = new HashSet<>(participants);
+        ids.add(payerId);
         return Set.copyOf(ids);
     }
 }

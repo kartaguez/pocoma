@@ -153,13 +153,31 @@ def initialize_v3_write():
     reg = psql("pocoma_write", "SELECT to_regclass('v3_write.v3_command')::text;")
     if reg and reg != "":
         require_routing_bootstrap("pocoma_write", "v3_write", 2)
-        print("  ✓ Schema v3_write already initialized.")
+        created_res_col = psql(
+            "pocoma_write",
+            "SELECT column_name FROM information_schema.columns "
+            "WHERE table_schema = 'v3_write' AND table_name = 'v3_command_result' "
+            "AND column_name = 'created_resources';",
+        )
+        if not created_res_col:
+            print("▶ Applying additive WRITE migration V2__server_assigned_pot_identities.sql...")
+            apply_migrations(
+                "pocoma_write",
+                "v3_write",
+                "pocoma",
+                "pocoma_write",
+                ["app/infra-postgres-write/src/main/resources/db/write/migration/V2__server_assigned_pot_identities.sql"],
+            )
+            print("  ✓ Additive WRITE migration V2 applied.")
+        else:
+            print("  ✓ Schema v3_write (V2 server-assigned identities) already initialized.")
         return
 
     print("▶ Initializing schema v3_write in database pocoma_write...")
 
     write_migrations = [
         "app/infra-postgres-write/src/main/resources/db/write/migration/V1__initial_schema.sql",
+        "app/infra-postgres-write/src/main/resources/db/write/migration/V2__server_assigned_pot_identities.sql",
     ]
 
     # Apply SQL scripts
@@ -280,6 +298,24 @@ def initialize_v3_read():
         else:
             print("  ✓ Schema v3_read (V4 PotBalance shared storage) already initialized.")
         initialize_read_availability()
+        created_res_col = psql(
+            "pocoma_read",
+            "SELECT column_name FROM information_schema.columns "
+            "WHERE table_schema = 'v3_read' AND table_name = 'read_command_result' "
+            "AND column_name = 'created_resources';",
+        )
+        if not created_res_col:
+            print("▶ Applying additive READ migration V4.1__server_assigned_pot_identities.sql...")
+            apply_migrations(
+                "pocoma_read",
+                "v3_read",
+                "pocoma",
+                "pocoma_read",
+                ["app/infra-postgres-read/src/main/resources/db/read/migration/V4.1__server_assigned_pot_identities.sql"],
+            )
+            print("  ✓ Additive READ migration V4.1 applied.")
+        else:
+            print("  ✓ Schema v3_read (V4.1 server-assigned identities) already initialized.")
         maint_content = (REPO_ROOT / READ_MAINTENANCE).read_text(encoding="utf-8")
         psql_script("pocoma_read", "public", maint_content, single_transaction=True)
         return
@@ -291,6 +327,7 @@ def initialize_v3_read():
         "app/infra-postgres-read/src/main/resources/db/read/migration/V2__pot_balance_aggregate.sql",
         "app/infra-postgres-read/src/main/resources/db/read/migration/V3__pot_version_radix16.sql",
         "app/infra-postgres-read/src/main/resources/db/read/migration/V4__pot_balance_shared_storage.sql",
+        "app/infra-postgres-read/src/main/resources/db/read/migration/V4.1__server_assigned_pot_identities.sql",
         READ_AVAILABILITY_MIGRATION,
     ]
 

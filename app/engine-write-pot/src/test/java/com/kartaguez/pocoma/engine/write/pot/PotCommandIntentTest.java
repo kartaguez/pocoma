@@ -45,7 +45,7 @@ class PotCommandIntentTest {
         var modes = new HashMap<ShareholderId, Attachment>();
         modes.put(id, Attachment.SELF);
         var intent =
-                new AddShareholders(
+                AddShareholders.legacy(
                         List.of(
                                 new ShareholderTransitions.Creation(
                                         id,
@@ -113,7 +113,7 @@ class PotCommandIntentTest {
                         new Name("B"),
                         Optional.empty(),
                         new com.kartaguez.pocoma.domain.pot.value.Weight(Fraction.ONE)),
-                AddShareholders::new,
+                AddShareholders::legacy,
                 i -> ((AddShareholders) i).targets());
     }
 

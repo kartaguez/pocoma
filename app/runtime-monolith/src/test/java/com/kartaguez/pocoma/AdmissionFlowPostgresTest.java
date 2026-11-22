@@ -199,17 +199,15 @@ class AdmissionFlowPostgresTest {
     }
 
     Map<String, Object> body(String operation, Object payload) {
-        return Map.of(
-                "operation",
-                operation,
-                "potId",
-                pot.toString(),
-                "observedVersion",
-                operation.equals("CreatePot") ? 0 : version,
-                "bindingToken",
-                token,
-                "payload",
-                payload);
+        var m = new LinkedHashMap<String, Object>();
+        m.put("operation", operation);
+        if (!operation.equals("CreatePot")) {
+            m.put("potId", pot.toString());
+        }
+        m.put("observedVersion", operation.equals("CreatePot") ? 0 : version);
+        m.put("bindingToken", token);
+        m.put("payload", payload);
+        return m;
     }
 
     JsonNode execute(String operation, Object payload) throws Exception {
@@ -219,6 +217,20 @@ class AdmissionFlowPostgresTest {
         var result = poll("/commands/" + id + "/result", "owner", null);
         assertEquals("COMPLETED", result.get("outcome").asText(), result.toString());
         version = result.get("resultingPotVersion").asLong();
+        if (operation.equals("CreatePot")) {
+            pot = UUID.fromString(result.get("potId").asText());
+            assertEquals(pot.toString(), result.get("createdResources").get("potId").asText());
+        } else if (operation.equals("AddShareholders")) {
+            share =
+                    UUID.fromString(
+                            result.get("createdResources")
+                                    .get("shareholders")
+                                    .get(0)
+                                    .get("shareholderId")
+                                    .asText());
+        } else if (operation.equals("CreateExpense")) {
+            expense = UUID.fromString(result.get("createdResources").get("expenseId").asText());
+        }
         assertEquals(id, accepted(post("/commands", "owner", key, body)));
         assertEquals(
                 1,
@@ -263,8 +275,6 @@ class AdmissionFlowPostgresTest {
                         "targets",
                         List.of(
                                 Map.of(
-                                        "id",
-                                        share.toString(),
                                         "name",
                                         "Owner",
                                         "attachment",
@@ -294,8 +304,6 @@ class AdmissionFlowPostgresTest {
         execute(
                 "CreateExpense",
                 Map.of(
-                        "id",
-                        expense.toString(),
                         "label",
                         "Expense",
                         "date",
@@ -379,30 +387,33 @@ class AdmissionFlowPostgresTest {
         register("owner");
         String creatorToken = token;
         execute("CreatePot", Map.of("label", "Departure"));
-        UUID memberShare = UUID.randomUUID();
-        execute(
-                "AddShareholders",
-                Map.of(
-                        "targets",
-                        List.of(
-                                Map.of(
-                                        "id",
-                                        share.toString(),
-                                        "name",
-                                        "Creator",
-                                        "attachment",
-                                        "SELF",
-                                        "weight",
-                                        fraction(1, 1)),
-                                Map.of(
-                                        "id",
-                                        memberShare.toString(),
-                                        "name",
-                                        "Member",
-                                        "attachment",
-                                        "FREE",
-                                        "weight",
-                                        fraction(1, 1)))));
+        var added =
+                execute(
+                        "AddShareholders",
+                        Map.of(
+                                "targets",
+                                List.of(
+                                        Map.of(
+                                                "name",
+                                                "Creator",
+                                                "attachment",
+                                                "SELF",
+                                                "weight",
+                                                fraction(1, 1)),
+                                        Map.of(
+                                                "name",
+                                                "Member",
+                                                "attachment",
+                                                "FREE",
+                                                "weight",
+                                                fraction(1, 1)))));
+        UUID memberShare =
+                UUID.fromString(
+                        added.get("createdResources")
+                                .get("shareholders")
+                                .get(1)
+                                .get("shareholderId")
+                                .asText());
         register("member");
         String memberToken = get("/me/binding", "member", null).get("bindingToken").asText();
         attachMemberViaControlledWriteFixture(memberShare);
@@ -410,8 +421,6 @@ class AdmissionFlowPostgresTest {
         execute(
                 "CreateExpense",
                 Map.of(
-                        "id",
-                        expense.toString(),
                         "label",
                         "History",
                         "date",
@@ -772,8 +781,6 @@ class AdmissionFlowPostgresTest {
         for (int n = 0; n < count; n++) {
             targets.add(
                     Map.of(
-                            "id",
-                            new UUID(0, 1000 + n).toString(),
                             "name",
                             "Owner " + n,
                             "attachment",
@@ -812,7 +819,7 @@ class AdmissionFlowPostgresTest {
                                         List.of(
                                                 Map.of(
                                                         "id",
-                                                        new UUID(0, 1000).toString(),
+                                                        share.toString(),
                                                         "name",
                                                         "Stale",
                                                         "attachment",

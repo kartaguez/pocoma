@@ -327,7 +327,7 @@ class PotCommandCompositionPostgresTest {
                                         id));
                     };
             submit.accept(
-                    new PotCommand.AddShareholders(
+                    PotCommand.AddShareholders.legacy(
                             List.of(
                                     new ShareholderTransitions.Creation(
                                             a, new Name("A"), Optional.empty(), one),

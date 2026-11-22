@@ -40,7 +40,9 @@ class InvitationReadPostgresTest extends InvitationFixture {
         var write = f.worker.write;
         UUID wrong =
                 write.queryForObject(
-                        "select request_id from v3_command where operation='CreatePot' and pot_id=?",
+                        "select c.request_id from v3_command c join v3_command_result r"
+                                + " using(request_id) where c.operation='CreatePot' and"
+                                + " coalesce(r.pot_id, c.pot_id)=?",
                         UUID.class,
                         f.pot);
         var principal =

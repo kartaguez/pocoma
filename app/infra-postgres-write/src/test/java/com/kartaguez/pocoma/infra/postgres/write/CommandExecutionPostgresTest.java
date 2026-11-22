@@ -325,8 +325,7 @@ class CommandExecutionPostgresTest {
                 2L,
                 run(command(
                                 1,
-                                new AddShareholders(
-                                        List.of(
+                                AddShareholders.legacy(List.of(
                                                 new ShareholderTransitions.Creation(
                                                         a, new Name("A"), Optional.empty(), one),
                                                 new ShareholderTransitions.Creation(
@@ -636,8 +635,7 @@ class CommandExecutionPostgresTest {
                 run(
                         command(
                                 2,
-                                new AddShareholders(
-                                        List.of(
+                                AddShareholders.legacy(List.of(
                                                 new ShareholderTransitions.Creation(
                                                         a,
                                                         new Name("x"),
@@ -747,8 +745,7 @@ class CommandExecutionPostgresTest {
                         () -> new UpdateShareholderDetails(List.of()),
                         () -> new UpdateShareholderWeights(List.of()),
                         () ->
-                                new AddShareholders(
-                                        List.of(
+                                AddShareholders.legacy(List.of(
                                                 new ShareholderTransitions.Creation(
                                                         a, new Name("A"), Optional.empty(), one),
                                                 new ShareholderTransitions.Creation(

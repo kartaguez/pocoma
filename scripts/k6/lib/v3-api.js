@@ -74,8 +74,10 @@ export class V3ApiClient {
 
   // ---- Admission -------------------------------------------------------------
   submitCommand(operation, potId, observedVersion, payload, idempotencyKey, retryOptions = {}) {
-    const key = idempotencyKey || `perf-${operation}-${potId}-${observedVersion}-${Math.random().toString(36).slice(2, 10)}`;
-    const body = JSON.stringify({ operation, potId, observedVersion, bindingToken: this.bindingToken, payload });
+    const key = idempotencyKey || `perf-${operation}-${potId || 'new'}-${observedVersion}-${Math.random().toString(36).slice(2, 10)}`;
+    const bodyObj = { operation, observedVersion, bindingToken: this.bindingToken, payload };
+    if (operation !== 'CreatePot') bodyObj.potId = potId;
+    const body = JSON.stringify(bodyObj);
     const maxRetries = typeof retryOptions.maxRetries === 'number' ? retryOptions.maxRetries : 0;
     const baseBackoffMs = typeof retryOptions.backoffMs === 'number' ? retryOptions.backoffMs : 10;
 

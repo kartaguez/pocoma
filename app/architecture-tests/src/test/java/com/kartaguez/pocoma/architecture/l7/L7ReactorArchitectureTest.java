@@ -183,7 +183,11 @@ class L7ReactorArchitectureTest {
         try(var files=Files.walk(APP.resolve("infra-postgres-write/src/main/resources"))) {
             writeMainSql=files.filter(p->p.toString().endsWith(".sql")).map(p->APP.relativize(p).toString()).sorted().toList();
         }
-        assertEquals(List.of("infra-postgres-write/src/main/resources/db/write/migration/V1__initial_schema.sql"),writeMainSql);
+        assertEquals(
+                List.of(
+                        "infra-postgres-write/src/main/resources/db/write/migration/V1__initial_schema.sql",
+                        "infra-postgres-write/src/main/resources/db/write/migration/V2__server_assigned_pot_identities.sql"),
+                writeMainSql);
         List<String> readMainSql;
         try(var files=Files.walk(APP.resolve("infra-postgres-read/src/main/resources"))) {
             readMainSql=files.filter(p->p.toString().endsWith(".sql")).map(p->APP.relativize(p).toString()).sorted().toList();
@@ -194,6 +198,7 @@ class L7ReactorArchitectureTest {
                         "infra-postgres-read/src/main/resources/db/read/migration/V1__initial_schema.sql",
                         "infra-postgres-read/src/main/resources/db/read/migration/V2__pot_balance_aggregate.sql",
                         "infra-postgres-read/src/main/resources/db/read/migration/V3__pot_version_radix16.sql",
+                        "infra-postgres-read/src/main/resources/db/read/migration/V4.1__server_assigned_pot_identities.sql",
                         "infra-postgres-read/src/main/resources/db/read/migration/V4__pot_balance_shared_storage.sql",
                         "infra-postgres-read/src/main/resources/db/read/pilot/migration/V5__command_result_availability.sql"),
                 readMainSql);

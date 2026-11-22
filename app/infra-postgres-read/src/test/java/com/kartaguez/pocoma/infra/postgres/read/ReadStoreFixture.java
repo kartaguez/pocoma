@@ -21,7 +21,7 @@ final class ReadStoreFixture {
     final PostgreSQLContainer pg; final String schema,adminRole,runtimeRole;
     final DataSource admin,source; final JdbcTemplate oracle,sql; final SpringAttemptTransactions tx;
     private final String[] locations;
-    ReadStoreFixture(PostgreSQLContainer pg) { this(pg,"4",CURRENT_LOCATIONS); }
+    ReadStoreFixture(PostgreSQLContainer pg) { this(pg,"4.1",CURRENT_LOCATIONS); }
     static ReadStoreFixture atVersion(PostgreSQLContainer pg,String target) { return new ReadStoreFixture(pg,target,CURRENT_LOCATIONS); }
     static ReadStoreFixture historical(PostgreSQLContainer pg,String target) { return new ReadStoreFixture(pg,target,HISTORICAL_LOCATIONS); }
     private ReadStoreFixture(PostgreSQLContainer pg,String target,String[] locations) {

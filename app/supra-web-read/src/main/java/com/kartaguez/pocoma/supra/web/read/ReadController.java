@@ -69,7 +69,13 @@ public final class ReadController {
     @GetMapping("/commands/{requestId}/result")
     public void command(@PathVariable String requestId, AuthenticatedExternalPrincipal principal, HttpServletRequest request, HttpServletResponse response) throws IOException {
         query(request); var value = commands.get(uuid(requestId), eui(principal)).orElseThrow(() -> new ReadTransport.Failure(404));
-        transport.write(response, new ReadDtos.Command(value.requestId(), value.operation(), value.potId(), value.outcome(), value.resultingPotVersion(), value.rejection()));
+        var cr = value.createdResources();
+        ReadDtos.CreatedResources created = cr == null ? null : new ReadDtos.CreatedResources(
+                cr.potId(),
+                cr.expenseId(),
+                cr.shareholders() == null ? null : cr.shareholders().stream()
+                        .map(s -> new ReadDtos.CreatedShareholder(s.inputIndex(), s.shareholderId())).toList());
+        transport.write(response, new ReadDtos.Command(value.requestId(), value.operation(), value.potId(), value.outcome(), value.resultingPotVersion(), value.rejection(), created));
     }
     @GetMapping("/identity/requests/{requestId}/result")
     public void identity(@PathVariable String requestId, AuthenticatedExternalPrincipal principal, HttpServletRequest request, HttpServletResponse response) throws IOException {

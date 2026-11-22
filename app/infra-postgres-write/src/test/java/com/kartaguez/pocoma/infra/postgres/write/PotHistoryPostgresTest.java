@@ -420,7 +420,7 @@ class PotHistoryPostgresTest {
                                         "v3_expense_financials",
                                         "v3_expense_participant")));
         assertEquals(
-                1,
+                2,
                 jdbc.queryForObject(
                         "select count(*) from flyway_schema_history where version is not null",
                         Integer.class));

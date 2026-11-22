@@ -209,8 +209,7 @@ class L73TerminationCrashAndCompositePostgresTest {
                             "tok",
                             potId,
                             1L,
-                            new AddShareholders(
-                                    List.of(
+                            AddShareholders.legacy(List.of(
                                             new ShareholderTransitions.Creation(
                                                     sh1,
                                                     new Name("Alice"),

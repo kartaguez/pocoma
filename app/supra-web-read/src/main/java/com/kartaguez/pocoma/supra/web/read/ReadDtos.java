@@ -21,7 +21,14 @@ public final class ReadDtos {
     public record Binding(long euiVersion, boolean active, String bindingToken) {
         @Override public String toString() { return "Binding[REDACTED]"; }
     }
-    public record Command(UUID requestId, String operation, UUID potId, String outcome, Long resultingPotVersion, String rejection) {}
+    public record CreatedShareholder(int inputIndex, UUID shareholderId) {}
+    @com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)
+    public record CreatedResources(UUID potId, UUID expenseId, List<CreatedShareholder> shareholders) {}
+    public record Command(UUID requestId, String operation, UUID potId, String outcome, Long resultingPotVersion, String rejection, CreatedResources createdResources) {
+        public Command(UUID requestId, String operation, UUID potId, String outcome, Long resultingPotVersion, String rejection) {
+            this(requestId, operation, potId, outcome, resultingPotVersion, rejection, null);
+        }
+    }
     public record Eui(String issuer, String subject) {}
     public record Identity(UUID requestId, String operation, String outcome, Eui targetEui, Long targetVersion, String rejection) {}
     public static Rational rational(Fraction value) { return new Rational(value.numerator().toString(), value.denominator().toString()); }

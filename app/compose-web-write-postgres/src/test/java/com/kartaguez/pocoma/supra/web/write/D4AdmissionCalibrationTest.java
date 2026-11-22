@@ -36,18 +36,15 @@ class D4AdmissionCalibrationTest {
     }
 
     static Map<String, Object> input(String op, Object payload) {
-        return new LinkedHashMap<>(
-                Map.of(
-                        "operation",
-                        op,
-                        "potId",
-                        POT,
-                        "observedVersion",
-                        op.equals("CreatePot") ? 0 : 1,
-                        "bindingToken",
-                        "binding-token",
-                        "payload",
-                        payload));
+        var map = new LinkedHashMap<String, Object>();
+        map.put("operation", op);
+        if (!op.equals("CreatePot")) {
+            map.put("potId", POT);
+        }
+        map.put("observedVersion", op.equals("CreatePot") ? 0 : 1);
+        map.put("bindingToken", "binding-token");
+        map.put("payload", payload);
+        return map;
     }
 
     private static final Map<String, Map<String, Object>> OPERATION_PAYLOADS =
@@ -61,7 +58,6 @@ class D4AdmissionCalibrationTest {
                                     "targets",
                                     List.of(
                                             Map.of(
-                                                    "id", SID,
                                                     "name", "A",
                                                     "attachment", "SELF",
                                                     "weight", fraction("2", "4"))))),
@@ -80,7 +76,6 @@ class D4AdmissionCalibrationTest {
                     Map.entry(
                             "CreateExpense",
                             Map.of(
-                                    "id", EID,
                                     "label", "E",
                                     "date", "2026-11-04",
                                     "amount", fraction("10", "3"),
@@ -129,7 +124,6 @@ class D4AdmissionCalibrationTest {
         for (int n = 0; n < count; n++) {
             targets.add(
                     Map.of(
-                            "id", new UUID(0, idOffset + n).toString(),
                             "name", prefix + n,
                             "attachment", "SELF",
                             "weight", weight));

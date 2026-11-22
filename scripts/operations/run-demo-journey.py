@@ -303,7 +303,6 @@ def _run_bruno_cli(base_url, management_url, token, binding_token):
         "--env-var", f"managementUrl={management_url}",
         "--env-var", f"bearerToken={token}",
         "--env-var", f"bindingToken={binding_token}",
-        "--env-var", f"potId={uuid.uuid4()}",
         "--env-var", f"timestamp={int(time.time())}",
         "--sandbox", "developer", "--noproxy",
     ]
