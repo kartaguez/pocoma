@@ -51,10 +51,16 @@ class TerminalResultsReadStorePostgresTest {
         f.evidence("A10-J immutable races full equality",List.of(c,i));
     }
     @Test void migrationsAndPrivileges() throws Exception {
-        var f=ReadStoreFixture.historical(PG,"6"); assertEquals(1,f.migrate("7"));
+        var hist=ReadStoreFixture.historical(PG,"6"); assertEquals(1,hist.migrate("7"));
+        assertFalse(hist.oracle.queryForObject("select has_table_privilege(?,'read_command_result','UPDATE,DELETE,TRUNCATE')",Boolean.class,hist.runtimeRole));
+        assertFalse(hist.oracle.queryForObject("select has_table_privilege(?,'read_identity_request_result','UPDATE,DELETE,TRUNCATE')",Boolean.class,hist.runtimeRole));
+        var f=ReadStoreFixture.atVersion(PG,"4"); assertEquals(1,f.migrate("4.1"));
         assertFalse(f.oracle.queryForObject("select has_table_privilege(?,'read_command_result','UPDATE,DELETE,TRUNCATE')",Boolean.class,f.runtimeRole));
         assertFalse(f.oracle.queryForObject("select has_table_privilege(?,'read_identity_request_result','UPDATE,DELETE,TRUNCATE')",Boolean.class,f.runtimeRole));
         var cs=new JdbcCommandTerminalResultStore(f.source,f.tx); var value=command(UUID.randomUUID(),"REJECTED"); f.write(() -> cs.insertOrVerify(value));
+        var rejectedCreatePot=new CommandTerminalResult(UUID.randomUUID(),"CreatePot",e1,null,"REJECTED",null,"INVALID_BINDING",null);
+        f.write(() -> cs.insertOrVerify(rejectedCreatePot));
+        assertEquals(rejectedCreatePot,f.tx.read(x -> cs.find(rejectedCreatePot.requestId()).orElseThrow()));
         assertThrows(RuntimeException.class,() -> f.oracle.execute("truncate read_command_result"));
         assertThrows(RuntimeException.class,() -> cs.find(value.requestId()),"no autonomous result read");
         f.evidence("migrations terminal forms",value);

@@ -54,7 +54,7 @@ abstract class InvitationFixture {
                 .schemas(f.worker.schema)
                 .defaultSchema(f.worker.schema)
                 .locations(
-                        "classpath:db/read/migration")
+                        "classpath:db/read/migration", "classpath:db/read/availability/migration")
                 .placeholders(
                         Map.of(
                                 "expectedDatabase",
@@ -91,33 +91,39 @@ abstract class InvitationFixture {
         if (f != null) f.close();
     }
 
+    UUID otherShare;
+
     void startPot() throws Exception {
         startRoots();
         f.register("owner");
         f.execute("CreatePot", Map.of("label", "Invitation"));
-        f.execute(
-                "AddShareholders",
-                Map.of(
-                        "targets",
-                        List.of(
-                                Map.of(
-                                        "id",
-                                        f.share.toString(),
-                                        "name",
-                                        "Free",
-                                        "attachment",
-                                        "FREE",
-                                        "weight",
-                                        f.fraction(1, 1)),
-                                Map.of(
-                                        "id",
-                                        new UUID(4, 2).toString(),
-                                        "name",
-                                        "Other free",
-                                        "attachment",
-                                        "FREE",
-                                        "weight",
-                                        f.fraction(1, 1)))));
+        var added =
+                f.execute(
+                        "AddShareholders",
+                        Map.of(
+                                "targets",
+                                List.of(
+                                        Map.of(
+                                                "name",
+                                                "Free",
+                                                "attachment",
+                                                "FREE",
+                                                "weight",
+                                                f.fraction(1, 1)),
+                                        Map.of(
+                                                "name",
+                                                "Other free",
+                                                "attachment",
+                                                "FREE",
+                                                "weight",
+                                                f.fraction(1, 1)))));
+        otherShare =
+                UUID.fromString(
+                        added.get("createdResources")
+                                .get("shareholders")
+                                .get(1)
+                                .get("shareholderId")
+                                .asText());
     }
 
     void startRoots() {

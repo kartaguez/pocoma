@@ -72,7 +72,7 @@ class PotVersionIncrementalPostgresTest {
                             potId,
                             1,
                             "AddShareholders",
-                            new AddShareholders(
+                            AddShareholders.legacy(
                                     List.of(
                                             new ShareholderTransitions.Creation(
                                                     sh1, new Name("Alice"), Optional.of(creator), new Weight(new Fraction(1, 1))),

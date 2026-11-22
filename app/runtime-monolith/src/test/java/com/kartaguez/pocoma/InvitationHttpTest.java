@@ -24,7 +24,7 @@ class InvitationHttpTest extends InvitationFixture {
         startPot();
         String first = binding("guest"), second = binding("second"), outsider = binding("outsider");
         String secret = invitationToken(create(Instant.parse("2030-01-01T00:00:00Z")));
-        UUID other = distinctPlaces ? new UUID(4, 2) : f.share;
+        UUID other = distinctPlaces ? otherShare : f.share;
         var identityBefore = f.worker.write.queryForList(
                 "select * from v3_eui_version order by eui_id,version");
         long eventsBefore = f.worker.write.queryForObject(
@@ -181,7 +181,7 @@ class InvitationHttpTest extends InvitationFixture {
                                 "guest")),
                 () -> assertEquals(
                         "INVALID_BINDING",
-                        attach("guest", guest, secret, new UUID(4, 2), "after-concurrent-unlink")
+                        attach("guest", guest, secret, otherShare, "after-concurrent-unlink")
                                 .get("rejection")
                                 .asText()));
     }
@@ -317,8 +317,6 @@ class InvitationHttpTest extends InvitationFixture {
         f.execute(
                 "CreateExpense",
                 Map.of(
-                        "id",
-                        f.expense.toString(),
                         "label",
                         "Kept",
                         "date",
@@ -330,8 +328,7 @@ class InvitationHttpTest extends InvitationFixture {
                         "participants",
                         List.of(f.participant(f.share))));
         long history = f.version;
-        UUID otherPot = UUID.randomUUID();
-        seedOtherPotForGuest(guest, otherPot);
+        UUID otherPot = seedOtherPotForGuest(guest);
         var identity =
                 f.worker.write.queryForList("select * from v3_eui_version order by eui_id,version");
         var expense =
@@ -375,9 +372,12 @@ class InvitationHttpTest extends InvitationFixture {
         verifyPostDepartureReads(guest, history, after, otherPot);
     }
 
-    private void seedOtherPotForGuest(String guest, UUID otherPot) throws Exception {
-        UUID otherShare = UUID.randomUUID();
-        actorCommand(new ActorCommand("guest", guest, otherPot, 0, "CreatePot", Map.of("label", "Other Pot")));
+    private UUID seedOtherPotForGuest(String guest) throws Exception {
+        var created =
+                actorCommand(
+                        new ActorCommand(
+                                "guest", guest, null, 0, "CreatePot", Map.of("label", "Other Pot")));
+        UUID otherPot = UUID.fromString(created.get("potId").asText());
         actorCommand(
                 new ActorCommand(
                         "guest",
@@ -389,14 +389,13 @@ class InvitationHttpTest extends InvitationFixture {
                                 "targets",
                                 List.of(
                                         Map.of(
-                                                "id",
-                                                otherShare.toString(),
                                                 "name",
                                                 "Guest",
                                                 "attachment",
                                                 "SELF",
                                                 "weight",
                                                 f.fraction(1, 1))))));
+        return otherPot;
     }
 
     private void verifyPostDepartureReads(String guest, long history, long after, UUID otherPot)
@@ -420,23 +419,21 @@ class InvitationHttpTest extends InvitationFixture {
             String actor, String binding, UUID pot, long observed, String op, Object payload) {}
 
     com.fasterxml.jackson.databind.JsonNode actorCommand(ActorCommand cmd) throws Exception {
+        var body = new java.util.LinkedHashMap<String, Object>();
+        body.put("operation", cmd.op());
+        if (cmd.pot() != null) {
+            body.put("potId", cmd.pot().toString());
+        }
+        body.put("observedVersion", cmd.observed());
+        body.put("bindingToken", cmd.binding());
+        body.put("payload", cmd.payload());
         UUID id =
                 f.accepted(
                         f.post(
                                 "/commands",
                                 cmd.actor(),
                                 UUID.randomUUID().toString(),
-                                Map.of(
-                                        "operation",
-                                        cmd.op(),
-                                        "potId",
-                                        cmd.pot().toString(),
-                                        "observedVersion",
-                                        cmd.observed(),
-                                        "bindingToken",
-                                        cmd.binding(),
-                                        "payload",
-                                        cmd.payload())));
+                                body));
         var result = f.poll("/commands/" + id + "/result", cmd.actor(), null);
         assertEquals("COMPLETED", result.get("outcome").asText());
         return result;

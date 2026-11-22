@@ -80,7 +80,7 @@ class PotBalanceIncrementalPostgresTest {
                             potId,
                             1,
                             "AddShareholders",
-                            new AddShareholders(
+                            AddShareholders.legacy(
                                     List.of(
                                             new ShareholderTransitions.Creation(
                                                     sh1, new Name("Alice"), Optional.of(creator), w(1, 1)),
@@ -193,7 +193,7 @@ class PotBalanceIncrementalPostgresTest {
                             potId,
                             9,
                             "AddShareholders",
-                            new AddShareholders(
+                            AddShareholders.legacy(
                                     List.of(
                                             new ShareholderTransitions.Creation(
                                                     sh4, new Name("Dave"), Optional.empty(), w(4, 1))))));
@@ -358,7 +358,7 @@ class PotBalanceIncrementalPostgresTest {
                             potId,
                             1,
                             "AddShareholders",
-                            new AddShareholders(
+                            AddShareholders.legacy(
                                     List.of(
                                             new ShareholderTransitions.Creation(
                                                     sh1, new Name("A"), Optional.of(creator), w(1, 1)),
@@ -485,7 +485,7 @@ class PotBalanceIncrementalPostgresTest {
             events.put(1L, executeWrite(f, creator, potId, 0, "CreatePot", new CreatePot(new Label("Dedup Pot"))));
             // v2: AddShareholders (sh1=1, sh2=2, sh3=1)
             events.put(2L, executeWrite(f, creator, potId, 1, "AddShareholders",
-                    new AddShareholders(List.of(
+                    AddShareholders.legacy(List.of(
                             new ShareholderTransitions.Creation(sh1, new Name("Alice"), Optional.of(creator), w(1, 1)),
                             new ShareholderTransitions.Creation(sh2, new Name("Bob"), Optional.empty(), w(2, 1)),
                             new ShareholderTransitions.Creation(sh3, new Name("Carol"), Optional.empty(), w(1, 1))))));

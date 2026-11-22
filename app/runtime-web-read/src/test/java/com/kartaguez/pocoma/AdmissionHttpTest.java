@@ -40,9 +40,7 @@ class AdmissionHttpTest {
     }
 
     String command(String label) {
-        return "{\"operation\":\"CreatePot\",\"potId\":\""
-                + POT
-                + "\",\"observedVersion\":0,\"bindingToken\":\"opaque-canary\",\"payload\":{\"label\":\""
+        return "{\"operation\":\"CreatePot\",\"observedVersion\":0,\"bindingToken\":\"opaque-canary\",\"payload\":{\"label\":\""
                 + label
                 + "\"}}";
     }

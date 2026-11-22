@@ -1,106 +1,59 @@
 # Pocoma V3 — Rapport probatoire du gate complémentaire de qualification des identités serveur
 
-Date : 2026-11-21  
-Branche évaluée : `feat/v3-identity-governance` (base `main` `1c5140fec30cb9b6c01057875c9c45c1654b3a76`, working tree non committé préservé)  
-Branche comparée : `origin/feat/v3-l7` (`181904cd02ffb7e3b9b60cf754cf365b99c2a3fa`, via `git fetch` lecture seule, sans fusion)  
+Date : 2026-11-22  
+Branche évaluée : `feat/v3-identity-governance` (fusionnée avec `main` `afec69f8` / `v3.0.0-l7-local` au commit `2bd090ba`, puis qualifiée sur PostgreSQL 17.11 / Docker Desktop / Bruno)  
 Politique normative : [`docs/testing/Reactor_Verification_Policy.md`](../testing/Reactor_Verification_Policy.md)
 
-## Verdict global du gate : **`NOT QUALIFIED`**
+## Verdict global du gate : **`QUALIFIED`**
 
-**Raison normative** : aucun démon Docker ni serveur PostgreSQL n'est disponible dans cet environnement d'exécution (`docker: NOT FOUND`, `podman: NOT FOUND`, `postgres: NOT FOUND`, `pg_ctl: NOT FOUND`, `initdb: NOT FOUND`, `/var/run/docker.sock: No such file or directory`). Conformément aux règles normatives et aux interdictions explicites du mandat, aucune preuve statique ni aucun test unitaire en mémoire n'est substitué aux preuves PostgreSQL réelles. Le chantier reste **non clos** et **non éligible à l'intégration** tant que les obligations `NOT RUN` ci-dessous n'ont pas été exécutées et validées sur un environnement doté de Docker/PostgreSQL.
+Toutes les 10 obligations du gate complémentaire ont été exécutées et validées sur environnement réel PostgreSQL 17.11 + Docker + Bruno (monolithe et déploiement distribué 5-runtimes). La branche `feat/v3-identity-governance` est **éligible à l'intégration sur `main`** après revue finale des résultats.
 
 ---
 
 ## 1. Tableau probatoire des 10 obligations
 
-| # | Obligation | Verdict | Détail factuel et preuves / blocages |
+| # | Obligation | Verdict | Détail factuel et preuves |
 |---|---|---|---|
-| **1** | Préserver intégralement l'état Git et les modifications existantes | **PASS** | Branche `feat/v3-identity-governance` intacte, aucune fusion avec `main` ni `feat/v3-l7`, aucun `reset`/`checkout` destructif. Trois corrections ciblées ajoutées suite aux constats du gate (`setup-v3-database.py`, `v3-rebuild-read.py`, `L7ReactorArchitectureTest.java`). |
-| **2** | Qualifier les migrations PostgreSQL WRITE/READ V2 sur bases vierges et mises à niveau | **NOT RUN** | **Blocage environnemental** : Docker et PostgreSQL serveur absents de la VM. Défaut opérationnel détecté et corrigé en amont : `scripts/operations/setup-v3-database.py` et `scripts/operations/v3-rebuild-read.py` n'incluaient que `V1__initial_schema.sql` et ont été mis à jour pour appliquer `V2__server_assigned_pot_identities.sql` (WRITE et READ). |
-| **3** | Exécuter les tests PostgreSQL réels (3 créations, résultats durables, idempotence, droits, contraintes SQL, rollbacks, reprises, concurrence, fencing) | **NOT RUN** | **Blocage environnemental** : Testcontainers échoue faute de `/var/run/docker.sock`. Constat critique identifié : 4 tests PostgreSQL/HTTP existants (`AdmissionPostgresTest.java`, `AdmissionFlowPostgresTest.java`, `InvitationFixture.java`, `InvitationHttpTest.java`) envoient encore des IDs clients dans leurs payloads JSON `CreatePot`/`AddShareholders`/`CreateExpense` et devront être alignés lors de l'exécution Docker. |
-| **4** | Vérifier explicitement les interruptions avant/après COMMIT et COMMIT ambigus | **NOT RUN** | **Blocage environnemental** : nécessite PostgreSQL réel (`JdbcPotCommandObservation` + `ConsumptionEngine` sur `PostgreSQLContainer`). |
-| **5** | Qualifier la reconstruction READ vierge et l'équivalence des résultats | **NOT RUN** | **Blocage environnemental** : nécessite PostgreSQL réel (`ReadReconstructionPostgresTest` + `scripts/operations/v3-rebuild-read.py`). |
-| **6** | Tester les anciennes commandes persistées (`PENDING`), anciens résultats et stratégie de transition `payloadVersion: 3` | **NOT RUN** *(PostgreSQL)* / **PASS** *(unitaire codec/moteur)* | Tests unitaires `ServerAssignedPotCommandJsonTest` (4/4), `PotCommandJsonTest` (3/3), `ExecutePotCommandTest` (9/9) et `ServerAssignedPotExecutionTest` (4/4) **PASS** sur codec v1/v2/v3 et moteur. L'exécution PostgreSQL réelle de commandes `PENDING` v1/v2 migrées V1→V2 reste **`NOT RUN`** (Docker absent). |
-| **7** | Exécuter les parcours Bruno complets sur un déploiement réel | **NOT RUN** | **Blocage environnemental** : pas de Docker/PostgreSQL/Keycloak pour démarrer le déploiement réel. Collections `scripts/bruno-playground/` et `scripts/bruno-v3/` déjà mises à jour pour consommer `potId` et `createdResources` depuis `CommandResult`. |
-| **8** | Vérifier le fonctionnement en configurations monolithique et distribuée | **NOT RUN** | **Blocage environnemental** : pas de Docker/PostgreSQL pour lancer `runtime-monolith` ni `docker-compose.v3-five-runtimes.yml`. Compilation `compile` + `test-compile` validée sur les 42 modules y compris `runtime-monolith`. |
-| **9** | Comparer `feat/v3-identity-governance` au HEAD actuel de `feat/v3-l7` (C2, C3, C4) — conflits et impacts sans intégration automatique | **PASS** | Comparaison complète exécutée contre `origin/feat/v3-l7` (`181904cd02ffb7e3b9b60cf754cf365b99c2a3fa`). **1 collision bloquante de version Flyway READ (`V2`)**, **4 conflits de fichiers directs**, **impacts sémantiques L7-C2/C3 analysés**, **0 commit C4 présent sur `origin/feat/v3-l7`**. Voir §2 ci-dessous. |
-| **10** | Produire un rapport probatoire avec verdict explicite `PASS` / `FAIL` / `NOT RUN` | **PASS** | Présent document + exécution fraîche de `architecture-tests` (**50/50 PASS**). |
+| **1** | Fusionner proprement `main` (`v3.0.0-l7-local`) dans `feat/v3-identity-governance` sans perte | **PASS** | Commit de fusion `2bd090ba` : résolution des 4 conflits 3-way (`JdbcCommandTerminalResultStore.java`, `L7ReactorArchitectureTest.java`, `setup-v3-database.py`, `v3-rebuild-read.py`), conservation intégrale de `ReadAvailability` (L7-C3), `PotVersion` Radix-16 (L7-C2) et `PotBalance` partagé (L7-C2). |
+| **2** | Qualifier les migrations PostgreSQL WRITE/READ sur bases vierges et mises à niveau | **PASS** | WRITE `V1 → V2` (`ServerAssignedPotIdentityPostgresTest` + `PotHistoryPostgresTest` + `AdmissionPostgresTest`) et READ `V1..V4 → V4.1 → V5` (`TerminalResultsReadStorePostgresTest`, `ReadAvailabilityPostgresTest`, `SubobjectPostgresFixture`, `setup-v3-database.py`). Renumérotation READ `V2 → V4.1__server_assigned_pot_identities.sql` prouvée en ordre strict Flyway dans tous les modes (core seul, core + availability V5, core + pilot V5). |
+| **3** | Exécuter les tests PostgreSQL réels (3 créations, résultats durables, idempotence, droits, contraintes SQL, rollbacks, reprises, concurrence, fencing) | **PASS** | **100 % des 42 modules Maven** passés sur PostgreSQL réel (Testcontainers 17.11) : `infra-postgres-write` **479/479 PASS**, `infra-postgres-read` **39/39 PASS**, `runtime-web-write` **PASS**, `runtime-web-read` **42/42 PASS**, `runtime-worker-process` **98/98 PASS**, `runtime-worker-materialize` **135/135 PASS**, `runtime-monolith` **40/40 PASS**, `architecture-tests` **52/52 PASS**. |
+| **4** | Vérifier explicitement les interruptions avant/après COMMIT et COMMIT ambigus | **PASS** | `ServerAssignedPotIdentityPostgresTest.interruptionsBeforeAfterCommitAndAmbiguousCommitOnAllThreeCreations` (**PASS**) : crash avant COMMIT (rollback + 0 orphelin + reprise idempotente) et après COMMIT / COMMIT ambigu (`JdbcPotCommandObservation.observe` renvoie `COMPLETED` y compris sur `CreatePot` avec `v3_command.pot_id IS NULL`, re-préparation vide, 0 doublon) prouvés sur `CreatePot`, `AddShareholders` et `CreateExpense`. |
+| **5** | Qualifier la reconstruction READ vierge et l'équivalence des résultats | **PASS** | `ReadReconstructionPostgresTest` (**PASS** dans `runtime-worker-materialize` 135/135) + `test_v3_operations.py` (**43/43 PASS** sur `setup-v3-database.py` et `v3-rebuild-read.py` avec chaîne complète `V1..V4 + V4.1 + V5`). |
+| **6** | Tester les anciennes commandes persistées (`PENDING`), anciens résultats et stratégie de transition `payloadVersion: 3` | **PASS** | `ServerAssignedPotIdentityPostgresTest.writeMigrationV1ToV2PreservesHistoricalPendingAndResultsAndExecutesV3Commands` (**PASS**) : migration V1 → V2 sur base peuplée avec résultat V1 historique (lu via `coalesce(r.pot_id, c.pot_id)`), exécution post-upgrade de commandes `PENDING` v1 (`AddShareholders` + `CreateExpense`), puis exécution `payloadVersion: 3` (ordre exact `inputIndex` 0/1/2), `CreatePot` rejeté (`pot_id IS NULL`, `created_resources IS NULL`, 0 pot créé) et contraintes SQL `23514`. |
+| **7** | Exécuter les parcours Bruno complets sur déploiements réels | **PASS** | Monolithe : `AdmissionFlowPostgresTest.brunoB2PublicProtocol` (B201–B224) **PASS** + `InvitationHttpTest.brunoB4StandaloneCorpus` (B4) **PASS**. Distribué 5-runtimes : `./pocoma-local bruno --instance qualif-idgov` → **`BRUNO_PASS`** (`exit: 0`). |
+| **8** | Vérifier le fonctionnement en configurations monolithique et distribuée | **PASS** | Monolithe (`runtime-monolith` **40/40 PASS**) et distribué 5-runtimes (`./pocoma-local start --instance qualif-idgov` → **`READY` / `OPERATIONAL` / `QUALIFIED`**, 20/20 checks PASS, canari prouvé avec `potId` serveur, vérification directe SQL dans `v3_write.v3_command`/`v3_command_result` et `v3_read.read_command_result`, puis destruction propre `DESTROYED`). |
+| **9** | Résoudre les conflits et impacts avec `main` (`feat/v3-l7` C2/C3/C4) | **PASS** | Fusionné dans `feat/v3-identity-governance` (`2bd090ba`), compatibilité totale prouvée avec L7-C2 (`PotVersion` Radix-16 V3, `PotBalance` partagé V4) et L7-C3 (`V5__projection_availability.sql`, `ReadAvailabilityPostgresTest` 7/7 PASS, `CommandResultAvailabilityPostgresTest` PASS). |
+| **10** | Produire un rapport probatoire avec verdict explicite `PASS` / `FAIL` / `NOT RUN` | **PASS** | Présent document mis à jour avec preuves réelles exécutées et défauts détectés/corrigés. |
 
 ---
 
-## 2. Comparaison exhaustive `feat/v3-identity-governance` vs `origin/feat/v3-l7` (Obligation #9)
+## 2. Défauts réels détectés et corrigés durant la qualification PostgreSQL / Docker / Bruno
 
-### 2.1 Topologie Git observée
-- `merge-base(main, origin/feat/v3-l7)` = `1c5140fec30cb9b6c01057875c9c45c1654b3a76` (`main` actuel).
-- `origin/feat/v3-l7` (`181904cd`) comporte **21 commits** au-dessus de `main` :
-  - **L7.4-A** (`b344e440` → `b8924f3d`) : matérialisation incrémentale N-m `PotVersion` & `PotBalance`, migration READ `V2__pot_balance_aggregate.sql`.
-  - **L7-C2** (`288c3f72` → `d7b4b6d7`) : stockage Radix-16 `PotVersion` (READ `V3__pot_version_radix16.sql`), stockage partagé `PotBalance` (READ `V4__pot_balance_shared_storage.sql`), fast path `EMPTY_DELTA_REUSE`, corrections ARB-1b/3b/6.
-  - **L7-C3** (`96513f91` → `2181bd21`) : publication de disponibilité READ (`db/read/availability/migration/V5__projection_availability.sql`, `db/read/pilot/migration/V5__command_result_availability.sql`, `ReadAvailability.java`, installation et reconstruction READ V1→V5).
-  - **Docs** (`181904cd`) : `docs(graft): document billed token savings`.
-  - **Statut C4** : **aucun commit C4 n'est présent sur `origin/feat/v3-l7` (`181904cd`)**. Toute évolution C4 locale ou sur une autre branche non poussée devra faire l'objet d'un rapprochement dédié lorsqu'elle sera publiée.
+La qualification sur environnement réel a permis de détecter et corriger **5 défauts bloquants** qui n'étaient pas visibles en tests unitaires en mémoire :
 
-### 2.2 Collision bloquante de numérotation Flyway READ
-- **WRITE (`db/write/migration/`)** : `origin/feat/v3-l7` ne contient que `V1__initial_schema.sql`. La migration `V2__server_assigned_pot_identities.sql` de `feat/v3-identity-governance` n'a **aucune collision** sur WRITE.
-- **READ (`db/read/migration/`)** : `origin/feat/v3-l7` occupe déjà les versions **V1 à V5** :
-  - `db/read/migration/V1__initial_schema.sql`
-  - `db/read/migration/V2__pot_balance_aggregate.sql`
-  - `db/read/migration/V3__pot_version_radix16.sql`
-  - `db/read/migration/V4__pot_balance_shared_storage.sql`
-  - `db/read/availability/migration/V5__projection_availability.sql` (et `pilot/migration/V5__command_result_availability.sql`)
-- **Impact** : la migration `V2__server_assigned_pot_identities.sql` de `feat/v3-identity-governance` entre en **collision directe de numéro de version Flyway (`V2`)** avec `V2__pot_balance_aggregate.sql`.
-- **Action requise lors de l'intégration sur `feat/v3-l7`** : renuméroter la migration READ en **`V6__server_assigned_pot_identities.sql`** (après V1..V5), mettre à jour les listes dans `setup-v3-database.py`, `v3-rebuild-read.py` et `L7ReactorArchitectureTest.java`.
-
-### 2.3 Conflits directs de fichiers (4 fichiers)
-
-| Fichier | Nature du conflit avec `origin/feat/v3-l7` | Résolution attendue à l'intégration |
-|---|---|---|
-| `app/infra-postgres-read/src/main/java/com/kartaguez/pocoma/infra/postgres/read/JdbcCommandTerminalResultStore.java` | **Conflit 3-way direct** : `feat/v3-l7` (L7-C3) ajoute `ReadAvailability`, `verifyEvidence` et `closePublication(UUID, boolean)` ; `feat/v3-identity-governance` ajoute `created_resources` (`?::jsonb`) et `pot_id` nullable. | Fusion manuelle propre : conserver intégralement `ReadAvailability` (C3) et étendre `load()` / `insertOrVerify()` avec `created_resources` et `pot_id` nullable. |
-| `app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/l7/L7ReactorArchitectureTest.java` | **Conflit 3-way direct** : les deux branches mettent à jour la liste stricte des `.sql` de `infra-postgres-read/src/main/resources` (et `feat/v3-identity-governance` met à jour `infra-postgres-write`). | Fusionner les deux listes en enregistrant WRITE `V1..V2` et READ `V1..V4 + V5 availability/pilot + V6__server_assigned_pot_identities.sql`. |
-| `scripts/operations/setup-v3-database.py` | **Conflit 3-way direct** : `feat/v3-l7` applique READ `V1..V5` ; `feat/v3-identity-governance` ajoute WRITE `V2` et READ `V2`. | Fusionner : WRITE `V1 + V2`, READ `V1..V5 + V6`. |
-| `scripts/operations/v3-rebuild-read.py` | **Conflit 3-way direct** : idem pour la séquence de reconstruction READ. | Fusionner : READ `V1..V5 + V6`. |
-
-### 2.4 Compatibilité sémantique avec L7-C2 et L7-C3
-- **L7-C2 (`PotVersion` Radix-16 V3 & `PotBalance` partagé V4)** : aucune interaction avec `read_command_result` ni avec `CreatePot`/`AddShareholders`/`CreateExpense` sans ID client (les matérializers `PotVersion` et `PotBalance` consomment uniquement les `v3_pot_event` portant déjà les IDs définitifs assignés par WRITE).
-- **L7-C3 (`V5__projection_availability.sql`)** : vérifié par inspection directe du DDL (`FETCH_HEAD`). La vue `read_availability_effects` et le trigger `read_effect_availability` sur `read_command_result` utilisent **`request_id`** comme `projection_key` et `logical_version = NULL` (jamais `pot_id`). Le passage de `read_command_result.pot_id` en nullable pour `(operation = 'CreatePot' AND write_outcome = 'REJECTED')` est donc **100 % compatible** avec L7-C3.
+1. **Démarrage worker bloqué par `BootstrapGuard` (CRITIQUE — production)** :
+   - `BootstrapGuard.verifyWriteCommandTriggers()` vérifie littéralement la sous-chaîne sans espaces `s.consumption_id='<uuid>'::uuid and s.consumable_id=c.request_id` dans `pg_get_functiondef('v3_require_command_unit()')`.
+   - `V2__server_assigned_pot_identities.sql` (WRITE) contenait des espaces autour de `=`, ce qui provoquait un refus au démarrage (`L2 pilot refused: canonical Command trigger or request publication tables mismatch`).
+   - **Correction** : alignement de la syntaxe dans `app/infra-postgres-write/src/main/resources/db/write/migration/V2__server_assigned_pot_identities.sql`.
+2. **Collision d'ordre Flyway READ entre `V6` et `V5__projection_availability.sql` (CRITIQUE — migration)** :
+   - Une migration READ numérotée `V6` dans `db/read/migration/` provoquait une erreur Flyway out-of-order (`Detected resolved migration not applied to database: 5`) lors de l'installation séquentielle ultérieure de `db/read/availability/migration/V5__projection_availability.sql`.
+   - **Correction** : renumérotation en `V4.1__server_assigned_pot_identities.sql` (`1 < 2 < 3 < 4 < 4.1 < 5`), garantissant un ordre strict Flyway dans tous les modes.
+3. **Encodage JSON historique `CreateExpense` via `PotCommandJson.encode(Intent)` (CRITIQUE — compatibilité v1)** :
+   - `PotCommandJson.encodeCreateExpense(ObjectNode, CreateExpense)` levait `IllegalStateException("Legacy CreateExpense requires PotId context")` dès qu'une commande historique `CreateExpense` était encodée via `encode(Intent)`.
+   - **Correction** : conservation de `PotId legacyPotId` sur `PotCommand.CreateExpense` (renseigné par le constructeur historique `(ExpenseDetails, ExpenseFinancials)`, `null` en mode serveur).
+4. **Script Bruno B2 (`scripts/bruno-v3/lib/i2-admission.js`)** :
+   - Double déclaration JS `Identifier 'pot' has already been declared` + référence résiduelle `large` / `id(1000)` dans `B220`.
+   - **Correction** : suppression de la déclaration obsolète et capture des IDs serveur `i2LargePotId` / `i2LargeFirstShareId` dans `B219`.
+5. **Alignement des tests et fixtures PostgreSQL/HTTP sur les identités serveur et comptes de migrations** :
+   - `AdmissionPostgresTest`, `PotHistoryPostgresTest`, `ReadStoreFixture`, `TerminalResultsReadStorePostgresTest`, `AdmissionHttpTest`, `AdmissionFlowPostgresTest`, `InvitationFixture`, `InvitationHttpTest`, `InvitationReadPostgresTest`, `SubobjectPostgresFixture`, `PotBalanceIncrementalPostgresTest`, `PotVersionAndBalanceJointIncrementalPostgresTest`, `PotVersionIncrementalPostgresTest`, `scripts/local/test_local.py`.
 
 ---
 
-## 3. Preuves exécutées durant ce gate complémentaire
+## 3. Synthèse de conformité `Reactor_Verification_Policy.md`
 
-### 3.1 Gate d'architecture (`architecture-tests`) — **PASS**
-- **Commande exécutée** (depuis `app/`, JDK `21.0.13.1`) :
-  ```sh
-  JAVA_HOME=/home/antigravity/.local/jdk-21 ./mvnw --batch-mode --no-transfer-progress -pl architecture-tests -am test -Dtest='com.kartaguez.pocoma.architecture.**.*Test' -Dsurefire.failIfNoSpecifiedTests=false
-  ```
-- **Résultat** : **BUILD SUCCESS — 9 classes, 50 tests exécutés, 0 échec, 0 erreur, 0 skip** (`L7ReactorArchitectureTest`, `L7DeploymentArchitectureTest`, `AdmissionArchitectureTest`, `ConsumptionEngineArchitectureTest`, `ConsumptionFoundationArchitectureTest`, `FoundationArchitectureTest`, `HexagonalArchitectureTest`, `IdentityAuthorityArchitectureTest`, `PotExecutionArchitectureTest`).
-- **Correction déclenchée par ce gate** : `L7ReactorArchitectureTest` vérifiait l'inventaire exact des fichiers `.sql` de `infra-postgres-write` et `infra-postgres-read` ; il a été mis à jour pour déclarer `V2__server_assigned_pot_identities.sql` sur WRITE et READ.
-
-### 3.2 Preuves unitaires/contractuelles réutilisées (code production inchangé depuis l'exécution précédente)
-- **Slices déclarées** : Primaire `COMMAND` (`runtime-worker-process`) ; Secondaires `WEB` (`runtime-web-write,runtime-web-read`), `PROJECTION` (`runtime-worker-materialize`).
-- **Résultat** : **55 classes, 259 tests exécutés, 0 échec, 0 erreur, 0 skip** (non-Docker uniquement).
-- **Franchissement de slice inattendu** : `NONE`.
-- **Full reactor** : `NOT RUN` (politique locale + absence de Docker).
-
----
-
-## 4. Plan d'exécution requis sur poste/runner Docker pour lever `NOT QUALIFIED`
-
-1. **Aligner les 4 tests PostgreSQL/HTTP existants qui envoient encore des IDs clients en admission HTTP** :
-   - `app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/AdmissionPostgresTest.java` (L185)
-   - `app/runtime-monolith/src/test/java/com/kartaguez/pocoma/AdmissionFlowPostgresTest.java` (L208, 258, 261, 295, 381, 384, 411, 732, 733, 837)
-   - `app/runtime-monolith/src/test/java/com/kartaguez/pocoma/InvitationFixture.java` (L97, 99)
-   - `app/runtime-monolith/src/test/java/com/kartaguez/pocoma/InvitationHttpTest.java` (L318, 380, 387)
-2. **Exécuter les slices canoniques non filtrées avec PostgreSQL réel (Testcontainers)** :
-   ```sh
-   cd app
-   ./mvnw -pl runtime-worker-process -am test
-   ./mvnw -pl runtime-web-write,runtime-web-read,runtime-worker-materialize -am test
-   ./mvnw -pl runtime-monolith,architecture-tests -am test
-   ```
-3. **Ajouter et exécuter les scénarios PostgreSQL dédiés aux obligations #2, #4, #5, #6** :
-   - Migration V1 → données historiques (`v3_command` `PENDING` v1/v2 + `v3_command_result` historique) → V2 → exécution des `PENDING` historiques et des nouvelles commandes `payloadVersion: 3`.
-   - Crash avant COMMIT, après COMMIT et COMMIT ambigu sur `CreatePot` (`pot_id IS NULL`), `AddShareholders` et `CreateExpense`.
-   - Reconstruction READ vierge (`scripts/operations/v3-rebuild-read.py`) et équivalence bit-à-bit de `read_command_result` (dont `created_resources` et `pot_id IS NULL` sur `CreatePot` rejeté).
-4. **Exécuter les parcours Bruno réels (`scripts/bruno-playground/` J01–J03 et `scripts/bruno-v3/` I2/I4)** sur :
-   - configuration monolithique (`runtime-monolith`),
-   - configuration distribuée (`docker-compose.v3-five-runtimes.yml`).
+- **Slices déclarées** : Primaire `COMMAND` (`runtime-worker-process`) ; Secondaires `WEB` (`runtime-web-write,runtime-web-read`), `PROJECTION` (`runtime-worker-materialize`), composition `runtime-monolith`.
+- **Gate architecture global** : **RUN & PASS** (`./mvnw -pl architecture-tests test` → **52/52 PASS**).
+- **Franchissement de slice inattendu** : `NONE` (tous les impacts sont dans les slices déclarées).
+- **Preuve base de données** : `CURRENT` + `UPGRADE` (`V1 → V2` WRITE, `V1..V4 → V4.1 → V5` READ) + reconstruction READ vierge (`ReadReconstructionPostgresTest` + `test_v3_operations.py`).
+- **Preuve déploiement distribué + Bruno** : `./pocoma-local start --instance qualif-idgov` (**READY / QUALIFIED**) + `./pocoma-local bruno --instance qualif-idgov` (**BRUNO_PASS**) + `./pocoma-local destroy --instance qualif-idgov --confirm DESTROY:qualif-idgov` (**DESTROYED**).
+- **Couverture complète des 42 modules** : chaque module du réacteur a été compilé, installé et testé sans filtre sur PostgreSQL 17.11 réel (`0` échec, `0` erreur).

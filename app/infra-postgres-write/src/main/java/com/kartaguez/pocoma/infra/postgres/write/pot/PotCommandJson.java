@@ -147,8 +147,8 @@ public final class PotCommandJson {
             encodeParticipants(n, i.participants());
             return;
         }
-        // Historical v1 format requires legacy potId; preserve exact historical shape when legacyId present.
-        throw new IllegalStateException("Legacy CreateExpense requires PotId context");
+        // Historical v1 format: preserve exact historical shape using legacyPotId.
+        encodeCreateExpenseLegacy(n, i.legacyPotId(), i);
     }
 
     private static void encodeCreateExpenseLegacy(ObjectNode n, PotId potId, CreateExpense i) {

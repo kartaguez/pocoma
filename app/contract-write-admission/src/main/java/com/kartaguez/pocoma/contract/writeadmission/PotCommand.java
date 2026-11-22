@@ -289,6 +289,7 @@ public record PotCommand(
     }
 
     public record CreateExpense(
+            PotId legacyPotId,
             ExpenseId legacyId,
             Label label,
             LocalDate date,
@@ -297,6 +298,10 @@ public record PotCommand(
             Map<ShareholderId, Optional<Weight>> participants)
             implements Intent {
         public CreateExpense {
+            if ((legacyPotId == null) != (legacyId == null)) {
+                throw new IllegalArgumentException(
+                        "Legacy CreateExpense requires both legacyPotId and legacyId");
+            }
             Objects.requireNonNull(label);
             Objects.requireNonNull(date);
             Objects.requireNonNull(amount);
@@ -319,13 +324,14 @@ public record PotCommand(
                 Amount amount,
                 ShareholderId payerId,
                 List<ExpenseFinancials.Participation> participations) {
-            this(null, label, date, amount, payerId, toParticipantMap(participations));
+            this(null, null, label, date, amount, payerId, toParticipantMap(participations));
         }
 
         /** Historical Expense creation retaining a pre-assigned ExpenseId. */
         public CreateExpense(ExpenseDetails details, ExpenseFinancials financials) {
             this(
-                    Objects.requireNonNull(details).expenseId(),
+                    Objects.requireNonNull(details).potId(),
+                    details.expenseId(),
                     details.label(),
                     details.date(),
                     Objects.requireNonNull(financials).amount(),

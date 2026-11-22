@@ -552,14 +552,14 @@ def _recreate_and_migrate_schema(operation_id, operator_id):
     transition("MAINTENANCE", "MAINTENANCE/SCHEMA_CREATED", (operation_id, operator_id))
     print("   ✓ Clean schema v3_read created and verified (phase: SCHEMA_CREATED).")
 
-    print("8. Applying canonical READ DDL (V1–V6)...")
+    print("8. Applying canonical READ DDL (V1–V5 + V4.1)...")
     read_migrations = [
         "app/infra-postgres-read/src/main/resources/db/read/migration/V1__initial_schema.sql",
         "app/infra-postgres-read/src/main/resources/db/read/migration/V2__pot_balance_aggregate.sql",
         "app/infra-postgres-read/src/main/resources/db/read/migration/V3__pot_version_radix16.sql",
         "app/infra-postgres-read/src/main/resources/db/read/migration/V4__pot_balance_shared_storage.sql",
+        "app/infra-postgres-read/src/main/resources/db/read/migration/V4.1__server_assigned_pot_identities.sql",
         READ_AVAILABILITY_MIGRATION,
-        "app/infra-postgres-read/src/main/resources/db/read/migration/V6__server_assigned_pot_identities.sql",
     ]
     apply_migrations((READ_DB, READ_SCHEMA, POSTGRES_ADMIN_USER, READ_ROLE), read_migrations)
     if not check_tables_exist(CANONICAL_MIGRATION_TABLES) or not availability_schema_complete():

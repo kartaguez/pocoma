@@ -90,7 +90,7 @@ class PotVersionAndBalanceJointIncrementalPostgresTest {
                             potId,
                             1,
                             "AddShareholders",
-                            new AddShareholders(
+                            AddShareholders.legacy(
                                     List.of(
                                             new ShareholderTransitions.Creation(
                                                     sh1, new Name("Alice"), Optional.of(creator), w(1, 1)),
@@ -230,7 +230,7 @@ class PotVersionAndBalanceJointIncrementalPostgresTest {
                             potId,
                             10,
                             "AddShareholders",
-                            new AddShareholders(
+                            AddShareholders.legacy(
                                     List.of(
                                             new ShareholderTransitions.Creation(
                                                     sh6, new Name("Frank"), Optional.empty(), w(4, 1))))));
@@ -498,7 +498,7 @@ class PotVersionAndBalanceJointIncrementalPostgresTest {
                             potId,
                             1,
                             "AddShareholders",
-                            new AddShareholders(
+                            AddShareholders.legacy(
                                     List.of(
                                             new ShareholderTransitions.Creation(
                                                     sh1, new Name("A"), Optional.of(creator), w(1, 1)),
@@ -664,7 +664,7 @@ class PotVersionAndBalanceJointIncrementalPostgresTest {
                             potId,
                             1,
                             "AddShareholders",
-                            new AddShareholders(
+                            AddShareholders.legacy(
                                     List.of(
                                             new ShareholderTransitions.Creation(
                                                     sh1, new Name("Alice"), Optional.of(creator), w(1, 1)),

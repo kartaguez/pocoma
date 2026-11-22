@@ -13,7 +13,6 @@ exports.run = async function (scenario, bru, expect) {
     if(!bru.getVar(key)) bru.setVar(key,crypto.randomUUID());
     return bru.getVar(key);
   };
-  const pot=id(700),share=id(701),expense=id(702),large=id(703);
   const token=()=>bru.getVar('i2Binding');
   const writePaths=new Set(['/commands','/identity/requests']);
   const call=async(method,path,data,key,who=owner,extra={})=>{
@@ -114,8 +113,10 @@ exports.run = async function (scenario, bru, expect) {
     case 'B219':{
       const created=await command('CreatePot',{label:'101 atomic targets'},'large-create');
       const largePot=created.result.potId;
+      bru.setVar('i2LargePotId',largePot);
       const targets=Array.from({length:101},(_,n)=>({name:'Self '+n,attachment:'SELF',weight:fraction(2,2)}));const c=await command('AddShareholders',{targets},scenario,largePot);bru.setVar('i2LargeId',c.requestId);
       expect(c.result.createdResources.shareholders).to.have.length(101);
+      bru.setVar('i2LargeFirstShareId',c.result.createdResources.shareholders[0].shareholderId);
       const start=performance.now();let got=false;for(let n=0;n<200&&performance.now()-start<20000;n++){const r=await call('GET','/pots/'+largePot+'?minVersion=2',undefined,null,owner,{'X-Pocoma-Binding-Token':token()});if(r.status===200){expect(r.data.shareholders.length).to.equal(101);expect(r.data.shareholders.every(s=>s.isFree===false)).to.equal(true);got=true;break;}expect([404,503]).to.include(r.status);await bru.sleep(50);}expect(got).to.equal(true);break;
     }
     case 'B220':{
@@ -147,7 +148,7 @@ exports.run = async function (scenario, bru, expect) {
           if(!revoked) throw new Error('B220 revoked READ binding deadline');
         }
       }
-      await poll('/commands/'+bru.getVar('i2LargeId')+'/result');const stale=body('UpdateShareholderDetails',{targets:[{id:id(1000),name:'Stale',attachment:'SELF'}]},large);stale.bindingToken=initiator;const r=accepted(await call('POST','/commands',stale,'stale-after-unlink'));expect((await poll('/commands/'+r+'/result','REJECTED')).rejection).to.equal('INVALID_BINDING');break;
+      await poll('/commands/'+bru.getVar('i2LargeId')+'/result');const stale=body('UpdateShareholderDetails',{targets:[{id:bru.getVar('i2LargeFirstShareId'),name:'Stale',attachment:'SELF'}]},bru.getVar('i2LargePotId'));stale.bindingToken=initiator;const r=accepted(await call('POST','/commands',stale,'stale-after-unlink'));expect((await poll('/commands/'+r+'/result','REJECTED')).rejection).to.equal('INVALID_BINDING');break;
     }
     case 'B221':for(const operation of ['Link','CreateInvitation'])error(await call('POST','/identity/requests',{operation},scenario),400);break;
     case 'B222':{error(await call('POST','/identity/requests',{operation:'Registration'},scenario,owner,{'Content-Type':'text/plain'}),415);error(await call('POST','/commands',' '.repeat(262145),scenario),413);break;}

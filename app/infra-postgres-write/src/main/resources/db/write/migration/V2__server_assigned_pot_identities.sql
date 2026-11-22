@@ -58,7 +58,7 @@ begin
       from v3_command_result
      where request_id = c.request_id;
     if r.request_id is null
-       or exists(select 1 from consumption_slot s where s.consumption_id = '98f7268d-d340-581c-b83d-010926223e14'::uuid and s.consumable_id = c.request_id)
+       or exists(select 1 from consumption_slot s where s.consumption_id='98f7268d-d340-581c-b83d-010926223e14'::uuid and s.consumable_id=c.request_id)
        or not exists(select 1 from v3_command_completion_event e join v3_event_position p on p.event_id = e.event_id and p.family = 'COMMAND_COMPLETION' where e.subject_id = c.request_id) then
         raise exception 'Incomplete terminal Command unit' using errcode = '23514';
     end if;
