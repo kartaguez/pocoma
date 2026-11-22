@@ -124,4 +124,61 @@ class WakeupContractTest {
                     keys);
         }
     }
+
+    @Test
+    void blockedTransportNeverBlocksBusinessThreadAndBoundsMemory() throws Exception {
+        var senderBlocked = new CountDownLatch(1);
+        var releaseSender = new CountDownLatch(1);
+        var coalesced = new AtomicInteger();
+        var published = new AtomicInteger();
+        var metrics =
+                new WakeupMetrics() {
+                    @Override
+                    public void onPublished() {
+                        published.incrementAndGet();
+                    }
+
+                    @Override
+                    public void onCoalesced() {
+                        coalesced.incrementAndGet();
+                    }
+                };
+        try (var pub =
+                new CoalescingWakeupPublisher(
+                        key -> {
+                            senderBlocked.countDown();
+                            try {
+                                releaseSender.await(10, TimeUnit.SECONDS);
+                            } catch (InterruptedException e) {
+                                Thread.currentThread().interrupt();
+                            }
+                        },
+                        CoalescingWakeupPublisher.Strategy.IN_FLIGHT_DEDUP,
+                        0,
+                        metrics)) {
+            pub.publish(ConsumableFamily.COMMAND, 0);
+            assertTrue(senderBlocked.await(2, TimeUnit.SECONDS));
+
+            // While transport is completely hung, 50,000 publishes across families/partitions
+            // must complete in O(1) without blocking the caller or growing buffers.
+            long startNanos = System.nanoTime();
+            for (int i = 0; i < 50_000; i++) {
+                pub.publish(ConsumableFamily.COMMAND, i & 3);
+                pub.publish(ConsumableFamily.POT_EVENT, i & 3);
+            }
+            long elapsedMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNanos);
+            assertTrue(
+                    elapsedMs < 500,
+                    "Hung transport must never block business caller; 100k publishes took "
+                            + elapsedMs
+                            + "ms");
+            assertTrue(
+                    coalesced.get() >= 99_990,
+                    "Bitmask must coalesce saturated bursts into 32-bit state; coalesced="
+                            + coalesced.get());
+
+            releaseSender.countDown();
+        }
+        assertTrue(published.get() >= 1);
+    }
 }

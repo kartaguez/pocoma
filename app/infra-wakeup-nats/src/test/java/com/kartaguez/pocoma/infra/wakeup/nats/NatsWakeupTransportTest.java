@@ -184,4 +184,122 @@ class NatsWakeupTransportTest {
             }
         }
     }
+
+    @Test
+    void coreNatsBrokerRestartRestoresAutoResubscriptionAndDeliversPostReconnectWakeups()
+            throws Exception {
+        String token = "pocoma-reconnect-token-99";
+        int fixedPort;
+        try (var socket = new java.net.ServerSocket(0)) {
+            fixedPort = socket.getLocalPort();
+        }
+        java.util.function.Supplier<GenericContainer<?>> newBroker =
+                () -> {
+                    var c =
+                            new GenericContainer<>(NATS_IMAGE)
+                                    .withCommand("-auth", token, "-m", "8222")
+                                    .withExposedPorts(4222, 8222)
+                                    .waitingFor(Wait.forHttp("/healthz").forPort(8222));
+                    c.setPortBindings(java.util.List.of(fixedPort + ":4222"));
+                    return c;
+                };
+
+        GenericContainer<?> firstBroker = newBroker.get();
+        GenericContainer<?> secondBroker = null;
+        try {
+            firstBroker.start();
+            String url = "nats://" + firstBroker.getHost() + ":" + fixedPort;
+
+            var initialConnected = new CountDownLatch(1);
+            var degradedLatch = new CountDownLatch(1);
+            var reconnectedLatch = new CountDownLatch(1);
+            var beforeRestartWakeup = new CountDownLatch(1);
+            var afterRestartWakeup = new CountDownLatch(1);
+            var receivedCount = new AtomicInteger();
+
+            var opts =
+                    new NatsWakeupTransport.TransportOptions(
+                            url,
+                            token,
+                            Duration.ofSeconds(2),
+                            Duration.ofMillis(100),
+                            Duration.ofMillis(300),
+                            2,
+                            Duration.ofMillis(150),
+                            16384);
+            try (var subTransport = new NatsWakeupTransport(opts);
+                    var pubTransport = new NatsWakeupTransport(opts);
+                    var publisher =
+                            pubTransport.createPublisher(
+                                    CoalescingWakeupPublisher.Strategy.IN_FLIGHT_DEDUP,
+                                    1L,
+                                    WakeupMetrics.NOOP)) {
+                WakeupKey target = new WakeupKey(ConsumableFamily.COMMAND, 1);
+                subTransport.start(
+                        Set.of(target),
+                        key -> {
+                            int n = receivedCount.incrementAndGet();
+                            if (n == 1) beforeRestartWakeup.countDown();
+                            if (reconnectedLatch.getCount() == 0) afterRestartWakeup.countDown();
+                        },
+                        state -> {
+                            if (state == WakeupState.CONNECTED) {
+                                if (initialConnected.getCount() > 0) {
+                                    initialConnected.countDown();
+                                } else if (degradedLatch.getCount() == 0) {
+                                    reconnectedLatch.countDown();
+                                }
+                            } else if (state == WakeupState.DEGRADED
+                                    && initialConnected.getCount() == 0) {
+                                degradedLatch.countDown();
+                            }
+                        });
+
+                assertTrue(initialConnected.await(10, TimeUnit.SECONDS));
+                long pubDeadline = System.nanoTime() + Duration.ofSeconds(10).toNanos();
+                while (pubTransport.state() != WakeupState.CONNECTED
+                        && System.nanoTime() < pubDeadline) {
+                    Thread.sleep(25);
+                }
+                assertEquals(WakeupState.CONNECTED, pubTransport.state());
+
+                // Deliver wakeup before broker replacement.
+                publisher.publish(ConsumableFamily.COMMAND, 1);
+                assertTrue(beforeRestartWakeup.await(5, TimeUnit.SECONDS));
+
+                // Stop first broker completely -> both transports must enter DEGRADED.
+                firstBroker.stop();
+                assertTrue(
+                        degradedLatch.await(10, TimeUnit.SECONDS),
+                        "Subscriber must enter DEGRADED when broker stops");
+                assertEquals(WakeupState.DEGRADED, subTransport.state());
+                assertFalse(subTransport.isSubscriptionsConfirmed());
+
+                // Start a brand-new NATS broker on the same port (empty subscription table).
+                secondBroker = newBroker.get();
+                secondBroker.start();
+
+                assertTrue(
+                        reconnectedLatch.await(15, TimeUnit.SECONDS),
+                        "Subscriber must reconnect and confirm subscriptions on new broker");
+                assertTrue(subTransport.isSubscriptionsConfirmed());
+
+                long pubReconnectDeadline = System.nanoTime() + Duration.ofSeconds(15).toNanos();
+                while (pubTransport.state() != WakeupState.CONNECTED
+                        && System.nanoTime() < pubReconnectDeadline) {
+                    Thread.sleep(25);
+                }
+                assertEquals(WakeupState.CONNECTED, pubTransport.state());
+
+                // Publish after reconnect -> must be delivered via jnats auto-resubscribed dispatcher.
+                publisher.publish(ConsumableFamily.COMMAND, 1);
+                assertTrue(
+                        afterRestartWakeup.await(5, TimeUnit.SECONDS),
+                        "Post-reconnect wakeup must be delivered after broker restart");
+            }
+        } finally {
+            firstBroker.stop();
+            if (secondBroker != null) secondBroker.stop();
+        }
+    }
 }
