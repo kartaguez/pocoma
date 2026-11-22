@@ -62,7 +62,7 @@ Executes the **3 journeys (`J01`, `J02`, `J03`)** — **118 requests and 236 nam
 
 ## 4. Modifying & Testing Java Code (`app/`)
 
-The Maven reactor under `app/` contains **42 child modules** and one aggregator. Before editing Java code, review [Modular Architecture (42 modules)](../architecture/modules.md) to identify which layer owns your change.
+The Maven reactor under `app/` contains **43 child modules** and one aggregator. Before editing Java code, review [Modular Architecture (43 modules)](../architecture/modules.md) to identify which layer owns your change.
 
 ### Recommended Java Inner Loop
 

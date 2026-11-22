@@ -92,7 +92,7 @@ class HttpCompositionPostgresTest {
         }
     }
     @Test void typedPortsAndDependencies() throws Exception {
-        Path app = Path.of("..").toAbsolutePath().normalize(); var poms = Files.list(app).filter(p -> Files.isRegularFile(p.resolve("pom.xml"))).sorted().toList(); assertEquals(42, poms.size());
+        Path app = Path.of("..").toAbsolutePath().normalize(); var poms = Files.list(app).filter(p -> Files.isRegularFile(p.resolve("pom.xml"))).sorted().toList(); assertEquals(43, poms.size());
         var graph = new HashMap<String, Set<String>>();
         for (Path module : poms) {
             var doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(module.resolve("pom.xml").toFile()); var ids = doc.getElementsByTagName("artifactId");

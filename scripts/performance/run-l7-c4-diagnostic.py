@@ -50,6 +50,16 @@ def load_cfg():
     return base.load_profiles_config()
 
 
+def resolve_runtimes_cfg(cfg, extra_cfg=None):
+    runtimes_cfg = dict(cfg["topology"]["runtimes"])
+    if extra_cfg:
+        for rem in extra_cfg.get("removeRuntimes", []):
+            runtimes_cfg.pop(rem, None)
+        if "extraRuntimes" in extra_cfg:
+            runtimes_cfg.update(extra_cfg["extraRuntimes"])
+    return runtimes_cfg
+
+
 def build_compose_services(cfg, work, ip, extra_props=None, extra_cfg=None):
     topo = cfg["topology"]
     pg_cpus = (extra_cfg or {}).get("postgresCpus", topo["postgres"]["cpus"])
@@ -76,9 +86,7 @@ def build_compose_services(cfg, work, ip, extra_props=None, extra_cfg=None):
             }
         }
     }
-    runtimes_cfg = dict(topo["runtimes"])
-    if extra_cfg and "extraRuntimes" in extra_cfg:
-        runtimes_cfg.update(extra_cfg["extraRuntimes"])
+    runtimes_cfg = resolve_runtimes_cfg(cfg, extra_cfg)
     for name, rcfg in runtimes_cfg.items():
         mod = rcfg["module"]
         jar = ROOT / "app" / mod / "target" / f"pocoma-{mod}-0.0.1-SNAPSHOT-exec.jar"
@@ -353,7 +361,6 @@ def run_contention_1pot(pg, state, producers=6, per_producer=20):
                 "observedVersion": obs_v,
                 "bindingToken": binding,
                 "payload": {
-                    "id": str(uuid.uuid4()),
                     "label": f"CONT-{wid}-{idx}",
                     "date": "2026-11-21",
                     "amount": {"numerator": "1", "denominator": "2"},
@@ -407,29 +414,17 @@ def run_contention_1pot(pg, state, producers=6, per_producer=20):
     return {"admittedCount": len(admitted_ids), "write": w_res, "read": r_res, "drainageTimeout": drainage_err}
 
 
-def run_backlog_10k(pg, dc, states, token, binding, fresh_tokens, out):
-    # Create 10,000 CreatePot commands (observedVersion=0, all CHANGED) -> 10,000 POT_EVENTs + 10,000 COMMAND_COMPLETION_EVENTs
-    # Note: we create 10,000 requests targeting our 10-50 medium pots? Wait: CreateExpense with observedVersion requires
-    # either 10,000 pots OR pipelined/CAS-rejected commands. Using 100 medium pots with 100 commands each at observedVersion=V
-    # would have 99 CAS rejections per pot; still exercises 10,000 Command executions + 10,000 CommandResults!
-    # Even better: let's seed 100 medium pots? Seeding 100 medium pots (202 cmds each = 20,200 cmds) takes ~150s.
-    # Let's check how fast seeding 100 medium pots is, or use 50 medium pots with 200 commands each, OR 100 medium pots with 100 commands each.
-    # Actually, let's check: if 1 pot has 100 commands at observedVersion=V, 1 is CHANGED and 99 are REJECTED (so only 100 POT_EVENTs, not 10,000!).
-    # For a true 10,000-command backlog where ALL 10,000 apply and produce 10,000 POT_EVENTs (40,000 READ events), we want distinct pots OR sequential versions!
-    # Wait: if we stop workers, we can admit 10,000 commands across 100 medium pots? No, observedVersion is checked against current pot version at execution time.
-    # Unless we seed 10,000 pots (too slow on Mac) OR we admit 10,000 commands across 50 pots where 50 are CHANGED and 9,950 are REJECTED?
-    # Wait: let's check what happens if we admit 10,000 CreatePot commands! CreatePot has observedVersion=0 and ALWAYS succeeds (CHANGED), creating 10,000 Pots + 10,000 POT_EVENTs + 10,000 COMMAND_COMPLETION_EVENTs = 40,000 READ consumptions!
-    # Let's verify CreatePot! CreatePot produces PotVersion, PotBalance, PotVisibility, CommandResult for ALL 10,000 commands!
-    print("[C4-BACKLOG-10K] Stopping workers and admitting 10,000 CreatePot commands (all CHANGED)...")
-    dc("stop", "command-worker", "results-worker", "business-read-worker")
+def run_backlog_10k(pg, dc, states, token, binding, fresh_tokens, out, worker_names=None, worker_urls=None):
+    workers = list(worker_names) if worker_names else ["command-worker", "results-worker", "business-read-worker"]
+    urls = list(worker_urls) if worker_urls else [f"http://127.0.0.1:{p}" for p in (28083, 28084, 28085)]
+    print(f"[C4-BACKLOG-10K] Stopping workers ({workers}) and admitting 10,000 CreatePot commands (all CHANGED)...")
+    dc("stop", *workers)
     admitted_ids = []
     t_adm_start = time.monotonic()
 
     def admit_create_pot(idx):
-        pot_id = str(uuid.uuid4())
         payload = {
             "operation": "CreatePot",
-            "potId": pot_id,
             "observedVersion": 0,
             "bindingToken": binding,
             "payload": {"label": f"Backlog-Pot-{idx}"},
@@ -448,10 +443,10 @@ def run_backlog_10k(pg, dc, states, token, binding, fresh_tokens, out):
 
     # Start workers and concurrent 1 cmd/s on existing medium pots + 0.2 Reg/s
     t_drain_start = time.monotonic()
-    dc("start", "command-worker", "results-worker", "business-read-worker")
+    dc("start", *workers)
     # Wait for actuators
-    for port in (28083, 28084, 28085):
-        base.wait_for(lambda u=f"http://127.0.0.1:{port}": bool(bench.fetch_metrics(u)), 60)
+    for url in urls:
+        base.wait_for(lambda u=url: bool(bench.fetch_metrics(u)), 60)
 
     stop_conc = threading.Event()
     timeline = []
@@ -586,12 +581,13 @@ def main():
 
         definition = build_compose_services(cfg, work, ip, extra_cfg=extra_cfg)
         compose_path.write_text(json.dumps(definition))
-        all_rts = list(cfg["topology"]["runtimes"].keys()) + list((extra_cfg or {}).get("extraRuntimes", {}).keys())
+        resolved_rts = resolve_runtimes_cfg(cfg, extra_cfg)
+        all_rts = list(resolved_rts.keys())
+        worker_rts = [n for n, rc in resolved_rts.items() if rc["module"].startswith("runtime-worker-")]
+        read_worker_rts = [n for n, rc in resolved_rts.items() if rc["module"] == "runtime-worker-materialize"]
         dc("up", "-d", "--no-recreate", *all_rts)
 
-        metrics_urls = {name: f"http://127.0.0.1:{rcfg['managementPort'] + 10000}" for name, rcfg in cfg["topology"]["runtimes"].items()}
-        for name, rcfg in (extra_cfg or {}).get("extraRuntimes", {}).items():
-            metrics_urls[name] = f"http://127.0.0.1:{rcfg['managementPort'] + 10000}"
+        metrics_urls = {name: f"http://127.0.0.1:{rcfg['managementPort'] + 10000}" for name, rcfg in resolved_rts.items()}
         for name, url in metrics_urls.items():
             try:
                 base.wait_for(lambda u=url: bool(bench.fetch_metrics(u)), 150)
@@ -641,7 +637,7 @@ def main():
         except Exception:
             pass
         pre_proms = {r: c4m.scrape_prom(u) for r, u in metrics_urls.items()}
-        pre_cgroup = c4m.capture_cluster_cgroup(project)
+        pre_cgroup = c4m.capture_cluster_cgroup(project, runtimes=all_rts)
         pre_pg = c4m.pg_capture_window(pg)
 
         # Execute scenario
@@ -701,7 +697,7 @@ def main():
             except Exception:
                 pass
             pre_proms = {r: c4m.scrape_prom(u) for r, u in metrics_urls.items()}
-            pre_cgroup = c4m.capture_cluster_cgroup(project)
+            pre_cgroup = c4m.capture_cluster_cgroup(project, runtimes=all_rts)
             pre_pg = c4m.pg_capture_window(pg)
             stop_bg = threading.Event()
             with ThreadPoolExecutor(max_workers=3) as pool:
@@ -763,18 +759,27 @@ def main():
                 "invitationsAdmitted": sum(1 for r in inv_rows if r["code"] == 202),
             }
         elif sc == "c4-backlog-10k":
-            receipt["results"] = run_backlog_10k(pg, dc, states, token, binding, fresh_tokens, out)
+            receipt["results"] = run_backlog_10k(
+                pg, dc, states, token, binding, fresh_tokens, out,
+                worker_names=worker_rts,
+                worker_urls=[metrics_urls[w] for w in worker_rts],
+            )
         elif sc == "c4-backlog-read-only":
-            dc("stop", "business-read-worker")
+            target_read = [w for w in read_worker_rts if w not in ("results-worker", "critical-read-worker")] or list(read_worker_rts)
+            if target_read == ["read-worker-1", "read-worker-2"]:
+                target_read = ["read-worker-2"]
+            dc("stop", *target_read)
             rows_bg, _, _ = run_open_rate(states[:8], 20.0, 300, 0, 10, 30.0, 0.05, 150.0, token, binding)
-            # Wait for WRITE and results-worker to finish
+            # Wait for WRITE to finish
             base.wait_for(lambda: c4m.pg_sql(pg, "pocoma_write", "SELECT count(*) FROM v3_write.v3_command WHERE status='PENDING'") == 0, 60)
             t_rec = time.monotonic()
-            dc("start", "business-read-worker")
-            base.wait_for(lambda: bool(bench.fetch_metrics("http://127.0.0.1:28085")), 60)
+            dc("start", *target_read)
+            for w in target_read:
+                base.wait_for(lambda u=metrics_urls[w]: bool(bench.fetch_metrics(u)), 60)
             rows_conc, b_ns, e_ns = run_open_rate(states[8:], 1.0, 30, 0, 2, 60.0, 0.025, 100.0, token, binding)
             base.wait_for_drainage(pg, timeout_s=120)
             receipt["results"] = {
+                "stoppedWorkers": target_read,
                 "backlogCommands": 300,
                 "readRecoverySeconds": round(time.monotonic() - t_rec, 2),
                 "concurrentCommands": summarize_rows(rows_conc, b_ns, e_ns),
@@ -783,11 +788,12 @@ def main():
         if not (sc == "c2-contention-1pot" and receipt.get("results", {}).get("drainageTimeout")):
             base.wait_for_drainage(pg, timeout_s=60)
         post_pg = c4m.pg_capture_window(pg)
-        post_cgroup = c4m.capture_cluster_cgroup(project)
+        post_cgroup = c4m.capture_cluster_cgroup(project, runtimes=all_rts)
         post_proms = {r: c4m.scrape_prom(u) for r, u in metrics_urls.items()}
 
-        receipt["cgroupDelta"] = c4m.diff_cluster_cgroup(pre_cgroup, post_cgroup)
-        receipt["micrometerDelta"] = c4m.extract_runtime_deltas(pre_proms, post_proms)
+        receipt["cgroupDelta"] = c4m.diff_cluster_cgroup(pre_cgroup, post_cgroup, runtimes=all_rts)
+        receipt["micrometerDelta"] = c4m.extract_runtime_deltas(pre_proms, post_proms, runtimes=all_rts)
+        receipt["pgConnections"] = {db: post_pg[db].get("connections") for db in ("pocoma_write", "pocoma_read")}
         receipt["pgStatementsRead"] = c4m.pg_top_statements(pg, "pocoma_read", 15)
         receipt["pgStatementsWrite"] = c4m.pg_top_statements(pg, "pocoma_write", 15)
         receipt["pgWalBytes"] = {

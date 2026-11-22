@@ -61,13 +61,13 @@ During a prolonged PostgreSQL outage, the three workers (`command-worker`, `resu
 
    Expected: `exit=0`, `state=READY`, `operationalState=OPERATIONAL`, `qualificationState=QUALIFIED`.
 
-## 4. Recovering After an Ungraceful Stop (Docker crash / kill)
+## 4. Recovering After an Ungraceful Stop (Docker crash / kill) or Core NATS Outage
 
-After an ungraceful stop:
-
-- The nominal SQL TTL for partition leases is **`30 s`** (`lease-duration-ms=30000`), with batched renewal (`renewBatch`) every **`10 s`**.
-- Full recovery combines lease expiration (`30 s`), worker polling cycles (`min-poll=2 ms`, `max-poll=20 ms`), any `claim-duration-ms=60000` if a slot was claimed, and projection convergence.
-- `./pocoma-local` enforces a **bounded recovery observation budget of `270 s`**.
+- **Core NATS outage (no data loss, automatic fallback)**: Core NATS carries zero durable state (`jetstream: false`). Stopping or restarting `nats` never modifies PostgreSQL state, never aborts a commit, and never fails HTTP `202 Accepted` admissions. Workers switch automatically from `CONNECTED` (`reconcile-poll=2000 ms`) to `DEGRADED` (`fallback-max-poll=20 ms`) within `≤ 4 s`, continue processing via PostgreSQL polling, and trigger an immediate full reconciliation (`onExternalReconnect`) upon broker recovery.
+- **Ungraceful worker/PostgreSQL stop**:
+  - The nominal SQL TTL for partition leases is **`30 s`** (`lease-duration-ms=30000`), with batched renewal (`renewBatch`) every **`10 s`**.
+  - Full recovery combines lease expiration (`30 s`), worker polling cycles (`min-poll=2 ms`, `max-poll=20 ms`), any `claim-duration-ms=60000` if a slot was claimed, and projection convergence.
+  - `./pocoma-local` enforces a **bounded recovery observation budget of `270 s`**.
 
 If a command hits a client-side timeout, inspect the final outcome using the printed run ID:
 
@@ -110,4 +110,4 @@ A fresh database installs the canonical READ V5 availability schema after V4. A 
 
 For a fresh installation, rerun the setup command after a failed schema transaction. It verifies routing and discovery grants before accepting an existing authority. An incomplete schema left by an older installer requires inspection before the runtimes are restarted. Use the reconstruction procedure for populated READ data.
 
-Use the [L6/I2 reconstruction procedure](../v3/L6_I2_Acceptance_and_Closure_Decision.md) for the qualified five-runtime topology. The [reconstruction script](../../scripts/operations/v3-rebuild-read.py) includes status and resume paths. A resume after a replay interruption keeps committed availability UUIDs and positions. A full READ rebuild regenerates them. Any downstream reader must resynchronize its cursors with the new READ incarnation. See the [availability reference](../reference/read-availability.md#concurrency-privileges-and-retention).
+Use the [L6/I2 reconstruction procedure](../v3/L6_I2_Acceptance_and_Closure_Decision.md) for the qualified five-runtime T1A topology (`pocoma-critical-read-worker`, `pocoma-pot-read-worker`). The [reconstruction script](../../scripts/operations/v3-rebuild-read.py) includes status and resume paths and is **completely independent of Core NATS** (it replays authoritative PostgreSQL WRITE sources and relies on reconciliation polling, never on prior volatile notifications). A resume after a replay interruption keeps committed availability UUIDs and positions. A full READ rebuild regenerates them. Any downstream reader must resynchronize its cursors with the new READ incarnation. See the [availability reference](../reference/read-availability.md#concurrency-privileges-and-retention).

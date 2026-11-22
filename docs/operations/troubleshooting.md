@@ -67,6 +67,11 @@ If an earlier command timed out and printed a `--run` identifier (`[0-9]{10}-[0-
   - `GRAFANA-DATASOURCE`: the Prometheus datasource is unreachable or misprovisioned.
   - `GRAFANA-DASHBOARD`: one of the two mandatory dashboards (*Pocoma runtime*, *Pocoma V3 - Architecture & Observability Overview*) is missing or invalid.
   - To re-apply Grafana configuration without losing data: `./pocoma-local upgrade-grafana --instance demo`.
+- **Core NATS wakeup broker (`wakeup.*`)**:
+  - Inspect broker and runtime wakeup states via `./pocoma-local status --instance demo` (look at `wakeup.brokerAvailable`, `wakeup.effectiveMode`, and `wakeup.runtimes`) and `./pocoma-local logs --instance demo --service nats --tail 50`.
+  - **`brokerAvailable: false` / `effectiveMode: DEGRADED`**: NATS is stopped or unreachable, while `operational.servicesAvailable` remains `true`. Workers have automatically fallen back to fast PostgreSQL polling (`fallback-max-poll-ms=20`). Restarting the `nats` container restores `CONNECTED` automatically and triggers immediate reconciliation (`onExternalReconnect`).
+  - **Autonomous polling-only mode (`NOOP`)**: to run or troubleshoot without NATS, start a fresh instance with `./pocoma-local start --instance <name> --wakeup-mode noop`.
+  - **Token mismatch on restart**: `PRE-CONFIG-SECRETS` indicates `nats.conf` or a runtime `.properties` file diverged from `secrets.json`. Do not regenerate secrets; inspect the instance files.
 
 ## 6. Known Limits of the Local Distribution
 
