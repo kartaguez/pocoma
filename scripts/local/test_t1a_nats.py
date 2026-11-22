@@ -135,6 +135,29 @@ class T1ANatsLocalTests(unittest.TestCase):
             self.assertIn('nats', compose_nats['services'])
             self.assertIn(original_nats_token, (path / 'nats.conf').read_text())
 
+    def test_wakeup_diagnostics_includes_internal_nats_varz_when_broker_available(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory)
+            m, _ = self._fixture(path, wakeup_mode='nats')
+            prom_connected = 'pocoma_v3_wakeup_state{role="process"} 1.0\n'
+            varz_json = (
+                '{"connections": 4, "total_connections": 5, "subscriptions": 36,'
+                ' "in_msgs": 120, "out_msgs": 120, "slow_consumers": 0,'
+                ' "mem": 14680064, "cpu": 0.2, "uptime": "1m10s"}'
+            )
+            with patch.object(rt, 'compose', return_value='cid-nats'), \
+                    patch.object(rt, 'docker_json', return_value=[{'State': {'Running': True, 'Status': 'running', 'Health': {'Status': 'healthy'}}}]), \
+                    patch.object(rt, 'run', return_value=varz_json), \
+                    patch.object(rt, 'scrape_prometheus_text', return_value=prom_connected):
+                diag = rl.wakeup_diagnostics(rt, path, m)
+            self.assertEqual('CONNECTED', diag['effectiveMode'])
+            self.assertTrue(diag['brokerAvailable'])
+            self.assertEqual(4, diag['broker']['varz']['connections'])
+            self.assertEqual(5, diag['broker']['varz']['totalConnections'])
+            self.assertEqual(36, diag['broker']['varz']['subscriptions'])
+            self.assertEqual(0, diag['broker']['varz']['slowConsumers'])
+            self.assertEqual(14680064, diag['broker']['varz']['memBytes'])
+
     def test_cli_wakeup_mode_validation_and_default_none(self):
         with patch.object(sys, 'argv', ['pocoma-local', 'start', '--instance', 'demo']):
             args = rt._parse_cli_args()

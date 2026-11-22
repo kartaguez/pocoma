@@ -1,5 +1,6 @@
 """Lifecycle operations (health, start, status, destroy) for local playground instances."""
 import hashlib
+import json
 import math
 from pathlib import Path
 import sys
@@ -233,6 +234,26 @@ def _verify_canary_and_observability(rt, path, m, verify_spec):
 WAKEUP_STATE_LABELS = {0: 'NOOP', 1: 'CONNECTED', 2: 'DEGRADED'}
 
 
+def _scrape_nats_varz(rt, cid):
+    """Best-effort internal scrape of Core NATS /varz (never exposed on host/Internet)."""
+    try:
+        raw = rt.run(['docker', 'exec', cid, 'wget', '-qO-', 'http://127.0.0.1:8222/varz'], timeout=5)
+        data = json.loads(raw)
+        return dict(
+            connections=data.get('connections'),
+            totalConnections=data.get('total_connections'),
+            subscriptions=data.get('subscriptions'),
+            inMsgs=data.get('in_msgs'),
+            outMsgs=data.get('out_msgs'),
+            slowConsumers=data.get('slow_consumers'),
+            memBytes=data.get('mem'),
+            cpuPct=data.get('cpu'),
+            uptime=data.get('uptime'),
+        )
+    except Exception:
+        return None
+
+
 def wakeup_diagnostics(rt, path, m):
     """Inspect NATS broker state and runtime wakeup telemetry without conflating with Pocoma business availability."""
     configured = m.get('wakeupMode', 'nats')
@@ -252,6 +273,10 @@ def wakeup_diagnostics(rt, path, m):
                     healthy=(running and health in (None, 'healthy')),
                     available=(running and health in (None, 'healthy')),
                 )
+                if broker['available']:
+                    varz = _scrape_nats_varz(rt, cid)
+                    if varz is not None:
+                        broker['varz'] = varz
             else:
                 broker.update(state='ABSENT', running=False, health='absent', healthy=False, available=False)
         except Exception:
