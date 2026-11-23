@@ -234,10 +234,15 @@ public final class StageHandoffTracker
                 }
             });
     private final ConcurrentLinkedDeque<UUID> ring = new ConcurrentLinkedDeque<>();
-    private static final java.nio.file.Path HANDOFF_LOG_PATH =
-            java.nio.file.Path.of(
-                    System.getProperty(
-                            "pocoma.v3.handoff.log", "/tmp/pocoma-stage-handoffs.jsonl"));
+    private static final java.nio.file.Path HANDOFF_LOG_PATH = resolveHandoffLogPath();
+
+    private static java.nio.file.Path resolveHandoffLogPath() {
+        String configured = System.getProperty("pocoma.v3.handoff.log");
+        if (configured == null || configured.isBlank()) {
+            return null;
+        }
+        return java.nio.file.Path.of(configured.trim());
+    }
 
     private volatile MeterRegistry registry;
 
@@ -246,6 +251,9 @@ public final class StageHandoffTracker
     }
 
     private void appendLogLine(String jsonLine) {
+        if (HANDOFF_LOG_PATH == null) {
+            return;
+        }
         try {
             java.nio.file.Files.writeString(
                     HANDOFF_LOG_PATH,

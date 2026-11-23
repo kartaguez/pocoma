@@ -85,24 +85,30 @@ public final class ReadFacadeComposition {
             int sqlPermits) {
         owner.requireSource(read);
         var binding = new JdbcCurrentBindingStore(read, owner);
+        var potVersions = new JdbcPotVersionStore(read, owner);
+        var subobjects = new JdbcSubobjectVersionStore(read, owner);
+        var invitations = new JdbcInvitationStore(read);
         var pot =
                 new ReadPot(
-                        new JdbcPotVersionStore(read, owner),
-                        new JdbcSubobjectVersionStore(read, owner),
+                        potVersions,
+                        subobjects,
                         new JdbcPotBalanceStore(read, owner),
                         binding::read,
                         limits);
         return new Services(
-                owner,
                 pot,
                 new ReadNavigation(pot, new JdbcPotVisibilityStore(read, owner), limits),
                 binding,
+                potVersions,
+                subobjects,
+                invitations,
                 new GetCommandTerminalResult(new JdbcCommandTerminalResultStore(read, owner)),
                 new GetIdentityTerminalResult(new JdbcIdentityTerminalResultStore(read, owner)),
                 Set.copyOf(active),
                 worker,
                 limits,
                 read,
+                owner,
                 httpBounds,
                 registry,
                 sqlPermits);
@@ -111,32 +117,129 @@ public final class ReadFacadeComposition {
     public static final class Services extends com.kartaguez.pocoma.engine.read.execution.ReadExecution {
         private final Set<String> active;
         private final Supplier<Optional<WorkerView.Snapshot>> worker;
-        private Services(SpringAttemptTransactions owner,ReadPot pot,ReadNavigation navigation,
-                JdbcCurrentBindingStore binding,GetCommandTerminalResult command,GetIdentityTerminalResult identity,
-                Set<String> active,Supplier<Optional<WorkerView.Snapshot>> worker,ReadLimits limits,
-                DataSource source,boolean httpBounds,MeterRegistry registry,int sqlPermits) {
-            super(new com.kartaguez.pocoma.infra.tx.spring.SpringReadTransactions(source,owner,httpBounds),
-                new com.kartaguez.pocoma.contract.readquery.SnapshotRead() {
-                    private final org.springframework.jdbc.core.JdbcTemplate sql=new org.springframework.jdbc.core.JdbcTemplate(source);
-                    public ReadPotResult<Pot> current(ExternalIdentity e,String t,UUID i,long v,RecoveryReadContext c) { return pot.current(e,t,i,v,c); }
-                    public ReadPotResult<Pot> at(ExternalIdentity e,String t,UUID i,long v,RecoveryReadContext c) { return pot.at(e,t,i,v,c); }
-                    public ReadPotResult<PotBalance> balance(ExternalIdentity e,String t,UUID i,long v,RecoveryReadContext c) { return pot.balance(e,t,i,v,c); }
-                    public ReadPotResult<List<Expense>> expenses(ExternalIdentity e,String t,UUID i,long v,List<ExpenseRef> refs,RecoveryReadContext c) { return pot.expenses(e,t,i,v,refs,c); }
-                    public ReadPotResult<List<UUID>> visible(ExternalIdentity e,String t,UUID i,int n,RecoveryReadContext c) { return navigation.visible(e,t,i,n,c); }
-                    public BindingRead.Answer binding(ExternalIdentity e,long v,RecoveryReadContext c) { return new GetCurrentBinding(key -> binding.read(key,c)).get(e,v); }
-                    private ReadInvitation invitations(Function<com.kartaguez.pocoma.domain.pot.invitation.Invitation,String> decrypt) {
-                        return new ReadInvitation(new JdbcInvitationStore(source),new JdbcPotVersionStore(source,owner),
-                            new JdbcSubobjectVersionStore(source,owner),binding::read,decrypt,
-                            () -> sql.queryForObject("select clock_timestamp()",java.sql.Timestamp.class).toInstant());
-                    }
-                    public ReadPotResult<InvitationRead.Link> invitationLink(ExternalIdentity e,UUID i,Function<com.kartaguez.pocoma.domain.pot.invitation.Invitation,String> d,RecoveryReadContext c) { return invitations(d).link(e,i,c); }
-                    public ReadPotResult<List<InvitationRead.Place>> invitationPlaces(ExternalIdentity e,String b,String t,RecoveryReadContext c) { return invitations(i -> {throw new IllegalStateException("Decryption forbidden");}).places(e,b,t,c); }
-                    public Optional<CommandTerminalResult> commandResult(UUID i,ExternalIdentity e,RecoveryReadContext c) { return command.get(i,e); }
-                    public Optional<IdentityTerminalResult> identityResult(UUID i,ExternalIdentity e,RecoveryReadContext c) { return identity.get(i,e); }
-                },limits,httpBounds,new com.kartaguez.pocoma.infra.observability.micrometer.MicrometerReadObservation(registry),sqlPermits);
-            this.active=Set.copyOf(active); this.worker=worker;
+        private Services(
+                ReadPot pot,
+                ReadNavigation navigation,
+                JdbcCurrentBindingStore binding,
+                JdbcPotVersionStore potVersions,
+                JdbcSubobjectVersionStore subobjects,
+                JdbcInvitationStore invitations,
+                GetCommandTerminalResult command,
+                GetIdentityTerminalResult identity,
+                Set<String> active,
+                Supplier<Optional<WorkerView.Snapshot>> worker,
+                ReadLimits limits,
+                DataSource source,
+                SpringAttemptTransactions owner,
+                boolean httpBounds,
+                MeterRegistry registry,
+                int sqlPermits) {
+            super(
+                    new com.kartaguez.pocoma.infra.tx.spring.SpringReadTransactions(source, owner, httpBounds),
+                    new SnapshotReader(
+                            pot,
+                            navigation,
+                            binding,
+                            potVersions,
+                            subobjects,
+                            invitations,
+                            command,
+                            identity,
+                            new org.springframework.jdbc.core.JdbcTemplate(source)),
+                    limits,
+                    httpBounds,
+                    new com.kartaguez.pocoma.infra.observability.micrometer.MicrometerReadObservation(registry),
+                    sqlPermits);
+            this.active = Set.copyOf(active);
+            this.worker = worker;
         }
         public Set<String> activeParticipants() {return active;}
         public Optional<WorkerView.Snapshot> workerState() {return worker.get();}
+    }
+
+    private static final class SnapshotReader implements com.kartaguez.pocoma.contract.readquery.SnapshotRead {
+        private final ReadPot pot;
+        private final ReadNavigation navigation;
+        private final JdbcCurrentBindingStore binding;
+        private final JdbcPotVersionStore potVersions;
+        private final JdbcSubobjectVersionStore subobjects;
+        private final JdbcInvitationStore invitations;
+        private final GetCommandTerminalResult command;
+        private final GetIdentityTerminalResult identity;
+        private final Supplier<java.time.Instant> dbClock;
+        private final ReadInvitation placesReader;
+
+        SnapshotReader(
+                ReadPot pot,
+                ReadNavigation navigation,
+                JdbcCurrentBindingStore binding,
+                JdbcPotVersionStore potVersions,
+                JdbcSubobjectVersionStore subobjects,
+                JdbcInvitationStore invitations,
+                GetCommandTerminalResult command,
+                GetIdentityTerminalResult identity,
+                org.springframework.jdbc.core.JdbcTemplate sql) {
+            this.pot = pot;
+            this.navigation = navigation;
+            this.binding = binding;
+            this.potVersions = potVersions;
+            this.subobjects = subobjects;
+            this.invitations = invitations;
+            this.command = command;
+            this.identity = identity;
+            this.dbClock = () -> sql.queryForObject("select clock_timestamp()", java.sql.Timestamp.class).toInstant();
+            this.placesReader = new ReadInvitation(
+                    invitations,
+                    potVersions,
+                    subobjects,
+                    binding::read,
+                    i -> { throw new IllegalStateException("Decryption forbidden"); },
+                    dbClock);
+        }
+
+        public ReadPotResult<Pot> current(ExternalIdentity e, String t, UUID i, long v, RecoveryReadContext c) {
+            return pot.current(e, t, i, v, c);
+        }
+
+        public ReadPotResult<Pot> at(ExternalIdentity e, String t, UUID i, long v, RecoveryReadContext c) {
+            return pot.at(e, t, i, v, c);
+        }
+
+        public ReadPotResult<PotBalance> balance(ExternalIdentity e, String t, UUID i, long v, RecoveryReadContext c) {
+            return pot.balance(e, t, i, v, c);
+        }
+
+        public ReadPotResult<List<Expense>> expenses(ExternalIdentity e, String t, UUID i, long v, List<ExpenseRef> refs, RecoveryReadContext c) {
+            return pot.expenses(e, t, i, v, refs, c);
+        }
+
+        public ReadPotResult<List<UUID>> visible(ExternalIdentity e, String t, UUID i, int n, RecoveryReadContext c) {
+            return navigation.visible(e, t, i, n, c);
+        }
+
+        public BindingRead.Answer binding(ExternalIdentity e, long v, RecoveryReadContext c) {
+            return new GetCurrentBinding(key -> binding.read(key, c)).get(e, v);
+        }
+
+        public ReadPotResult<InvitationRead.Link> invitationLink(
+                ExternalIdentity e,
+                UUID i,
+                Function<com.kartaguez.pocoma.domain.pot.invitation.Invitation, String> decrypt,
+                RecoveryReadContext c) {
+            return new ReadInvitation(invitations, potVersions, subobjects, binding::read, decrypt, dbClock)
+                    .link(e, i, c);
+        }
+
+        public ReadPotResult<List<InvitationRead.Place>> invitationPlaces(ExternalIdentity e, String b, String t, RecoveryReadContext c) {
+            return placesReader.places(e, b, t, c);
+        }
+
+        public Optional<CommandTerminalResult> commandResult(UUID i, ExternalIdentity e, RecoveryReadContext c) {
+            return command.get(i, e);
+        }
+
+        public Optional<IdentityTerminalResult> identityResult(UUID i, ExternalIdentity e, RecoveryReadContext c) {
+            return identity.get(i, e);
+        }
     }
 }

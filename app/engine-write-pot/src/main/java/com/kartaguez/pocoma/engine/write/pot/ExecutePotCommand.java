@@ -45,7 +45,7 @@ public final class ExecutePotCommand implements ConsumptionParticipant {
     private final PotRevisionPort revisions;
     private final Clock clock;
     private final Supplier<UUID> ids;
-    private InvitationStore invitations;
+    private final InvitationStore invitations;
 
     public ExecutePotCommand(
             PotCommandStore store,
@@ -54,7 +54,7 @@ public final class ExecutePotCommand implements ConsumptionParticipant {
             PotHistoryPort history,
             PotRevisionPort revisions,
             Clock clock) {
-        this(store, observation, authority, history, revisions, clock, UUID::randomUUID);
+        this(store, observation, authority, history, revisions, clock, null, UUID::randomUUID);
     }
 
     public ExecutePotCommand(
@@ -65,13 +65,7 @@ public final class ExecutePotCommand implements ConsumptionParticipant {
             PotRevisionPort revisions,
             Clock clock,
             Supplier<UUID> ids) {
-        this.store = Objects.requireNonNull(store);
-        this.observation = Objects.requireNonNull(observation);
-        this.authority = Objects.requireNonNull(authority);
-        this.history = Objects.requireNonNull(history);
-        this.revisions = Objects.requireNonNull(revisions);
-        this.clock = Objects.requireNonNull(clock);
-        this.ids = Objects.requireNonNull(ids);
+        this(store, observation, authority, history, revisions, clock, null, ids);
     }
 
     public ExecutePotCommand(
@@ -82,8 +76,7 @@ public final class ExecutePotCommand implements ConsumptionParticipant {
             PotRevisionPort revisions,
             Clock clock,
             InvitationStore invitations) {
-        this(store, observation, authority, history, revisions, clock, UUID::randomUUID);
-        this.invitations = Objects.requireNonNull(invitations);
+        this(store, observation, authority, history, revisions, clock, Objects.requireNonNull(invitations), UUID::randomUUID);
     }
 
     public ExecutePotCommand(
@@ -95,8 +88,14 @@ public final class ExecutePotCommand implements ConsumptionParticipant {
             Clock clock,
             InvitationStore invitations,
             Supplier<UUID> ids) {
-        this(store, observation, authority, history, revisions, clock, ids);
-        this.invitations = Objects.requireNonNull(invitations);
+        this.store = Objects.requireNonNull(store);
+        this.observation = Objects.requireNonNull(observation);
+        this.authority = Objects.requireNonNull(authority);
+        this.history = Objects.requireNonNull(history);
+        this.revisions = Objects.requireNonNull(revisions);
+        this.clock = Objects.requireNonNull(clock);
+        this.invitations = invitations;
+        this.ids = Objects.requireNonNull(ids);
     }
 
     @Override
@@ -108,22 +107,28 @@ public final class ExecutePotCommand implements ConsumptionParticipant {
     private Optional<ConsumptionParticipant.Prepared> prepareInSnapshot(UUID requestId) {
         var stored = store.load(requestId);
         if (stored.terminal().isPresent()) return Optional.empty();
-        var proposal = new Proposal[] {prepare(stored)};
-        return Optional.of(
-                new ConsumptionParticipant.Prepared() {
-                    @Override
-                    public void finalizeIn(SlotCompletion completion) {
-                        finalizeProposal(proposal[0], completion, actual -> proposal[0] = actual);
-                    }
+        return Optional.of(new PreparedCommand(prepare(stored)));
+    }
 
-                    @Override
-                    public void requireCompletionReady() {
-                        store.requireCompletionReady(
-                                proposal[0].command(),
-                                proposal[0].result(),
-                                proposal[0].components());
-                    }
-                });
+    private final class PreparedCommand implements ConsumptionParticipant.Prepared {
+        private Proposal current;
+
+        PreparedCommand(Proposal initial) {
+            this.current = initial;
+        }
+
+        @Override
+        public void finalizeIn(SlotCompletion completion) {
+            finalizeProposal(current, completion, actual -> current = actual);
+        }
+
+        @Override
+        public void requireCompletionReady() {
+            store.requireCompletionReady(
+                    current.command(),
+                    current.result(),
+                    current.components());
+        }
     }
 
     @Override
