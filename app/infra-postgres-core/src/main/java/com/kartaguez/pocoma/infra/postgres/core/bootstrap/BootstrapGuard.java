@@ -1,5 +1,15 @@
 package com.kartaguez.pocoma.infra.postgres.core.bootstrap;
 
+import static com.kartaguez.pocoma.infra.postgres.core.bootstrap.SqlPrivilegeInspector.ColumnRightsSpec;
+import static com.kartaguez.pocoma.infra.postgres.core.bootstrap.SqlPrivilegeInspector.TableRightsSpec;
+import static com.kartaguez.pocoma.infra.postgres.core.bootstrap.SqlPrivilegeInspector.pgTablesOwnerQuery;
+import static com.kartaguez.pocoma.infra.postgres.core.bootstrap.SqlPrivilegeInspector.require;
+import static com.kartaguez.pocoma.infra.postgres.core.bootstrap.SqlPrivilegeInspector.tableExists;
+import static com.kartaguez.pocoma.infra.postgres.core.bootstrap.SqlPrivilegeInspector.verifyInformationSchemaColumns;
+import static com.kartaguez.pocoma.infra.postgres.core.bootstrap.SqlPrivilegeInspector.verifyNoPublicAcl;
+import static com.kartaguez.pocoma.infra.postgres.core.bootstrap.SqlPrivilegeInspector.verifyReadBusinessColumnRights;
+import static com.kartaguez.pocoma.infra.postgres.core.bootstrap.SqlPrivilegeInspector.verifyTableRights;
+
 import com.kartaguez.pocoma.domain.consumption.*;
 import com.kartaguez.pocoma.domain.consumption.ConsumptionDefinition.Authority;
 
@@ -172,72 +182,6 @@ public final class BootstrapGuard {
             "read_current_availability", Set.of("position", "logical_version"),
             "read_availability_effects", Set.of());
 
-    private record TableRightsSpec(
-            boolean allowInsert, boolean allowDelete, String ownerQuery) {}
-
-    private record ColumnRightsSpec(
-            java.util.function.Predicate<String> allowInsert,
-            java.util.function.Predicate<String> allowUpdate,
-            String errorDetailPrefix) {}
-
-    private static void verifyTableRights(
-            Statement s, String table, TableRightsSpec spec, String errorDetailPrefix)
-            throws SQLException {
-        String sql =
-                "select has_table_privilege('"
-                        + table
-                        + "','SELECT'),has_table_privilege('"
-                        + table
-                        + "','INSERT'),has_table_privilege('"
-                        + table
-                        + "','UPDATE,TRUNCATE,REFERENCES,TRIGGER'),has_table_privilege('"
-                        + table
-                        + "','DELETE'),pg_has_role(current_user,("
-                        + spec.ownerQuery()
-                        + "),'MEMBER')";
-        try (var rows = s.executeQuery(sql)) {
-            rows.next();
-            boolean valid =
-                    rows.getBoolean(1)
-                            && rows.getBoolean(2) == spec.allowInsert()
-                            && !rows.getBoolean(3)
-                            && rows.getBoolean(4) == spec.allowDelete()
-                            && !rows.getBoolean(5);
-            require(valid, errorDetailPrefix + table);
-        }
-    }
-
-    private static void verifyInformationSchemaColumns(
-            Statement s, String table, ColumnRightsSpec spec) throws SQLException {
-        String sql =
-                "select column_name,has_column_privilege('"
-                        + table
-                        + "',column_name,'INSERT'),has_column_privilege('"
-                        + table
-                        + "',column_name,'UPDATE'),has_column_privilege('"
-                        + table
-                        + "',column_name,'REFERENCES') from information_schema.columns"
-                        + " where table_schema=current_schema() and table_name='"
-                        + table
-                        + "'";
-        try (var rows = s.executeQuery(sql)) {
-            while (rows.next()) {
-                String column = rows.getString(1);
-                boolean valid =
-                        rows.getBoolean(2) == spec.allowInsert().test(column)
-                                && rows.getBoolean(3) == spec.allowUpdate().test(column)
-                                && !rows.getBoolean(4);
-                require(valid, spec.errorDetailPrefix() + column);
-            }
-        }
-    }
-
-    private static String pgTablesOwnerQuery(String table) {
-        return "select tableowner from pg_tables where schemaname=current_schema() and tablename='"
-                + table
-                + "'";
-    }
-
     private static void inspectReadBusiness(Statement s) throws SQLException {
         for (var entry : READ_UPDATES.entrySet()) {
             String table = entry.getKey();
@@ -249,44 +193,6 @@ public final class BootstrapGuard {
                     "unsafe READ business table rights: ");
             verifyReadBusinessColumnRights(s, table, entry.getValue(), true);
             verifyNoPublicAcl(s, table, "PUBLIC READ business grant: " + table);
-        }
-    }
-
-    private static void verifyReadBusinessColumnRights(
-            Statement s, String table, Set<String> updatableColumns, boolean allowInsert) throws SQLException {
-        String sql =
-                "select a.attname,has_column_privilege(c.oid,a.attnum,'SELECT'),"
-                        + "has_column_privilege(c.oid,a.attnum,'INSERT'),has_column_privilege(c.oid,a.attnum,'UPDATE'),has_column_privilege(c.oid,a.attnum,'REFERENCES')"
-                        + " from pg_class c join pg_attribute a on a.attrelid=c.oid where"
-                        + " c.oid='"
-                        + table
-                        + "'::regclass and a.attnum>0 and not a.attisdropped";
-        try (var rows = s.executeQuery(sql)) {
-            while (rows.next()) {
-                boolean valid =
-                        rows.getBoolean(2)
-                                && rows.getBoolean(3) == allowInsert
-                                && rows.getBoolean(4) == updatableColumns.contains(rows.getString(1))
-                                && !rows.getBoolean(5);
-                require(valid, "unsafe READ business column rights: " + table + "." + rows.getString(1));
-            }
-        }
-    }
-
-    private static void verifyNoPublicAcl(Statement s, String table, String message)
-            throws SQLException {
-        String sql =
-                "select exists(select 1 from pg_class c, lateral aclexplode(c.relacl)"
-                        + " acl where c.oid='"
-                        + table
-                        + "'::regclass and acl.grantee=0) or exists(select 1 from"
-                        + " pg_attribute a, lateral aclexplode(a.attacl) acl where"
-                        + " a.attrelid='"
-                        + table
-                        + "'::regclass and acl.grantee=0)";
-        try (var rows = s.executeQuery(sql)) {
-            rows.next();
-            require(!rows.getBoolean(1), message);
         }
     }
 
@@ -639,16 +545,6 @@ public final class BootstrapGuard {
         };
     }
 
-    private static final Set<String> IDENTITY_TABLES =
-            Set.of(
-                    "v3_identity_request",
-                    "v3_eui_authority",
-                    "v3_pocoma_user",
-                    "v3_eui_version",
-                    "v3_identity_request_result",
-                    "v3_identity_event",
-                    "v3_identity_completion_event");
-
     public void validateIdentitySource(DataSource source) {
         validateIdentitySource(source, null);
     }
@@ -662,8 +558,8 @@ public final class BootstrapGuard {
             c.setReadOnly(true);
             c.setAutoCommit(false);
             try (var statement = c.createStatement()) {
-                inspectIdentity(statement);
-                verifyIdentityLoggingPolicy(statement);
+                IdentityAuthorityInspector.inspectIdentity(statement);
+                IdentityAuthorityInspector.verifyIdentityLoggingPolicy(statement);
                 require(
                         !read.runtimeRole().equals(write.runtimeRole()),
                         "distinct READ/WRITE principals required for real DEV");
@@ -682,178 +578,14 @@ public final class BootstrapGuard {
             if (!read.runtimeRole().equals(readEffectRole)) {
                 WriteSourceReadPrivileges.inspectRole(statement, read.runtimeRole());
             }
-            requireNoIdentityAuthority(c, statement, readEffectRole);
+            IdentityAuthorityInspector.requireNoIdentityAuthority(c, statement, readEffectRole);
             return;
         }
         if (options.validationScope() == Authority.WRITE) {
             WriteSourceReadPrivileges.inspectRole(statement, read.runtimeRole());
             return;
         }
-        requireNoIdentityAuthority(c, statement, read.runtimeRole());
-    }
-
-    private static void verifyIdentityLoggingPolicy(Statement statement) throws SQLException {
-        try (var rows =
-                statement.executeQuery(
-                        """
-select current_setting('log_error_verbosity')='terse'
- and current_setting('log_min_messages')='warning'
- and current_setting('log_min_error_statement')='panic'
- and current_setting('log_statement')='none' and current_setting('log_duration')='off'
- and current_setting('log_min_duration_statement')='-1'
- and current_setting('log_min_duration_sample')='-1'
- and current_setting('log_transaction_sample_rate')='0'
- and current_setting('log_parameter_max_length')='0'
- and current_setting('log_parameter_max_length_on_error')='0'
- and position('%e' in current_setting('log_line_prefix'))>0
- and position('%p' in current_setting('log_line_prefix'))>0
- and position('%x' in current_setting('log_line_prefix'))>0
-""")) {
-            rows.next();
-            require(rows.getBoolean(1), "Identity PostgreSQL logging policy required");
-        }
-    }
-
-    private static void requireNoIdentityAuthority(Connection c, Statement statement, String role)
-            throws SQLException {
-        require(role.matches("[a-z][a-z0-9_]*"), "invalid READ principal");
-        try (var query =
-                c.prepareStatement(
-                        """
-select exists(select 1 from pg_roles where rolname=? and
-    (rolsuper or rolcreatedb or rolcreaterole or rolreplication or rolbypassrls))
- or not exists(select 1 from pg_roles where rolname=?)
- or exists(select 1 from pg_roles where rolname<>? and pg_has_role(?,oid,'MEMBER'))
- or exists(select 1 from pg_class c join pg_namespace n on n.oid=c.relnamespace
-    where c.relkind in ('v','m') and n.nspname not in ('pg_catalog','information_schema')
-    and (has_any_column_privilege(?,c.oid,'SELECT') or has_table_privilege(?,c.oid,'SELECT')))
- or exists(select 1 from pg_proc p join pg_namespace n on n.oid=p.pronamespace
-    where p.prosecdef and n.nspname not in ('pg_catalog','information_schema'))
-""")) {
-            for (int parameter = 1; parameter <= 6; parameter++)
-                query.setString(parameter, role);
-            try (var rows = query.executeQuery()) {
-                rows.next();
-                require(
-                        !rows.getBoolean(1),
-                        "Identity indirect exposure or unsafe READ principal on WRITE");
-            }
-        }
-        var identityAndRequestTables = new HashSet<>(IDENTITY_TABLES);
-        identityAndRequestTables.addAll(
-                Set.of("v3_request_counter", "v3_request_position"));
-        for (String table : identityAndRequestTables) {
-            try (var rows =
-                    statement.executeQuery(
-                            "select exists(select 1 from pg_roles where rolname='"
-                                    + role
-                                    + "' and (has_any_column_privilege(oid,'"
-                                    + table
-                                    + "','SELECT,INSERT,UPDATE,REFERENCES')"
-                                    + " or has_table_privilege(oid,'"
-                                    + table
-                                    + "','DELETE,TRUNCATE,TRIGGER')))")) {
-                rows.next();
-                require(
-                        !rows.getBoolean(1),
-                        "READ principal has Identity WRITE authority privileges");
-            }
-        }
-    }
-
-    private static void inspectIdentity(Statement statement) throws SQLException {
-        verifyIdentitySchemaAndConstraints(statement);
-        verifyIdentityPublicExposure(statement);
-        for (String table : IDENTITY_TABLES) {
-            boolean insert = !table.equals("v3_identity_request");
-            String ownerQuery =
-                    "select relowner from pg_class where oid='" + table + "'::regclass";
-            verifyTableRights(
-                    statement,
-                    table,
-                    new TableRightsSpec(insert, false, ownerQuery),
-                    "unsafe Identity table rights: ");
-            verifyInformationSchemaColumns(
-                    statement,
-                    table,
-                    new ColumnRightsSpec(
-                            col -> insert,
-                            col -> isUpdatableIdentityColumn(table, col),
-                            "unsafe Identity column rights: "));
-        }
-    }
-
-    private static void verifyIdentitySchemaAndConstraints(Statement statement)
-            throws SQLException {
-        try (var rows =
-                statement.executeQuery(
-                        "select current_setting('server_encoding')='UTF8' and"
-                            + " current_setting('client_encoding')='UTF8',to_regprocedure('v3_identity_check_unit(uuid,boolean)')"
-                            + " is not null and to_regclass('v3_identity_request') is not null")) {
-            rows.next();
-            require(rows.getBoolean(1) && rows.getBoolean(2), "Identity V6/encoding required");
-        }
-        try (var rows =
-                statement.executeQuery(
-                        "select count(*)=2 from pg_trigger where tgrelid in"
-                            + " ('v3_eui_authority'::regclass,'v3_eui_version'::regclass) and"
-                            + " tgname in ('v3_identity_anchor_state','v3_identity_version_state')"
-                            + " and tgdeferrable and tginitdeferred")) {
-            rows.next();
-            require(rows.getBoolean(1), "Identity structural constraints required");
-        }
-        try (var rows =
-                statement.executeQuery(
-                        "select count(*)=6 from pg_attribute a join pg_collation c on"
-                            + " c.oid=a.attcollation where a.attrelid in"
-                            + " ('v3_eui_authority'::regclass,'v3_identity_request'::regclass) and"
-                            + " a.attname in"
-                            + " ('issuer','subject','requester_issuer','requester_subject','target_issuer','target_subject')"
-                            + " and c.collname='C'")) {
-            rows.next();
-            require(rows.getBoolean(1), "Identity C collation required");
-        }
-        try (var rows =
-                statement.executeQuery(
-                        "select count(*)=2 from v3_event_counter where family in"
-                                + " ('IDENTITY','IDENTITY_COMPLETION')")) {
-            rows.next();
-            require(rows.getBoolean(1), "Identity publication counters required");
-        }
-    }
-
-    private static void verifyIdentityPublicExposure(Statement statement) throws SQLException {
-        // Identity contains tokens: even PUBLIC SELECT is excessive. The L2 technical
-        // tables keep their existing policy; this check is specific to the real authority.
-        try (var rows =
-                statement.executeQuery(
-                        """
-select exists(select 1 from pg_class c join pg_namespace n on n.oid=c.relnamespace,
-    lateral aclexplode(c.relacl) acl where n.nspname=current_schema()
-    and c.relname in ('v3_identity_request','v3_eui_authority','v3_pocoma_user','v3_eui_version',
-        'v3_identity_request_result','v3_identity_event','v3_identity_completion_event') and acl.grantee=0)
-or exists(select 1 from pg_attribute a join pg_class c on c.oid=a.attrelid
-    join pg_namespace n on n.oid=c.relnamespace,lateral aclexplode(a.attacl) acl
-    where n.nspname=current_schema() and c.relname in ('v3_identity_request','v3_eui_authority',
-        'v3_pocoma_user','v3_eui_version','v3_identity_request_result','v3_identity_event',
-        'v3_identity_completion_event') and acl.grantee=0)
-""")) {
-            rows.next();
-            require(!rows.getBoolean(1), "PUBLIC privileges expose Identity authority");
-        }
-    }
-
-    private static boolean isUpdatableIdentityColumn(String table, String column) {
-        if (table.equals("v3_identity_request")) return column.equals("status");
-        if (table.equals("v3_eui_authority")) return column.equals("current_version");
-        return false;
-    }
-
-    private static boolean tableExists(Statement statement, String table) throws SQLException {
-        try (var rows = statement.executeQuery("select to_regclass('" + table + "') is not null")) {
-            rows.next();
-            return rows.getBoolean(1);
-        }
+        IdentityAuthorityInspector.requireNoIdentityAuthority(c, statement, read.runtimeRole());
     }
 
     private static final Set<String> DISCOVERY_INSERT_TABLES =
@@ -1086,7 +818,8 @@ or exists(select 1 from pg_attribute a join pg_class c on c.oid=a.attrelid
         if (enabled && table.equals(fixture)) return true;
         if (authority == Authority.READ) return READ_UPDATES.containsKey(table) || READ_AVAILABILITY_UPDATES.containsKey(table);
         return authority == Authority.WRITE
-                && (DEV_WRITE_TABLES.contains(table) || IDENTITY_TABLES.contains(table));
+                && (DEV_WRITE_TABLES.contains(table)
+                        || IdentityAuthorityInspector.IDENTITY_TABLES.contains(table));
     }
 
     private static final List<String> INERT_FORBIDDEN_PACKAGES =
@@ -1132,9 +865,5 @@ or exists(select 1 from pg_attribute a join pg_class c on c.oid=a.attrelid
         return method.isAnnotationPresent(org.springframework.scheduling.annotation.Scheduled.class)
                 || method.isAnnotationPresent(
                         org.springframework.context.event.EventListener.class);
-    }
-
-    private static void require(boolean valid, String detail) {
-        if (!valid) throw new IllegalStateException("L2 pilot refused: " + detail);
     }
 }
