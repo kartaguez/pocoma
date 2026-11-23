@@ -86,19 +86,22 @@ class PotVisibilityReadStorePostgresTest {
             outOfOrderFixture.write(() -> outOfOrderStore.requireCompletionReady(outOfOrderStore.apply(v)));
         }
 
+        // Resolve the generic transaction reads before JUnit overload selection.
+        // This keeps both independent arrival-order and exact-value assertions intact.
+        Optional<PotVisibility> activeInOrder = inOrderFixture.tx.read(
+                c -> inOrderStore.read(activePot, c));
+        Optional<PotVisibility> activeOutOfOrder = outOfOrderFixture.tx.read(
+                c -> outOfOrderStore.read(activePot, c));
+        Optional<PotVisibility> deletedInOrder = inOrderFixture.tx.read(
+                c -> inOrderStore.read(deletedPot, c));
+        Optional<PotVisibility> deletedOutOfOrder = outOfOrderFixture.tx.read(
+                c -> outOfOrderStore.read(deletedPot, c));
+
         // Logical visibility state is strictly identical in both arrival orders
-        assertEquals(
-                inOrderFixture.tx.read(c -> inOrderStore.read(activePot, c)),
-                outOfOrderFixture.tx.read(c -> outOfOrderStore.read(activePot, c)));
-        assertEquals(
-                Optional.of(new PotVisibility(activePot, 2, Set.of(owner))),
-                outOfOrderFixture.tx.read(c -> outOfOrderStore.read(activePot, c)));
-        assertEquals(
-                inOrderFixture.tx.read(c -> inOrderStore.read(deletedPot, c)),
-                outOfOrderFixture.tx.read(c -> outOfOrderStore.read(deletedPot, c)));
-        assertEquals(
-                Optional.of(new PotVisibility(deletedPot, 2, Set.of())),
-                outOfOrderFixture.tx.read(c -> outOfOrderStore.read(deletedPot, c)));
+        assertEquals(activeInOrder, activeOutOfOrder);
+        assertEquals(Optional.of(new PotVisibility(activePot, 2, Set.of(owner))), activeOutOfOrder);
+        assertEquals(deletedInOrder, deletedOutOfOrder);
+        assertEquals(Optional.of(new PotVisibility(deletedPot, 2, Set.of())), deletedOutOfOrder);
         assertEquals(
                 List.of(activePot),
                 inOrderFixture.tx.read(c -> inOrderStore.visiblePots(owner, null, 10, c)));
