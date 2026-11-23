@@ -1,23 +1,25 @@
 # Pocoma V3 — Dossier Final de Qualification T1A + Core NATS et d'Arbitrage de Fusion vers `main`
 
-- **Date** : 23 novembre 2026 (audit correctif final post-`f0ee1b79`)
+- **Date** : 23 novembre 2026 (clôture définitive T1A + Core NATS post-`39923db0`)
 - **Branche de travail** : `feat/v3-identity-governance` (basée sur `v3.0.0-l7-local` / `main` @ `afec69f8`, préservant intégralement la gouvernance des identités assignées par le serveur `8b9227e3`)
+- **Révision Git qualifiée (`app/`)** : **`6f08b8f66b2cb4e37fd84eafe570394d2c0174da`** (`CERT-FULL` monolithique `1 220/1 220 PASS`, 0 modification dans `app/` après ce commit)
 - **Branche `main`** : **strictement intacte** (`afec69f8`, tag `v3.0.0-l7-local` non modifié, aucune fusion effectuée)
 - **Références historiques archivées (intactes)** :
   - `study/event-driven-wakeup` (`93b22d35`) → [Worker_Event_Driven_Wakeup_Experimental_Report.md](Worker_Event_Driven_Wakeup_Experimental_Report.md) et `docs/testing/evidence/event-driven-wakeup/` (SHA-256 vérifié)
   - `study/worker-topology-optimization` (`73c2b58d`) → [Worker_Topology_Optimization_Study.md](Worker_Topology_Optimization_Study.md) et `docs/testing/evidence/worker-topology-study/` (SHA-256 vérifié)
-- **Preuves archivées (`docs/testing/evidence/t1a-nats-qualification/`, manifeste SHA-256 vérifié 7/7 OK)** :
+- **Preuves archivées (`docs/testing/evidence/t1a-nats-qualification/`, manifeste SHA-256 vérifié 8/8 OK)** :
   - `t1a-nats-results.json` & `t1a-nats-summary.json` (campagne différentielle initiale `29/29 PASS`, préservées intactes)
   - `t1a-nats-remediation-bench.json` & `t1a-nats-remediation-summary.json` (campagne répétée `10/10 PASS` : `c3-int-pot-vs-id-deep` 160 sondes Identity/config + `c4-backlog-10k` `R=3` entrelacé)
-  - `cert-full-monolithic-summary.json` (`CERT-FULL` monolithique intégral sur `943c2a07` : **`1 216/1 216 PASS`**, 179 suites, 29 modules avec tests)
+  - `cert-full-monolithic-summary.json` (archive historique `CERT-FULL` monolithique sur `943c2a07` : `1 216/1 216 PASS`, préservée intacte)
+  - `cert-full-closure-6f08b8f6-summary.json` (**nouvelle preuve finale** : `CERT-FULL` monolithique non filtré sur le code final `6f08b8f6` : **`1 220/1 220 PASS`**, 179 suites, 29 modules avec tests, 44/44 projets du réacteur, `0` échec, `0` erreur, `0` ignoré, `01:22 h`, `BUILD SUCCESS`)
   - `pocoma-local-live-receipt.json` (recette Docker nominale complète `./pocoma-local`)
-  - `audit-final-recovery-and-subs-receipt.json` (nouvelle preuve : invariance des **88 abonnements** via `/connz?subs=detail` & `/subsz?subs=1` sur 4 cycles + récupération live après transition `NATS ↔ NOOP` interrompue dans les deux sens)
+  - `audit-final-recovery-and-subs-receipt.json` (invariance des **88 abonnements** via `/connz?subs=detail` & `/subsz?subs=1` sur 4 cycles + récupération live après transition `NATS ↔ NOOP` interrompue dans les deux sens)
 
 > [!IMPORTANT]
-> **Verdict final : `T1A_NATS_READY_WITH_RESERVES`**
+> **Verdict final : `T1A_NATS_READY_FOR_MERGE`**
 >
-> Aucune anomalie bloquante de sûreté, de reprise automatique NATS, de récupération de reconfiguration `pocoma-local` ou d'architecture ne subsiste sur `feat/v3-identity-governance`.
-> Deux réserves explicites et **non bloquantes** pour la fusion locale restent ouvertes et documentées :
+> L'unique obstacle résiduel (échec intermittent de `ReadReconstructionPostgresTest.readReplayPreservesExactValuesAndCatchesUpWithNewWritePublication`) a été diagnostiqué à la cause racine, corrigé sans affaiblissement de l'oracle et sans aucune modification du code de production, démontré de manière déterministe sur PostgreSQL 17, puis qualifié par une gate monolithique **`CERT-FULL` 100 % verte (`1 220/1 220 PASS`)** sur le commit final `6f08b8f6`.
+> Seules deux réserves explicites et **non bloquantes** déjà arbitrées subsistent :
 > 1. **`RES-T1A-BACKLOG-01` (Faible — non bloquant)** : sur le drainage de backlog `10 000` (`R=3`), la médiane reste à `134,92 s` en NATS vs `127,68 s` en polling (`+5,7 %`) ; compromis observé (CPU `-6,1 %`, latence Identity concurrente `p50 -12,0 %`, mais gain de débit de drainage non démontré sur cette campagne).
 > 2. **`RES-L8-01` (Hors périmètre local — non bloquant)** : clustering NATS 3 nœuds, TLS/mTLS, `prometheus-nats-exporter`, HA multi-nœud actif/passif, `SPEC-09` Config A/B, `50 cmd/s` soutenus et volumes `10k/1M`–`100k/10M`, différés à la qualification multi-VM L8.
 
@@ -35,7 +37,9 @@
 | **Qualif** | `f0ee1b79` | Archivage benchmarks répétés, reçu Docker nominal et `CERT-FULL` monolithique (`1 216/1 216`) | `docs/testing/evidence/t1a-nats-qualification/*`, dossier |
 | **P0 (audit final)** | `923aac2f` | **Récupération automatique après fermeture terminale involontaire `CLOSED`** dans `NatsWakeupTransport` (`scheduleTerminalRecovery` hors thread callback `jnats`, libération connexion/dispatcher obsolètes, reconstruction + `flush()`, garde `close()` volontaire) | `NatsWakeupTransport.java`, `NatsWakeupTransportStateTest.java` (`13/13 PASS`) |
 | **P0 (audit final)** | `abc7f2bd`, `a70e14be` | **Protocole de transition `NATS ↔ NOOP` en 3 phases (`PREPARING → APPLYING → COMMITTED`) récupérable après interruption** + 12 scénarios d'injection de fautes | `prerequisites.py`, `runtime_lifecycle.py`, `test_t1a_nats.py` (`143/143 PASS`) |
-| **P1/Docs (audit final)** | *(HEAD final)* | Preuve `/connz?subs=detail` & `/subsz?subs=1` des **88 abonnements** + recette live de récupération après interruption + nuance des conclusions de performance + manifeste SHA-256 7/7 OK | `audit-final-recovery-and-subs-receipt.json`, `manifest.sha256`, `cli.md`, `recovery.md`, dossier |
+| **P1/Docs (audit final)** | `39923db0` | Preuve `/connz?subs=detail` & `/subsz?subs=1` des **88 abonnements** + recette live de récupération après interruption + nuance des conclusions de performance + manifeste SHA-256 7/7 OK | `audit-final-recovery-and-subs-receipt.json`, `manifest.sha256`, `cli.md`, `recovery.md`, dossier |
+| **P0 (clôture READ)** | `6f08b8f6` | Résolution définitive de l'échec `ReadReconstructionPostgresTest.readReplayPreservesExactValuesAndCatchesUpWithNewWritePublication` : empreinte logique `read_user_pot WHERE visible = true` + assertions explicites `assertVisibilityInvariants` + test déterministe de convergence hors-ordre `PotVisibilityReadStorePostgresTest.outOfOrderArrivalConvergesToIdenticalLogicalVisibility` (0 fichier de production modifié) | `ReadReconstructionPostgresTest.java`, `PotVisibilityReadStorePostgresTest.java` |
+| **Clôture `CERT-FULL`** | *(HEAD final)* | Archivage du `CERT-FULL` monolithique final sur `6f08b8f6` (`1 220/1 220 PASS`), manifeste SHA-256 8/8 OK, dossier de clôture et verdict `T1A_NATS_READY_FOR_MERGE` | `cert-full-closure-6f08b8f6-summary.json`, `manifest.sha256`, dossier |
 
 ---
 
@@ -135,56 +139,97 @@ Les campagnes archivées (`t1a-nats-results.json` et `t1a-nats-remediation-bench
 
 ---
 
+## 5bis. P0 — Résolution définitive de l'échec de reconstruction READ (`read_user_pot`)
+
+### 5bis.1 Reconstitution de l'échec et cause racine démontrée
+- **Test concerné** : `ReadReconstructionPostgresTest.readReplayPreservesExactValuesAndCatchesUpWithNewWritePublication` (`runtime-worker-materialize`), assertion ligne 341 :
+  `assertEquals(expected, replayed, "logical table fingerprints differ after replay")` sur la table `read_user_pot`.
+- **Chronologie et mécanisme** :
+  - Le test crée deux pots avant démarrage des workers READ : `pot` (`v1 CreatePot` + `v2 UpdatePotDetails`, `owner` visible dans les deux versions) et `removed` (`v1 CreatePot` avec `users={owner}`, puis `v2 DeletePot` avec `users={}`).
+  - Les événements `POT_EVENT` sont routés sur 4 partitions par `consumption_hash_v1('POT_EVENT', event_id) % 4` (`V1__initial_schema.sql:108-109`) et parcourus par `consumable_id` (`event_id`). Les versions `v1` et `v2` d'un même pot peuvent donc arriver dans n'importe quel ordre au materializer `MaterializePotVisibility` → `JdbcPotVisibilityStore.apply(PotVisibility)`.
+  - Le rôle PostgreSQL runtime READ ne dispose volontairement d'**aucun privilège `DELETE`/`TRUNCATE`** sur `read_user_pot` (`V1__initial_schema.sql:334-337`, vérifié par `PotVisibilityReadStorePostgresTest.migrationAndPrivileges`). La suppression de visibilité est donc représentée physiquement par une **tombstone** (`visible = false`).
+  - Dans `JdbcPotVisibilityStore.apply()` (`JdbcPotVisibilityStore.java:35-48`) :
+    - **Ordre `v1 → v2` sur `removed`** : `v1` insère `(owner, removed, pot_version=1, visible=true)` ; `v2` constate `disabled = {owner}` et met à jour la ligne en **tombstone physique** `(owner, removed, pot_version=2, visible=false)`.
+    - **Ordre `v2 → v1` sur `removed`** : `v2` constate `g=0`, `before={}`, `users={}`, `disabled={}` → avance `read_pot_visibility_state.materialized_version = 2` sans insérer aucune ligne dans `read_user_pot` ; `v1` arrive ensuite, constate `1 < g (2)` et retourne en no-op. **Aucune ligne tombstone n'est créée** dans `read_user_pot`.
+  - Le commit historique `7641b80b` avait identifié la première dépendance à l'ordre d'arrivée (`read_user_pot.pot_version`, qui vaut `1` en `v1 → v2` vs `2` en `v2 → v1` sur `pot`) et exclu `pot_version` dans `readContent()`, **mais avait omis la seconde dépendance** : la présence ou l'absence des lignes tombstones `visible = false` dans `read_user_pot`. Dès que la passe initiale (`original`) et le rejeu (`replay`) traitaient `(removed, v1)` et `(removed, v2)` dans des ordres opposés entre partitions, l'empreinte SHA-256 de `read_user_pot` divergeait (`[(owner, pot, true), (owner, removed, false)]` vs `[(owner, pot, true)]`).
+
+### 5bis.2 Invariant métier clarifié (`PotVisibility` / `read_user_pot`)
+- **Données strictement indépendantes de l'ordre d'arrivée (convergence garantie)** :
+  1. `read_pot_visibility_state(pot_id, materialized_version)` converge exactement vers `V_max` pour chaque pot (empreinte complète `to_jsonb(row)` conservée).
+  2. L'ensemble logique visible `{(user_id, pot_id) ∈ read_user_pot | visible = true}` converge exactement vers `users(pot_id, V_max)` — toutes les requêtes métier (`JdbcPotVisibilityStore.visible`, `visiblePots`, `ReadNavigation`) et les deux index partiels (`read_visible_by_pot`, `read_visible_by_user`) portent exclusivement sur `WHERE visible = true`.
+  3. Toute ligne présente dans `read_user_pot` (visible ou tombstone) respecte `1 ≤ pot_version ≤ read_pot_visibility_state.materialized_version` et possède un garde `read_pot_visibility_state`.
+- **Métadonnées physiques légitimement dépendantes de l'ordre d'arrivée** :
+  1. `read_user_pot.pot_version` (version de matérialisation ayant opéré la dernière transition de `visible`).
+  2. La présence physique d'une ligne tombstone `visible = false` (créée uniquement si l'utilisateur a été matérialisé visible avant d'être retiré/supprimé).
+- **Conclusion sur les 15 autres tables de `readContent()`** : toutes les autres tables READ (`read_current_pot`, `read_pot_version*`, `read_subobject_version`, `read_pot_balance*`, `read_pot_visibility_state`, `read_current_binding`, `read_command_result`, `read_identity_request_result`, `read_current_invitation`) sont soit immuables par version / adressées par contenu, soit monotones par clé unique, donc strictement indépendantes de l'ordre d'arrivée.
+
+### 5bis.3 Correction réalisée et justification (test uniquement — 0 fichier de production modifié)
+La projection `JdbcPotVisibilityStore` est conforme au contrat métier (convergence logique exacte en ordre `v1 → v2` comme `v2 → v1`, sans accès à l'historique WRITE@V−1 et sans privilège `DELETE`). La correction porte exclusivement sur les tests (`6f08b8f6`) :
+1. **`ReadReconstructionPostgresTest.java`** :
+   - `readContent()` calcule l'empreinte logique de `read_user_pot` sur `SELECT jsonb_build_object('user_id', user_id, 'pot_id', pot_id) FROM read_user_pot WHERE visible = true`, tout en conservant l'empreinte complète `to_jsonb(row)` sur les 15 autres tables (dont `read_pot_visibility_state`).
+   - Ajout de `assertVisibilityInvariants(...)` (appelé après `original` et après `replay`), qui vérifie explicitement : `materialized_version = 2` pour `pot` et `removed`, exactement `1` ligne `visible = true` pour `pot`, exactement `0` ligne `visible = true` pour `removed`, et `0` ligne incohérente dans `read_user_pot` (`s.pot_id IS NULL OR u.pot_version < 1 OR u.pot_version > s.materialized_version`). L'oracle n'est donc pas affaibli : il est au contraire plus strict et plus explicite.
+2. **`PotVisibilityReadStorePostgresTest.java`** :
+   - Ajout du test déterministe `outOfOrderArrivalConvergesToIdenticalLogicalVisibility()`, qui reproduit directement sur PostgreSQL 17 les deux ordres d'arrivée (`v1 → v2` vs `v2 → v1`) pour un pot actif et un pot supprimé, démontre simultanément la divergence physique attendue (`pot_version` `1` vs `2` ; tombstone `1` vs `0` ligne) et l'identité logique stricte (`read()`, `visiblePots()`, `read_pot_visibility_state`).
+
+### 5bis.4 Justification de réutilisation des preuves NATS / CLI / Docker / Benchmarks
+Le correctif `6f08b8f6` ne modifie **aucun fichier de code de production** (`src/main/**`), aucune migration SQL, aucun module NATS et aucun script `scripts/local/**`. Conformément à `Reactor_Verification_Policy.md` (§34) et au mandat de clôture (§6), les preuves déjà acquises sur les chemins NATS, CLI (`143/143`), Docker live (`88` abonnements invariants et transitions `NATS ↔ NOOP` récupérables), Bruno et benchmarks différentiels/répétés restent strictement valides et réutilisées avec leur SHA d'origine.
+
+---
+
 ## 6. Résultats des gates et rapport `Reactor_Verification_Policy.md` (§30)
 
 ```text
-Start HEAD (audit final): f0ee1b79 (feat/v3-identity-governance; main intact @ afec69f8)
-Commits audit final: 923aac2f (NATS CLOSED recovery), abc7f2bd & a70e14be (pocoma-local staged recovery), + HEAD final (evidence/docs)
+Start HEAD (clôture READ): 39923db0 (feat/v3-identity-governance; main intact @ afec69f8)
+Commit qualifié (app/): 6f08b8f66b2cb4e37fd84eafe570394d2c0174da
 Expected production impact:
-- app/infra-wakeup-nats/src/main/java/com/kartaguez/pocoma/infra/wakeup/nats/NatsWakeupTransport.java
-- scripts/local/prerequisites.py, scripts/local/runtime_lifecycle.py
+- NONE (correction strictement limitée aux tests READ : ReadReconstructionPostgresTest.java, PotVisibilityReadStorePostgresTest.java)
 Observed production impact:
-- Strictement conforme au périmètre déclaré.
+- NONE (0 fichier modifié sous src/main/**, migrations SQL ou scripts/local/**).
 - Unexpected slice crossings: NONE.
-- Forbidden production impact verified untouched: domain-*, engine-*, orchestrator-consumption,
-  infra-postgres-*, infra-tx-spring, SQL migrations, Valkey.
+- Forbidden production impact verified untouched: tous les modules production (domain-*, engine-*,
+  orchestrator-consumption, infra-*, compose-*, runtime-*, migrations SQL, scripts/local, Valkey).
 Declared slices:
-- infra-wakeup-nats, COMMAND (runtime-worker-process), PROJECTION (runtime-worker-materialize),
-  WEB (runtime-web-write, runtime-web-read), architecture-tests
-Verification commands executed on a70e14be:
-1. ./mvnw --batch-mode --no-transfer-progress -pl infra-wakeup-nats -am test -> 13/13 PASS (6.0s)
-2. ./mvnw --batch-mode --no-transfer-progress -pl infra-wakeup-nats,supra-polling-consumption,compose-web-write-postgres,compose-polling-burnable-write-postgres,compose-polling-nonburnable-materialize-postgres,runtime-web-write,runtime-web-read,architecture-tests -am test:
-   - Modules 1..41 SUCCESS: infra-tx-spring (30/30), infra-postgres-write (479/479),
-     infra-wakeup-nats (13/13), contract-consumption (5/5), supra-polling-consumption (11/11),
-     compose-* (PASS), runtime-web-write/read (42/42), runtime-worker-process (98/98, 31:21 min)
-   - Arrêt sur runtime-worker-materialize: 1 occurrence préexistante d'ordre d'arrivée v2/v1 sur
-     read_user_pot dans ReadReconstructionPostgresTest.readReplayPreservesExactValuesAndCatchesUpWithNewWritePublication
-     (hors périmètre NATS/T1A ; non masqué).
-3. ./mvnw --batch-mode --no-transfer-progress -pl runtime-worker-materialize -Dtest="ReadReconstructionPostgresTest" test -> 13/13 PASS
-4. ./mvnw --batch-mode --no-transfer-progress -pl architecture-tests -am -Dtest="com.kartaguez.pocoma.architecture.**.*Test" -Dsurefire.failIfNoSpecifiedTests=false test -> 50/50 PASS (52/52 XML total)
-5. Reference monolithic CERT-FULL (unbroken single run on 943c2a07, cert-full-monolithic-summary.json):
-   ./mvnw --batch-mode --no-transfer-progress test -> BUILD SUCCESS (1 216/1 216 PASS, 01:22 h, 0 failure/error/skip).
-   Delta Java depuis 943c2a07 : uniquement NatsWakeupTransport.java (+25 lignes sur chemin CLOSED, 13/13 PASS).
-6. python3 -B -m unittest discover -s scripts/local -p "test_*.py" -> 143/143 PASS (incl. 12 fault-injection recovery subtests)
-7. Recette Docker live (audit-final-recovery-and-subs-receipt.json): 88 subs (60 $SYS + 28 pocoma) invariants sur 4 cycles + reprise live NATS->NOOP et NOOP->NATS après interruption -> ALL PASS
-8. shasum -a 256 -c docs/testing/evidence/t1a-nats-qualification/manifest.sha256 -> 7/7 OK
-Global architecture gate: RUN (52/52 PASS)
-Full reactor: Monolithic CERT-FULL PASS on 943c2a07 (1 216/1 216) + full upstream slices & targeted gates re-verified on a70e14be (delta strictly confined to NatsWakeupTransport.java CLOSED recovery)
-Database verification: CURRENT (PostgreSQL 17 Testcontainers + Docker E2E)
-Merge to main: NOT PERFORMED (interdit sans arbitrage humain)
+- Primary slice: PROJECTION (runtime-worker-materialize -am)
+- Global gates: architecture-tests + CERT-FULL monolithique (Integration / Main gate §§19, 21.3)
+Verification commands executed on 6f08b8f6:
+1. ./mvnw --batch-mode --no-transfer-progress -pl infra-postgres-read -Dtest="PotVisibilityReadStorePostgresTest" test
+   -> 5/5 PASS (inclut reproduction déterministe outOfOrderArrivalConvergesToIdenticalLogicalVisibility)
+2. ./mvnw --batch-mode --no-transfer-progress -pl runtime-worker-materialize -Dtest="ReadReconstructionPostgresTest#readReplayPreservesExactValuesAndCatchesUpWithNewWritePublication" test
+   -> 1/1 PASS (250.6 s)
+3. Tranche canonique PROJECTION :
+   ./mvnw --batch-mode --no-transfer-progress -pl runtime-worker-materialize -am test
+   -> BUILD SUCCESS (36/36 modules, runtime-worker-materialize 135/135 dont ReadReconstructionPostgresTest 13/13,
+      infra-postgres-read 40/40, infra-wakeup-nats 13/13, 0 failure/error/skip, 27:55 min)
+4. Gate monolithique finale CERT-FULL (non filtrée, ininterrompue, sur code final 6f08b8f6) :
+   ./mvnw --batch-mode --no-transfer-progress test
+   -> BUILD SUCCESS : 1 220/1 220 PASS, 179 suites, 29 modules avec tests, 44/44 projets du réacteur,
+      0 failure, 0 error, 0 skipped, 01:22 h (archivé dans cert-full-closure-6f08b8f6-summary.json).
+      Inclut notamment : architecture-tests (52/52), infra-wakeup-nats (13/13), infra-postgres-read (40/40),
+      infra-postgres-write (479/479), runtime-web-read (42/42), runtime-worker-process (98/98),
+      runtime-worker-materialize (135/135), runtime-monolith (40/40).
+5. Preuves réutilisées (0 delta production NATS/CLI/Docker depuis 39923db0) :
+   - python3 -B -m unittest discover -s scripts/local -p "test_*.py" -> 143/143 PASS (39923db0)
+   - Recette Docker live & 88 subs (audit-final-recovery-and-subs-receipt.json, 39923db0) -> ALL PASS
+   - Recette Docker nominale (pocoma-local-live-receipt.json, f0ee1b79) -> ALL PASS
+   - Benchmarks différentiels (29/29) & répétés (10/10) -> archivés, intact
+6. shasum -a 256 -c docs/testing/evidence/t1a-nats-qualification/manifest.sha256 -> 8/8 OK
+Global architecture gate: RUN (52/52 PASS dans CERT-FULL monolithique sur 6f08b8f6)
+Full reactor: RUN — CERT-FULL monolithique BUILD SUCCESS sur 6f08b8f6 (1 220/1 220 PASS, 01:22 h)
+Database verification: CURRENT (PostgreSQL 17.11 Testcontainers sur l'intégralité du réacteur)
+Merge to main: NOT PERFORMED (interdit sans autorisation explicite humaine)
 ```
 
 ---
 
 ## 7. Matrice différentielle actualisée (`L7` / `SPEC-09`) et statut des réserves
 
-| Domaine / Invariant | Référence (`v3.0.0-l7-local` / `T0`) | Statut final | Preuve sur `feat/v3-identity-governance` | Réserve éventuelle |
+| Domaine / Invariant | Référence (`v3.0.0-l7-local` / `T0`) | Statut final | Preuve sur `feat/v3-identity-governance` (`6f08b8f6`) | Réserve éventuelle |
 | :--- | :--- | :---: | :--- | :--- |
-| **Domaine & Admission HTTP (`L7.2`, identités serveur)** | `44 CURRENT_FULL` + `8b9227e3` | **Clôturé** | `compose-web-write-postgres` (`23/23`), `runtime-web-read` (`42/42`), `infra-postgres-write` (`479/479`), Bruno `J01–J03` (`CONNECTED`/`DEGRADED`/`NOOP`) | Aucune |
-| **Exécution Consumption L2, Fencing, Reprise (`L7.3`)** | `425 CURRENT_FULL`, `L7-C3` | **Clôturé** | `CERT-FULL` monolithique (`1 216/1 216`), `runtime-worker-process` (`98/98` dont `i5_r11`), `RenewalServiceLeaseRetryTest`, `ReadReconstructionPostgresTest` (`13/13`) | Aucune *(note non-NATS : variation d'ordre d'arrivée `v2/v1` sur `read_user_pot` observée une fois dans `ReadReconstructionPostgresTest`)* |
-| **Architecture modulaire & déploiement (`L7.5`)** | `50/50` `architecture-tests` | **Clôturé** | `architecture-tests` **`52/52 PASS`** (43 modules, neutralité `io.nats.*`, T1A Compose) | Aucune |
-| **Distribution locale & DX (`L7-LB`, `./pocoma-local`)** | `L7_LB_CLOSED` (9 conteneurs) | **Clôturé** | `143/143` tests unitaires (dont 12 injections de fautes `PREPARING → APPLYING → COMMITTED`), `pocoma-local-live-receipt.json`, `audit-final-recovery-and-subs-receipt.json` | Aucune |
-| **Résilience, récupération & abonnements Core NATS** | Nouvelle capacité | **Clôturé** | `infra-wakeup-nats` (`13/13`, dont `flush()` obligatoire, `CLOSED` terminal, reconnexion broker neuf), `/connz?subs=detail` & `/subsz?subs=1` (`88 = 60 $SYS + 28 pocoma` invariants sur 4 cycles), `WakeupContractTest` (`5/5`), `WakeupWorkerBehaviorTest` (`8/8`), `SpringAttemptTransactionsAfterCommitTest` (`2/2`) | Preuve équivalente post-COMMIT vs `SIGKILL` noyau ; HA multi-nœud différé L8 |
+| **Domaine & Admission HTTP (`L7.2`, identités serveur)** | `44 CURRENT_FULL` + `8b9227e3` | **Clôturé** | `CERT-FULL` (`6f08b8f6`) : `compose-web-write-postgres` (`23/23`), `runtime-web-read` (`42/42`), `infra-postgres-write` (`479/479`) + Bruno `J01–J03` | Aucune |
+| **Exécution Consumption L2, Fencing, Reprise & Reconstruction READ (`L7.3`)** | `425 CURRENT_FULL`, `L7-C3` | **Clôturé** | `CERT-FULL` monolithique (`6f08b8f6`, **`1 220/1 220`**), `runtime-worker-process` (`98/98`), `runtime-worker-materialize` (`135/135` dont `ReadReconstructionPostgresTest` `13/13`), `infra-postgres-read` (`40/40` dont `PotVisibilityReadStorePostgresTest` `5/5`) | Aucune *(cause racine `read_user_pot` résolue et démontrée)* |
+| **Architecture modulaire & déploiement (`L7.5`)** | `50/50` `architecture-tests` | **Clôturé** | `architecture-tests` **`52/52 PASS`** dans `CERT-FULL` (`6f08b8f6`) | Aucune |
+| **Distribution locale & DX (`L7-LB`, `./pocoma-local`)** | `L7_LB_CLOSED` (9 conteneurs) | **Clôturé** | `143/143` tests unitaires CLI (dont 12 injections de fautes `PREPARING → APPLYING → COMMITTED`), `pocoma-local-live-receipt.json`, `audit-final-recovery-and-subs-receipt.json` | Aucune |
+| **Résilience, récupération & abonnements Core NATS** | Nouvelle capacité | **Clôturé** | `infra-wakeup-nats` (`13/13` dans `CERT-FULL` `6f08b8f6`), `/connz?subs=detail` & `/subsz?subs=1` (`88 = 60 $SYS + 28 pocoma` invariants sur 4 cycles), `WakeupContractTest` (`5/5`), `WakeupWorkerBehaviorTest` (`8/8`), `SpringAttemptTransactionsAfterCommitTest` (`2/2`) | Preuve équivalente post-COMMIT vs `SIGKILL` noyau ; HA multi-nœud différé L8 |
 | **Performances locales (`L7.4` / `SPEC-09` local)** | `L7-C4` (`T0 + A-20`) | **Clôturé avec réserve non bloquante** | Campagne initiale `29/29 PASS` + campagne répétée `10/10 PASS` (`c3-deep` 160 sondes `p50 -40,8 %`, `p95 -53,9 %` ; `c4-backlog-10k` `R=3`) | **`RES-T1A-BACKLOG-01`** *(médiane drainage `134,92 s` vs `127,68 s`, gain débit non démontré ; compromis CPU `-6,1 %` / Identity `p50 -12,0 %`)* |
 | **Infrastructure cible multi-VM (`L8`)** | Ouverte (`L74-ENV-01`) | **Différée L8** | Hors périmètre local | **`RES-L8-01`** *(non bloquant)* |
 
@@ -194,6 +239,7 @@ Merge to main: NOT PERFORMED (interdit sans arbitrage humain)
 
 ```text
 e54b996d1eb5e5e47f99265ad3c28e7b0ca3f3a09fe684169439af853735b3a6  audit-final-recovery-and-subs-receipt.json
+76b5da45501beeeebc57bf528631812d6486ce133de782d2cc8bb16b1951d18b  cert-full-closure-6f08b8f6-summary.json
 ed305cf21dff51d9f3e48aeb96ffe238f3cbd6b34148e2f35fe79bf0fdbd3272  cert-full-monolithic-summary.json
 e956b8782335dd0df8010dd5b288289b87d8733d3b10d0bfdeda6691b7c0e517  pocoma-local-live-receipt.json
 2642a251c2c730e74cba4aabadfd2126d0d1eaa1f6bf1913de589b00a8ffa0b4  t1a-nats-remediation-bench.json
@@ -204,7 +250,9 @@ a427ebc57e6f6cf0ba259f4449dd7a6a65362ecec3e99b2bbf7beb4ba54aef06  t1a-nats-resul
 
 ---
 
-## 9. Verdict final et recommandation
+## 9. Verdict final et proposition de fusion
 
-- **Verdict : `T1A_NATS_READY_WITH_RESERVES`**
-- **Recommandation** : **Approuver la fusion humaine de `feat/v3-identity-governance` vers `main`**. Toutes les garanties de sûreté, de reprise automatique NATS (y compris après fermeture terminale `CLOSED`), de récupération non destructive `pocoma-local` après interruption, d'invariance des abonnements (`88 = 60 $SYS + 28 pocoma`), et d'architecture (`52/52`) sont démontrées ; seules deux réserves explicitement non bloquantes (`RES-T1A-BACKLOG-01` et `RES-L8-01`) restent documentées pour l'arbitrage humain.
+- **Verdict final : `T1A_NATS_READY_FOR_MERGE`**
+- **Révision qualifiée (`app/`)** : `6f08b8f66b2cb4e37fd84eafe570394d2c0174da` (`CERT-FULL` monolithique **`1 220/1 220 PASS`**, `0` échec, `0` erreur, `0` ignoré, `44/44` projets Maven, `01:22 h`).
+- **Réserves non bloquantes conservées** : `RES-T1A-BACKLOG-01` et `RES-L8-01`.
+- **Proposition explicite** : **fusionner `feat/v3-identity-governance` dans `main`** après autorisation humaine explicite. Aucune fusion n'a été effectuée (`main` et `origin/main` restent strictement à `afec69f8`).
