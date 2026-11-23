@@ -178,7 +178,9 @@ def _boot_distribution_stack(rt, path, m, boot_spec):
     evidence, credentials, force_recreate_runtimes, target_mode = boot_spec
     rt.package(path, m, evidence)
     effective_manifest = dict(m, wakeupMode=target_mode)
-    m['issuer'] = rt.render(path, effective_manifest, credentials)
+    issuer = rt.render(path, effective_manifest, credentials)
+    m['issuer'] = issuer
+    effective_manifest['issuer'] = issuer
     if m.get('wakeupTransition'):
         m['wakeupTransition']['phase'] = 'APPLYING'
     rt.save(path / 'manifest.json', m)
