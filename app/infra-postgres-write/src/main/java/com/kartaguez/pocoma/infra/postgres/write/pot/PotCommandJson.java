@@ -24,30 +24,12 @@ public final class PotCommandJson {
 
     private PotCommandJson() {}
 
-    private static final Set<Class<?>> POT_OR_INVITATION_INTENTS =
-            Set.of(
-                    CreateInvitation.class,
-                    PotCommand.AttachShareholderViaInvitation.class,
-                    CreatePot.class,
-                    UpdatePotDetails.class,
-                    DeletePot.class);
-
     public static String encode(Intent intent) {
-        var n = JSON.createObjectNode();
-        if (POT_OR_INVITATION_INTENTS.contains(intent.getClass())) {
-            encodePotOrInvitation(n, intent);
-        } else if (intent instanceof AddShareholders
-                || intent instanceof UpdateShareholderDetails
-                || intent instanceof UpdateShareholderWeights
-                || intent instanceof DeleteShareholder) {
-            encodeShareholder(n, intent);
-        } else {
-            encodeExpense(n, intent);
-        }
-        return n.toString();
+        return encodeNode(intent).toString();
     }
 
-    private static void encodePotOrInvitation(ObjectNode n, Intent intent) {
+    private static ObjectNode encodeNode(Intent intent) {
+        var n = JSON.createObjectNode();
         switch (intent) {
             case CreateInvitation i -> n.put("expiresAt", i.expiresAt().toString());
             case PotCommand.AttachShareholderViaInvitation i -> {
@@ -57,28 +39,16 @@ public final class PotCommandJson {
             case CreatePot i -> n.put("label", i.label().value());
             case UpdatePotDetails i -> n.put("label", i.label().value());
             case DeletePot i -> {}
-            default -> {}
-        }
-    }
-
-    private static void encodeShareholder(ObjectNode n, Intent intent) {
-        switch (intent) {
             case DeleteShareholder i -> n.put("id", i.id().toString());
             case AddShareholders i -> encodeAddShareholders(n, i);
             case UpdateShareholderDetails i -> encodeUpdateShareholderDetails(n, i);
             case UpdateShareholderWeights i -> encodeUpdateShareholderWeights(n, i);
-            default -> {}
-        }
-    }
-
-    private static void encodeExpense(ObjectNode n, Intent intent) {
-        switch (intent) {
             case DeleteExpense i -> n.put("id", i.id().toString());
             case CreateExpense i -> encodeCreateExpense(n, i);
             case UpdateExpenseDetails i -> encodeUpdateExpenseDetails(n, i);
             case UpdateExpenseFinancials i -> n.set("financials", financials(i.financials()));
-            default -> {}
         }
+        return n;
     }
 
     private static void encodeAddShareholders(ObjectNode n, AddShareholders i) {
@@ -174,11 +144,7 @@ public final class PotCommandJson {
         }
         if (command.attachments().isEmpty()) return encode(command.intent());
         var n = JSON.createObjectNode().put("payloadVersion", 2);
-        try {
-            n.set("intention", JSON.readTree(encode(command.intent())));
-        } catch (java.io.IOException failure) {
-            throw new InconsistentPotFactsException("Invalid Command encoding");
-        }
+        n.set("intention", encodeNode(command.intent()));
         var modes = n.putObject("attachments");
         command.attachments().entrySet().stream()
                 .sorted(Comparator.comparing(e -> e.getKey().toString()))
@@ -278,49 +244,48 @@ public final class PotCommandJson {
         return node.isIntegralNumber() && node.canConvertToInt();
     }
 
-    private static final Set<String> SHAREHOLDER_OPERATIONS =
-            Set.of(
-                    "AddShareholders",
-                    "UpdateShareholderDetails",
-                    "UpdateShareholderWeights",
-                    "DeleteShareholder");
-
-    private static final Set<String> EXPENSE_OPERATIONS =
-            Set.of(
-                    "CreateExpense",
-                    "UpdateExpenseDetails",
-                    "UpdateExpenseFinancials",
-                    "DeleteExpense");
-
     public static Intent decode(String operation, String payload) {
         try {
             var n = JSON.readTree(payload);
             if (n.has("payloadVersion")) {
                 throw new IllegalArgumentException("Envelope requires version-aware consumer");
             }
-            if (SHAREHOLDER_OPERATIONS.contains(operation)) {
-                return decodeShareholderIntent(operation, n);
-            }
-            if (EXPENSE_OPERATIONS.contains(operation)) {
-                return decodeExpenseIntent(operation, n);
-            }
-            return decodePotOrInvitationIntent(operation, n);
+            return switch (operation) {
+                case "CreateInvitation" ->
+                        new CreateInvitation(java.time.Instant.parse(text(n, "expiresAt")));
+                case "AttachShareholderViaInvitation" ->
+                        new PotCommand.AttachShareholderViaInvitation(
+                                text(n, "tokenHash"),
+                                new ShareholderId(UUID.fromString(text(n, "shareholderId"))));
+                case "CreatePot" -> new CreatePot(new Label(text(n, "label")));
+                case "UpdatePotDetails" -> new UpdatePotDetails(new Label(text(n, "label")));
+                case "DeletePot" -> new DeletePot();
+                case "AddShareholders" ->
+                        AddShareholders.legacy(list(n, "targets", PotCommandJson::readCreation));
+                case "UpdateShareholderDetails" ->
+                        new UpdateShareholderDetails(
+                                list(n, "targets", PotCommandJson::readDetailsIntent));
+                case "UpdateShareholderWeights" ->
+                        new UpdateShareholderWeights(
+                                list(n, "targets", PotCommandJson::readWeightIntent));
+                case "DeleteShareholder" -> new DeleteShareholder(sid(n));
+                case "CreateExpense" ->
+                        new CreateExpense(
+                                readDetails(n.required("details")),
+                                readFinancials(n.required("financials")));
+                case "UpdateExpenseDetails" ->
+                        new UpdateExpenseDetails(
+                                eid(n),
+                                new Label(text(n, "label")),
+                                LocalDate.parse(text(n, "date")));
+                case "UpdateExpenseFinancials" ->
+                        new UpdateExpenseFinancials(readFinancials(n.required("financials")));
+                case "DeleteExpense" -> new DeleteExpense(eid(n));
+                default -> throw new IllegalArgumentException("Unknown durable Pot operation");
+            };
         } catch (java.io.IOException | IllegalArgumentException failure) {
             throw new InconsistentPotFactsException("Invalid durable Command intention");
         }
-    }
-
-    private static Intent decodeShareholderIntent(String operation, JsonNode n) {
-        return switch (operation) {
-            case "AddShareholders" ->
-                    AddShareholders.legacy(list(n, "targets", PotCommandJson::readCreation));
-            case "UpdateShareholderDetails" ->
-                    new UpdateShareholderDetails(list(n, "targets", PotCommandJson::readDetailsIntent));
-            case "UpdateShareholderWeights" ->
-                    new UpdateShareholderWeights(list(n, "targets", PotCommandJson::readWeightIntent));
-            case "DeleteShareholder" -> new DeleteShareholder(sid(n));
-            default -> throw new IllegalArgumentException("Unknown durable Pot operation");
-        };
     }
 
     private static ShareholderTransitions.Creation readCreation(JsonNode t) {
@@ -339,39 +304,6 @@ public final class PotCommandJson {
         return new ShareholderTransitions.WeightIntent(
                 sid(t),
                 new com.kartaguez.pocoma.domain.pot.value.Weight(readFraction(t.required("weight"))));
-    }
-
-    private static Intent decodePotOrInvitationIntent(String operation, JsonNode n) {
-        return switch (operation) {
-            case "CreateInvitation" ->
-                    new CreateInvitation(java.time.Instant.parse(text(n, "expiresAt")));
-            case "AttachShareholderViaInvitation" ->
-                    new PotCommand.AttachShareholderViaInvitation(
-                            text(n, "tokenHash"),
-                            new ShareholderId(UUID.fromString(text(n, "shareholderId"))));
-            case "CreatePot" -> new CreatePot(new Label(text(n, "label")));
-            case "UpdatePotDetails" -> new UpdatePotDetails(new Label(text(n, "label")));
-            case "DeletePot" -> new DeletePot();
-            default -> throw new IllegalArgumentException("Unknown durable Pot operation");
-        };
-    }
-
-    private static Intent decodeExpenseIntent(String operation, JsonNode n) {
-        return switch (operation) {
-            case "CreateExpense" ->
-                    new CreateExpense(
-                            readDetails(n.required("details")),
-                            readFinancials(n.required("financials")));
-            case "UpdateExpenseDetails" ->
-                    new UpdateExpenseDetails(
-                            eid(n),
-                            new Label(text(n, "label")),
-                            LocalDate.parse(text(n, "date")));
-            case "UpdateExpenseFinancials" ->
-                    new UpdateExpenseFinancials(readFinancials(n.required("financials")));
-            case "DeleteExpense" -> new DeleteExpense(eid(n));
-            default -> throw new IllegalArgumentException("Unknown durable Pot operation");
-        };
     }
 
     public static String encodeCreatedResources(

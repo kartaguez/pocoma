@@ -275,13 +275,6 @@ public final class ExecutePotCommand implements ConsumptionParticipant {
                 values -> componentList("SHAREHOLDER_DETAILS", values));
     }
 
-    private static final Set<Class<?>> EXPENSE_INTENTS =
-            Set.of(
-                    CreateExpense.class,
-                    UpdateExpenseDetails.class,
-                    UpdateExpenseFinancials.class,
-                    DeleteExpense.class);
-
     private Proposal decide(ProposalContext ctx, SelectedPot p) {
         var c = ctx.command();
         var refs =
@@ -289,15 +282,6 @@ public final class ExecutePotCommand implements ConsumptionParticipant {
                         .collect(
                                 Collectors.toUnmodifiableMap(
                                         Map.Entry::getKey, e -> e.getValue().reference()));
-        if (EXPENSE_INTENTS.contains(c.intent().getClass())) {
-            return decideExpense(ctx, p, refs);
-        }
-        return decidePotOrShareholder(ctx, p, refs);
-    }
-
-    private Proposal decidePotOrShareholder(
-            ProposalContext ctx, SelectedPot p, Map<ShareholderId, ShareholderReference> refs) {
-        var c = ctx.command();
         return switch (c.intent()) {
             case UpdatePotDetails i ->
                     decision(
@@ -316,18 +300,14 @@ public final class ExecutePotCommand implements ConsumptionParticipant {
             case UpdateShareholderDetails i -> decideUpdateShareholderDetails(ctx, p, i, refs);
             case UpdateShareholderWeights i -> decideUpdateShareholderWeights(ctx, p, i, refs);
             case DeleteShareholder i -> decideDeleteShareholder(ctx, p, i, refs);
-            default -> throw new IllegalStateException("Unexpected intent dispatch");
-        };
-    }
-
-    private Proposal decideExpense(
-            ProposalContext ctx, SelectedPot p, Map<ShareholderId, ShareholderReference> refs) {
-        return switch (ctx.command().intent()) {
             case CreateExpense i -> decideCreateExpense(ctx, p, i, refs);
             case UpdateExpenseDetails i -> decideUpdateExpenseDetails(ctx, p, i);
             case UpdateExpenseFinancials i -> decideUpdateExpenseFinancials(ctx, p, i, refs);
             case DeleteExpense i -> decideDeleteExpense(ctx, p, i);
-            default -> throw new IllegalStateException("Unexpected expense intent");
+            case CreatePot i -> throw new IllegalStateException("Unexpected intent dispatch");
+            case CreateInvitation inv -> throw new IllegalStateException("Unexpected intent dispatch");
+            case PotCommand.AttachShareholderViaInvitation att ->
+                    throw new IllegalStateException("Unexpected intent dispatch");
         };
     }
 
