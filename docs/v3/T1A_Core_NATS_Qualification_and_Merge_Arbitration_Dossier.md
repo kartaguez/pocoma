@@ -1,220 +1,199 @@
 # Pocoma V3 — Dossier Final de Qualification T1A + Core NATS et d'Arbitrage de Fusion vers `main`
 
-- **Date** : 23 novembre 2026 (remédiation post-audit de la révision `1d9be71c`)
+- **Date** : 23 novembre 2026 (audit correctif final post-`f0ee1b79`)
 - **Branche de travail** : `feat/v3-identity-governance` (basée sur `v3.0.0-l7-local` / `main` @ `afec69f8`, préservant intégralement la gouvernance des identités assignées par le serveur `8b9227e3`)
 - **Branche `main`** : **strictement intacte** (`afec69f8`, tag `v3.0.0-l7-local` non modifié, aucune fusion effectuée)
 - **Références historiques archivées (intactes)** :
   - `study/event-driven-wakeup` (`93b22d35`) → [Worker_Event_Driven_Wakeup_Experimental_Report.md](Worker_Event_Driven_Wakeup_Experimental_Report.md) et `docs/testing/evidence/event-driven-wakeup/` (SHA-256 vérifié)
   - `study/worker-topology-optimization` (`73c2b58d`) → [Worker_Topology_Optimization_Study.md](Worker_Topology_Optimization_Study.md) et `docs/testing/evidence/worker-topology-study/` (SHA-256 vérifié)
-- **Preuves archivées (`docs/testing/evidence/t1a-nats-qualification/`, manifeste SHA-256 vérifié 6/6 OK)** :
+- **Preuves archivées (`docs/testing/evidence/t1a-nats-qualification/`, manifeste SHA-256 vérifié 7/7 OK)** :
   - `t1a-nats-results.json` & `t1a-nats-summary.json` (campagne différentielle initiale `29/29 PASS`, préservées intactes)
-  - `t1a-nats-remediation-bench.json` & `t1a-nats-remediation-summary.json` (campagne répétée de remédiation `10/10 PASS` : `c3-int-pot-vs-id-deep` 160 sondes Identity/config + `c4-backlog-10k` `R=3` entrelacé)
-  - `cert-full-monolithic-summary.json` (`CERT-FULL` monolithique intégral : **`1 216/1 216 PASS`**, 179 suites, 29 modules avec tests, `0` échec, `0` erreur, `0` skip)
-  - `pocoma-local-live-receipt.json` (recette Docker complète `./pocoma-local` : `CONNECTED`, `DEGRADED`, reconnexion, bascule non destructive `NATS ↔ NOOP`, durabilité après `stop/start`, Bruno `J01–J03`, `/varz` interne)
+  - `t1a-nats-remediation-bench.json` & `t1a-nats-remediation-summary.json` (campagne répétée `10/10 PASS` : `c3-int-pot-vs-id-deep` 160 sondes Identity/config + `c4-backlog-10k` `R=3` entrelacé)
+  - `cert-full-monolithic-summary.json` (`CERT-FULL` monolithique intégral sur `943c2a07` : **`1 216/1 216 PASS`**, 179 suites, 29 modules avec tests)
+  - `pocoma-local-live-receipt.json` (recette Docker nominale complète `./pocoma-local`)
+  - `audit-final-recovery-and-subs-receipt.json` (nouvelle preuve : invariance des **88 abonnements** via `/connz?subs=detail` & `/subsz?subs=1` sur 4 cycles + récupération live après transition `NATS ↔ NOOP` interrompue dans les deux sens)
 
 > [!IMPORTANT]
-> **Verdict final : `T1A_NATS_READY_FOR_MERGE`**
+> **Verdict final : `T1A_NATS_READY_WITH_RESERVES`**
 >
-> Toutes les obligations bloquantes de sûreté, d'exploitation, de performance et de certification locale sont satisfaites sur `feat/v3-identity-governance` :
-> - **`CERT-FULL` monolithique 100 % vert** (`1 216/1 216 PASS` en un seul passage ininterrompu `./mvnw --batch-mode --no-transfer-progress test`, dont `52/52` tests d'architecture, `98/98` `runtime-worker-process`, `135/135` `runtime-worker-materialize`, `40/40` `runtime-monolith`).
-> - **Toutes les réserves locales précédentes (`RES-T1A-CERT-01`, `RES-T1A-C3-01`, `RES-T1A-BACKLOG-01`) sont levées** par analyse de cause racine, corrections ciblées et preuves répétées.
-> - **Seule réserve résiduelle non bloquante** : **`RES-L8-01`** (hors périmètre local — clustering NATS 3 nœuds, TLS/mTLS, HA multi-nœud actif/passif, `prometheus-nats-exporter`, `SPEC-09` Config A/B, `50 cmd/s` soutenus et volumes `10k/1M`–`100k/10M`, différés à la qualification multi-VM L8).
+> Aucune anomalie bloquante de sûreté, de reprise automatique NATS, de récupération de reconfiguration `pocoma-local` ou d'architecture ne subsiste sur `feat/v3-identity-governance`.
+> Deux réserves explicites et **non bloquantes** pour la fusion locale restent ouvertes et documentées :
+> 1. **`RES-T1A-BACKLOG-01` (Faible — non bloquant)** : sur le drainage de backlog `10 000` (`R=3`), la médiane reste à `134,92 s` en NATS vs `127,68 s` en polling (`+5,7 %`) ; compromis observé (CPU `-6,1 %`, latence Identity concurrente `p50 -12,0 %`, mais gain de débit de drainage non démontré sur cette campagne).
+> 2. **`RES-L8-01` (Hors périmètre local — non bloquant)** : clustering NATS 3 nœuds, TLS/mTLS, `prometheus-nats-exporter`, HA multi-nœud actif/passif, `SPEC-09` Config A/B, `50 cmd/s` soutenus et volumes `10k/1M`–`100k/10M`, différés à la qualification multi-VM L8.
 
 ---
 
-## 1. Inventaire des corrections de remédiation (depuis `1d9be71c`)
+## 1. Inventaire des corrections (remédiations `1d9be71c` → HEAD)
 
 | Priorité | Commit | Objet | Fichiers clés |
 | :--- | :---: | :--- | :--- |
 | **P0** | `b8926fae` | Résolution `WorkerResourcesPostgresTest.i5_r11:1087` + test unitaire déterministe `RenewalServiceLeaseRetryTest` | `WorkerResourcesPostgresTest.java`, `RenewalServiceLeaseRetryTest.java` |
-| **P1** | `7d1da2f1` | Fiabilisation état `CONNECTED` dans `NatsWakeupTransport` (confirmation `flush()`, dispatcher unique, reconnexion sûre) + renforcement preuves post-COMMIT, blocage transport, concurrence `DiscoveryLoop` et isolation HTTP | `NatsWakeupTransport.java`, `NatsWakeupTransportStateTest.java`, `NatsWakeupTransportTest.java`, `WakeupContractTest.java`, `SpringAttemptTransactionsAfterCommitTest.java`, `WakeupWorkerBehaviorTest.java`, `AdmissionWakeupIsolationTest.java` |
-| **P1** | `862630ea` | Contrat opérationnel `pocoma-local` corrigé : bascule non destructive `NATS ↔ NOOP` sur instance existante avec redémarrage contrôlé des 4 runtimes wakeup et persistance durable `manifest.json` + alignement docs | `scripts/local/runtime.py`, `scripts/local/runtime_lifecycle.py`, `scripts/local/test_t1a_nats.py`, `docs/reference/cli.md`, `docs/reference/configuration.md`, `docs/operations/recovery.md` |
-| **P2** | `6ddc8371` | Observabilité interne Core NATS `/varz` dans `./pocoma-local status` (connexions, total connexions, abonnements, `inMsgs`/`outMsgs`, `slowConsumers`, mémoire/CPU, zéro port exposé) | `scripts/local/runtime_lifecycle.py`, `scripts/local/test_t1a_nats.py` |
-| **Qualif** | `943c2a07` | Correction race condition de test dans `ReadReconstructionPostgresTest.rcv01H` (attente explicite `read_command_result >= 1` avant suppression de `COMMAND_RESULT_AVAILABLE`) | `ReadReconstructionPostgresTest.java` |
-| **Bench/Docs** | *(HEAD final)* | Scripts benchmarks répétés (`run-remediation-bench.py`), télémétrie HikariCP/handoff, archivage preuves SHA-256 et mise à jour finale du dossier | `experiments/t1a-nats-qualification/*`, `docs/testing/evidence/t1a-nats-qualification/*`, `docs/v3/T1A_Core_NATS_Qualification_and_Merge_Arbitration_Dossier.md` |
+| **P1** | `7d1da2f1` | Confirmation `flush()` avant `CONNECTED` dans `NatsWakeupTransport` + renforcement preuves post-COMMIT, blocage transport, concurrence `DiscoveryLoop` et isolation HTTP | `NatsWakeupTransport.java`, `NatsWakeupTransportStateTest.java`, `NatsWakeupTransportTest.java`, `WakeupContractTest.java`, `SpringAttemptTransactionsAfterCommitTest.java`, `WakeupWorkerBehaviorTest.java`, `AdmissionWakeupIsolationTest.java` |
+| **P1** | `862630ea` | Bascule non destructive `NATS ↔ NOOP` dans `pocoma-local` et alignement docs | `runtime.py`, `runtime_lifecycle.py`, `test_t1a_nats.py`, `cli.md`, `configuration.md`, `recovery.md` |
+| **P2** | `6ddc8371` | Exposition interne `/varz` Core NATS dans `./pocoma-local status` | `runtime_lifecycle.py`, `test_t1a_nats.py` |
+| **Qualif** | `943c2a07` | Attente explicite `read_command_result >= 1` dans `ReadReconstructionPostgresTest.rcv01H` | `ReadReconstructionPostgresTest.java` |
+| **Qualif** | `f0ee1b79` | Archivage benchmarks répétés, reçu Docker nominal et `CERT-FULL` monolithique (`1 216/1 216`) | `docs/testing/evidence/t1a-nats-qualification/*`, dossier |
+| **P0 (audit final)** | `923aac2f` | **Récupération automatique après fermeture terminale involontaire `CLOSED`** dans `NatsWakeupTransport` (`scheduleTerminalRecovery` hors thread callback `jnats`, libération connexion/dispatcher obsolètes, reconstruction + `flush()`, garde `close()` volontaire) | `NatsWakeupTransport.java`, `NatsWakeupTransportStateTest.java` (`13/13 PASS`) |
+| **P0 (audit final)** | `abc7f2bd`, `a70e14be` | **Protocole de transition `NATS ↔ NOOP` en 3 phases (`PREPARING → APPLYING → COMMITTED`) récupérable après interruption** + 12 scénarios d'injection de fautes | `prerequisites.py`, `runtime_lifecycle.py`, `test_t1a_nats.py` (`143/143 PASS`) |
+| **P1/Docs (audit final)** | *(HEAD final)* | Preuve `/connz?subs=detail` & `/subsz?subs=1` des **88 abonnements** + recette live de récupération après interruption + nuance des conclusions de performance + manifeste SHA-256 7/7 OK | `audit-final-recovery-and-subs-receipt.json`, `manifest.sha256`, `cli.md`, `recovery.md`, dossier |
 
 ---
 
-## 2. P0 — Analyse complète de l'échec `RenewalService` (`WorkerResourcesPostgresTest.i5_r11:1087`)
+## 2. P0 — Récupération après fermeture terminale `CLOSED` dans `NatsWakeupTransport`
 
-### 2.1 Chronologie reconstituée depuis les traces Surefire originales
-1. **Rapport Surefire d'origine** (`TEST-com.kartaguez.pocoma.runtime.command.WorkerResourcesPostgresTest.xml` + `v3-i5-evidence/i5_r11-lease-skip-{WRITE,READ}.txt`) :
-   - Itération `write = true` (autorité `WRITE`, 1 seul binding `Command`) : **`PASS`** (`targetCalls = 2`, `fullService = [PT0.155s, PT0.172s]`).
-   - Itération `write = false` (autorité `READ`, 2 bindings : `bindings.get(1) = I5ReadPotProbe` et `bindings.get(2) = I5ReadCompletionProbe`) :
-     - `SKIP LOCKED omitted live lease authority=READ blockerPID=12693 renewPID=12680 blocking={}` enregistré.
-     - Après `blocker.commit()`, `await(() -> owned_until.after(before), 5s)` **a réussi** : la lease `(I5ReadPotProbe, partition 0)` **a bien été renouvelée en PostgreSQL**.
-     - L'assertion ligne 1087 `assertTrue(targetCalls.get() >= 2)` a échoué (`targetCalls == 1`).
+### 2.1 Analyse causale
+En `f0ee1b79`, `NatsWakeupTransport.handleConnectionEvent()` traitait `ConnectionListener.Events.CLOSED` comme un simple `DISCONNECTED` : `state` passait à `DEGRADED`, mais la référence `AtomicReference<Connection> connection` restait non nulle (pointant sur la connexion `jnats` définitivement fermée). Or `ensureConnecting()` vérifie `connection.get() != null` et n'était jamais relancé. En cas de fermeture terminale involontaire du client `jnats`, le transport restait donc bloqué en polling de secours `DEGRADED` même après le retour du broker.
 
-### 2.2 Cause racine démontrée (et comparaison pré-NATS)
-- **Comparaison pré-NATS** : aucun fichier impliqué (`RenewalService.java`, `ConsumptionSafety.java`, `AbstractConsumptionProtocol.java`, `WorkerResourcesPostgresTest.java`) n'a été modifié par les commits NATS (`8b9227e3..1d9be71c`). Le renouvellement cross-définition (`AbstractConsumptionProtocol.supportsCrossDefinitionRenewal() == true`) date du commit `16dada44` (L7-LB, antérieur à NATS).
-- **Mécanisme exact** :
-  - `i5_r11` remplaçait le champ `ownership` par un proxy JDK **uniquement sur `bindings.get(1)` (`I5ReadPotProbe`)**, et non sur le binding frère `bindings.get(2)` (`I5ReadCompletionProbe`).
-  - Dans `RenewalService.selectDueLeaseBatch(Authority.READ, now)`, les leases échues de l'autorité `READ` sont triées par `e.renewedAt` croissant, puis `renewPartitionBatch(...)` est invoqué sur **`sortedDue.getFirst().pair.binding().engine()`**.
-  - Lors de l'appel 1 (omis par `SKIP LOCKED`), `bindings.get(1)` était en tête → proxy appelé (`targetCalls = 1`), puis bloqué ≥ 100 ms (`pg_sleep(0.1)`).
-  - À la clôture de l'appel 1, `ConsumptionSafety.retryOrExpireLease` a replanifié la lease omise à `renewedAt = callBegan - renewalInterval + minPoll`.
-  - Pendant les 100 ms, une lease du binding frère `bindings.get(2)` (`I5ReadCompletionProbe`) est devenue échue avec un `renewedAt` antérieur à la date de retry de `(bindings.get(1), p=0)`.
-  - Lors de l'appel 2 (le retry), `sortedDue.getFirst()` était donc **`bindings.get(2)`** : `RenewalService` a correctement regroupé les deux bindings dans un unique appel cross-définition `bindings.get(2).engine().renewPartitionBatch(...)` via le store `ownership` **non proxifié** de `bindings.get(2)`.
-  - **Verdict** : **l'invariant `RenewalService` était 100 % respecté** (retry immédiat, conservation du `due` d'origine, renouvellement effectif en base sans changement de `owner_token`). La faute provenait exclusivement de l'instrumentation incomplète du test `i5_r11`.
+### 2.2 Correction implémentée (`923aac2f`)
+- Dans `handleConnectionEvent()` :
+  - `DISCONNECTED` → `subscriptionsConfirmed = false`, incrément `confirmGeneration`, `DEGRADED` (reconnexion gérée par `jnats`).
+  - `CLOSED` (lorsque `!closed.get()`) → `subscriptionsConfirmed = false`, incrément `confirmGeneration`, `DEGRADED`, puis **`scheduleTerminalRecovery(conn)`** sur un thread daemon dédié (`v3-wakeup-nats-recover-<gen>`), **hors du thread callback `jnats`** (zéro risque d'interblocage avec `close()` ou `start()`).
+  - `confirmReconnect()` et `installAndPublishConnection()` vérifient également `Connection.Status.CLOSED` et déclenchent `resetConnectionAndRetry(conn)` en cas de course `RECONNECTED ↔ CLOSED`.
+- `resetConnectionAndRetry(conn)` (sous `synchronized (this)`, idempotent par garde `connection.get() != conn`) : nettoie `activeDispatcher`, ferme `conn`, libère `connection` (`compareAndSet(conn, null)`), maintient `DEGRADED` et relance `ensureConnecting()` (`connectLoop()` borné par `connectRetryDelay`, qui réinstalle un unique `Dispatcher` et exige `conn.flush(...)` avant `CONNECTED`).
+- `close()` volontaire positionne `closed.compareAndSet(false, true)` **avant** `conn.close()` et interrompt `connectorThread`, `confirmThread` et `recoveryThread` : un `CLOSED` issu d'un arrêt volontaire ne déclenche jamais de reconnexion.
 
-### 2.3 Correction et preuve déterministe
-- `WorkerResourcesPostgresTest.i5_r11` proxifie désormais `ownership` sur **tous les bindings de l'autorité testée**, en filtrant exactement sur `(l.consumptionId().value().equals(cid) && l.partitionId() == 0)`, et observe `RENEWAL_LEASE` sur cette autorité sans affaiblir aucune assertion.
-- **Test unitaire déterministe ajouté** : `RenewalServiceLeaseRetryTest.omittedLeaseIsRetriedAndRetainsOriginalDueEvenWhenSiblingLeadsCrossDefinitionBatch` (`app/supra-polling-consumption`), qui reproduit déterministiquement l'omission + la prise de leadership cross-définition par un binding frère et vérifie le retry, la restauration `usable=true` et la conservation du `due` d'origine.
-- **Incident secondaire corrigé durant le `CERT-FULL`** : `ReadReconstructionPostgresTest.rcv01H` (ligne 547) n'attendait que `read_current_pot >= 1 && consumption_slot == 0` avant de supprimer `COMMAND_RESULT_AVAILABLE`, pouvant drainer le worker avant la matérialisation de `read_command_result` (`943c2a07`). Corrigé en attendant explicitement `read_command_result >= 1`.
+### 2.3 Preuves déterministes (`infra-wakeup-nats` : `13/13 PASS`)
+- `involuntaryClosedWhileBrokerUnavailableRetriesAndRecoversDeliveryWhenBrokerReturns` : `CLOSED` involontaire broker indisponible → maintien `DEGRADED` + nettoyage dispatcher/connexion obsolètes + retries bornés → retour broker → reconstruction unique (1 connexion, 1 dispatcher, `flush()` confirmé) → retour `CONNECTED` et livraison effective d'un nouveau réveil.
+- `voluntaryCloseNeverTriggersReconnectEvenWhenClosedEventFires` : `close()` volontaire suivi d'un callback `CLOSED` → zéro reconnexion.
+- `concurrentClosedReconnectedAndCloseNeverDeadlockOrLeakConnections` : concurrence simultanée `RECONNECTED` (bloqué dans `flush()`), `CLOSED` et `close()` → terminaison immédiate sans interblocage ni fuite de connexion.
+- Conservés au vert : les 6 tests `flush()` / reconnexion `NatsWakeupTransportStateTest` + les 4 tests Testcontainers `NatsWakeupTransportTest` (incluant remplacement complet du broker sur même port).
 
 ---
 
-## 3. P1 — Rapport de robustesse Core NATS (`NatsWakeupTransport`) et preuves transactionnelles/concurrence
+## 3. P0 — Protocole de reconfiguration `pocoma-local` récupérable après interruption
 
-### 3.1 Fiabilisation de `NatsWakeupTransport` (`7d1da2f1`)
-- **Défaut corrigé** : `subscribeOn()` n'avale plus les exceptions de `conn.flush(...)`.
-- **Invariant `WakeupState.CONNECTED`** : `CONNECTED` n'est désormais annoncé que si et seulement si :
-  1. La connexion NATS est établie (`Connection.Status.CONNECTED`).
-  2. Un **unique** `Dispatcher` actif (`activeDispatcher.isActive()`) est installé pour l'ensemble des `WakeupKey` abonnés.
-  3. `conn.flush(connectionTimeout)` a réussi **sans exception** et l'état de connexion/dispatcher reste valide après `flush()`.
-- **Comportement en cas d'échec** : maintien/retour immédiat en `DEGRADED` (préservation du polling de secours `fallback-max-poll=20 ms`), fermeture explicite du `Dispatcher` et de la `Connection` (`closeDispatcherQuietly` + `closeQuietly`), puis retry borné dans `connectLoop()` (`connectRetryDelay`).
-- **Reconnexion `jnats`** : sur `DISCONNECTED`/`CLOSED`, `subscriptionsConfirmed = false` et passage immédiat en `DEGRADED`. Sur `RECONNECTED`, aucun second `Dispatcher` n'est créé (`jnats` rejoue automatiquement les `SUB` du dispatcher actif) ; une confirmation asynchrone (`confirmReconnect`, protégée par génération atomique `confirmGeneration`) vérifie `activeDispatcher.isActive()` et exécute `conn.flush(connectionTimeout)` avant de réannoncer `CONNECTED`. Si `flush()` échoue, la connexion est détruite proprement et relancée via `connectLoop()`.
+### 3.1 Protocole en 3 phases (`abc7f2bd`, `a70e14be`)
+Pour éliminer toute fenêtre d'incohérence entre `manifest.json`, `compose.json`, `nats.conf` et les conteneurs Docker :
+1. **`PREPARING`** : `m['wakeupMode']` reste inchangé sur le dernier mode confirmé ; `m['wakeupTransition'] = {from, to, phase: 'PREPARING', resumed, startedAt}` est enregistré dans `manifest.json`. `package()` s'exécute avant toute modification du déploiement.
+2. **`APPLYING`** : `render()` et `properties()` utilisent une vue `effective_manifest` (sans écraser `m['wakeupMode']` sur disque). `postgres` et `keycloak` ne sont jamais recréés (`up -d` idempotent). En cible `nats`, `nats` est démarré ; en cible `noop`, le conteneur `nats` possédé par le projet est supprimé de manière idempotente par label Docker (`_remove_owned_nats_container`), tout en conservant `nats.conf` jusqu'au commit final. Seuls les 4 `WAKEUP_RUNTIMES` sont recréés (`--force-recreate`).
+3. **`COMMITTED`** : uniquement après réussite de `current()`, `recover_workers()` et `_verify_canary_and_observability()`, `_commit_wakeup_transition()` met à jour `m['wakeupMode'] = target_mode`, supprime `m['wakeupTransition']` et nettoie `nats.conf` si `noop`.
 
-### 3.2 Couverture de tests et matrice de sûreté corrigée
+### 3.2 Reprise déterministe après interruption
+- En cas d'interruption à n'importe quelle étape :
+  - `manifest.json` conserve `wakeupMode = from` et `wakeupTransition` (jamais d'état faussement validé).
+  - `./pocoma-local status` expose `wakeup.transitionInProgress`.
+  - `prerequisites.instance()` autorise la fenêtre de transition `nats`/`nats.conf` tout en continuant de vérifier intégralement `secrets.json`, ports, propriété Docker, PostgreSQL, Keycloak et empreintes JAR.
+  - `./pocoma-local start --instance <name>` reprend et finalise déterministiquement la transition vers `to` (`transitionRecovered=true`) ; `./pocoma-local start --instance <name> --wakeup-mode <from>` revient proprement au mode précédent, sans `reset` ni régénération de secrets.
 
-| Obligation de sûreté | Preuve exécutée | Statut | Précision / limite explicite |
-| :--- | :--- | :---: | :--- |
-| Échec `flush()` / abonnement non confirmé / déconnexion pendant `subscribe` / pas de `CONNECTED` prématuré | `NatsWakeupTransportStateTest` (6/6 tests déterministes : `flushFailureStaysDegraded...`, `noPrematureConnectedWhileFlushIsInFlight`, `disconnectDuringSubscriptionInstallation...`, `unconfirmedInactiveDispatcher...`, `reconnectWaitsForFlushConfirmationAndNeverCreatesDuplicateDispatchers`, `startAfterPublisherConnectResetsAndRetriesWhenSubscriptionFlushFails`) | **`PASS`** | Preuve déterministe complète (0 attente fragile). |
-| Reconnexion `jnats` + réabonnement effectif après remplacement complet du broker | `NatsWakeupTransportTest.coreNatsBrokerRestartRestoresAutoResubscriptionAndDeliversPostReconnectWakeups` (Testcontainers `nats:2.15.3-alpine`, arrêt complet du 1er broker + démarrage d'un 2e broker neuf sur même port) | **`PASS`** | Prouve la restauration effective de la table `SUB` côté broker neuf sans duplication de dispatcher. |
-| Authentification token (valide / invalide) & broker absent | `NatsWakeupTransportTest` (4/4 Testcontainers) + `T1A-D-nats-fail-bus-absent-r1` | **`PASS`** | Mauvais token / broker absent restent `DEGRADED`, zéro exception bloquante. |
-| **Fenêtre crash après `COMMIT` avant publication NATS** | `SpringAttemptTransactionsAfterCommitTest` (2/2 : ordre strict `PHYSICAL_COMMIT → AFTER_COMMIT_HOOK`, rollback n'exécute jamais le hook, exception post-COMMIT avalée) + `WakeupWorkerBehaviorTest.crashAfterCommitWithoutNotificationProgressesViaReconcilePollAndNoop` + `T1A-D-nats-fail-silent-loss-r1` (Docker) | **`PASS` *(preuve équivalente)*** | **Distinction explicite** : la faute est injectée de façon déterministe dans la fenêtre post-COMMIT / perte silencieuse (travail commité en base, 0 trame NATS émise → découverte par `reconcile-poll`, exécution exactement une fois). Un `SIGKILL` matériel exact entre le `COMMIT` JDBC et l'écriture socket TCP produit le même état observable en base/réseau, mais n'est pas déclenché par injection noyau directe. |
-| Isolation publication (exception, blocage durable, saturation rafales) | `WakeupContractTest.blockedTransportNeverBlocksBusinessThreadAndBoundsMemory` (100 000 publications pendant transport bloqué : retour O(1) `< 500 ms`, bitmask 32 bits = 4 octets bornés, `>= 99 990` coalescées) + `AdmissionWakeupIsolationTest` | **`PASS`** | Impossible de faire croître les buffers ou de convertir une admission HTTP `202` en erreur. |
-| Concurrence & reprise (`signal → await`, invalidation caches Discovery, réveils simultanés/dupliqués, perte de lease, mode `NOOP`) | `WakeupWorkerBehaviorTest` (8/8 tests : `conditionWaiterLatchesSignalBeforeAwait`, `discoveryLoopExternalWakeupInvalidatesEmptyFamilyCacheAndRecordsDelay`, `discoveryLoopExternalReconnectInvalidatesEmptyFamilyCache`, `discoveryLoopSimultaneousDuplicateWakeupsCoalesceWithoutLoss`, `discoveryLoopWakeupIgnoredSafelyWhenLeaseLost`, `crashAfterCommitWithoutNotificationProgressesViaReconcilePollAndNoop`) | **`PASS`** | Couverture déterministe complète sans attentes fragiles. |
-| Leases, fencing, idempotence, retry, `UNKNOWN`, reconstruction READ indépendante du bus | `CERT-FULL` monolithique : `runtime-worker-process` (`98/98`), `runtime-worker-materialize` (`135/135`, dont `ReadReconstructionPostgresTest` `13/13`), `runtime-monolith` (`40/40`), `infra-postgres-write` (`479/479`) | **`PASS`** | `0` échec, `0` modification dans `domain-*`, `engine-*`, `orchestrator-consumption`, migrations SQL. |
+### 3.3 Preuves d'injection de fautes et recette live
+- **Tests unitaires CLI (`143/143 PASS`)** : `test_fault_injection_recovery_across_all_six_interruption_points_both_directions` couvre les **6 points d'interruption** (`before_prepare_compose`, `after_prepare_before_apply`, `after_nats_resource_change`, `during_runtime_recreation`, `before_manifest_commit`, `during_revert_to_previous_mode`) dans les **deux directions** (`NATS → NOOP` et `NOOP → NATS`, soit 12 scénarios complets vérifiant `prerequisites.instance()` avant/après reprise, identité, secrets, ports et convergence).
+- **Recette Docker live (`audit-final-recovery-and-subs-receipt.json`)** :
+  - Interruption injectée en plein `NATS → NOOP` (`manifest.json` encore en `wakeupMode=nats` avec `wakeupTransition`, conteneur `nats` et `nats.conf` supprimés) → `status` détecte `transitionInProgress=true` → `./pocoma-local start` reprend en `READY` (`transitionRecovered=true`, `configuredMode=noop`, `effectiveMode=NOOP`, `postgresUnchanged=true`, `keycloakUnchanged=true`, `potsPreserved=true`).
+  - Interruption injectée en `NOOP → NATS` → `./pocoma-local start` reprend en `READY` (`transitionRecovered=true`, `configuredMode=nats`, `effectiveMode=CONNECTED`, `postgresUnchanged=true`, `keycloakUnchanged=true`, `potsPreserved=true`, `88` abonnements exacts).
 
 ---
 
-## 4. P1 — Contrat opérationnel corrigé de `./pocoma-local`
+## 4. P1 — Explication vérifiée des 88 abonnements NATS (`audit-final-recovery-and-subs-receipt.json`)
 
-### 4.1 Correction de l'écart d'audit (`862630ea`)
-L'audit a confirmé qu'en `1d9be71c`, `--wakeup-mode` avait `default='nats'` et était ignoré sur une instance existante. Le contrat opérationnel est désormais exact, cohérent et vérifié en live :
+L'inspection directe des endpoints internes `/connz?subs=detail` et `/subsz?subs=1` sur le broker `nats:2.15.3-alpine` live démontre qu'il n'existe **aucune fuite ni duplication** :
 
-1. **Fallback automatique `CONNECTED → DEGRADED` (panne broker)** : **aucun redémarrage**, aucune perte, bascule automatique sur `fallback-max-poll-ms=20` en `≤ 4 s`, reconnexion automatique avec confirmation `flush()`.
-2. **Désactivation volontaire de NATS (`NOOP`) ou réactivation (`NATS`) sur instance existante** :
-   - Commande : `./pocoma-local start --instance <name> --wakeup-mode noop` (ou `nats`).
-   - **Mécanisme non destructif avec redémarrage contrôlé** *(et non un rollback « à chaud » sans redémarrage)* : met à jour `manifest.json`, arrête/supprime uniquement le conteneur `nats` (vers `noop`) ou démarre `nats` (vers `nats`), régénère les `.properties` et recrée **exclusivement les 4 runtimes wakeup** (`http-write`, `command-worker`, `critical-read-worker`, `pot-read-worker`).
-   - **Strictement préservés et jamais recréés** : PostgreSQL (conteneur, volume, toutes les données), Keycloak (conteneur, realm, utilisateurs), `http-read`, Prometheus, Grafana, ports, identités de déploiement et `secrets.json` (incluant le token NATS).
-3. **Persistance durable de la configuration** : `./pocoma-local start --instance <name>` sans `--wakeup-mode` conserve le mode enregistré dans `manifest.json` (`noop` reste `noop` après `stop` + `start`).
+**`88 abonnements totaux = 28 abonnements applicatifs Pocoma + 60 abonnements internes $SYS.* de nats-server 2.15.3`**
 
-### 4.2 Recette live Docker complète (`pocoma-local-live-receipt.json`)
-Exécutée sur la véritable distribution Docker (`./pocoma-local`, instance `qualif-final`) :
-- `./pocoma-local doctor` → `READY` (exit `0`, 6 images dont `nats:2.15.3-alpine`).
-- `./pocoma-local start --instance qualif-final` → `READY` (10 conteneurs, 20/20 checks `PASS`, `effectiveMode=CONNECTED`, `varz` live : 4 connexions, 88 abonnements, 0 slow consumer).
-- `./pocoma-local logs --instance qualif-final --service nats --tail 20` → `LOGS_CAPTURED` (exit `0`, secrets rédigés).
-- `./pocoma-local bruno --instance qualif-final` (`CONNECTED`) → **`BRUNO_PASS`** (exit `0`, 9 pots matérialisés).
-- Arrêt brutal `docker stop <nats>` → `status`: `effectiveMode=DEGRADED`, `brokerAvailable=false`, `operationalState=OPERATIONAL` → `./pocoma-local bruno` → **`BRUNO_PASS`**.
-- Redémarrage `docker start <nats>` → `status`: reconnexion automatique `effectiveMode=CONNECTED`, `brokerAvailable=true`, `commandWorkerReconnects=2.0`, `varz` live.
-- Bascule non destructive `NATS → NOOP` (`start --wakeup-mode noop`) → `modeChanged=true`, `previousMode=nats`, `configuredMode=noop`, `effectiveMode=NOOP`, `natsContainerAbsent=true`, **`postgresUnchanged=true`**, **`keycloakUnchanged=true`**, **`httpReadUnchanged=true`**, **`potsPreserved=true`**, `./pocoma-local bruno` → **`BRUNO_PASS`**.
-- `stop` (`forcedKills=0`) + `start` sans `--wakeup-mode` → `configuredMode=noop`, `effectiveMode=NOOP`, `modeChanged=false`, `postgresUnchanged=true`, `keycloakUnchanged=true`, `potsPreserved=true`.
-- Bascule non destructive `NOOP → NATS` (`start --wakeup-mode nats`) → `modeChanged=true`, `previousMode=noop`, `configuredMode=nats`, `effectiveMode=CONNECTED`, `brokerAvailable=true`, `varz` live, `postgresUnchanged=true`, `keycloakUnchanged=true`, `httpReadUnchanged=true`, `potsPreserved=true`.
-- `stop` + `destroy --confirm DESTROY:qualif-final` → `STOPPED`, `DESTROYED`.
-- **Tests unitaires CLI** : `python3 -B -m unittest discover -s scripts/local -p "test_*.py"` → **`141/141 PASS`**.
+| Connexion / Composant | Dispatchers actifs | Partitions logiques T1A | Sujets NATS souscrits | Comptage vérifié |
+| :--- | :---: | :---: | :--- | :---: |
+| `http-write` | `0` *(publisher seul)* | — | *(aucun)* | **`0`** |
+| `command-worker` | `1` | `8` (`Command` × 4, `IdentityRequest` × 4) | `pocoma.v3.wakeup.COMMAND.{0..3}`, `IDENTITY_REQUEST.{0..3}` | **`8`** |
+| `critical-read-worker` | `1` | `12` (`CommandResult` × 4, `IdResult` × 4, `CurrentBinding` × 4) | `COMMAND_COMPLETION_EVENT.{0..3}`, `IDENTITY_COMPLETION_EVENT.{0..3}`, `IDENTITY_EVENT.{0..3}` | **`12`** |
+| `pot-read-worker` | `1` | `16` (`PotVersion`, `PotBalance`, `PotVisibility`, `Invitation` × 4) | `POT_EVENT.{0..3}`, `INVITATION_EVENT.{0..3}` *(les 3 projections `POT_EVENT` sont dédupliquées par `Set<WakeupKey>` dans `ConsumptionWorker.startWakeupSubscriber()`)* | **`8`** |
+| **Sous-total applicatif Pocoma** | **3** | **36 couples logiques** | **7 familles × 4 partitions uniques** | **`28`** |
+| Broker `nats-server 2.15.3` (`$SYS`) | *(interne)* | — | `$SYS.REQ.SERVER.*`, `$SYS.REQ.ACCOUNT.*`, `$SYS.ACCOUNT.*`, etc. | **`60`** |
+| **Total `/varz` `subscriptions`** | — | — | `28 + 60` | **`88`** |
+
+**Invariance vérifiée en live** (`audit-final-recovery-and-subs-receipt.json`) :
+- Démarrage nominal : `connections=4`, `pocoma=28 (0+8+12+8)`, `$SYS=60`, `varz=88`, `slowConsumers=0`.
+- Après cycle 1 (`docker stop nats` + `docker start nats`) : `connections=4`, `pocoma=28`, `$SYS=60`, `varz=88`, `slowConsumers=0`.
+- Après cycle 2 (`docker restart nats` complet) : `connections=4`, `pocoma=28`, `$SYS=60`, `varz=88`, `slowConsumers=0`.
+- Après récupération `NATS → NOOP` puis `NOOP → NATS` : `connections=4`, `pocoma=28`, `$SYS=60`, `varz=88`, `slowConsumers=0`.
 
 ---
 
-## 5. P1 — Clarification des performances (campagnes répétées `t1a-nats-remediation-summary.json`)
+## 5. P1 — Conclusions de performance corrigées et nuancées
+
+Les campagnes archivées (`t1a-nats-results.json` et `t1a-nats-remediation-bench.json`) restent valides et réutilisées sans relance : l'unique modification Java depuis `f0ee1b79` concerne exclusivement le chemin de récupération après `CLOSED` terminal dans `NatsWakeupTransport` et n'affecte ni les chemins nominaux mesurés ni les paramètres du banc.
 
 ### 5.1 Drainage du backlog `10 000` (`c4-backlog-10k`, `R=3` entrelacé)
 
-| Configuration | Temps de drainage (`R=3`) | Médiane / Moyenne | Débit médian | CPU total médian (PG / Workers / NATS) | PG tx/s médian | Identity concurrente `p50` / `p95` | Wakeups (pub / coal / recv / useful / errors) | HikariCP timeouts |
-| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| **`T1A + A-20`** *(polling)* | `121,73 ; 127,68 ; 177,33 s` | `127,68 s` / `142,25 s` | `78,3 cmd/s` | `2,089` (`1,058 / 0,711 / 0`) | `4 482,8/s` | `219,2 / 580,7 ms` | `0 / 0 / 0 / 0 / 0` | `0` |
-| **`T1A + D-nats`** *(cible)* | `134,92 ; 136,47 ; 127,97 s` | `134,92 s` (`+5,7 %`) / **`133,12 s` (`-6,5 %`)** | `74,1 cmd/s` | **`1,962` (`-6,1 %`)** (`0,972 / 0,679 / 0,010`) | `4 370,6/s` (`-2,5 %`) | **`192,9 ms` (`-12,0 %`)** / `602,4 ms` | `~30 000 / 48–66 / ~20 050 / ~21 500 (98,3 %) / 0` | `0` |
-
-- **Analyse** : l'écart de `+5,7 %` sur la médiane (`134,92 s` vs `127,68 s`, avec un run `D-nats` à `127,97 s` identique à la médiane polling et une moyenne meilleure en NATS `133,1 s` vs `142,3 s`) s'explique par la mise en concurrence immédiate des workers READ réveillés à chaque lot commité (contre un réveil différé au cycle de polling) et la variance Docker Desktop locale. **NATS consomme `-6,1 %` de CPU total en moins**, maintient `0` timeout HikariCP et `0` erreur de publication, et améliore la médiane des inscriptions Identity concurrentes de `-12,0 %`. **`RES-T1A-BACKLOG-01` est levée.**
-
-### 5.2 Interférence Pot / Identity (`c3-int-pot-vs-id-deep`, 160 sondes Identity par configuration sous `20/s` Pot)
-
-| Configuration | Sondes Identity | `usableBindingE2eMs` `p50 / p75 / p90 / p95 / p99 / max` | `resultE2eMs` `p50 / p95 / p99` | Outliers `≥ 300 ms` | CPU total médian (PG / Workers / NATS) |
+| Configuration | Répétitions (`r1 / r2 / r3`) | Médiane | CPU total médian | Identity concurrente `p50` / `p95` | Wakeups utiles / erreurs / timeouts HikariCP |
 | :--- | :---: | :---: | :---: | :---: | :---: |
-| **`T1A + A-20`** *(polling)* | `160/160` | `78,0 / 104,9 / 123,7 / 209,7 / 1 124,0 / 1 131,4 ms` | `72,4 / 198,7 / 1 105,1 ms` | `7/160` (`4,4 %`) | `2,972` (`1,073 / 1,313 / 0`) |
-| **`T1A + D-nats`** *(cible)* | `160/160` | **`46,2 / 73,3 / 80,5 / 96,7 / 1 033,6 / 1 168,4 ms`** (`p50 -40,8 %`, **`p95 -53,9 %`**) | **`39,8 / 85,9 / 1 026,1 ms`** (`p95 -56,8 %`) | **`5/160` (`3,1 %`)** | **`2,856` (`-3,9 %`)** (`1,024 / 1,321 / 0,005`) |
+| **`T1A + A-20`** *(polling)* | `121,73 s` / `127,68 s` / `177,33 s` | **`127,68 s`** | `2,089` | `219,2 / 580,7 ms` | `0 / 0 / 0` |
+| **`T1A + D-nats`** *(Core NATS)* | `134,92 s` / `136,47 s` / `127,97 s` | **`134,92 s`** (`+5,7 %`) | **`1,962`** (`-6,1 %`) | **`192,9 ms`** (`-12,0 %`) / `602,4 ms` | `98,3 %` / `0` / `0` |
 
-- **Analyse** : sur un échantillon statistiquement significatif (`n=160` au lieu de `n=20`), **`T1A + NATS` réduit la `p95` Identity de `-53,9 %` (`209,7 → 96,7 ms`)** tout en réduisant le CPU total de `-3,9 %`. Les rares pics `p99` (`~1,03–1,17 s`) surviennent **dans les deux configurations** (y compris `A-20` sans NATS : `p99 = 1 124 ms`, `7/160` outliers vs `5/160` en NATS), concentrés sur les toutes premières sondes (`index 0, 1`), avec `resultE2eMs ≈ usableBindingE2eMs` — prouvant une origine amont (warmup JIT / contention `command-worker`) et **non une notification NATS perdue ni `reconcile-poll=2000 ms`**. **`RES-T1A-C3-01` est levée.**
+- **Conclusion corrigée** : la médiane reste moins favorable à NATS (`134,92 s` vs `127,68 s`), et la moyenne apparemment favorable (`133,12 s` vs `142,25 s`) dépend fortement du 3e essai polling (`177,33 s`). **NATS n'améliore pas de façon démontrée le temps de drainage du backlog `10 000`**. Le résultat constitue un **compromis observé** (CPU total `-6,1 %` et latence Identity concurrente `p50 -12,0 %`, mais gain de débit de drainage non démontré) et demeure tracé comme réserve non bloquante **`RES-T1A-BACKLOG-01`**.
 
-### 5.3 Profil CPU selon la charge et décision de tuning
-- **Évolution CPU selon la charge** :
-  - À vide (`c1-idle`) : **`-56,0 %` CPU total** (`0,241` vs `0,548`), **`-73,6 %` PG tx/s**.
-  - Faible charge (`c1-med-1`, `1 cmd/s`) : **`-27,9 %` CPU total** (`0,482` vs `0,668`), `p95 -19,4 %`.
-  - Charge soutenue (`c2-med-10`, `10 cmd/s`) : **`+2,5 %` CPU total** (`1,916` vs `1,869`, léger surcoût de publication/réception des hints à haute fréquence), compensé par **`-31,2 %` sur `c03 p95`** (`83,5` vs `121,4 ms`).
-  - Forte charge mixte (`c3-int-pot-vs-id-deep`, `20/s` Pot + `2/s` ID) : **`-3,9 %` CPU total** (`2,856` vs `2,972`) et **`-53,9 %` Identity `p95`**.
-  - Drain massif (`c4-backlog-10k`) : **`-6,1 %` CPU total** (`1,962` vs `2,089`).
-- **Décision de tuning** : conserver les paramètres nominaux (`reconcile-poll-ms=2000`, `fallback-max-poll-ms=20`, `consumption-max-poll-ms=500`, `IN_FLIGHT_DEDUP`). Aucune modification n'est justifiée par les mesures.
+### 5.2 Interférence Pot / Identity (`c3-int-pot-vs-id-deep`, 160 sondes Identity/config sous `20/s` Pot)
 
----
+| Configuration | Sondes | `usableBindingE2eMs` `p50 / p75 / p90 / p95 / p99 / max` | Outliers `≥ 300 ms` | CPU total médian |
+| :--- | :---: | :---: | :---: | :---: |
+| **`T1A + A-20`** *(polling)* | `160/160` | `78,0 / 104,9 / 123,7 / 209,7 / 1 124,0 / 1 131,4 ms` | `7/160` (`4,4 %`) | `2,972` |
+| **`T1A + D-nats`** *(Core NATS)* | `160/160` | **`46,2 / 73,3 / 80,5 / 96,7 / 1 033,6 / 1 168,4 ms`** (`p50 -40,8 %`, **`p95 -53,9 %`**) | **`5/160`** (`3,1 %`) | **`2,856`** (`-3,9 %`) |
 
-## 6. P2 — Observabilité broker Core NATS
+- **Conclusion corrigée** : sur 160 sondes par configuration, Core NATS apporte un gain net sur les latences centrales (`p50 -40,8 %`, `p95 -53,9 %`) tout en abaissant le CPU total (`-3,9 %`). Des pics isolés en queue de distribution (`p99 ~1,03–1,17 s`) sont observés dans **les deux modes** (y compris en polling pur `A-20`) : ils ne sont donc **pas spécifiques à NATS**, sans qu'une cause racine unique (JIT, contention ou ordonnancement) puisse être affirmée exclusivement à partir de ces mesures.
 
-- **Complément minimal implémenté (`6ddc8371`)** : `./pocoma-local status` interroge désormais l'endpoint interne `http://127.0.0.1:8222/varz` à l'intérieur du conteneur `nats` (zéro port publié sur l'hôte ou Internet, zéro conteneur supplémentaire, zéro RAM/CPU additionnelle) et expose `connections`, `totalConnections`, `subscriptions`, `inMsgs`, `outMsgs`, `slowConsumers`, `memBytes`, `cpuPct` et `uptime`, en complément des 6 panels Grafana applicatifs existants (états, taux publish/receive/coalesce/errors, reconnexions, fallbacks, délai notification→découverte, fréquence de polling).
-- **Évaluation de coût `natsio/prometheus-nats-exporter`** : ajouter un 11e conteneur exporter coûterait ~15–20 MiB de RSS, une 7e image Docker épinglée dans `doctor`/`prerequisites.py`/`L7DeploymentArchitectureTest` et une surface de cycle de vie supplémentaire. Ce coût n'est pas justifié pour le poste local 10 conteneurs ; l'adoption de `prometheus-nats-exporter` est recommandée en **L8** pour le cluster NATS multi-nœuds.
+### 5.3 Bilan CPU selon la charge et tuning
+- À vide (`c1-idle`) : `-56,0 %` CPU total ; faible charge (`1 cmd/s`) : `-27,9 %` CPU ; charge soutenue (`10 cmd/s`) : `+2,5 %` CPU compensé par `-31,2 %` sur `c03 p95` ; forte charge mixte (`20/s` Pot + `2/s` ID) : `-3,9 %` CPU ; drain 10k : `-6,1 %` CPU.
+- **Tuning** : aucun changement de `reconcile-poll-ms=2000`, `fallback-max-poll-ms=20` ou `IN_FLIGHT_DEDUP` n'est appliqué.
 
 ---
 
-## 7. Certification finale (`CERT-FULL` monolithique) & `Reactor_Verification_Policy.md` (§30)
+## 6. Résultats des gates et rapport `Reactor_Verification_Policy.md` (§30)
 
 ```text
-Start HEAD (audit baseline): 1d9be71c (feat/v3-identity-governance; main intact @ afec69f8 / v3.0.0-l7-local)
-Remediation commits: b8926fae, 7d1da2f1, 862630ea, 6ddc8371, 943c2a07 + final qualification/dossier commit
+Start HEAD (audit final): f0ee1b79 (feat/v3-identity-governance; main intact @ afec69f8)
+Commits audit final: 923aac2f (NATS CLOSED recovery), abc7f2bd & a70e14be (pocoma-local staged recovery), + HEAD final (evidence/docs)
 Expected production impact:
-- app/infra-wakeup-nats (NatsWakeupTransport.java)
-- scripts/local/runtime.py, scripts/local/runtime_lifecycle.py
-- Tests: runtime-worker-process, runtime-worker-materialize, supra-polling-consumption,
-  infra-wakeup-nats, contract-consumption, infra-tx-spring, compose-web-write-postgres, scripts/local
+- app/infra-wakeup-nats/src/main/java/com/kartaguez/pocoma/infra/wakeup/nats/NatsWakeupTransport.java
+- scripts/local/prerequisites.py, scripts/local/runtime_lifecycle.py
 Observed production impact:
 - Strictement conforme au périmètre déclaré.
 - Unexpected slice crossings: NONE.
 - Forbidden production impact verified untouched: domain-*, engine-*, orchestrator-consumption,
-  infra-postgres-read, infra-postgres-write-source-read, infra-postgres-core, SQL migrations, Valkey.
+  infra-postgres-*, infra-tx-spring, SQL migrations, Valkey.
 Declared slices:
-- COMMAND (runtime-worker-process), PROJECTION (runtime-worker-materialize),
-  WEB (runtime-web-write, runtime-web-read), FOUNDATION (infra-tx-spring), infra-wakeup-nats
-Global architecture gate:
-- RUN (targeted + inside monolithic CERT-FULL): architecture-tests 52/52 PASS
-Full reactor (CERT-FULL monolithique):
-- RUN (unbroken single invocation from app/):
-  ./mvnw --batch-mode --no-transfer-progress test
-  -> BUILD SUCCESS (01:22 h, 44 reactor entries / 43 child modules, 29 modules with tests,
-     179 test suites, 1 216/1 216 PASS, 0 failure, 0 error, 0 skip).
-  Key modules:
-    contract-consumption: 5/5, supra-polling-consumption: 11/11, infra-tx-spring: 30/30,
-    infra-postgres-write: 479/479, infra-wakeup-nats: 10/10, compose-web-write-postgres: 23/23,
-    runtime-web-read: 42/42, runtime-worker-process: 98/98, runtime-worker-materialize: 135/135,
-    runtime-monolith: 40/40, architecture-tests: 52/52.
-Local CLI, Docker, Bruno & Repeated Benchmarks:
-- python3 -B -m unittest discover -s scripts/local -p "test_*.py" -> 141/141 PASS
-- ./pocoma-local live receipt (qualif-final): doctor READY, start READY (10 containers + /varz),
-  logs NATS OK, Bruno PASS (CONNECTED, DEGRADED, NOOP), reconnect OK, non-destructive NATS->NOOP->NATS
-  (postgres/keycloak/http-read containers & data preserved), durable NOOP across stop/start, destroy OK.
-- python3 -B experiments/t1a-nats-qualification/run-remediation-bench.py -> 10/10 PASS (100% availabilityValid)
-Database verification: CURRENT (PostgreSQL 17 Testcontainers + Docker E2E V2/V4.1/V5)
+- infra-wakeup-nats, COMMAND (runtime-worker-process), PROJECTION (runtime-worker-materialize),
+  WEB (runtime-web-write, runtime-web-read), architecture-tests
+Verification commands executed on a70e14be:
+1. ./mvnw --batch-mode --no-transfer-progress -pl infra-wakeup-nats -am test -> 13/13 PASS (6.0s)
+2. ./mvnw --batch-mode --no-transfer-progress -pl infra-wakeup-nats,supra-polling-consumption,compose-web-write-postgres,compose-polling-burnable-write-postgres,compose-polling-nonburnable-materialize-postgres,runtime-web-write,runtime-web-read,architecture-tests -am test:
+   - Modules 1..41 SUCCESS: infra-tx-spring (30/30), infra-postgres-write (479/479),
+     infra-wakeup-nats (13/13), contract-consumption (5/5), supra-polling-consumption (11/11),
+     compose-* (PASS), runtime-web-write/read (42/42), runtime-worker-process (98/98, 31:21 min)
+   - Arrêt sur runtime-worker-materialize: 1 occurrence préexistante d'ordre d'arrivée v2/v1 sur
+     read_user_pot dans ReadReconstructionPostgresTest.readReplayPreservesExactValuesAndCatchesUpWithNewWritePublication
+     (hors périmètre NATS/T1A ; non masqué).
+3. ./mvnw --batch-mode --no-transfer-progress -pl runtime-worker-materialize -Dtest="ReadReconstructionPostgresTest" test -> 13/13 PASS
+4. ./mvnw --batch-mode --no-transfer-progress -pl architecture-tests -am -Dtest="com.kartaguez.pocoma.architecture.**.*Test" -Dsurefire.failIfNoSpecifiedTests=false test -> 50/50 PASS (52/52 XML total)
+5. Reference monolithic CERT-FULL (unbroken single run on 943c2a07, cert-full-monolithic-summary.json):
+   ./mvnw --batch-mode --no-transfer-progress test -> BUILD SUCCESS (1 216/1 216 PASS, 01:22 h, 0 failure/error/skip).
+   Delta Java depuis 943c2a07 : uniquement NatsWakeupTransport.java (+25 lignes sur chemin CLOSED, 13/13 PASS).
+6. python3 -B -m unittest discover -s scripts/local -p "test_*.py" -> 143/143 PASS (incl. 12 fault-injection recovery subtests)
+7. Recette Docker live (audit-final-recovery-and-subs-receipt.json): 88 subs (60 $SYS + 28 pocoma) invariants sur 4 cycles + reprise live NATS->NOOP et NOOP->NATS après interruption -> ALL PASS
+8. shasum -a 256 -c docs/testing/evidence/t1a-nats-qualification/manifest.sha256 -> 7/7 OK
+Global architecture gate: RUN (52/52 PASS)
+Full reactor: Monolithic CERT-FULL PASS on 943c2a07 (1 216/1 216) + full upstream slices & targeted gates re-verified on a70e14be (delta strictly confined to NatsWakeupTransport.java CLOSED recovery)
+Database verification: CURRENT (PostgreSQL 17 Testcontainers + Docker E2E)
 Merge to main: NOT PERFORMED (interdit sans arbitrage humain)
 ```
 
 ---
 
-## 8. Matrice différentielle de qualification actualisée (`L7` / `SPEC-09`)
+## 7. Matrice différentielle actualisée (`L7` / `SPEC-09`) et statut des réserves
 
-Le statut historique de **`v3.0.0-l7-local` (`afec69f8`, `L7_LOCAL_CERTIFIED_WITH_RESERVES`, topologie `T0`)** est intégralement préservé.
-
-| Domaine / Invariant | Référence historique (`v3.0.0-l7-local` / `T0`) | Impact T1A + Core NATS | Statut final | Preuve consolidée sur `feat/v3-identity-governance` | Risque résiduel |
-| :--- | :--- | :--- | :---: | :--- | :--- |
-| **Domaine & Admission HTTP (`L7.2`, identités serveur)** | `44 CURRENT_FULL` (`afec69f8`) + `8b9227e3` | Wrapper post-COMMIT `AdmissionHttpConfiguration` | **Clôturé** | `compose-web-write-postgres` (`23/23`), `runtime-web-read` (`42/42`), `infra-postgres-write` (`479/479`), Bruno `J01–J03` (`PASS` en `CONNECTED`, `DEGRADED`, `NOOP`) | Aucun |
-| **Exécution Consumption L2, Fencing, Reprise (`L7.3`)** | `425 CURRENT_FULL`, `L7-C3` | `ConditionConsumptionWaiter`, `DiscoveryLoop`, `ConsumptionWorker`, `SpringAttemptTransactions.afterCommit` | **Clôturé** | `CERT-FULL` monolithique `1 216/1 216 PASS` (`runtime-worker-process` `98/98`, `runtime-worker-materialize` `135/135`, `runtime-monolith` `40/40`, `RenewalServiceLeaseRetryTest`) | **`RES-T1A-CERT-01` LEVÉE** |
-| **Architecture modulaire & déploiement (`L7.5`)** | `50/50` `architecture-tests` (42 modules, T0) | +1 module `infra-wakeup-nats` (43 modules, 187 arêtes), neutralité `io.nats.*`, T1A Compose | **Clôturé** | `architecture-tests` **`52/52 PASS`** (`L7ReactorArchitectureTest` 5/5, `L7DeploymentArchitectureTest` 1/1) | Aucun |
-| **Distribution locale & DX (`L7-LB`, `./pocoma-local`)** | `L7_LB_CLOSED` (9 conteneurs, T0) | 10 conteneurs T1A + NATS, bascule non destructive `NATS ↔ NOOP`, `/varz` interne, `logs`, Grafana +6 panels | **Clôturé** | Recette live `pocoma-local-live-receipt.json` 100 % verte + `141/141` unit tests CLI `PASS` | Aucun |
-| **Résilience & sûreté bus Core NATS** | Nouvelle capacité | `NatsWakeupTransport` (`flush()` obligatoire), `CoalescingWakeupPublisher`, `DiscoveryLoop` | **Clôturé** | `NatsWakeupTransportStateTest` (`6/6`), `NatsWakeupTransportTest` (`4/4` dont restart broker), `WakeupContractTest` (`5/5`), `WakeupWorkerBehaviorTest` (`8/8`), `SpringAttemptTransactionsAfterCommitTest` (`2/2`), 3/3 pannes Docker | HA multi-nœud différé L8 ; `SIGKILL` noyau exact entre `COMMIT` et socket couvert par preuve équivalente |
-| **Performances locales (`L7.4` / `SPEC-09` local)** | `L7-C4` (`T0 + A-20`) | Topologie `T1A` + Core NATS | **Clôturé** | Campagne initiale `29/29 PASS` + campagne répétée `10/10 PASS` (`c3-deep` 160 sondes `p95 -53,9 %`, `c4-backlog-10k` `R=3` CPU `-6,1 %`, moyenne `-6,5 %`) | **`RES-T1A-C3-01` & `RES-T1A-BACKLOG-01` LEVÉES** |
-| **Infrastructure cible multi-VM (`L8` / `SPEC-09` Config A/B)** | Ouverte (`L74-ENV-01`) | Clustering NATS 3 nœuds, TLS/mTLS, `prometheus-nats-exporter`, HA actif/passif, `50 cmd/s`, volumes `10k/1M` | **Différée L8** | Hors périmètre local (explicitement tracé) | **`RES-L8-01`** *(non bloquant pour merge local)* |
+| Domaine / Invariant | Référence (`v3.0.0-l7-local` / `T0`) | Statut final | Preuve sur `feat/v3-identity-governance` | Réserve éventuelle |
+| :--- | :--- | :---: | :--- | :--- |
+| **Domaine & Admission HTTP (`L7.2`, identités serveur)** | `44 CURRENT_FULL` + `8b9227e3` | **Clôturé** | `compose-web-write-postgres` (`23/23`), `runtime-web-read` (`42/42`), `infra-postgres-write` (`479/479`), Bruno `J01–J03` (`CONNECTED`/`DEGRADED`/`NOOP`) | Aucune |
+| **Exécution Consumption L2, Fencing, Reprise (`L7.3`)** | `425 CURRENT_FULL`, `L7-C3` | **Clôturé** | `CERT-FULL` monolithique (`1 216/1 216`), `runtime-worker-process` (`98/98` dont `i5_r11`), `RenewalServiceLeaseRetryTest`, `ReadReconstructionPostgresTest` (`13/13`) | Aucune *(note non-NATS : variation d'ordre d'arrivée `v2/v1` sur `read_user_pot` observée une fois dans `ReadReconstructionPostgresTest`)* |
+| **Architecture modulaire & déploiement (`L7.5`)** | `50/50` `architecture-tests` | **Clôturé** | `architecture-tests` **`52/52 PASS`** (43 modules, neutralité `io.nats.*`, T1A Compose) | Aucune |
+| **Distribution locale & DX (`L7-LB`, `./pocoma-local`)** | `L7_LB_CLOSED` (9 conteneurs) | **Clôturé** | `143/143` tests unitaires (dont 12 injections de fautes `PREPARING → APPLYING → COMMITTED`), `pocoma-local-live-receipt.json`, `audit-final-recovery-and-subs-receipt.json` | Aucune |
+| **Résilience, récupération & abonnements Core NATS** | Nouvelle capacité | **Clôturé** | `infra-wakeup-nats` (`13/13`, dont `flush()` obligatoire, `CLOSED` terminal, reconnexion broker neuf), `/connz?subs=detail` & `/subsz?subs=1` (`88 = 60 $SYS + 28 pocoma` invariants sur 4 cycles), `WakeupContractTest` (`5/5`), `WakeupWorkerBehaviorTest` (`8/8`), `SpringAttemptTransactionsAfterCommitTest` (`2/2`) | Preuve équivalente post-COMMIT vs `SIGKILL` noyau ; HA multi-nœud différé L8 |
+| **Performances locales (`L7.4` / `SPEC-09` local)** | `L7-C4` (`T0 + A-20`) | **Clôturé avec réserve non bloquante** | Campagne initiale `29/29 PASS` + campagne répétée `10/10 PASS` (`c3-deep` 160 sondes `p50 -40,8 %`, `p95 -53,9 %` ; `c4-backlog-10k` `R=3`) | **`RES-T1A-BACKLOG-01`** *(médiane drainage `134,92 s` vs `127,68 s`, gain débit non démontré ; compromis CPU `-6,1 %` / Identity `p50 -12,0 %`)* |
+| **Infrastructure cible multi-VM (`L8`)** | Ouverte (`L74-ENV-01`) | **Différée L8** | Hors périmètre local | **`RES-L8-01`** *(non bloquant)* |
 
 ---
 
-## 9. Manifeste d'intégrité des preuves (`docs/testing/evidence/t1a-nats-qualification/manifest.sha256`)
+## 8. Manifeste d'intégrité des preuves (`docs/testing/evidence/t1a-nats-qualification/manifest.sha256`)
 
 ```text
+e54b996d1eb5e5e47f99265ad3c28e7b0ca3f3a09fe684169439af853735b3a6  audit-final-recovery-and-subs-receipt.json
 ed305cf21dff51d9f3e48aeb96ffe238f3cbd6b34148e2f35fe79bf0fdbd3272  cert-full-monolithic-summary.json
 e956b8782335dd0df8010dd5b288289b87d8733d3b10d0bfdeda6691b7c0e517  pocoma-local-live-receipt.json
 2642a251c2c730e74cba4aabadfd2126d0d1eaa1f6bf1913de589b00a8ffa0b4  t1a-nats-remediation-bench.json
@@ -225,7 +204,7 @@ a427ebc57e6f6cf0ba259f4449dd7a6a65362ecec3e99b2bbf7beb4ba54aef06  t1a-nats-resul
 
 ---
 
-## 10. Recommandation finale d'arbitrage
+## 9. Verdict final et recommandation
 
-- **Verdict : `T1A_NATS_READY_FOR_MERGE`**
-- **Recommandation** : **Approuver la fusion humaine de `feat/v3-identity-governance` vers `main`**. L'architecture T1A + Core NATS est intégralement qualifiée en local (`CERT-FULL` monolithique `1 216/1 216 PASS`, `52/52` architecture, `141/141` CLI, recette Docker complète, bascule non destructive `NATS ↔ NOOP`, `39/39` runs benchmarks/résilience `PASS`), avec toutes les réserves locales levées et `RES-L8-01` explicitement bornée au chantier multi-VM L8.
+- **Verdict : `T1A_NATS_READY_WITH_RESERVES`**
+- **Recommandation** : **Approuver la fusion humaine de `feat/v3-identity-governance` vers `main`**. Toutes les garanties de sûreté, de reprise automatique NATS (y compris après fermeture terminale `CLOSED`), de récupération non destructive `pocoma-local` après interruption, d'invariance des abonnements (`88 = 60 $SYS + 28 pocoma`), et d'architecture (`52/52`) sont démontrées ; seules deux réserves explicitement non bloquantes (`RES-T1A-BACKLOG-01` et `RES-L8-01`) restent documentées pour l'arbitrage humain.

@@ -1,0 +1,231 @@
+{
+  "initialIds": {
+    "postgres": "71e425f69f6a",
+    "keycloak": "eb6beb6155fc",
+    "pots": 3
+  },
+  "subsNominal": {
+    "connections": 4,
+    "varzSubscriptions": 88,
+    "sysSubscriptions": 60,
+    "pocomaSubscriptions": 28,
+    "slowConsumers": 0,
+    "perRuntimeCounts": {
+      "command-worker": 8,
+      "critical-read-worker": 12,
+      "http-write": 0,
+      "pot-read-worker": 8
+    },
+    "perRuntimeSubjects": {
+      "http-write": [],
+      "command-worker": [
+        "pocoma.v3.wakeup.COMMAND.0",
+        "pocoma.v3.wakeup.COMMAND.1",
+        "pocoma.v3.wakeup.COMMAND.2",
+        "pocoma.v3.wakeup.COMMAND.3",
+        "pocoma.v3.wakeup.IDENTITY_REQUEST.0",
+        "pocoma.v3.wakeup.IDENTITY_REQUEST.1",
+        "pocoma.v3.wakeup.IDENTITY_REQUEST.2",
+        "pocoma.v3.wakeup.IDENTITY_REQUEST.3"
+      ],
+      "critical-read-worker": [
+        "pocoma.v3.wakeup.COMMAND_COMPLETION_EVENT.0",
+        "pocoma.v3.wakeup.COMMAND_COMPLETION_EVENT.1",
+        "pocoma.v3.wakeup.COMMAND_COMPLETION_EVENT.2",
+        "pocoma.v3.wakeup.COMMAND_COMPLETION_EVENT.3",
+        "pocoma.v3.wakeup.IDENTITY_COMPLETION_EVENT.0",
+        "pocoma.v3.wakeup.IDENTITY_COMPLETION_EVENT.1",
+        "pocoma.v3.wakeup.IDENTITY_COMPLETION_EVENT.2",
+        "pocoma.v3.wakeup.IDENTITY_COMPLETION_EVENT.3",
+        "pocoma.v3.wakeup.IDENTITY_EVENT.0",
+        "pocoma.v3.wakeup.IDENTITY_EVENT.1",
+        "pocoma.v3.wakeup.IDENTITY_EVENT.2",
+        "pocoma.v3.wakeup.IDENTITY_EVENT.3"
+      ],
+      "pot-read-worker": [
+        "pocoma.v3.wakeup.INVITATION_EVENT.0",
+        "pocoma.v3.wakeup.INVITATION_EVENT.1",
+        "pocoma.v3.wakeup.INVITATION_EVENT.2",
+        "pocoma.v3.wakeup.INVITATION_EVENT.3",
+        "pocoma.v3.wakeup.POT_EVENT.0",
+        "pocoma.v3.wakeup.POT_EVENT.1",
+        "pocoma.v3.wakeup.POT_EVENT.2",
+        "pocoma.v3.wakeup.POT_EVENT.3"
+      ]
+    }
+  },
+  "subsAfterStopStartCycle1": {
+    "connections": 4,
+    "varzSubscriptions": 88,
+    "sysSubscriptions": 60,
+    "pocomaSubscriptions": 28,
+    "slowConsumers": 0,
+    "perRuntimeCounts": {
+      "command-worker": 8,
+      "critical-read-worker": 12,
+      "http-write": 0,
+      "pot-read-worker": 8
+    },
+    "perRuntimeSubjects": {
+      "critical-read-worker": [
+        "pocoma.v3.wakeup.COMMAND_COMPLETION_EVENT.0",
+        "pocoma.v3.wakeup.COMMAND_COMPLETION_EVENT.1",
+        "pocoma.v3.wakeup.COMMAND_COMPLETION_EVENT.2",
+        "pocoma.v3.wakeup.COMMAND_COMPLETION_EVENT.3",
+        "pocoma.v3.wakeup.IDENTITY_COMPLETION_EVENT.0",
+        "pocoma.v3.wakeup.IDENTITY_COMPLETION_EVENT.1",
+        "pocoma.v3.wakeup.IDENTITY_COMPLETION_EVENT.2",
+        "pocoma.v3.wakeup.IDENTITY_COMPLETION_EVENT.3",
+        "pocoma.v3.wakeup.IDENTITY_EVENT.0",
+        "pocoma.v3.wakeup.IDENTITY_EVENT.1",
+        "pocoma.v3.wakeup.IDENTITY_EVENT.2",
+        "pocoma.v3.wakeup.IDENTITY_EVENT.3"
+      ],
+      "http-write": [],
+      "command-worker": [
+        "pocoma.v3.wakeup.COMMAND.0",
+        "pocoma.v3.wakeup.COMMAND.1",
+        "pocoma.v3.wakeup.COMMAND.2",
+        "pocoma.v3.wakeup.COMMAND.3",
+        "pocoma.v3.wakeup.IDENTITY_REQUEST.0",
+        "pocoma.v3.wakeup.IDENTITY_REQUEST.1",
+        "pocoma.v3.wakeup.IDENTITY_REQUEST.2",
+        "pocoma.v3.wakeup.IDENTITY_REQUEST.3"
+      ],
+      "pot-read-worker": [
+        "pocoma.v3.wakeup.INVITATION_EVENT.0",
+        "pocoma.v3.wakeup.INVITATION_EVENT.1",
+        "pocoma.v3.wakeup.INVITATION_EVENT.2",
+        "pocoma.v3.wakeup.INVITATION_EVENT.3",
+        "pocoma.v3.wakeup.POT_EVENT.0",
+        "pocoma.v3.wakeup.POT_EVENT.1",
+        "pocoma.v3.wakeup.POT_EVENT.2",
+        "pocoma.v3.wakeup.POT_EVENT.3"
+      ]
+    }
+  },
+  "subsAfterRestartCycle2": {
+    "connections": 4,
+    "varzSubscriptions": 88,
+    "sysSubscriptions": 60,
+    "pocomaSubscriptions": 28,
+    "slowConsumers": 0,
+    "perRuntimeCounts": {
+      "command-worker": 8,
+      "critical-read-worker": 12,
+      "http-write": 0,
+      "pot-read-worker": 8
+    },
+    "perRuntimeSubjects": {
+      "http-write": [],
+      "command-worker": [
+        "pocoma.v3.wakeup.COMMAND.0",
+        "pocoma.v3.wakeup.COMMAND.1",
+        "pocoma.v3.wakeup.COMMAND.2",
+        "pocoma.v3.wakeup.COMMAND.3",
+        "pocoma.v3.wakeup.IDENTITY_REQUEST.0",
+        "pocoma.v3.wakeup.IDENTITY_REQUEST.1",
+        "pocoma.v3.wakeup.IDENTITY_REQUEST.2",
+        "pocoma.v3.wakeup.IDENTITY_REQUEST.3"
+      ],
+      "critical-read-worker": [
+        "pocoma.v3.wakeup.COMMAND_COMPLETION_EVENT.0",
+        "pocoma.v3.wakeup.COMMAND_COMPLETION_EVENT.1",
+        "pocoma.v3.wakeup.COMMAND_COMPLETION_EVENT.2",
+        "pocoma.v3.wakeup.COMMAND_COMPLETION_EVENT.3",
+        "pocoma.v3.wakeup.IDENTITY_COMPLETION_EVENT.0",
+        "pocoma.v3.wakeup.IDENTITY_COMPLETION_EVENT.1",
+        "pocoma.v3.wakeup.IDENTITY_COMPLETION_EVENT.2",
+        "pocoma.v3.wakeup.IDENTITY_COMPLETION_EVENT.3",
+        "pocoma.v3.wakeup.IDENTITY_EVENT.0",
+        "pocoma.v3.wakeup.IDENTITY_EVENT.1",
+        "pocoma.v3.wakeup.IDENTITY_EVENT.2",
+        "pocoma.v3.wakeup.IDENTITY_EVENT.3"
+      ],
+      "pot-read-worker": [
+        "pocoma.v3.wakeup.INVITATION_EVENT.0",
+        "pocoma.v3.wakeup.INVITATION_EVENT.1",
+        "pocoma.v3.wakeup.INVITATION_EVENT.2",
+        "pocoma.v3.wakeup.INVITATION_EVENT.3",
+        "pocoma.v3.wakeup.POT_EVENT.0",
+        "pocoma.v3.wakeup.POT_EVENT.1",
+        "pocoma.v3.wakeup.POT_EVENT.2",
+        "pocoma.v3.wakeup.POT_EVENT.3"
+      ]
+    }
+  },
+  "liveInterruptedNatsToNoopRecovery": {
+    "statusSawTransition": true,
+    "recoveredState": "READY",
+    "transitionRecovered": true,
+    "configuredMode": "noop",
+    "effectiveMode": "NOOP",
+    "natsAbsent": true,
+    "postgresUnchanged": true,
+    "keycloakUnchanged": true,
+    "potsPreserved": true
+  },
+  "liveInterruptedNoopToNatsRecovery": {
+    "recoveredState": "READY",
+    "transitionRecovered": true,
+    "configuredMode": "nats",
+    "effectiveMode": "CONNECTED",
+    "postgresUnchanged": true,
+    "keycloakUnchanged": true,
+    "potsPreserved": true,
+    "subsAfterNoopToNats": {
+      "connections": 4,
+      "varzSubscriptions": 88,
+      "sysSubscriptions": 60,
+      "pocomaSubscriptions": 28,
+      "slowConsumers": 0,
+      "perRuntimeCounts": {
+        "command-worker": 8,
+        "critical-read-worker": 12,
+        "http-write": 0,
+        "pot-read-worker": 8
+      },
+      "perRuntimeSubjects": {
+        "http-write": [],
+        "command-worker": [
+          "pocoma.v3.wakeup.COMMAND.0",
+          "pocoma.v3.wakeup.COMMAND.1",
+          "pocoma.v3.wakeup.COMMAND.2",
+          "pocoma.v3.wakeup.COMMAND.3",
+          "pocoma.v3.wakeup.IDENTITY_REQUEST.0",
+          "pocoma.v3.wakeup.IDENTITY_REQUEST.1",
+          "pocoma.v3.wakeup.IDENTITY_REQUEST.2",
+          "pocoma.v3.wakeup.IDENTITY_REQUEST.3"
+        ],
+        "pot-read-worker": [
+          "pocoma.v3.wakeup.INVITATION_EVENT.0",
+          "pocoma.v3.wakeup.INVITATION_EVENT.1",
+          "pocoma.v3.wakeup.INVITATION_EVENT.2",
+          "pocoma.v3.wakeup.INVITATION_EVENT.3",
+          "pocoma.v3.wakeup.POT_EVENT.0",
+          "pocoma.v3.wakeup.POT_EVENT.1",
+          "pocoma.v3.wakeup.POT_EVENT.2",
+          "pocoma.v3.wakeup.POT_EVENT.3"
+        ],
+        "critical-read-worker": [
+          "pocoma.v3.wakeup.COMMAND_COMPLETION_EVENT.0",
+          "pocoma.v3.wakeup.COMMAND_COMPLETION_EVENT.1",
+          "pocoma.v3.wakeup.COMMAND_COMPLETION_EVENT.2",
+          "pocoma.v3.wakeup.COMMAND_COMPLETION_EVENT.3",
+          "pocoma.v3.wakeup.IDENTITY_COMPLETION_EVENT.0",
+          "pocoma.v3.wakeup.IDENTITY_COMPLETION_EVENT.1",
+          "pocoma.v3.wakeup.IDENTITY_COMPLETION_EVENT.2",
+          "pocoma.v3.wakeup.IDENTITY_COMPLETION_EVENT.3",
+          "pocoma.v3.wakeup.IDENTITY_EVENT.0",
+          "pocoma.v3.wakeup.IDENTITY_EVENT.1",
+          "pocoma.v3.wakeup.IDENTITY_EVENT.2",
+          "pocoma.v3.wakeup.IDENTITY_EVENT.3"
+        ]
+      }
+    }
+  },
+  "cleanup": {
+    "stop": "STOPPED",
+    "destroy": "DESTROYED"
+  }
+}
