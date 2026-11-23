@@ -56,8 +56,8 @@ class RecoveryTests(unittest.TestCase):
             if alter=='extra':bad['write'].append(dict(bad['write'][0],partitionId=4))
             if alter=='wrong-count':bad['write'][0]['partitionCount']=8
             self.assertFalse(rec.coverage(texts,bad)['command-worker']['qualified'])
-        texts['results-worker']=''
-        self.assertFalse(rec.coverage(texts,rows)['results-worker']['qualified'])
+        texts['critical-read-worker']=''
+        self.assertFalse(rec.coverage(texts,rows)['critical-read-worker']['qualified'])
 
     def test_first_start_and_preserved_restart_have_no_sleep(self):
         texts, rows=observations();covered=rec.coverage(texts,rows)
@@ -107,7 +107,7 @@ class RecoveryTests(unittest.TestCase):
     def test_stopped_worker_recovery_waits_for_actual_full_coverage(self):
         texts,rows=observations()
         blocked=dict(texts)
-        blocked['results-worker']=blocked['results-worker'].replace(' 8\n',' 0\n')
+        blocked['critical-read-worker']=blocked['critical-read-worker'].replace(' 12\n',' 0\n')
         sequence=iter([rec.coverage(blocked,rows),rec.coverage(texts,rows)])
         before=generation(running=False);after=generation()
         for row in after.values():row['startedAt']='restarted'

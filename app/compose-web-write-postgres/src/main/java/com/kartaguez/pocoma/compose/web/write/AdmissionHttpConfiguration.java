@@ -18,10 +18,19 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 
+import com.kartaguez.pocoma.contract.consumption.wakeup.CoalescingWakeupPublisher;
+import com.kartaguez.pocoma.contract.consumption.wakeup.WakeupMetrics;
+import com.kartaguez.pocoma.contract.consumption.wakeup.WakeupPublisher;
+import com.kartaguez.pocoma.contract.consumption.wakeup.WakeupState;
 import com.kartaguez.pocoma.contract.writeadmission.AdmissionProtection;
+import com.kartaguez.pocoma.contract.writeadmission.AdmitCommand;
+import com.kartaguez.pocoma.contract.writeadmission.AdmitIdentityRequest;
+import com.kartaguez.pocoma.domain.consumption.ConsumableFamily;
 import com.kartaguez.pocoma.engine.admit.command.CommandAdmission;
 import com.kartaguez.pocoma.engine.admit.identity.IdentityRequestAdmission;
+import com.kartaguez.pocoma.infra.observability.micrometer.MicrometerWakeupMetrics;
 import com.kartaguez.pocoma.infra.observability.micrometer.StageHandoffTracker;
+import com.kartaguez.pocoma.infra.wakeup.nats.NatsWakeupTransport;
 import com.kartaguez.pocoma.infra.postgres.write.admission.AdmissionSqlAuthority;
 import com.kartaguez.pocoma.infra.postgres.write.admission.AdmissionSqlTransactions;
 import com.kartaguez.pocoma.infra.postgres.write.admission.HmacAdmissionProtection;
@@ -251,16 +260,69 @@ public class AdmissionHttpConfiguration {
         return new Resources(admissionPool, protection(env));
     }
 
-    @Bean
-    CommandAdmission commandAdmission(Resources r, Environment env) {
-        return new CommandAdmission(
-                r.store, r.owner, r.protection, Clock.systemUTC(), limits(env).textBytes());
+    @Bean(destroyMethod = "close")
+    WakeupPublisher admissionWakeupPublisher(Environment env, Optional<MeterRegistry> meterRegistry) {
+        String mode = env.getProperty("pocoma.v3.wakeup.mode", "noop").trim().toLowerCase();
+        WakeupMetrics metrics =
+                meterRegistry
+                        .<WakeupMetrics>map(
+                                r -> new MicrometerWakeupMetrics(r, Tags.of("role", "admission")))
+                        .orElse(WakeupMetrics.NOOP);
+        if ("noop".equals(mode) || mode.isEmpty()) {
+            metrics.onStateChanged(WakeupState.NOOP);
+            return WakeupPublisher.NOOP;
+        }
+        if (!"nats".equals(mode)) {
+            throw new IllegalStateException("Unsupported wakeup mode: " + mode);
+        }
+        var strategy =
+                CoalescingWakeupPublisher.Strategy.valueOf(
+                        env.getProperty("pocoma.v3.wakeup.coalesce-strategy", "IN_FLIGHT_DEDUP")
+                                .trim()
+                                .toUpperCase());
+        long windowMs = env.getProperty("pocoma.v3.wakeup.coalesce-window-ms", Long.class, 1L);
+        var options = NatsWakeupTransport.TransportOptions.fromProperties(env::getProperty);
+        return new NatsWakeupTransport(options).createPublisher(strategy, windowMs, metrics);
     }
 
     @Bean
-    IdentityRequestAdmission identityAdmission(Resources r, Environment env) {
-        return new IdentityRequestAdmission(
-                r.store, r.owner, r.protection, Clock.systemUTC(), limits(env).textBytes());
+    AdmitCommand commandAdmission(
+            Resources r, Environment env, WakeupPublisher admissionWakeupPublisher) {
+        var delegate =
+                new CommandAdmission(
+                        r.store, r.owner, r.protection, Clock.systemUTC(), limits(env).textBytes());
+        if (admissionWakeupPublisher == WakeupPublisher.NOOP) {
+            return delegate;
+        }
+        return (principal, key, input) -> {
+            var id = delegate.admit(principal, key, input);
+            try {
+                admissionWakeupPublisher.publishForId(ConsumableFamily.COMMAND, id);
+            } catch (Throwable ignored) {
+                // Best-effort post-COMMIT hint: never alter HTTP 202 response.
+            }
+            return id;
+        };
+    }
+
+    @Bean
+    AdmitIdentityRequest identityAdmission(
+            Resources r, Environment env, WakeupPublisher admissionWakeupPublisher) {
+        var delegate =
+                new IdentityRequestAdmission(
+                        r.store, r.owner, r.protection, Clock.systemUTC(), limits(env).textBytes());
+        if (admissionWakeupPublisher == WakeupPublisher.NOOP) {
+            return delegate;
+        }
+        return (principal, key, input) -> {
+            var id = delegate.admit(principal, key, input);
+            try {
+                admissionWakeupPublisher.publishForId(ConsumableFamily.IDENTITY_REQUEST, id);
+            } catch (Throwable ignored) {
+                // Best-effort post-COMMIT hint: never alter HTTP 202 response.
+            }
+            return id;
+        };
     }
 
     @Bean

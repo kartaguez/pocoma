@@ -1,0 +1,286 @@
+{
+  "T1A|A-20|c3-int-pot-vs-id-deep": {
+    "runs": 2,
+    "pass": 2,
+    "availabilityAllValid": true,
+    "totalCpuMedian": 2.9717,
+    "totalCpuAll": [
+      3.0529,
+      2.8904
+    ],
+    "pgCpuMedian": 1.0728,
+    "workersCpuMedian": 1.3127,
+    "natsCpuMedian": 0.0,
+    "pgTxPerSecMedian": 7860.4,
+    "pgTxPerSecAll": [
+      7791.2,
+      7929.5
+    ],
+    "pooledIdentityProbes": 160,
+    "pooledUsableBindingMs": {
+      "p50": 78.0,
+      "p75": 104.9,
+      "p90": 123.7,
+      "p95": 209.7,
+      "p99": 1124.0,
+      "max": 1131.4
+    },
+    "pooledResultMs": {
+      "p50": 72.4,
+      "p95": 198.7,
+      "p99": 1105.1,
+      "max": 1123.2
+    },
+    "outliersGe300MsCount": 7,
+    "outliersGe300Ms": [
+      {
+        "index": 0,
+        "admitMs": 0,
+        "resultE2eMs": 304.8,
+        "usableBindingE2eMs": 398.0
+      },
+      {
+        "index": 20,
+        "admitMs": 0,
+        "resultE2eMs": 1105.1,
+        "usableBindingE2eMs": 1111.8
+      },
+      {
+        "index": 75,
+        "admitMs": 0,
+        "resultE2eMs": 1121.2,
+        "usableBindingE2eMs": 1124.0
+      },
+      {
+        "index": 0,
+        "admitMs": 0,
+        "resultE2eMs": 232.9,
+        "usableBindingE2eMs": 337.5
+      },
+      {
+        "index": 1,
+        "admitMs": 0,
+        "resultE2eMs": 1035.9,
+        "usableBindingE2eMs": 1129.0
+      },
+      {
+        "index": 5,
+        "admitMs": 0,
+        "resultE2eMs": 1123.2,
+        "usableBindingE2eMs": 1131.4
+      },
+      {
+        "index": 10,
+        "admitMs": 0,
+        "resultE2eMs": 1055.3,
+        "usableBindingE2eMs": 1060.2
+      }
+    ]
+  },
+  "T1A|D-nats|c3-int-pot-vs-id-deep": {
+    "runs": 2,
+    "pass": 2,
+    "availabilityAllValid": true,
+    "totalCpuMedian": 2.8562,
+    "totalCpuAll": [
+      2.856,
+      2.8564
+    ],
+    "pgCpuMedian": 1.0244,
+    "workersCpuMedian": 1.3207,
+    "natsCpuMedian": 0.0053,
+    "pgTxPerSecMedian": 7998.1,
+    "pgTxPerSecAll": [
+      7925.5,
+      8070.6
+    ],
+    "pooledIdentityProbes": 160,
+    "pooledUsableBindingMs": {
+      "p50": 46.2,
+      "p75": 73.3,
+      "p90": 80.5,
+      "p95": 96.7,
+      "p99": 1033.6,
+      "max": 1168.4
+    },
+    "pooledResultMs": {
+      "p50": 39.8,
+      "p95": 85.9,
+      "p99": 1026.1,
+      "max": 1067.2
+    },
+    "outliersGe300MsCount": 5,
+    "outliersGe300Ms": [
+      {
+        "index": 0,
+        "admitMs": 0,
+        "resultE2eMs": 371.5,
+        "usableBindingE2eMs": 385.1
+      },
+      {
+        "index": 1,
+        "admitMs": 0,
+        "resultE2eMs": 1041.0,
+        "usableBindingE2eMs": 1055.8
+      },
+      {
+        "index": 6,
+        "admitMs": 0,
+        "resultE2eMs": 1026.1,
+        "usableBindingE2eMs": 1033.6
+      },
+      {
+        "index": 0,
+        "admitMs": 0,
+        "resultE2eMs": 308.0,
+        "usableBindingE2eMs": 389.1
+      },
+      {
+        "index": 1,
+        "admitMs": 0,
+        "resultE2eMs": 1067.2,
+        "usableBindingE2eMs": 1168.4
+      }
+    ]
+  },
+  "T1A|A-20|c4-backlog-10k": {
+    "runs": 3,
+    "pass": 3,
+    "availabilityAllValid": true,
+    "totalCpuMedian": 2.0893,
+    "totalCpuAll": [
+      2.0893,
+      2.0941,
+      1.7315
+    ],
+    "pgCpuMedian": 1.0576,
+    "workersCpuMedian": 0.7109,
+    "natsCpuMedian": 0,
+    "pgTxPerSecMedian": 4482.8,
+    "pgTxPerSecAll": [
+      4653.7,
+      4482.8,
+      3896.9
+    ],
+    "drainSecondsMedian": 127.68,
+    "drainSecondsAll": [
+      121.73,
+      127.68,
+      177.33
+    ],
+    "wakeupTotalsPerRun": [
+      {
+        "published": 0.0,
+        "coalesced": 0.0,
+        "received": 0.0,
+        "useful": 0.0,
+        "spurious": 0.0,
+        "hikariMaxAcquireMs": {
+          "http-write": 77.89,
+          "http-read": 56.3,
+          "command-worker": 1.17,
+          "critical-read-worker": 1.03,
+          "pot-read-worker": 12.73
+        }
+      },
+      {
+        "published": 0.0,
+        "coalesced": 0.0,
+        "received": 0.0,
+        "useful": 0.0,
+        "spurious": 0.0,
+        "hikariMaxAcquireMs": {
+          "http-write": 2.26,
+          "http-read": 57.61,
+          "command-worker": 51.16,
+          "critical-read-worker": 54.52,
+          "pot-read-worker": 1.62
+        }
+      },
+      {
+        "published": 0.0,
+        "coalesced": 0.0,
+        "received": 0.0,
+        "useful": 0.0,
+        "spurious": 0.0,
+        "hikariMaxAcquireMs": {
+          "http-write": 0.44,
+          "http-read": 51.19,
+          "command-worker": 4.63,
+          "critical-read-worker": 51.49,
+          "pot-read-worker": 3.48
+        }
+      }
+    ]
+  },
+  "T1A|D-nats|c4-backlog-10k": {
+    "runs": 3,
+    "pass": 3,
+    "availabilityAllValid": true,
+    "totalCpuMedian": 1.9622,
+    "totalCpuAll": [
+      2.0144,
+      1.9564,
+      1.9622
+    ],
+    "pgCpuMedian": 0.9717,
+    "workersCpuMedian": 0.6785,
+    "natsCpuMedian": 0.0098,
+    "pgTxPerSecMedian": 4370.6,
+    "pgTxPerSecAll": [
+      4370.6,
+      4209.6,
+      4413.8
+    ],
+    "drainSecondsMedian": 134.92,
+    "drainSecondsAll": [
+      134.92,
+      136.47,
+      127.97
+    ],
+    "wakeupTotalsPerRun": [
+      {
+        "published": 30000.0,
+        "coalesced": 54.0,
+        "received": 20050.0,
+        "useful": 21571.0,
+        "spurious": 367.0,
+        "hikariMaxAcquireMs": {
+          "http-write": 84.66,
+          "http-read": 58.34,
+          "command-worker": 6.38,
+          "critical-read-worker": 5.8,
+          "pot-read-worker": 3.61
+        }
+      },
+      {
+        "published": 29988.0,
+        "coalesced": 66.0,
+        "received": 20050.0,
+        "useful": 21303.0,
+        "spurious": 333.0,
+        "hikariMaxAcquireMs": {
+          "http-write": 1.58,
+          "http-read": 56.07,
+          "command-worker": 2.54,
+          "critical-read-worker": 2.35,
+          "pot-read-worker": 79.14
+        }
+      },
+      {
+        "published": 30006.0,
+        "coalesced": 48.0,
+        "received": 20054.0,
+        "useful": 21686.0,
+        "spurious": 381.0,
+        "hikariMaxAcquireMs": {
+          "http-write": 1.17,
+          "http-read": 55.7,
+          "command-worker": 75.5,
+          "critical-read-worker": 48.28,
+          "pot-read-worker": 1.2
+        }
+      }
+    ]
+  }
+}

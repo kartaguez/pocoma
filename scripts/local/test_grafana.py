@@ -43,12 +43,15 @@ class GrafanaContract(unittest.TestCase):
             with socket.socket() as sock:
                 sock.bind(('127.0.0.1', port))
 
-    def test_declarative_nine_service_distribution_and_ephemeral_grafana(self):
+    def test_declarative_ten_service_t1a_nats_distribution_and_ephemeral_grafana(self):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory);m = self.fixture(path)
             compose = rt.read(path / 'compose.json')
             service = compose['services']['grafana']
-            self.assertEqual(9, len(compose['services']))
+            self.assertEqual(10, len(compose['services']))
+            self.assertIn('nats', compose['services'])
+            self.assertNotIn('ports', compose['services']['nats'])
+            self.assertEqual('nats:2.15.3-alpine', rt.IMAGES['nats'])
             self.assertEqual('grafana/grafana:12.3.2', rt.IMAGES['grafana'])
             self.assertEqual({'data'}, set(compose['volumes']))
             self.assertEqual({rt.LABEL: m['owner']}, service['labels'])
@@ -77,7 +80,7 @@ class GrafanaContract(unittest.TestCase):
                 for target in panel['targets']:
                     self.assertEqual('Prometheus', target['datasource']['uid'])
                     self.assertNotIn(gf.LEGACY_JOBS, target['expr'])
-        self.assertIn('http-write|http-read|command-worker|results-worker|business-read-worker',
+        self.assertIn('http-write|http-read|command-worker|critical-read-worker|pot-read-worker',
                       data['pocoma-runtime']['panels'][0]['targets'][0]['expr'])
 
     def test_projection_panel_uses_exported_catalog_names(self):

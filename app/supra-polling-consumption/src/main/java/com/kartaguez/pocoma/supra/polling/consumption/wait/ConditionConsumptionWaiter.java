@@ -9,20 +9,36 @@ import java.util.concurrent.locks.ReentrantLock;
 public final class ConditionConsumptionWaiter implements ConsumptionWaiter {
 	private final ReentrantLock lock = new ReentrantLock();
 	private final Condition signalled = lock.newCondition();
+	private boolean pendingSignal;
 
 	@Override
 	public void await(Duration duration) throws InterruptedException {
 		requireNonNull(duration, "duration must not be null");
-		if (duration.isZero() || duration.isNegative()) return;
+		if (duration.isZero() || duration.isNegative()) {
+			lock.lockInterruptibly();
+			try { pendingSignal = false; }
+			finally { lock.unlock(); }
+			return;
+		}
 		lock.lockInterruptibly();
-		try { signalled.awaitNanos(duration.toNanos()); }
+		try {
+			if (pendingSignal) {
+				pendingSignal = false;
+				return;
+			}
+			signalled.awaitNanos(duration.toNanos());
+			pendingSignal = false;
+		}
 		finally { lock.unlock(); }
 	}
 
 	@Override
 	public void signal() {
 		lock.lock();
-		try { signalled.signalAll(); }
+		try {
+			pendingSignal = true;
+			signalled.signalAll();
+		}
 		finally { lock.unlock(); }
 	}
 }

@@ -1,0 +1,98 @@
+{
+  "initialIds": {
+    "postgres": "b5995b1ed635",
+    "keycloak": "471c2a0a14c1",
+    "http-read": "75f24f150986"
+  },
+  "logsNats": {
+    "state": "LOGS_CAPTURED",
+    "exit": 0
+  },
+  "brunoConnected": {
+    "state": "BRUNO_PASS",
+    "exit": 0
+  },
+  "potsAfterConnectedBruno": 9,
+  "statusDegraded": {
+    "state": "READY",
+    "operationalState": "OPERATIONAL",
+    "effectiveMode": "DEGRADED",
+    "brokerAvailable": false
+  },
+  "brunoDegraded": {
+    "state": "BRUNO_PASS",
+    "exit": 0
+  },
+  "statusReconnected": {
+    "state": "READY",
+    "effectiveMode": "CONNECTED",
+    "brokerAvailable": true,
+    "varz": {
+      "connections": 4,
+      "totalConnections": 4,
+      "subscriptions": 88,
+      "inMsgs": 0,
+      "outMsgs": 0,
+      "slowConsumers": 0,
+      "memBytes": 14667776,
+      "cpuPct": 0,
+      "uptime": "8s"
+    },
+    "commandWorkerReconnects": 2.0
+  },
+  "switchToNoop": {
+    "state": "READY",
+    "configuredMode": "noop",
+    "effectiveMode": "NOOP",
+    "modeChanged": true,
+    "previousMode": "nats",
+    "brokerAvailable": false,
+    "natsContainerAbsent": true,
+    "postgresUnchanged": true,
+    "keycloakUnchanged": true,
+    "httpReadUnchanged": true,
+    "potsPreserved": true
+  },
+  "brunoNoop": {
+    "state": "BRUNO_PASS",
+    "exit": 0
+  },
+  "durableNoopAfterRestart": {
+    "stopState": "STOPPED",
+    "forcedKills": 0,
+    "startState": "READY",
+    "configuredMode": "noop",
+    "effectiveMode": "NOOP",
+    "modeChanged": false,
+    "postgresUnchanged": true,
+    "keycloakUnchanged": true,
+    "potsPreserved": true
+  },
+  "switchToNats": {
+    "state": "READY",
+    "configuredMode": "nats",
+    "effectiveMode": "CONNECTED",
+    "modeChanged": true,
+    "previousMode": "noop",
+    "brokerAvailable": true,
+    "varz": {
+      "connections": 4,
+      "totalConnections": 4,
+      "subscriptions": 88,
+      "inMsgs": 4,
+      "outMsgs": 4,
+      "slowConsumers": 0,
+      "memBytes": 14798848,
+      "cpuPct": 0,
+      "uptime": "31s"
+    },
+    "postgresUnchanged": true,
+    "keycloakUnchanged": true,
+    "httpReadUnchanged": true,
+    "potsPreserved": true
+  },
+  "cleanup": {
+    "stopState": "STOPPED",
+    "destroyState": "DESTROYED"
+  }
+}

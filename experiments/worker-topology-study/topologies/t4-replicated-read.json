@@ -1,0 +1,37 @@
+{
+  "description": "T4 - Horizontal replication (2x sharded READ replicas 0|1 vs 2|3, exact same 1.90c/1408m budget as T3)",
+  "removeRuntimes": ["results-worker", "business-read-worker"],
+  "cpus": {
+    "http-write": 0.5,
+    "http-read": 0.75,
+    "command-worker": 0.85
+  },
+  "mem": {
+    "http-write": "512m",
+    "http-read": "768m",
+    "command-worker": "640m"
+  },
+  "extraRuntimes": {
+    "read-worker-1": {
+      "module": "runtime-worker-materialize",
+      "profile": "v3-read-worker",
+      "baseProperties": "business-read-worker",
+      "managementPort": 18084,
+      "cpus": 0.95,
+      "memLimit": "704m"
+    },
+    "read-worker-2": {
+      "module": "runtime-worker-materialize",
+      "profile": "v3-read-worker",
+      "baseProperties": "business-read-worker",
+      "managementPort": 18085,
+      "cpus": 0.95,
+      "memLimit": "704m"
+    }
+  },
+  "extraProps": {
+    "command-worker": "pocoma.v3.worker.worker-limit=4\npocoma.v3.worker.consumption-limits=Command=3,IdentityRequest=2\npocoma.v3.worker.write-business.minimum-idle=6\npocoma.v3.worker.write-business.maximum-pool-size=6\npocoma.v3.worker.write-control.minimum-idle=10\npocoma.v3.worker.write-control.maximum-pool-size=10",
+    "read-worker-1": "management.server.port=18084\npocoma.v3.worker.worker-name=read-worker-1\npocoma.v3.worker.worker-limit=4\npocoma.v3.worker.read-participants=MaterializeCommandResult,MaterializeIdentityRequestResult,MaterializeCurrentBinding,MaterializePotVersion,MaterializePotBalance,MaterializePotVisibility,MaterializeInvitation\npocoma.v3.worker.consumption-limits=MaterializeCommandResult=2,MaterializeIdentityRequestResult=2,MaterializeCurrentBinding=2,MaterializePotVersion=2,MaterializePotBalance=2,MaterializePotVisibility=2,MaterializeInvitation=2\npocoma.v3.worker.partitions=MaterializeCommandResult=0|1;MaterializeIdentityRequestResult=0|1;MaterializeCurrentBinding=0|1;MaterializePotVersion=0|1;MaterializePotBalance=0|1;MaterializePotVisibility=0|1;MaterializeInvitation=0|1\npocoma.v3.worker.write-source-read.minimum-idle=6\npocoma.v3.worker.write-source-read.maximum-pool-size=6\npocoma.v3.worker.read-business.minimum-idle=6\npocoma.v3.worker.read-business.maximum-pool-size=6\npocoma.v3.worker.read-control.minimum-idle=10\npocoma.v3.worker.read-control.maximum-pool-size=10",
+    "read-worker-2": "management.server.port=18085\npocoma.v3.worker.worker-name=read-worker-2\npocoma.v3.worker.worker-limit=4\npocoma.v3.worker.read-participants=MaterializeCommandResult,MaterializeIdentityRequestResult,MaterializeCurrentBinding,MaterializePotVersion,MaterializePotBalance,MaterializePotVisibility,MaterializeInvitation\npocoma.v3.worker.consumption-limits=MaterializeCommandResult=2,MaterializeIdentityRequestResult=2,MaterializeCurrentBinding=2,MaterializePotVersion=2,MaterializePotBalance=2,MaterializePotVisibility=2,MaterializeInvitation=2\npocoma.v3.worker.partitions=MaterializeCommandResult=2|3;MaterializeIdentityRequestResult=2|3;MaterializeCurrentBinding=2|3;MaterializePotVersion=2|3;MaterializePotBalance=2|3;MaterializePotVisibility=2|3;MaterializeInvitation=2|3\npocoma.v3.worker.write-source-read.minimum-idle=6\npocoma.v3.worker.write-source-read.maximum-pool-size=6\npocoma.v3.worker.read-business.minimum-idle=6\npocoma.v3.worker.read-business.maximum-pool-size=6\npocoma.v3.worker.read-control.minimum-idle=10\npocoma.v3.worker.read-control.maximum-pool-size=10"
+  }
+}

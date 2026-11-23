@@ -48,7 +48,11 @@ def _verify_deployment_artifacts(rt, path, m, installed):
     if not (path / 'secrets.json').is_file():
         raise rt.Refusal('GRAFANA_UPGRADE_SECRETS_MISSING')
     old = rt.read(path / 'compose.json')
-    expected_services = {*rt.RUNTIMES, 'postgres', 'keycloak', 'prometheus', *(['grafana'] if installed else [])}
+    expected_services = {
+        *rt.RUNTIMES, 'postgres', 'keycloak', 'prometheus',
+        *(['nats'] if m.get('wakeupMode', 'nats') == 'nats' else []),
+        *(['grafana'] if installed else []),
+    }
     if set(old['services']) != expected_services:
         raise rt.Refusal('GRAFANA_UPGRADE_TOPOLOGY_DRIFT')
     mount_root = Path(old['services']['keycloak']['volumes'][0].split(':')[0]).parent

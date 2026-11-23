@@ -31,8 +31,8 @@ def make_manifest():
             'http-write': 55580,
             'http-read': 55581,
             'command-worker': 55582,
-            'results-worker': 55583,
-            'business-read-worker': 55584,
+            'critical-read-worker': 55583,
+            'pot-read-worker': 55584,
             'metrics': 55576,
             'grafana': 55577,
         },
@@ -62,7 +62,7 @@ class S6HardeningTests(unittest.TestCase):
                 patch.object(rt, 'catalogue', return_value=None):
             checks = rt.current(Path(folder), m)
         self.assertEqual('FAIL', checks['JVM-command-worker'])
-        self.assertEqual('PASS', checks['JVM-results-worker'])
+        self.assertEqual('PASS', checks['JVM-critical-read-worker'])
         self.assertEqual('PASS', checks['JVM-http-write'])
 
     def test_s61_exhausted_http_write_fails_current_and_triggers_single_controlled_restart(self):
@@ -76,7 +76,7 @@ class S6HardeningTests(unittest.TestCase):
             def fake_get_json(url):
                 if '/actuator/health/readiness' in url:
                     return {'status': 'UP'}
-                if f':{m["ports"]["results-worker"]}/actuator/health' in url:
+                if f':{m["ports"]["critical-read-worker"]}/actuator/health' in url:
                     return {'status': 'DOWN'}
                 return {'status': 'UP'}
 
@@ -90,12 +90,12 @@ class S6HardeningTests(unittest.TestCase):
                     patch.object(rt, 'compose') as compose_mock:
                 restarted = rt.recover_fail_closed_runtimes(path, m, evidence)
 
-            self.assertEqual(['http-write', 'results-worker'], restarted)
+            self.assertEqual(['http-write', 'critical-read-worker'], restarted)
             compose_mock.assert_called_once_with(
-                path, m, 'restart', 'http-write', 'results-worker',
+                path, m, 'restart', 'http-write', 'critical-read-worker',
                 log=evidence / 'runtimes-recovery-restart.log')
             recovery_record = rt.read(evidence / 'runtime-recovery.json')
-            self.assertEqual(['http-write', 'results-worker'], recovery_record['restarted'])
+            self.assertEqual(['http-write', 'critical-read-worker'], recovery_record['restarted'])
 
     def test_s61_healthy_runtimes_never_restarted(self):
         m = make_manifest()

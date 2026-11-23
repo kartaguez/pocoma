@@ -62,7 +62,7 @@ ADVISORY_LOCK_KEY = int(os.environ.get("POCOMA_REBUILD_LOCK_KEY", "3847291054321
 
 COMPOSE_FILES = ["-f", os.environ.get(
     "POCOMA_REBUILD_COMPOSE_FILE", str(REPO_ROOT / "docker-compose.v3-five-runtimes.yml"))]
-READ_WORKERS = ("pocoma-results-worker", "pocoma-business-read-worker")
+READ_WORKERS = ("pocoma-critical-read-worker", "pocoma-pot-read-worker")
 
 # Canonical 7 read consumptions derived from V3ConsumptionCatalogConfiguration
 CANONICAL_READ_CONSUMPTIONS = {

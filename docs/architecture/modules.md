@@ -1,9 +1,9 @@
-# Maven Modules & Layer Architecture (42 Modules)
+# Maven Modules & Layer Architecture (43 Modules)
 
-The Java codebase under [`app/pom.xml`](../../app/pom.xml) is organized into **42 child modules** (41 production/runtime modules + 1 global architecture test gate). Rather than a flat monolith, modules follow a strict hexagonal/layered dependency direction enforced at test time by `architecture-tests` (ArchUnit).
+The Java codebase under [`app/pom.xml`](../../app/pom.xml) is organized into **43 child modules** (42 production/runtime modules + 1 global architecture test gate). Rather than a flat monolith, modules follow a strict hexagonal/layered dependency direction enforced at test time by `architecture-tests` (ArchUnit).
 
 > [!NOTE]
-> For the full normative adjacency matrix (`C01`–`C43`), see [`docs/v3/L7_Target_Modular_Architecture_and_Migration_Plan.md`](../v3/L7_Target_Modular_Architecture_and_Migration_Plan.md).
+> For the full normative adjacency matrix (`C01`–`C44`), see [`docs/v3/L7_Target_Modular_Architecture_and_Migration_Plan.md`](../v3/L7_Target_Modular_Architecture_and_Migration_Plan.md).
 
 ## 1. Layer Dependency Flow
 
@@ -12,7 +12,7 @@ flowchart TD
     R["runtime-* (5)<br/>Spring Boot entrypoints"] --> C["compose-* (4)<br/>Explicit wiring & factories"]
     C --> S["supra-* (3)<br/>HTTP / Polling transport"]
     C --> E["engine-* (11) & orchestrator-consumption (1)<br/>Use-case engines & L2 protocol"]
-    C --> I["infra-* (7)<br/>Postgres JDBC, Spring TX, Security, Micrometer"]
+    C --> I["infra-* (8)<br/>Postgres JDBC, Spring TX, Security, Micrometer, Core NATS Wakeup"]
     S --> CC["contract-* (4)<br/>DTOs, capabilities, auth principal"]
     E --> CC
     E --> P["port-* (2)<br/>Transaction & projection ports"]
@@ -32,7 +32,7 @@ flowchart TD
 | **`engine-*`** | 11 | Application use-case participants (admission, command/identity execution, materialization, READ queries & execution policy). Depend only on `domain-*`, `contract-*`, `port-*`. | `engine-admit-command`, `engine-admit-identity`, `engine-write-pot`, `engine-write-identity`, `engine-materialize-pot`, `engine-materialize-identity`, `engine-materialize-results`, `engine-read-pot`, `engine-read-identity`, `engine-read-results`, `engine-read-execution` |
 | **`orchestrator-*`** | 1 | L2 consumption protocol authority (claims, lease renewal, recovery, Burnable/NonBurnable variants). | `orchestrator-consumption` |
 | **`supra-*`** | 3 | Delivery channels: HTTP controllers/DTOs (`supra-web-*`) and generic polling loop (`supra-polling-consumption`). Never depend on `engine-*` or `infra-*` implementations. | `supra-web-write`, `supra-web-read`, `supra-polling-consumption` |
-| **`infra-*`** | 7 | Technical adapters: PostgreSQL JDBC stores & SQL baselines, Spring TX, Spring Security, Micrometer. | `infra-tx-spring`, `infra-security-spring`, `infra-postgres-core`, `infra-postgres-write`, `infra-postgres-read`, `infra-postgres-write-source-read`, `infra-observability-micrometer` |
+| **`infra-*`** | 8 | Technical adapters: PostgreSQL JDBC stores & SQL baselines, Spring TX, Spring Security, Micrometer, Core NATS wakeup (`infra-wakeup-nats`). | `infra-tx-spring`, `infra-security-spring`, `infra-postgres-core`, `infra-postgres-write`, `infra-postgres-read`, `infra-postgres-write-source-read`, `infra-observability-micrometer`, `infra-wakeup-nats` |
 | **`compose-*`** | 4 | Inert Spring/Java wiring that binds `supra-*`, `engine-*`, `orchestrator-*`, and `infra-*` together. | `compose-web-write-postgres`, `compose-web-read-postgres`, `compose-polling-burnable-write-postgres`, `compose-polling-nonburnable-materialize-postgres` |
 | **`runtime-*`** | 5 | Executable Spring Boot apps (`runtime-web-write`, `runtime-web-read`, `runtime-worker-process`, `runtime-worker-materialize`, plus `runtime-monolith` for combined composition). | `runtime-web-write`, `runtime-web-read`, `runtime-worker-process`, `runtime-worker-materialize`, `runtime-monolith` |
 | **`architecture-tests`** | 1 | Cross-cutting ArchUnit rules checking module boundaries, forbidden dependencies, and resource ownership. | `architecture-tests` |
@@ -55,3 +55,4 @@ flowchart TD
 1. **Strict WRITE / READ isolation**: `infra-postgres-read` and `runtime-web-read` must never depend on WRITE mutation stores. Materializers read from `pocoma_write` exclusively through `infra-postgres-write-source-read` (`SELECT`-only role).
 2. **No `infra-*` or `engine-*` imports in `supra-*`**: HTTP and polling channels talk only to neutral `contract-*` interfaces.
 3. **No runtime-to-runtime dependencies**: `runtime-*` modules only activate their own `compose-*` module(s) and never depend on each other.
+4. **Transport neutrality of wakeup**: `domain-*`, `contract-*`, `engine-*`, `orchestrator-consumption`, and `supra-*` must never depend on `io.nats.*` or `infra-wakeup-nats`. Core NATS is wired strictly at the `compose-*` boundary.

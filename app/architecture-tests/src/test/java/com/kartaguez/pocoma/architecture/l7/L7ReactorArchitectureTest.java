@@ -32,7 +32,7 @@ class L7ReactorArchitectureTest {
             if(!rows.group(1).equals("C38"))while(ids.find())deps.add(ids.group());
             assertNull(result.put(rows.group(1),new Module(rows.group(2),Set.copyOf(deps))));
         }
-        assertEquals(42,result.size());return result;
+        assertEquals(43,result.size());return result;
     }
     private static Element pom(Path path) throws Exception {
         var factory=DocumentBuilderFactory.newInstance();factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl",true);
@@ -61,7 +61,7 @@ class L7ReactorArchitectureTest {
         var cat=catalogue();var root=pom(APP.resolve("pom.xml"));assertEquals("pom",value(root,"packaging"));
         var actual=children(children(root,"modules").getFirst(),"module").stream().map(Element::getTextContent).map(String::trim).toList();
         var expected=cat.values().stream().map(Module::name).collect(java.util.stream.Collectors.toSet());
-        assertEquals(42,actual.size());assertEquals(expected,Set.copyOf(actual));
+        assertEquals(43,actual.size());assertEquals(expected,Set.copyOf(actual));
         try(var dirs=Files.list(APP)){assertEquals(expected,dirs.filter(d->Files.isRegularFile(d.resolve("pom.xml"))).map(d->d.getFileName().toString()).collect(java.util.stream.Collectors.toSet()));}
         var ids=new HashMap<String,String>();cat.forEach((id,m)->ids.put("pocoma-"+m.name(),id));
         var graph=new LinkedHashMap<String,List<Edge>>();
@@ -71,10 +71,10 @@ class L7ReactorArchitectureTest {
             var edges=internalEdges(p,ids);graph.put(id,edges);
             var productive=new HashSet<String>();for(var edge:edges)if(!edge.test())productive.add(edge.target());
             assertEquals(m.allowed(),productive,m.name());
-            if(id.equals("C38"))assertEquals(41,edges.size(),"all implementation dependencies test-only");
+            if(id.equals("C38"))assertEquals(42,edges.size(),"all implementation dependencies test-only");
         }
         for(String id:graph.keySet())visit(id,graph,new HashSet<>(),new HashSet<>());
-        assertEquals(182,graph.values().stream().flatMap(Collection::stream).filter(e->!e.test()).count());
+        assertEquals(187,graph.values().stream().flatMap(Collection::stream).filter(e->!e.test()).count());
         assertForbidden(graph,"C36",Set.of("C11","C12","C13","C14","C27","C29","C30"));
         assertForbidden(graph,"C34",Set.of("C11","C12","C13","C14","C15","C16","C17","C21","C22","C27","C30","C31","C41"));
         assertForbidden(graph,"C35",Set.of("C15","C16","C17","C18","C19","C20","C28","C31","C32","C41","C43"));
@@ -113,15 +113,15 @@ class L7ReactorArchitectureTest {
         verifyNoDependencyMatching(
                 cat,
                 Set.of("C01", "C02", "C03", "C04", "C05", "C06", "C07", "C08", "C09", "C39"),
-                target -> target.matches("(java\\.sql|javax\\.sql|org\\.springframework|jakarta\\.(servlet|persistence)|io\\.micrometer|com\\.zaxxer|com\\.fasterxml|com\\.kartaguez\\.pocoma\\.(engine|orchestrator|infra|compose|runtime|supra))\\..*"));
+                target -> target.matches("(java\\.sql|javax\\.sql|org\\.springframework|jakarta\\.(servlet|persistence)|io\\.micrometer|io\\.nats|com\\.zaxxer|com\\.fasterxml|com\\.kartaguez\\.pocoma\\.(engine|orchestrator|infra|compose|runtime|supra))\\..*"));
         verifyNoDependencyMatching(
                 cat,
                 Set.of("C22", "C23", "C24"),
-                target -> target.startsWith(BASE + "engine.") || target.startsWith(BASE + "orchestrator.") || target.startsWith(BASE + "infra."));
+                target -> target.startsWith(BASE + "engine.") || target.startsWith(BASE + "orchestrator.") || target.startsWith(BASE + "infra.") || target.startsWith("io.nats."));
         verifyNoDependencyMatching(
                 cat,
-                Set.of("C11", "C12", "C13", "C14", "C15", "C16", "C17", "C18", "C19", "C20", "C43"),
-                target -> target.startsWith(BASE + "infra.") || target.startsWith(BASE + "runtime.") || target.startsWith(BASE + "compose.") || target.startsWith("org.springframework.") || target.startsWith("java.sql."));
+                Set.of("C11", "C12", "C13", "C14", "C15", "C16", "C17", "C18", "C19", "C20", "C21", "C43"),
+                target -> target.startsWith(BASE + "infra.") || target.startsWith(BASE + "runtime.") || target.startsWith(BASE + "compose.") || target.startsWith("org.springframework.") || target.startsWith("java.sql.") || target.startsWith("io.nats."));
     }
 
     @Test void sourceAdaptersCannotInvokeMutatorsAndRuntimesOnlyHostCompose() throws Exception {

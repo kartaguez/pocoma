@@ -8,7 +8,7 @@ Required versions are defined in [`scripts/local/toolchain.json`](../../scripts/
 
 | Component | Requirement | Role |
 | :--- | :--- | :--- |
-| **Docker** | Docker Engine or Docker Desktop **running** | Runs the 9 local containers (PostgreSQL, Keycloak, Prometheus, Grafana, 5 JVMs) |
+| **Docker** | Docker Engine or Docker Desktop **running** | Runs the 10 local containers (PostgreSQL, Keycloak, Core NATS, Prometheus, Grafana, 5 T1A JVMs) |
 | **Python** | **≥ 3.11** | Runs `./pocoma-local` and initialization scripts |
 | **Java (JDK)** | Major version **21** | Compiles via the Maven Wrapper (`app/mvnw`) |
 | **Node.js & npm** | Node **≥ 22**, `npm` **≥ 7** | Runs Bruno CLI (`4.3.0`) |
@@ -19,7 +19,7 @@ Required versions are defined in [`scripts/local/toolchain.json`](../../scripts/
 
 ### Recommended Docker Resources
 
-A local instance starts **9 containers** (4 infrastructure services and 5 `eclipse-temurin:21.0.8_9-jre` JVM runtimes), with combined memory limits around **5,760 MiB**. Allocate at least **8 GB of RAM** to Docker Desktop to avoid OOM kills during simultaneous build or startup.
+A local instance starts **10 containers** by default (5 infrastructure services including Core NATS `nats:2.15.3-alpine`, and 5 `eclipse-temurin:21.0.8_9-jre` JVM runtimes in T1A topology; or 9 containers with `--wakeup-mode noop`), with combined memory limits around **5,888 MiB**. Allocate at least **8 GB of RAM** to Docker Desktop to avoid OOM kills during simultaneous build or startup.
 
 ### Shell Environment & Maven / Java Restrictions
 
@@ -66,7 +66,7 @@ Inspect the consolidated instance status and exposed local URLs:
 
 | Exit Code | State | Meaning |
 | :---: | :--- | :--- |
-| `0` | `READY` | All 9 containers are healthy, all 5 runtimes are operational, and the canary succeeded. |
+| `0` | `READY` | All 10 containers are healthy (or 9 in `--wakeup-mode noop`), all 5 T1A runtimes are operational, and the canary succeeded. |
 | `4` | `DEGRADED` | Business services and canary are healthy, but Prometheus is unavailable. |
 | `1` | `NOT_READY` / `STOPPED` / `STALE` | Instance is stopped, unhealthy, or canary proof expired (`> 300 s`). |
 | `2` / `3` | `PRE-*` / lock | Missing prerequisite, input drift detected, or concurrent operation lock. |

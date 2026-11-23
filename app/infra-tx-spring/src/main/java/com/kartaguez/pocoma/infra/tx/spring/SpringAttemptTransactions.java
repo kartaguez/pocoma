@@ -587,6 +587,31 @@ public final class SpringAttemptTransactions implements AttemptTransactions {
                 });
     }
 
+    /**
+     * Registers a best-effort non-authoritative callback to execute only after the current active
+     * transaction has committed. Any failure in {@code action} is swallowed so it can never alter
+     * the committed transaction outcome.
+     */
+    public static void afterCommit(DataSource source, Runnable action) {
+        Objects.requireNonNull(source);
+        Objects.requireNonNull(action);
+        if (!TransactionSynchronizationManager.isSynchronizationActive()
+                || !TransactionSynchronizationManager.hasResource(source)) {
+            return;
+        }
+        TransactionSynchronizationManager.registerSynchronization(
+                new TransactionSynchronization() {
+                    @Override
+                    public void afterCommit() {
+                        try {
+                            action.run();
+                        } catch (Throwable ignored) {
+                            // Best-effort post-COMMIT hook: never alter committed outcome.
+                        }
+                    }
+                });
+    }
+
     private static List<Throwable> causes(Throwable failure) {
         var seen = Collections.newSetFromMap(new IdentityHashMap<Throwable, Boolean>());
         var pending = new ArrayDeque<Throwable>();

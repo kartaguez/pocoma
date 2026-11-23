@@ -204,7 +204,6 @@ def execute_attempt(index, scheduled_s, ctx):
             "observedVersion": ctx.state["version"],
             "bindingToken": ctx.binding,
             "payload": {
-                "id": expense_id,
                 "label": f"L74A-{index}",
                 "date": "2026-11-18",
                 "amount": {"numerator": str(index + 1), "denominator": "3"},
@@ -261,7 +260,8 @@ def execute_attempt(index, scheduled_s, ctx):
             balance, bal_at_ns = f_bal.result()
 
         version = oracle.applied_version(result, ctx.state["version"])
-        oracle.validate_complete(pot, balance, ctx.state, version, expense_id, expected)
+        created_expense_id = (result.get("createdResources") or {}).get("expenseId") or expense_id
+        oracle.validate_complete(pot, balance, ctx.state, version, created_expense_id, expected)
         row.update(
             {
                 "status": "OBSERVED",

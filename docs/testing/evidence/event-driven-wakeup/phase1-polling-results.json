@@ -1,0 +1,4851 @@
+[
+  {
+    "id": "A-20-c1-idle-r1",
+    "verdict": "PASS",
+    "availabilityValid": true,
+    "cgroupDelta": {
+      "wall_seconds": 88.173,
+      "containers": {
+        "postgres": {
+          "cpu_seconds": 12.0939,
+          "avg_cpus": 0.1372,
+          "throttled_seconds": 0.0,
+          "nr_throttled": 0,
+          "memory_mib": 381.26
+        },
+        "http-write": {
+          "cpu_seconds": 0.8398,
+          "avg_cpus": 0.0095,
+          "throttled_seconds": 0.9462,
+          "nr_throttled": 7,
+          "memory_mib": 211.05
+        },
+        "http-read": {
+          "cpu_seconds": 1.6627,
+          "avg_cpus": 0.0189,
+          "throttled_seconds": 0.848,
+          "nr_throttled": 11,
+          "memory_mib": 229.16
+        },
+        "command-worker": {
+          "cpu_seconds": 9.9932,
+          "avg_cpus": 0.1133,
+          "throttled_seconds": 0.7947,
+          "nr_throttled": 6,
+          "memory_mib": 236.11
+        },
+        "results-worker": {
+          "cpu_seconds": 9.5798,
+          "avg_cpus": 0.1086,
+          "throttled_seconds": 0.1668,
+          "nr_throttled": 4,
+          "memory_mib": 200.74
+        },
+        "business-read-worker": {
+          "cpu_seconds": 13.5394,
+          "avg_cpus": 0.1536,
+          "throttled_seconds": 0.5617,
+          "nr_throttled": 3,
+          "memory_mib": 228.46
+        }
+      }
+    },
+    "pgTxDelta": {
+      "pocoma_write": {
+        "xact_commit": 97069,
+        "xact_rollback": 5,
+        "deadlocks": 0
+      },
+      "pocoma_read": {
+        "xact_commit": 21024,
+        "xact_rollback": 4,
+        "deadlocks": 0
+      }
+    },
+    "pgWalBytes": {
+      "pocoma_write": 1159760,
+      "pocoma_read": 1159912
+    },
+    "results": {
+      "planned": 10,
+      "admitted": 10,
+      "observed": 10,
+      "droppedOffer": 0,
+      "censored": 0,
+      "invariantViolations": 0,
+      "windowSeconds": 27.4,
+      "observedRate": 0.365,
+      "offerLagMs": {
+        "n": 10,
+        "p50": 6.259,
+        "p95": 13.093,
+        "p99": 13.093,
+        "max": 13.093
+      },
+      "admissionMs": {
+        "n": 10,
+        "p50": 15.368,
+        "p95": 712.464,
+        "p99": 712.464,
+        "max": 712.464
+      },
+      "resultE2eMs": {
+        "n": 10,
+        "p50": 102.9,
+        "p95": 1209.146,
+        "p99": 1209.146,
+        "max": 1209.146
+      },
+      "c03E2eMs": {
+        "n": 10,
+        "p50": 136.204,
+        "p95": 1391.184,
+        "p99": 1391.184,
+        "max": 1391.184
+      },
+      "balanceE2eMs": {
+        "n": 10,
+        "p50": 129.609,
+        "p95": 1398.559,
+        "p99": 1398.559,
+        "max": 1398.559
+      }
+    }
+  },
+  {
+    "id": "A-20-c1-med-1-r1",
+    "verdict": "PASS",
+    "availabilityValid": true,
+    "cgroupDelta": {
+      "wall_seconds": 69.864,
+      "containers": {
+        "postgres": {
+          "cpu_seconds": 11.7659,
+          "avg_cpus": 0.1684,
+          "throttled_seconds": 0.0,
+          "nr_throttled": 0,
+          "memory_mib": 390.68
+        },
+        "http-write": {
+          "cpu_seconds": 2.0568,
+          "avg_cpus": 0.0294,
+          "throttled_seconds": 0.1298,
+          "nr_throttled": 2,
+          "memory_mib": 212.41
+        },
+        "http-read": {
+          "cpu_seconds": 5.4119,
+          "avg_cpus": 0.0775,
+          "throttled_seconds": 0.3811,
+          "nr_throttled": 10,
+          "memory_mib": 239.75
+        },
+        "command-worker": {
+          "cpu_seconds": 8.0644,
+          "avg_cpus": 0.1154,
+          "throttled_seconds": 0.2379,
+          "nr_throttled": 3,
+          "memory_mib": 232.21
+        },
+        "results-worker": {
+          "cpu_seconds": 7.5418,
+          "avg_cpus": 0.108,
+          "throttled_seconds": 0.2301,
+          "nr_throttled": 2,
+          "memory_mib": 202.85
+        },
+        "business-read-worker": {
+          "cpu_seconds": 11.4487,
+          "avg_cpus": 0.1639,
+          "throttled_seconds": 0.2371,
+          "nr_throttled": 3,
+          "memory_mib": 230.88
+        }
+      }
+    },
+    "pgTxDelta": {
+      "pocoma_write": {
+        "xact_commit": 91477,
+        "xact_rollback": 6,
+        "deadlocks": 0
+      },
+      "pocoma_read": {
+        "xact_commit": 26535,
+        "xact_rollback": 4,
+        "deadlocks": 0
+      }
+    },
+    "pgWalBytes": {
+      "pocoma_write": 3552800,
+      "pocoma_read": 3552952
+    },
+    "results": {
+      "planned": 60,
+      "admitted": 60,
+      "observed": 60,
+      "droppedOffer": 0,
+      "censored": 0,
+      "invariantViolations": 0,
+      "windowSeconds": 59.126,
+      "observedRate": 1.015,
+      "offerLagMs": {
+        "n": 60,
+        "p50": 8.494,
+        "p95": 10.189,
+        "p99": 10.228,
+        "max": 10.228
+      },
+      "admissionMs": {
+        "n": 60,
+        "p50": 15.593,
+        "p95": 22.695,
+        "p99": 27.064,
+        "max": 27.064
+      },
+      "resultE2eMs": {
+        "n": 60,
+        "p50": 92.299,
+        "p95": 126.572,
+        "p99": 144.608,
+        "max": 144.608
+      },
+      "c03E2eMs": {
+        "n": 60,
+        "p50": 126.355,
+        "p95": 157.534,
+        "p99": 180.296,
+        "max": 180.296
+      },
+      "balanceE2eMs": {
+        "n": 60,
+        "p50": 121.613,
+        "p95": 159.539,
+        "p99": 178.523,
+        "max": 178.523
+      }
+    }
+  },
+  {
+    "id": "A-20-c2-med-10-r1",
+    "verdict": "PASS",
+    "availabilityValid": true,
+    "cgroupDelta": {
+      "wall_seconds": 23.768,
+      "containers": {
+        "postgres": {
+          "cpu_seconds": 13.5655,
+          "avg_cpus": 0.5707,
+          "throttled_seconds": 0.0,
+          "nr_throttled": 0,
+          "memory_mib": 725.17
+        },
+        "http-write": {
+          "cpu_seconds": 2.4708,
+          "avg_cpus": 0.104,
+          "throttled_seconds": 2.4978,
+          "nr_throttled": 9,
+          "memory_mib": 218.34
+        },
+        "http-read": {
+          "cpu_seconds": 8.3258,
+          "avg_cpus": 0.3503,
+          "throttled_seconds": 5.9456,
+          "nr_throttled": 45,
+          "memory_mib": 253.38
+        },
+        "command-worker": {
+          "cpu_seconds": 6.1395,
+          "avg_cpus": 0.2583,
+          "throttled_seconds": 1.8693,
+          "nr_throttled": 15,
+          "memory_mib": 235.43
+        },
+        "results-worker": {
+          "cpu_seconds": 5.1716,
+          "avg_cpus": 0.2176,
+          "throttled_seconds": 0.7174,
+          "nr_throttled": 7,
+          "memory_mib": 195.13
+        },
+        "business-read-worker": {
+          "cpu_seconds": 10.255,
+          "avg_cpus": 0.4315,
+          "throttled_seconds": 1.9141,
+          "nr_throttled": 9,
+          "memory_mib": 233.98
+        }
+      }
+    },
+    "pgTxDelta": {
+      "pocoma_write": {
+        "xact_commit": 72348,
+        "xact_rollback": 4,
+        "deadlocks": 0
+      },
+      "pocoma_read": {
+        "xact_commit": 37178,
+        "xact_rollback": 7,
+        "deadlocks": 0
+      }
+    },
+    "pgWalBytes": {
+      "pocoma_write": 9698928,
+      "pocoma_read": 9699176
+    },
+    "results": {
+      "planned": 200,
+      "admitted": 200,
+      "observed": 200,
+      "droppedOffer": 0,
+      "censored": 0,
+      "invariantViolations": 0,
+      "windowSeconds": 20.008,
+      "observedRate": 9.996,
+      "offerLagMs": {
+        "n": 200,
+        "p50": 3.121,
+        "p95": 10.163,
+        "p99": 10.387,
+        "max": 12.336
+      },
+      "admissionMs": {
+        "n": 200,
+        "p50": 5.275,
+        "p95": 8.942,
+        "p99": 17.635,
+        "max": 30.223
+      },
+      "resultE2eMs": {
+        "n": 200,
+        "p50": 76.782,
+        "p95": 110.013,
+        "p99": 161.011,
+        "max": 255.54
+      },
+      "c03E2eMs": {
+        "n": 200,
+        "p50": 104.086,
+        "p95": 142.844,
+        "p99": 164.08,
+        "max": 288.838
+      },
+      "balanceE2eMs": {
+        "n": 200,
+        "p50": 100.162,
+        "p95": 131.901,
+        "p99": 161.595,
+        "max": 258.675
+      }
+    }
+  },
+  {
+    "id": "A-20-c2-ramp-r1",
+    "verdict": "PASS",
+    "availabilityValid": true,
+    "cgroupDelta": {
+      "wall_seconds": 107.978,
+      "containers": {
+        "postgres": {
+          "cpu_seconds": 100.9279,
+          "avg_cpus": 0.9347,
+          "throttled_seconds": 17.7838,
+          "nr_throttled": 124,
+          "memory_mib": 875.57
+        },
+        "http-write": {
+          "cpu_seconds": 10.2214,
+          "avg_cpus": 0.0947,
+          "throttled_seconds": 1.473,
+          "nr_throttled": 19,
+          "memory_mib": 251.61
+        },
+        "http-read": {
+          "cpu_seconds": 31.0968,
+          "avg_cpus": 0.288,
+          "throttled_seconds": 3.1909,
+          "nr_throttled": 48,
+          "memory_mib": 260.03
+        },
+        "command-worker": {
+          "cpu_seconds": 30.3178,
+          "avg_cpus": 0.2808,
+          "throttled_seconds": 1.1329,
+          "nr_throttled": 21,
+          "memory_mib": 252.13
+        },
+        "results-worker": {
+          "cpu_seconds": 22.8869,
+          "avg_cpus": 0.212,
+          "throttled_seconds": 0.4674,
+          "nr_throttled": 9,
+          "memory_mib": 209.57
+        },
+        "business-read-worker": {
+          "cpu_seconds": 50.9527,
+          "avg_cpus": 0.4719,
+          "throttled_seconds": 0.7542,
+          "nr_throttled": 12,
+          "memory_mib": 245.65
+        }
+      }
+    },
+    "pgTxDelta": {
+      "pocoma_write": {
+        "xact_commit": 447179,
+        "xact_rollback": 5,
+        "deadlocks": 0
+      },
+      "pocoma_read": {
+        "xact_commit": 308130,
+        "xact_rollback": 4,
+        "deadlocks": 0
+      }
+    },
+    "pgWalBytes": {
+      "pocoma_write": 94232152,
+      "pocoma_read": 94232400
+    },
+    "results": {
+      "steps": [
+        {
+          "targetRate": 1.0,
+          "planned": 15,
+          "admitted": 15,
+          "observed": 15,
+          "droppedOffer": 0,
+          "censored": 0,
+          "invariantViolations": 0,
+          "windowSeconds": 14.136,
+          "observedRate": 1.061,
+          "offerLagMs": {
+            "n": 15,
+            "p50": 3.987,
+            "p95": 10.239,
+            "p99": 10.239,
+            "max": 10.239
+          },
+          "admissionMs": {
+            "n": 15,
+            "p50": 12.856,
+            "p95": 258.684,
+            "p99": 258.684,
+            "max": 258.684
+          },
+          "resultE2eMs": {
+            "n": 15,
+            "p50": 93.127,
+            "p95": 552.914,
+            "p99": 552.914,
+            "max": 552.914
+          },
+          "c03E2eMs": {
+            "n": 15,
+            "p50": 127.863,
+            "p95": 702.899,
+            "p99": 702.899,
+            "max": 702.899
+          },
+          "balanceE2eMs": {
+            "n": 15,
+            "p50": 124.427,
+            "p95": 702.959,
+            "p99": 702.959,
+            "max": 702.959
+          }
+        },
+        {
+          "targetRate": 5.0,
+          "planned": 75,
+          "admitted": 75,
+          "observed": 75,
+          "droppedOffer": 0,
+          "censored": 0,
+          "invariantViolations": 0,
+          "windowSeconds": 14.88,
+          "observedRate": 5.04,
+          "offerLagMs": {
+            "n": 75,
+            "p50": 6.477,
+            "p95": 10.215,
+            "p99": 10.225,
+            "max": 10.225
+          },
+          "admissionMs": {
+            "n": 75,
+            "p50": 6.401,
+            "p95": 8.998,
+            "p99": 12.682,
+            "max": 12.682
+          },
+          "resultE2eMs": {
+            "n": 75,
+            "p50": 77.379,
+            "p95": 109.328,
+            "p99": 150.28,
+            "max": 150.28
+          },
+          "c03E2eMs": {
+            "n": 75,
+            "p50": 105.533,
+            "p95": 126.106,
+            "p99": 154.005,
+            "max": 154.005
+          },
+          "balanceE2eMs": {
+            "n": 75,
+            "p50": 104.833,
+            "p95": 120.941,
+            "p99": 139.285,
+            "max": 139.285
+          }
+        },
+        {
+          "targetRate": 10.0,
+          "planned": 150,
+          "admitted": 150,
+          "observed": 150,
+          "droppedOffer": 0,
+          "censored": 0,
+          "invariantViolations": 0,
+          "windowSeconds": 15.001,
+          "observedRate": 9.999,
+          "offerLagMs": {
+            "n": 150,
+            "p50": 7.879,
+            "p95": 10.157,
+            "p99": 10.291,
+            "max": 10.424
+          },
+          "admissionMs": {
+            "n": 150,
+            "p50": 4.779,
+            "p95": 6.361,
+            "p99": 9.525,
+            "max": 11.232
+          },
+          "resultE2eMs": {
+            "n": 150,
+            "p50": 73.824,
+            "p95": 106.027,
+            "p99": 110.338,
+            "max": 112.544
+          },
+          "c03E2eMs": {
+            "n": 150,
+            "p50": 92.613,
+            "p95": 116.19,
+            "p99": 121.44,
+            "max": 123.252
+          },
+          "balanceE2eMs": {
+            "n": 150,
+            "p50": 92.822,
+            "p95": 112.781,
+            "p99": 117.039,
+            "max": 119.75
+          }
+        },
+        {
+          "targetRate": 20.0,
+          "planned": 300,
+          "admitted": 300,
+          "observed": 300,
+          "droppedOffer": 0,
+          "censored": 0,
+          "invariantViolations": 0,
+          "windowSeconds": 15.053,
+          "observedRate": 19.929,
+          "offerLagMs": {
+            "n": 300,
+            "p50": 3.278,
+            "p95": 10.063,
+            "p99": 10.104,
+            "max": 10.398
+          },
+          "admissionMs": {
+            "n": 300,
+            "p50": 4.62,
+            "p95": 6.988,
+            "p99": 8.448,
+            "max": 11.473
+          },
+          "resultE2eMs": {
+            "n": 300,
+            "p50": 71.445,
+            "p95": 103.603,
+            "p99": 108.844,
+            "max": 128.268
+          },
+          "c03E2eMs": {
+            "n": 300,
+            "p50": 79.704,
+            "p95": 111.956,
+            "p99": 130.702,
+            "max": 137.869
+          },
+          "balanceE2eMs": {
+            "n": 300,
+            "p50": 78.124,
+            "p95": 109.902,
+            "p99": 129.543,
+            "max": 143.339
+          }
+        },
+        {
+          "targetRate": 25.0,
+          "planned": 375,
+          "admitted": 375,
+          "observed": 375,
+          "droppedOffer": 0,
+          "censored": 0,
+          "invariantViolations": 0,
+          "windowSeconds": 15.035,
+          "observedRate": 24.941,
+          "offerLagMs": {
+            "n": 375,
+            "p50": 2.707,
+            "p95": 9.239,
+            "p99": 10.078,
+            "max": 10.126
+          },
+          "admissionMs": {
+            "n": 375,
+            "p50": 4.222,
+            "p95": 5.993,
+            "p99": 9.456,
+            "max": 14.985
+          },
+          "resultE2eMs": {
+            "n": 375,
+            "p50": 69.087,
+            "p95": 105.422,
+            "p99": 1012.638,
+            "max": 1068.743
+          },
+          "c03E2eMs": {
+            "n": 375,
+            "p50": 77.485,
+            "p95": 116.058,
+            "p99": 1046.162,
+            "max": 1086.681
+          },
+          "balanceE2eMs": {
+            "n": 375,
+            "p50": 76.077,
+            "p95": 113.597,
+            "p99": 1012.302,
+            "max": 1069.406
+          }
+        },
+        {
+          "targetRate": 35.0,
+          "planned": 525,
+          "admitted": 525,
+          "observed": 525,
+          "droppedOffer": 0,
+          "censored": 0,
+          "invariantViolations": 0,
+          "windowSeconds": 15.047,
+          "observedRate": 34.89,
+          "offerLagMs": {
+            "n": 525,
+            "p50": 2.732,
+            "p95": 9.337,
+            "p99": 10.124,
+            "max": 13.143
+          },
+          "admissionMs": {
+            "n": 525,
+            "p50": 4.454,
+            "p95": 7.306,
+            "p99": 35.253,
+            "max": 62.816
+          },
+          "resultE2eMs": {
+            "n": 525,
+            "p50": 68.913,
+            "p95": 101.119,
+            "p99": 130.987,
+            "max": 199.575
+          },
+          "c03E2eMs": {
+            "n": 525,
+            "p50": 75.634,
+            "p95": 126.694,
+            "p99": 160.617,
+            "max": 1161.991
+          },
+          "balanceE2eMs": {
+            "n": 525,
+            "p50": 73.455,
+            "p95": 127.189,
+            "p99": 170.007,
+            "max": 1106.215
+          }
+        },
+        {
+          "targetRate": 50.0,
+          "planned": 750,
+          "admitted": 605,
+          "observed": 605,
+          "droppedOffer": 145,
+          "censored": 0,
+          "invariantViolations": 0,
+          "windowSeconds": 16.0,
+          "observedRate": 37.813,
+          "offerLagMs": {
+            "n": 605,
+            "p50": 1.813,
+            "p95": 32.255,
+            "p99": 121.448,
+            "max": 146.048
+          },
+          "admissionMs": {
+            "n": 605,
+            "p50": 5.055,
+            "p95": 42.57,
+            "p99": 49.09,
+            "max": 82.035
+          },
+          "resultE2eMs": {
+            "n": 605,
+            "p50": 103.865,
+            "p95": 1100.62,
+            "p99": 1183.082,
+            "max": 2194.506
+          },
+          "c03E2eMs": {
+            "n": 605,
+            "p50": 151.833,
+            "p95": 1179.314,
+            "p99": 1363.748,
+            "max": 3150.141
+          },
+          "balanceE2eMs": {
+            "n": 605,
+            "p50": 145.975,
+            "p95": 1182.587,
+            "p99": 1331.068,
+            "max": 2057.296
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "A-20-c4-backlog-10k-r1",
+    "verdict": "PASS",
+    "availabilityValid": true,
+    "cgroupDelta": {
+      "wall_seconds": 233.048,
+      "containers": {
+        "postgres": {
+          "cpu_seconds": 249.1771,
+          "avg_cpus": 1.0692,
+          "throttled_seconds": 237.1183,
+          "nr_throttled": 1055,
+          "memory_mib": 758.05
+        },
+        "http-write": {
+          "cpu_seconds": 53.9045,
+          "avg_cpus": 0.2313,
+          "throttled_seconds": 380.2808,
+          "nr_throttled": 1071,
+          "memory_mib": 263.53
+        },
+        "http-read": {
+          "cpu_seconds": 20.2344,
+          "avg_cpus": 0.0868,
+          "throttled_seconds": 1.9196,
+          "nr_throttled": 40,
+          "memory_mib": 265.23
+        },
+        "command-worker": {
+          "cpu_seconds": 49.9907,
+          "avg_cpus": 0.2145,
+          "throttled_seconds": 16.4768,
+          "nr_throttled": 144,
+          "memory_mib": 260.6
+        },
+        "results-worker": {
+          "cpu_seconds": 39.7923,
+          "avg_cpus": 0.1707,
+          "throttled_seconds": 6.0215,
+          "nr_throttled": 63,
+          "memory_mib": 216.03
+        },
+        "business-read-worker": {
+          "cpu_seconds": 76.0434,
+          "avg_cpus": 0.3263,
+          "throttled_seconds": 4.9753,
+          "nr_throttled": 68,
+          "memory_mib": 245.89
+        }
+      }
+    },
+    "pgTxDelta": {
+      "pocoma_write": {
+        "xact_commit": 667826,
+        "xact_rollback": 50,
+        "deadlocks": 0
+      },
+      "pocoma_read": {
+        "xact_commit": 385603,
+        "xact_rollback": 42,
+        "deadlocks": 0
+      }
+    },
+    "pgWalBytes": {
+      "pocoma_write": 210631152,
+      "pocoma_read": 210631232
+    },
+    "results": {
+      "admissionSeconds": 106.7,
+      "drainSeconds": 125.34,
+      "timeline": [
+        {
+          "t": 9.47,
+          "write": {
+            "slots": 26,
+            "pending": 10000
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 2020,
+              "IDENTITY_EVENT": 2,
+              "COMMAND_COMPLETION_EVENT": 2020,
+              "IDENTITY_COMPLETION_EVENT": 1
+            },
+            "slots": 0
+          }
+        },
+        {
+          "t": 11.62,
+          "write": {
+            "slots": 250,
+            "pending": 9951
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 2071,
+              "IDENTITY_EVENT": 4,
+              "COMMAND_COMPLETION_EVENT": 2073,
+              "IDENTITY_COMPLETION_EVENT": 2
+            },
+            "slots": 2
+          }
+        },
+        {
+          "t": 13.73,
+          "write": {
+            "slots": 253,
+            "pending": 9821
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 2199,
+              "IDENTITY_EVENT": 4,
+              "COMMAND_COMPLETION_EVENT": 2204,
+              "IDENTITY_COMPLETION_EVENT": 2
+            },
+            "slots": 4
+          }
+        },
+        {
+          "t": 15.9,
+          "write": {
+            "slots": 251,
+            "pending": 9611
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 2398,
+              "IDENTITY_EVENT": 6,
+              "COMMAND_COMPLETION_EVENT": 2411,
+              "IDENTITY_COMPLETION_EVENT": 3
+            },
+            "slots": 165
+          }
+        },
+        {
+          "t": 18.06,
+          "write": {
+            "slots": 253,
+            "pending": 9380
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 2628,
+              "IDENTITY_EVENT": 6,
+              "COMMAND_COMPLETION_EVENT": 2642,
+              "IDENTITY_COMPLETION_EVENT": 3
+            },
+            "slots": 436
+          }
+        },
+        {
+          "t": 20.26,
+          "write": {
+            "slots": 253,
+            "pending": 9164
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 2791,
+              "IDENTITY_EVENT": 8,
+              "COMMAND_COMPLETION_EVENT": 2864,
+              "IDENTITY_COMPLETION_EVENT": 4
+            },
+            "slots": 598
+          }
+        },
+        {
+          "t": 22.47,
+          "write": {
+            "slots": 253,
+            "pending": 8930
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 2928,
+              "IDENTITY_EVENT": 8,
+              "COMMAND_COMPLETION_EVENT": 3098,
+              "IDENTITY_COMPLETION_EVENT": 4
+            },
+            "slots": 721
+          }
+        },
+        {
+          "t": 24.66,
+          "write": {
+            "slots": 251,
+            "pending": 8717
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 3045,
+              "IDENTITY_EVENT": 8,
+              "COMMAND_COMPLETION_EVENT": 3307,
+              "IDENTITY_COMPLETION_EVENT": 4
+            },
+            "slots": 748
+          }
+        },
+        {
+          "t": 26.87,
+          "write": {
+            "slots": 252,
+            "pending": 8492
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 3182,
+              "IDENTITY_EVENT": 10,
+              "COMMAND_COMPLETION_EVENT": 3537,
+              "IDENTITY_COMPLETION_EVENT": 5
+            },
+            "slots": 751
+          }
+        },
+        {
+          "t": 29.07,
+          "write": {
+            "slots": 253,
+            "pending": 8277
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 3312,
+              "IDENTITY_EVENT": 10,
+              "COMMAND_COMPLETION_EVENT": 3749,
+              "IDENTITY_COMPLETION_EVENT": 5
+            },
+            "slots": 749
+          }
+        },
+        {
+          "t": 31.27,
+          "write": {
+            "slots": 252,
+            "pending": 8069
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 3456,
+              "IDENTITY_EVENT": 12,
+              "COMMAND_COMPLETION_EVENT": 3957,
+              "IDENTITY_COMPLETION_EVENT": 6
+            },
+            "slots": 746
+          }
+        },
+        {
+          "t": 33.46,
+          "write": {
+            "slots": 251,
+            "pending": 7821
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 3606,
+              "IDENTITY_EVENT": 12,
+              "COMMAND_COMPLETION_EVENT": 4204,
+              "IDENTITY_COMPLETION_EVENT": 6
+            },
+            "slots": 756
+          }
+        },
+        {
+          "t": 35.66,
+          "write": {
+            "slots": 253,
+            "pending": 7612
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 3759,
+              "IDENTITY_EVENT": 14,
+              "COMMAND_COMPLETION_EVENT": 4414,
+              "IDENTITY_COMPLETION_EVENT": 7
+            },
+            "slots": 754
+          }
+        },
+        {
+          "t": 37.87,
+          "write": {
+            "slots": 253,
+            "pending": 7411
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 3882,
+              "IDENTITY_EVENT": 14,
+              "COMMAND_COMPLETION_EVENT": 4614,
+              "IDENTITY_COMPLETION_EVENT": 7
+            },
+            "slots": 747
+          }
+        },
+        {
+          "t": 40.06,
+          "write": {
+            "slots": 255,
+            "pending": 7213
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 4020,
+              "IDENTITY_EVENT": 16,
+              "COMMAND_COMPLETION_EVENT": 4814,
+              "IDENTITY_COMPLETION_EVENT": 8
+            },
+            "slots": 750
+          }
+        },
+        {
+          "t": 42.26,
+          "write": {
+            "slots": 253,
+            "pending": 7010
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 4270,
+              "IDENTITY_EVENT": 16,
+              "COMMAND_COMPLETION_EVENT": 5017,
+              "IDENTITY_COMPLETION_EVENT": 8
+            },
+            "slots": 748
+          }
+        },
+        {
+          "t": 44.45,
+          "write": {
+            "slots": 253,
+            "pending": 6809
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 4391,
+              "IDENTITY_EVENT": 16,
+              "COMMAND_COMPLETION_EVENT": 5217,
+              "IDENTITY_COMPLETION_EVENT": 8
+            },
+            "slots": 751
+          }
+        },
+        {
+          "t": 46.66,
+          "write": {
+            "slots": 253,
+            "pending": 6613
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 4521,
+              "IDENTITY_EVENT": 18,
+              "COMMAND_COMPLETION_EVENT": 5412,
+              "IDENTITY_COMPLETION_EVENT": 9
+            },
+            "slots": 752
+          }
+        },
+        {
+          "t": 48.87,
+          "write": {
+            "slots": 254,
+            "pending": 6422
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 4674,
+              "IDENTITY_EVENT": 18,
+              "COMMAND_COMPLETION_EVENT": 5603,
+              "IDENTITY_COMPLETION_EVENT": 9
+            },
+            "slots": 747
+          }
+        },
+        {
+          "t": 51.07,
+          "write": {
+            "slots": 254,
+            "pending": 6224
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 4791,
+              "IDENTITY_EVENT": 20,
+              "COMMAND_COMPLETION_EVENT": 5802,
+              "IDENTITY_COMPLETION_EVENT": 10
+            },
+            "slots": 747
+          }
+        },
+        {
+          "t": 53.27,
+          "write": {
+            "slots": 254,
+            "pending": 6027
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 4924,
+              "IDENTITY_EVENT": 20,
+              "COMMAND_COMPLETION_EVENT": 5999,
+              "IDENTITY_COMPLETION_EVENT": 10
+            },
+            "slots": 746
+          }
+        },
+        {
+          "t": 55.47,
+          "write": {
+            "slots": 253,
+            "pending": 5834
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 5080,
+              "IDENTITY_EVENT": 22,
+              "COMMAND_COMPLETION_EVENT": 6193,
+              "IDENTITY_COMPLETION_EVENT": 11
+            },
+            "slots": 748
+          }
+        },
+        {
+          "t": 57.66,
+          "write": {
+            "slots": 254,
+            "pending": 5645
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 5259,
+              "IDENTITY_EVENT": 22,
+              "COMMAND_COMPLETION_EVENT": 6382,
+              "IDENTITY_COMPLETION_EVENT": 11
+            },
+            "slots": 747
+          }
+        },
+        {
+          "t": 59.86,
+          "write": {
+            "slots": 254,
+            "pending": 5457
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 5368,
+              "IDENTITY_EVENT": 24,
+              "COMMAND_COMPLETION_EVENT": 6570,
+              "IDENTITY_COMPLETION_EVENT": 12
+            },
+            "slots": 747
+          }
+        },
+        {
+          "t": 62.06,
+          "write": {
+            "slots": 255,
+            "pending": 5267
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 5594,
+              "IDENTITY_EVENT": 24,
+              "COMMAND_COMPLETION_EVENT": 6760,
+              "IDENTITY_COMPLETION_EVENT": 12
+            },
+            "slots": 752
+          }
+        },
+        {
+          "t": 64.26,
+          "write": {
+            "slots": 253,
+            "pending": 5079
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 5758,
+              "IDENTITY_EVENT": 24,
+              "COMMAND_COMPLETION_EVENT": 6946,
+              "IDENTITY_COMPLETION_EVENT": 12
+            },
+            "slots": 746
+          }
+        },
+        {
+          "t": 66.46,
+          "write": {
+            "slots": 253,
+            "pending": 4909
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 5889,
+              "IDENTITY_EVENT": 26,
+              "COMMAND_COMPLETION_EVENT": 7116,
+              "IDENTITY_COMPLETION_EVENT": 13
+            },
+            "slots": 755
+          }
+        },
+        {
+          "t": 68.67,
+          "write": {
+            "slots": 254,
+            "pending": 4738
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 6058,
+              "IDENTITY_EVENT": 26,
+              "COMMAND_COMPLETION_EVENT": 7287,
+              "IDENTITY_COMPLETION_EVENT": 13
+            },
+            "slots": 750
+          }
+        },
+        {
+          "t": 70.86,
+          "write": {
+            "slots": 255,
+            "pending": 4571
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 6155,
+              "IDENTITY_EVENT": 26,
+              "COMMAND_COMPLETION_EVENT": 7456,
+              "IDENTITY_COMPLETION_EVENT": 13
+            },
+            "slots": 749
+          }
+        },
+        {
+          "t": 73.06,
+          "write": {
+            "slots": 253,
+            "pending": 4375
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 6306,
+              "IDENTITY_EVENT": 26,
+              "COMMAND_COMPLETION_EVENT": 7651,
+              "IDENTITY_COMPLETION_EVENT": 13
+            },
+            "slots": 746
+          }
+        },
+        {
+          "t": 75.27,
+          "write": {
+            "slots": 252,
+            "pending": 4138
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 6507,
+              "IDENTITY_EVENT": 26,
+              "COMMAND_COMPLETION_EVENT": 7888,
+              "IDENTITY_COMPLETION_EVENT": 13
+            },
+            "slots": 742
+          }
+        },
+        {
+          "t": 77.46,
+          "write": {
+            "slots": 252,
+            "pending": 3890
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 6648,
+              "IDENTITY_EVENT": 26,
+              "COMMAND_COMPLETION_EVENT": 8134,
+              "IDENTITY_COMPLETION_EVENT": 13
+            },
+            "slots": 741
+          }
+        },
+        {
+          "t": 79.66,
+          "write": {
+            "slots": 252,
+            "pending": 3645
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 6769,
+              "IDENTITY_EVENT": 26,
+              "COMMAND_COMPLETION_EVENT": 8383,
+              "IDENTITY_COMPLETION_EVENT": 13
+            },
+            "slots": 747
+          }
+        },
+        {
+          "t": 81.86,
+          "write": {
+            "slots": 252,
+            "pending": 3390
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 6960,
+              "IDENTITY_EVENT": 26,
+              "COMMAND_COMPLETION_EVENT": 8639,
+              "IDENTITY_COMPLETION_EVENT": 13
+            },
+            "slots": 748
+          }
+        },
+        {
+          "t": 84.06,
+          "write": {
+            "slots": 253,
+            "pending": 3133
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 7098,
+              "IDENTITY_EVENT": 26,
+              "COMMAND_COMPLETION_EVENT": 8892,
+              "IDENTITY_COMPLETION_EVENT": 13
+            },
+            "slots": 751
+          }
+        },
+        {
+          "t": 86.26,
+          "write": {
+            "slots": 253,
+            "pending": 2875
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 7305,
+              "IDENTITY_EVENT": 26,
+              "COMMAND_COMPLETION_EVENT": 9152,
+              "IDENTITY_COMPLETION_EVENT": 13
+            },
+            "slots": 744
+          }
+        },
+        {
+          "t": 88.46,
+          "write": {
+            "slots": 252,
+            "pending": 2621
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 7471,
+              "IDENTITY_EVENT": 26,
+              "COMMAND_COMPLETION_EVENT": 9406,
+              "IDENTITY_COMPLETION_EVENT": 13
+            },
+            "slots": 743
+          }
+        },
+        {
+          "t": 90.67,
+          "write": {
+            "slots": 252,
+            "pending": 2358
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 7557,
+              "IDENTITY_EVENT": 26,
+              "COMMAND_COMPLETION_EVENT": 9670,
+              "IDENTITY_COMPLETION_EVENT": 13
+            },
+            "slots": 752
+          }
+        },
+        {
+          "t": 92.87,
+          "write": {
+            "slots": 252,
+            "pending": 2102
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 7784,
+              "IDENTITY_EVENT": 26,
+              "COMMAND_COMPLETION_EVENT": 9929,
+              "IDENTITY_COMPLETION_EVENT": 13
+            },
+            "slots": 747
+          }
+        },
+        {
+          "t": 95.06,
+          "write": {
+            "slots": 251,
+            "pending": 1843
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 7908,
+              "IDENTITY_EVENT": 26,
+              "COMMAND_COMPLETION_EVENT": 10182,
+              "IDENTITY_COMPLETION_EVENT": 13
+            },
+            "slots": 752
+          }
+        },
+        {
+          "t": 97.26,
+          "write": {
+            "slots": 253,
+            "pending": 1603
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 8067,
+              "IDENTITY_EVENT": 26,
+              "COMMAND_COMPLETION_EVENT": 10424,
+              "IDENTITY_COMPLETION_EVENT": 13
+            },
+            "slots": 747
+          }
+        },
+        {
+          "t": 99.46,
+          "write": {
+            "slots": 253,
+            "pending": 1350
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 8232,
+              "IDENTITY_EVENT": 26,
+              "COMMAND_COMPLETION_EVENT": 10675,
+              "IDENTITY_COMPLETION_EVENT": 13
+            },
+            "slots": 739
+          }
+        },
+        {
+          "t": 101.67,
+          "write": {
+            "slots": 253,
+            "pending": 1090
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 8351,
+              "IDENTITY_EVENT": 26,
+              "COMMAND_COMPLETION_EVENT": 10939,
+              "IDENTITY_COMPLETION_EVENT": 13
+            },
+            "slots": 751
+          }
+        },
+        {
+          "t": 103.86,
+          "write": {
+            "slots": 253,
+            "pending": 832
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 8510,
+              "IDENTITY_EVENT": 26,
+              "COMMAND_COMPLETION_EVENT": 11196,
+              "IDENTITY_COMPLETION_EVENT": 13
+            },
+            "slots": 748
+          }
+        },
+        {
+          "t": 106.07,
+          "write": {
+            "slots": 220,
+            "pending": 578
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 8690,
+              "IDENTITY_EVENT": 26,
+              "COMMAND_COMPLETION_EVENT": 11451,
+              "IDENTITY_COMPLETION_EVENT": 13
+            },
+            "slots": 759
+          }
+        },
+        {
+          "t": 108.25,
+          "write": {
+            "slots": 137,
+            "pending": 324
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 8815,
+              "IDENTITY_EVENT": 26,
+              "COMMAND_COMPLETION_EVENT": 11701,
+              "IDENTITY_COMPLETION_EVENT": 13
+            },
+            "slots": 752
+          }
+        },
+        {
+          "t": 110.46,
+          "write": {
+            "slots": 85,
+            "pending": 94
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 9009,
+              "IDENTITY_EVENT": 26,
+              "COMMAND_COMPLETION_EVENT": 11933,
+              "IDENTITY_COMPLETION_EVENT": 13
+            },
+            "slots": 746
+          }
+        },
+        {
+          "t": 112.56,
+          "write": {
+            "slots": 0,
+            "pending": 0
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 9312,
+              "IDENTITY_EVENT": 26,
+              "COMMAND_COMPLETION_EVENT": 12022,
+              "IDENTITY_COMPLETION_EVENT": 13
+            },
+            "slots": 750
+          }
+        },
+        {
+          "t": 114.65,
+          "write": {
+            "slots": 0,
+            "pending": 0
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 9740,
+              "IDENTITY_EVENT": 26,
+              "COMMAND_COMPLETION_EVENT": 12022,
+              "IDENTITY_COMPLETION_EVENT": 13
+            },
+            "slots": 750
+          }
+        },
+        {
+          "t": 116.76,
+          "write": {
+            "slots": 0,
+            "pending": 0
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 10134,
+              "IDENTITY_EVENT": 26,
+              "COMMAND_COMPLETION_EVENT": 12022,
+              "IDENTITY_COMPLETION_EVENT": 13
+            },
+            "slots": 745
+          }
+        },
+        {
+          "t": 118.86,
+          "write": {
+            "slots": 0,
+            "pending": 0
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 10687,
+              "IDENTITY_EVENT": 26,
+              "COMMAND_COMPLETION_EVENT": 12022,
+              "IDENTITY_COMPLETION_EVENT": 13
+            },
+            "slots": 746
+          }
+        },
+        {
+          "t": 120.95,
+          "write": {
+            "slots": 0,
+            "pending": 0
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 11170,
+              "IDENTITY_EVENT": 26,
+              "COMMAND_COMPLETION_EVENT": 12022,
+              "IDENTITY_COMPLETION_EVENT": 13
+            },
+            "slots": 740
+          }
+        },
+        {
+          "t": 123.07,
+          "write": {
+            "slots": 0,
+            "pending": 0
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 11709,
+              "IDENTITY_EVENT": 26,
+              "COMMAND_COMPLETION_EVENT": 12022,
+              "IDENTITY_COMPLETION_EVENT": 13
+            },
+            "slots": 434
+          }
+        },
+        {
+          "t": 125.18,
+          "write": {
+            "slots": 0,
+            "pending": 0
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 12022,
+              "IDENTITY_EVENT": 26,
+              "COMMAND_COMPLETION_EVENT": 12022,
+              "IDENTITY_COMPLETION_EVENT": 13
+            },
+            "slots": 0
+          }
+        }
+      ],
+      "concurrentCommands": {
+        "planned": 60,
+        "admitted": 2,
+        "observed": 2,
+        "droppedOffer": 58,
+        "censored": 0,
+        "invariantViolations": 0,
+        "windowSeconds": 114.244,
+        "observedRate": 0.018,
+        "offerLagMs": {
+          "n": 2,
+          "p50": 6.62,
+          "p95": 7.464,
+          "p99": 7.464,
+          "max": 7.464
+        },
+        "admissionMs": {
+          "n": 2,
+          "p50": 11.36,
+          "p95": 38.769,
+          "p99": 38.769,
+          "max": 38.769
+        },
+        "resultE2eMs": {
+          "n": 2,
+          "p50": 98680.204,
+          "p95": 99229.903,
+          "p99": 99229.903,
+          "max": 99229.903
+        },
+        "c03E2eMs": {
+          "n": 2,
+          "p50": 113243.79,
+          "p95": 113898.166,
+          "p99": 113898.166,
+          "max": 113898.166
+        },
+        "balanceE2eMs": {
+          "n": 2,
+          "p50": 113229.785,
+          "p95": 113895.699,
+          "p99": 113895.699,
+          "max": 113895.699
+        }
+      },
+      "concurrentRegistrations": {
+        "count": 12,
+        "observed": 12,
+        "usableBindingE2eMs": {
+          "n": 12,
+          "p50": 374.29,
+          "p95": 860.43,
+          "p99": 860.43,
+          "max": 860.43
+        }
+      }
+    }
+  },
+  {
+    "id": "B-100-c1-idle-r1",
+    "verdict": "PASS",
+    "availabilityValid": true,
+    "cgroupDelta": {
+      "wall_seconds": 88.32,
+      "containers": {
+        "postgres": {
+          "cpu_seconds": 7.4707,
+          "avg_cpus": 0.0846,
+          "throttled_seconds": 0.0,
+          "nr_throttled": 0,
+          "memory_mib": 380.43
+        },
+        "http-write": {
+          "cpu_seconds": 1.0551,
+          "avg_cpus": 0.0119,
+          "throttled_seconds": 1.4216,
+          "nr_throttled": 10,
+          "memory_mib": 213.61
+        },
+        "http-read": {
+          "cpu_seconds": 2.17,
+          "avg_cpus": 0.0246,
+          "throttled_seconds": 1.5173,
+          "nr_throttled": 11,
+          "memory_mib": 223.79
+        },
+        "command-worker": {
+          "cpu_seconds": 7.2914,
+          "avg_cpus": 0.0826,
+          "throttled_seconds": 0.2091,
+          "nr_throttled": 4,
+          "memory_mib": 235.27
+        },
+        "results-worker": {
+          "cpu_seconds": 6.9093,
+          "avg_cpus": 0.0782,
+          "throttled_seconds": 0.2429,
+          "nr_throttled": 4,
+          "memory_mib": 194.58
+        },
+        "business-read-worker": {
+          "cpu_seconds": 8.5505,
+          "avg_cpus": 0.0968,
+          "throttled_seconds": 0.249,
+          "nr_throttled": 2,
+          "memory_mib": 214.7
+        }
+      }
+    },
+    "pgTxDelta": {
+      "pocoma_write": {
+        "xact_commit": 30356,
+        "xact_rollback": 6,
+        "deadlocks": 0
+      },
+      "pocoma_read": {
+        "xact_commit": 19928,
+        "xact_rollback": 4,
+        "deadlocks": 0
+      }
+    },
+    "pgWalBytes": {
+      "pocoma_write": 1159936,
+      "pocoma_read": 1160032
+    },
+    "results": {
+      "planned": 10,
+      "admitted": 10,
+      "observed": 10,
+      "droppedOffer": 0,
+      "censored": 0,
+      "invariantViolations": 0,
+      "windowSeconds": 27.535,
+      "observedRate": 0.363,
+      "offerLagMs": {
+        "n": 10,
+        "p50": 10.157,
+        "p95": 10.913,
+        "p99": 10.913,
+        "max": 10.913
+      },
+      "admissionMs": {
+        "n": 10,
+        "p50": 21.791,
+        "p95": 810.389,
+        "p99": 810.389,
+        "max": 810.389
+      },
+      "resultE2eMs": {
+        "n": 10,
+        "p50": 206.469,
+        "p95": 1212.961,
+        "p99": 1212.961,
+        "max": 1212.961
+      },
+      "c03E2eMs": {
+        "n": 10,
+        "p50": 238.965,
+        "p95": 1314.47,
+        "p99": 1314.47,
+        "max": 1314.47
+      },
+      "balanceE2eMs": {
+        "n": 10,
+        "p50": 233.134,
+        "p95": 1295.319,
+        "p99": 1295.319,
+        "max": 1295.319
+      }
+    }
+  },
+  {
+    "id": "B-100-c1-med-1-r1",
+    "verdict": "PASS",
+    "availabilityValid": true,
+    "cgroupDelta": {
+      "wall_seconds": 70.004,
+      "containers": {
+        "postgres": {
+          "cpu_seconds": 8.6544,
+          "avg_cpus": 0.1236,
+          "throttled_seconds": 0.0,
+          "nr_throttled": 0,
+          "memory_mib": 388.96
+        },
+        "http-write": {
+          "cpu_seconds": 2.3336,
+          "avg_cpus": 0.0333,
+          "throttled_seconds": 0.6394,
+          "nr_throttled": 5,
+          "memory_mib": 226.47
+        },
+        "http-read": {
+          "cpu_seconds": 6.9587,
+          "avg_cpus": 0.0994,
+          "throttled_seconds": 0.6147,
+          "nr_throttled": 11,
+          "memory_mib": 245.03
+        },
+        "command-worker": {
+          "cpu_seconds": 5.7217,
+          "avg_cpus": 0.0817,
+          "throttled_seconds": 0.4661,
+          "nr_throttled": 4,
+          "memory_mib": 236.27
+        },
+        "results-worker": {
+          "cpu_seconds": 4.8374,
+          "avg_cpus": 0.0691,
+          "throttled_seconds": 0.1866,
+          "nr_throttled": 3,
+          "memory_mib": 189.1
+        },
+        "business-read-worker": {
+          "cpu_seconds": 8.1071,
+          "avg_cpus": 0.1158,
+          "throttled_seconds": 0.4476,
+          "nr_throttled": 3,
+          "memory_mib": 233.38
+        }
+      }
+    },
+    "pgTxDelta": {
+      "pocoma_write": {
+        "xact_commit": 42980,
+        "xact_rollback": 5,
+        "deadlocks": 0
+      },
+      "pocoma_read": {
+        "xact_commit": 27944,
+        "xact_rollback": 4,
+        "deadlocks": 0
+      }
+    },
+    "pgWalBytes": {
+      "pocoma_write": 3572376,
+      "pocoma_read": 3572528
+    },
+    "results": {
+      "planned": 60,
+      "admitted": 60,
+      "observed": 60,
+      "droppedOffer": 0,
+      "censored": 0,
+      "invariantViolations": 0,
+      "windowSeconds": 59.273,
+      "observedRate": 1.012,
+      "offerLagMs": {
+        "n": 60,
+        "p50": 7.11,
+        "p95": 10.199,
+        "p99": 10.27,
+        "max": 10.27
+      },
+      "admissionMs": {
+        "n": 60,
+        "p50": 18.319,
+        "p95": 21.676,
+        "p99": 25.221,
+        "max": 25.221
+      },
+      "resultE2eMs": {
+        "n": 60,
+        "p50": 191.938,
+        "p95": 266.621,
+        "p99": 341.488,
+        "max": 341.488
+      },
+      "c03E2eMs": {
+        "n": 60,
+        "p50": 199.997,
+        "p95": 269.135,
+        "p99": 298.306,
+        "max": 298.306
+      },
+      "balanceE2eMs": {
+        "n": 60,
+        "p50": 197.401,
+        "p95": 266.971,
+        "p99": 295.652,
+        "max": 295.652
+      }
+    }
+  },
+  {
+    "id": "B-100-c2-med-10-r1",
+    "verdict": "PASS",
+    "availabilityValid": true,
+    "cgroupDelta": {
+      "wall_seconds": 23.745,
+      "containers": {
+        "postgres": {
+          "cpu_seconds": 12.9859,
+          "avg_cpus": 0.5469,
+          "throttled_seconds": 0.0,
+          "nr_throttled": 0,
+          "memory_mib": 711.49
+        },
+        "http-write": {
+          "cpu_seconds": 2.3594,
+          "avg_cpus": 0.0994,
+          "throttled_seconds": 0.9559,
+          "nr_throttled": 7,
+          "memory_mib": 224.52
+        },
+        "http-read": {
+          "cpu_seconds": 8.7573,
+          "avg_cpus": 0.3688,
+          "throttled_seconds": 6.7944,
+          "nr_throttled": 37,
+          "memory_mib": 249.11
+        },
+        "command-worker": {
+          "cpu_seconds": 6.3173,
+          "avg_cpus": 0.266,
+          "throttled_seconds": 3.614,
+          "nr_throttled": 23,
+          "memory_mib": 237.8
+        },
+        "results-worker": {
+          "cpu_seconds": 4.5714,
+          "avg_cpus": 0.1925,
+          "throttled_seconds": 0.4884,
+          "nr_throttled": 7,
+          "memory_mib": 197.93
+        },
+        "business-read-worker": {
+          "cpu_seconds": 9.9532,
+          "avg_cpus": 0.4192,
+          "throttled_seconds": 2.4006,
+          "nr_throttled": 16,
+          "memory_mib": 231.41
+        }
+      }
+    },
+    "pgTxDelta": {
+      "pocoma_write": {
+        "xact_commit": 60839,
+        "xact_rollback": 5,
+        "deadlocks": 0
+      },
+      "pocoma_read": {
+        "xact_commit": 37456,
+        "xact_rollback": 4,
+        "deadlocks": 0
+      }
+    },
+    "pgWalBytes": {
+      "pocoma_write": 9484008,
+      "pocoma_read": 9484256
+    },
+    "results": {
+      "planned": 200,
+      "admitted": 200,
+      "observed": 200,
+      "droppedOffer": 0,
+      "censored": 0,
+      "invariantViolations": 0,
+      "windowSeconds": 20.014,
+      "observedRate": 9.993,
+      "offerLagMs": {
+        "n": 200,
+        "p50": 5.085,
+        "p95": 10.23,
+        "p99": 18.175,
+        "max": 26.648
+      },
+      "admissionMs": {
+        "n": 200,
+        "p50": 5.581,
+        "p95": 10.072,
+        "p99": 14.272,
+        "max": 17.412
+      },
+      "resultE2eMs": {
+        "n": 200,
+        "p50": 84.16,
+        "p95": 202.904,
+        "p99": 235.824,
+        "max": 1108.443
+      },
+      "c03E2eMs": {
+        "n": 200,
+        "p50": 111.821,
+        "p95": 195.084,
+        "p99": 215.226,
+        "max": 234.357
+      },
+      "balanceE2eMs": {
+        "n": 200,
+        "p50": 108.847,
+        "p95": 201.455,
+        "p99": 214.365,
+        "max": 215.964
+      }
+    }
+  },
+  {
+    "id": "B-100-c2-ramp-r1",
+    "verdict": "PASS",
+    "availabilityValid": true,
+    "cgroupDelta": {
+      "wall_seconds": 107.254,
+      "containers": {
+        "postgres": {
+          "cpu_seconds": 99.8041,
+          "avg_cpus": 0.9305,
+          "throttled_seconds": 19.0074,
+          "nr_throttled": 129,
+          "memory_mib": 874.79
+        },
+        "http-write": {
+          "cpu_seconds": 10.3328,
+          "avg_cpus": 0.0963,
+          "throttled_seconds": 1.4379,
+          "nr_throttled": 19,
+          "memory_mib": 243.06
+        },
+        "http-read": {
+          "cpu_seconds": 31.9301,
+          "avg_cpus": 0.2977,
+          "throttled_seconds": 2.4548,
+          "nr_throttled": 46,
+          "memory_mib": 264.25
+        },
+        "command-worker": {
+          "cpu_seconds": 29.5552,
+          "avg_cpus": 0.2756,
+          "throttled_seconds": 1.477,
+          "nr_throttled": 22,
+          "memory_mib": 247.02
+        },
+        "results-worker": {
+          "cpu_seconds": 21.6842,
+          "avg_cpus": 0.2022,
+          "throttled_seconds": 0.0435,
+          "nr_throttled": 3,
+          "memory_mib": 205.87
+        },
+        "business-read-worker": {
+          "cpu_seconds": 50.1287,
+          "avg_cpus": 0.4674,
+          "throttled_seconds": 1.1057,
+          "nr_throttled": 20,
+          "memory_mib": 246.81
+        }
+      }
+    },
+    "pgTxDelta": {
+      "pocoma_write": {
+        "xact_commit": 413493,
+        "xact_rollback": 5,
+        "deadlocks": 0
+      },
+      "pocoma_read": {
+        "xact_commit": 306847,
+        "xact_rollback": 4,
+        "deadlocks": 0
+      }
+    },
+    "pgWalBytes": {
+      "pocoma_write": 93655976,
+      "pocoma_read": 93656128
+    },
+    "results": {
+      "steps": [
+        {
+          "targetRate": 1.0,
+          "planned": 15,
+          "admitted": 15,
+          "observed": 15,
+          "droppedOffer": 0,
+          "censored": 0,
+          "invariantViolations": 0,
+          "windowSeconds": 14.254,
+          "observedRate": 1.052,
+          "offerLagMs": {
+            "n": 15,
+            "p50": 6.758,
+            "p95": 10.3,
+            "p99": 10.3,
+            "max": 10.3
+          },
+          "admissionMs": {
+            "n": 15,
+            "p50": 17.23,
+            "p95": 381.385,
+            "p99": 381.385,
+            "max": 381.385
+          },
+          "resultE2eMs": {
+            "n": 15,
+            "p50": 206.376,
+            "p95": 753.052,
+            "p99": 753.052,
+            "max": 753.052
+          },
+          "c03E2eMs": {
+            "n": 15,
+            "p50": 239.178,
+            "p95": 969.367,
+            "p99": 969.367,
+            "max": 969.367
+          },
+          "balanceE2eMs": {
+            "n": 15,
+            "p50": 234.832,
+            "p95": 969.539,
+            "p99": 969.539,
+            "max": 969.539
+          }
+        },
+        {
+          "targetRate": 5.0,
+          "planned": 75,
+          "admitted": 75,
+          "observed": 75,
+          "droppedOffer": 0,
+          "censored": 0,
+          "invariantViolations": 0,
+          "windowSeconds": 14.89,
+          "observedRate": 5.037,
+          "offerLagMs": {
+            "n": 75,
+            "p50": 4.397,
+            "p95": 10.189,
+            "p99": 10.228,
+            "max": 10.228
+          },
+          "admissionMs": {
+            "n": 75,
+            "p50": 5.939,
+            "p95": 7.607,
+            "p99": 12.085,
+            "max": 12.085
+          },
+          "resultE2eMs": {
+            "n": 75,
+            "p50": 137.427,
+            "p95": 248.12,
+            "p99": 267.594,
+            "max": 267.594
+          },
+          "c03E2eMs": {
+            "n": 75,
+            "p50": 156.718,
+            "p95": 252.361,
+            "p99": 284.46,
+            "max": 284.46
+          },
+          "balanceE2eMs": {
+            "n": 75,
+            "p50": 155.234,
+            "p95": 249.732,
+            "p99": 286.845,
+            "max": 286.845
+          }
+        },
+        {
+          "targetRate": 10.0,
+          "planned": 150,
+          "admitted": 150,
+          "observed": 150,
+          "droppedOffer": 0,
+          "censored": 0,
+          "invariantViolations": 0,
+          "windowSeconds": 15.087,
+          "observedRate": 9.942,
+          "offerLagMs": {
+            "n": 150,
+            "p50": 3.74,
+            "p95": 10.151,
+            "p99": 10.269,
+            "max": 10.449
+          },
+          "admissionMs": {
+            "n": 150,
+            "p50": 4.818,
+            "p95": 6.527,
+            "p99": 9.475,
+            "max": 10.112
+          },
+          "resultE2eMs": {
+            "n": 150,
+            "p50": 95.365,
+            "p95": 177.725,
+            "p99": 231.451,
+            "max": 263.082
+          },
+          "c03E2eMs": {
+            "n": 150,
+            "p50": 107.466,
+            "p95": 189.285,
+            "p99": 212.313,
+            "max": 212.61
+          },
+          "balanceE2eMs": {
+            "n": 150,
+            "p50": 105.783,
+            "p95": 198.443,
+            "p99": 208.298,
+            "max": 210.774
+          }
+        },
+        {
+          "targetRate": 20.0,
+          "planned": 300,
+          "admitted": 300,
+          "observed": 300,
+          "droppedOffer": 0,
+          "censored": 0,
+          "invariantViolations": 0,
+          "windowSeconds": 15.03,
+          "observedRate": 19.96,
+          "offerLagMs": {
+            "n": 300,
+            "p50": 2.621,
+            "p95": 10.075,
+            "p99": 10.408,
+            "max": 15.651
+          },
+          "admissionMs": {
+            "n": 300,
+            "p50": 4.815,
+            "p95": 7.982,
+            "p99": 10.916,
+            "max": 21.967
+          },
+          "resultE2eMs": {
+            "n": 300,
+            "p50": 73.01,
+            "p95": 111.205,
+            "p99": 132.76,
+            "max": 172.083
+          },
+          "c03E2eMs": {
+            "n": 300,
+            "p50": 83.539,
+            "p95": 123.404,
+            "p99": 147.682,
+            "max": 1103.6
+          },
+          "balanceE2eMs": {
+            "n": 300,
+            "p50": 82.825,
+            "p95": 119.52,
+            "p99": 144.473,
+            "max": 183.848
+          }
+        },
+        {
+          "targetRate": 25.0,
+          "planned": 375,
+          "admitted": 375,
+          "observed": 375,
+          "droppedOffer": 0,
+          "censored": 0,
+          "invariantViolations": 0,
+          "windowSeconds": 15.056,
+          "observedRate": 24.908,
+          "offerLagMs": {
+            "n": 375,
+            "p50": 2.83,
+            "p95": 9.562,
+            "p99": 10.09,
+            "max": 10.12
+          },
+          "admissionMs": {
+            "n": 375,
+            "p50": 4.184,
+            "p95": 6.5,
+            "p99": 9.429,
+            "max": 11.974
+          },
+          "resultE2eMs": {
+            "n": 375,
+            "p50": 69.054,
+            "p95": 101.293,
+            "p99": 114.282,
+            "max": 164.048
+          },
+          "c03E2eMs": {
+            "n": 375,
+            "p50": 75.85,
+            "p95": 110.961,
+            "p99": 146.257,
+            "max": 1048.773
+          },
+          "balanceE2eMs": {
+            "n": 375,
+            "p50": 73.98,
+            "p95": 108.323,
+            "p99": 137.446,
+            "max": 247.46
+          }
+        },
+        {
+          "targetRate": 35.0,
+          "planned": 525,
+          "admitted": 525,
+          "observed": 525,
+          "droppedOffer": 0,
+          "censored": 0,
+          "invariantViolations": 0,
+          "windowSeconds": 15.048,
+          "observedRate": 34.888,
+          "offerLagMs": {
+            "n": 525,
+            "p50": 2.16,
+            "p95": 10.048,
+            "p99": 10.19,
+            "max": 10.411
+          },
+          "admissionMs": {
+            "n": 525,
+            "p50": 4.398,
+            "p95": 9.009,
+            "p99": 40.272,
+            "max": 64.085
+          },
+          "resultE2eMs": {
+            "n": 525,
+            "p50": 68.256,
+            "p95": 104.913,
+            "p99": 152.661,
+            "max": 347.243
+          },
+          "c03E2eMs": {
+            "n": 525,
+            "p50": 75.111,
+            "p95": 136.226,
+            "p99": 193.558,
+            "max": 1114.898
+          },
+          "balanceE2eMs": {
+            "n": 525,
+            "p50": 73.348,
+            "p95": 134.896,
+            "p99": 184.441,
+            "max": 339.589
+          }
+        },
+        {
+          "targetRate": 50.0,
+          "planned": 750,
+          "admitted": 612,
+          "observed": 612,
+          "droppedOffer": 138,
+          "censored": 0,
+          "invariantViolations": 0,
+          "windowSeconds": 15.088,
+          "observedRate": 40.562,
+          "offerLagMs": {
+            "n": 612,
+            "p50": 1.993,
+            "p95": 31.032,
+            "p99": 119.324,
+            "max": 145.179
+          },
+          "admissionMs": {
+            "n": 612,
+            "p50": 4.9,
+            "p95": 33.697,
+            "p99": 46.775,
+            "max": 56.214
+          },
+          "resultE2eMs": {
+            "n": 612,
+            "p50": 112.49,
+            "p95": 1093.284,
+            "p99": 1161.354,
+            "max": 2158.0
+          },
+          "c03E2eMs": {
+            "n": 612,
+            "p50": 160.093,
+            "p95": 1132.261,
+            "p99": 1236.448,
+            "max": 1318.414
+          },
+          "balanceE2eMs": {
+            "n": 612,
+            "p50": 156.731,
+            "p95": 1163.629,
+            "p99": 1294.523,
+            "max": 2277.257
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "B-1000-c1-idle-r1",
+    "verdict": "PASS",
+    "availabilityValid": true,
+    "cgroupDelta": {
+      "wall_seconds": 90.684,
+      "containers": {
+        "postgres": {
+          "cpu_seconds": 3.8876,
+          "avg_cpus": 0.0429,
+          "throttled_seconds": 0.0,
+          "nr_throttled": 0,
+          "memory_mib": 378.04
+        },
+        "http-write": {
+          "cpu_seconds": 1.0417,
+          "avg_cpus": 0.0115,
+          "throttled_seconds": 1.0541,
+          "nr_throttled": 11,
+          "memory_mib": 214.79
+        },
+        "http-read": {
+          "cpu_seconds": 5.9676,
+          "avg_cpus": 0.0658,
+          "throttled_seconds": 0.6387,
+          "nr_throttled": 14,
+          "memory_mib": 247.64
+        },
+        "command-worker": {
+          "cpu_seconds": 3.3502,
+          "avg_cpus": 0.0369,
+          "throttled_seconds": 0.281,
+          "nr_throttled": 4,
+          "memory_mib": 226.84
+        },
+        "results-worker": {
+          "cpu_seconds": 3.0222,
+          "avg_cpus": 0.0333,
+          "throttled_seconds": 0.1404,
+          "nr_throttled": 2,
+          "memory_mib": 198.85
+        },
+        "business-read-worker": {
+          "cpu_seconds": 4.5213,
+          "avg_cpus": 0.0499,
+          "throttled_seconds": 0.2836,
+          "nr_throttled": 2,
+          "memory_mib": 215.41
+        }
+      }
+    },
+    "pgTxDelta": {
+      "pocoma_write": {
+        "xact_commit": 9728,
+        "xact_rollback": 4,
+        "deadlocks": 0
+      },
+      "pocoma_read": {
+        "xact_commit": 17124,
+        "xact_rollback": 4,
+        "deadlocks": 0
+      }
+    },
+    "pgWalBytes": {
+      "pocoma_write": 1159768,
+      "pocoma_read": 1159920
+    },
+    "results": {
+      "planned": 10,
+      "admitted": 10,
+      "observed": 10,
+      "droppedOffer": 0,
+      "censored": 0,
+      "invariantViolations": 0,
+      "windowSeconds": 29.912,
+      "observedRate": 0.334,
+      "offerLagMs": {
+        "n": 10,
+        "p50": 8.393,
+        "p95": 10.277,
+        "p99": 10.277,
+        "max": 10.277
+      },
+      "admissionMs": {
+        "n": 10,
+        "p50": 23.98,
+        "p95": 682.922,
+        "p99": 682.922,
+        "max": 682.922
+      },
+      "resultE2eMs": {
+        "n": 10,
+        "p50": 1308.88,
+        "p95": 2627.95,
+        "p99": 2627.95,
+        "max": 2627.95
+      },
+      "c03E2eMs": {
+        "n": 10,
+        "p50": 1462.54,
+        "p95": 1968.303,
+        "p99": 1968.303,
+        "max": 1968.303
+      },
+      "balanceE2eMs": {
+        "n": 10,
+        "p50": 1458.678,
+        "p95": 1946.98,
+        "p99": 1946.98,
+        "max": 1946.98
+      }
+    }
+  },
+  {
+    "id": "B-1000-c1-med-1-r1",
+    "verdict": "PASS",
+    "availabilityValid": true,
+    "cgroupDelta": {
+      "wall_seconds": 70.668,
+      "containers": {
+        "postgres": {
+          "cpu_seconds": 8.341,
+          "avg_cpus": 0.118,
+          "throttled_seconds": 0.0,
+          "nr_throttled": 0,
+          "memory_mib": 400.52
+        },
+        "http-write": {
+          "cpu_seconds": 2.1331,
+          "avg_cpus": 0.0302,
+          "throttled_seconds": 0.6613,
+          "nr_throttled": 6,
+          "memory_mib": 221.89
+        },
+        "http-read": {
+          "cpu_seconds": 12.4574,
+          "avg_cpus": 0.1763,
+          "throttled_seconds": 3.8502,
+          "nr_throttled": 25,
+          "memory_mib": 249.57
+        },
+        "command-worker": {
+          "cpu_seconds": 4.5327,
+          "avg_cpus": 0.0641,
+          "throttled_seconds": 1.0355,
+          "nr_throttled": 9,
+          "memory_mib": 234.81
+        },
+        "results-worker": {
+          "cpu_seconds": 3.5259,
+          "avg_cpus": 0.0499,
+          "throttled_seconds": 0.1073,
+          "nr_throttled": 3,
+          "memory_mib": 199.0
+        },
+        "business-read-worker": {
+          "cpu_seconds": 6.2219,
+          "avg_cpus": 0.088,
+          "throttled_seconds": 0.6515,
+          "nr_throttled": 3,
+          "memory_mib": 226.65
+        }
+      }
+    },
+    "pgTxDelta": {
+      "pocoma_write": {
+        "xact_commit": 33057,
+        "xact_rollback": 4,
+        "deadlocks": 0
+      },
+      "pocoma_read": {
+        "xact_commit": 37103,
+        "xact_rollback": 4,
+        "deadlocks": 0
+      }
+    },
+    "pgWalBytes": {
+      "pocoma_write": 3468376,
+      "pocoma_read": 3468528
+    },
+    "results": {
+      "planned": 60,
+      "admitted": 60,
+      "observed": 60,
+      "droppedOffer": 0,
+      "censored": 0,
+      "invariantViolations": 0,
+      "windowSeconds": 59.921,
+      "observedRate": 1.001,
+      "offerLagMs": {
+        "n": 60,
+        "p50": 7.709,
+        "p95": 10.212,
+        "p99": 10.261,
+        "max": 10.261
+      },
+      "admissionMs": {
+        "n": 60,
+        "p50": 16.086,
+        "p95": 21.496,
+        "p99": 26.016,
+        "max": 26.016
+      },
+      "resultE2eMs": {
+        "n": 60,
+        "p50": 591.513,
+        "p95": 1508.294,
+        "p99": 1840.96,
+        "max": 1840.96
+      },
+      "c03E2eMs": {
+        "n": 60,
+        "p50": 544.896,
+        "p95": 909.319,
+        "p99": 1525.189,
+        "max": 1525.189
+      },
+      "balanceE2eMs": {
+        "n": 60,
+        "p50": 551.697,
+        "p95": 904.737,
+        "p99": 1522.982,
+        "max": 1522.982
+      }
+    }
+  },
+  {
+    "id": "B-1000-c2-med-10-r1",
+    "verdict": "PASS",
+    "availabilityValid": true,
+    "cgroupDelta": {
+      "wall_seconds": 23.885,
+      "containers": {
+        "postgres": {
+          "cpu_seconds": 11.4643,
+          "avg_cpus": 0.48,
+          "throttled_seconds": 0.0,
+          "nr_throttled": 0,
+          "memory_mib": 710.21
+        },
+        "http-write": {
+          "cpu_seconds": 2.4709,
+          "avg_cpus": 0.1035,
+          "throttled_seconds": 4.4878,
+          "nr_throttled": 14,
+          "memory_mib": 218.59
+        },
+        "http-read": {
+          "cpu_seconds": 8.8414,
+          "avg_cpus": 0.3702,
+          "throttled_seconds": 7.7105,
+          "nr_throttled": 52,
+          "memory_mib": 254.45
+        },
+        "command-worker": {
+          "cpu_seconds": 5.6819,
+          "avg_cpus": 0.2379,
+          "throttled_seconds": 3.0777,
+          "nr_throttled": 20,
+          "memory_mib": 235.89
+        },
+        "results-worker": {
+          "cpu_seconds": 4.0837,
+          "avg_cpus": 0.171,
+          "throttled_seconds": 1.0347,
+          "nr_throttled": 6,
+          "memory_mib": 203.31
+        },
+        "business-read-worker": {
+          "cpu_seconds": 9.2333,
+          "avg_cpus": 0.3866,
+          "throttled_seconds": 3.2382,
+          "nr_throttled": 15,
+          "memory_mib": 237.82
+        }
+      }
+    },
+    "pgTxDelta": {
+      "pocoma_write": {
+        "xact_commit": 53519,
+        "xact_rollback": 5,
+        "deadlocks": 0
+      },
+      "pocoma_read": {
+        "xact_commit": 34364,
+        "xact_rollback": 4,
+        "deadlocks": 0
+      }
+    },
+    "pgWalBytes": {
+      "pocoma_write": 8703576,
+      "pocoma_read": 8703728
+    },
+    "results": {
+      "planned": 200,
+      "admitted": 193,
+      "observed": 193,
+      "droppedOffer": 7,
+      "censored": 0,
+      "invariantViolations": 0,
+      "windowSeconds": 20.143,
+      "observedRate": 9.582,
+      "offerLagMs": {
+        "n": 193,
+        "p50": 8.98,
+        "p95": 10.417,
+        "p99": 64.443,
+        "max": 95.384
+      },
+      "admissionMs": {
+        "n": 193,
+        "p50": 5.42,
+        "p95": 9.212,
+        "p99": 10.898,
+        "max": 11.209
+      },
+      "resultE2eMs": {
+        "n": 193,
+        "p50": 101.53,
+        "p95": 247.65,
+        "p99": 764.226,
+        "max": 1041.234
+      },
+      "c03E2eMs": {
+        "n": 193,
+        "p50": 110.745,
+        "p95": 453.53,
+        "p99": 2054.016,
+        "max": 2174.749
+      },
+      "balanceE2eMs": {
+        "n": 193,
+        "p50": 108.891,
+        "p95": 952.775,
+        "p99": 1859.109,
+        "max": 2051.707
+      }
+    }
+  },
+  {
+    "id": "B-1000-c2-ramp-r1",
+    "verdict": "PASS",
+    "availabilityValid": true,
+    "cgroupDelta": {
+      "wall_seconds": 109.191,
+      "containers": {
+        "postgres": {
+          "cpu_seconds": 98.4161,
+          "avg_cpus": 0.9013,
+          "throttled_seconds": 19.0916,
+          "nr_throttled": 127,
+          "memory_mib": 857.36
+        },
+        "http-write": {
+          "cpu_seconds": 10.3965,
+          "avg_cpus": 0.0952,
+          "throttled_seconds": 1.4989,
+          "nr_throttled": 17,
+          "memory_mib": 250.04
+        },
+        "http-read": {
+          "cpu_seconds": 32.7802,
+          "avg_cpus": 0.3002,
+          "throttled_seconds": 5.8366,
+          "nr_throttled": 64,
+          "memory_mib": 262.53
+        },
+        "command-worker": {
+          "cpu_seconds": 28.8457,
+          "avg_cpus": 0.2642,
+          "throttled_seconds": 2.1337,
+          "nr_throttled": 26,
+          "memory_mib": 252.11
+        },
+        "results-worker": {
+          "cpu_seconds": 20.6128,
+          "avg_cpus": 0.1888,
+          "throttled_seconds": 0.4263,
+          "nr_throttled": 4,
+          "memory_mib": 211.8
+        },
+        "business-read-worker": {
+          "cpu_seconds": 49.5383,
+          "avg_cpus": 0.4537,
+          "throttled_seconds": 1.4522,
+          "nr_throttled": 22,
+          "memory_mib": 248.96
+        }
+      }
+    },
+    "pgTxDelta": {
+      "pocoma_write": {
+        "xact_commit": 402242,
+        "xact_rollback": 4,
+        "deadlocks": 0
+      },
+      "pocoma_read": {
+        "xact_commit": 312340,
+        "xact_rollback": 3,
+        "deadlocks": 0
+      }
+    },
+    "pgWalBytes": {
+      "pocoma_write": 93049856,
+      "pocoma_read": 93040760
+    },
+    "results": {
+      "steps": [
+        {
+          "targetRate": 1.0,
+          "planned": 15,
+          "admitted": 15,
+          "observed": 15,
+          "droppedOffer": 0,
+          "censored": 0,
+          "invariantViolations": 0,
+          "windowSeconds": 15.352,
+          "observedRate": 0.977,
+          "offerLagMs": {
+            "n": 15,
+            "p50": 7.498,
+            "p95": 11.159,
+            "p99": 11.159,
+            "max": 11.159
+          },
+          "admissionMs": {
+            "n": 15,
+            "p50": 21.901,
+            "p95": 451.566,
+            "p99": 451.566,
+            "max": 451.566
+          },
+          "resultE2eMs": {
+            "n": 15,
+            "p50": 540.711,
+            "p95": 2788.624,
+            "p99": 2788.624,
+            "max": 2788.624
+          },
+          "c03E2eMs": {
+            "n": 15,
+            "p50": 735.55,
+            "p95": 2798.817,
+            "p99": 2798.817,
+            "max": 2798.817
+          },
+          "balanceE2eMs": {
+            "n": 15,
+            "p50": 724.537,
+            "p95": 2791.983,
+            "p99": 2791.983,
+            "max": 2791.983
+          }
+        },
+        {
+          "targetRate": 5.0,
+          "planned": 75,
+          "admitted": 75,
+          "observed": 75,
+          "droppedOffer": 0,
+          "censored": 0,
+          "invariantViolations": 0,
+          "windowSeconds": 14.911,
+          "observedRate": 5.03,
+          "offerLagMs": {
+            "n": 75,
+            "p50": 4.42,
+            "p95": 10.163,
+            "p99": 10.417,
+            "max": 10.417
+          },
+          "admissionMs": {
+            "n": 75,
+            "p50": 6.047,
+            "p95": 8.204,
+            "p99": 15.525,
+            "max": 15.525
+          },
+          "resultE2eMs": {
+            "n": 75,
+            "p50": 167.079,
+            "p95": 436.522,
+            "p99": 709.413,
+            "max": 709.413
+          },
+          "c03E2eMs": {
+            "n": 75,
+            "p50": 175.181,
+            "p95": 294.596,
+            "p99": 808.461,
+            "max": 808.461
+          },
+          "balanceE2eMs": {
+            "n": 75,
+            "p50": 167.749,
+            "p95": 286.957,
+            "p99": 810.998,
+            "max": 810.998
+          }
+        },
+        {
+          "targetRate": 10.0,
+          "planned": 150,
+          "admitted": 150,
+          "observed": 150,
+          "droppedOffer": 0,
+          "censored": 0,
+          "invariantViolations": 0,
+          "windowSeconds": 14.981,
+          "observedRate": 10.013,
+          "offerLagMs": {
+            "n": 150,
+            "p50": 6.371,
+            "p95": 10.144,
+            "p99": 10.374,
+            "max": 10.468
+          },
+          "admissionMs": {
+            "n": 150,
+            "p50": 4.817,
+            "p95": 7.414,
+            "p99": 10.151,
+            "max": 12.743
+          },
+          "resultE2eMs": {
+            "n": 150,
+            "p50": 101.422,
+            "p95": 224.419,
+            "p99": 249.892,
+            "max": 260.174
+          },
+          "c03E2eMs": {
+            "n": 150,
+            "p50": 107.575,
+            "p95": 202.447,
+            "p99": 215.002,
+            "max": 266.263
+          },
+          "balanceE2eMs": {
+            "n": 150,
+            "p50": 105.434,
+            "p95": 200.464,
+            "p99": 207.716,
+            "max": 254.752
+          }
+        },
+        {
+          "targetRate": 20.0,
+          "planned": 300,
+          "admitted": 300,
+          "observed": 300,
+          "droppedOffer": 0,
+          "censored": 0,
+          "invariantViolations": 0,
+          "windowSeconds": 15.015,
+          "observedRate": 19.98,
+          "offerLagMs": {
+            "n": 300,
+            "p50": 4.551,
+            "p95": 10.064,
+            "p99": 10.114,
+            "max": 10.145
+          },
+          "admissionMs": {
+            "n": 300,
+            "p50": 4.572,
+            "p95": 7.529,
+            "p99": 10.273,
+            "max": 21.045
+          },
+          "resultE2eMs": {
+            "n": 300,
+            "p50": 71.937,
+            "p95": 125.965,
+            "p99": 641.099,
+            "max": 1062.181
+          },
+          "c03E2eMs": {
+            "n": 300,
+            "p50": 79.616,
+            "p95": 119.856,
+            "p99": 199.683,
+            "max": 1139.664
+          },
+          "balanceE2eMs": {
+            "n": 300,
+            "p50": 77.788,
+            "p95": 118.595,
+            "p99": 275.149,
+            "max": 1107.601
+          }
+        },
+        {
+          "targetRate": 25.0,
+          "planned": 375,
+          "admitted": 375,
+          "observed": 375,
+          "droppedOffer": 0,
+          "censored": 0,
+          "invariantViolations": 0,
+          "windowSeconds": 15.063,
+          "observedRate": 24.895,
+          "offerLagMs": {
+            "n": 375,
+            "p50": 3.138,
+            "p95": 9.75,
+            "p99": 10.087,
+            "max": 10.118
+          },
+          "admissionMs": {
+            "n": 375,
+            "p50": 4.195,
+            "p95": 6.321,
+            "p99": 8.299,
+            "max": 9.091
+          },
+          "resultE2eMs": {
+            "n": 375,
+            "p50": 69.573,
+            "p95": 108.808,
+            "p99": 1230.762,
+            "max": 1472.146
+          },
+          "c03E2eMs": {
+            "n": 375,
+            "p50": 77.422,
+            "p95": 113.364,
+            "p99": 169.032,
+            "max": 268.608
+          },
+          "balanceE2eMs": {
+            "n": 375,
+            "p50": 75.438,
+            "p95": 110.403,
+            "p99": 170.909,
+            "max": 293.636
+          }
+        },
+        {
+          "targetRate": 35.0,
+          "planned": 525,
+          "admitted": 525,
+          "observed": 525,
+          "droppedOffer": 0,
+          "censored": 0,
+          "invariantViolations": 0,
+          "windowSeconds": 15.047,
+          "observedRate": 34.891,
+          "offerLagMs": {
+            "n": 525,
+            "p50": 2.772,
+            "p95": 9.734,
+            "p99": 10.23,
+            "max": 10.64
+          },
+          "admissionMs": {
+            "n": 525,
+            "p50": 4.404,
+            "p95": 10.322,
+            "p99": 51.002,
+            "max": 68.076
+          },
+          "resultE2eMs": {
+            "n": 525,
+            "p50": 68.923,
+            "p95": 129.251,
+            "p99": 232.665,
+            "max": 1174.687
+          },
+          "c03E2eMs": {
+            "n": 525,
+            "p50": 75.901,
+            "p95": 159.006,
+            "p99": 301.216,
+            "max": 1145.426
+          },
+          "balanceE2eMs": {
+            "n": 525,
+            "p50": 74.124,
+            "p95": 159.235,
+            "p99": 350.777,
+            "max": 1274.077
+          }
+        },
+        {
+          "targetRate": 50.0,
+          "planned": 750,
+          "admitted": 589,
+          "observed": 589,
+          "droppedOffer": 161,
+          "censored": 0,
+          "invariantViolations": 0,
+          "windowSeconds": 16.015,
+          "observedRate": 36.779,
+          "offerLagMs": {
+            "n": 589,
+            "p50": 2.153,
+            "p95": 10.054,
+            "p99": 131.266,
+            "max": 147.803
+          },
+          "admissionMs": {
+            "n": 589,
+            "p50": 5.082,
+            "p95": 32.282,
+            "p99": 48.029,
+            "max": 56.511
+          },
+          "resultE2eMs": {
+            "n": 589,
+            "p50": 129.134,
+            "p95": 1098.409,
+            "p99": 1190.226,
+            "max": 2191.012
+          },
+          "c03E2eMs": {
+            "n": 589,
+            "p50": 189.826,
+            "p95": 1160.899,
+            "p99": 1291.355,
+            "max": 2424.672
+          },
+          "balanceE2eMs": {
+            "n": 589,
+            "p50": 186.614,
+            "p95": 1186.284,
+            "p99": 1280.394,
+            "max": 2072.037
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "B-1000-c4-backlog-10k-r1",
+    "verdict": "PASS",
+    "availabilityValid": true,
+    "cgroupDelta": {
+      "wall_seconds": 246.105,
+      "containers": {
+        "postgres": {
+          "cpu_seconds": 245.0799,
+          "avg_cpus": 0.9958,
+          "throttled_seconds": 230.4512,
+          "nr_throttled": 993,
+          "memory_mib": 760.16
+        },
+        "http-write": {
+          "cpu_seconds": 60.9092,
+          "avg_cpus": 0.2475,
+          "throttled_seconds": 435.7334,
+          "nr_throttled": 1212,
+          "memory_mib": 258.55
+        },
+        "http-read": {
+          "cpu_seconds": 19.337,
+          "avg_cpus": 0.0786,
+          "throttled_seconds": 1.9244,
+          "nr_throttled": 37,
+          "memory_mib": 250.76
+        },
+        "command-worker": {
+          "cpu_seconds": 46.3617,
+          "avg_cpus": 0.1884,
+          "throttled_seconds": 12.9498,
+          "nr_throttled": 109,
+          "memory_mib": 271.32
+        },
+        "results-worker": {
+          "cpu_seconds": 36.4872,
+          "avg_cpus": 0.1483,
+          "throttled_seconds": 5.8858,
+          "nr_throttled": 48,
+          "memory_mib": 215.45
+        },
+        "business-read-worker": {
+          "cpu_seconds": 74.549,
+          "avg_cpus": 0.3029,
+          "throttled_seconds": 8.3628,
+          "nr_throttled": 115,
+          "memory_mib": 259.09
+        }
+      }
+    },
+    "pgTxDelta": {
+      "pocoma_write": {
+        "xact_commit": 646906,
+        "xact_rollback": 49,
+        "deadlocks": 0
+      },
+      "pocoma_read": {
+        "xact_commit": 378787,
+        "xact_rollback": 39,
+        "deadlocks": 0
+      }
+    },
+    "pgWalBytes": {
+      "pocoma_write": 209664352,
+      "pocoma_read": 209664432
+    },
+    "results": {
+      "admissionSeconds": 121.05,
+      "drainSeconds": 123.11,
+      "timeline": [
+        {
+          "t": 9.62,
+          "write": {
+            "slots": 138,
+            "pending": 9982
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 2030,
+              "IDENTITY_EVENT": 2,
+              "COMMAND_COMPLETION_EVENT": 2038,
+              "IDENTITY_COMPLETION_EVENT": 1
+            },
+            "slots": 14
+          }
+        },
+        {
+          "t": 11.75,
+          "write": {
+            "slots": 251,
+            "pending": 9894
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 2128,
+              "IDENTITY_EVENT": 4,
+              "COMMAND_COMPLETION_EVENT": 2130,
+              "IDENTITY_COMPLETION_EVENT": 2
+            },
+            "slots": 9
+          }
+        },
+        {
+          "t": 13.89,
+          "write": {
+            "slots": 251,
+            "pending": 9713
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 2301,
+              "IDENTITY_EVENT": 4,
+              "COMMAND_COMPLETION_EVENT": 2312,
+              "IDENTITY_COMPLETION_EVENT": 2
+            },
+            "slots": 44
+          }
+        },
+        {
+          "t": 16.07,
+          "write": {
+            "slots": 252,
+            "pending": 9496
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 2518,
+              "IDENTITY_EVENT": 6,
+              "COMMAND_COMPLETION_EVENT": 2528,
+              "IDENTITY_COMPLETION_EVENT": 3
+            },
+            "slots": 232
+          }
+        },
+        {
+          "t": 18.27,
+          "write": {
+            "slots": 253,
+            "pending": 9262
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 2751,
+              "IDENTITY_EVENT": 6,
+              "COMMAND_COMPLETION_EVENT": 2764,
+              "IDENTITY_COMPLETION_EVENT": 3
+            },
+            "slots": 484
+          }
+        },
+        {
+          "t": 20.42,
+          "write": {
+            "slots": 254,
+            "pending": 9036
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 2949,
+              "IDENTITY_EVENT": 8,
+              "COMMAND_COMPLETION_EVENT": 2990,
+              "IDENTITY_COMPLETION_EVENT": 4
+            },
+            "slots": 658
+          }
+        },
+        {
+          "t": 22.58,
+          "write": {
+            "slots": 252,
+            "pending": 8814
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 3048,
+              "IDENTITY_EVENT": 8,
+              "COMMAND_COMPLETION_EVENT": 3211,
+              "IDENTITY_COMPLETION_EVENT": 4
+            },
+            "slots": 718
+          }
+        },
+        {
+          "t": 24.78,
+          "write": {
+            "slots": 252,
+            "pending": 8588
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 3214,
+              "IDENTITY_EVENT": 8,
+              "COMMAND_COMPLETION_EVENT": 3437,
+              "IDENTITY_COMPLETION_EVENT": 4
+            },
+            "slots": 751
+          }
+        },
+        {
+          "t": 26.98,
+          "write": {
+            "slots": 252,
+            "pending": 8362
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 3367,
+              "IDENTITY_EVENT": 10,
+              "COMMAND_COMPLETION_EVENT": 3665,
+              "IDENTITY_COMPLETION_EVENT": 5
+            },
+            "slots": 753
+          }
+        },
+        {
+          "t": 29.18,
+          "write": {
+            "slots": 253,
+            "pending": 8144
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 3461,
+              "IDENTITY_EVENT": 10,
+              "COMMAND_COMPLETION_EVENT": 3884,
+              "IDENTITY_COMPLETION_EVENT": 5
+            },
+            "slots": 747
+          }
+        },
+        {
+          "t": 31.38,
+          "write": {
+            "slots": 255,
+            "pending": 7926
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 3635,
+              "IDENTITY_EVENT": 12,
+              "COMMAND_COMPLETION_EVENT": 4101,
+              "IDENTITY_COMPLETION_EVENT": 6
+            },
+            "slots": 751
+          }
+        },
+        {
+          "t": 33.58,
+          "write": {
+            "slots": 253,
+            "pending": 7716
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 3760,
+              "IDENTITY_EVENT": 12,
+              "COMMAND_COMPLETION_EVENT": 4310,
+              "IDENTITY_COMPLETION_EVENT": 6
+            },
+            "slots": 748
+          }
+        },
+        {
+          "t": 35.77,
+          "write": {
+            "slots": 253,
+            "pending": 7504
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 3885,
+              "IDENTITY_EVENT": 14,
+              "COMMAND_COMPLETION_EVENT": 4522,
+              "IDENTITY_COMPLETION_EVENT": 7
+            },
+            "slots": 752
+          }
+        },
+        {
+          "t": 37.97,
+          "write": {
+            "slots": 253,
+            "pending": 7300
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 4044,
+              "IDENTITY_EVENT": 14,
+              "COMMAND_COMPLETION_EVENT": 4726,
+              "IDENTITY_COMPLETION_EVENT": 7
+            },
+            "slots": 746
+          }
+        },
+        {
+          "t": 40.19,
+          "write": {
+            "slots": 254,
+            "pending": 7098
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 4195,
+              "IDENTITY_EVENT": 16,
+              "COMMAND_COMPLETION_EVENT": 4930,
+              "IDENTITY_COMPLETION_EVENT": 8
+            },
+            "slots": 746
+          }
+        },
+        {
+          "t": 42.38,
+          "write": {
+            "slots": 253,
+            "pending": 6897
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 4317,
+              "IDENTITY_EVENT": 16,
+              "COMMAND_COMPLETION_EVENT": 5130,
+              "IDENTITY_COMPLETION_EVENT": 8
+            },
+            "slots": 750
+          }
+        },
+        {
+          "t": 44.58,
+          "write": {
+            "slots": 253,
+            "pending": 6700
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 4470,
+              "IDENTITY_EVENT": 16,
+              "COMMAND_COMPLETION_EVENT": 5326,
+              "IDENTITY_COMPLETION_EVENT": 8
+            },
+            "slots": 753
+          }
+        },
+        {
+          "t": 46.79,
+          "write": {
+            "slots": 256,
+            "pending": 6511
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 4644,
+              "IDENTITY_EVENT": 18,
+              "COMMAND_COMPLETION_EVENT": 5515,
+              "IDENTITY_COMPLETION_EVENT": 9
+            },
+            "slots": 748
+          }
+        },
+        {
+          "t": 48.98,
+          "write": {
+            "slots": 254,
+            "pending": 6321
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 4770,
+              "IDENTITY_EVENT": 18,
+              "COMMAND_COMPLETION_EVENT": 5705,
+              "IDENTITY_COMPLETION_EVENT": 9
+            },
+            "slots": 752
+          }
+        },
+        {
+          "t": 51.17,
+          "write": {
+            "slots": 254,
+            "pending": 6133
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 4897,
+              "IDENTITY_EVENT": 20,
+              "COMMAND_COMPLETION_EVENT": 5893,
+              "IDENTITY_COMPLETION_EVENT": 10
+            },
+            "slots": 748
+          }
+        },
+        {
+          "t": 53.39,
+          "write": {
+            "slots": 254,
+            "pending": 5947
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 5025,
+              "IDENTITY_EVENT": 20,
+              "COMMAND_COMPLETION_EVENT": 6080,
+              "IDENTITY_COMPLETION_EVENT": 10
+            },
+            "slots": 750
+          }
+        },
+        {
+          "t": 55.59,
+          "write": {
+            "slots": 254,
+            "pending": 5751
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 5182,
+              "IDENTITY_EVENT": 22,
+              "COMMAND_COMPLETION_EVENT": 6274,
+              "IDENTITY_COMPLETION_EVENT": 11
+            },
+            "slots": 750
+          }
+        },
+        {
+          "t": 57.77,
+          "write": {
+            "slots": 254,
+            "pending": 5504
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 5335,
+              "IDENTITY_EVENT": 22,
+              "COMMAND_COMPLETION_EVENT": 6522,
+              "IDENTITY_COMPLETION_EVENT": 11
+            },
+            "slots": 753
+          }
+        },
+        {
+          "t": 59.97,
+          "write": {
+            "slots": 254,
+            "pending": 5265
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 5477,
+              "IDENTITY_EVENT": 24,
+              "COMMAND_COMPLETION_EVENT": 6761,
+              "IDENTITY_COMPLETION_EVENT": 12
+            },
+            "slots": 749
+          }
+        },
+        {
+          "t": 62.18,
+          "write": {
+            "slots": 253,
+            "pending": 5021
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 5612,
+              "IDENTITY_EVENT": 24,
+              "COMMAND_COMPLETION_EVENT": 7007,
+              "IDENTITY_COMPLETION_EVENT": 12
+            },
+            "slots": 749
+          }
+        },
+        {
+          "t": 64.38,
+          "write": {
+            "slots": 254,
+            "pending": 4774
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 5741,
+              "IDENTITY_EVENT": 24,
+              "COMMAND_COMPLETION_EVENT": 7253,
+              "IDENTITY_COMPLETION_EVENT": 12
+            },
+            "slots": 751
+          }
+        },
+        {
+          "t": 66.58,
+          "write": {
+            "slots": 253,
+            "pending": 4560
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 5872,
+              "IDENTITY_EVENT": 26,
+              "COMMAND_COMPLETION_EVENT": 7467,
+              "IDENTITY_COMPLETION_EVENT": 13
+            },
+            "slots": 748
+          }
+        },
+        {
+          "t": 68.78,
+          "write": {
+            "slots": 250,
+            "pending": 4319
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 6015,
+              "IDENTITY_EVENT": 26,
+              "COMMAND_COMPLETION_EVENT": 7707,
+              "IDENTITY_COMPLETION_EVENT": 13
+            },
+            "slots": 747
+          }
+        },
+        {
+          "t": 70.98,
+          "write": {
+            "slots": 253,
+            "pending": 4080
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 6195,
+              "IDENTITY_EVENT": 26,
+              "COMMAND_COMPLETION_EVENT": 7948,
+              "IDENTITY_COMPLETION_EVENT": 13
+            },
+            "slots": 746
+          }
+        },
+        {
+          "t": 73.18,
+          "write": {
+            "slots": 254,
+            "pending": 3817
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 6353,
+              "IDENTITY_EVENT": 26,
+              "COMMAND_COMPLETION_EVENT": 8211,
+              "IDENTITY_COMPLETION_EVENT": 13
+            },
+            "slots": 746
+          }
+        },
+        {
+          "t": 75.38,
+          "write": {
+            "slots": 253,
+            "pending": 3567
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 6529,
+              "IDENTITY_EVENT": 26,
+              "COMMAND_COMPLETION_EVENT": 8460,
+              "IDENTITY_COMPLETION_EVENT": 13
+            },
+            "slots": 749
+          }
+        },
+        {
+          "t": 77.59,
+          "write": {
+            "slots": 252,
+            "pending": 3325
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 6723,
+              "IDENTITY_EVENT": 26,
+              "COMMAND_COMPLETION_EVENT": 8704,
+              "IDENTITY_COMPLETION_EVENT": 13
+            },
+            "slots": 747
+          }
+        },
+        {
+          "t": 79.79,
+          "write": {
+            "slots": 251,
+            "pending": 3056
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 6837,
+              "IDENTITY_EVENT": 26,
+              "COMMAND_COMPLETION_EVENT": 8971,
+              "IDENTITY_COMPLETION_EVENT": 13
+            },
+            "slots": 753
+          }
+        },
+        {
+          "t": 81.98,
+          "write": {
+            "slots": 253,
+            "pending": 2797
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 7005,
+              "IDENTITY_EVENT": 26,
+              "COMMAND_COMPLETION_EVENT": 9231,
+              "IDENTITY_COMPLETION_EVENT": 13
+            },
+            "slots": 746
+          }
+        },
+        {
+          "t": 84.18,
+          "write": {
+            "slots": 253,
+            "pending": 2545
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 7214,
+              "IDENTITY_EVENT": 26,
+              "COMMAND_COMPLETION_EVENT": 9482,
+              "IDENTITY_COMPLETION_EVENT": 13
+            },
+            "slots": 750
+          }
+        },
+        {
+          "t": 86.38,
+          "write": {
+            "slots": 253,
+            "pending": 2294
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 7354,
+              "IDENTITY_EVENT": 26,
+              "COMMAND_COMPLETION_EVENT": 9729,
+              "IDENTITY_COMPLETION_EVENT": 13
+            },
+            "slots": 745
+          }
+        },
+        {
+          "t": 88.57,
+          "write": {
+            "slots": 251,
+            "pending": 2034
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 7516,
+              "IDENTITY_EVENT": 26,
+              "COMMAND_COMPLETION_EVENT": 9992,
+              "IDENTITY_COMPLETION_EVENT": 13
+            },
+            "slots": 749
+          }
+        },
+        {
+          "t": 90.78,
+          "write": {
+            "slots": 253,
+            "pending": 1774
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 7666,
+              "IDENTITY_EVENT": 26,
+              "COMMAND_COMPLETION_EVENT": 10255,
+              "IDENTITY_COMPLETION_EVENT": 13
+            },
+            "slots": 748
+          }
+        },
+        {
+          "t": 92.98,
+          "write": {
+            "slots": 252,
+            "pending": 1515
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 7830,
+              "IDENTITY_EVENT": 26,
+              "COMMAND_COMPLETION_EVENT": 10515,
+              "IDENTITY_COMPLETION_EVENT": 13
+            },
+            "slots": 752
+          }
+        },
+        {
+          "t": 95.18,
+          "write": {
+            "slots": 254,
+            "pending": 1265
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 8014,
+              "IDENTITY_EVENT": 26,
+              "COMMAND_COMPLETION_EVENT": 10760,
+              "IDENTITY_COMPLETION_EVENT": 13
+            },
+            "slots": 751
+          }
+        },
+        {
+          "t": 97.38,
+          "write": {
+            "slots": 254,
+            "pending": 1009
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 8139,
+              "IDENTITY_EVENT": 26,
+              "COMMAND_COMPLETION_EVENT": 11018,
+              "IDENTITY_COMPLETION_EVENT": 13
+            },
+            "slots": 753
+          }
+        },
+        {
+          "t": 99.58,
+          "write": {
+            "slots": 224,
+            "pending": 755
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 8248,
+              "IDENTITY_EVENT": 26,
+              "COMMAND_COMPLETION_EVENT": 11271,
+              "IDENTITY_COMPLETION_EVENT": 13
+            },
+            "slots": 750
+          }
+        },
+        {
+          "t": 101.78,
+          "write": {
+            "slots": 128,
+            "pending": 518
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 8462,
+              "IDENTITY_EVENT": 26,
+              "COMMAND_COMPLETION_EVENT": 11508,
+              "IDENTITY_COMPLETION_EVENT": 13
+            },
+            "slots": 747
+          }
+        },
+        {
+          "t": 103.97,
+          "write": {
+            "slots": 61,
+            "pending": 255
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 8595,
+              "IDENTITY_EVENT": 26,
+              "COMMAND_COMPLETION_EVENT": 11771,
+              "IDENTITY_COMPLETION_EVENT": 13
+            },
+            "slots": 748
+          }
+        },
+        {
+          "t": 106.07,
+          "write": {
+            "slots": 0,
+            "pending": 0
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 8795,
+              "IDENTITY_EVENT": 26,
+              "COMMAND_COMPLETION_EVENT": 12022,
+              "IDENTITY_COMPLETION_EVENT": 13
+            },
+            "slots": 749
+          }
+        },
+        {
+          "t": 108.17,
+          "write": {
+            "slots": 0,
+            "pending": 0
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 9190,
+              "IDENTITY_EVENT": 26,
+              "COMMAND_COMPLETION_EVENT": 12022,
+              "IDENTITY_COMPLETION_EVENT": 13
+            },
+            "slots": 751
+          }
+        },
+        {
+          "t": 110.27,
+          "write": {
+            "slots": 0,
+            "pending": 0
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 9597,
+              "IDENTITY_EVENT": 26,
+              "COMMAND_COMPLETION_EVENT": 12022,
+              "IDENTITY_COMPLETION_EVENT": 13
+            },
+            "slots": 754
+          }
+        },
+        {
+          "t": 112.37,
+          "write": {
+            "slots": 0,
+            "pending": 0
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 10082,
+              "IDENTITY_EVENT": 26,
+              "COMMAND_COMPLETION_EVENT": 12022,
+              "IDENTITY_COMPLETION_EVENT": 13
+            },
+            "slots": 746
+          }
+        },
+        {
+          "t": 114.52,
+          "write": {
+            "slots": 0,
+            "pending": 0
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 10438,
+              "IDENTITY_EVENT": 26,
+              "COMMAND_COMPLETION_EVENT": 12022,
+              "IDENTITY_COMPLETION_EVENT": 13
+            },
+            "slots": 746
+          }
+        },
+        {
+          "t": 116.64,
+          "write": {
+            "slots": 0,
+            "pending": 0
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 10811,
+              "IDENTITY_EVENT": 26,
+              "COMMAND_COMPLETION_EVENT": 12022,
+              "IDENTITY_COMPLETION_EVENT": 13
+            },
+            "slots": 750
+          }
+        },
+        {
+          "t": 118.74,
+          "write": {
+            "slots": 0,
+            "pending": 0
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 11311,
+              "IDENTITY_EVENT": 26,
+              "COMMAND_COMPLETION_EVENT": 12022,
+              "IDENTITY_COMPLETION_EVENT": 13
+            },
+            "slots": 694
+          }
+        },
+        {
+          "t": 120.84,
+          "write": {
+            "slots": 0,
+            "pending": 0
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 11989,
+              "IDENTITY_EVENT": 26,
+              "COMMAND_COMPLETION_EVENT": 12022,
+              "IDENTITY_COMPLETION_EVENT": 13
+            },
+            "slots": 187
+          }
+        },
+        {
+          "t": 122.96,
+          "write": {
+            "slots": 0,
+            "pending": 0
+          },
+          "read": {
+            "cp": {
+              "POT_EVENT": 12022,
+              "IDENTITY_EVENT": 26,
+              "COMMAND_COMPLETION_EVENT": 12022,
+              "IDENTITY_COMPLETION_EVENT": 13
+            },
+            "slots": 0
+          }
+        }
+      ],
+      "concurrentCommands": {
+        "planned": 60,
+        "admitted": 2,
+        "observed": 2,
+        "droppedOffer": 58,
+        "censored": 0,
+        "invariantViolations": 0,
+        "windowSeconds": 108.554,
+        "observedRate": 0.018,
+        "offerLagMs": {
+          "n": 2,
+          "p50": 0.628,
+          "p95": 1.85,
+          "p99": 1.85,
+          "max": 1.85
+        },
+        "admissionMs": {
+          "n": 2,
+          "p50": 11.583,
+          "p95": 27.283,
+          "p99": 27.283,
+          "max": 27.283
+        },
+        "resultE2eMs": {
+          "n": 2,
+          "p50": 88985.564,
+          "p95": 91065.079,
+          "p99": 91065.079,
+          "max": 91065.079
+        },
+        "c03E2eMs": {
+          "n": 2,
+          "p50": 106672.806,
+          "p95": 107551.806,
+          "p99": 107551.806,
+          "max": 107551.806
+        },
+        "balanceE2eMs": {
+          "n": 2,
+          "p50": 106623.743,
+          "p95": 107554.158,
+          "p99": 107554.158,
+          "max": 107554.158
+        }
+      },
+      "concurrentRegistrations": {
+        "count": 12,
+        "observed": 12,
+        "usableBindingE2eMs": {
+          "n": 12,
+          "p50": 366.047,
+          "p95": 1367.482,
+          "p99": 1367.482,
+          "max": 1367.482
+        }
+      }
+    }
+  },
+  {
+    "id": "B-250-c1-idle-r1",
+    "verdict": "PASS",
+    "availabilityValid": true,
+    "cgroupDelta": {
+      "wall_seconds": 88.297,
+      "containers": {
+        "postgres": {
+          "cpu_seconds": 5.5328,
+          "avg_cpus": 0.0627,
+          "throttled_seconds": 0.0,
+          "nr_throttled": 0,
+          "memory_mib": 377.23
+        },
+        "http-write": {
+          "cpu_seconds": 1.0776,
+          "avg_cpus": 0.0122,
+          "throttled_seconds": 1.2681,
+          "nr_throttled": 10,
+          "memory_mib": 211.71
+        },
+        "http-read": {
+          "cpu_seconds": 3.0129,
+          "avg_cpus": 0.0341,
+          "throttled_seconds": 1.2446,
+          "nr_throttled": 15,
+          "memory_mib": 246.44
+        },
+        "command-worker": {
+          "cpu_seconds": 5.4207,
+          "avg_cpus": 0.0614,
+          "throttled_seconds": 0.3948,
+          "nr_throttled": 3,
+          "memory_mib": 232.45
+        },
+        "results-worker": {
+          "cpu_seconds": 5.2133,
+          "avg_cpus": 0.059,
+          "throttled_seconds": 0.0339,
+          "nr_throttled": 2,
+          "memory_mib": 197.26
+        },
+        "business-read-worker": {
+          "cpu_seconds": 7.0084,
+          "avg_cpus": 0.0794,
+          "throttled_seconds": 0.3152,
+          "nr_throttled": 3,
+          "memory_mib": 228.24
+        }
+      }
+    },
+    "pgTxDelta": {
+      "pocoma_write": {
+        "xact_commit": 18141,
+        "xact_rollback": 5,
+        "deadlocks": 0
+      },
+      "pocoma_read": {
+        "xact_commit": 21409,
+        "xact_rollback": 4,
+        "deadlocks": 0
+      }
+    },
+    "pgWalBytes": {
+      "pocoma_write": 1157328,
+      "pocoma_read": 1157480
+    },
+    "results": {
+      "planned": 10,
+      "admitted": 10,
+      "observed": 10,
+      "droppedOffer": 0,
+      "censored": 0,
+      "invariantViolations": 0,
+      "windowSeconds": 27.558,
+      "observedRate": 0.363,
+      "offerLagMs": {
+        "n": 10,
+        "p50": 7.696,
+        "p95": 10.209,
+        "p99": 10.209,
+        "max": 10.209
+      },
+      "admissionMs": {
+        "n": 10,
+        "p50": 23.171,
+        "p95": 805.414,
+        "p99": 805.414,
+        "max": 805.414
+      },
+      "resultE2eMs": {
+        "n": 10,
+        "p50": 313.669,
+        "p95": 1661.959,
+        "p99": 1661.959,
+        "max": 1661.959
+      },
+      "c03E2eMs": {
+        "n": 10,
+        "p50": 370.464,
+        "p95": 1804.639,
+        "p99": 1804.639,
+        "max": 1804.639
+      },
+      "balanceE2eMs": {
+        "n": 10,
+        "p50": 371.798,
+        "p95": 1801.769,
+        "p99": 1801.769,
+        "max": 1801.769
+      }
+    }
+  },
+  {
+    "id": "B-250-c1-med-1-r1",
+    "verdict": "PASS",
+    "availabilityValid": true,
+    "cgroupDelta": {
+      "wall_seconds": 69.943,
+      "containers": {
+        "postgres": {
+          "cpu_seconds": 7.9682,
+          "avg_cpus": 0.1139,
+          "throttled_seconds": 0.0,
+          "nr_throttled": 0,
+          "memory_mib": 390.02
+        },
+        "http-write": {
+          "cpu_seconds": 2.4949,
+          "avg_cpus": 0.0357,
+          "throttled_seconds": 0.423,
+          "nr_throttled": 8,
+          "memory_mib": 218.57
+        },
+        "http-read": {
+          "cpu_seconds": 9.4012,
+          "avg_cpus": 0.1344,
+          "throttled_seconds": 0.9026,
+          "nr_throttled": 9,
+          "memory_mib": 248.07
+        },
+        "command-worker": {
+          "cpu_seconds": 5.003,
+          "avg_cpus": 0.0715,
+          "throttled_seconds": 0.6053,
+          "nr_throttled": 6,
+          "memory_mib": 232.54
+        },
+        "results-worker": {
+          "cpu_seconds": 3.6968,
+          "avg_cpus": 0.0529,
+          "throttled_seconds": 0.3371,
+          "nr_throttled": 4,
+          "memory_mib": 191.39
+        },
+        "business-read-worker": {
+          "cpu_seconds": 6.6483,
+          "avg_cpus": 0.0951,
+          "throttled_seconds": 0.3145,
+          "nr_throttled": 3,
+          "memory_mib": 226.59
+        }
+      }
+    },
+    "pgTxDelta": {
+      "pocoma_write": {
+        "xact_commit": 35658,
+        "xact_rollback": 5,
+        "deadlocks": 0
+      },
+      "pocoma_read": {
+        "xact_commit": 31746,
+        "xact_rollback": 4,
+        "deadlocks": 0
+      }
+    },
+    "pgWalBytes": {
+      "pocoma_write": 3571968,
+      "pocoma_read": 3572120
+    },
+    "results": {
+      "planned": 60,
+      "admitted": 60,
+      "observed": 60,
+      "droppedOffer": 0,
+      "censored": 0,
+      "invariantViolations": 0,
+      "windowSeconds": 59.215,
+      "observedRate": 1.013,
+      "offerLagMs": {
+        "n": 60,
+        "p50": 7.435,
+        "p95": 10.222,
+        "p99": 10.228,
+        "max": 10.228
+      },
+      "admissionMs": {
+        "n": 60,
+        "p50": 18.515,
+        "p95": 24.477,
+        "p99": 26.509,
+        "max": 26.509
+      },
+      "resultE2eMs": {
+        "n": 60,
+        "p50": 342.67,
+        "p95": 660.501,
+        "p99": 753.859,
+        "max": 753.859
+      },
+      "c03E2eMs": {
+        "n": 60,
+        "p50": 347.679,
+        "p95": 540.585,
+        "p99": 701.321,
+        "max": 701.321
+      },
+      "balanceE2eMs": {
+        "n": 60,
+        "p50": 349.016,
+        "p95": 537.411,
+        "p99": 698.959,
+        "max": 698.959
+      }
+    }
+  },
+  {
+    "id": "B-250-c2-med-10-r1",
+    "verdict": "PASS",
+    "availabilityValid": true,
+    "cgroupDelta": {
+      "wall_seconds": 23.719,
+      "containers": {
+        "postgres": {
+          "cpu_seconds": 12.0194,
+          "avg_cpus": 0.5067,
+          "throttled_seconds": 0.0,
+          "nr_throttled": 0,
+          "memory_mib": 711.65
+        },
+        "http-write": {
+          "cpu_seconds": 2.4511,
+          "avg_cpus": 0.1033,
+          "throttled_seconds": 3.6272,
+          "nr_throttled": 14,
+          "memory_mib": 223.11
+        },
+        "http-read": {
+          "cpu_seconds": 8.9256,
+          "avg_cpus": 0.3763,
+          "throttled_seconds": 5.7904,
+          "nr_throttled": 41,
+          "memory_mib": 255.17
+        },
+        "command-worker": {
+          "cpu_seconds": 5.8018,
+          "avg_cpus": 0.2446,
+          "throttled_seconds": 2.9363,
+          "nr_throttled": 18,
+          "memory_mib": 239.73
+        },
+        "results-worker": {
+          "cpu_seconds": 4.2234,
+          "avg_cpus": 0.1781,
+          "throttled_seconds": 0.9475,
+          "nr_throttled": 10,
+          "memory_mib": 197.58
+        },
+        "business-read-worker": {
+          "cpu_seconds": 8.9025,
+          "avg_cpus": 0.3753,
+          "throttled_seconds": 1.9387,
+          "nr_throttled": 12,
+          "memory_mib": 227.34
+        }
+      }
+    },
+    "pgTxDelta": {
+      "pocoma_write": {
+        "xact_commit": 55887,
+        "xact_rollback": 4,
+        "deadlocks": 0
+      },
+      "pocoma_read": {
+        "xact_commit": 35342,
+        "xact_rollback": 8,
+        "deadlocks": 0
+      }
+    },
+    "pgWalBytes": {
+      "pocoma_write": 9042232,
+      "pocoma_read": 9042384
+    },
+    "results": {
+      "planned": 200,
+      "admitted": 196,
+      "observed": 196,
+      "droppedOffer": 4,
+      "censored": 0,
+      "invariantViolations": 0,
+      "windowSeconds": 19.977,
+      "observedRate": 9.811,
+      "offerLagMs": {
+        "n": 196,
+        "p50": 5.913,
+        "p95": 10.133,
+        "p99": 10.177,
+        "max": 28.277
+      },
+      "admissionMs": {
+        "n": 196,
+        "p50": 5.333,
+        "p95": 8.983,
+        "p99": 11.588,
+        "max": 19.25
+      },
+      "resultE2eMs": {
+        "n": 196,
+        "p50": 97.36,
+        "p95": 239.567,
+        "p99": 268.763,
+        "max": 273.252
+      },
+      "c03E2eMs": {
+        "n": 196,
+        "p50": 112.256,
+        "p95": 209.719,
+        "p99": 346.855,
+        "max": 466.651
+      },
+      "balanceE2eMs": {
+        "n": 196,
+        "p50": 108.721,
+        "p95": 208.158,
+        "p99": 347.225,
+        "max": 400.5
+      }
+    }
+  },
+  {
+    "id": "B-50-c1-idle-r1",
+    "verdict": "PASS",
+    "availabilityValid": true,
+    "cgroupDelta": {
+      "wall_seconds": 88.197,
+      "containers": {
+        "postgres": {
+          "cpu_seconds": 9.4279,
+          "avg_cpus": 0.1069,
+          "throttled_seconds": 0.0,
+          "nr_throttled": 0,
+          "memory_mib": 382.54
+        },
+        "http-write": {
+          "cpu_seconds": 0.9639,
+          "avg_cpus": 0.0109,
+          "throttled_seconds": 0.925,
+          "nr_throttled": 7,
+          "memory_mib": 219.74
+        },
+        "http-read": {
+          "cpu_seconds": 1.8849,
+          "avg_cpus": 0.0214,
+          "throttled_seconds": 0.9778,
+          "nr_throttled": 10,
+          "memory_mib": 229.17
+        },
+        "command-worker": {
+          "cpu_seconds": 8.6855,
+          "avg_cpus": 0.0985,
+          "throttled_seconds": 0.6124,
+          "nr_throttled": 6,
+          "memory_mib": 223.84
+        },
+        "results-worker": {
+          "cpu_seconds": 8.2804,
+          "avg_cpus": 0.0939,
+          "throttled_seconds": 0.0671,
+          "nr_throttled": 2,
+          "memory_mib": 192.84
+        },
+        "business-read-worker": {
+          "cpu_seconds": 10.7116,
+          "avg_cpus": 0.1215,
+          "throttled_seconds": 0.2554,
+          "nr_throttled": 2,
+          "memory_mib": 228.07
+        }
+      }
+    },
+    "pgTxDelta": {
+      "pocoma_write": {
+        "xact_commit": 49695,
+        "xact_rollback": 5,
+        "deadlocks": 0
+      },
+      "pocoma_read": {
+        "xact_commit": 20438,
+        "xact_rollback": 4,
+        "deadlocks": 0
+      }
+    },
+    "pgWalBytes": {
+      "pocoma_write": 1159272,
+      "pocoma_read": 1159424
+    },
+    "results": {
+      "planned": 10,
+      "admitted": 10,
+      "observed": 10,
+      "droppedOffer": 0,
+      "censored": 0,
+      "invariantViolations": 0,
+      "windowSeconds": 27.428,
+      "observedRate": 0.365,
+      "offerLagMs": {
+        "n": 10,
+        "p50": 3.777,
+        "p95": 10.241,
+        "p99": 10.241,
+        "max": 10.241
+      },
+      "admissionMs": {
+        "n": 10,
+        "p50": 24.343,
+        "p95": 538.073,
+        "p99": 538.073,
+        "max": 538.073
+      },
+      "resultE2eMs": {
+        "n": 10,
+        "p50": 138.814,
+        "p95": 912.196,
+        "p99": 912.196,
+        "max": 912.196
+      },
+      "c03E2eMs": {
+        "n": 10,
+        "p50": 185.298,
+        "p95": 1059.525,
+        "p99": 1059.525,
+        "max": 1059.525
+      },
+      "balanceE2eMs": {
+        "n": 10,
+        "p50": 177.93,
+        "p95": 1036.608,
+        "p99": 1036.608,
+        "max": 1036.608
+      }
+    }
+  },
+  {
+    "id": "B-50-c1-med-1-r1",
+    "verdict": "PASS",
+    "availabilityValid": true,
+    "cgroupDelta": {
+      "wall_seconds": 69.96,
+      "containers": {
+        "postgres": {
+          "cpu_seconds": 10.4525,
+          "avg_cpus": 0.1494,
+          "throttled_seconds": 0.0,
+          "nr_throttled": 0,
+          "memory_mib": 393.17
+        },
+        "http-write": {
+          "cpu_seconds": 2.3209,
+          "avg_cpus": 0.0332,
+          "throttled_seconds": 0.5524,
+          "nr_throttled": 6,
+          "memory_mib": 218.04
+        },
+        "http-read": {
+          "cpu_seconds": 6.296,
+          "avg_cpus": 0.09,
+          "throttled_seconds": 0.4351,
+          "nr_throttled": 11,
+          "memory_mib": 250.79
+        },
+        "command-worker": {
+          "cpu_seconds": 7.3117,
+          "avg_cpus": 0.1045,
+          "throttled_seconds": 0.4882,
+          "nr_throttled": 5,
+          "memory_mib": 233.95
+        },
+        "results-worker": {
+          "cpu_seconds": 6.3949,
+          "avg_cpus": 0.0914,
+          "throttled_seconds": 0.1305,
+          "nr_throttled": 4,
+          "memory_mib": 202.81
+        },
+        "business-read-worker": {
+          "cpu_seconds": 9.7357,
+          "avg_cpus": 0.1392,
+          "throttled_seconds": 0.3246,
+          "nr_throttled": 2,
+          "memory_mib": 223.59
+        }
+      }
+    },
+    "pgTxDelta": {
+      "pocoma_write": {
+        "xact_commit": 56348,
+        "xact_rollback": 6,
+        "deadlocks": 0
+      },
+      "pocoma_read": {
+        "xact_commit": 27108,
+        "xact_rollback": 4,
+        "deadlocks": 0
+      }
+    },
+    "pgWalBytes": {
+      "pocoma_write": 3542288,
+      "pocoma_read": 3542440
+    },
+    "results": {
+      "planned": 60,
+      "admitted": 60,
+      "observed": 60,
+      "droppedOffer": 0,
+      "censored": 0,
+      "invariantViolations": 0,
+      "windowSeconds": 59.205,
+      "observedRate": 1.013,
+      "offerLagMs": {
+        "n": 60,
+        "p50": 3.976,
+        "p95": 10.198,
+        "p99": 10.718,
+        "max": 10.718
+      },
+      "admissionMs": {
+        "n": 60,
+        "p50": 18.423,
+        "p95": 26.042,
+        "p99": 44.213,
+        "max": 44.213
+      },
+      "resultE2eMs": {
+        "n": 60,
+        "p50": 131.659,
+        "p95": 170.949,
+        "p99": 225.555,
+        "max": 225.555
+      },
+      "c03E2eMs": {
+        "n": 60,
+        "p50": 159.381,
+        "p95": 200.959,
+        "p99": 224.554,
+        "max": 224.554
+      },
+      "balanceE2eMs": {
+        "n": 60,
+        "p50": 160.4,
+        "p95": 198.153,
+        "p99": 222.298,
+        "max": 222.298
+      }
+    }
+  },
+  {
+    "id": "B-50-c2-med-10-r1",
+    "verdict": "PASS",
+    "availabilityValid": true,
+    "cgroupDelta": {
+      "wall_seconds": 23.849,
+      "containers": {
+        "postgres": {
+          "cpu_seconds": 14.143,
+          "avg_cpus": 0.593,
+          "throttled_seconds": 0.0,
+          "nr_throttled": 0,
+          "memory_mib": 723.36
+        },
+        "http-write": {
+          "cpu_seconds": 2.5748,
+          "avg_cpus": 0.108,
+          "throttled_seconds": 2.5811,
+          "nr_throttled": 9,
+          "memory_mib": 225.84
+        },
+        "http-read": {
+          "cpu_seconds": 9.1038,
+          "avg_cpus": 0.3817,
+          "throttled_seconds": 9.0942,
+          "nr_throttled": 51,
+          "memory_mib": 254.5
+        },
+        "command-worker": {
+          "cpu_seconds": 6.6872,
+          "avg_cpus": 0.2804,
+          "throttled_seconds": 4.7746,
+          "nr_throttled": 26,
+          "memory_mib": 238.48
+        },
+        "results-worker": {
+          "cpu_seconds": 5.1183,
+          "avg_cpus": 0.2146,
+          "throttled_seconds": 1.1989,
+          "nr_throttled": 10,
+          "memory_mib": 204.49
+        },
+        "business-read-worker": {
+          "cpu_seconds": 10.8689,
+          "avg_cpus": 0.4557,
+          "throttled_seconds": 3.0215,
+          "nr_throttled": 19,
+          "memory_mib": 228.54
+        }
+      }
+    },
+    "pgTxDelta": {
+      "pocoma_write": {
+        "xact_commit": 64467,
+        "xact_rollback": 4,
+        "deadlocks": 0
+      },
+      "pocoma_read": {
+        "xact_commit": 37063,
+        "xact_rollback": 3,
+        "deadlocks": 0
+      }
+    },
+    "pgWalBytes": {
+      "pocoma_write": 9648112,
+      "pocoma_read": 9648360
+    },
+    "results": {
+      "planned": 200,
+      "admitted": 200,
+      "observed": 200,
+      "droppedOffer": 0,
+      "censored": 0,
+      "invariantViolations": 0,
+      "windowSeconds": 20.057,
+      "observedRate": 9.972,
+      "offerLagMs": {
+        "n": 200,
+        "p50": 3.75,
+        "p95": 10.18,
+        "p99": 10.701,
+        "max": 27.854
+      },
+      "admissionMs": {
+        "n": 200,
+        "p50": 5.548,
+        "p95": 9.655,
+        "p99": 13.373,
+        "max": 21.509
+      },
+      "resultE2eMs": {
+        "n": 200,
+        "p50": 83.672,
+        "p95": 147.091,
+        "p99": 179.527,
+        "max": 230.871
+      },
+      "c03E2eMs": {
+        "n": 200,
+        "p50": 111.674,
+        "p95": 176.054,
+        "p99": 207.424,
+        "max": 242.792
+      },
+      "balanceE2eMs": {
+        "n": 200,
+        "p50": 108.5,
+        "p95": 175.074,
+        "p99": 235.302,
+        "max": 1039.792
+      }
+    }
+  }
+]

@@ -325,6 +325,7 @@ class ReadReconstructionPostgresTest {
             assertEquals(4, f.read.queryForObject("select count(*) from read_command_result", Integer.class));
             assertEquals(1, f.read.queryForObject("select count(*) from read_identity_request_result", Integer.class));
             assertEquals(2, f.read.queryForObject("select count(*) from read_pot_visibility_state", Integer.class));
+            assertVisibilityInvariants(f.read, pot.value(), removed.value(), 2L, 2L);
 
             var writeBefore = f.snapshot();
             assertTrue(authority.tryAcquireMaintenance("value-replay"));
@@ -339,6 +340,7 @@ class ReadReconstructionPostgresTest {
             f.drain(replay);
             var replayed = readContent(f.read);
             assertEquals(expected, replayed, "logical table fingerprints differ after replay");
+            assertVisibilityInvariants(f.read, pot.value(), removed.value(), 2L, 2L);
             assertAvailabilityMatchesWrite(f);
             var retainedEvents = f.read.queryForList("select * from read_availability_event order by family, position");
             assertEquals(writeBefore, f.snapshot());
@@ -485,19 +487,45 @@ class ReadReconstructionPostgresTest {
                 "read_pot_visibility_state", "read_user_pot",
                 "read_current_binding", "read_command_result", "read_identity_request_result",
                 "read_current_invitation")) {
-            // read_user_pot.pot_version records the version at which visibility last changed and
-            // is therefore arrival-order dependent when v2 is replayed before v1; logical
-            // equivalence is determined by (user_id, pot_id, visible) plus read_pot_visibility_state.
-            String rowExpr = "read_user_pot".equals(table)
-                    ? "jsonb_build_object('user_id', user_id, 'pot_id', pot_id, 'visible', visible)"
-                    : "to_jsonb(row)";
+            // read_user_pot.pot_version records the version at which visibility last changed, and
+            // visible=false rows are physical tombstones (runtime role has no DELETE privilege)
+            // created only when a user was materialized as visible before being disabled. When a
+            // newer version (e.g. DeletePot v2) arrives before an earlier version (CreatePot v1),
+            // no tombstone row is ever created. Logical equivalence is therefore fully determined
+            // by the visible (user_id, pot_id) set (WHERE visible = true) plus
+            // read_pot_visibility_state (fingerprinted in full).
+            String query = "read_user_pot".equals(table)
+                    ? "select jsonb_build_object('user_id', user_id, 'pot_id', pot_id) value from read_user_pot where visible = true"
+                    : "select to_jsonb(row) value from %s row".formatted(table);
             content.put(table, read.queryForObject("""
                     select encode(sha256(convert_to(
                         coalesce(jsonb_agg(value order by value::text)::text,'[]'), 'UTF8')), 'hex')
-                    from (select %s value from %s row) canonical
-                    """.formatted(rowExpr, table), String.class));
+                    from (%s) canonical
+                    """.formatted(query), String.class));
         }
         return content;
+    }
+
+    private static void assertVisibilityInvariants(
+            JdbcTemplate read, UUID activePotId, UUID deletedPotId,
+            long expectedActiveVersion, long expectedDeletedVersion) {
+        assertEquals(expectedActiveVersion, read.queryForObject(
+                "select materialized_version from read_pot_visibility_state where pot_id = ?",
+                Long.class, activePotId));
+        assertEquals(expectedDeletedVersion, read.queryForObject(
+                "select materialized_version from read_pot_visibility_state where pot_id = ?",
+                Long.class, deletedPotId));
+        assertEquals(1, read.queryForObject(
+                "select count(*) from read_user_pot where pot_id = ? and visible = true",
+                Integer.class, activePotId));
+        assertEquals(0, read.queryForObject(
+                "select count(*) from read_user_pot where pot_id = ? and visible = true",
+                Integer.class, deletedPotId));
+        assertEquals(0, read.queryForObject("""
+                select count(*) from read_user_pot u
+                left join read_pot_visibility_state s using (pot_id)
+                where s.pot_id is null or u.pot_version < 1 or u.pot_version > s.materialized_version
+                """, Integer.class));
     }
 
     @Test
@@ -546,8 +574,11 @@ class ReadReconstructionPostgresTest {
             var ctx = f.start();
             await(() -> {
                 Integer count = f.read.queryForObject("SELECT count(*) FROM read_current_pot", Integer.class);
+                Integer cmdResults = f.read.queryForObject("SELECT count(*) FROM read_command_result", Integer.class);
                 Integer slotCount = f.read.queryForObject("SELECT count(*) FROM consumption_slot", Integer.class);
-                return count != null && count >= 1 && slotCount != null && slotCount == 0;
+                return count != null && count >= 1
+                        && cmdResults != null && cmdResults >= 1
+                        && slotCount != null && slotCount == 0;
             }, Duration.ofSeconds(30));
             f.drain(ctx);
 

@@ -948,13 +948,17 @@ class WorkerResourcesPostgresTest {
                 f.properties.put("pocoma.v3.worker.lifecycle.renewal-interval-ms", "1000");
                 f.properties.put("pocoma.v3.worker.lifecycle.lease-duration-ms", "20000");
                 f.properties.put("pocoma.v3.worker.lifecycle.claim-duration-ms", "10000");
-                var watched = new AtomicReference<UUID>();
+                var watchedAuthority =
+                        write
+                                ? com.kartaguez.pocoma.domain.consumption.ConsumptionDefinition.Authority.WRITE
+                                : com.kartaguez.pocoma.domain.consumption.ConsumptionDefinition.Authority.READ;
+                var authorityIds = java.util.concurrent.ConcurrentHashMap.<UUID>newKeySet();
                 var captureService = new AtomicBoolean();
                 var fullService = new CopyOnWriteArrayList<Duration>();
                 ConsumptionObservation observer =
                         (id, phase, outcome, amount, elapsed) -> {
                             if (phase == ConsumptionObservation.Phase.RENEWAL_LEASE
-                                    && java.util.Objects.equals(id.value(), watched.get())
+                                    && authorityIds.contains(id.value())
                                     && captureService.compareAndSet(true, false))
                                 fullService.add(elapsed);
                         };
@@ -963,60 +967,83 @@ class WorkerResourcesPostgresTest {
                     var binding = runtime.bindings.get(write ? 0 : 1);
                     var sql = write ? f.write : f.read;
                     var cid = binding.definition().id().value();
-                    watched.set(cid);
-                    var original =
-                            (com.kartaguez.pocoma.contract.consumption.spi.PartitionOwnershipStore)
-                                    field(com.kartaguez.pocoma.runtime.command.L2TestAccess.engine(binding.engine()), "ownership");
                     var omitted = new CountDownLatch(1);
                     var allowReturn = new CountDownLatch(1);
                     var armed = new AtomicBoolean();
                     var targetCalls = new AtomicInteger();
                     var renewalPid = new AtomicInteger();
-                    replace(
-                            com.kartaguez.pocoma.runtime.command.L2TestAccess.engine(binding.engine()),
-                            "ownership",
-                            java.lang.reflect.Proxy.newProxyInstance(
-                                    getClass().getClassLoader(),
-                                    new Class[] {
-                                        com.kartaguez.pocoma.contract.consumption.spi.PartitionOwnershipStore.class
-                                    },
-                                    (proxy, method, args) -> {
-                                        Object result;
-                                        try {
-                                            result = method.invoke(original, args);
-                                        } catch (
-                                                java.lang.reflect.InvocationTargetException
-                                                        failure) {
-                                            throw failure.getCause();
-                                        }
-                                        if (method.getName().equals("renew") && armed.get()) {
-                                            var leases = (List<PartitionLease>) args[1];
-                                            if (leases.stream()
-                                                    .anyMatch(l -> l.partitionId() == 0)) {
-                                                targetCalls.incrementAndGet();
-                                                captureService.set(true);
-                                                var renewed = (List<PartitionLease>) result;
-                                                if (renewed.stream()
-                                                                .noneMatch(
-                                                                        l -> l.partitionId() == 0)
-                                                        && omitted.getCount() > 0) {
-                                                    renewalPid.set(
-                                                            new JdbcTemplate(
-                                                                            runtime.pool(
-                                                                                    write
-                                                                                            ? "writeControl"
-                                                                                            : "readControl"))
-                                                                    .queryForObject(
-                                                                            "select"
-                                                                                + " pg_backend_pid()",
-                                                                            Integer.class));
-                                                    omitted.countDown();
-                                                    latch(allowReturn);
+                    // Cross-definition lease renewal may invoke renewPartitionBatch on any
+                    // binding sharing the same authority (e.g. whichever binding has the oldest
+                    // due lease). Proxy all bindings of that authority so every SQL renewal
+                    // attempt containing (cid, partition 0) is observed without missing retries.
+                    for (var candidate : runtime.bindings) {
+                        if (candidate.definition().authority() != watchedAuthority) continue;
+                        authorityIds.add(candidate.definition().id().value());
+                        var candidateEngine =
+                                com.kartaguez.pocoma.runtime.command.L2TestAccess.engine(
+                                        candidate.engine());
+                        var original =
+                                (com.kartaguez.pocoma.contract.consumption.spi.PartitionOwnershipStore)
+                                        field(candidateEngine, "ownership");
+                        replace(
+                                candidateEngine,
+                                "ownership",
+                                java.lang.reflect.Proxy.newProxyInstance(
+                                        getClass().getClassLoader(),
+                                        new Class[] {
+                                            com.kartaguez.pocoma.contract.consumption.spi.PartitionOwnershipStore.class
+                                        },
+                                        (proxy, method, args) -> {
+                                            Object result;
+                                            try {
+                                                result = method.invoke(original, args);
+                                            } catch (
+                                                    java.lang.reflect.InvocationTargetException
+                                                            failure) {
+                                                throw failure.getCause();
+                                            }
+                                            if (method.getName().equals("renew") && armed.get()) {
+                                                var leases = (List<PartitionLease>) args[1];
+                                                if (leases.stream()
+                                                        .anyMatch(
+                                                                l ->
+                                                                        l.consumptionId()
+                                                                                        .value()
+                                                                                        .equals(cid)
+                                                                                && l.partitionId()
+                                                                                        == 0)) {
+                                                    targetCalls.incrementAndGet();
+                                                    captureService.set(true);
+                                                    var renewed = (List<PartitionLease>) result;
+                                                    if (renewed.stream()
+                                                                    .noneMatch(
+                                                                            l ->
+                                                                                    l.consumptionId()
+                                                                                                    .value()
+                                                                                                    .equals(
+                                                                                                            cid)
+                                                                                            && l
+                                                                                                            .partitionId()
+                                                                                                    == 0)
+                                                            && omitted.getCount() > 0) {
+                                                        renewalPid.set(
+                                                                new JdbcTemplate(
+                                                                                runtime.pool(
+                                                                                        write
+                                                                                                ? "writeControl"
+                                                                                                : "readControl"))
+                                                                        .queryForObject(
+                                                                                "select"
+                                                                                    + " pg_backend_pid()",
+                                                                                Integer.class));
+                                                        omitted.countDown();
+                                                        latch(allowReturn);
+                                                    }
                                                 }
                                             }
-                                        }
-                                        return result;
-                                    }));
+                                            return result;
+                                        }));
+                    }
                     runtime.worker.start();
                     await(
                             () ->

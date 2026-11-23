@@ -168,14 +168,46 @@ public final class PotCommandComposition {
             LifecycleSettings settings,
             WorkerCapacity capacity,
             com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation observation,
-            com.kartaguez.pocoma.engine.write.pot.port.execution.InvitationStore invitations, JdbcPotCommandStore.PublicationListener publicationListener) {
+            com.kartaguez.pocoma.engine.write.pot.port.execution.InvitationStore invitations,
+            JdbcPotCommandStore.PublicationListener publicationListener) {
+        return assemble(
+                business,
+                effects,
+                control,
+                technical,
+                identity,
+                clock,
+                guard,
+                settings,
+                capacity,
+                observation,
+                invitations,
+                publicationListener,
+                com.kartaguez.pocoma.contract.consumption.wakeup.WakeupPublisher.NOOP);
+    }
+
+    public static ConsumptionEngine assemble(
+            com.zaxxer.hikari.HikariDataSource business,
+            SpringAttemptTransactions effects,
+            com.zaxxer.hikari.HikariDataSource control,
+            SpringAttemptTransactions technical,
+            PotActorAuthority identity,
+            Clock clock,
+            BootstrapGuard guard,
+            LifecycleSettings settings,
+            WorkerCapacity capacity,
+            com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation observation,
+            com.kartaguez.pocoma.engine.write.pot.port.execution.InvitationStore invitations,
+            JdbcPotCommandStore.PublicationListener publicationListener,
+            com.kartaguez.pocoma.contract.consumption.wakeup.WakeupPublisher wakeupPublisher) {
         effects.requireSource(business);
         var participant =
                 new ExecutePotCommand(
                         new JdbcPotCommandStore(
                                 business,
                                 effects,
-                                publicationListener),
+                                publicationListener,
+                                wakeupPublisher),
                         new JdbcPotCommandObservation(business),
                         identity,
                         new JdbcPotHistoryAdapter(business),
@@ -187,7 +219,8 @@ public final class PotCommandComposition {
                             new JdbcPotCommandStore(
                                     business,
                                     effects,
-                                    publicationListener),
+                                    publicationListener,
+                                    wakeupPublisher),
                             new JdbcPotCommandObservation(business),
                             identity,
                             new JdbcPotHistoryAdapter(business),

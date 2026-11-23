@@ -4,12 +4,20 @@ import json
 import re
 import time
 
-# The reviewed L7-LB catalogue: all four partitions of every activated participant.
+# The reviewed T1A catalogue: all four partitions of every activated participant.
 PARTICIPANTS = {
     'command-worker': ('write', ['98f7268d-d340-581c-b83d-010926223e14', '2999e75c-272d-5afe-a966-c9364ef021fe']),
-    'results-worker': ('read', ['63664303-d33e-5d42-8cce-c4dae8023311', '1d8ff246-358f-5ddd-a7f5-416efcfd7445']),
-    'business-read-worker': ('read', ['3dec1c8b-6e3e-57e1-82aa-aa0b5f297a4a', '190a93c6-b8af-5ac7-8001-72e2ec53c2df',
-        'b4d04cce-b5da-5d1b-9698-5ff9af9a46fa', '7b8d2838-bf7a-5117-868a-e5c14b4c0221', '924cd9e3-435d-5804-9d1e-c6aecadb9ab4']),
+    'critical-read-worker': ('read', [
+        '63664303-d33e-5d42-8cce-c4dae8023311',
+        '1d8ff246-358f-5ddd-a7f5-416efcfd7445',
+        '7b8d2838-bf7a-5117-868a-e5c14b4c0221',
+    ]),
+    'pot-read-worker': ('read', [
+        '3dec1c8b-6e3e-57e1-82aa-aa0b5f297a4a',
+        '190a93c6-b8af-5ac7-8001-72e2ec53c2df',
+        'b4d04cce-b5da-5d1b-9698-5ff9af9a46fa',
+        '924cd9e3-435d-5804-9d1e-c6aecadb9ab4',
+    ]),
 }
 BUDGET = 270  # 240s unchanged lease plus 30s observation/startup margin; no fixed sleep.
 

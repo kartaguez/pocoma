@@ -1,0 +1,230 @@
+{
+  "T1A|A-20|c1-idle": {
+    "runs": 3,
+    "pass": 3,
+    "availabilityAllValid": true,
+    "totalCpuMedian": 0.5481,
+    "totalCpuRange": [
+      0.5476,
+      0.5511
+    ],
+    "nonPgRssMibMedian": 1114.6,
+    "c03P50MedianMs": 148.3,
+    "c03P95MedianMs": 1038.7,
+    "c03P95RangeMs": [
+      1034.256,
+      1093.826
+    ],
+    "c03P99MedianMs": 1038.7
+  },
+  "T1A|D-nats|c1-idle": {
+    "runs": 3,
+    "pass": 3,
+    "availabilityAllValid": true,
+    "totalCpuMedian": 0.2408,
+    "totalCpuRange": [
+      0.2398,
+      0.2443
+    ],
+    "nonPgRssMibMedian": 1116.8,
+    "c03P50MedianMs": 115.3,
+    "c03P95MedianMs": 1291.3,
+    "c03P95RangeMs": [
+      1083.05,
+      1332.612
+    ],
+    "c03P99MedianMs": 1291.3
+  },
+  "T1A|A-20|c1-med-1": {
+    "runs": 3,
+    "pass": 3,
+    "availabilityAllValid": true,
+    "totalCpuMedian": 0.668,
+    "totalCpuRange": [
+      0.6645,
+      0.6709
+    ],
+    "nonPgRssMibMedian": 1131.0,
+    "c03P50MedianMs": 120.8,
+    "c03P95MedianMs": 142.7,
+    "c03P95RangeMs": [
+      141.992,
+      143.888
+    ],
+    "c03P99MedianMs": 162.9
+  },
+  "T1A|D-nats|c1-med-1": {
+    "runs": 3,
+    "pass": 3,
+    "availabilityAllValid": true,
+    "totalCpuMedian": 0.4817,
+    "totalCpuRange": [
+      0.4565,
+      0.4847
+    ],
+    "nonPgRssMibMedian": 1141.6,
+    "c03P50MedianMs": 100.8,
+    "c03P95MedianMs": 115.0,
+    "c03P95RangeMs": [
+      110.266,
+      122.794
+    ],
+    "c03P99MedianMs": 128.3
+  },
+  "T1A|A-20|c2-med-10": {
+    "runs": 3,
+    "pass": 3,
+    "availabilityAllValid": true,
+    "totalCpuMedian": 1.8691,
+    "totalCpuRange": [
+      1.8568,
+      1.8949
+    ],
+    "nonPgRssMibMedian": 1140.5,
+    "c03P50MedianMs": 100.4,
+    "c03P95MedianMs": 121.4,
+    "c03P95RangeMs": [
+      118.154,
+      121.861
+    ],
+    "c03P99MedianMs": 141.8
+  },
+  "T1A|D-nats|c2-med-10": {
+    "runs": 3,
+    "pass": 3,
+    "availabilityAllValid": true,
+    "totalCpuMedian": 1.9162,
+    "totalCpuRange": [
+      1.8861,
+      1.9178
+    ],
+    "nonPgRssMibMedian": 1187.3,
+    "c03P50MedianMs": 71.7,
+    "c03P95MedianMs": 83.5,
+    "c03P95RangeMs": [
+      83.317,
+      84.089
+    ],
+    "c03P99MedianMs": 106.5
+  },
+  "T1A|A-20|c3-int-pot-vs-id": {
+    "runs": 2,
+    "pass": 2,
+    "availabilityAllValid": true,
+    "totalCpuMedian": 3.1807,
+    "totalCpuRange": [
+      3.1631,
+      3.1984
+    ],
+    "nonPgRssMibMedian": 1173.5
+  },
+  "T1A|D-nats|c3-int-pot-vs-id": {
+    "runs": 2,
+    "pass": 2,
+    "availabilityAllValid": true,
+    "totalCpuMedian": 3.145,
+    "totalCpuRange": [
+      3.13,
+      3.16
+    ],
+    "nonPgRssMibMedian": 1202.9
+  },
+  "T1A|A-20|c2-ramp": {
+    "runs": 1,
+    "pass": 1,
+    "availabilityAllValid": true,
+    "totalCpuMedian": 2.3476,
+    "totalCpuRange": [
+      2.3476,
+      2.3476
+    ],
+    "nonPgRssMibMedian": 1212.0
+  },
+  "T1A|D-nats|c2-ramp": {
+    "runs": 1,
+    "pass": 1,
+    "availabilityAllValid": true,
+    "totalCpuMedian": 2.3558,
+    "totalCpuRange": [
+      2.3558,
+      2.3558
+    ],
+    "nonPgRssMibMedian": 1254.9
+  },
+  "T1A|A-20|c4-backlog-10k": {
+    "runs": 1,
+    "pass": 1,
+    "availabilityAllValid": true,
+    "totalCpuMedian": 2.0473,
+    "totalCpuRange": [
+      2.0473,
+      2.0473
+    ],
+    "nonPgRssMibMedian": 1247.1
+  },
+  "T1A|D-nats|c4-backlog-10k": {
+    "runs": 1,
+    "pass": 1,
+    "availabilityAllValid": true,
+    "totalCpuMedian": 1.9578,
+    "totalCpuRange": [
+      1.9578,
+      1.9578
+    ],
+    "nonPgRssMibMedian": 1276.6
+  },
+  "T1A|D-nats|fail-bus-absent": {
+    "runs": 1,
+    "pass": 1,
+    "availabilityAllValid": true,
+    "totalCpuMedian": 1.1724,
+    "totalCpuRange": [
+      1.1724,
+      1.1724
+    ],
+    "nonPgRssMibMedian": 1110.7,
+    "c03P50MedianMs": 121.4,
+    "c03P95MedianMs": 474.6,
+    "c03P95RangeMs": [
+      474.558,
+      474.558
+    ],
+    "c03P99MedianMs": 968.5
+  },
+  "T1A|D-nats|fail-bus-kill-restart": {
+    "runs": 1,
+    "pass": 1,
+    "availabilityAllValid": true,
+    "totalCpuMedian": 1.4308,
+    "totalCpuRange": [
+      1.4308,
+      1.4308
+    ],
+    "nonPgRssMibMedian": 1186.9,
+    "c03P50MedianMs": 91.1,
+    "c03P95MedianMs": 1076.4,
+    "c03P95RangeMs": [
+      1076.376,
+      1076.376
+    ],
+    "c03P99MedianMs": 1587.5
+  },
+  "T1A|D-nats|fail-silent-loss": {
+    "runs": 1,
+    "pass": 1,
+    "availabilityAllValid": true,
+    "totalCpuMedian": 0.9492,
+    "totalCpuRange": [
+      0.9492,
+      0.9492
+    ],
+    "nonPgRssMibMedian": 1131.0,
+    "c03P50MedianMs": 391.6,
+    "c03P95MedianMs": 1388.1,
+    "c03P95RangeMs": [
+      1388.079,
+      1388.079
+    ],
+    "c03P99MedianMs": 1388.1
+  }
+}

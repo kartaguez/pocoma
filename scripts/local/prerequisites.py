@@ -198,6 +198,7 @@ def sources(root, runtimes):
              'scripts/bruno-v3/package.json', 'scripts/bruno-v3/package-lock.json',
              'scripts/bruno-playground/inventory.json', 'scripts/functional-auth-proof.py',
              SETUP_SCRIPT, 'docker/keycloak/pocoma-realm.json',
+             'docker/v3-five-runtimes/nats.conf',
              'docker/grafana/provisioning/datasources/prometheus.yml',
              'docker/grafana/provisioning/dashboards/dashboards.yml',
              'docker/grafana/dashboards/pocoma-runtime.json', 'docker/grafana/dashboards/pocoma-v3-overview.json']
@@ -238,7 +239,7 @@ def credentials(path, roles, users):
     data = document(path)
     if not isinstance(data, dict):
         reject('PRE-SECRETS-INVALID', 'Complete secrets.json object', 'invalid object')
-    for group, names in (('passwords', (*roles, 'pocoma', 'keycloak')), ('users', users)):
+    for group, names in (('passwords', (*roles, 'pocoma', 'keycloak', 'nats')), ('users', users)):
         _validate_credential_group(data, group, names)
     if any(not isinstance(value, str) or not re.fullmatch(r'[A-Za-z0-9_-]{32,}', value)
            for value in data['passwords'].values()):
@@ -370,6 +371,8 @@ def _validate_single_runtime_properties(path, name, data):
             reject('PRE-CONFIG-SECRETS', 'Original database credentials for ' + name, 'credential mismatch')
     if any(values.get(key) != data[secret] for key, secret in _expected_secret_keys(name)):
         reject('PRE-CONFIG-SECRETS', 'Original application keys for ' + name, 'key mismatch')
+    if values.get('pocoma.v3.wakeup.mode') == 'nats' and values.get('pocoma.v3.wakeup.auth-token') != data['passwords']['nats']:
+        reject('PRE-CONFIG-SECRETS', 'Original NATS wakeup token for ' + name, 'token mismatch')
 
 
 def _expected_secret_keys(name):
@@ -407,6 +410,10 @@ def _handle_missing_manifest(path, command):
 
 def _expected_deployed_files(m, runtimes):
     required = ['pg-password', 'pg-init.sql', 'realm.json', 'prometheus.yml']
+    # During an interrupted wakeup-mode transition, nats.conf may legitimately be absent
+    # or present until the next start completes or reverts the transition.
+    if m.get('wakeupMode', 'nats') == 'nats' and not m.get('wakeupTransition'):
+        required.append('nats.conf')
     required += [name + '.properties' for name in runtimes]
     required += [module + '.jar' for module in sorted({value[0] for value in runtimes.values()})]
     if 'grafana' in m['ports']:
@@ -420,6 +427,8 @@ def _validate_deployed_service_files(path, m, runtimes):
     config = document(path / 'compose.json')
     services = config.get('services') if isinstance(config, dict) else None
     expected_services = {*runtimes, 'postgres', 'keycloak', 'prometheus'}
+    if m.get('wakeupMode', 'nats') == 'nats' and not m.get('wakeupTransition'):
+        expected_services.add('nats')
     if not isinstance(services, dict) or not expected_services.issubset(services):
         reject('PRE-CONFIG-COMPOSE', 'Complete owned service configuration', 'missing services')
     for name in _expected_deployed_files(m, runtimes):

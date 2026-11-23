@@ -32,3 +32,12 @@ When an instance is created by `./pocoma-local start`, local secrets (database t
 
 - **Restart protection**: if an existing instance is restarted without its expected local secrets, `./pocoma-local` fails with `PRE-SECRETS-MISSING` rather than silently regenerating secrets inconsistent with PostgreSQL or Keycloak.
 - **Log redaction**: operational utilities and diagnostic reports redact secrets and tokens in logs persisted to disk. See [Troubleshooting & Diagnostics](../operations/troubleshooting.md) for Keycloak-related diagnostics.
+
+## Internal Wakeup Broker Security (Core NATS)
+
+Core NATS (`nats:2.15.3-alpine`) is deployed strictly as an **internal-only** infrastructure service for volatile wakeup hints:
+
+- **No public host port**: neither the client port (`4222`) nor the monitoring port (`8222`) is published to the host by default.
+- **Per-instance technical authentication**: `./pocoma-local` generates a 32-byte random URL-safe NATS token in `secrets.json`, injects it into the private `nats.conf` (`authorization { token: ... }`) and runtime `.properties`, validates it on restart (`PRE-CONFIG-SECRETS`), and redacts it from all logs (`./pocoma-local logs` and diagnostic bundles).
+- **Zero business payload & zero persistence**: notifications carry an empty 0-byte payload on `pocoma.v3.wakeup.<family>.<partition>` with `jetstream: false`, bounded `max_payload: 1024`, and no persistent volume.
+- **L8 production boundary**: TLS/mTLS and multi-node NATS clustering remain deferred to L8 multi-VM infrastructure qualification.

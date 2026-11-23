@@ -39,11 +39,13 @@ RUNTIMES = {
     'http-write': ('web-write', 'v3-http-admission', 8080, 18080),
     'http-read': ('web-read', 'v3-http-read', 8082, 18082),
     'command-worker': ('worker-process', 'v3-consumption-worker-dev', 0, 18083),
-    'results-worker': ('worker-materialize', 'v3-read-worker', 0, 18084),
-    'business-read-worker': ('worker-materialize', 'v3-read-worker', 0, 18085),
+    'critical-read-worker': ('worker-materialize', 'v3-read-worker', 0, 18084),
+    'pot-read-worker': ('worker-materialize', 'v3-read-worker', 0, 18085),
 }
-WORKERS = ('command-worker', 'results-worker', 'business-read-worker')
+WORKERS = ('command-worker', 'critical-read-worker', 'pot-read-worker')
+WAKEUP_RUNTIMES = ('http-write', 'command-worker', 'critical-read-worker', 'pot-read-worker')
 IMAGES = {'postgres': 'postgres:17.6-alpine', 'keycloak': 'quay.io/keycloak/keycloak:26.7.0',
+          'nats': 'nats:2.15.3-alpine',
           'jre': 'eclipse-temurin:21.0.8_9-jre', 'prometheus': 'prom/prometheus:v3.5.0',
           'grafana': 'grafana/grafana:12.3.2'}
 LABEL = 'io.pocoma.local.owner'
@@ -153,10 +155,11 @@ def allocate_ports(names=None):
             s.close()
 
 
-def new_manifest(path, instance):
+def new_manifest(path, instance, wakeup_mode='nats'):
     owner = str(uuid4())
     return dict(schema=1, instance=instance, owner=owner,
                 project='pocoma-lb-' + instance + '-' + owner[:8], ports=allocate_ports(),
+                wakeupMode=wakeup_mode, topology='T1A',
                 sha=run(['git', 'rev-parse', 'HEAD']), inputs=source_hash(), state='NEW')
 
 
@@ -178,7 +181,7 @@ def _verify_resource_ownership(kind, resource, project, owner):
         raise Refusal('PRE-EXTRA-VOLUME')
     if kind == 'network' and value['Name'] != project + '_default':
         raise Refusal('PRE-EXTRA-NETWORK')
-    if kind == 'container' and labels.get('com.docker.compose.service') not in {*RUNTIMES, 'postgres', 'keycloak', 'prometheus', 'grafana'}:
+    if kind == 'container' and labels.get('com.docker.compose.service') not in {*RUNTIMES, 'postgres', 'keycloak', 'nats', 'prometheus', 'grafana'}:
         raise Refusal('PRE-EXTRA-CONTAINER')
 
 
@@ -230,7 +233,7 @@ def private(path, *, create=False):
             prerequisites.reject('PRE-SECRETS-MISSING', 'Original secrets.json for a previously initialized instance',
                                  'existing deployment identity; regeneration refused')
     key = lambda: base64.b64encode(secrets.token_bytes(32)).decode()
-    data = dict(passwords={role: secrets.token_urlsafe(32) for role in (*ROLES, 'pocoma', 'keycloak')},
+    data = dict(passwords={role: secrets.token_urlsafe(32) for role in (*ROLES, 'pocoma', 'keycloak', 'nats')},
                 users={name: LOCAL_PASSWORD for name in LOCAL_USERS},
                 lookup=key(), comparison=key(), invitation=key())
     # Exclusive creation: a concurrent/partial initialization must never replace secrets.
@@ -295,6 +298,19 @@ def render(path, m, credentials, *, deployment_path=None):
                          JAVA_OPTS_KC_HEAP='-Xms128m -Xmx512m'),
         volumes=[f'{path}/realm.json:/opt/keycloak/data/import/pocoma-realm.json:ro'],
         ports=[f'127.0.0.1:{ports["issuer"]}:8080'], mem_limit='896m', cpus=1.5)
+    if m.get('wakeupMode', 'nats') == 'nats':
+        nats_conf = (ROOT / 'docker/v3-five-runtimes/nats.conf').read_text().replace(
+            'pocoma-nats-local-only', credentials['passwords']['nats'])
+        (path / 'nats.conf').write_text(nats_conf)
+        (path / 'nats.conf').chmod(0o644)
+        services['nats'] = dict(
+            image=m['images']['nats']['digest'], labels=labels,
+            command=['-c', '/etc/nats/nats.conf'],
+            volumes=[f'{path}/nats.conf:/etc/nats/nats.conf:ro'],
+            restart='unless-stopped', mem_limit='128m', cpus=0.25,
+            healthcheck=dict(test=['CMD', 'wget', '-qO-', 'http://127.0.0.1:8222/healthz'],
+                             interval='3s', timeout='2s', retries=15),
+        )
     for name, (module, profile, app_port, management) in RUNTIMES.items():
         services[name] = dict(image=m['images']['jre']['digest'], labels=labels,
             entrypoint=['java', '-Xms64m', '-Xmx384m', '-XX:+UseSerialGC', '-jar', '/app/runtime.jar',
@@ -327,9 +343,12 @@ def _render_runtime_properties(name, text, m, credentials, address):
     replacements = {'pocoma-local-only': credentials['passwords']['pocoma_write'],
                     'pocoma-source-local-only': credentials['passwords']['pocoma_write_source_read'],
                     'pocoma-read-http-local-only': credentials['passwords']['pocoma_read_http'],
-                    'pocoma-read-status-local-only': credentials['passwords']['pocoma_read_status']}
+                    'pocoma-read-status-local-only': credentials['passwords']['pocoma_read_status'],
+                    'pocoma-nats-local-only': credentials['passwords']['nats']}
     for old, new in replacements.items():
         text = text.replace(old, new)
+    if m.get('wakeupMode', 'nats') == 'noop' and name in WAKEUP_RUNTIMES:
+        text = re.sub(r'(?m)^pocoma\.v3\.wakeup\.mode=.*$', 'pocoma.v3.wakeup.mode=noop', text)
     for line in text.splitlines():
         if '.password=' in line:
             prefix = line.split('.password=')[0]
@@ -694,7 +713,7 @@ def reload_instance(path, m, evidence, *, runtimes=None):
     return start(path, m, evidence, force_recreate_runtimes=selected_runtimes)
 
 
-def start(path, m, evidence, *, force_recreate_runtimes=None):
+def start(path, m, evidence, *, force_recreate_runtimes=None, wakeup_mode=None):
     history_file = path / 'start-history.json'
     history = read(history_file) if history_file.exists() else {}
     attempt = dict(runId=evidence.name, startedAt=time.time(), state='STARTING',
@@ -703,7 +722,11 @@ def start(path, m, evidence, *, force_recreate_runtimes=None):
     save(history_file, history)
     save(evidence / 'start-attempt.json', attempt)
     try:
-        result = start_distribution(path, m, evidence, force_recreate_runtimes=force_recreate_runtimes)
+        result = start_distribution(
+            path, m, evidence,
+            force_recreate_runtimes=force_recreate_runtimes,
+            wakeup_mode=wakeup_mode,
+        )
         attempt.update(state='SUCCEEDED' if result['exit'] == 0 else 'FAILED',
                        completedAt=time.time(), generationId=result['canaryProof']['generationId'])
         if result['exit'] == 0:
@@ -739,9 +762,11 @@ def start(path, m, evidence, *, force_recreate_runtimes=None):
         save(evidence / 'start-attempt.json', attempt)
 
 
-def start_distribution(path, m, evidence, *, force_recreate_runtimes=None):
+def start_distribution(path, m, evidence, *, force_recreate_runtimes=None, wakeup_mode=None):
     return runtime_lifecycle.start_distribution(
-        sys.modules[__name__], path, m, evidence, force_recreate_runtimes=force_recreate_runtimes
+        sys.modules[__name__], path, m, evidence,
+        force_recreate_runtimes=force_recreate_runtimes,
+        wakeup_mode=wakeup_mode,
     )
 
 
@@ -802,7 +827,10 @@ def stop(path, m, evidence):
             if name in RUNTIMES:
                 exit_codes[name] = value['State']['ExitCode']
         deps = ['keycloak', 'prometheus', 'postgres']
-        if 'grafana' in read(path / 'compose.json')['services']:
+        services = read(path / 'compose.json')['services']
+        if 'nats' in services:
+            deps.insert(0, 'nats')
+        if 'grafana' in services:
             deps.insert(0, 'grafana')
         compose(path, m, 'stop', '-t', '30', *deps, timeout=120, log=evidence / 'stop-deps.log')
     m['state'] = 'STOPPED'
@@ -831,7 +859,9 @@ def destruction_plan(path, m):
     ownership(m)
     return dict(state='DESTROY_PLAN', exit=0, instance=m['instance'], owner=m['owner'], project=m['project'],
                 volume=m['project'] + '-data', network=m['project'] + '_default',
-                services=[*RUNTIMES, 'postgres', 'keycloak', 'prometheus', *(['grafana'] if 'grafana' in m.get('ports', {}) else [])],
+                services=[*RUNTIMES, 'postgres', 'keycloak',
+                          *(['nats'] if m.get('wakeupMode', 'nats') == 'nats' else []),
+                          'prometheus', *(['grafana'] if 'grafana' in m.get('ports', {}) else [])],
                 persistentDataLost=['PostgreSQL WRITE/READ and Keycloak database in owned volume',
                                     'Generated credentials, configuration, demo and canary checkpoints'],
                 retained=str(path / 'runs'), preservedUnownedVolumes=unowned_attached_volumes(m),
@@ -943,9 +973,28 @@ def doctor():
     )
 
 
+def logs(path, m, *, services=None, tail=150):
+    """Read-only redacted container logs (including nats and all five runtimes)."""
+    ownership(m)
+    if not (path / 'compose.json').exists():
+        raise Refusal('LOGS-COMPOSE-MISSING')
+    available = set(read(path / 'compose.json')['services'])
+    selected = list(services or [])
+    unknown = [s for s in selected if s not in available]
+    if unknown:
+        raise Refusal('LOGS-UNKNOWN-SERVICE:' + ','.join(unknown))
+    cmd = ['logs', '--no-color', '--tail', str(tail), *selected]
+    output = compose(path, m, *cmd, timeout=30)
+    values = private(path)
+    for value in [*values['passwords'].values(), *values['users'].values(), values['lookup'], values['comparison'], values['invitation']]:
+        output = output.replace(value, '[REDACTED]')
+    output = re.sub(r'eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+', '[REDACTED-JWT]', output)
+    return dict(state='LOGS_CAPTURED', exit=0, services=selected or sorted(available), tail=tail, logs=output)
+
+
 def _parse_cli_args():
     parser = argparse.ArgumentParser(prog='pocoma-local', description=__doc__)
-    parser.add_argument('command', choices=['start', 'reload', 'doctor', 'upgrade-grafana', 'status', 'stop', 'reset', 'destroy', 'bruno', 'login', 'gui'])
+    parser.add_argument('command', choices=['start', 'reload', 'doctor', 'upgrade-grafana', 'status', 'logs', 'stop', 'reset', 'destroy', 'bruno', 'login', 'gui'])
     parser.add_argument('--instance', default=None)
     parser.add_argument('--confirm')
     parser.add_argument('--dry-run', action='store_true')
@@ -953,17 +1002,28 @@ def _parse_cli_args():
     parser.add_argument('--run', help='status only: read the late result of a timed-out run')
     parser.add_argument('--runtime', action='append', choices=sorted(RUNTIMES),
                         help='reload only: rebuild and recreate only the selected runtime(s)')
+    parser.add_argument('--wakeup-mode', choices=['nats', 'noop'], default=None,
+                        help='start/reset only: event-driven wakeup transport (default on new instance: nats; '
+                             'on existing instance: preserves current mode unless explicitly changed non-destructively)')
+    parser.add_argument('--service', action='append',
+                        help='logs only: filter container logs to specific service(s), e.g. nats, critical-read-worker')
+    parser.add_argument('--tail', type=int, default=150,
+                        help='logs only: number of log lines per service (default: 150)')
     args = parser.parse_args()
     if args.run and args.command != 'status':
         parser.error('--run is only valid with status')
     if args.runtime and args.command != 'reload':
         parser.error('--runtime is only valid with reload')
+    if args.wakeup_mode and args.command not in ('start', 'reset'):
+        parser.error('--wakeup-mode is only valid with start or reset')
+    if args.service and args.command != 'logs':
+        parser.error('--service is only valid with logs')
     if args.dry_run and args.command not in ('reset', 'destroy'):
         parser.error('--dry-run is only valid with reset or destroy')
     return args
 
 
-def _execute_reset(path, m, evidence, instance):
+def _execute_reset(path, m, evidence, instance, wakeup_mode='nats'):
     ownership(m)
     stop(path, m, evidence)
     diagnostics(path, m, evidence)
@@ -971,7 +1031,7 @@ def _execute_reset(path, m, evidence, instance):
     for file in path.iterdir():
         if file.is_file() and file.name not in ('lock', 'manifest.json'):
             file.unlink()
-    m = new_manifest(path, instance)
+    m = new_manifest(path, instance, wakeup_mode=wakeup_mode)
     save(path / 'manifest.json', m)
     private(path, create=True)
     result = start(path, m, evidence)
@@ -981,10 +1041,11 @@ def _execute_reset(path, m, evidence, instance):
 
 def _dispatch_command(args, path, m, evidence, instance):
     handlers = {
-        'start': lambda: start(path, m, evidence),
+        'start': lambda: start(path, m, evidence, wakeup_mode=args.wakeup_mode),
         'reload': lambda: reload_instance(path, m, evidence, runtimes=args.runtime),
         'upgrade-grafana': lambda: upgrade_grafana(path, m, evidence),
         'status': lambda: status(path, m, evidence, args.run),
+        'logs': lambda: logs(path, m, services=args.service, tail=args.tail),
         'stop': lambda: stop(path, m, evidence),
         'bruno': lambda: bruno(path, m, evidence, args.interactive),
         'login': lambda: gui(path, m),
@@ -996,7 +1057,7 @@ def _dispatch_command(args, path, m, evidence, instance):
     if args.dry_run:
         ownership(m)
         return m, dict(state='RESET_PLAN', exit=0, project=m['project'], volume=m['project'] + '-data')
-    return _execute_reset(path, m, evidence, instance)
+    return _execute_reset(path, m, evidence, instance, wakeup_mode=args.wakeup_mode or 'nats')
 
 
 def _handle_cli_error(error, instance, path, m, evidence):
@@ -1036,7 +1097,7 @@ def main():
             if not (path / 'manifest.json').exists():
                 if args.command != 'start':
                     raise Refusal('PRE-MANIFEST-MISSING')
-                save(path / 'manifest.json', new_manifest(path, instance))
+                save(path / 'manifest.json', new_manifest(path, instance, wakeup_mode=args.wakeup_mode or 'nats'))
                 private(path, create=True)
             m = load_manifest(path)
             evidence = path / 'runs' / (str(int(time.time())) + '-' + uuid4().hex[:8])

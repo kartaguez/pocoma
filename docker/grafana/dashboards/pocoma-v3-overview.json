@@ -642,10 +642,22 @@
             {
               "type": "value",
               "options": {
-                "0": { "text": "READY", "color": "green" },
-                "1": { "text": "MAINTENANCE", "color": "semi-dark-orange" },
-                "2": { "text": "REBUILDING", "color": "blue" },
-                "3": { "text": "FAILED", "color": "red" }
+                "0": {
+                  "text": "READY",
+                  "color": "green"
+                },
+                "1": {
+                  "text": "MAINTENANCE",
+                  "color": "semi-dark-orange"
+                },
+                "2": {
+                  "text": "REBUILDING",
+                  "color": "blue"
+                },
+                "3": {
+                  "text": "FAILED",
+                  "color": "red"
+                }
               }
             }
           ]
@@ -684,9 +696,18 @@
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "red", "value": null },
-              { "color": "orange", "value": 1 },
-              { "color": "green", "value": 28 }
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 1
+              },
+              {
+                "color": "green",
+                "value": 28
+              }
             ]
           }
         }
@@ -722,8 +743,14 @@
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "green", "value": 0 },
-              { "color": "orange", "value": 1 }
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "orange",
+                "value": 1
+              }
             ]
           }
         }
@@ -759,6 +786,216 @@
           "unit": "s"
         }
       }
+    },
+    {
+      "id": 23,
+      "type": "stat",
+      "title": "Wakeup Bus State (0=NOOP, 1=CONNECTED, 2=DEGRADED)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "Prometheus"
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 0,
+        "y": 62
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "Prometheus"
+          },
+          "expr": "pocoma_v3_wakeup_state",
+          "legendFormat": "{{job}} ({{role}})"
+        }
+      ]
+    },
+    {
+      "id": 24,
+      "type": "timeseries",
+      "title": "Core NATS Wakeup Publish / Receive / Coalesce Rate (/s)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "Prometheus"
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 8,
+        "y": 62
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "Prometheus"
+          },
+          "expr": "sum by (job) (rate(pocoma_v3_wakeup_published_total[1m]))",
+          "legendFormat": "{{job}} published/s"
+        },
+        {
+          "refId": "B",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "Prometheus"
+          },
+          "expr": "sum by (job) (rate(pocoma_v3_wakeup_received_total[1m]))",
+          "legendFormat": "{{job}} received/s"
+        },
+        {
+          "refId": "C",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "Prometheus"
+          },
+          "expr": "sum by (job) (rate(pocoma_v3_wakeup_coalesced_total[1m]))",
+          "legendFormat": "{{job}} coalesced/s"
+        },
+        {
+          "refId": "D",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "Prometheus"
+          },
+          "expr": "sum by (job) (rate(pocoma_v3_wakeup_publish_errors_total[1m]))",
+          "legendFormat": "{{job}} errors/s"
+        }
+      ]
+    },
+    {
+      "id": 25,
+      "type": "timeseries",
+      "title": "Wakeup Efficiency (Useful vs Spurious vs No-Lease /s)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "Prometheus"
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 16,
+        "y": 62
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "Prometheus"
+          },
+          "expr": "sum by (job) (rate(pocoma_v3_wakeup_useful_total[1m]))",
+          "legendFormat": "{{job}} useful/s"
+        },
+        {
+          "refId": "B",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "Prometheus"
+          },
+          "expr": "sum by (job) (rate(pocoma_v3_wakeup_spurious_total[1m]))",
+          "legendFormat": "{{job}} spurious/s"
+        },
+        {
+          "refId": "C",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "Prometheus"
+          },
+          "expr": "sum by (job) (rate(pocoma_v3_wakeup_ignored_no_lease_total[1m]))",
+          "legendFormat": "{{job}} no-lease/s"
+        }
+      ]
+    },
+    {
+      "id": 26,
+      "type": "timeseries",
+      "title": "Wakeup Fallback Transitions & Reconnects (cumulative)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "Prometheus"
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 0,
+        "y": 69
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "Prometheus"
+          },
+          "expr": "pocoma_v3_wakeup_fallback_transitions_total",
+          "legendFormat": "{{job}} fallbacks"
+        },
+        {
+          "refId": "B",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "Prometheus"
+          },
+          "expr": "pocoma_v3_wakeup_reconnects_total",
+          "legendFormat": "{{job}} reconnects"
+        }
+      ]
+    },
+    {
+      "id": 27,
+      "type": "timeseries",
+      "title": "Wakeup Notification to Discovery Delay (s)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "Prometheus"
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 8,
+        "y": 69
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "Prometheus"
+          },
+          "expr": "rate(pocoma_v3_wakeup_discovery_delay_seconds_sum[1m]) / clamp_min(rate(pocoma_v3_wakeup_discovery_delay_seconds_count[1m]), 1e-9)",
+          "legendFormat": "{{job}} mean delay (s)"
+        }
+      ]
+    },
+    {
+      "id": 28,
+      "type": "timeseries",
+      "title": "Effective Discovery Polling Frequency (cycles/s)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "Prometheus"
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 16,
+        "y": 69
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "Prometheus"
+          },
+          "expr": "sum by (job) (rate(pocoma_v3_consumption_events_total{phase=\"discovery_cycle\"}[1m]))",
+          "legendFormat": "{{job}} discovery cycles/s"
+        }
+      ]
     }
   ],
   "schemaVersion": 39,

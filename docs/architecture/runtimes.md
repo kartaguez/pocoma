@@ -20,25 +20,38 @@ Pocoma's five Java services run on `eclipse-temurin:21.0.8_9-jre` in containers 
   - READ concurrency limits are aligned to **`Q=8`**: `http-permits=8`, `sql-permits=8`, Tomcat `maxThreads=4`, main JDBC pool `maximum-pool-size=8` / `minimum-idle=8` (plus a maintenance pool of size `1`).
 - **SQL optimization**: the `openComponent` query (pot history in `PotHistoryRows`) was optimized during consolidation to bound read cost.
 
-## Consumption & Materialization Workers
+## Consumption & Materialization Workers (T1A Topology)
 
 | Worker | Maven Module | Spring Profile | Actuator | Concurrency (`worker-limit`) | Scope |
 | :--- | :--- | :--- | :---: | :---: | :--- |
-| `command-worker` | `runtime-worker-process` | `v3-consumption-worker-dev` | `18083` | `2` (`Command=2`, `IdentityRequest=2`) | **Pure JDBC (no JPA/Hibernate)**; business execution on `pocoma_write` |
-| `results-worker` | `runtime-worker-materialize` | `v3-read-worker` | `18084` | `2` (`MaterializeCommandResult=2`, `MaterializeIdentityRequestResult=2`) | Terminal result materialization to `pocoma_read` |
-| `business-read-worker` | `runtime-worker-materialize` | `v3-read-worker` | `18085` | `3` (5 participants at `2` each) | Business view materialization in `pocoma_read` |
+| `command-worker` | `runtime-worker-process` | `v3-consumption-worker-dev` | `18083` | `4` (`Command=3`, `IdentityRequest=2`) | **Pure JDBC (no JPA/Hibernate)**; business execution on `pocoma_write` + post-COMMIT NATS publisher |
+| `critical-read-worker` | `runtime-worker-materialize` | `v3-read-worker` | `18084` | `4` (`MaterializeCommandResult=2`, `MaterializeIdentityRequestResult=2`, `MaterializeCurrentBinding=2`) | Critical low-latency projections (`CommandResult`, `IdentityRequestResult`, `CurrentBinding`) in `pocoma_read` |
+| `pot-read-worker` | `runtime-worker-materialize` | `v3-read-worker` | `18085` | `4` (`MaterializePotVersion=2`, `MaterializePotBalance=2`, `MaterializePotVisibility=2`, `MaterializeInvitation=2`) | Pot & Invitation projections in `pocoma_read`, isolated from critical READ projections |
 
-Removing JPA/Hibernate completely from `command-worker` (`ProcessComposeConfiguration`, `ProcessSettings`) reduces its memory footprint and aligns its data access on pure JDBC, matching the lease-coordination layer.
+Removing JPA/Hibernate completely from `command-worker` (`ProcessComposeConfiguration`, `ProcessSettings`) reduces its memory footprint and aligns its data access on pure JDBC, matching the lease-coordination layer. Moving `CurrentBinding` onto `critical-read-worker` (topology `T1A`) prevents Pot backlogs from starving identity registration and binding availability.
 
 ## Partitioning (36 Partitions) & Recovery Policy
 
 The L2 routing table initialized by [`scripts/v3/bootstrap-l2-routing.sql`](../../scripts/v3/bootstrap-l2-routing.sql) distributes work across **36 partitions** (`0` to `3` per participant):
 
 - **`command-worker` (8 WRITE partitions)**: `Command` (0–3), `IdentityRequest` (0–3).
-- **`results-worker` (8 READ partitions)**: `MaterializeCommandResult` (0–3), `MaterializeIdentityRequestResult` (0–3).
-- **`business-read-worker` (20 READ partitions)**: `MaterializePotVersion` (0–3), `MaterializePotBalance` (0–3), `MaterializePotVisibility` (0–3), `MaterializeCurrentBinding` (0–3), `MaterializeInvitation` (0–3).
+- **`critical-read-worker` (12 READ partitions)**: `MaterializeCommandResult` (0–3), `MaterializeIdentityRequestResult` (0–3), `MaterializeCurrentBinding` (0–3).
+- **`pot-read-worker` (16 READ partitions)**: `MaterializePotVersion` (0–3), `MaterializePotBalance` (0–3), `MaterializePotVisibility` (0–3), `MaterializeInvitation` (0–3).
 
 Source selection and recovery rules were extracted from `ConsumptionEngine` into a dedicated **`RecoverySourcePolicy`** component to decouple recovery strategy from the partition execution loop.
+
+## Core NATS Event-Driven Wakeup & Permanent Polling
+
+Workers combine **Core NATS volatile wakeup notifications** (`io.nats:jnats`, no JetStream, no persistence) with **permanent PostgreSQL polling**:
+
+- **Logical contract**: `WakeupKey(ConsumableFamily, partition)` mapped to subject `pocoma.v3.wakeup.<family>.<partition>` (max `7 × 4 = 28` subjects, **0-byte empty payload**, zero business data).
+- **Post-COMMIT emission**: `http-write` emits after `CommandAdmission.admit()` / `IdentityRequestAdmission.admit()` returns; `command-worker` emits through `SpringAttemptTransactions.afterCommit(...)`. Any broker failure or saturation is swallowed and can never abort a PostgreSQL commit or alter an HTTP `202 Accepted` response.
+- **Bounded coalescing (`CoalescingWakeupPublisher`)**: lock-free 32-bit `AtomicInteger` bitmask (`IN_FLIGHT_DEDUP` by default, 4 bytes bounded memory) deduplicates concurrent bursts without blocking business threads.
+- **Latched waiter & cache invalidation**: `ConditionConsumptionWaiter` latches signals received before `await()` (preventing signal/wait races), and `DiscoveryLoop` clears its per-family empty-checkpoint cache on wakeup or reconnect, while ignoring wakeups for partitions without a local lease (`pocoma.v3.wakeup.ignored.no_lease`).
+- **Three operating modes (`pocoma.v3.wakeup.state`)**:
+  - **`CONNECTED` (`1`)**: Core NATS wakeup active + permanent slow reconciliation polling (`reconcile-poll-ms=2000`, `consumption-max-poll-ms=500`).
+  - **`DEGRADED` (`2`)**: Broker unavailable at startup or disconnected → automatic fallback to fast polling (`fallback-max-poll-ms=20`); reconnection triggers an immediate full reconciliation (`onExternalReconnect`).
+  - **`NOOP` (`0`)**: Autonomous polling-only mode (`max-poll=20 ms`), no broker connection required.
 
 ## SQL Leases (30 s), Batched Renewal (`renewBatch`), and Recovery
 
@@ -68,10 +81,10 @@ Batched renewal (`renewBatch` across `PartitionOwnershipStore`, `JdbcPartitionOw
 
 ## JDBC Pool & Memory Sizing
 
-HikariCP pools for the three workers are explicitly sized in `docker/v3-five-runtimes/*.properties`:
+HikariCP pools for the three T1A workers are explicitly sized in `docker/v3-five-runtimes/*.properties`:
 
-- **`command-worker`**: `write-business=4`, `write-control=8`.
-- **`results-worker`**: `write-source-read=4`, `read-business=4`, `read-control=4`.
-- **`business-read-worker`**: `write-source-read=5`, `read-business=5`, plus a dedicated `read-control` pool.
+- **`command-worker`**: `write-business=6`, `write-control=10`.
+- **`critical-read-worker`**: `write-source-read=6`, `read-business=6`, `read-control=10`.
+- **`pot-read-worker`**: `write-source-read=6`, `read-business=6`, `read-control=10`.
 
 This separation ensures a burst of business processing never starves control-plane lease renewals (`*-control`) or upstream HTTP validation.

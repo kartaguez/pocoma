@@ -2,6 +2,7 @@ package com.kartaguez.pocoma.compose.polling.materialize;
 
 import com.kartaguez.pocoma.contract.consumption.invocation.*;
 import com.kartaguez.pocoma.contract.consumption.spi.*;
+import com.kartaguez.pocoma.contract.consumption.wakeup.*;
 import com.kartaguez.pocoma.domain.consumption.*;
 import com.kartaguez.pocoma.orchestrator.consumption.*;
 import com.kartaguez.pocoma.supra.polling.consumption.ConsumptionWorker;
@@ -10,12 +11,14 @@ import com.kartaguez.pocoma.infra.postgres.core.consumption.*;
 import com.kartaguez.pocoma.infra.postgres.core.history.*;
 import com.kartaguez.pocoma.infra.tx.spring.ConsumptionFailureClassifier;
 import com.kartaguez.pocoma.infra.observability.micrometer.*;
+import com.kartaguez.pocoma.infra.wakeup.nats.NatsWakeupTransport;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.context.*;
 import org.springframework.context.annotation.*;
 import org.springframework.core.env.Environment;
+import java.time.Duration;
 import java.util.*;
 
 /** Explicit materialize selection. No runtime scan, migration or unrelated authority is activated. */
@@ -76,10 +79,54 @@ public class MaterializeComposeConfiguration {
             var discovery=ConsumptionDiscoveryComposition.events(resources.guard,definition,resources.readControl,resources.readTechnical,resources.writeSourceRead,resources.sourceReads,discoverySettings,BootstrapGuard.Privileges.LIFECYCLE_AND_DISCOVERY);
             bindings.add(new ConsumptionWorker.Binding(definition,ConsumptionProtocols.forDefinition(definition,engine,discovery),settings.partitions().get(name)));
         }
-        var worker=new ConsumptionWorker(bindings,capacity,settings.capacityLimits(),settings.polling(),observation,resources::close,tracker,ConsumptionSafety::new);
+        var wakeupOptions = buildWakeup(env, settings, registry);
+        var worker=new ConsumptionWorker(bindings,capacity,settings.capacityLimits(),settings.polling(),observation,resources::close,tracker,ConsumptionSafety::new,wakeupOptions);
         resources.bindWorker(worker, capacity);
         if(observation instanceof MicrometerConsumptionObservation metrics)metrics.bind(worker);
         return worker;
+    }
+
+    private static ConsumptionWorker.WakeupOptions buildWakeup(
+            Environment env, MaterializeSettings settings, Optional<MeterRegistry> registry) {
+        String mode = env.getProperty("pocoma.v3.wakeup.mode", "noop").trim().toLowerCase();
+        WakeupMetrics metrics =
+                registry.<WakeupMetrics>map(
+                                r ->
+                                        new MicrometerWakeupMetrics(
+                                                r,
+                                                io.micrometer.core.instrument.Tags.of(
+                                                        "role", "materialize")))
+                        .orElse(WakeupMetrics.NOOP);
+        if ("noop".equals(mode) || mode.isEmpty()) {
+            metrics.onStateChanged(WakeupState.NOOP);
+            return new ConsumptionWorker.WakeupOptions(
+                    WakeupSubscriber.NOOP,
+                    settings.polling().maxPoll(),
+                    settings.polling().maxPoll(),
+                    settings.polling().maxPoll(),
+                    metrics);
+        }
+        if (!"nats".equals(mode)) {
+            throw new IllegalStateException("Unsupported wakeup mode: " + mode);
+        }
+        Duration reconcilePoll =
+                Duration.ofMillis(
+                        env.getProperty("pocoma.v3.wakeup.reconcile-poll-ms", Long.class, 2000L));
+        Duration fallbackMaxPoll =
+                Duration.ofMillis(
+                        env.getProperty(
+                                "pocoma.v3.wakeup.fallback-max-poll-ms",
+                                Long.class,
+                                settings.polling().maxPoll().toMillis()));
+        Duration consumptionMaxPoll =
+                Duration.ofMillis(
+                        env.getProperty(
+                                "pocoma.v3.wakeup.consumption-max-poll-ms", Long.class, 500L));
+        WakeupSubscriber subscriber =
+                new NatsWakeupTransport(
+                        NatsWakeupTransport.TransportOptions.fromProperties(env::getProperty));
+        return new ConsumptionWorker.WakeupOptions(
+                subscriber, reconcilePoll, fallbackMaxPoll, consumptionMaxPoll, metrics);
     }
     @Bean public SmartLifecycle materializeLifecycle(@Qualifier("materializeResources") MaterializeResources resources,
             @Qualifier("materializeWorker") Optional<ConsumptionWorker> worker) {

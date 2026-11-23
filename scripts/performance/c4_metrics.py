@@ -30,7 +30,7 @@ RUNTIMES = (
 
 
 def read_cgroup_stats(container):
-    """Read cumulative CPU usage/throttling and current memory from container cgroup v2."""
+    """Read cumulative CPU usage/throttling, current and peak memory from container cgroup v2."""
     try:
         out = subprocess.check_output(
             [
@@ -39,14 +39,15 @@ def read_cgroup_stats(container):
                 container,
                 "sh",
                 "-c",
-                "cat /sys/fs/cgroup/cpu.stat && echo '---MEM---' && cat /sys/fs/cgroup/memory.current",
+                "cat /sys/fs/cgroup/cpu.stat && echo '---MEM---' && cat /sys/fs/cgroup/memory.current && echo '---PEAK---' && (cat /sys/fs/cgroup/memory.peak 2>/dev/null || echo 0)",
             ],
             text=True,
             timeout=5,
         )
     except Exception:
         return None
-    cpu_part, _, mem_part = out.partition("---MEM---")
+    cpu_part, _, rest = out.partition("---MEM---")
+    mem_part, _, peak_part = rest.partition("---PEAK---")
     stats = {}
     for line in cpu_part.splitlines():
         parts = line.split()
@@ -56,20 +57,28 @@ def read_cgroup_stats(container):
         stats["memory_bytes"] = int(mem_part.strip())
     except ValueError:
         pass
+    try:
+        peak_val = int(peak_part.strip())
+        if peak_val > 0:
+            stats["memory_peak_bytes"] = peak_val
+    except ValueError:
+        pass
     return stats
 
 
-def capture_cluster_cgroup(project):
-    res = {"ts_ns": time.monotonic_ns()}
-    for name in ("postgres", *RUNTIMES):
+def capture_cluster_cgroup(project, runtimes=None):
+    rt_list = tuple(runtimes) if runtimes is not None else RUNTIMES
+    res = {"ts_ns": time.monotonic_ns(), "_runtimes": list(rt_list)}
+    for name in ("postgres", *rt_list):
         res[name] = read_cgroup_stats(f"{project}-{name}-1")
     return res
 
 
-def diff_cluster_cgroup(before, after):
+def diff_cluster_cgroup(before, after, runtimes=None):
     wall_us = max(1.0, (after["ts_ns"] - before["ts_ns"]) / 1000.0)
+    rt_list = tuple(runtimes) if runtimes is not None else tuple(after.get("_runtimes", RUNTIMES))
     out = {"wall_seconds": round(wall_us / 1e6, 3), "containers": {}}
-    for name in ("postgres", *RUNTIMES):
+    for name in ("postgres", *rt_list):
         b = before.get(name)
         a = after.get(name)
         if not b or not a:
@@ -77,13 +86,16 @@ def diff_cluster_cgroup(before, after):
         du = a.get("usage_usec", 0) - b.get("usage_usec", 0)
         dt = a.get("throttled_usec", 0) - b.get("throttled_usec", 0)
         d_nr = a.get("nr_throttled", 0) - b.get("nr_throttled", 0)
-        out["containers"][name] = {
+        entry = {
             "cpu_seconds": round(du / 1e6, 4),
             "avg_cpus": round(du / wall_us, 4),
             "throttled_seconds": round(dt / 1e6, 4),
             "nr_throttled": d_nr,
             "memory_mib": round(a.get("memory_bytes", 0) / (1024 * 1024), 2),
         }
+        if "memory_peak_bytes" in a:
+            entry["memory_peak_mib"] = round(a["memory_peak_bytes"] / (1024 * 1024), 2)
+        out["containers"][name] = entry
     return out
 
 
@@ -135,10 +147,11 @@ def prom_timer_delta(pre, post, base, flt=None):
     }
 
 
-def extract_runtime_deltas(pre_proms, post_proms):
+def extract_runtime_deltas(pre_proms, post_proms, runtimes=None):
     """Extract per-runtime and per-consumption Micrometer deltas."""
     summary = {}
-    for runtime in RUNTIMES:
+    rt_list = tuple(runtimes) if runtimes is not None else tuple(post_proms.keys())
+    for runtime in rt_list:
         if runtime not in pre_proms or runtime not in post_proms:
             continue
         pre = parse_prom(pre_proms[runtime])
@@ -147,6 +160,7 @@ def extract_runtime_deltas(pre_proms, post_proms):
             "gc_pauses_count": int(round(prom_sum(post, "jvm_gc_pause_seconds_count") - prom_sum(pre, "jvm_gc_pause_seconds_count"))),
             "gc_pauses_ms": round((prom_sum(post, "jvm_gc_pause_seconds_sum") - prom_sum(pre, "jvm_gc_pause_seconds_sum")) * 1000.0, 3),
             "heap_used_mib": round(prom_sum(post, "jvm_memory_used_bytes", {"area": "heap"}) / (1024 * 1024), 2),
+            "nonheap_used_mib": round(prom_sum(post, "jvm_memory_used_bytes", {"area": "nonheap"}) / (1024 * 1024), 2),
             "hikari": {},
         }
         pools = sorted({lbl.get("pool") for n, lbl, _ in post if n.startswith("hikaricp_") and lbl.get("pool")})
@@ -158,7 +172,8 @@ def extract_runtime_deltas(pre_proms, post_proms):
                 "timeouts": int(round(prom_sum(post, "hikaricp_connections_timeout_total", {"pool": pool}) - prom_sum(pre, "hikaricp_connections_timeout_total", {"pool": pool}))),
                 "pending_last": int(round(prom_sum(post, "hikaricp_connections_pending", {"pool": pool}))),
             }
-        if runtime.endswith("-worker"):
+        has_cons = any(n.startswith("pocoma_v3_rotation_opportunities_total") for n, _, _ in post)
+        if has_cons:
             rt_data["consumptions"] = {}
             for cons in CONSUMPTIONS:
                 rot_disc = int(round(prom_sum(post, "pocoma_v3_rotation_opportunities_total", {"consumption": cons, "loop": "discovery"}) - prom_sum(pre, "pocoma_v3_rotation_opportunities_total", {"consumption": cons, "loop": "discovery"})))
@@ -215,6 +230,7 @@ def pg_capture_window(container):
             SELECT jsonb_build_object(
               'wal', (SELECT to_jsonb(w) FROM pg_stat_wal w),
               'lsn', pg_current_wal_insert_lsn()::text,
+              'connections', (SELECT count(*) FROM pg_stat_activity WHERE datname = current_database()),
               'db', (SELECT to_jsonb(d) - 'datid' FROM pg_stat_database d WHERE datname = current_database()),
               'tables', (SELECT coalesce(jsonb_agg(jsonb_build_object(
                   'relname', relname,
