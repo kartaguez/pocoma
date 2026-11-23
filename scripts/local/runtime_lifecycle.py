@@ -163,10 +163,24 @@ def _prepare_distribution_runtime(rt, path, m, evidence):
     return before, rt.private(path)
 
 
+def _remove_owned_nats_container(rt, m):
+    """Idempotently stop and remove any NATS container owned by this instance project."""
+    cids = rt.run([
+        'docker', 'ps', '-aq',
+        '--filter', 'label=com.docker.compose.project=' + m['project'],
+        '--filter', 'label=com.docker.compose.service=nats',
+    ]).splitlines()
+    for cid in [c.strip() for c in cids if c.strip()]:
+        rt.run(['docker', 'rm', '-f', cid])
+
+
 def _boot_distribution_stack(rt, path, m, boot_spec):
-    evidence, credentials, force_recreate_runtimes = boot_spec
+    evidence, credentials, force_recreate_runtimes, target_mode = boot_spec
     rt.package(path, m, evidence)
-    m['issuer'] = rt.render(path, m, credentials)
+    effective_manifest = dict(m, wakeupMode=target_mode)
+    m['issuer'] = rt.render(path, effective_manifest, credentials)
+    if m.get('wakeupTransition'):
+        m['wakeupTransition']['phase'] = 'APPLYING'
     rt.save(path / 'manifest.json', m)
     rt.compose(path, m, 'up', '-d', 'postgres', log=evidence / 'postgres-up.log')
     rt.await_check(
@@ -175,13 +189,14 @@ def _boot_distribution_stack(rt, path, m, boot_spec):
         60, 'DB-INIT-TIMEOUT',
     )
     rt.initialize(lambda db, text: rt.sql(path, m, db, text), credentials['passwords'])
-    rt.properties(path, m, credentials)
+    rt.properties(path, effective_manifest, credentials)
     rt.compose(path, m, 'up', '-d', 'keycloak', log=evidence / 'keycloak-up.log')
     rt.await_check(lambda: rt.discovery(m['issuer']), 150, 'KEYCLOAK_OIDC_DISCOVERY_UNAVAILABLE')
     auth_checks, tokens = rt.identities(m['issuer'], lambda data: rt.save(evidence / 'keycloak-auth.json', data))
-    extra_infra = ['nats'] if m.get('wakeupMode', 'nats') == 'nats' else []
-    if extra_infra:
-        rt.compose(path, m, 'up', '-d', *extra_infra, log=evidence / 'nats-up.log')
+    if target_mode == 'nats':
+        rt.compose(path, m, 'up', '-d', 'nats', log=evidence / 'nats-up.log')
+    else:
+        _remove_owned_nats_container(rt, m)
     if force_recreate_runtimes:
         recreate = tuple(rt.RUNTIMES) if force_recreate_runtimes is True else tuple(force_recreate_runtimes)
         remaining = [r for r in rt.RUNTIMES if r not in recreate]
@@ -309,7 +324,7 @@ def wakeup_diagnostics(rt, path, m):
         else 'DEGRADED' if 'DEGRADED' in effective_states or not broker['available']
         else 'MIXED'
     )
-    return dict(
+    result = dict(
         topology=m.get('topology', 'T1A'),
         configuredMode=configured,
         effectiveMode=effective_mode,
@@ -317,32 +332,46 @@ def wakeup_diagnostics(rt, path, m):
         brokerAvailable=broker['available'],
         runtimes=runtimes,
     )
+    if m.get('wakeupTransition'):
+        result['transitionInProgress'] = m['wakeupTransition']
+    return result
 
 
-def _reconfigure_wakeup_mode(rt, path, m, evidence, wakeup_mode, force_recreate_runtimes):
-    """Non-destructively switch an existing instance between nats and noop wakeup modes.
+def _prepare_wakeup_transition(rt, path, m, evidence, wakeup_mode, force_recreate_runtimes):
+    """Stage a recoverable non-destructive wakeup-mode transition without prematurely committing manifest.json.
 
-    Preserves PostgreSQL data, Keycloak state, secrets, ports, and deployment identity.
-    Only stops/removes NATS (when switching to noop) or starts NATS (when switching to nats)
-    and force-recreates the affected WAKEUP_RUNTIMES.
+    If a previous transition was interrupted, calling start without --wakeup-mode deterministically
+    resumes it; passing --wakeup-mode <mode> explicitly converges (or reverts) to <mode>.
+    m['wakeupMode'] is ONLY updated after runtime recreation, readiness, and canary verification succeed.
     """
-    previous_mode = m.get('wakeupMode', 'nats')
-    target_mode = wakeup_mode if wakeup_mode is not None else previous_mode
-    if target_mode == previous_mode:
-        return False, previous_mode, force_recreate_runtimes
-    if previous_mode == 'nats' and target_mode == 'noop':
-        if (path / 'compose.json').exists():
-            rt.compose(path, m, 'rm', '-f', '-s', 'nats', log=evidence / 'nats-remove.log')
-        nats_conf = path / 'nats.conf'
-        if nats_conf.exists():
-            nats_conf.unlink()
-    m['wakeupMode'] = target_mode
+    committed_mode = m.get('wakeupMode', 'nats')
+    pending = m.get('wakeupTransition')
+    if wakeup_mode is not None:
+        target_mode = wakeup_mode
+    elif isinstance(pending, dict) and pending.get('to') in ('nats', 'noop'):
+        target_mode = pending['to']
+    else:
+        target_mode = committed_mode
+
+    resuming = bool(pending)
+    mode_changed = (target_mode != committed_mode)
+    if not mode_changed and not resuming:
+        return False, False, committed_mode, target_mode, force_recreate_runtimes
+
+    m['wakeupTransition'] = {
+        'from': committed_mode,
+        'to': target_mode,
+        'phase': 'PREPARING',
+        'resumed': resuming,
+        'startedAt': time.time(),
+    }
     rt.save(path / 'manifest.json', m)
     rt.save(
         evidence / 'wakeup-mode-change.json',
         dict(
-            previousMode=previous_mode,
+            previousMode=committed_mode,
             targetMode=target_mode,
+            resumed=resuming,
             recreatedRuntimes=list(rt.WAKEUP_RUNTIMES),
             observedAt=time.time(),
         ),
@@ -353,15 +382,29 @@ def _reconfigure_wakeup_mode(rt, path, m, evidence, wakeup_mode, force_recreate_
         merged_recreate = tuple(dict.fromkeys((*force_recreate_runtimes, *rt.WAKEUP_RUNTIMES)))
     else:
         merged_recreate = tuple(rt.WAKEUP_RUNTIMES)
-    return True, previous_mode, merged_recreate
+    return mode_changed, resuming, committed_mode, target_mode, merged_recreate
+
+
+def _commit_wakeup_transition(rt, path, m, target_mode):
+    """Commit the verified wakeup mode to manifest.json and clean up obsolete NATS config."""
+    m['wakeupMode'] = target_mode
+    m.pop('wakeupTransition', None)
+    if target_mode == 'noop':
+        nats_conf = path / 'nats.conf'
+        if nats_conf.exists():
+            nats_conf.unlink()
+    m.update(state='RUNNING', startedAt=time.time())
+    rt.save(path / 'manifest.json', m)
 
 
 def start_distribution(rt, path, m, evidence, *, force_recreate_runtimes=None, wakeup_mode=None):
     before, credentials = _prepare_distribution_runtime(rt, path, m, evidence)
-    mode_changed, previous_mode, effective_recreate = _reconfigure_wakeup_mode(
+    mode_changed, resumed, previous_mode, target_mode, effective_recreate = _prepare_wakeup_transition(
         rt, path, m, evidence, wakeup_mode, force_recreate_runtimes
     )
-    auth_checks, tokens = _boot_distribution_stack(rt, path, m, (evidence, credentials, effective_recreate))
+    auth_checks, tokens = _boot_distribution_stack(
+        rt, path, m, (evidence, credentials, effective_recreate, target_mode)
+    )
     rt.recover_fail_closed_runtimes(path, m, evidence)
     checks = rt.current(path, m, wait=True)
     checks.update(auth_checks)
@@ -371,11 +414,12 @@ def start_distribution(rt, path, m, evidence, *, force_recreate_runtimes=None, w
     recovered = rt.recover_workers(path, m, evidence, before)
     checks['WORKER-PARTITIONS'] = 'PASS'
     tools, canary_result, grafana_diagnostics = _verify_canary_and_observability(rt, path, m, (evidence, tokens, checks, recovered))
-    m.update(state='RUNNING', startedAt=time.time())
-    rt.save(path / 'manifest.json', m)
+    _commit_wakeup_transition(rt, path, m, target_mode)
     result = rt.verdict(checks, True, tools, canary_result)
     wakeup = wakeup_diagnostics(rt, path, m)
     wakeup['modeChanged'] = mode_changed
+    if resumed:
+        wakeup['transitionRecovered'] = True
     if mode_changed:
         wakeup['previousMode'] = previous_mode
     result['wakeup'] = wakeup

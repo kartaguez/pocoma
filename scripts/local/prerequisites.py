@@ -410,7 +410,9 @@ def _handle_missing_manifest(path, command):
 
 def _expected_deployed_files(m, runtimes):
     required = ['pg-password', 'pg-init.sql', 'realm.json', 'prometheus.yml']
-    if m.get('wakeupMode', 'nats') == 'nats':
+    # During an interrupted wakeup-mode transition, nats.conf may legitimately be absent
+    # or present until the next start completes or reverts the transition.
+    if m.get('wakeupMode', 'nats') == 'nats' and not m.get('wakeupTransition'):
         required.append('nats.conf')
     required += [name + '.properties' for name in runtimes]
     required += [module + '.jar' for module in sorted({value[0] for value in runtimes.values()})]
@@ -425,7 +427,7 @@ def _validate_deployed_service_files(path, m, runtimes):
     config = document(path / 'compose.json')
     services = config.get('services') if isinstance(config, dict) else None
     expected_services = {*runtimes, 'postgres', 'keycloak', 'prometheus'}
-    if m.get('wakeupMode', 'nats') == 'nats':
+    if m.get('wakeupMode', 'nats') == 'nats' and not m.get('wakeupTransition'):
         expected_services.add('nats')
     if not isinstance(services, dict) or not expected_services.issubset(services):
         reject('PRE-CONFIG-COMPOSE', 'Complete owned service configuration', 'missing services')
