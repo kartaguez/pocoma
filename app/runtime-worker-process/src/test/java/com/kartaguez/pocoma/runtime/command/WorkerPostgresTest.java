@@ -3193,7 +3193,11 @@ class WorkerPostgresTest {
                         "select xact_commit+xact_rollback from pg_stat_database where"
                                 + " datname=current_database()",
                         Long.class);
-        long deadline = start + Duration.ofMinutes(5).toNanos();
+        long idleSeconds =
+                Boolean.getBoolean("pocoma.test.soak")
+                        ? 300L
+                        : Long.getLong("pocoma.test.idleWindowSeconds", 15L);
+        long deadline = start + Duration.ofSeconds(idleSeconds).toNanos();
         long observations = 0;
         while (System.nanoTime() < deadline) {
             Thread.sleep(1000);

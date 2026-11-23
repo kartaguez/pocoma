@@ -81,7 +81,8 @@ class AdmissionFlowPostgresTest {
 
     void start() {
         http.useMaterializedRead(worker);
-        var props = worker.compositionProperties(http.properties);
+        var props = new LinkedHashMap<>(worker.compositionProperties(http.properties));
+        props.putIfAbsent("management.server.port", "0");
         var app = new SpringApplication(PocomaRuntimeMonolithApplication.class);
         app.setAdditionalProfiles("v3-read-worker", "v3-consumption-worker-dev", "v3-http-read", "v3-http-admission");
         app.setDefaultProperties(props);
