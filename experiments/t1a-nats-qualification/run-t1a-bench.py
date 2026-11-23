@@ -178,13 +178,17 @@ def extract_wakeup_and_jvm(pre_proms, post_proms):
             continue
         pre = c4m.parse_prom(pre_proms[name])
         post = c4m.parse_prom(post_proms[name])
-        def delta(metric):
-            return round(c4m.prom_sum(post, metric) - c4m.prom_sum(pre, metric), 2)
+        def delta(metric, labels=None):
+            return round(c4m.prom_sum(post, metric, labels) - c4m.prom_sum(pre, metric, labels), 4)
+        def avg_ms(base_metric, labels=None):
+            d_cnt = c4m.prom_sum(post, base_metric + "_count", labels) - c4m.prom_sum(pre, base_metric + "_count", labels)
+            d_sum = c4m.prom_sum(post, base_metric + "_sum", labels) - c4m.prom_sum(pre, base_metric + "_sum", labels)
+            return round((d_sum / d_cnt) * 1000.0, 2) if d_cnt > 0 else None
         out[name] = {
             "jvm_heap_mib": round(c4m.prom_sum(post, "jvm_memory_used_bytes", {"area": "heap"}) / (1024 * 1024), 2),
             "jvm_nonheap_mib": round(c4m.prom_sum(post, "jvm_memory_used_bytes", {"area": "nonheap"}) / (1024 * 1024), 2),
             "jvm_threads_live": int(round(c4m.prom_sum(post, "jvm_threads_live_threads"))),
-            "discovery_passes": int(round(c4m.prom_sum(post, "pocoma_v3_consumption_phase_seconds_count", {"phase": "DISCOVERY"}) - c4m.prom_sum(pre, "pocoma_v3_consumption_phase_seconds_count", {"phase": "DISCOVERY"}))),
+            "discovery_passes": int(round(delta("pocoma_v3_consumption_phase_seconds_count", {"phase": "DISCOVERY"}))),
             "wakeup_published": delta("pocoma_v3_wakeup_published_total"),
             "wakeup_coalesced": delta("pocoma_v3_wakeup_coalesced_total"),
             "wakeup_publish_errors": delta("pocoma_v3_wakeup_publish_errors_total"),
@@ -195,6 +199,16 @@ def extract_wakeup_and_jvm(pre_proms, post_proms):
             "wakeup_fallback_transitions": delta("pocoma_v3_wakeup_fallback_transitions_total"),
             "wakeup_reconnects": delta("pocoma_v3_wakeup_reconnects_total"),
             "wakeup_state": int(round(c4m.prom_sum(post, "pocoma_v3_wakeup_state"))),
+            "wakeup_discovery_delay_avg_ms": avg_ms("pocoma_v3_wakeup_discovery_delay_seconds"),
+            "admission_http_avg_ms": avg_ms("pocoma_v3_admission_http_duration_seconds"),
+            "hikari_pending": int(round(c4m.prom_sum(post, "hikaricp_connections_pending"))),
+            "hikari_timeouts": delta("hikaricp_connections_timeout_total"),
+            "hikari_acquire_avg_ms": avg_ms("hikaricp_connections_acquire_seconds"),
+            "hikari_acquire_max_ms": round(c4m.prom_sum(post, "hikaricp_connections_acquire_seconds_max") * 1000.0, 2),
+            "handoff_admit_to_write_avg_ms": avg_ms("pocoma_v3_handoff_duration_seconds", {"stage": "ADMIT_TO_WRITE"}),
+            "handoff_write_exec_avg_ms": avg_ms("pocoma_v3_handoff_duration_seconds", {"stage": "WRITE_EXEC"}),
+            "handoff_write_to_read_avg_ms": avg_ms("pocoma_v3_handoff_duration_seconds", {"stage": "WRITE_TO_READ"}),
+            "handoff_read_exec_avg_ms": avg_ms("pocoma_v3_handoff_duration_seconds", {"stage": "READ_EXEC"}),
         }
     return out
 
@@ -337,7 +351,7 @@ def run_single(args):
         base.wait_for(lambda: bench.command(["docker", "exec", pg, "pg_isready", "-h", "127.0.0.1", "-U", "pocoma"]) != "")
         pg_ip = next(iter(bench.owned(pg)["NetworkSettings"]["Networks"].values()))["IPAddress"]
 
-        snap_dir = SNAP_ROOT / ("medium50-v5" if args.scenario in ("c2-med-10", "c2-ramp", "c3-int-pot-vs-id") else "medium10-v5")
+        snap_dir = SNAP_ROOT / ("medium50-v5" if args.scenario in ("c2-med-10", "c2-ramp", "c3-int-pot-vs-id", "c3-int-pot-vs-id-deep") else "medium10-v5")
         snap_meta, dump_path = base.verify_snapshot_metadata(snap_dir, "medium", 1)
         base.restore_snapshot_into_pg(pg, dump_path, out)
         # Upgrade V5 snapshot to feat/v3-identity-governance schema (server-assigned identities)
@@ -353,7 +367,7 @@ def run_single(args):
         diag.init_pg_stat_statements(pg)
         main_subject = snap_meta["tokenSubject"]
 
-        fresh_subjects = [f"wk-fresh-{uuid.uuid4().hex[:6]}-{i}" for i in range(40)]
+        fresh_subjects = [f"wk-fresh-{uuid.uuid4().hex[:6]}-{i}" for i in range(100)]
         (work / "subjects.json").write_text(json.dumps([main_subject, *fresh_subjects]))
         issuer_log = (out / "issuer.log").open("w")
         issuer = subprocess.Popen(
@@ -433,6 +447,38 @@ def run_single(args):
                     "planned": 20, "observed": len(obs),
                     "resultE2eMs": base.stats_summary([r["resultE2eMs"] for r in obs]),
                     "usableBindingE2eMs": base.stats_summary([r["usableBindingE2eMs"] for r in obs]),
+                },
+            }
+        elif sc == "c3-int-pot-vs-id-deep":
+            stop_bg = threading.Event()
+            with ThreadPoolExecutor(max_workers=2) as pool:
+                f_bg = pool.submit(diag.run_open_rate, states, 20.0, 800, 20, 20, 30.0, 0.025, 150.0, token, binding)
+                time.sleep(2.0)
+                f_id = pool.submit(diag.run_registration_stream, 80, 2.0, fresh_tokens[:80], stop_bg)
+                id_rows = f_id.result()
+                bg_rows, b_ns, e_ns = f_bg.result()
+            obs = [r for r in id_rows if r.get("status") == "OBSERVED"]
+            outliers = [
+                {
+                    "index": idx,
+                    "admitMs": round(r.get("admitMs", 0), 1),
+                    "resultE2eMs": round(r["resultE2eMs"], 1),
+                    "usableBindingE2eMs": round(r["usableBindingE2eMs"], 1),
+                }
+                for idx, r in enumerate(obs)
+                if r["usableBindingE2eMs"] >= 300.0
+            ]
+            receipt["results"] = {
+                "potBackground": diag.summarize_rows(bg_rows, b_ns, e_ns),
+                "identityProbe": {
+                    "planned": 80, "observed": len(obs),
+                    "admitMs": base.stats_summary([r["admitMs"] for r in obs if "admitMs" in r]),
+                    "resultE2eMs": base.stats_summary([r["resultE2eMs"] for r in obs]),
+                    "usableBindingE2eMs": base.stats_summary([r["usableBindingE2eMs"] for r in obs]),
+                    "outliersGe300MsCount": len(outliers),
+                    "outliersGe300Ms": outliers,
+                    "rawUsableBindingMs": [round(r["usableBindingE2eMs"], 1) for r in obs],
+                    "rawResultMs": [round(r["resultE2eMs"], 1) for r in obs],
                 },
             }
         elif sc == "c4-backlog-10k":
