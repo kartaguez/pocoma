@@ -31,7 +31,7 @@ If an earlier command timed out and printed a `--run` identifier (`[0-9]{10}-[0-
 
 | Field | Values | Meaning |
 | :--- | :--- | :--- |
-| `operationalState` | `OPERATIONAL` | All 9 containers, PostgreSQL, Keycloak, all 5 JVMs (no `draining` or exhausted capacity), and Prometheus are healthy |
+| `operationalState` | `OPERATIONAL` | All 10 containers (or 9 in `--wakeup-mode noop`), PostgreSQL, Keycloak, all 5 JVMs (no `draining` or exhausted capacity), and Prometheus are healthy |
 | `operationalState` | `DEGRADED_OBSERVABILITY` | Core application healthy, but Prometheus unavailable (`exit code 4`) |
 | `operationalState` | `UNAVAILABLE` | At least one critical service (PostgreSQL, Keycloak, web runtime, or worker in `draining`) is unavailable |
 | `qualificationState` | `QUALIFIED` | Canary proof is fresh (`≤ 300 s`) and container generation is consistent |

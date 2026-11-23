@@ -63,10 +63,9 @@ Then query `GET $READ_URL/api/v3/me/binding` again to retrieve your active `bind
 
 ## 3. Submit a Business Command (`CreatePot`)
 
-Generate a UUID for the new pot (`POT_ID`) and a unique idempotency key (`IDEMP_CMD`), then submit `CreatePot` with `observedVersion: 0` and your `BINDING_TOKEN`:
+Generate a unique idempotency key (`IDEMP_CMD`) and submit `CreatePot` with `observedVersion: 0` and your `BINDING_TOKEN`. **Do not send a `potId` field**: WRITE assigns the `PotId` server-side and returns it in the terminal command result.
 
 ```bash
-POT_ID=$(python3 -c 'import uuid; print(uuid.uuid4())')
 IDEMP_CMD=$(python3 -c 'import uuid; print(uuid.uuid4())')
 
 curl -sS -i -X POST "$WRITE_URL/api/v3/commands" \
@@ -75,7 +74,6 @@ curl -sS -i -X POST "$WRITE_URL/api/v3/commands" \
   -H "Idempotency-Key: $IDEMP_CMD" \
   -d "{
     \"operation\": \"CreatePot\",
-    \"potId\": \"$POT_ID\",
     \"observedVersion\": 0,
     \"bindingToken\": \"$BINDING_TOKEN\",
     \"payload\": {\"label\": \"Trip\"}
@@ -84,7 +82,7 @@ curl -sS -i -X POST "$WRITE_URL/api/v3/commands" \
 
 The **`202 Accepted`** response contains `{"requestId":"<CMD_REQUEST_ID>"}` (along with the `Location` header). It confirms durable admission persistence in `pocoma_write`, not yet business execution.
 
-## 4. Retrieve the Command Result
+## 4. Retrieve the Command Result & Assigned `PotId`
 
 Poll the READ result endpoint with `CMD_REQUEST_ID` until `200 OK` (while unmaterialized, the API returns `404`):
 
@@ -98,12 +96,20 @@ A successful execution returns:
 ```json
 {
   "requestId": "...",
+  "operation": "CreatePot",
+  "potId": "<ASSIGNED_POT_ID>",
   "outcome": "COMPLETED",
-  "resultingPotVersion": 1
+  "resultingPotVersion": 1,
+  "rejection": null,
+  "createdResources": {
+    "potId": "<ASSIGNED_POT_ID>",
+    "expenseId": null,
+    "shareholders": null
+  }
 }
 ```
 
-Note `resultingPotVersion` (`1` here).
+Extract `POT_ID` from `createdResources.potId` (or `potId`) and note `resultingPotVersion` (`1` here).
 
 ## 5. Read the Resulting Projection
 

@@ -24,7 +24,7 @@ All API responses include `Cache-Control: no-store`.
 | Method & Route | Input | Nominal Response |
 | :--- | :--- | :--- |
 | `POST /identity/requests` | `{"operation":"Registration"}` or `{"operation":"Unlink","bindingToken":"...","target":{"issuer":"...","subject":"..."}}` | `202 Accepted`: `{"requestId":"<UUID>"}` + `Location` |
-| `POST /commands` | Envelope `{"operation","potId","observedVersion","bindingToken","payload"}` | `202 Accepted`: `{"requestId":"<UUID>"}` + `Location` |
+| `POST /commands` | Envelope `{"operation","observedVersion","bindingToken","payload"}` (`potId` omitted for `CreatePot`, required for all other operations) | `202 Accepted`: `{"requestId":"<UUID>"}` + `Location` |
 
 > [!NOTE]
 > A `202 Accepted` response confirms only durable admission persistence in `pocoma_write`, never business acceptance or immediate READ projection availability.
@@ -35,7 +35,7 @@ All API responses include `Cache-Control: no-store`.
 | :--- | :--- | :--- |
 | `GET /me/binding` | Query active binding for the authenticated identity | `200` `{active, euiVersion, bindingToken}` or `404` if unknown |
 | `GET /identity/requests/{id}/result` | Terminal result of an identity request | `200` `{outcome, operation, targetVersion, rejection}` or `404` |
-| `GET /commands/{id}/result` | Terminal result of a command | `200` `{outcome, resultingPotVersion, rejection}` or `404` |
+| `GET /commands/{id}/result` | Terminal result of a command (including server-assigned `createdResources`) | `200` `{requestId, operation, potId, outcome, resultingPotVersion, rejection, createdResources}` or `404` |
 | `GET /me/pots?limit=N&cursor=OPAQUE` | Paginated list of accessible pots (`limit` default `20`, max `100`) | `200` `{potIds, nextCursor}` |
 | `GET /pots/{id}?minVersion=V` | Current full state of a Pot at version `W >= V` | `200` `{potVersion, label, shareholders, expenses, balances}` or `404` |
 | `GET /pots/{id}/versions/{V}` | Exact historical state at version `V` (no substitution) | `200` `{potVersion, label, shareholders, expenses, balances}` or `404` |
@@ -46,28 +46,29 @@ All API responses include `Cache-Control: no-store`.
 
 ## 3. Business Operations (`POST /api/v3/commands`)
 
-Common envelope:
+Common envelope (`potId` is **omitted** for `CreatePot` because WRITE assigns it server-side; `potId` is **required** for all other operations):
 
 ```json
 {
   "operation": "CreatePot",
-  "potId": "<UUID>",
   "observedVersion": 0,
   "bindingToken": "<BINDING_TOKEN>",
-  "payload": {}
+  "payload": {"label": "Trip"}
 }
 ```
 
+Server-assigned IDs (`CreatePot`, `AddShareholders`, `CreateExpense`) are returned in `GET /api/v3/commands/{requestId}/result` under `createdResources` (`{potId, expenseId, shareholders: [{inputIndex, shareholderId}]}`).
+
 | Operation | `observedVersion` | Exact Payload |
 | :--- | :--- | :--- |
-| `CreatePot` | `0` (new Pot UUID) | `{"label": "..."}` |
+| `CreatePot` | `0` (`potId` omitted; server-assigned) | `{"label": "..."}` |
 | `UpdatePotDetails` | Current version | `{"label": "..."}` |
 | `DeletePot` | Current version | `{}` |
-| `AddShareholders` | Current version | `{"targets": [{"id": "<UUID>", "name": "...", "attachment": "FREE\|SELF", "weight": {"numerator":"1","denominator":"1"}}]}` |
+| `AddShareholders` | Current version | `{"targets": [{"name": "...", "attachment": "FREE\|SELF", "weight": {"numerator":"1","denominator":"1"}}]}` (IDs server-assigned) |
 | `UpdateShareholderDetails` | Current version | `{"targets": [{"id": "<UUID>", "name": "...", "attachment": "KEEP\|SELF\|DETACH"}]}` |
 | `UpdateShareholderWeights` | Current version | `{"targets": [{"id": "<UUID>", "weight": {"numerator":"...","denominator":"..."}}]}` |
 | `DeleteShareholder` | Current version | `{"id": "<UUID>"}` |
-| `CreateExpense` | Current version | `{"id": "<UUID>", "label": "...", "date": "YYYY-MM-DD", "amount": {"numerator":"...","denominator":"..."}, "payerId": "<UUID>", "participants": [{"id": "<UUID>", "weight": null\|{...}}]}` |
+| `CreateExpense` | Current version | `{"label": "...", "date": "YYYY-MM-DD", "amount": {"numerator":"...","denominator":"..."}, "payerId": "<UUID>", "participants": [{"id": "<UUID>", "weight": null\|{...}}]}` (ID server-assigned) |
 | `UpdateExpenseDetails` | Current version | `{"id": "<UUID>", "label": "...", "date": "YYYY-MM-DD"}` |
 | `UpdateExpenseFinancials` | Current version | `{"id": "<UUID>", "amount": {...}, "payerId": "<UUID>", "participants": [{"id": "<UUID>", "weight": null\|{...}}]}` |
 | `DeleteExpense` | Current version | `{"id": "<UUID>"}` |

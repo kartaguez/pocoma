@@ -15,8 +15,10 @@
   },
   "ci": {
     "prNumber": 12,
-    "runId": "45157493230",
-    "testedSha": "9755be7fba6f5bbf356ee723ac64a46eee542cc9",
+    "runId": "45180518999",
+    "testedSha": "398f178157f77124280eaf8389fdd5c17b2ceec6",
+    "previousRunId": "45157493230",
+    "previousTestedSha": "9755be7fba6f5bbf356ee723ac64a46eee542cc9",
     "status": "completed",
     "conclusion": "success",
     "jobs": [

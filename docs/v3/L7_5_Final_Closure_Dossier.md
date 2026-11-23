@@ -9,7 +9,7 @@
 
 > [!IMPORTANT]
 > **Distinction normative L7 (local) vs L8 (production / infrastructure cible)** :
-> - **Périmètre local L7** : **techniquement clos et certifié** (`1 222/1 222` tests Maven sur les 44 modules du réacteur, `52/52` `architecture-tests`, `143/143` tests CLI Python, CI PR #12 `45157493230` sur `9755be7f` `8/8` jobs verts + CI sur le HEAD final).
+> - **Périmètre local L7** : **techniquement clos et certifié** (`1 222/1 222` tests Maven sur les 44 modules du réacteur, `52/52` `architecture-tests`, `143/143` tests CLI Python, CI PR #12 `45180518999` sur `398f1781` `8/8` jobs verts).
 > - **Périmètre L8 (hors L7)** : configuration multi-VM `SPEC-09` Configuration A/B (`2 × 4 vCPU / 8 GiB` + Keycloak isolé), pointe `50 cmd/s`, volumes `10k/1M` et `100k/10M`, HA distribuée, clustering NATS 3 nœuds, TLS/mTLS et gestion des secrets de production. Aucune capacité L8 non démontrée n'est revendiquée comme certifiée.
 
 ---
@@ -118,7 +118,7 @@ Certification: QUALIFIED PASS — GO_LOCAL_WITH_RESERVES
 **Verdict : `GO_LOCAL_WITH_RESERVES`**
 
 Tous les critères de sortie techniques de L7.5 sont satisfaits :
-- CI verte sur la PR #12 (`45157493230` `8/8` sur `9755be7f`), puis vérifiée sur le HEAD final de la PR #12 ;
+- CI verte sur la PR #12 (`45157493230` `8/8` sur `9755be7f`, puis `45180518999` `8/8` sur `398f1781`) ;
 - réacteur complet `44/44` modules et `architecture-tests` (`52/52`) verts (`1 222/1 222 PASS`, `0` skip) sur le code gelé `424bde2a` ;
 - `6` réserves soldées par preuves exécutables (`PG-REBUILD-EQ`, `RCV01-A`, `RCV01-N`, `INV-F`, `INV-G`, `A10-I`) et `7` réserves non bloquantes explicitement qualifiées (`ACCEPTED_WITH_RESERVE`) ;
 - frontière L7 vs L8 strictement respectée.

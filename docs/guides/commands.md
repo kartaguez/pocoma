@@ -30,7 +30,7 @@ curl -sS "$READ_URL/api/v3/commands/$REQUEST_ID/result" \
 
 - While unmaterialized (or if the ID is unknown / belongs to another user), the endpoint returns **`404 Not Found`**.
 - Once materialized (`200 OK`), `outcome` is either:
-  - **`COMPLETED`**: command applied, with `resultingPotVersion` (positive integer).
+  - **`COMPLETED`**: command applied, with `resultingPotVersion` (positive integer) and `createdResources` (`{potId, expenseId, shareholders: [{inputIndex, shareholderId}]}`) for creation commands (`CreatePot`, `AddShareholders`, `CreateExpense`).
   - **`REJECTED`**: explicit business rejection (`rejection`), with no transport error.
 
 > [!TIP]
@@ -38,12 +38,11 @@ curl -sS "$READ_URL/api/v3/commands/$REQUEST_ID/result" \
 
 ## 3. Common Envelope & Version Control (`observedVersion`)
 
-All commands share the same JSON envelope:
+All commands share the same JSON envelope. **`CreatePot`, `AddShareholders`, and `CreateExpense` do not accept client-generated IDs** — WRITE assigns them server-side and returns them in `CommandResult.createdResources`:
 
 ```json
 {
   "operation": "CreatePot",
-  "potId": "<client-generated UUID>",
   "observedVersion": 0,
   "bindingToken": "<BINDING_TOKEN>",
   "payload": {
@@ -52,8 +51,9 @@ All commands share the same JSON envelope:
 }
 ```
 
-- For `CreatePot`, `CreateInvitation`, and `AttachShareholderViaInvitation`, `observedVersion` is `0`.
-- For mutations on an existing Pot, `observedVersion` must match the current observed version; on concurrent conflict, the command is `REJECTED` and the client must re-read the Pot before submitting a new intent.
+- For `CreatePot`, `potId` is omitted and `observedVersion` is `0`.
+- For `CreateInvitation` and `AttachShareholderViaInvitation`, `potId` is required in the envelope and `observedVersion` is `0`.
+- For mutations on an existing Pot, `potId` is required and `observedVersion` must match the current observed version; on concurrent conflict, the command is `REJECTED` and the client must re-read the Pot before submitting a new intent.
 
 ## 4. Business Command Examples
 
@@ -68,7 +68,6 @@ All commands share the same JSON envelope:
   "payload": {
     "targets": [
       {
-        "id": "<SHAREHOLDER_UUID>",
         "name": "Alice",
         "attachment": "FREE",
         "weight": {"numerator": "1", "denominator": "1"}
@@ -78,7 +77,7 @@ All commands share the same JSON envelope:
 }
 ```
 
-`attachment` values on creation: `FREE` or `SELF`. For `UpdateShareholderDetails`: `KEEP`, `SELF`, `DETACH`.
+`attachment` values on creation: `FREE` or `SELF`. The assigned `shareholderId` is returned in `createdResources.shareholders[0].shareholderId`. For `UpdateShareholderDetails`: `KEEP`, `SELF`, `DETACH`.
 
 ### Create an expense with rational amounts (`CreateExpense`)
 
@@ -91,7 +90,6 @@ Pocoma uses **no floating-point numbers** for amounts: all amounts and weights u
   "observedVersion": 2,
   "bindingToken": "<BINDING_TOKEN>",
   "payload": {
-    "id": "<EXPENSE_UUID>",
     "label": "Groceries",
     "date": "2026-11-15",
     "amount": {"numerator": "10", "denominator": "3"},
@@ -104,9 +102,11 @@ Pocoma uses **no floating-point numbers** for amounts: all amounts and weights u
 }
 ```
 
+The assigned `expenseId` is returned in `createdResources.expenseId`.
+
 ### Invite a participant (`CreateInvitation` → `AttachShareholderViaInvitation`)
 
-1. The owner submits `CreateInvitation` (`observedVersion: 0`, `payload: {"expiresAt": "2026-11-20T12:00:00Z"}` — UTC timestamp with `Z` suffix, ≤ microsecond precision, strictly in the future at execution time).
+1. The owner submits `CreateInvitation` (`observedVersion: 0`, `payload: {"expiresAt": "2027-12-31T12:00:00Z"}` — UTC timestamp with `Z` suffix, ≤ microsecond precision, strictly in the future at execution time).
 2. Once the result is `COMPLETED`, the creator retrieves the `pocoma://invitation/<secret>` link via `GET /api/v3/invitations/by-creation-request/{requestId}`.
 3. The invitee lists eligible slots via `POST /api/v3/invitations/available-shareholders/query` and submits `AttachShareholderViaInvitation` (`observedVersion: 0`, `payload: {"invitationToken": "<secret>", "shareholderId": "<UUID>"}`).
 
