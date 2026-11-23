@@ -4,12 +4,12 @@
 - **Branche PR #12** : `fix/l7-5-ci-visibility-oracle`
 - **Base `main` initiale** : `521ff27d2abe1c1f6bc18de7c95f0cfc877bf857` (*Merge T1A five-runtime topology and Core NATS wakeup into main*)
 - **Commit correctif P0 (PR #12)** : `7761ecd04adb8e36c9c6ef2a5c3ae21a7e664037`
-- **SHA code qualifié (L7.5)** : `fff035695a1361816e1473e5274ead43a62b563f` (**0 fichier de production `src/main/**`, migration SQL ou script `scripts/local/**` modifié par rapport à `main`**)
+- **SHA code qualifié (L7.5)** : `424bde2ae86ae38c24261482480f4134cb019280` (**0 fichier de production `src/main/**`, migration SQL ou script `scripts/local/**` modifié par rapport à `main`**)
 - **Verdict technique recommandé** : **`GO_LOCAL_WITH_RESERVES`**
 
 > [!IMPORTANT]
 > **Distinction normative L7 (local) vs L8 (production / infrastructure cible)** :
-> - **Périmètre local L7** : **techniquement clos et certifié** (`1 221/1 221` tests Maven sur les 44 modules du réacteur, `52/52` `architecture-tests`, `143/143` tests CLI Python, CI PR #12 `45142597104` `8/8` jobs verts).
+> - **Périmètre local L7** : **techniquement clos et certifié** (`1 222/1 222` tests Maven sur les 44 modules du réacteur, `52/52` `architecture-tests`, `143/143` tests CLI Python, CI PR #12 `45157493230` sur `9755be7f` `8/8` jobs verts + CI sur le HEAD final).
 > - **Périmètre L8 (hors L7)** : configuration multi-VM `SPEC-09` Configuration A/B (`2 × 4 vCPU / 8 GiB` + Keycloak isolé), pointe `50 cmd/s`, volumes `10k/1M` et `100k/10M`, HA distribuée, clustering NATS 3 nœuds, TLS/mTLS et gestion des secrets de production. Aucune capacité L8 non démontrée n'est revendiquée comme certifiée.
 
 ---
@@ -42,14 +42,19 @@ Le détail complet par obligation figure dans [`L7_5_Reservations_Register.md`](
    - **Correction (test uniquement)** : ajout de `InvitationHttpTest.placeClaimedBetweenReadConsultationAndAcceptanceIsRejectedWithoutMutation` avec oracle sur la réponse HTTP (`REJECTED` / `INVALID_ATTACHMENT`) **et** sur les effets WRITE committés (`v3_shareholder_details.user_id` inchangé sur le gagnant, `0` nouvel événement `v3_pot_event`).
    - **Preuve** : `InvitationHttpTest` **`8/8 PASS`** (`67.19 s` sous PostgreSQL 17).
 
+3. **`A10-I` (preuve HTTP `401` / `404` / `503` sur indisponibilité du store READ des résultats, `424bde2a`)** :
+   - **Cause** : `A10-I` était prouvée au niveau du store (`TerminalResultsReadStorePostgresTest.mappingsAndOwnership` avec `REVOKE SELECT` → `RuntimeException`), mais pas bout-en-bout au niveau HTTP pour le cas `503`.
+   - **Vérification du comportement existant et correction (test uniquement)** : aucune anomalie de mapping HTTP en production (`ReadHttpConfiguration.unwrapTerminalResult` + `ReadController.failure` retournent déjà `503` avec `Cache-Control: no-store` et `{code, message, traceId}`). Ajout de `ReadHttpContractTest.terminalResultsStoreUnavailabilityReturns503DistinctFrom401And404` exerçant sur `/commands/{id}/result` et `/identity/requests/{id}/result` : `401` sans AuthN, `200`/`404` nominaux, `503` après `REVOKE SELECT on read_command_result, read_identity_request_result` (tant pour un ID existant que pour un ID absent), et reprise `200`/`404` après `GRANT SELECT`.
+   - **Preuve** : test ciblé **`1/1 PASS`**, tranche canonique **WEB** (`runtime-web-write,runtime-web-read -am`) **`BUILD SUCCESS`** (`18:58 min`, `runtime-web-read` **`43/43 PASS`**) et qualification globale **`CERTIFICATION`** **`1 222/1 222 PASS`**.
+
 ### 2.2 Réconciliation finale de la matrice (`522` obligations)
 
-| Statut | Avant L7.5 | Après L7.5 (`fff03569`) | Delta |
+| Statut | Avant L7.5 | Après L7.5 (`424bde2a`) | Delta |
 |---|---:|---:|---:|
-| `CURRENT_FULL` | 486 | **491** | **`+5`** (`PG-REBUILD-EQ`, `RCV01-A`, `RCV01-N`, `INV-F`, `INV-G`) |
+| `CURRENT_FULL` | 486 | **492** | **`+6`** (`PG-REBUILD-EQ`, `RCV01-A`, `RCV01-N`, `INV-F`, `INV-G`, `A10-I`) |
 | `HISTORICAL_REUSABLE` | 3 | **3** | 0 |
 | `LOCAL_ENV_BOUNDED` | 17 | **17** | 0 |
-| `CURRENT_PARTIAL` | 13 | **8** | **`-5`** (toutes les 8 qualifiées `ACCEPTED_WITH_RESERVE`) |
+| `CURRENT_PARTIAL` | 13 | **7** | **`-6`** (toutes les 7 qualifiées `ACCEPTED_WITH_RESERVE`) |
 | `DEFERRED_TO_L8_INFRA` | 1 | **1** | 0 |
 | `RETIRED_BY_HUMAN_DECISION` | 2 | **2** | 0 |
 | `MISSING` | 0 | **0** | 0 |
@@ -74,29 +79,33 @@ Vérifié sur le code fusionné dans `main` (`521ff27d` / `fff03569`) sans réou
 ```text
 Start HEAD: 521ff27d2abe1c1f6bc18de7c95f0cfc877bf857 (origin/main)
 PR #12 P0 Commit: 7761ecd04adb8e36c9c6ef2a5c3ae21a7e664037
-Qualified Code SHA (tests): fff035695a1361816e1473e5274ead43a62b563f
-Expected production impact (app/): NONE (test-only changes in runtime-worker-materialize and runtime-monolith)
+PR #12 Intermediate Docs & CI Commit: 9755be7fba6f5bbf356ee723ac64a46eee542cc9 (CI run 45157493230 -> 8/8 PASS)
+Qualified Code SHA (tests): 424bde2ae86ae38c24261482480f4134cb019280
+Expected production impact (app/): NONE (test-only changes in runtime-worker-materialize, runtime-monolith, and runtime-web-read)
 Observed production impact (app/): NONE (0 src/main/**, SQL migration, or scripts/local/** files modified)
 Declared slices:
-- Primary slice: PROJECTION (runtime-worker-materialize -am)
-- Secondary slice: Monolith (runtime-monolith -am)
-- Global gate: FULL REACTOR + GLOBAL ARCHITECTURE TESTS (44/44 modules via -pl architecture-tests -am test)
+- Primary slice: WEB (runtime-web-write,runtime-web-read -am) for A10-I ; PROJECTION (runtime-worker-materialize -am) & Monolith (runtime-monolith -am) for earlier L7.5 tests
+- Global gate: CERTIFICATION (44/44 modules via scripts/testing/verify.py CERTIFICATION, including architecture-tests)
 Verification commands executed:
 1. cd app && ./mvnw --batch-mode --no-transfer-progress -pl infra-postgres-read -am clean test -Dtest=PotVisibilityReadStorePostgresTest -Dsurefire.failIfNoSpecifiedTests=false
-   -> PASS (5/5, 9.930 s) on 7761ecd0
+   -> PASS (5/5, 9.930 s) on 7761ecd0 [historical L7.5 proof, code unchanged]
 2. python3 -B -m unittest discover -s scripts/local -p "test_*.py"
-   -> PASS (143/143, 2.037 s)
+   -> PASS (143/143, 2.037 s) on 7761ecd0 [historical L7.5 proof, scripts/local unchanged]
 3. cd app && ./mvnw --batch-mode --no-transfer-progress -pl infra-wakeup-nats,contract-consumption,supra-polling-consumption,infra-tx-spring,compose-web-write-postgres -am test -Dtest=NatsWakeupTransportTest,NatsWakeupTransportStateTest,WakeupContractTest,WakeupWorkerBehaviorTest,RenewalServiceLeaseRetryTest,SpringAttemptTransactionsAfterCommitTest,AdmissionWakeupIsolationTest -Dsurefire.failIfNoSpecifiedTests=false
-   -> PASS (37/37, 8.077 s)
+   -> PASS (37/37, 8.077 s) on 7761ecd0 [historical L7.5 proof, code unchanged]
 4. cd app && ./mvnw --batch-mode --no-transfer-progress -pl runtime-monolith -am test -Dtest=InvitationHttpTest -Dsurefire.failIfNoSpecifiedTests=false
-   -> PASS (8/8, 67.19 s) on fff03569
+   -> PASS (8/8, 67.19 s) on fff03569 [historical L7.5 proof, code unchanged]
 5. cd app && ./mvnw --batch-mode --no-transfer-progress -pl runtime-worker-materialize -am test -Dtest=ReadReconstructionPostgresTest -Dsurefire.failIfNoSpecifiedTests=false
-   -> PASS (13/13, 271.3 s) on fff03569
-6. cd app && ./mvnw --batch-mode --no-transfer-progress -pl architecture-tests -am test
-   -> PASS (1 221/1 221 across all 29 test-bearing modules / 44 reactor projects, 0 failures, 0 errors, 0 skipped, 52/52 architecture-tests, 01:21 h) on fff03569
+   -> PASS (13/13, 271.3 s) on fff03569 [historical L7.5 proof, code unchanged]
+6. cd app && ./mvnw --batch-mode --no-transfer-progress -pl runtime-web-read -am test -Dtest=ReadHttpContractTest#terminalResultsStoreUnavailabilityReturns503DistinctFrom401And404 -Dsurefire.failIfNoSpecifiedTests=false
+   -> PASS (1/1, 4.360 s) on working tree -> frozen as 424bde2a
+7. cd app && ./mvnw --batch-mode --no-transfer-progress -pl runtime-web-write,runtime-web-read -am test
+   -> PASS (BUILD SUCCESS, 18:58 min, runtime-web-read 43/43) on working tree -> frozen as 424bde2a
+8. python3 -B scripts/testing/verify.py CERTIFICATION
+   -> PASS (1 222/1 222 across all 44 reactor projects, 0 failures, 0 errors, 0 skipped, 52/52 architecture-tests, 4945.60 s Maven / 4954.05 s campaign) on 424bde2a
 Unexpected slice crossings: NONE
 Global architecture gate: RUN (52/52 PASS)
-Full reactor: RUN (44/44 projects, 1 221/1 221 PASS)
+Full reactor: RUN (44/44 projects, 1 222/1 222 PASS)
 Database verification: CURRENT (PostgreSQL 17.11 Testcontainers)
 Merge to main: NOT PERFORMED (awaiting human arbitration)
 Certification: QUALIFIED PASS — GO_LOCAL_WITH_RESERVES
@@ -109,9 +118,9 @@ Certification: QUALIFIED PASS — GO_LOCAL_WITH_RESERVES
 **Verdict : `GO_LOCAL_WITH_RESERVES`**
 
 Tous les critères de sortie techniques de L7.5 sont satisfaits :
-- CI verte sur la PR #12 (`45142597104` `8/8`), relancée sur le commit final de la PR #12 ;
-- réacteur complet `44/44` modules et `architecture-tests` (`52/52`) verts (`1 221/1 221 PASS`, `0` skip) sur le code gelé `fff03569` ;
-- `5` réserves soldées par preuves exécutables (`PG-REBUILD-EQ`, `RCV01-A`, `RCV01-N`, `INV-F`, `INV-G`) et `8` réserves non bloquantes explicitement qualifiées (`ACCEPTED_WITH_RESERVE`) ;
+- CI verte sur la PR #12 (`45157493230` `8/8` sur `9755be7f`), puis vérifiée sur le HEAD final de la PR #12 ;
+- réacteur complet `44/44` modules et `architecture-tests` (`52/52`) verts (`1 222/1 222 PASS`, `0` skip) sur le code gelé `424bde2a` ;
+- `6` réserves soldées par preuves exécutables (`PG-REBUILD-EQ`, `RCV01-A`, `RCV01-N`, `INV-F`, `INV-G`, `A10-I`) et `7` réserves non bloquantes explicitement qualifiées (`ACCEPTED_WITH_RESERVE`) ;
 - frontière L7 vs L8 strictement respectée.
 
 **Décision humaine attendue** : autorisation de fusionner la PR #12 dans `main` et de clôturer formellement le jalon L7 (avec les réserves documentées maintenues et reportées à L8).

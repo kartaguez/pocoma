@@ -4,7 +4,7 @@
   "branch": "fix/l7-5-ci-visibility-oracle",
   "baseMainSha": "521ff27d2abe1c1f6bc18de7c95f0cfc877bf857",
   "pr12InitialSha": "7761ecd04adb8e36c9c6ef2a5c3ae21a7e664037",
-  "qualifiedCodeSha": "fff035695a1361816e1473e5274ead43a62b563f",
+  "qualifiedCodeSha": "424bde2ae86ae38c24261482480f4134cb019280",
   "productionCodeDeltaFromMain": "NONE (0 src/main/**, SQL migration, or scripts/local/** files modified)",
   "toolchains": {
     "java": "Temurin OpenJDK 21+35-LTS",
@@ -15,8 +15,8 @@
   },
   "ci": {
     "prNumber": 12,
-    "runId": "45142597104",
-    "testedSha": "7761ecd04adb8e36c9c6ef2a5c3ae21a7e664037",
+    "runId": "45157493230",
+    "testedSha": "9755be7fba6f5bbf356ee723ac64a46eee542cc9",
     "status": "completed",
     "conclusion": "success",
     "jobs": [
@@ -87,26 +87,48 @@
       "duration": "271.3 s"
     },
     {
-      "name": "Unfiltered 44-module full reactor + global architecture-tests",
-      "sha": "fff035695a1361816e1473e5274ead43a62b563f",
-      "command": "cd app && ./mvnw --batch-mode --no-transfer-progress -pl architecture-tests -am test",
+      "name": "A10-I targeted HTTP 401/404/503 store unavailability",
+      "sha": "424bde2ae86ae38c24261482480f4134cb019280",
+      "command": "cd app && ./mvnw --batch-mode --no-transfer-progress -pl runtime-web-read -am test -Dtest=ReadHttpContractTest#terminalResultsStoreUnavailabilityReturns503DistinctFrom401And404 -Dsurefire.failIfNoSpecifiedTests=false",
+      "result": "PASS",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "duration": "4.360 s"
+    },
+    {
+      "name": "Canonical WEB slice (unfiltered)",
+      "sha": "424bde2ae86ae38c24261482480f4134cb019280",
+      "command": "cd app && ./mvnw --batch-mode --no-transfer-progress -pl runtime-web-write,runtime-web-read -am test",
+      "result": "PASS",
+      "runtimeWebReadTests": 43,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "duration": "18:58 min"
+    },
+    {
+      "name": "Global CERTIFICATION qualification (44-module full reactor + architecture-tests)",
+      "sha": "424bde2ae86ae38c24261482480f4134cb019280",
+      "command": "python3 -B scripts/testing/verify.py CERTIFICATION",
       "result": "PASS",
       "modulesTotal": 44,
       "modulesWithTests": 29,
-      "tests": 1221,
+      "tests": 1222,
       "failures": 0,
       "errors": 0,
       "skipped": 0,
       "architectureTests": 52,
-      "duration": "01:21 h"
+      "duration": "4945.60 s (Maven) / 4954.05 s (campaign)"
     }
   ],
   "matrixSummary": {
     "total": 522,
-    "CURRENT_FULL": 491,
+    "CURRENT_FULL": 492,
     "HISTORICAL_REUSABLE": 3,
     "LOCAL_ENV_BOUNDED": 17,
-    "CURRENT_PARTIAL": 8,
+    "CURRENT_PARTIAL": 7,
     "DEFERRED_TO_L8_INFRA": 1,
     "RETIRED_BY_HUMAN_DECISION": 2,
     "MISSING": 0
