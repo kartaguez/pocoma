@@ -28,7 +28,7 @@ This guide describes the full lifecycle of a [`./pocoma-local`](../reference/cli
 
 ## 2. Restarting After a Graceful Stop (`stop` → `start`)
 
-`./pocoma-local stop --instance <name>` cleanly stops all 9 containers while preserving `pocoma_write` / `pocoma_read` databases, Keycloak state, Prometheus metrics, and local secrets under `.pocoma-local/instances/<name>/`.
+`./pocoma-local stop --instance <name>` cleanly stops all 10 containers (or 9 in `--wakeup-mode noop`) while preserving `pocoma_write` / `pocoma_read` databases, Keycloak state, Prometheus metrics, and local secrets under `.pocoma-local/instances/<name>/`.
 
 To restart:
 

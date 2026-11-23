@@ -121,18 +121,22 @@ class ReadReconstructionPostgresTest {
             f.produce(userReq);
             var potId = new PotId(UUID.randomUUID());
             f.produce(f.admitCommand("creator", f.ownToken("creator").value(), potId, 0, new PotCommand.CreatePot(new Label("Pot-1"))));
+            f.produceInvitation(f.admitCommand("creator", f.ownToken("creator").value(), potId, 0,
+                    new PotCommand.CreateInvitation(java.time.Instant.parse("2030-01-01T00:00:00Z"))));
 
             // Start worker to populate READ
             f.select(MaterializeSettings.READ_NAMES, false);
             var ctx = f.start();
             await(() -> {
                 Integer count = f.read.queryForObject("SELECT count(*) FROM read_current_pot", Integer.class);
-                return count != null && count >= 1;
+                Integer invCount = f.read.queryForObject("SELECT count(*) FROM read_current_invitation", Integer.class);
+                return count != null && count >= 1 && invCount != null && invCount >= 1;
             }, Duration.ofSeconds(30));
             f.drain(ctx);
 
             // Ensure READ has projections and discovery checkpoints
             assertTrue(f.read.queryForObject("SELECT count(*) FROM read_current_pot", Integer.class) >= 1);
+            assertTrue(f.read.queryForObject("SELECT count(*) FROM read_current_invitation", Integer.class) >= 1);
             assertTrue(f.read.queryForObject("SELECT count(*) FROM discovery_checkpoint", Integer.class) >= 1);
 
             // Snapshot WRITE before reset
@@ -154,6 +158,7 @@ class ReadReconstructionPostgresTest {
             assertEquals(0, f.read.queryForObject("SELECT count(*) FROM read_current_pot", Integer.class));
             assertEquals(0, f.read.queryForObject("SELECT count(*) FROM read_pot_version", Integer.class));
             assertEquals(0, f.read.queryForObject("SELECT count(*) FROM read_pot_balance", Integer.class));
+            assertEquals(0, f.read.queryForObject("SELECT count(*) FROM read_current_invitation", Integer.class));
             assertEquals(0, f.read.queryForObject("SELECT count(*) FROM consumption_slot", Integer.class));
             assertEquals(0, f.read.queryForObject("SELECT count(*) FROM discovery_checkpoint", Integer.class));
 
@@ -298,6 +303,8 @@ class ReadReconstructionPostgresTest {
             var pot = new PotId(UUID.randomUUID());
             f.produce(f.admitCommand("owner", token, pot, 0, new PotCommand.CreatePot(new Label("first"))));
             f.produce(f.admitCommand("owner", token, pot, 1, new PotCommand.UpdatePotDetails(new Label("second"))));
+            f.produceInvitation(f.admitCommand("owner", token, pot, 0,
+                    new PotCommand.CreateInvitation(java.time.Instant.parse("2030-01-01T00:00:00Z"))));
 
             var removed = new PotId(UUID.randomUUID());
             f.produce(f.admitCommand("owner", token, removed, 0, new PotCommand.CreatePot(new Label("deleted"))));
@@ -322,8 +329,9 @@ class ReadReconstructionPostgresTest {
                     "select count(*) from read_pot_balance where pot_id=? and pot_version=2",
                     Integer.class, removed.value()));
             assertEquals(1, f.read.queryForObject("select count(*) from read_current_binding", Integer.class));
-            assertEquals(4, f.read.queryForObject("select count(*) from read_command_result", Integer.class));
+            assertEquals(5, f.read.queryForObject("select count(*) from read_command_result", Integer.class));
             assertEquals(1, f.read.queryForObject("select count(*) from read_identity_request_result", Integer.class));
+            assertEquals(1, f.read.queryForObject("select count(*) from read_current_invitation", Integer.class));
             assertEquals(2, f.read.queryForObject("select count(*) from read_pot_visibility_state", Integer.class));
             assertVisibilityInvariants(f.read, pot.value(), removed.value(), 2L, 2L);
 

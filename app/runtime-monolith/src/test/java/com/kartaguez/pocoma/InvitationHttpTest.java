@@ -234,6 +234,36 @@ class InvitationHttpTest extends InvitationFixture {
     }
 
     @Test
+    void placeClaimedBetweenReadConsultationAndAcceptanceIsRejectedWithoutMutation() throws Exception {
+        startPot();
+        String guest = binding("guest");
+        String second = binding("second");
+        String secret = invitationToken(create(Instant.parse("2030-01-01T00:00:00Z")));
+        var consulted = places("guest", guest, secret);
+        assertEquals(200, consulted.statusCode(), "READ consultation sees available seat");
+        assertTrue(new String(consulted.body()).contains(f.share.toString()));
+
+        var winner = attach("second", second, secret, f.share, "claim-seat-first");
+        assertEquals("COMPLETED", winner.get("outcome").asText());
+        long eventsAfterWin = f.worker.write.queryForObject(
+                "select count(*) from v3_pot_event where pot_id=?", Long.class, f.pot);
+
+        var loser = attach("guest", guest, secret, f.share, "claim-after-second");
+        assertEquals("REJECTED", loser.get("outcome").asText());
+        assertEquals("INVALID_ATTACHMENT", loser.get("rejection").asText());
+
+        UUID secondUser = f.worker.write.queryForObject(
+                "select v.user_id from v3_eui_authority a join v3_eui_version v on a.eui_id=v.eui_id"
+                        + " and a.current_version=v.version where a.issuer=? and a.subject=?",
+                UUID.class, f.http.issuer, "second");
+        assertEquals(secondUser, f.worker.write.queryForObject(
+                "select user_id from v3_shareholder_details where object_id=? and active_to is null",
+                UUID.class, f.share));
+        assertEquals(eventsAfterWin, f.worker.write.queryForObject(
+                "select count(*) from v3_pot_event where pot_id=?", Long.class, f.pot));
+    }
+
+    @Test
     void confidentialLinkAndRestrictedPlaces() throws Exception {
         startPot();
         String guest = binding("guest");

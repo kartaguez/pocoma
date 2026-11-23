@@ -23,7 +23,7 @@ Welcome to the **Pocoma** product documentation. It covers how to install, under
 ## Architecture
 
 - [Architecture Index](architecture/README.md)
-- [Overview](architecture/overview.md) — domain concepts, WRITE/READ separation, async flow, and 9-container topology.
+- [Overview](architecture/overview.md) — domain concepts, WRITE/READ separation, async flow, and 10-container T1A + Core NATS topology (9 in `--wakeup-mode noop`).
 - [Maven Modules (43 modules)](architecture/modules.md) — layer taxonomy, dependency rules, and where to place new code.
 - [JVM Runtimes & Concurrency](architecture/runtimes.md) — the 5 runtimes, 36 partitions, SQL leases (`30 s`), `renewBatch`, and fencing.
 - [PostgreSQL Persistence](architecture/persistence.md) — `pocoma_write` / `pocoma_read` databases, V1 baselines, and coordination tables.

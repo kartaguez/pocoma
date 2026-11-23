@@ -68,7 +68,7 @@ The Maven reactor under `app/` contains **43 child modules** and one aggregator.
 
 1. **Fast feedback (seconds, no full stack rebuild)**: iterate using targeted Maven slice tests (or `verify.py FAST`) backed by Testcontainers PostgreSQL.
 2. **Checking runtime composition**: if your change touches Spring wiring or multiple slices, run tests in `runtime-monolith` or the affected `runtime-*` slice.
-3. **Reloading the 9-container playground without losing data (Java-only changes)**: because `./pocoma-local start` enforces `PRE-INPUT-DRIFT` to protect existing instances from silent mismatches, use `reload` when you only modified Java code (no SQL migrations, `bootstrap.py`, Keycloak, or Docker config changes):
+3. **Reloading the 10-container playground (or 9 in `--wakeup-mode noop`) without losing data (Java-only changes)**: because `./pocoma-local start` enforces `PRE-INPUT-DRIFT` to protect existing instances from silent mismatches, use `reload` when you only modified Java code (no SQL migrations, `bootstrap.py`, Keycloak, or Docker config changes):
 
    ```bash
    ./pocoma-local reload --instance dev-feature

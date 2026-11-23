@@ -108,6 +108,36 @@ class ReadHttpContractTest {
         f.results(); for (long version : List.of(2L, 3L)) { f.binding("owner", version, version == 2 ? null : OTHER, version == 2 ? null : "new-token");
             status(200, bearer("owner", null, "/commands/" + id(401) + "/result")); status(200, bearer("owner", null, "/identity/requests/" + id(403) + "/result")); }
     }
+    @Test void terminalResultsStoreUnavailabilityReturns503DistinctFrom401And404() throws Exception {
+        f.results();
+        String existingCommand = "/commands/" + id(401) + "/result";
+        String absentCommand = "/commands/" + id(999) + "/result";
+        String existingIdentity = "/identity/requests/" + id(403) + "/result";
+        String absentIdentity = "/identity/requests/" + id(998) + "/result";
+
+        for (String route : List.of(existingCommand, existingIdentity)) {
+            status(401, f.request("GET", route, null, null, null, Map.of()));
+        }
+        status(200, bearer("owner", null, existingCommand));
+        status(404, bearer("owner", null, absentCommand));
+        status(200, bearer("owner", null, existingIdentity));
+        status(404, bearer("owner", null, absentIdentity));
+
+        f.admin.execute("revoke select on read_command_result, read_identity_request_result from " + f.role);
+        try {
+            status(503, bearer("owner", null, existingCommand));
+            status(503, bearer("owner", null, absentCommand));
+            status(503, bearer("owner", null, existingIdentity));
+            status(503, bearer("owner", null, absentIdentity));
+        } finally {
+            f.admin.execute("grant select on read_command_result, read_identity_request_result to " + f.role);
+        }
+
+        status(200, bearer("owner", null, existingCommand));
+        status(404, bearer("owner", null, absentCommand));
+        status(200, bearer("owner", null, existingIdentity));
+        status(404, bearer("owner", null, absentIdentity));
+    }
     @Test void historicalAccessAndDeletion() throws Exception {
         f.seed(POT, 1, 2, Set.of(OWNER), false, true, true, "history"); f.seed(POT, 2, 2, Set.of(OTHER), false, true, true, "lost right");
         status(200, f.get(f.path(POT, 1))); status(200, f.get(f.path(POT, 1) + "/balance")); status(200, f.post(f.path(POT, 1) + "/expenses/query", f.batch(1, 1)));

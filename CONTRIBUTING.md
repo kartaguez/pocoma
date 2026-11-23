@@ -7,13 +7,13 @@ Pocoma is primarily maintained by one person, so the most useful contributions a
 You need **Java 21** and **Docker** (Testcontainers runs PostgreSQL integration tests automatically). Use the Maven Wrapper from the `app/` directory; a separately installed Maven version is not the supported entry point.
 
 Before editing code under `app/`, review:
-- [Modular Architecture (42 Maven modules)](docs/architecture/modules.md) — understand layer boundaries and where to place new code.
+- [Modular Architecture (43 Maven modules)](docs/architecture/modules.md) — understand layer boundaries and where to place new code.
 - [Reactor Verification Policy](docs/testing/Reactor_Verification_Policy.md) — normative rules for scoped verification (see the **Developer TL;DR** at the top of that file).
 - [Adding a READ Projection](docs/guides/adding-read-projections.md) — implementation and verification of transactional availability.
 
 ### Targeted verification by slice (default workflow)
 
-**Do not run `./mvnw test` across all 42 modules by default** — the full reactor takes ~50 minutes and includes quarantined resource tests. Instead, declare the affected architectural slice and run its canonical command from `app/`:
+**Do not run `./mvnw test` across all 43 child modules (44 projects with the aggregator) by default** — the full reactor takes ~50–80 minutes and includes heavy PostgreSQL campaigns. Instead, declare the affected architectural slice and run its canonical command from `app/`:
 
 | Slice | Canonical command (from `app/`) | Scope |
 | :--- | :--- | :--- |
@@ -30,17 +30,10 @@ python3 -B scripts/testing/verify.py FAST identity
 
 Run the global architecture gate (`./mvnw -pl architecture-tests -am test`) or the full reactor (`./mvnw --batch-mode --no-transfer-progress test`) only when required by the verification policy (e.g., module dependency changes, cross-cutting infrastructure, or integration into `main`).
 
-For fast local Python CLI unit tests (`scripts/local/`, < 1 s without Docker), run:
+For fast local Python CLI unit tests (`scripts/local/`, ~2 s without Docker), run:
 
 ```bash
-PYTHONPATH=scripts/local python3 -B -m unittest \
-  scripts/local/test_s6_hardening.py \
-  scripts/local/test_recovery.py \
-  scripts/local/test_prerequisites.py \
-  scripts/local/test_grafana.py \
-  scripts/local/test_local.py \
-  scripts/local/test_keycloak.py \
-  scripts/local/test_volume_ownership.py
+python3 -B -m unittest discover -s scripts/local -p "test_*.py"
 ```
 
 ## Making a change

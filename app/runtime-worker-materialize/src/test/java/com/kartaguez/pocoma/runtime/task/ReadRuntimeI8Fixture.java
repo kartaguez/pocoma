@@ -545,18 +545,49 @@ public final class ReadRuntimeI8Fixture implements AutoCloseable {
     }
 
     void produce(PotCommand request) throws Exception {
+        produce(request, null, "CHANGED");
+    }
+
+    void produceInvitation(PotCommand request) throws Exception {
+        byte[] key = new byte[32];
+        Arrays.fill(key, (byte) 7);
+        var crypto =
+                new com.kartaguez.pocoma.infra.security.spring.InvitationCryptography(
+                        "fixture", Map.of("fixture", key));
+        produce(request, crypto, "INVITATION_CREATED");
+    }
+
+    private void produce(
+            PotCommand request,
+            com.kartaguez.pocoma.infra.security.spring.InvitationCryptography crypto,
+            String expectedOutcome)
+            throws Exception {
         var source = new DriverManagerDataSource(writeUrl, writeRole, "i5-fixture");
         var owner = new SpringAttemptTransactions(source, manager(source), 60);
+        var commandStore = new JdbcPotCommandStore(source, owner);
+        var observation = new JdbcPotCommandObservation(source);
+        var authority = new JdbcIdentityPotActorAuthority(source, owner);
+        var history = new JdbcPotHistoryAdapter(source);
+        var revisions = new JdbcPotRevisionAdapter(source);
         var participant =
-                new ExecutePotCommand(
-                        new JdbcPotCommandStore(source, owner),
-                        new JdbcPotCommandObservation(source),
-                        new JdbcIdentityPotActorAuthority(source, owner),
-                        new JdbcPotHistoryAdapter(source),
-                        new JdbcPotRevisionAdapter(source),
-                        Clock.systemUTC());
+                crypto == null
+                        ? new ExecutePotCommand(
+                                commandStore,
+                                observation,
+                                authority,
+                                history,
+                                revisions,
+                                Clock.systemUTC())
+                        : new ExecutePotCommand(
+                                commandStore,
+                                observation,
+                                authority,
+                                history,
+                                revisions,
+                                Clock.systemUTC(),
+                                new JdbcInvitationStore(source, crypto));
         executeProducer("Command", request.requestId(), participant, source, owner);
-        verifyCommand(request, "CHANGED", null);
+        verifyCommand(request, expectedOutcome, null);
     }
 
     private void executeProducer(
