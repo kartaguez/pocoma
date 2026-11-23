@@ -204,9 +204,8 @@ public final class ConsumptionWorker implements com.kartaguez.pocoma.contract.co
     final Map<ConsumptionId, Integer> limits;
     final Settings settings;
     final ConsumptionObservation observation;
-    final WakeupOptions wakeupOptions;
+    final WorkerWakeupCoordinator wakeup;
     final WakeupMetrics wakeupMetrics;
-    final AtomicReference<WakeupState> wakeupState = new AtomicReference<>(WakeupState.NOOP);
     final Map<Pair, LeaseEntry> leases = new LinkedHashMap<>();
     private final Map<Pair, Object> pairLocks = new ConcurrentHashMap<>();
     private final Map<Pair, Long> cleanUntilNanos = new ConcurrentHashMap<>();
@@ -357,8 +356,10 @@ public final class ConsumptionWorker implements com.kartaguez.pocoma.contract.co
         this.limits = Map.copyOf(limits);
         this.settings = Objects.requireNonNull(settings);
         this.observation = Objects.requireNonNull(observation);
-        this.wakeupOptions = wakeupOptions == null ? WakeupOptions.noop(settings) : wakeupOptions;
-        this.wakeupMetrics = this.wakeupOptions.metrics();
+        this.wakeup =
+                new WorkerWakeupCoordinator(
+                        wakeupOptions == null ? WakeupOptions.noop(settings) : wakeupOptions);
+        this.wakeupMetrics = this.wakeup.options().metrics();
         this.closeResources = Objects.requireNonNull(closeResources);
         this.attemptHook = Objects.requireNonNull(attemptHook);
         this.executor = Objects.requireNonNull(executor);
@@ -414,50 +415,13 @@ public final class ConsumptionWorker implements com.kartaguez.pocoma.contract.co
             throw failure;
         } finally {
             activated.countDown();
-            startWakeupSubscriber();
+            wakeup.start(bindings, discovery, discoveryWait::signal, consumptionWait::signal);
             signal();
         }
     }
 
-    private void startWakeupSubscriber() {
-        var keys = new HashSet<WakeupKey>();
-        for (var b : bindings) {
-            for (int p : b.partitions()) {
-                if (p >= 0 && p < WakeupKey.DEFAULT_PARTITION_COUNT) {
-                    keys.add(new WakeupKey(b.definition().family(), p));
-                }
-            }
-        }
-        try {
-            wakeupOptions
-                    .subscriber()
-                    .start(
-                            Set.copyOf(keys),
-                            key -> discovery.onExternalWakeup(key.family(), key.partition()),
-                            this::onWakeupStateChanged);
-        } catch (Throwable ignored) {
-            onWakeupStateChanged(WakeupState.DEGRADED);
-        }
-    }
-
-    private void onWakeupStateChanged(WakeupState next) {
-        if (next == null) return;
-        WakeupState prev = wakeupState.getAndSet(next);
-        wakeupMetrics.onStateChanged(next);
-        if (next == WakeupState.DEGRADED && prev != WakeupState.DEGRADED) {
-            wakeupMetrics.onFallbackTransition();
-            discoveryWait.signal();
-        } else if (next == WakeupState.CONNECTED && prev != WakeupState.CONNECTED) {
-            if (prev == WakeupState.DEGRADED) {
-                wakeupMetrics.onReconnect();
-            }
-            discovery.onExternalReconnect();
-            consumptionWait.signal();
-        }
-    }
-
     public WakeupState wakeupState() {
-        return wakeupState.get();
+        return wakeup.state();
     }
 
     private void launchWorkerThreads() {
@@ -842,72 +806,17 @@ public final class ConsumptionWorker implements com.kartaguez.pocoma.contract.co
         return attemptHook;
     }
 
-    private final class LoopSchedule {
-        private final int tour;
-        private final Duration stepPoll;
-        private Duration backoff = settings.minPoll();
-        private int remaining;
-        private boolean tourProgressed;
-
-        LoopSchedule() {
-            this.tour =
-                    bindings.size()
-                            * bindings.stream()
-                                    .mapToInt(b -> b.partitions().size())
-                                    .max()
-                                    .orElseThrow();
-            this.stepPoll = settings.minPoll().dividedBy(tour);
-            this.remaining = tour;
-        }
-
-        Duration nextDelay(boolean progressed, boolean isDiscovery) {
-            if (isDiscovery && discovery.hasPendingWakeup()) {
-                backoff = settings.minPoll();
-                return Duration.ZERO;
-            }
-            Duration maxPoll = effectiveMaxPoll(isDiscovery);
-            if (backoff.compareTo(maxPoll) > 0) {
-                backoff = maxPoll;
-            }
-            Duration delay = stepPoll;
-            if (progressed) {
-                delay = Duration.ZERO;
-                backoff = settings.minPoll();
-                tourProgressed = true;
-            }
-            if (--remaining == 0) {
-                remaining = tour;
-                if (tourProgressed) {
-                    tourProgressed = false;
-                } else {
-                    delay = backoff;
-                    Duration doubled = backoff.multipliedBy(2);
-                    backoff = doubled.compareTo(maxPoll) > 0 ? maxPoll : doubled;
-                }
-            }
-            return delay;
-        }
-
-        private Duration effectiveMaxPoll(boolean isDiscovery) {
-            WakeupState st = wakeupState.get();
-            if (isDiscovery) {
-                return switch (st) {
-                    case CONNECTED -> wakeupOptions.reconcilePoll();
-                    case DEGRADED -> wakeupOptions.fallbackMaxPoll();
-                    case NOOP -> settings.maxPoll();
-                };
-            }
-            return st == WakeupState.CONNECTED
-                    ? wakeupOptions.consumptionMaxPoll()
-                    : settings.maxPoll();
-        }
-    }
-
     private void loop(
             java.util.function.BooleanSupplier pass,
             ConsumptionWaiter waiter,
             boolean isDiscovery) {
-        var schedule = new LoopSchedule();
+        var schedule =
+                new PollingLoopSchedule(
+                        bindings,
+                        settings,
+                        wakeup.options(),
+                        wakeup::state,
+                        discovery::hasPendingWakeup);
         try {
             awaitActivation();
             while (running()) {
@@ -927,7 +836,9 @@ public final class ConsumptionWorker implements com.kartaguez.pocoma.contract.co
     }
 
     private Duration runLoopIteration(
-            java.util.function.BooleanSupplier pass, LoopSchedule schedule, boolean isDiscovery) {
+            java.util.function.BooleanSupplier pass,
+            PollingLoopSchedule schedule,
+            boolean isDiscovery) {
         long cycleBegan = System.nanoTime();
         boolean returned = false;
         try {
@@ -937,7 +848,7 @@ public final class ConsumptionWorker implements com.kartaguez.pocoma.contract.co
         } catch (RuntimeException fault) {
             boolean ready =
                     isDiscovery ? discovery.hasReadyBinding() : consumption.hasReadyBinding();
-            return ready ? schedule.stepPoll : settings.errorPoll();
+            return ready ? schedule.stepPoll() : settings.errorPoll();
         } finally {
             event(
                     bindings.getFirst(),
@@ -1015,10 +926,7 @@ public final class ConsumptionWorker implements com.kartaguez.pocoma.contract.co
     }
 
     private void completeDrain() throws InterruptedException {
-        try {
-            wakeupOptions.subscriber().close();
-        } catch (Throwable ignored) {
-        }
+        wakeup.closeQuietly();
         renewals.stopAndJoin();
         for (var t : loopThreads) t.join();
         closeResources.run();
