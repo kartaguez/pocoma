@@ -419,4 +419,195 @@ final class NatsWakeupTransportStateTest {
             }
         }
     }
+
+    private static io.nats.client.Message fakeMessage(String subject) {
+        return (io.nats.client.Message)
+                Proxy.newProxyInstance(
+                        io.nats.client.Message.class.getClassLoader(),
+                        new Class<?>[] {io.nats.client.Message.class},
+                        (p, method, args) ->
+                                method.getName().equals("getSubject") ? subject : null);
+    }
+
+    @Test
+    void involuntaryClosedWhileBrokerUnavailableRetriesAndRecoversDeliveryWhenBrokerReturns()
+            throws Exception {
+        var brokerAvailable = new AtomicBoolean(true);
+        var connectAttempts = new AtomicInteger();
+        var connections = new CopyOnWriteArrayList<FakeNatsConnection>();
+        var firstConnected = new CountDownLatch(1);
+        var degradedAfterClose = new CountDownLatch(1);
+        var recoveredConnected = new CountDownLatch(1);
+        var deliveredAfterRecovery = new CountDownLatch(1);
+        var receivedKeys = new CopyOnWriteArrayList<WakeupKey>();
+
+        WakeupKey target = new WakeupKey(ConsumableFamily.COMMAND, 3);
+
+        try (var transport =
+                new NatsWakeupTransport(
+                        fastOpts(),
+                        options -> {
+                            connectAttempts.incrementAndGet();
+                            if (!brokerAvailable.get()) {
+                                throw new java.io.IOException("broker unavailable during recovery");
+                            }
+                            var fake = new FakeNatsConnection(options);
+                            connections.add(fake);
+                            return fake.proxy;
+                        })) {
+            transport.start(
+                    Set.of(target),
+                    k -> {
+                        receivedKeys.add(k);
+                        if (recoveredConnected.getCount() == 0) {
+                            deliveredAfterRecovery.countDown();
+                        }
+                    },
+                    s -> {
+                        if (s == WakeupState.CONNECTED) {
+                            if (firstConnected.getCount() > 0) {
+                                firstConnected.countDown();
+                            } else if (degradedAfterClose.getCount() == 0) {
+                                recoveredConnected.countDown();
+                            }
+                        } else if (s == WakeupState.DEGRADED && firstConnected.getCount() == 0) {
+                            degradedAfterClose.countDown();
+                        }
+                    });
+
+            assertTrue(firstConnected.await(5, TimeUnit.SECONDS));
+            assertEquals(1, connections.size());
+            FakeNatsConnection first = connections.getFirst();
+            assertEquals(1, first.dispatchersCreated.get());
+
+            // Simulate broker outage + involuntary terminal CLOSED event from jnats
+            brokerAvailable.set(false);
+            first.status.set(Connection.Status.CLOSED);
+            first.fireEvent(ConnectionListener.Events.CLOSED);
+
+            assertTrue(degradedAfterClose.await(5, TimeUnit.SECONDS));
+            assertEquals(WakeupState.DEGRADED, transport.state());
+            assertFalse(transport.isSubscriptionsConfirmed());
+
+            // Wait for at least one failed reconnect attempt while broker is down (stays DEGRADED)
+            long retryDeadline = System.nanoTime() + Duration.ofSeconds(3).toNanos();
+            while (connectAttempts.get() < 2 && System.nanoTime() < retryDeadline) {
+                Thread.sleep(10);
+            }
+            assertTrue(connectAttempts.get() >= 2, "Must retry connection after involuntary CLOSED");
+            assertEquals(WakeupState.DEGRADED, transport.state());
+            assertEquals(1, first.dispatchersClosed.get(), "Stale dispatcher must be cleaned up");
+            assertEquals(1, first.connectionClosed.get(), "Stale connection must be closed");
+
+            // Broker comes back -> transport must automatically reconstruct, confirm flush, and deliver
+            brokerAvailable.set(true);
+            assertTrue(
+                    recoveredConnected.await(5, TimeUnit.SECONDS),
+                    "Transport must automatically recover CONNECTED after involuntary CLOSED");
+            assertEquals(WakeupState.CONNECTED, transport.state());
+            assertTrue(transport.isSubscriptionsConfirmed());
+            assertEquals(2, connections.size(), "Exactly one reconstructed connection must be created");
+
+            FakeNatsConnection second = connections.get(1);
+            assertEquals(1, second.dispatchersCreated.get(), "No duplicate dispatchers on recovery");
+            assertEquals(0, second.dispatchersClosed.get());
+            assertEquals(List.of(target.subject()), second.subscribedSubjects);
+            assertEquals(1, second.flushCalls.get(), "Reconstructed connection must confirm via flush()");
+
+            // Deliver a wakeup on the reconstructed connection's dispatcher handler
+            assertNotNull(second.handler);
+            second.handler.onMessage(fakeMessage(target.subject()));
+            assertTrue(
+                    deliveredAfterRecovery.await(5, TimeUnit.SECONDS),
+                    "Reconstructed transport must deliver new wakeup notifications");
+            assertTrue(receivedKeys.contains(target));
+        }
+    }
+
+    @Test
+    void voluntaryCloseNeverTriggersReconnectEvenWhenClosedEventFires() throws Exception {
+        var connectAttempts = new AtomicInteger();
+        var fakeRef = new AtomicReference<FakeNatsConnection>();
+        var connected = new CountDownLatch(1);
+
+        var transport =
+                new NatsWakeupTransport(
+                        fastOpts(),
+                        options -> {
+                            connectAttempts.incrementAndGet();
+                            var fake = new FakeNatsConnection(options);
+                            fakeRef.set(fake);
+                            return fake.proxy;
+                        });
+        transport.start(
+                Set.of(new WakeupKey(ConsumableFamily.POT_EVENT, 0)),
+                k -> {},
+                s -> {
+                    if (s == WakeupState.CONNECTED) connected.countDown();
+                });
+
+        assertTrue(connected.await(5, TimeUnit.SECONDS));
+        assertEquals(1, connectAttempts.get());
+
+        // Voluntary close(), followed by jnats firing CLOSED callback
+        transport.close();
+        fakeRef.get().fireEvent(ConnectionListener.Events.CLOSED);
+
+        Thread.sleep(150);
+        assertEquals(
+                1,
+                connectAttempts.get(),
+                "Voluntary close() must never trigger any reconnection attempt");
+    }
+
+    @Test
+    void concurrentClosedReconnectedAndCloseNeverDeadlockOrLeakConnections() throws Exception {
+        var connections = new CopyOnWriteArrayList<FakeNatsConnection>();
+        var firstConnected = new CountDownLatch(1);
+        var flushStarted = new CountDownLatch(1);
+        var releaseFlush = new CountDownLatch(1);
+
+        var transport =
+                new NatsWakeupTransport(
+                        fastOpts(),
+                        options -> {
+                            var fake = new FakeNatsConnection(options);
+                            connections.add(fake);
+                            return fake.proxy;
+                        });
+        transport.start(
+                Set.of(new WakeupKey(ConsumableFamily.IDENTITY_REQUEST, 1)),
+                k -> {},
+                s -> {
+                    if (s == WakeupState.CONNECTED) firstConnected.countDown();
+                });
+
+        assertTrue(firstConnected.await(5, TimeUnit.SECONDS));
+        FakeNatsConnection first = connections.getFirst();
+
+        // Trigger RECONNECTED (held in flush), concurrent CLOSED, and voluntary close()
+        first.flushAction.set(
+                () -> {
+                    flushStarted.countDown();
+                    releaseFlush.await(5, TimeUnit.SECONDS);
+                });
+        first.status.set(Connection.Status.CONNECTED);
+        first.fireEvent(ConnectionListener.Events.RECONNECTED);
+        assertTrue(flushStarted.await(5, TimeUnit.SECONDS));
+
+        // Concurrently fire CLOSED and call close() -> must return promptly without deadlock
+        var closeThread = Thread.ofPlatform().start(transport::close);
+        first.status.set(Connection.Status.CLOSED);
+        first.fireEvent(ConnectionListener.Events.CLOSED);
+        releaseFlush.countDown();
+        closeThread.join(5000);
+        assertFalse(closeThread.isAlive(), "Concurrent CLOSED/RECONNECTED/close() must not deadlock");
+
+        int countAfterClose = connections.size();
+        Thread.sleep(120);
+        assertEquals(
+                countAfterClose,
+                connections.size(),
+                "No new connections may be opened after voluntary close()");
+    }
 }

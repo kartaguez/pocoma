@@ -148,7 +148,8 @@ public final class NatsWakeupTransport implements WakeupSubscriber {
     private volatile boolean subscriptionsConfirmed;
     private Dispatcher activeDispatcher;
     private Thread connectorThread;
-    private Thread confirmThread;
+    private final AtomicReference<Thread> confirmThread = new AtomicReference<>();
+    private final AtomicReference<Thread> recoveryThread = new AtomicReference<>();
 
     public NatsWakeupTransport(String url) {
         this(TransportOptions.defaults(url), Nats::connect);
@@ -373,6 +374,8 @@ public final class NatsWakeupTransport implements WakeupSubscriber {
                     && connection.get() == conn
                     && subscriptionsConfirmed) {
                 updateState(WakeupState.CONNECTED);
+            } else if (conn.getStatus() == Connection.Status.CLOSED && !closed.get()) {
+                resetConnectionAndRetry(conn);
             } else {
                 subscriptionsConfirmed = false;
                 updateState(WakeupState.DEGRADED);
@@ -387,31 +390,50 @@ public final class NatsWakeupTransport implements WakeupSubscriber {
     private void handleConnectionEvent(Connection conn, ConnectionListener.Events type) {
         if (closed.get()) return;
         if (connection.get() != conn) return;
-        if (type == ConnectionListener.Events.DISCONNECTED
-                || type == ConnectionListener.Events.CLOSED) {
+        if (type == ConnectionListener.Events.DISCONNECTED) {
             subscriptionsConfirmed = false;
             confirmGeneration.incrementAndGet();
             updateState(WakeupState.DEGRADED);
+        } else if (type == ConnectionListener.Events.CLOSED) {
+            subscriptionsConfirmed = false;
+            confirmGeneration.incrementAndGet();
+            updateState(WakeupState.DEGRADED);
+            scheduleTerminalRecovery(conn);
         } else if (type == ConnectionListener.Events.RECONNECTED) {
             scheduleReconnectConfirmation(conn);
         }
     }
 
+    private void scheduleTerminalRecovery(Connection conn) {
+        if (closed.get() || connection.get() != conn) return;
+        long gen = confirmGeneration.incrementAndGet();
+        Thread t =
+                Thread.ofPlatform()
+                        .daemon(true)
+                        .name("v3-wakeup-nats-recover-" + gen)
+                        .start(() -> resetConnectionAndRetry(conn));
+        recoveryThread.set(t);
+    }
+
     private void scheduleReconnectConfirmation(Connection conn) {
         long gen = confirmGeneration.incrementAndGet();
-        synchronized (this) {
-            if (closed.get() || connection.get() != conn) return;
-            confirmThread =
-                    Thread.ofPlatform()
-                            .daemon(true)
-                            .name("v3-wakeup-nats-confirm-" + gen)
-                            .start(() -> confirmReconnect(conn, gen));
-        }
+        if (closed.get() || connection.get() != conn) return;
+        Thread t =
+                Thread.ofPlatform()
+                        .daemon(true)
+                        .name("v3-wakeup-nats-confirm-" + gen)
+                        .start(() -> confirmReconnect(conn, gen));
+        confirmThread.set(t);
     }
 
     private void confirmReconnect(Connection conn, long gen) {
         if (closed.get() || confirmGeneration.get() != gen || connection.get() != conn) return;
-        if (conn.getStatus() != Connection.Status.CONNECTED) {
+        Connection.Status status = conn.getStatus();
+        if (status == Connection.Status.CLOSED) {
+            resetConnectionAndRetry(conn);
+            return;
+        }
+        if (status != Connection.Status.CONNECTED) {
             subscriptionsConfirmed = false;
             updateState(WakeupState.DEGRADED);
             return;
@@ -516,14 +538,14 @@ public final class NatsWakeupTransport implements WakeupSubscriber {
         confirmGeneration.incrementAndGet();
         Connection conn;
         Dispatcher dispatcher;
+        Thread cThread = confirmThread.getAndSet(null);
+        if (cThread != null) cThread.interrupt();
+        Thread rThread = recoveryThread.getAndSet(null);
+        if (rThread != null) rThread.interrupt();
         synchronized (this) {
             if (connectorThread != null) {
                 connectorThread.interrupt();
                 connectorThread = null;
-            }
-            if (confirmThread != null) {
-                confirmThread.interrupt();
-                confirmThread = null;
             }
             conn = connection.getAndSet(null);
             dispatcher = activeDispatcher;
