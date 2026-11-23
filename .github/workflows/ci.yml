@@ -16,6 +16,13 @@ concurrency:
 permissions:
   contents: read
 
+env:
+  MAVEN_HTTP_RETRY_ARGS: >-
+    -Daether.connector.http.retryHandler.count=6
+    -Daether.transport.http.retryHandler.interval=5000
+    -Daether.transport.http.retryHandler.intervalMax=30000
+    -Daether.transport.http.retryHandler.serviceUnavailable=429,500,502,503,504
+
 jobs:
   core-web-and-architecture:
     name: core-web-and-architecture
@@ -46,8 +53,8 @@ jobs:
         run: test -x mvnw && test -f .mvn/wrapper/maven-wrapper.properties
       - name: Compile and test core, web and architecture
         run: |
-          ./mvnw --batch-mode --no-transfer-progress install -DskipTests
-          ./mvnw --batch-mode --no-transfer-progress test -pl '!infra-postgres-write,!runtime-worker-process,!runtime-worker-materialize,!runtime-monolith'
+          ./mvnw --batch-mode --no-transfer-progress $MAVEN_HTTP_RETRY_ARGS install -DskipTests
+          ./mvnw --batch-mode --no-transfer-progress $MAVEN_HTTP_RETRY_ARGS test -pl '!infra-postgres-write,!runtime-worker-process,!runtime-worker-materialize,!runtime-monolith'
       - name: Check whitespace errors
         working-directory: .
         run: git diff --check HEAD^ HEAD
@@ -112,5 +119,5 @@ jobs:
         run: test -x mvnw && test -f .mvn/wrapper/maven-wrapper.properties
       - name: Compile and test
         run: |
-          ./mvnw --batch-mode --no-transfer-progress install -DskipTests -pl ${{ matrix.module }} -am
-          ./mvnw --batch-mode --no-transfer-progress test -pl ${{ matrix.module }} ${{ matrix.test_filter }}
+          ./mvnw --batch-mode --no-transfer-progress $MAVEN_HTTP_RETRY_ARGS install -DskipTests -pl ${{ matrix.module }} -am
+          ./mvnw --batch-mode --no-transfer-progress $MAVEN_HTTP_RETRY_ARGS test -pl ${{ matrix.module }} ${{ matrix.test_filter }}
