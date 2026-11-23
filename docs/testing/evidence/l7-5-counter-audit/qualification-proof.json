@@ -1,0 +1,115 @@
+{
+  "mandate": "Pocoma V3 — L7.5 Contre-audit et clôture technique finale",
+  "date": "2026-11-23",
+  "branch": "fix/l7-5-ci-visibility-oracle",
+  "baseMainSha": "521ff27d2abe1c1f6bc18de7c95f0cfc877bf857",
+  "pr12InitialSha": "7761ecd04adb8e36c9c6ef2a5c3ae21a7e664037",
+  "qualifiedCodeSha": "fff035695a1361816e1473e5274ead43a62b563f",
+  "productionCodeDeltaFromMain": "NONE (0 src/main/**, SQL migration, or scripts/local/** files modified)",
+  "toolchains": {
+    "java": "Temurin OpenJDK 21+35-LTS",
+    "maven": "Apache Maven 3.9.14 (mvnw)",
+    "docker": "29.9.2",
+    "python": "3.14.7",
+    "postgresTestcontainers": "PostgreSQL 17.11"
+  },
+  "ci": {
+    "prNumber": 12,
+    "runId": "45142597104",
+    "testedSha": "7761ecd04adb8e36c9c6ef2a5c3ae21a7e664037",
+    "status": "completed",
+    "conclusion": "success",
+    "jobs": [
+      "core-web-and-architecture",
+      "worker-process-e2e",
+      "monolith-rest",
+      "worker-process-rest",
+      "infra-postgres-write-discovery",
+      "worker-materialize",
+      "monolith-resources",
+      "infra-postgres-write-rest"
+    ]
+  },
+  "localExecutions": [
+    {
+      "name": "P0 clean build of PotVisibilityReadStorePostgresTest",
+      "sha": "7761ecd04adb8e36c9c6ef2a5c3ae21a7e664037",
+      "command": "cd app && ./mvnw --batch-mode --no-transfer-progress -pl infra-postgres-read -am clean test -Dtest=PotVisibilityReadStorePostgresTest -Dsurefire.failIfNoSpecifiedTests=false",
+      "result": "PASS",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "duration": "9.930 s"
+    },
+    {
+      "name": "P1 T1A/NATS Python CLI & transition fault-injection suite",
+      "sha": "7761ecd04adb8e36c9c6ef2a5c3ae21a7e664037",
+      "command": "python3 -B -m unittest discover -s scripts/local -p \"test_*.py\"",
+      "result": "PASS",
+      "tests": 143,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "duration": "2.037 s"
+    },
+    {
+      "name": "P1 T1A/NATS unit & Testcontainers suite",
+      "sha": "7761ecd04adb8e36c9c6ef2a5c3ae21a7e664037",
+      "command": "cd app && ./mvnw --batch-mode --no-transfer-progress -pl infra-wakeup-nats,contract-consumption,supra-polling-consumption,infra-tx-spring,compose-web-write-postgres -am test -Dtest=NatsWakeupTransportTest,NatsWakeupTransportStateTest,WakeupContractTest,WakeupWorkerBehaviorTest,RenewalServiceLeaseRetryTest,SpringAttemptTransactionsAfterCommitTest,AdmissionWakeupIsolationTest -Dsurefire.failIfNoSpecifiedTests=false",
+      "result": "PASS",
+      "tests": 37,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "duration": "8.077 s"
+    },
+    {
+      "name": "P1 INV-G seat-claim between READ consultation and acceptance",
+      "sha": "fff035695a1361816e1473e5274ead43a62b563f",
+      "command": "cd app && ./mvnw --batch-mode --no-transfer-progress -pl runtime-monolith -am test -Dtest=InvitationHttpTest -Dsurefire.failIfNoSpecifiedTests=false",
+      "result": "PASS",
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "duration": "67.19 s"
+    },
+    {
+      "name": "P1 READ reconstruction with Invitation in full corpus",
+      "sha": "fff035695a1361816e1473e5274ead43a62b563f",
+      "command": "cd app && ./mvnw --batch-mode --no-transfer-progress -pl runtime-worker-materialize -am test -Dtest=ReadReconstructionPostgresTest -Dsurefire.failIfNoSpecifiedTests=false",
+      "result": "PASS",
+      "tests": 13,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "duration": "271.3 s"
+    },
+    {
+      "name": "Unfiltered 44-module full reactor + global architecture-tests",
+      "sha": "fff035695a1361816e1473e5274ead43a62b563f",
+      "command": "cd app && ./mvnw --batch-mode --no-transfer-progress -pl architecture-tests -am test",
+      "result": "PASS",
+      "modulesTotal": 44,
+      "modulesWithTests": 29,
+      "tests": 1221,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "architectureTests": 52,
+      "duration": "01:21 h"
+    }
+  ],
+  "matrixSummary": {
+    "total": 522,
+    "CURRENT_FULL": 491,
+    "HISTORICAL_REUSABLE": 3,
+    "LOCAL_ENV_BOUNDED": 17,
+    "CURRENT_PARTIAL": 8,
+    "DEFERRED_TO_L8_INFRA": 1,
+    "RETIRED_BY_HUMAN_DECISION": 2,
+    "MISSING": 0
+  },
+  "verdict": "GO_LOCAL_WITH_RESERVES"
+}
